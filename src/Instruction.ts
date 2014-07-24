@@ -10,6 +10,9 @@ class Instruction {
             case Instruction.AddressingMode.zeroPage:
             case Instruction.AddressingMode.zeroPageX:
             case Instruction.AddressingMode.zeroPageY:
+            case Instruction.AddressingMode.indexedIndirectX:
+            case Instruction.AddressingMode.indirectIndexedY:
+            case Instruction.AddressingMode.relative:
                 return 2;
 
             case Instruction.AddressingMode.absolute:
@@ -17,10 +20,6 @@ class Instruction {
             case Instruction.AddressingMode.absoluteY:
             case Instruction.AddressingMode.indirect:
                 return 3;
-
-            case Instruction.AddressingMode.indexedIndirectX:
-            case Instruction.AddressingMode.indirectIndexedY:
-                return 4;
 
             default:
                 return 1;
@@ -39,7 +38,7 @@ module Instruction {
 
     export enum AddressingMode {
         implied,
-        immediate, zeroPage, absolute, indirect,
+        immediate, zeroPage, absolute, indirect, relative,
         zeroPageX, absoluteX, indexedIndirectX,
         zeroPageY, absoluteY, indirectIndexedY,
         invalid
@@ -86,15 +85,15 @@ module Instruction {
                     case 6: addressingMode = AddressingMode.absoluteY; break;
                     case 7: addressingMode = AddressingMode.absoluteX; break;
                 }
-            }
 
-            if (opcode === Opcode.sta && addressingMode === AddressingMode.immediate)
-                opcode = Opcode.invalid;
+                if (opcode === Opcode.sta && addressingMode === AddressingMode.immediate)
+                    opcode = Opcode.invalid;
 
-            if (opcode !== Opcode.invalid && addressingMode !== AddressingMode.invalid) {
-                encoding = (i << 5) & (j << 2) & 1;
-                encodings[encoding].opcode = opcode;
-                encodings[encoding].addressingMode = addressingMode;
+                if (opcode !== Opcode.invalid && addressingMode !== AddressingMode.invalid) {
+                    encoding = (i << 5) | (j << 2) | 1;
+                    encodings[encoding].opcode = opcode;
+                    encodings[encoding].addressingMode = addressingMode;
+                }
             }
         }
 
@@ -171,14 +170,14 @@ module Instruction {
         set(0xE4, Opcode.cpy, AddressingMode.zeroPage);
         set(0xEC, Opcode.cpy, AddressingMode.absolute);
 
-        set(0x10, Opcode.bpl, AddressingMode.implied);
-        set(0x30, Opcode.bmi, AddressingMode.implied);
-        set(0x50, Opcode.bvc, AddressingMode.implied);
-        set(0x70, Opcode.bvs, AddressingMode.implied);
-        set(0x90, Opcode.bcc, AddressingMode.implied);
-        set(0xB0, Opcode.bcs, AddressingMode.implied);
-        set(0xD0, Opcode.bne, AddressingMode.implied);
-        set(0xF0, Opcode.beq, AddressingMode.implied);
+        set(0x10, Opcode.bpl, AddressingMode.relative);
+        set(0x30, Opcode.bmi, AddressingMode.relative);
+        set(0x50, Opcode.bvc, AddressingMode.relative);
+        set(0x70, Opcode.bvs, AddressingMode.relative);
+        set(0x90, Opcode.bcc, AddressingMode.relative);
+        set(0xB0, Opcode.bcs, AddressingMode.relative);
+        set(0xD0, Opcode.bne, AddressingMode.relative);
+        set(0xF0, Opcode.beq, AddressingMode.relative);
 
         set(0x00, Opcode.brk, AddressingMode.implied);
         set(0x20, Opcode.jsr, AddressingMode.absolute);
