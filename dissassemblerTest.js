@@ -21,12 +21,11 @@ function Memory(buffer, at) {
 var disassembler = new Disassembler();
 
 function test(data) {
-console.log(
-    disassembler
-        .setMemory(new Memory(data))
-        .disassembleAt(0)
-);
-
+    console.log(
+        disassembler
+            .setMemory(new Memory(data))
+            .disassembleAt(0)
+    );
 }
 
 test([0x00]);
@@ -42,3 +41,4 @@ test([0x6C, 0x12, 0x00]);
 test([0xBE, 0x34, 0x2D]);
 test([0x01, 0xEF]);
 test([0xF1, 0x11]);
+test([0x99, 0x00, 0x00]);

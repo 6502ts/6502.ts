@@ -87,7 +87,7 @@ module Instruction {
                 }
 
                 if (opcode === Opcode.sta && addressingMode === AddressingMode.immediate)
-                    opcode = Opcode.invalid;
+                    addressingMode = AddressingMode.invalid;
 
                 if (opcode !== Opcode.invalid && addressingMode !== AddressingMode.invalid) {
                     encoding = (i << 5) | (j << 2) | 1;
@@ -196,7 +196,7 @@ module Instruction {
         set(0x58, Opcode.cli, AddressingMode.implied);
         set(0x78, Opcode.sei, AddressingMode.implied);
         set(0x98, Opcode.tya, AddressingMode.implied);
-        set(0xB9, Opcode.clv, AddressingMode.implied);
+        set(0xB8, Opcode.clv, AddressingMode.implied);
         set(0xD8, Opcode.cld, AddressingMode.implied);
         set(0xF8, Opcode.sed, AddressingMode.implied);
         set(0x8A, Opcode.txa, AddressingMode.implied);

@@ -4,26 +4,21 @@ import Instruction = require('./Instruction');
 import hex = require('./hex');
 
 class Disassembler {
-    constructor(private memory?: MemoryInterface)
+    constructor(private _memory?: MemoryInterface)
     {}
 
     disassembleAt(address: number): string {
-        var instruction = Instruction.encodings[this.memory.read(address)],
+        var instruction = Instruction.encodings[this._memory.read(address)],
             opcode = Instruction.Opcode[instruction.opcode].toUpperCase();
 
-        if (address + instruction.getSize() - 1 > 0xFFFF) return 'INVALID';
-
         var read8 =  (a: number = address + 1) =>
-            hex.encode(this.memory.read(a), 2);
+            hex.encode(this._memory.read(a), 2);
 
         var read16 = (a: number = address + 1) =>
             hex.encode(
-                this.memory.read(a) + (this.memory.read(a + 1) << 8), 4);
+                this._memory.read(a) + (this._memory.read(a + 1) << 8), 4);
 
-        function decodeSint8(value: number): number {
-            return (value & 0x80) ? (-(~(value-1) & 0xFF)) : value;
-
-        }
+        var decodeSint8 = (value: number) => (value & 0x80) ? (-(~(value-1) & 0xFF)) : value;
 
         switch (instruction.addressingMode) {
             case Instruction.AddressingMode.implied:
@@ -42,8 +37,11 @@ class Disassembler {
                 return opcode + ' (' + read16() + ')';
 
             case Instruction.AddressingMode.relative:
+                var distance = decodeSint8(this._memory.read(address + 1));
+
                 return opcode + ' ' +
-                    hex.encode(decodeSint8(this.memory.read(address + 1)));
+                    hex.encode(distance, 2) + ' ; -> '
+                    + hex.encode((0x10002 + address + distance) % 0x10000, 4);
 
             case Instruction.AddressingMode.zeroPageX:
                 return opcode + ' ' + read8() + ',X';
@@ -69,12 +67,12 @@ class Disassembler {
     }
 
     setMemory(memory: MemoryInterface): Disassembler {
-        this.memory = memory;
+        this._memory = memory;
         return this;
     }
 
     getMemory(): MemoryInterface {
-        return this.memory;
+        return this._memory;
     }
 }
 
