@@ -8,15 +8,15 @@ class Disassembler {
     {}
 
     disassembleAt(address: number): string {
-        var instruction = Instruction.encodings[this._memory.read(address)],
+        var instruction = Instruction.encodings[this._peek(address)],
             opcode = Instruction.Opcode[instruction.opcode].toUpperCase();
 
         var read8 =  (a: number = address + 1) =>
-            hex.encode(this._memory.read(a), 2);
+            hex.encode(this._peek(a), 2);
 
         var read16 = (a: number = address + 1) =>
             hex.encode(
-                this._memory.read(a) + (this._memory.read(a + 1) << 8), 4);
+                this._peek(a) + (this._peek(a + 1) << 8), 4);
 
         var decodeSint8 = (value: number) => (value & 0x80) ? (-(~(value-1) & 0xFF)) : value;
 
@@ -37,7 +37,7 @@ class Disassembler {
                 return opcode + ' (' + read16() + ')';
 
             case Instruction.AddressingMode.relative:
-                var distance = decodeSint8(this._memory.read(address + 1));
+                var distance = decodeSint8(this._peek(address + 1));
 
                 return opcode + ' ' +
                     hex.encode(distance, 2) + ' ; -> '
@@ -64,6 +64,10 @@ class Disassembler {
             default:
                 return 'INVALID';
         }
+    }
+
+    private _peek(address: number) {
+        return this._memory.peek(address % 0x10000);
     }
 
     setMemory(memory: MemoryInterface): Disassembler {
