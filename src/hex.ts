@@ -22,7 +22,9 @@ export function encode(value: number, width?: number): string {
 }
 
 export function decode(value: string): number {
-    var decomposition = value.toUpperCase().match(/^-?\$([\dA-F]+)$/);
+    var decomposition =
+            value.toUpperCase().match(/^-?\$([\dA-F]+)$/) ||
+            value.toUpperCase().match(/^-?0X([\dA-F]+)$/);
 
     if (!decomposition) throw new TypeError('invalid hex number ' + value);
 
