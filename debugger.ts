@@ -1,5 +1,7 @@
 /// <reference path="./typings/tsd.d.ts"/>
 
+'use strict';
+
 import readline = require('readline');
 import Memory = require('./src/SimpleMemory');
 import Debugger = require('./src/Debugger');

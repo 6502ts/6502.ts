@@ -1,5 +1,7 @@
 /// <reference path='./MemoryInterface.ts'/>
 
+'use strict';
+
 import Instruction = require('./Instruction');
 import Disassembler = require('./Disassembler');
 import hex = require('./hex');

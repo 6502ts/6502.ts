@@ -1,3 +1,5 @@
+'use strict';
+
 class Instruction {
     constructor(
         public opcode: Instruction.Opcode,

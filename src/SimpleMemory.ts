@@ -1,5 +1,7 @@
 /// <reference path='./MemoryInterface.ts'/>
 
+'use strict';
+
 class SimpleMemory implements MemoryInterface {
     constructor() {
         for (var i = 0; i < 0x10000; i++) this._data[i] = 0;
