@@ -1,4 +1,4 @@
-/// <reference path='./MemoryInterface.ts'/>
+/// <reference path='./MemoryInterface.d.ts'/>
 
 'use strict';
 
@@ -9,6 +9,10 @@ class SimpleMemory implements MemoryInterface {
 
     read(address: number): number {
         return this._data[address];
+    }
+
+    readWord(address: number): number {
+        return this._data[address] + (this._data[(address+1) % 0x10000] << 8);
     }
 
     write(address: number, value: number) {
