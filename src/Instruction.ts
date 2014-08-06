@@ -2,7 +2,7 @@
 
 class Instruction {
     constructor(
-        public opcode: Instruction.Opcode,
+        public operation: Instruction.Operation,
         public addressingMode: Instruction.AddressingMode
     ) {}
 
@@ -30,7 +30,7 @@ class Instruction {
 };
 
 module Instruction {
-    export enum Opcode {
+    export enum Operation {
         adc, and, asl, bcc, bcs, beq, bit, bmi, bne, bpl, brk, bvc, bvs, clc,
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
@@ -46,35 +46,35 @@ module Instruction {
         invalid
     };
 
-    export var encodings = new Array<Instruction>(256);
+    export var opcodes = new Array<Instruction>(256);
 };
 
 export = Instruction;
 
-// Encoding init
+// Opcodes init
 
 module Instruction {
     (function() {
         for (var i = 0; i < 256; i++) {
-            encodings[i] = new Instruction(Opcode.invalid, AddressingMode.invalid);
+            opcodes[i] = new Instruction(Operation.invalid, AddressingMode.invalid);
         }
     })();
 
     (function() {
-        var opcode: Opcode,
+        var operation: Operation,
             addressingMode: AddressingMode,
-            encoding: number;
+            opcode: number;
 
         for (var i = 0; i < 8; i++) {
             switch (i) {
-                case 0: opcode = Opcode.ora; break;
-                case 1: opcode = Opcode.and; break;
-                case 2: opcode = Opcode.eor; break;
-                case 3: opcode = Opcode.adc; break;
-                case 4: opcode = Opcode.sta; break;
-                case 5: opcode = Opcode.lda; break;
-                case 6: opcode = Opcode.cmp; break;
-                case 7: opcode = Opcode.sbc; break;
+                case 0: operation = Operation.ora; break;
+                case 1: operation = Operation.and; break;
+                case 2: operation = Operation.eor; break;
+                case 3: operation = Operation.adc; break;
+                case 4: operation = Operation.sta; break;
+                case 5: operation = Operation.lda; break;
+                case 6: operation = Operation.cmp; break;
+                case 7: operation = Operation.sbc; break;
             };
             for (var j = 0; j < 8; j++) {
                 switch (j) {
@@ -88,124 +88,124 @@ module Instruction {
                     case 7: addressingMode = AddressingMode.absoluteX; break;
                 }
 
-                if (opcode === Opcode.sta && addressingMode === AddressingMode.immediate)
+                if (operation === Operation.sta && addressingMode === AddressingMode.immediate)
                     addressingMode = AddressingMode.invalid;
 
-                if (opcode !== Opcode.invalid && addressingMode !== AddressingMode.invalid) {
-                    encoding = (i << 5) | (j << 2) | 1;
-                    encodings[encoding].opcode = opcode;
-                    encodings[encoding].addressingMode = addressingMode;
+                if (operation !== Operation.invalid && addressingMode !== AddressingMode.invalid) {
+                    opcode = (i << 5) | (j << 2) | 1;
+                    opcodes[opcode].operation = operation;
+                    opcodes[opcode].addressingMode = addressingMode;
                 }
             }
         }
 
-        function set(encoding: number, opcode: Opcode, addressingMode: AddressingMode): void {
-            encodings[encoding].opcode = opcode;
-            encodings[encoding].addressingMode = addressingMode; 
+        function set(opcode: number, operation: Operation, addressingMode: AddressingMode): void {
+            opcodes[opcode].operation = operation;
+            opcodes[opcode].addressingMode = addressingMode; 
         }
 
-        set(0x06, Opcode.asl, AddressingMode.zeroPage);
-        set(0x0A, Opcode.asl, AddressingMode.implied);
-        set(0x0E, Opcode.asl, AddressingMode.absolute);
-        set(0x16, Opcode.asl, AddressingMode.zeroPageX);
-        set(0x1E, Opcode.asl, AddressingMode.absoluteX);
+        set(0x06, Operation.asl, AddressingMode.zeroPage);
+        set(0x0A, Operation.asl, AddressingMode.implied);
+        set(0x0E, Operation.asl, AddressingMode.absolute);
+        set(0x16, Operation.asl, AddressingMode.zeroPageX);
+        set(0x1E, Operation.asl, AddressingMode.absoluteX);
         
-        set(0x26, Opcode.rol, AddressingMode.zeroPage);
-        set(0x2A, Opcode.rol, AddressingMode.implied);
-        set(0x2E, Opcode.rol, AddressingMode.absolute);
-        set(0x36, Opcode.rol, AddressingMode.zeroPageX);
-        set(0x3E, Opcode.rol, AddressingMode.absoluteX);
+        set(0x26, Operation.rol, AddressingMode.zeroPage);
+        set(0x2A, Operation.rol, AddressingMode.implied);
+        set(0x2E, Operation.rol, AddressingMode.absolute);
+        set(0x36, Operation.rol, AddressingMode.zeroPageX);
+        set(0x3E, Operation.rol, AddressingMode.absoluteX);
 
-        set(0x46, Opcode.lsr, AddressingMode.zeroPage);
-        set(0x4A, Opcode.lsr, AddressingMode.implied);
-        set(0x4E, Opcode.lsr, AddressingMode.absolute);
-        set(0x56, Opcode.lsr, AddressingMode.zeroPageX);
-        set(0x5E, Opcode.lsr, AddressingMode.absoluteX);
+        set(0x46, Operation.lsr, AddressingMode.zeroPage);
+        set(0x4A, Operation.lsr, AddressingMode.implied);
+        set(0x4E, Operation.lsr, AddressingMode.absolute);
+        set(0x56, Operation.lsr, AddressingMode.zeroPageX);
+        set(0x5E, Operation.lsr, AddressingMode.absoluteX);
 
-        set(0x66, Opcode.ror, AddressingMode.zeroPage);
-        set(0x6A, Opcode.ror, AddressingMode.implied);
-        set(0x6E, Opcode.ror, AddressingMode.absolute);
-        set(0x76, Opcode.ror, AddressingMode.zeroPageX);
-        set(0x7E, Opcode.ror, AddressingMode.absoluteX);
+        set(0x66, Operation.ror, AddressingMode.zeroPage);
+        set(0x6A, Operation.ror, AddressingMode.implied);
+        set(0x6E, Operation.ror, AddressingMode.absolute);
+        set(0x76, Operation.ror, AddressingMode.zeroPageX);
+        set(0x7E, Operation.ror, AddressingMode.absoluteX);
 
-        set(0x86, Opcode.stx, AddressingMode.zeroPage);
-        set(0x8E, Opcode.stx, AddressingMode.absolute);
-        set(0x96, Opcode.stx, AddressingMode.zeroPageY);
+        set(0x86, Operation.stx, AddressingMode.zeroPage);
+        set(0x8E, Operation.stx, AddressingMode.absolute);
+        set(0x96, Operation.stx, AddressingMode.zeroPageY);
 
-        set(0xA2, Opcode.ldx, AddressingMode.immediate);
-        set(0xA6, Opcode.ldx, AddressingMode.zeroPage);
-        set(0xAE, Opcode.ldx, AddressingMode.absolute);
-        set(0xB6, Opcode.ldx, AddressingMode.zeroPageY);
-        set(0xBE, Opcode.ldx, AddressingMode.absoluteY);
+        set(0xA2, Operation.ldx, AddressingMode.immediate);
+        set(0xA6, Operation.ldx, AddressingMode.zeroPage);
+        set(0xAE, Operation.ldx, AddressingMode.absolute);
+        set(0xB6, Operation.ldx, AddressingMode.zeroPageY);
+        set(0xBE, Operation.ldx, AddressingMode.absoluteY);
 
-        set(0xC6, Opcode.dec, AddressingMode.zeroPage);
-        set(0xCE, Opcode.dec, AddressingMode.absolute);
-        set(0xD6, Opcode.dec, AddressingMode.zeroPageX);
-        set(0xDE, Opcode.dec, AddressingMode.absoluteX);
+        set(0xC6, Operation.dec, AddressingMode.zeroPage);
+        set(0xCE, Operation.dec, AddressingMode.absolute);
+        set(0xD6, Operation.dec, AddressingMode.zeroPageX);
+        set(0xDE, Operation.dec, AddressingMode.absoluteX);
 
-        set(0xE6, Opcode.inc, AddressingMode.zeroPage);
-        set(0xEE, Opcode.inc, AddressingMode.absolute);
-        set(0xF6, Opcode.inc, AddressingMode.zeroPageX);
-        set(0xFE, Opcode.inc, AddressingMode.absoluteX);
+        set(0xE6, Operation.inc, AddressingMode.zeroPage);
+        set(0xEE, Operation.inc, AddressingMode.absolute);
+        set(0xF6, Operation.inc, AddressingMode.zeroPageX);
+        set(0xFE, Operation.inc, AddressingMode.absoluteX);
 
-        set(0x24, Opcode.bit, AddressingMode.zeroPage);
-        set(0x2C, Opcode.bit, AddressingMode.absolute);
+        set(0x24, Operation.bit, AddressingMode.zeroPage);
+        set(0x2C, Operation.bit, AddressingMode.absolute);
 
-        set(0x4C, Opcode.jmp, AddressingMode.absolute);
-        set(0x6C, Opcode.jmp, AddressingMode.indirect);
+        set(0x4C, Operation.jmp, AddressingMode.absolute);
+        set(0x6C, Operation.jmp, AddressingMode.indirect);
 
-        set(0x84, Opcode.sty, AddressingMode.zeroPage);
-        set(0x8C, Opcode.sty, AddressingMode.absolute);
-        set(0x94, Opcode.sty, AddressingMode.zeroPageX);
+        set(0x84, Operation.sty, AddressingMode.zeroPage);
+        set(0x8C, Operation.sty, AddressingMode.absolute);
+        set(0x94, Operation.sty, AddressingMode.zeroPageX);
 
-        set(0xA0, Opcode.ldy, AddressingMode.immediate);
-        set(0xA4, Opcode.ldy, AddressingMode.zeroPage);
-        set(0xAC, Opcode.ldy, AddressingMode.absolute);
-        set(0xB4, Opcode.ldy, AddressingMode.zeroPageX);
-        set(0xBC, Opcode.ldy, AddressingMode.absoluteX);
+        set(0xA0, Operation.ldy, AddressingMode.immediate);
+        set(0xA4, Operation.ldy, AddressingMode.zeroPage);
+        set(0xAC, Operation.ldy, AddressingMode.absolute);
+        set(0xB4, Operation.ldy, AddressingMode.zeroPageX);
+        set(0xBC, Operation.ldy, AddressingMode.absoluteX);
 
-        set(0xC0, Opcode.cpx, AddressingMode.immediate);
-        set(0xC4, Opcode.cpx, AddressingMode.zeroPage);
-        set(0xCC, Opcode.cpx, AddressingMode.absolute);
+        set(0xC0, Operation.cpx, AddressingMode.immediate);
+        set(0xC4, Operation.cpx, AddressingMode.zeroPage);
+        set(0xCC, Operation.cpx, AddressingMode.absolute);
 
-        set(0xE0, Opcode.cpy, AddressingMode.immediate);
-        set(0xE4, Opcode.cpy, AddressingMode.zeroPage);
-        set(0xEC, Opcode.cpy, AddressingMode.absolute);
+        set(0xE0, Operation.cpy, AddressingMode.immediate);
+        set(0xE4, Operation.cpy, AddressingMode.zeroPage);
+        set(0xEC, Operation.cpy, AddressingMode.absolute);
 
-        set(0x10, Opcode.bpl, AddressingMode.relative);
-        set(0x30, Opcode.bmi, AddressingMode.relative);
-        set(0x50, Opcode.bvc, AddressingMode.relative);
-        set(0x70, Opcode.bvs, AddressingMode.relative);
-        set(0x90, Opcode.bcc, AddressingMode.relative);
-        set(0xB0, Opcode.bcs, AddressingMode.relative);
-        set(0xD0, Opcode.bne, AddressingMode.relative);
-        set(0xF0, Opcode.beq, AddressingMode.relative);
+        set(0x10, Operation.bpl, AddressingMode.relative);
+        set(0x30, Operation.bmi, AddressingMode.relative);
+        set(0x50, Operation.bvc, AddressingMode.relative);
+        set(0x70, Operation.bvs, AddressingMode.relative);
+        set(0x90, Operation.bcc, AddressingMode.relative);
+        set(0xB0, Operation.bcs, AddressingMode.relative);
+        set(0xD0, Operation.bne, AddressingMode.relative);
+        set(0xF0, Operation.beq, AddressingMode.relative);
 
-        set(0x00, Opcode.brk, AddressingMode.implied);
-        set(0x20, Opcode.jsr, AddressingMode.absolute);
-        set(0x40, Opcode.rti, AddressingMode.implied);
-        set(0x60, Opcode.rts, AddressingMode.implied);
-        set(0x08, Opcode.php, AddressingMode.implied);
-        set(0x28, Opcode.plp, AddressingMode.implied);
-        set(0x58, Opcode.pha, AddressingMode.implied);
-        set(0x68, Opcode.pla, AddressingMode.implied);
-        set(0x88, Opcode.dey, AddressingMode.implied);
-        set(0xA8, Opcode.tay, AddressingMode.implied);
-        set(0xC8, Opcode.iny, AddressingMode.implied);
-        set(0xE8, Opcode.inx, AddressingMode.implied);
-        set(0x18, Opcode.clc, AddressingMode.implied);
-        set(0x38, Opcode.sec, AddressingMode.implied);
-        set(0x58, Opcode.cli, AddressingMode.implied);
-        set(0x78, Opcode.sei, AddressingMode.implied);
-        set(0x98, Opcode.tya, AddressingMode.implied);
-        set(0xB8, Opcode.clv, AddressingMode.implied);
-        set(0xD8, Opcode.cld, AddressingMode.implied);
-        set(0xF8, Opcode.sed, AddressingMode.implied);
-        set(0x8A, Opcode.txa, AddressingMode.implied);
-        set(0x9A, Opcode.txs, AddressingMode.implied);
-        set(0xAA, Opcode.tax, AddressingMode.implied);
-        set(0xBA, Opcode.tsx, AddressingMode.implied);
-        set(0xCA, Opcode.dex, AddressingMode.implied);
-        set(0xEA, Opcode.nop, AddressingMode.implied);
+        set(0x00, Operation.brk, AddressingMode.implied);
+        set(0x20, Operation.jsr, AddressingMode.absolute);
+        set(0x40, Operation.rti, AddressingMode.implied);
+        set(0x60, Operation.rts, AddressingMode.implied);
+        set(0x08, Operation.php, AddressingMode.implied);
+        set(0x28, Operation.plp, AddressingMode.implied);
+        set(0x58, Operation.pha, AddressingMode.implied);
+        set(0x68, Operation.pla, AddressingMode.implied);
+        set(0x88, Operation.dey, AddressingMode.implied);
+        set(0xA8, Operation.tay, AddressingMode.implied);
+        set(0xC8, Operation.iny, AddressingMode.implied);
+        set(0xE8, Operation.inx, AddressingMode.implied);
+        set(0x18, Operation.clc, AddressingMode.implied);
+        set(0x38, Operation.sec, AddressingMode.implied);
+        set(0x58, Operation.cli, AddressingMode.implied);
+        set(0x78, Operation.sei, AddressingMode.implied);
+        set(0x98, Operation.tya, AddressingMode.implied);
+        set(0xB8, Operation.clv, AddressingMode.implied);
+        set(0xD8, Operation.cld, AddressingMode.implied);
+        set(0xF8, Operation.sed, AddressingMode.implied);
+        set(0x8A, Operation.txa, AddressingMode.implied);
+        set(0x9A, Operation.txs, AddressingMode.implied);
+        set(0xAA, Operation.tax, AddressingMode.implied);
+        set(0xBA, Operation.tsx, AddressingMode.implied);
+        set(0xCA, Operation.dex, AddressingMode.implied);
+        set(0xEA, Operation.nop, AddressingMode.implied);
     })();
 };

@@ -36,7 +36,7 @@ class Debugger {
         while (i < length) {
             address = (start + i) % 0x10000;
 
-            instruction = Instruction.encodings[this._peek(address)];
+            instruction = Instruction.opcodes[this._peek(address)];
             result += (hex.encode(address, 4) + ':   ' +
                 this._disassembler.disassembleAt(address) + '\n');
 

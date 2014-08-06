@@ -70,13 +70,13 @@ class Cpu {
         return this._halted;
     }
 
-    setInvalidOpcodeCallback(callback: Cpu.InvalidOpcodeCallbackInterface): Cpu {
-        this._invalidOpcodeCallback = callback;
+    setInvalidOperationCallback(callback: Cpu.InvalidOperationCallbackInterface): Cpu {
+        this._invalidOperationCallback = callback;
         return this;
     }
 
-    getInvalidOpcodeCallback(): Cpu.InvalidOpcodeCallbackInterface {
-        return this._invalidOpcodeCallback;
+    getInvalidOperationCallback(): Cpu.InvalidOperationCallbackInterface {
+        return this._invalidOperationCallback;
     }
 
     reset(): Cpu {
@@ -120,58 +120,58 @@ class Cpu {
     }
 
     private _fetch() {
-        var instruction = Instruction.encodings[this._memory.read(this.state.p)],
+        var instruction = Instruction.opcodes[this._memory.read(this.state.p)],
             addressingMode = instruction.addressingMode,
-            invalidOpcodeHandler: Cpu.InstructionHandlerInterface,
+            invalidOperationHandler: Cpu.InstructionHandlerInterface,
             dereference = false,
             slowIndexedAccess = false;
 
-        switch (instruction.opcode) {
-            case Instruction.Opcode.clc:
+        switch (instruction.operation) {
+            case Instruction.Operation.clc:
                 this._opCycles = 1;
                 this._instructonCallback = opClc;
                 break;
 
-            case Instruction.Opcode.cld:
+            case Instruction.Operation.cld:
                 this._opCycles = 1;
                 this._instructonCallback = opCld;
                 break;
 
-            case Instruction.Opcode.nop:
+            case Instruction.Operation.nop:
                 this._opCycles = 1;
                 this._instructonCallback = opNop;
                 break;
 
-            case Instruction.Opcode.ldx:
+            case Instruction.Operation.ldx:
                 this._opCycles = 0;
                 this._instructonCallback = opLdx;
                 dereference = true;
                 break;
 
-            case Instruction.Opcode.ldy:
+            case Instruction.Operation.ldy:
                 this._opCycles = 0;
                 this._instructonCallback = opLdy;
                 dereference = true;
                 break;
 
-            case Instruction.Opcode.sec:
+            case Instruction.Operation.sec:
                 this._opCycles = 1;
                 this._instructonCallback = opSec;
                 break;
 
-            case Instruction.Opcode.txs:
+            case Instruction.Operation.txs:
                 this._opCycles = 1;
                 this._instructonCallback = opTxs;
                 break;
 
             default:
-                if (this._invalidOpcodeCallback &&
-                        (invalidOpcodeHandler = this._invalidOpcodeCallback(this.state)))
+                if (this._invalidOperationCallback &&
+                        (invalidOperationHandler = this._invalidOperationCallback(this.state)))
                 {
-                    addressingMode = invalidOpcodeHandler.addressingMode;
-                    this._opCycles = invalidOpcodeHandler.cycles;
-                    this._instructonCallback = invalidOpcodeHandler.handler;
-                    dereference = invalidOpcodeHandler.dereference;
+                    addressingMode = invalidOperationHandler.addressingMode;
+                    this._opCycles = invalidOperationHandler.cycles;
+                    this._instructonCallback = invalidOperationHandler.handler;
+                    dereference = invalidOperationHandler.dereference;
                 } else {
                     addressingMode = Instruction.AddressingMode.invalid;
                     this._opCycles = 2;
@@ -284,7 +284,7 @@ class Cpu {
     
     private _opCycles: number = 0;
     private _instructonCallback: Cpu.InstructionCallbackInterface;
-    private _invalidOpcodeCallback : Cpu.InvalidOpcodeCallbackInterface;
+    private _invalidOperationCallback : Cpu.InvalidOperationCallbackInterface;
     private _interruptPending: boolean = false;
     private _nmiPending: boolean = false;
     private _halted: boolean = false;
@@ -323,7 +323,7 @@ module Cpu {
         n = 0x80
     }
 
-    export interface InvalidOpcodeCallbackInterface {
+    export interface InvalidOperationCallbackInterface {
         (state?: Cpu.State): InstructionHandlerInterface
     }
 
