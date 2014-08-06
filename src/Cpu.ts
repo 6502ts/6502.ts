@@ -12,8 +12,24 @@ function opClc(state: Cpu.State): void {
     state.flags &= ~Cpu.Flags.c;
 }
 
+function opCld(state: Cpu.State): void {
+    state.flags &= ~Cpu.Flags.d;
+}
+
+function opLdx(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    state.x = operand;
+}
+
+function opLdy(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    state.y = operand;
+}
+
 function opSec(state: Cpu.State): void {
     state.flags |= Cpu.Flags.c;
+}
+
+function opTxs(state: Cpu.State): void {
+    state.s = state.x;
 }
 
 class Cpu {
@@ -46,7 +62,7 @@ class Cpu {
     }
 
     resume(): Cpu {
-        this._halted = true;
+        this._halted = false;
         return this;
     }
 
@@ -59,7 +75,7 @@ class Cpu {
         return this;
     }
 
-    getInvalidOpcodeHandler(): Cpu.InvalidOpcodeCallbackInterface {
+    getInvalidOpcodeCallback(): Cpu.InvalidOpcodeCallbackInterface {
         return this._invalidOpcodeCallback;
     }
 
@@ -107,7 +123,8 @@ class Cpu {
         var instruction = instruction.encodings(this._memory, this.state.p),
             addressingMode = instruction.addressingMode,
             invalidOpcodeHandler: Cpu.InstructionHandlerInterface,
-            dereference = false;
+            dereference = false,
+            slowIndexedAccess = false;
 
         switch (instruction.opcode) {
             case Instruction.Opcode.clc:
@@ -115,14 +132,36 @@ class Cpu {
                 this._instructonCallback = opClc;
                 break;
 
+            case Instruction.Opcode.cld:
+                this._opCycles = 2;
+                this._instructonCallback = opCld;
+                break;
+
             case Instruction.Opcode.nop:
                 this._opCycles = 2;
                 this._instructonCallback = opNop;
                 break;
 
+            case Instruction.Opcode.ldx:
+                this._opCycles = 1;
+                this._instructonCallback = opLdx;
+                dereference = true;
+                break;
+
+            case Instruction.Opcode.ldy:
+                this._opCycles = 1;
+                this._instructonCallback = opLdy;
+                dereference = true;
+                break;
+
             case Instruction.Opcode.sec:
                 this._opCycles = 2;
                 this._instructonCallback = opSec;
+                break;
+
+            case Instruction.Opcode.txs:
+                this._opCycles = 2;
+                this._instructonCallback = opTxs;
                 break;
 
             default:
@@ -142,8 +181,7 @@ class Cpu {
 
         this.state.p = (this.state.p + 1) % 0x10000;
 
-        var decoded: number,
-            value: number;
+        var value: number;
 
         switch (addressingMode) {
             case Instruction.AddressingMode.immediate:
@@ -176,14 +214,14 @@ class Cpu {
 
             case Instruction.AddressingMode.relative:
                 value = this._memory.read(this.state.p);
-                decoded = (value & 0x80) ? -(~(value - 1) & 0xFF) : value;
+                value = (value & 0x80) ? -(~(value - 1) & 0xFF) : value;
                 this._operand = (this.state.p + value + 0x10001) % 0x10000;
                 this._opCycles += (((this._operand & 0xFF00) !== (this.state.p & 0xFF00)) ? 3 : 2);
                 this.state.p = (this.state.p + 1) % 0x10000;
                 break;
 
             case Instruction.AddressingMode.zeroPageX:
-                this._operand = this._memory.read(this.state.p) + this.state.x;
+                this._operand = (this._memory.read(this.state.p) + this.state.x) % 0x100;
                 this.state.p = (this.state.p + 1) % 0x10000;
                 this._opCycles += 2;
                 break;
@@ -191,13 +229,46 @@ class Cpu {
             case Instruction.AddressingMode.absoluteX:
                 value = this._memory.readWord(this.state.p);
                 this._operand = (value + this.state.x) % 0x10000;
-                this._opCycles += (((this._operand & 0xFF00) !== (value & 0xFF00)) ? 3 : 2)
+                this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value & 0xFF00)) ? 3 : 2)
                 this.state.p = (this.state.p + 2) % 0x10000;
                 break;
 
-            default:
-                // TODO: transition, remove once address decoding is complete
-                this.state.p += instruction.getSize();
+            case Instruction.AddressingMode.zeroPageY:
+                this._operand = (this._memory.read(this.state.p) + this.state.y) % 0x100;
+                this.state.p = (this.state.p + 1) % 0x10000;
+                this._opCycles += 2;
+                break;
+
+            case Instruction.AddressingMode.absoluteY:
+                value = this._memory.readWord(this.state.p);
+                this._operand = (value + this.state.y) % 0x10000;
+                this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value % 0xFF00)) ? 3 : 2);
+                this.state.p = (this.state.p + 1) % 0x10000;
+                break;
+
+            case Instruction.AddressingMode.indexedIndirectX:
+                value = (this._memory.read(this.state.p) + this.state.x) % 0x100;
+
+                if (value === 0xFF) 
+                    this._operand = this._memory.read(0xFF) + this._memory.read(0x00) << 8;
+                else this._operand = this._memory.readWord(value);
+
+                this._opCycles += 4;
+                this.state.p = (this.state.p + 1) % 0x10000;
+                break;
+
+            case Instruction.AddressingMode.indirectIndexedY:
+                value = this._memory.read(this.state.p);
+
+                if (value === 0xFF)
+                    value = this._memory.read(0xFF) + this._memory.read(0x00) << 8;
+                else value = this._memory.readWord(value);
+
+                this._operand = (value + this.state.y) % 0x10000;
+
+                this._opCycles = ((slowIndexedAccess || (value & 0xFF00) !== (this._operand & 0xFF)) ? 4 : 3);
+                this.state.p = (this.state.p + 1) % 0x10000;
+                break;
         }
 
         if (dereference) {
@@ -242,14 +313,14 @@ module Cpu {
     }
 
     export enum Flags {
-        c = 1 << 0,
-        z = 1 << 1,
-        i = 1 << 2,
-        d = 1 << 3,
-        b = 1 << 4,
-        e = 1 << 5,
-        v = 1 << 6,
-        n = 1 << 7       
+        c = 0x01,
+        z = 0x02,
+        i = 0x04,
+        d = 0x08,
+        b = 0x10,
+        e = 0x20,
+        v = 0x40,
+        n = 0x80
     }
 
     export interface InvalidOpcodeCallbackInterface {
