@@ -6,6 +6,7 @@ import readline = require('readline');
 import Memory = require('./src/SimpleMemory');
 import Debugger = require('./src/Debugger');
 import DebuggerFrontend = require('./src/DebuggerFrontend');
+import Cpu = require('./src/Cpu');
 import fs = require('fs');
 
 var quit = false,
@@ -19,7 +20,8 @@ var rl = readline.createInterface({
 });
 
 var memory = new Memory(),
-    dbg = new Debugger(memory),
+    cpu = new Cpu(memory),
+    dbg = new Debugger(memory, cpu),
     frontend = new DebuggerFrontend(dbg, {
         quit: (args: Array<string>): string => (quit = true, 'bye')
     });

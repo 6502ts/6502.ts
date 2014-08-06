@@ -120,7 +120,7 @@ class Cpu {
     }
 
     private _fetch() {
-        var instruction = instruction.encodings(this._memory, this.state.p),
+        var instruction = Instruction.encodings[this._memory.read(this.state.p)],
             addressingMode = instruction.addressingMode,
             invalidOpcodeHandler: Cpu.InstructionHandlerInterface,
             dereference = false,
@@ -128,39 +128,39 @@ class Cpu {
 
         switch (instruction.opcode) {
             case Instruction.Opcode.clc:
-                this._opCycles = 2;
+                this._opCycles = 1;
                 this._instructonCallback = opClc;
                 break;
 
             case Instruction.Opcode.cld:
-                this._opCycles = 2;
+                this._opCycles = 1;
                 this._instructonCallback = opCld;
                 break;
 
             case Instruction.Opcode.nop:
-                this._opCycles = 2;
+                this._opCycles = 1;
                 this._instructonCallback = opNop;
                 break;
 
             case Instruction.Opcode.ldx:
-                this._opCycles = 1;
+                this._opCycles = 0;
                 this._instructonCallback = opLdx;
                 dereference = true;
                 break;
 
             case Instruction.Opcode.ldy:
-                this._opCycles = 1;
+                this._opCycles = 0;
                 this._instructonCallback = opLdy;
                 dereference = true;
                 break;
 
             case Instruction.Opcode.sec:
-                this._opCycles = 2;
+                this._opCycles = 1;
                 this._instructonCallback = opSec;
                 break;
 
             case Instruction.Opcode.txs:
-                this._opCycles = 2;
+                this._opCycles = 1;
                 this._instructonCallback = opTxs;
                 break;
 
@@ -331,3 +331,5 @@ module Cpu {
         (state?: Cpu.State, memory?: MemoryInterface, operand?: number): void;
     }
 }
+
+export = Cpu;

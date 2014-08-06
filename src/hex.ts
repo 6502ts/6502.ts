@@ -8,7 +8,7 @@ export function encode(value: number, width?: number): string {
         base = 1;
 
     if (typeof(width) === 'undefined') {
-        while (base * 16 <= x) base *= 16;
+        while (base * 16 - 1 < x) base *= 16;
     } else {
         for (var i = 1; i < width; i++) base *= 16;
         if (16 * base - 1 < value) throw new TypeError('range exceeded');

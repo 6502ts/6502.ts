@@ -5,9 +5,13 @@
 import Instruction = require('./Instruction');
 import Disassembler = require('./Disassembler');
 import hex = require('./hex');
+import binary = require('./binary');
+import Cpu = require('./Cpu');
 
 class Debugger {
-    constructor(private _memory: MemoryInterface) {
+    constructor(
+        private _memory: MemoryInterface,
+        private _cpu: Cpu) {
         this._disassembler = new Disassembler(this._memory);
     }
 
@@ -39,10 +43,14 @@ class Debugger {
             i += instruction.getSize();
         }
 
-        return result;
+        return result.replace(/\n$/, '');
     }
 
-    dumpAt(start: number, length: number) {
+    disassemble(length: number): string {
+        return this.disassembleAt(this._cpu.state.p, length);
+    }
+
+    dumpAt(start: number, length: number): string {
         var result = '',
             address: number;
 
@@ -53,7 +61,45 @@ class Debugger {
                 hex.encode(this._peek(address), 2) + '\n')
         }
 
+        return result.replace(/\n$/, '');
+    }
+
+    dumpState(): string {
+        var state = this._cpu.state,
+            result = '' +
+                'A = ' + hex.encode(state.a, 2) + '   ' +
+                'X = ' + hex.encode(state.x, 2) + '   ' +
+                'Y = ' + hex.encode(state.y, 2) + '   ' +
+                'S = ' + hex.encode(state.s, 2) + '   ' +
+                'P = ' + hex.encode(state.p, 4) + '\n' +
+                'flags = ' + binary.encode(state.flags, 8);
+        
         return result;
+    }
+
+    boot(): string {
+        var cycles = 0;
+
+        this._cpu.reset();
+        while (this._cpu.executionState !== Cpu.ExecutionState.fetch) {
+            this._cpu.cycle();
+            cycles++;
+        }
+
+        return 'Boot successful in ' + cycles + ' cycles';
+    }
+
+    step(): string {
+        if (this._cpu.executionState !== Cpu.ExecutionState.fetch)
+            throw new Error('must boot first');
+
+        var cycles = 0;
+        do {
+            this._cpu.cycle();
+            cycles++;
+        } while (this._cpu.executionState === Cpu.ExecutionState.execute);
+
+        return 'Used ' + cycles + ' cycles, now at\n' + this.disassembleAt(this._cpu.state.p, 1);
     }
 
     private _peek(address: number): number {
