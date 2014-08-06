@@ -92,6 +92,10 @@ class Debugger {
         return result;
     }
 
+    dumpStack(): string {
+        return this.dumpAt(0x0100 + this._cpu.state.s, 0x100 - this._cpu.state.s);
+    }
+
     boot(): string {
         var cycles = 0;
 

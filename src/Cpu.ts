@@ -27,6 +27,17 @@ function opJmp(state: Cpu.State, memory: MemoryInterface, operand: number): void
     state.p = operand;
 }
 
+function opJsr(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    var returnPtr = (state.p + 0xFFFF) % 0x10000;
+
+    memory.write(0x0100 + state.s, returnPtr >> 8);
+    state.s = (state.s + 0xFF) % 0x100;
+    memory.write(0x0100 + state.s, returnPtr & 0xFF);
+    state.s = (state.s + 0xFF) % 0x100;
+
+    state.p = operand;
+}
+
 function opLda(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.a = operand;
     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
@@ -46,6 +57,17 @@ function opLdy(state: Cpu.State, memory: MemoryInterface, operand: number): void
     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
         (operand & 0x80) |
         (operand ? 0 : Cpu.Flags.z);
+}
+
+function opRts(state: Cpu.State, memory: MemoryInterface): void {
+    var returnPtr: number;
+
+    state.s = (state.s + 1) % 0x100;
+    returnPtr = memory.read(0x0100 + state.s);
+    state.s = (state.s + 1) % 0x101;
+    returnPtr += memory.read(0x0100 + state.s) << 8;
+
+    state.p = (returnPtr + 1) % 0x10000;
 }
 
 function opSec(state: Cpu.State): void {
@@ -177,9 +199,31 @@ class Cpu {
                 }
                 break;
 
+            case Instruction.Operation.beq:
+                if (this.state.flags & Cpu.Flags.z) {
+                    this._instructionCallback = opJmp;
+                    this._opCycles = 0;
+                } else {
+                    addressingMode = Instruction.AddressingMode.implied;
+                    this._instructionCallback = opNop;
+                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this._opCycles = 1;
+                }
+                break;
+
             case Instruction.Operation.dey:
                 this._opCycles = 1;
                 this._instructionCallback = opDey;
+                break;
+
+            case Instruction.Operation.jmp:
+                this._opCycles = 0;
+                this._instructionCallback = opJmp;
+                break;
+
+            case Instruction.Operation.jsr:
+                this._opCycles = 3;
+                this._instructionCallback = opJsr;
                 break;
 
             case Instruction.Operation.nop:
@@ -208,6 +252,11 @@ class Cpu {
             case Instruction.Operation.sec:
                 this._opCycles = 1;
                 this._instructionCallback = opSec;
+                break;
+
+            case Instruction.Operation.rts:
+                this._opCycles = 5;
+                this._instructionCallback = opRts;
                 break;
 
             case Instruction.Operation.sta:
