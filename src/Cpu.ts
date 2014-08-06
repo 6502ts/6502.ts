@@ -16,16 +16,44 @@ function opCld(state: Cpu.State): void {
     state.flags &= ~Cpu.Flags.d;
 }
 
+function opDey(state: Cpu.State): void {
+    state.y = (state.y + 0xFF) % 0x100;
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
+        (state.y & 0x80) |
+        (state.y ? 0 : Cpu.Flags.z);
+}
+
+function opJmp(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    state.p = operand;
+}
+
+function opLda(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    state.a = operand;
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
+        (operand & 0x80) |
+        (operand ? 0 : Cpu.Flags.z);
+}
+
 function opLdx(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.x = operand;
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
+        (operand & 0x80) |
+        (operand ? 0: Cpu.Flags.z);
 }
 
 function opLdy(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.y = operand;
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
+        (operand & 0x80) |
+        (operand ? 0 : Cpu.Flags.z);
 }
 
 function opSec(state: Cpu.State): void {
     state.flags |= Cpu.Flags.c;
+}
+
+function opSta(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    memory.write(operand, state.a);
 }
 
 function opTxs(state: Cpu.State): void {
@@ -70,13 +98,13 @@ class Cpu {
         return this._halted;
     }
 
-    setInvalidOperationCallback(callback: Cpu.InvalidOperationCallbackInterface): Cpu {
-        this._invalidOperationCallback = callback;
+    setInvalidInstructionCallback(callback: Cpu.InvalidInstructionCallbackInterface): Cpu {
+        this._invalidInstructionCallback = callback;
         return this;
     }
 
-    getInvalidOperationCallback(): Cpu.InvalidOperationCallbackInterface {
-        return this._invalidOperationCallback;
+    getInvalidInstructionCallback(): Cpu.InvalidInstructionCallbackInterface {
+        return this._invalidInstructionCallback;
     }
 
     reset(): Cpu {
@@ -92,7 +120,7 @@ class Cpu {
         this._interruptPending = false;
         this._nmiPending = false;
         
-        this._instructonCallback = opBoot;
+        this._instructionCallback = opBoot;
 
         return this;
     }
@@ -102,7 +130,7 @@ class Cpu {
             case Cpu.ExecutionState.boot:
             case Cpu.ExecutionState.execute:
                 if (--this._opCycles === 0) {
-                    this._instructonCallback(this.state, this._memory, this._operand);
+                    this._instructionCallback(this.state, this._memory, this._operand);
                     this.executionState = Cpu.ExecutionState.fetch;
                 }
 
@@ -122,60 +150,89 @@ class Cpu {
     private _fetch() {
         var instruction = Instruction.opcodes[this._memory.read(this.state.p)],
             addressingMode = instruction.addressingMode,
-            invalidOperationHandler: Cpu.InstructionHandlerInterface,
+            invalidInstructionHandler: Cpu.InstructionHandlerInterface,
             dereference = false,
             slowIndexedAccess = false;
 
         switch (instruction.operation) {
             case Instruction.Operation.clc:
                 this._opCycles = 1;
-                this._instructonCallback = opClc;
+                this._instructionCallback = opClc;
                 break;
 
             case Instruction.Operation.cld:
                 this._opCycles = 1;
-                this._instructonCallback = opCld;
+                this._instructionCallback = opCld;
+                break;
+
+            case Instruction.Operation.bne:
+                if (this.state.flags & Cpu.Flags.z) {
+                    addressingMode = Instruction.AddressingMode.implied;
+                    this._instructionCallback = opNop;
+                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this._opCycles = 1;
+                } else {
+                    this._instructionCallback = opJmp;
+                    this._opCycles = 0;
+                }
+                break;
+
+            case Instruction.Operation.dey:
+                this._opCycles = 1;
+                this._instructionCallback = opDey;
                 break;
 
             case Instruction.Operation.nop:
                 this._opCycles = 1;
-                this._instructonCallback = opNop;
+                this._instructionCallback = opNop;
+                break;
+
+            case Instruction.Operation.lda:
+                this._opCycles = 0;
+                this._instructionCallback = opLda;
+                dereference = true;
                 break;
 
             case Instruction.Operation.ldx:
                 this._opCycles = 0;
-                this._instructonCallback = opLdx;
+                this._instructionCallback = opLdx;
                 dereference = true;
                 break;
 
             case Instruction.Operation.ldy:
                 this._opCycles = 0;
-                this._instructonCallback = opLdy;
+                this._instructionCallback = opLdy;
                 dereference = true;
                 break;
 
             case Instruction.Operation.sec:
                 this._opCycles = 1;
-                this._instructonCallback = opSec;
+                this._instructionCallback = opSec;
+                break;
+
+            case Instruction.Operation.sta:
+                this._opCycles = 1;
+                this._instructionCallback = opSta;
+                slowIndexedAccess = true;
                 break;
 
             case Instruction.Operation.txs:
                 this._opCycles = 1;
-                this._instructonCallback = opTxs;
+                this._instructionCallback = opTxs;
                 break;
 
             default:
-                if (this._invalidOperationCallback &&
-                        (invalidOperationHandler = this._invalidOperationCallback(this.state)))
+                if (this._invalidInstructionCallback &&
+                        (invalidInstructionHandler = this._invalidInstructionCallback(this.state)))
                 {
-                    addressingMode = invalidOperationHandler.addressingMode;
-                    this._opCycles = invalidOperationHandler.cycles;
-                    this._instructonCallback = invalidOperationHandler.handler;
-                    dereference = invalidOperationHandler.dereference;
+                    addressingMode = invalidInstructionHandler.addressingMode;
+                    this._opCycles = invalidInstructionHandler.cycles;
+                    this._instructionCallback = invalidInstructionHandler.handler;
+                    dereference = invalidInstructionHandler.dereference;
                 } else {
                     addressingMode = Instruction.AddressingMode.invalid;
                     this._opCycles = 2;
-                    this._instructonCallback = opNop;
+                    this._instructionCallback = opNop;
                 }
         }
 
@@ -242,8 +299,8 @@ class Cpu {
             case Instruction.AddressingMode.absoluteY:
                 value = this._memory.readWord(this.state.p);
                 this._operand = (value + this.state.y) % 0x10000;
-                this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value % 0xFF00)) ? 3 : 2);
-                this.state.p = (this.state.p + 1) % 0x10000;
+                this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value & 0xFF00)) ? 3 : 2);
+                this.state.p = (this.state.p + 2) % 0x10000;
                 break;
 
             case Instruction.AddressingMode.indexedIndirectX:
@@ -283,8 +340,8 @@ class Cpu {
     state: Cpu.State = new Cpu.State();
     
     private _opCycles: number = 0;
-    private _instructonCallback: Cpu.InstructionCallbackInterface;
-    private _invalidOperationCallback : Cpu.InvalidOperationCallbackInterface;
+    private _instructionCallback: Cpu.InstructionCallbackInterface;
+    private _invalidInstructionCallback : Cpu.InvalidInstructionCallbackInterface;
     private _interruptPending: boolean = false;
     private _nmiPending: boolean = false;
     private _halted: boolean = false;
@@ -323,7 +380,7 @@ module Cpu {
         n = 0x80
     }
 
-    export interface InvalidOperationCallbackInterface {
+    export interface InvalidInstructionCallbackInterface {
         (state?: Cpu.State): InstructionHandlerInterface
     }
 

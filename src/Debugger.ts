@@ -11,8 +11,23 @@ import Cpu = require('./Cpu');
 class Debugger {
     constructor(
         private _memory: MemoryInterface,
-        private _cpu: Cpu) {
+        private _cpu: Cpu
+    ) {
         this._disassembler = new Disassembler(this._memory);
+
+        var invalidInstructionCallback = this._cpu.getInvalidInstructionCallback();
+        this._cpu.setInvalidInstructionCallback(
+            (state: Cpu.State): Cpu.InstructionHandlerInterface => {
+                var handler: Cpu.InstructionHandlerInterface;
+            
+                if (invalidInstructionCallback && (handler = invalidInstructionCallback(state))) {
+                    return handler;
+                } else {
+                    this._invalidInstuction = true;
+                    return null;
+                }
+            }
+        );
     }
 
     loadBlock(
@@ -89,15 +104,25 @@ class Debugger {
         return 'Boot successful in ' + cycles + ' cycles';
     }
 
-    step(): string {
+    step(count: number = 1): string {
         if (this._cpu.executionState !== Cpu.ExecutionState.fetch)
             throw new Error('must boot first');
 
         var cycles = 0;
-        do {
-            this._cpu.cycle();
-            cycles++;
-        } while (this._cpu.executionState === Cpu.ExecutionState.execute);
+
+        for (var i = 0; i < count; i++) {
+            this._invalidInstuction = false;
+
+            do {
+                this._cpu.cycle();
+                cycles++;
+            } while (this._cpu.executionState === Cpu.ExecutionState.execute);
+
+            if (this._invalidInstuction) {
+                this._cpu.state.p = (this._cpu.state.p + 0xFFFF) % 0x10000;
+                throw new Error('invalid instruction');
+            }
+        }
 
         return 'Used ' + cycles + ' cycles, now at\n' + this.disassembleAt(this._cpu.state.p, 1);
     }
@@ -111,6 +136,8 @@ class Debugger {
     }
 
     private _disassembler: Disassembler;
+
+    private _invalidInstuction = false;
 };
 
 export = Debugger;
