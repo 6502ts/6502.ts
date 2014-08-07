@@ -1,20 +1,11 @@
-export function encode(value: number, digits?: number): string {
-    var result = (value < 0 ? '-' : '') + '0b',
-        value = Math.abs(value),
-        base = 1;
+'use strict';
 
-    if (typeof(digits) === 'undefined') {
-        while (2 * base - 1 < value) base *= 2;
-    } else {
-        for (var i = 1; i < digits; i++) base *= 2;
-        if (2 * base - 1 < value) throw new TypeError('range exceeded');
+export function encode(value: number, width?: number): string {
+    var result = Math.abs(value).toString(2);
+
+    if (typeof(width) !== 'undefined') {
+        while (result.length < width) result = '0' + result;
     }
 
-    while (base >= 1) {
-        result += Math.floor(value / base);
-        value %= base;
-        base /= 2;
-    }
-
-    return result;
+    return (value < 0 ? '-' : '') + '0b' + result;
 }
