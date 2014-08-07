@@ -1,5 +1,7 @@
 /// <reference path="./MemoryInterface.d.ts"/>
 
+'use strict'
+
 import Instruction = require('./Instruction');
 
 function opBoot(state: Cpu.State, memory: MemoryInterface): void {
