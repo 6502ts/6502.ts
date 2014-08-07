@@ -158,4 +158,90 @@ suite('CPU', function() {
                 });
         });
     });
+
+    suite('LDA', function() {
+        test('immediate', function() {
+            cpuRunner
+                .create([0xA9, 0x12])
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    a: 0x12
+                });
+        });
+
+        test('zeroPage', function() {
+            cpuRunner
+                .create([0xA5, 0x12])
+                .poke({
+                    '0x12': 0x34
+                })
+                .run()
+                .assertCycles(3)
+                .assertState({
+                    a: 0x34
+                });
+        });
+
+        test('zeroPage, X', function() {
+            cpuRunner
+                .create([0xB5, 0x12])
+                .setState({
+                    x: 0xFE
+                })
+                .poke({
+                    '0x10': 0x34
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    a: 0x34
+                });
+        });
+
+        test('absolute', function() {
+            cpuRunner
+                .create([0xAD, 0x12, 0x44])
+                .poke({
+                    '0x4412': 0x34
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    a: 0x34
+                });
+        });
+
+        test('absolute,X', function() {
+            cpuRunner
+                .create([0xBD, 0x12, 0x44])
+                .setState({
+                    x: 0x01
+                })
+                .poke({
+                    '0x4413': 0x34
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    a: 0x34
+                });
+        });
+
+        test('absolute,X , page crossing', function() {
+            cpuRunner
+                .create([0xBD, 0xFF, 0xFF])
+                .setState({
+                    x: 0x02
+                })
+                .poke({
+                    '0x0001': 0x34
+                })
+                .run()
+                .assertCycles(5)
+                .assertState({
+                    a: 0x34
+                });
+        });
+    });
 });
