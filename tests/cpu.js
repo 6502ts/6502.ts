@@ -162,11 +162,16 @@ suite('CPU', function() {
     suite('LDA', function() {
         test('immediate', function() {
             cpuRunner
-                .create([0xA9, 0x12])
+                .create([0xA9, 0])
+                .setState({
+                    a: 0x10,
+                    flags: parseInt('10000000', 2)
+                })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    a: 0x12
+                    a: 0,
+                    flags: parseInt('00000010', 2)
                 });
         });
 
@@ -174,12 +179,16 @@ suite('CPU', function() {
             cpuRunner
                 .create([0xA5, 0x12])
                 .poke({
-                    '0x12': 0x34
+                    '0x12': 0xFF
+                })
+                .setState({
+                    flags: parseInt('00000010', 2)
                 })
                 .run()
                 .assertCycles(3)
                 .assertState({
-                    a: 0x34
+                    a: 0xFF,
+                    flags: parseInt('10000000', 2)
                 });
         });
 
