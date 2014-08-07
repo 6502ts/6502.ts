@@ -1,4 +1,5 @@
 TSC = tsc -t ES5 --noImplicitAny
+MOCHA = ./node_modules/.bin/mocha
 
 SOURCES = debugger.ts
 
@@ -12,6 +13,9 @@ make_subdirs = +for dir in $(SUBDIRS); do $(MAKE) -C $$dir $(1); done
 all: commonjs
 	$(call make_subdirs,all)
 
+tests: all
+	$(MOCHA) -u tdd -R spec tests/
+
 commonjs: $(TARGET_COMMONJS)
 	$(call make_subdirs,commonjs)
 
@@ -22,4 +26,4 @@ clean:
 	-rm -f $(GARBAGE)
 	$(call make_subdirs, clean)
 
-.PHONY: all clean commonjs
+.PHONY: all clean commonjs tests

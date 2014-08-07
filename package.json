@@ -1,0 +1,9 @@
+{
+  "name": "2600ts",
+  "version": "0.0.0",
+  "description": "A 6502 emulator written in typescript",
+  "devDependencies": {
+    "lodash": "~2.4.1",
+    "mocha": "~1.21.4"
+  }
+}
