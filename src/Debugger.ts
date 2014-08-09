@@ -30,6 +30,40 @@ class Debugger {
         );
     }
 
+    clearAllBreakpoints(): Debugger {
+        for (var i = 0; i < 0x10000; i++) this._breakpoints[i] = 0;
+
+        return this;
+    }
+
+    setBreakpoint(address: number, description: string = '-'): Debugger {
+        address %= 0x10000;
+
+        this._breakpoints[address] = 1;
+        this._breakpointDescriptions[address] = description;
+
+        return this;
+    }
+
+    clearBreakpoint(address: number): Debugger {
+        this._breakpoints[address % 0x10000] = 0;
+
+        return this;
+    }
+
+    dumpBreakpoints(): string {
+        var result = '';
+
+        for (var address = 0; address < 0x10000; address++) {
+            if (this._breakpoints[address])
+                result += (
+                    hex.encode(address, 4) + ': ' +
+                    this._breakpointDescriptions[address] + '\n')
+        }
+
+        return result.replace(/\n$/, '');
+    }
+
     loadBlock(
         block: MemoryBlockInterface,
         at: number,
@@ -52,8 +86,11 @@ class Debugger {
             address = (start + i) % 0x10000;
 
             instruction = Instruction.opcodes[this._peek(address)];
-            result += (hex.encode(address, 4) + ':   ' +
-                this._disassembler.disassembleAt(address) + '\n');
+            result += (
+                (this._breakpoints[address] ? '(B) ' : '    ') +
+                hex.encode(address, 4) + ':   ' +
+                this._disassembler.disassembleAt(address) + '\n'
+            );
 
             i += instruction.getSize();
         }
@@ -112,8 +149,11 @@ class Debugger {
         if (this._cpu.executionState !== Cpu.ExecutionState.fetch)
             throw new Error('must boot first');
 
+        this._executionInterrupted = false;
+
         var cycles = 0,
-            timestamp = Date.now();
+            timestamp = Date.now(),
+            result = '';
 
         for (var i = 0; i < count; i++) {
             this._invalidInstuction = false;
@@ -124,14 +164,33 @@ class Debugger {
             } while (this._cpu.executionState === Cpu.ExecutionState.execute);
 
             if (this._invalidInstuction) {
+                result += 'INVALID INSTRUCTION!\n';
                 this._cpu.state.p = (this._cpu.state.p + 0xFFFF) % 0x10000;
+                this._executionInterrupted = true;
+                break;
+            }
+
+            if (this._breakpointsEnabled && this._breakpoints[this._cpu.state.p]) {
+                result += ('BREAKPOINT: ' + this._breakpointDescriptions[this._cpu.state.p] + '\n');
+                this._executionInterrupted = true;
+                break;
             }
         }
 
         var time = Date.now() - timestamp;
 
-        return 'Used ' + cycles + ' cycles in ' + time +
+        return result + 'Used ' + cycles + ' cycles in ' + time +
             ' milliseconds, now at\n' + this.disassembleAt(this._cpu.state.p, 1);
+    }
+
+    executionInterrupted(): boolean {
+        return this._executionInterrupted;
+    }
+
+    setBreakpointsEnabled(breakpointsEnabled: boolean): Debugger {
+        this._breakpointsEnabled = breakpointsEnabled;
+
+        return this;
     }
 
     private _peek(address: number): number {
@@ -145,6 +204,11 @@ class Debugger {
     private _disassembler: Disassembler;
 
     private _invalidInstuction = false;
+
+    private _breakpoints = new Uint8Array(0x10000);
+    private _breakpointDescriptions: Array<String> = [];
+    private _executionInterrupted = false;
+    private _breakpointsEnabled = false;
 };
 
 export = Debugger;

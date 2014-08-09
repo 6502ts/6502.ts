@@ -54,7 +54,7 @@ function tick(): void {
             var result = frontend.execute(cmd);
             if (result) console.log(result);
         } catch (e) {
-            console.log('ERRROR: ' + e.message);
+            console.log('ERROR: ' + e.message);
         }
 
         process.nextTick(tick)

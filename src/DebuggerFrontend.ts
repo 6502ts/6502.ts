@@ -31,7 +31,13 @@ class DebuggerFrontend {
             state:          this._state,
             boot:           this._boot,
             stack:          this._stack,
-            step:           this._step
+            step:           this._step,
+            'breakpoints-on':       this._enableBreakpoints,
+            'breakpoints-off':      this._disableBreakpoints,
+            'break':                this._setBreakpoint,
+            'breakpoint-clear':     this._clearBreakpoint,
+            'breakpoints-dump':     this._showBreakpoints,
+            'breakpoints-clear-all':    this._clearAllBreakpoints
         };
 
         if (typeof(extraTable) !== 'undefined') {
@@ -137,6 +143,47 @@ class DebuggerFrontend {
 
     private _stack(): string {
         return this._debugger.dumpStack();
+    }
+
+    private _enableBreakpoints(): string {
+        this._debugger.setBreakpointsEnabled(true);
+        return 'Breakpoints enabled';
+    }
+
+    private _disableBreakpoints(): string {
+        this._debugger.setBreakpointsEnabled(false);
+        return 'Breakpoints disabled';
+    }
+
+    private _setBreakpoint(args: Array<string>): string {
+        if (args.length < 1) throw new Error('at least one argument expected');
+
+        var name = args.length > 1 ? args[1] : '-',
+            address = decodeNumber(args[0]);
+
+        this._debugger.setBreakpoint(address, name);
+
+        return 'Breakpoint "' + name + '" at ' + hex.encode(address, 4);
+    }
+
+    private _clearBreakpoint(args: Array<string>): string {
+        if (args.length < 1) throw new Error('argument expected');
+
+        var address = decodeNumber(args[0]);
+
+        this._debugger.clearBreakpoint(address);
+
+        return 'Cleared breakpoint at ' + hex.encode(address, 4);
+    }
+
+    private _showBreakpoints(): string {
+        return this._debugger.dumpBreakpoints();
+    }
+
+    private _clearAllBreakpoints(): string {
+        this._debugger.clearAllBreakpoints();
+
+        return 'All breakpoints cleared';
     }
 
     private _commandTable: DebuggerFrontend.CommandTableInterface;
