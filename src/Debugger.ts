@@ -125,7 +125,6 @@ class Debugger {
 
             if (this._invalidInstuction) {
                 this._cpu.state.p = (this._cpu.state.p + 0xFFFF) % 0x10000;
-                throw new Error('invalid instruction');
             }
         }
 

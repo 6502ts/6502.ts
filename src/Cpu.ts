@@ -4,6 +4,12 @@
 
 import Instruction = require('./Instruction');
 
+function setFlagsNZ(state: Cpu.State, operand: number) {
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
+        (operand & 0x80) |
+        (operand ? 0 : Cpu.Flags.z);
+}
+
 function opBoot(state: Cpu.State, memory: MemoryInterface): void {
     state.p = memory.readWord(0xFFFC);
 }
@@ -20,16 +26,12 @@ function opCld(state: Cpu.State): void {
 
 function opDey(state: Cpu.State): void {
     state.y = (state.y + 0xFF) % 0x100;
-    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
-        (state.y & 0x80) |
-        (state.y ? 0 : Cpu.Flags.z);
+    setFlagsNZ(state, state.y);
 }
 
 function opIny(state: Cpu.State): void {
     state.y = (state.y + 0x01) % 0x100;
-    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
-        (state.y & 0x80) |
-        (state.y ? 0 : Cpu.Flags.z);
+    setFlagsNZ(state, state.y);
 }
 
 function opJmp(state: Cpu.State, memory: MemoryInterface, operand: number): void {
@@ -49,23 +51,17 @@ function opJsr(state: Cpu.State, memory: MemoryInterface, operand: number): void
 
 function opLda(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.a = operand;
-    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
-        (operand & 0x80) |
-        (operand ? 0 : Cpu.Flags.z);
+    setFlagsNZ(state, operand);
 }
 
 function opLdx(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.x = operand;
-    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
-        (operand & 0x80) |
-        (operand ? 0: Cpu.Flags.z);
+    setFlagsNZ(state, operand);
 }
 
 function opLdy(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.y = operand;
-    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
-        (operand & 0x80) |
-        (operand ? 0 : Cpu.Flags.z);
+    setFlagsNZ(state, operand);
 }
 
 function opRts(state: Cpu.State, memory: MemoryInterface): void {
