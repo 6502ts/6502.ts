@@ -112,7 +112,8 @@ class Debugger {
         if (this._cpu.executionState !== Cpu.ExecutionState.fetch)
             throw new Error('must boot first');
 
-        var cycles = 0;
+        var cycles = 0,
+            timestamp = Date.now();
 
         for (var i = 0; i < count; i++) {
             this._invalidInstuction = false;
@@ -128,7 +129,10 @@ class Debugger {
             }
         }
 
-        return 'Used ' + cycles + ' cycles, now at\n' + this.disassembleAt(this._cpu.state.p, 1);
+        var time = Date.now() - timestamp;
+
+        return 'Used ' + cycles + ' cycles in ' + time +
+            ' milliseconds, now at\n' + this.disassembleAt(this._cpu.state.p, 1);
     }
 
     private _peek(address: number): number {
