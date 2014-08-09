@@ -82,6 +82,8 @@ Runner.prototype.assertCycles = function(cycles) {
 };
 
 Runner.prototype.assertState = function(state) {
+    if (typeof(state) === 'undefined') state = {};
+
     var me = this,
         reference;
 

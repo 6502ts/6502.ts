@@ -66,8 +66,8 @@ function opRts(state: Cpu.State, memory: MemoryInterface): void {
 
     state.s = (state.s + 1) % 0x100;
     returnPtr = memory.read(0x0100 + state.s);
-    state.s = (state.s + 1) % 0x101;
-    returnPtr += memory.read(0x0100 + state.s) << 8;
+    state.s = (state.s + 1) % 0x100;
+    returnPtr += (memory.read(0x0100 + state.s) << 8);
 
     state.p = (returnPtr + 1) % 0x10000;
 }
@@ -228,11 +228,6 @@ class Cpu {
                 this._instructionCallback = opJsr;
                 break;
 
-            case Instruction.Operation.nop:
-                this._opCycles = 1;
-                this._instructionCallback = opNop;
-                break;
-
             case Instruction.Operation.lda:
                 this._opCycles = 0;
                 this._instructionCallback = opLda;
@@ -249,6 +244,11 @@ class Cpu {
                 this._opCycles = 0;
                 this._instructionCallback = opLdy;
                 dereference = true;
+                break;
+
+            case Instruction.Operation.nop:
+                this._opCycles = 1;
+                this._instructionCallback = opNop;
                 break;
 
             case Instruction.Operation.sec:
@@ -314,7 +314,7 @@ class Cpu {
             case Instruction.AddressingMode.indirect:
                 value = this._memory.readWord(this.state.p);
                 if ((value & 0xFF) === 0xFF)
-                    this._operand = this._memory.read(value) + this._memory.read(value & 0xFF00) << 8;
+                    this._operand = this._memory.read(value) + (this._memory.read(value & 0xFF00) << 8);
                 else this._operand = this._memory.readWord(value);
                 this.state.p = (this.state.p + 2) % 0x10000;
                 this._opCycles += 4;
@@ -358,7 +358,7 @@ class Cpu {
                 value = (this._memory.read(this.state.p) + this.state.x) % 0x100;
 
                 if (value === 0xFF) 
-                    this._operand = this._memory.read(0xFF) + this._memory.read(0x00) << 8;
+                    this._operand = this._memory.read(0xFF) + (this._memory.read(0x00) << 8);
                 else this._operand = this._memory.readWord(value);
 
                 this._opCycles += 4;
@@ -369,12 +369,12 @@ class Cpu {
                 value = this._memory.read(this.state.p);
 
                 if (value === 0xFF)
-                    value = this._memory.read(0xFF) + this._memory.read(0x00) << 8;
+                    value = this._memory.read(0xFF) + (this._memory.read(0x00) << 8);
                 else value = this._memory.readWord(value);
 
                 this._operand = (value + this.state.y) % 0x10000;
 
-                this._opCycles = ((slowIndexedAccess || (value & 0xFF00) !== (this._operand & 0xFF)) ? 4 : 3);
+                this._opCycles += ((slowIndexedAccess || (value & 0xFF00) !== (this._operand & 0xFF00)) ? 4 : 3);
                 this.state.p = (this.state.p + 1) % 0x10000;
                 break;
         }
