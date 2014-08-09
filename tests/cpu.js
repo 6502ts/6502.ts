@@ -86,6 +86,8 @@ suite('CPU', function() {
 
     clearFlagSuite('CLD', 0xD8, Cpu.Flags.d);
 
+    branchSuite('BCC', 0x90, 0, Cpu.Flags.c);
+
     branchSuite('BNE', 0xD0, 0, Cpu.Flags.z);
 
     branchSuite('BEQ', 0xF0, Cpu.Flags.z, 0);
@@ -118,6 +120,38 @@ suite('CPU', function() {
                 .assertState({
                     flags: 0xFF & ~Cpu.Flags.z,
                     y: 0xFF
+                });
+        });
+    });
+
+    suite('INY', function() {
+        test('starting with 0xFF, flags', function() {
+            cpuRunner
+                .create([0xC8])
+                .setState({
+                    y: 0xFF,
+                    flags: 0xFF & ~Cpu.Flags.z
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n,
+                    y: 0
+                });
+        });
+
+        test('starting with 0x7E, flags', function() {
+            cpuRunner
+                .create([0xC8])
+                .setState({
+                    y: 0x7F,
+                    flags: 0xFF & ~Cpu.Flags.n
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.z,
+                    y: 0x80
                 });
         });
     });
@@ -807,4 +841,5 @@ suite('CPU', function() {
                 });
         });
     });
+
 });

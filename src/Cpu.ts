@@ -25,6 +25,13 @@ function opDey(state: Cpu.State): void {
         (state.y ? 0 : Cpu.Flags.z);
 }
 
+function opIny(state: Cpu.State): void {
+    state.y = (state.y + 0x01) % 0x100;
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
+        (state.y & 0x80) |
+        (state.y ? 0 : Cpu.Flags.z);
+}
+
 function opJmp(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.p = operand;
 }
@@ -189,8 +196,8 @@ class Cpu {
                 this._instructionCallback = opCld;
                 break;
 
-            case Instruction.Operation.bne:
-                if (this.state.flags & Cpu.Flags.z) {
+            case Instruction.Operation.bcc:
+                if (this.state.flags & Cpu.Flags.c) {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
                     this.state.p = (this.state.p + 1) % 0x10000;
@@ -200,7 +207,7 @@ class Cpu {
                     this._opCycles = 0;
                 }
                 break;
-
+                
             case Instruction.Operation.beq:
                 if (this.state.flags & Cpu.Flags.z) {
                     this._instructionCallback = opJmp;
@@ -213,9 +220,26 @@ class Cpu {
                 }
                 break;
 
+            case Instruction.Operation.bne:
+                if (this.state.flags & Cpu.Flags.z) {
+                    addressingMode = Instruction.AddressingMode.implied;
+                    this._instructionCallback = opNop;
+                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this._opCycles = 1;
+                } else {
+                    this._instructionCallback = opJmp;
+                    this._opCycles = 0;
+                }
+                break;
+
             case Instruction.Operation.dey:
                 this._opCycles = 1;
                 this._instructionCallback = opDey;
+                break;
+
+            case Instruction.Operation.iny:
+                this._opCycles = 1;
+                this._instructionCallback = opIny;
                 break;
 
             case Instruction.Operation.jmp:
