@@ -32,12 +32,12 @@ class DebuggerFrontend {
             boot:           this._boot,
             stack:          this._stack,
             step:           this._step,
-            'breakpoints-on':       this._enableBreakpoints,
-            'breakpoints-off':      this._disableBreakpoints,
+            'break-on':       this._enableBreakpoints,
+            'break-off':      this._disableBreakpoints,
             'break':                this._setBreakpoint,
-            'breakpoint-clear':     this._clearBreakpoint,
-            'breakpoints-dump':     this._showBreakpoints,
-            'breakpoints-clear-all':    this._clearAllBreakpoints
+            'break-clear':     this._clearBreakpoint,
+            'break-dump':     this._showBreakpoints,
+            'break-clear-all':    this._clearAllBreakpoints
         };
 
         if (typeof(extraTable) !== 'undefined') {
