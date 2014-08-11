@@ -75,7 +75,8 @@ function schedule(delay: number = 0) {
 
 var state = State.debug,
     commands: Array<string>,
-    outputBuffer = '';
+    outputBuffer = '',
+    inputBuffer: Array<number> = ['C'.charCodeAt(0)];
 
 var rl = readline.createInterface({
     input: process.stdin,
@@ -121,6 +122,8 @@ monitor.setWriteHandler((value: number): void => {
             break;
     }
 });
+
+monitor.setReadHandler((): number => inputBuffer.length > 0 ? inputBuffer.shift() : 0);
 
 commands = frontend.getCommands();
 

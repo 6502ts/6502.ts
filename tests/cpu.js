@@ -82,15 +82,445 @@ function setFlagSuite(mnemonic, opcode, flag) {
 
 suite('CPU', function() {
 
-    clearFlagSuite('CLC', 0x18, Cpu.Flags.c);
+    suite('AND', function() {
+        test('immediate, flags', function() {
+            cpuRunner
+                .create([0x29, 0xFF])
+                .setState({
+                    a: 0xF0,
+                    flags: 0xFF & ~Cpu.Flags.n
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    a: 0xF0,
+                    flags: 0xFF & ~Cpu.Flags.z
+                })
+        });
 
-    clearFlagSuite('CLD', 0xD8, Cpu.Flags.d);
+        test('zeroPage, flags', function() {
+            cpuRunner
+                .create([0x25, 0x34])
+                .setState({
+                    a: 0x0F,
+                    flags: 0xFF & ~Cpu.Flags.z
+                })
+                .poke({
+                    '0x0034': 0xF0
+                })
+                .run()
+                .assertCycles(3)
+                .assertState({
+                    a: 0x00,
+                    flags: 0xFF & ~Cpu.Flags.n
+                })
+        });
+
+        test('zeroPage,X, flags', function() {
+            cpuRunner
+                .create([0x35, 0x33])
+                .setState({
+                    a: 0x01,
+                    x: 0x01,
+                    flags: 0xFF
+                })
+                .poke({
+                    '0x0034': 0xFF
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    a: 0x01,
+                    flags: 0xFF & ~Cpu.Flags.n & ~Cpu.Flags.z
+                })
+        });
+
+        test('absolute', function() {
+            cpuRunner
+                .create([0x2D, 0x33, 0x44])
+                .setState({
+                    a: 0x01
+                })
+                .poke({
+                    '0x4433': 0xFF
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    a: 0x01
+                })
+        });
+
+        test('absolute,X', function() {
+            cpuRunner
+                .create([0x3D, 0x44, 0x33])
+                .setState({
+                    a: 0x01,
+                    x: 0x01
+                })
+                .poke({
+                    '0x3345': 0xFF
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    a: 0x01
+                })
+        });
+
+        test('absolute,X , page crossing', function() {
+            cpuRunner
+                .create([0x3D, 0x44, 0x33])
+                .setState({
+                    a: 0x01,
+                    x: 0xFF
+                })
+                .poke({
+                    '0x3443': 0xFF
+                })
+                .run()
+                .assertCycles(5)
+                .assertState({
+                    a: 0x01
+                })
+        });
+
+        test('absolute,Y', function() {
+            cpuRunner
+                .create([0x39, 0x44, 0x33])
+                .setState({
+                    a: 0x01,
+                    y: 0x01
+                })
+                .poke({
+                    '0x3345': 0xFF
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    a: 0x01
+                })
+        });
+
+        test('absolute,Y , page crossing', function() {
+            cpuRunner
+                .create([0x39, 0x44, 0x33])
+                .setState({
+                    a: 0x01,
+                    y: 0xFF
+                })
+                .poke({
+                    '0x3443': 0xFF
+                })
+                .run()
+                .assertCycles(5)
+                .assertState({
+                    a: 0x01
+                })
+        });
+
+        test('indirect.X', function() {
+            cpuRunner
+                .create([0x21, 0x33])
+                .setState({
+                    a: 0x01,
+                    x: 0x01
+                })
+                .poke({
+                    '0x0034': 0x45,
+                    '0x0035': 0x33,
+                    '0x3345': 0xFF
+                })
+                .run()
+                .assertCycles(6)
+                .assertState({
+                    a: 0x01
+                })
+        });
+
+        test('indirect,Y', function() {
+            cpuRunner
+                .create([0x31, 0x33])
+                .setState({
+                    a: 0x01,
+                    y: 0x01
+                })
+                .poke({
+                    '0x0033': 0x45,
+                    '0x0034': 0x33,
+                    '0x3346': 0xFF
+                })
+                .run()
+                .assertCycles(5)
+                .assertState({
+                    a: 0x01
+                })
+        });
+
+        test('indirect,Y , page crossing', function() {
+            cpuRunner
+                .create([0x31, 0x33])
+                .setState({
+                    a: 0x01,
+                    y: 0xFF
+                })
+                .poke({
+                    '0x0033': 0x45,
+                    '0x0034': 0x33,
+                    '0x3444': 0xFF
+                })
+                .run()
+                .assertCycles(6)
+                .assertState({
+                    a: 0x01
+                })
+        });
+
+    });
 
     branchSuite('BCC', 0x90, 0, Cpu.Flags.c);
 
     branchSuite('BNE', 0xD0, 0, Cpu.Flags.z);
 
     branchSuite('BEQ', 0xF0, Cpu.Flags.z, 0);
+
+    branchSuite('BPL', 0x10, 0, Cpu.Flags.n);
+
+    clearFlagSuite('CLC', 0x18, Cpu.Flags.c);
+
+    clearFlagSuite('CLD', 0xD8, Cpu.Flags.d);
+
+    suite('CMP', function() {
+        test('immediate, flags', function() {
+            cpuRunner
+                .create([0xC9, 0xFF])
+                .setState({
+                    a: 0,
+                    flags: 0xFF
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.c &~ Cpu.Flags.n &~ Cpu.Flags.z
+                });
+        });
+
+        test('zero page, flags', function() {
+            cpuRunner
+                .create([0xC5, 0x55])
+                .setState({
+                    a: 0xFF,
+                    flags: 0xFF & ~Cpu.Flags.c & ~Cpu.Flags.n
+                })
+                .poke({
+                    '0x0055': 0x00
+                })
+                .run()
+                .assertCycles(3)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.z
+                });
+        });
+
+        test('zero page,X, flags', function() {
+            cpuRunner
+                .create([0xD5, 0x55])
+                .setState({
+                    a: 0x34,
+                    x: 0x01,
+                    flags: 0xFF & ~Cpu.Flags.c & ~Cpu.Flags.z
+                })
+                .poke({
+                    '0x0056': 0x34
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n
+                });
+        });
+
+        test('absolute', function() {
+            cpuRunner
+                .create([0xCD, 0x55, 0x34])
+                .setState({
+                    a: 0x34,
+                    flags: 0xFF
+                })
+                .poke({
+                    '0x3455': 0x34
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n
+                });
+        });
+
+        test('absolute,X', function() {
+            cpuRunner
+                .create([0xDD, 0x55, 0x34])
+                .setState({
+                    a: 0x34,
+                    x: 0x01,
+                    flags: 0xFF
+                })
+                .poke({
+                    '0x3456': 0x34
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n
+                });
+        });
+
+        test('absolute,X , page crossing', function() {
+            cpuRunner
+                .create([0xDD, 0x55, 0x34])
+                .setState({
+                    a: 0x34,
+                    x: 0xFF,
+                    flags: 0xFF
+                })
+                .poke({
+                    '0x3554': 0x34
+                })
+                .run()
+                .assertCycles(5)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n
+                });
+        });
+
+        test('absolute,Y', function() {
+            cpuRunner
+                .create([0xD9, 0x55, 0x34])
+                .setState({
+                    a: 0x34,
+                    y: 0x01,
+                    flags: 0xFF
+                })
+                .poke({
+                    '0x3456': 0x34
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n
+                });
+        });
+
+        test('absolute,Y , page crossing', function() {
+            cpuRunner
+                .create([0xD9, 0x55, 0x34])
+                .setState({
+                    a: 0x34,
+                    y: 0xFF,
+                    flags: 0xFF
+                })
+                .poke({
+                    '0x3554': 0x34
+                })
+                .run()
+                .assertCycles(5)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n
+                });
+        });
+
+        test('indirect,X', function() {
+            cpuRunner
+                .create([0xC1, 0x55])
+                .setState({
+                    a: 0x34,
+                    x: 0x01,
+                    flags: 0xFF
+                })
+                .poke({
+                    '0x0056': 0x56,
+                    '0x0057': 0x34,
+                    '0x3456': 0x34
+                })
+                .run()
+                .assertCycles(6)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n
+                });
+        });
+
+        test('indirect,Y', function() {
+            cpuRunner
+                .create([0xD1, 0x55])
+                .setState({
+                    a: 0x34,
+                    y: 0x01,
+                    flags: 0xFF
+                })
+                .poke({
+                    '0x0055': 0x56,
+                    '0x0056': 0x34,
+                    '0x3457': 0x34
+                })
+                .run()
+                .assertCycles(5)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n
+                });
+        });
+
+        test('indirect,Y , page crossing', function() {
+            cpuRunner
+                .create([0xD1, 0x55])
+                .setState({
+                    a: 0x34,
+                    y: 0xFF,
+                    flags: 0xFF
+                })
+                .poke({
+                    '0x0055': 0x56,
+                    '0x0056': 0x34,
+                    '0x3555': 0x34
+                })
+                .run()
+                .assertCycles(6)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n
+                });
+        });
+    });
+
+    suite('DEX', function() {
+        test('starting with 0x01, flags', function() {
+            cpuRunner
+                .create([0xCA])
+                .setState({
+                    x: 0x01,
+                    flags: 0xFF & ~Cpu.Flags.z
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.n,
+                    x: 0
+                });
+        });
+
+        test('starting with 0x00, flags', function() {
+            cpuRunner
+                .create([0xCA])
+                .setState({
+                    x: 0,
+                    flags: 0xFF & ~Cpu.Flags.n
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    flags: 0xFF & ~Cpu.Flags.z,
+                    x: 0xFF
+                });
+        });
+    });
 
     suite('DEY', function() {
         test('starting with 0x01, flags', function() {
@@ -825,6 +1255,91 @@ suite('CPU', function() {
         });
     });
 
+    suite('STX', function() {
+        test('zeroPage', function() {
+            cpuRunner
+                .create([0x86, 0x45])
+                .setState({
+                    x: 0x24
+                })
+                .run()
+                .assertCycles(3)
+                .assertMemory({
+                    '0x0045': 0x24
+                });
+        });
+
+        test('zeroPage,Y', function() {
+            cpuRunner
+                .create([0x96, 0x45])
+                .setState({
+                    x: 0x24,
+                    y: 0x01
+                })
+                .run()
+                .assertCycles(4)
+                .assertMemory({
+                    '0x0046': 0x24
+                });
+        });
+
+        test('absolute', function() {
+            cpuRunner
+                .create([0x8E, 0x45, 0x73])
+                .setState({
+                    x: 0x24
+                })
+                .run()
+                .assertCycles(4)
+                .assertMemory({
+                    '0x7345': 0x24
+                });
+        });
+    });
+
+    suite('STY', function() {
+        test('zeroPage', function() {
+            cpuRunner
+                .create([0x84, 0x45])
+                .setState({
+                    y: 0x24
+                })
+                .run()
+                .assertCycles(3)
+                .assertMemory({
+                    '0x0045': 0x24
+                });
+        });
+
+        test('zeroPage,X', function() {
+            cpuRunner
+                .create([0x94, 0x45])
+                .setState({
+                    y: 0x24,
+                    x: 0x01
+                })
+                .run()
+                .assertCycles(4)
+                .assertMemory({
+                    '0x0046': 0x24
+                });
+        });
+
+        test('absolute', function() {
+            cpuRunner
+                .create([0x8C, 0x45, 0x73])
+                .setState({
+                    y: 0x24
+                })
+                .run()
+                .assertCycles(4)
+                .assertMemory({
+                    '0x7345': 0x24
+                });
+        });
+    });
+
+
     suite('TXS', function() {
         test('vanilla, flags', function() {
             cpuRunner
@@ -842,4 +1357,21 @@ suite('CPU', function() {
         });
     });
 
+    suite('TYA', function() {
+        test('vanilla, flags', function() {
+            cpuRunner
+                .create([0x98])
+                .setState({
+                    y: 0xFF,
+                    a: 0,
+                    flags: 0xFF & ~Cpu.Flags.n
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    a: 0xFF,
+                    flags: 0xFF & ~Cpu.Flags.z
+                });
+        });
+    });
 });

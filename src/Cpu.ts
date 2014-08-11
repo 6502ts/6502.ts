@@ -16,12 +16,29 @@ function opBoot(state: Cpu.State, memory: MemoryInterface): void {
 
 function opNop(): void {}
 
+function opAnd(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    state.a &= operand;
+    setFlagsNZ(state, state.a);
+}
+
 function opClc(state: Cpu.State): void {
     state.flags &= ~Cpu.Flags.c;
 }
 
 function opCld(state: Cpu.State): void {
     state.flags &= ~Cpu.Flags.d;
+}
+
+function opCmp(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+        (state.a & 0x80) |
+        (state.a === operand ? Cpu.Flags.z : 0) |
+        (state.a >= operand ? Cpu.Flags.c : 0);
+}
+
+function opDex(state: Cpu.State): void {
+    state.x = (state.x + 0xFF) % 0x100;
+    setFlagsNZ(state, state.x);
 }
 
 function opDey(state: Cpu.State): void {
@@ -83,8 +100,21 @@ function opSta(state: Cpu.State, memory: MemoryInterface, operand: number): void
     memory.write(operand, state.a);
 }
 
+function opStx(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    memory.write(operand, state.x);
+}
+
+function opSty(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    memory.write(operand, state.y);
+}
+
 function opTxs(state: Cpu.State): void {
     state.s = state.x;
+}
+
+function opTya(state: Cpu.State): void {
+    state.a = state.y;
+    setFlagsNZ(state, state.a);
 }
 
 class Cpu {
@@ -182,14 +212,10 @@ class Cpu {
             slowIndexedAccess = false;
 
         switch (instruction.operation) {
-            case Instruction.Operation.clc:
-                this._opCycles = 1;
-                this._instructionCallback = opClc;
-                break;
-
-            case Instruction.Operation.cld:
-                this._opCycles = 1;
-                this._instructionCallback = opCld;
+            case Instruction.Operation.and:
+                this._opCycles = 0;
+                this._instructionCallback = opAnd;
+                dereference = true;
                 break;
 
             case Instruction.Operation.bcc:
@@ -226,6 +252,39 @@ class Cpu {
                     this._instructionCallback = opJmp;
                     this._opCycles = 0;
                 }
+                break;
+
+            case Instruction.Operation.bpl:
+                if (this.state.flags & Cpu.Flags.n) {
+                    addressingMode = Instruction.AddressingMode.implied;
+                    this._instructionCallback = opNop;
+                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this._opCycles = 1;
+                } else {
+                    this._instructionCallback = opJmp;
+                    this._opCycles = 0;
+                }
+                break;
+
+            case Instruction.Operation.clc:
+                this._opCycles = 1;
+                this._instructionCallback = opClc;
+                break;
+
+            case Instruction.Operation.cld:
+                this._opCycles = 1;
+                this._instructionCallback = opCld;
+                break;
+
+            case Instruction.Operation.cmp:
+                this._opCycles = 0;
+                this._instructionCallback = opCmp;
+                dereference = true;
+                break;
+
+            case Instruction.Operation.dex:
+                this._opCycles = 1;
+                this._instructionCallback = opDex;
                 break;
 
             case Instruction.Operation.dey:
@@ -287,9 +346,26 @@ class Cpu {
                 slowIndexedAccess = true;
                 break;
 
+            case Instruction.Operation.stx:
+                this._opCycles = 1;
+                this._instructionCallback = opStx;
+                slowIndexedAccess = true;
+                break;
+
+            case Instruction.Operation.sty:
+                this._opCycles = 1;
+                this._instructionCallback = opSty;
+                slowIndexedAccess = true;
+                break;
+
             case Instruction.Operation.txs:
                 this._opCycles = 1;
                 this._instructionCallback = opTxs;
+                break;
+
+            case Instruction.Operation.tya:
+                this._opCycles = 1;
+                this._instructionCallback = opTya;
                 break;
 
             default:
