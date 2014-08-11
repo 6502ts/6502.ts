@@ -67,7 +67,7 @@ class DebuggerFrontend {
         if (this._aliasTable[name]) return this._aliasTable[name];
 
         var candidates = Object.keys(this._commandTable).filter(
-            (candidate: string) => candidate.search(name) === 0
+            (candidate: string) => candidate.indexOf(name) === 0
         );
         var nCandidates = candidates.length;
 

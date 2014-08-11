@@ -27,7 +27,7 @@ class SimpleMemory implements MemoryInterface {
         this._data[address] = value;
     }
 
-    private _data = new Uint8Array(0x10000);
+    _data = new Uint8Array(0x10000);
 }
 
 export = SimpleMemory;

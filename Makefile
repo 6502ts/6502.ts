@@ -1,7 +1,7 @@
 TSC = tsc -t ES5 --noImplicitAny
 MOCHA = ./node_modules/.bin/mocha
 
-SOURCES = debugger.ts
+SOURCES = debugger.ts ehBasicMonitor.ts
 
 TARGET_COMMONJS = $(SOURCES:.ts=.js);
 

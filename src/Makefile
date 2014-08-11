@@ -1,7 +1,8 @@
 TSC = tsc -t ES5 --noImplicitAny
 
 SOURCES = Instruction.ts Disassembler.ts hex.ts Debugger.ts \
-    SimpleMemory.ts DebuggerFrontend.ts Cpu.ts binary.ts
+    SimpleMemory.ts DebuggerFrontend.ts Cpu.ts binary.ts \
+    EhBasicMonitor.ts
 
 TARGET_COMMONJS = $(SOURCES:.ts=.js);
 
