@@ -14,7 +14,24 @@ function opBoot(state: Cpu.State, memory: MemoryInterface): void {
     state.p = memory.readWord(0xFFFC);
 }
 
-function opNop(): void {}
+function opAdc(state: Cpu.State, memory: MemoryInterface, operand: number) {
+    if (state.flags & Cpu.Flags.d) {
+        state.a = (operand + state.a) & 0x0F + (operand & 0xF0 + state.a & 0xF0) & 0xF0;
+
+        state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+            (state.a & 0x80) |
+            (state.a ? 0 : Cpu.Flags.z) |
+            (state.a > 99 ? Cpu.Flags.c : 0);
+    } else {
+        var result = state.a + operand + state.flags & Cpu.Flags.c;
+        state.a = result & 0xFF
+
+        state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+            (state.a & 0x80) |
+            (state.a ? 0 : Cpu.Flags.z) |
+            ((result & 0x100) >> 8);
+    }
+}
 
 function opAnd(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.a &= operand;
@@ -36,6 +53,20 @@ function opCmp(state: Cpu.State, memory: MemoryInterface, operand: number): void
         (state.a >= operand ? Cpu.Flags.c : 0);
 }
 
+function opCpx(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+        (state.x & 0x80) |
+        (state.x === operand ? Cpu.Flags.z : 0) |
+        (state.x >= operand ? Cpu.Flags.c : 0);
+}
+
+function opCpy(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+        (state.y & 0x80) |
+        (state.y === operand ? Cpu.Flags.z : 0) |
+        (state.y >= operand ? Cpu.Flags.c : 0);
+}
+
 function opDex(state: Cpu.State): void {
     state.x = (state.x + 0xFF) % 0x100;
     setFlagsNZ(state, state.x);
@@ -44,6 +75,11 @@ function opDex(state: Cpu.State): void {
 function opDey(state: Cpu.State): void {
     state.y = (state.y + 0xFF) % 0x100;
     setFlagsNZ(state, state.y);
+}
+
+function opInx(state: Cpu.State): void {
+    state.x = (state.x + 0x01) % 0x100;
+    setFlagsNZ(state, state.x);
 }
 
 function opIny(state: Cpu.State): void {
@@ -81,6 +117,28 @@ function opLdy(state: Cpu.State, memory: MemoryInterface, operand: number): void
     setFlagsNZ(state, operand);
 }
 
+function opNop(): void {}
+
+function opPhp(state: Cpu.State, memory: MemoryInterface): void {
+    memory.write(0x0100 + state.s, state.flags);
+    state.s = (state.s + 0xFF) % 0x100;
+}
+
+function opPlp(state: Cpu.State, memory: MemoryInterface): void {
+    state.s = (state.s + 0x01) % 0x100;
+    state.flags = memory.read(0x0100 + state.s);
+}
+
+function opPha(state: Cpu.State, memory: MemoryInterface): void {
+    memory.write(0x0100 + state.s, state.a);
+    state.s = (state.s + 0xFF) % 0x100;
+}
+
+function opPla(state: Cpu.State, memory: MemoryInterface): void {
+    state.s = (state.s + 0x01) % 0x100;
+    state.a = memory.read(0x0100 + state.s);
+}
+
 function opRts(state: Cpu.State, memory: MemoryInterface): void {
     var returnPtr: number;
 
@@ -106,6 +164,16 @@ function opStx(state: Cpu.State, memory: MemoryInterface, operand: number): void
 
 function opSty(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     memory.write(operand, state.y);
+}
+
+function opTax(state: Cpu.State): void {
+    state.x = state.a;
+    setFlagsNZ(state, state.a);
+}
+
+function opTay(state: Cpu.State): void {
+    state.x = state.a;
+    setFlagsNZ(state, state.a);
 }
 
 function opTxs(state: Cpu.State): void {
@@ -212,6 +280,12 @@ class Cpu {
             slowIndexedAccess = false;
 
         switch (instruction.operation) {
+            case Instruction.Operation.adc:
+                this._opCycles = 0;
+                this._instructionCallback = opAdc;
+                dereference = true;
+                break;
+
             case Instruction.Operation.and:
                 this._opCycles = 0;
                 this._instructionCallback = opAnd;
@@ -229,7 +303,19 @@ class Cpu {
                     this._opCycles = 0;
                 }
                 break;
-                
+
+            case Instruction.Operation.bcs:
+                if (this.state.flags & Cpu.Flags.c) {
+                    this._instructionCallback = opJmp;
+                    this._opCycles = 0;
+                } else {
+                    addressingMode = Instruction.AddressingMode.implied;
+                    this._instructionCallback = opNop;
+                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this._opCycles = 1;
+                }
+                break;
+
             case Instruction.Operation.beq:
                 if (this.state.flags & Cpu.Flags.z) {
                     this._instructionCallback = opJmp;
@@ -282,6 +368,18 @@ class Cpu {
                 dereference = true;
                 break;
 
+            case Instruction.Operation.cpx:
+                this._opCycles = 0;
+                this._instructionCallback = opCpx;
+                dereference = true;
+                break;
+
+            case Instruction.Operation.cpy:
+                this._opCycles = 0;
+                this._instructionCallback = opCpy;
+                dereference = true;
+                break;
+
             case Instruction.Operation.dex:
                 this._opCycles = 1;
                 this._instructionCallback = opDex;
@@ -290,6 +388,11 @@ class Cpu {
             case Instruction.Operation.dey:
                 this._opCycles = 1;
                 this._instructionCallback = opDey;
+                break;
+
+            case Instruction.Operation.inx:
+                this._opCycles = 1;
+                this._instructionCallback = opInx;
                 break;
 
             case Instruction.Operation.iny:
@@ -330,6 +433,27 @@ class Cpu {
                 this._instructionCallback = opNop;
                 break;
 
+            case Instruction.Operation.php:
+                this._opCycles = 2;
+                this._instructionCallback = opPhp;
+                break;
+
+            case Instruction.Operation.plp:
+                this._opCycles = 3;
+                this._instructionCallback = opPlp;
+                break;
+
+
+            case Instruction.Operation.pha:
+                this._opCycles = 2;
+                this._instructionCallback = opPhp;
+                break;
+
+            case Instruction.Operation.pla:
+                this._opCycles = 3;
+                this._instructionCallback = opPlp;
+                break;
+
             case Instruction.Operation.sec:
                 this._opCycles = 1;
                 this._instructionCallback = opSec;
@@ -356,6 +480,16 @@ class Cpu {
                 this._opCycles = 1;
                 this._instructionCallback = opSty;
                 slowIndexedAccess = true;
+                break;
+
+            case Instruction.Operation.tax:
+                this._opCycles = 1;
+                this._instructionCallback = opTax;
+                break;
+
+            case Instruction.Operation.tay:
+                this._opCycles = 1;
+                this._instructionCallback = opTay;
                 break;
 
             case Instruction.Operation.txs:

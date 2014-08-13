@@ -187,7 +187,7 @@ module Instruction {
         set(0x60, Operation.rts, AddressingMode.implied);
         set(0x08, Operation.php, AddressingMode.implied);
         set(0x28, Operation.plp, AddressingMode.implied);
-        set(0x58, Operation.pha, AddressingMode.implied);
+        set(0x48, Operation.pha, AddressingMode.implied);
         set(0x68, Operation.pla, AddressingMode.implied);
         set(0x88, Operation.dey, AddressingMode.implied);
         set(0xA8, Operation.tay, AddressingMode.implied);
