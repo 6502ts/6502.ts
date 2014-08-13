@@ -128,6 +128,10 @@ Runner.prototype.assertMemory = function(checks) {
     });
 };
 
+Runner.prototype.getCpu = function() {
+    return this._cpu;
+}
+
 function create(code, base) {
     return new Runner(code, base);
 }

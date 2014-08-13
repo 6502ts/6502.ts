@@ -16,20 +16,26 @@ function opBoot(state: Cpu.State, memory: MemoryInterface): void {
 
 function opAdc(state: Cpu.State, memory: MemoryInterface, operand: number) {
     if (state.flags & Cpu.Flags.d) {
-        state.a = (operand + state.a) & 0x0F + (operand & 0xF0 + state.a & 0xF0) & 0xF0;
+        var d0 = (operand & 0x0F) + (state.a & 0x0F) + (state.flags & Cpu.Flags.c),
+            d1 = (operand >> 4) + (state.a >> 4) + (d0 > 9 ? 1 : 0);
+
+        state.a = (d0 % 10) | ((d1 % 10) << 4);
 
         state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
-            (state.a & 0x80) |
-            (state.a ? 0 : Cpu.Flags.z) |
-            (state.a > 99 ? Cpu.Flags.c : 0);
+            (state.a & 0x80) |  // negative
+            (state.a ? 0 : Cpu.Flags.z) |   // zero
+            (d1 > 9 ? Cpu.Flags.c : 0);     // carry
     } else {
-        var result = state.a + operand + state.flags & Cpu.Flags.c;
-        state.a = result & 0xFF
+        var sum = state.a + operand + (state.flags & Cpu.Flags.c),
+            result = sum & 0xFF;
 
-        state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
-            (state.a & 0x80) |
-            (state.a ? 0 : Cpu.Flags.z) |
-            ((result & 0x100) >> 8);
+        state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c | Cpu.Flags.v)) |
+            (result & 0x80) |  // negative
+            (result ? 0 : Cpu.Flags.z) |   // zero
+            ((sum & 0x100) >> 8) |         // carry
+            (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >> 1); // overflow
+
+        state.a = result;
     }
 }
 

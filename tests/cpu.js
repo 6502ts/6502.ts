@@ -1,5 +1,7 @@
 var cpuRunner = require('./runner/cpu'),
-    Cpu = require('../src/Cpu');
+    Cpu = require('../src/Cpu'),
+    hex = require('../src/hex'),
+    util = require('util');
 
 function branchSuite(mnemonic, opcode, jumpCondition, noJumpCondition) {
     suite(mnemonic, function() {
@@ -80,7 +82,259 @@ function setFlagSuite(mnemonic, opcode, flag) {
     });
 }
 
+function testAdc(in1, in2, out, flags, flagsDontcare, carry) {
+    if (typeof(flagsDontcare) === 'undefined') flagsDontcare = 0;
+
+    test(util.format('immediate, %s + %s%s = %s',
+        hex.encode(in1, 2), hex.encode(in2, 2), carry ? ' + c' : '', hex.encode(out, 2)), function()
+    {
+        var runner = cpuRunner
+            .create([0x69, in1])
+            .setState({
+                a: in2,
+                flags: Cpu.Flags.e | (carry ? Cpu.Flags.c : 0)
+            });
+
+        runner
+            .run()
+            .assertCycles(2)
+            .assertState({
+                a: out,
+                flags: ((Cpu.Flags.e | flags) & ~flagsDontcare) |
+                    (runner.getCpu().state.flags & flagsDontcare)
+            });
+    });
+}
+
+function testAdcNeg(in1, in2, out, flags, flagsDontcare, carry) {
+    if (typeof(flagsDontcare) === 'undefined') flagsDontcare = 0;
+
+    test(util.format('immediate, %s + %s%s = %s',
+        hex.encode(in1, 2), hex.encode(in2, 2), carry ? ' + c' : '', hex.encode(out, 2)), function()
+    {
+        in1 = in1 >= 0 ? in1 : (~Math.abs(in1) & 0xFF) + 1;
+        in2 = in2 >= 0 ? in2 : (~Math.abs(in2) & 0xFF) + 1;
+        out = out >= 0 ? out : (~Math.abs(out) & 0xFF) + 1;
+
+        var runner = cpuRunner
+            .create([0x69, in1])
+            .setState({
+                a: in2,
+                flags: Cpu.Flags.e | (carry ? Cpu.Flags.c : 0)
+            })
+            .run();
+
+        runner
+            .assertCycles(2)
+            .assertState({
+                a: out,
+                flags: ((Cpu.Flags.e | flags) & ~flagsDontcare) |
+                    (runner.getCpu().state.flags & flagsDontcare)
+            });
+    });
+}
+
+function testAdcBcd(in1, in2, out, flags, flagsDontcare, carry) {
+    if (typeof(flagsDontcare) === 'undefined') flagsDontcare = 0;
+
+    test(util.format('immediate BCD, %s + %s%s = %s',
+        hex.encode(in1, 2), hex.encode(in2, 2), carry ? ' + c' : '', hex.encode(out, 2)), function()
+    {
+        var runner = cpuRunner
+            .create([0x69, in1])
+            .setState({
+                a: in2,
+                flags: Cpu.Flags.d | (carry ? Cpu.Flags.c : 0)
+            });
+
+        runner
+            .run()
+            .assertCycles(2)
+            .assertState({
+                a: out,
+                flags: ((Cpu.Flags.d | flags) & ~flagsDontcare) |
+                    (runner.getCpu().state.flags & (flagsDontcare | Cpu.Flags.v))
+            });
+    });
+}
+
+function testDereferencingZeropageX(opcode, operand, cycles, stateBefore, stateAfter) {
+    stateBefore.x = 0x12;
+
+    test('zeroPage,X', function() {
+        cpuRunner
+            .create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0046': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter);
+    });
+}
+
+function testDereferencingZeropage(opcode, operand, cycles, stateBefore, stateAfter) {
+    test('zeroPage', function() {
+        cpuRunner
+            .create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0034': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter);
+    });
+}
+
+function testDereferencingAbsolute(opcode, operand, cycles, stateBefore, stateAfter) {
+    test('absolute', function() {
+        cpuRunner
+            .create([opcode, 0x34, 0x56])
+            .setState(stateBefore)
+            .poke({
+                '0x5634': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter);
+    });
+}
+
+function testDereferencingAbsoluteX(opcode, operand, cycles, cyclesCross, stateBefore, stateAfter) {
+    stateBefore.x = 0x12;
+
+    test('absolute,X', function() {
+        cpuRunner
+            .create([opcode, 0x34, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5546': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter);
+    });
+
+    test('absolute,X , page crossing', function() {
+        cpuRunner
+            .create([opcode, 0xEE, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5600': operand
+            })
+            .run()
+            .assertCycles(cyclesCross)
+            .assertState(stateAfter);
+    });
+}
+
+function testDereferencingAbsoluteY(opcode, operand, cycles, cyclesCross, stateBefore, stateAfter) {
+    stateBefore.y = 0x12;
+
+    test('absolute,Y', function() {
+        cpuRunner
+            .create([opcode, 0x34, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5546': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter);
+    });
+
+    test('absolute,Y , page crossing', function() {
+        cpuRunner
+            .create([opcode, 0xEE, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5600': operand
+            })
+            .run()
+            .assertCycles(cyclesCross)
+            .assertState(stateAfter);
+    });
+}
+
+function testDereferencingIndirectX(opcode, operand, cycles, stateBefore, stateAfter) {
+    stateBefore.x = 0x12;
+
+    test('indirect,X', function() {
+        cpuRunner
+            .create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0046': 0x87,
+                '0x0047': 0x6E,
+                '0x6E87': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter);
+    });
+}
+
+function testDereferencingIndirectY(opcode, operand, cycles, cyclesCross, stateBefore, stateAfter) {
+    stateBefore.y = 0x12;
+
+    test('indirect,Y', function() {
+        cpuRunner
+            .create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0034': 0x87,
+                '0x0035': 0x6E,
+                '0x6E99': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter);
+    });
+
+    test('indirect,Y , page crossing', function() {
+        cpuRunner
+            .create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0034': 0xFF,
+                '0x0035': 0x6E,
+                '0x6F11': operand
+            })
+            .run()
+            .assertCycles(cyclesCross)
+            .assertState(stateAfter);
+    });
+
+}
+
 suite('CPU', function() {
+
+    suite('ADC', function() {
+        testAdc(0x01, 0x30, 0x31, 0, Cpu.Flags.v);
+        testAdc(0x01, 0x30, 0x32, 0, Cpu.Flags.v, true);
+        testAdc(0xFE, 0x02, 0x00, Cpu.Flags.c | Cpu.Flags.z, Cpu.Flags.v);
+        testAdc(0x80, 0x70, 0xF0, Cpu.Flags.n);
+        testAdcNeg(0x01, -0x01, 0x00, Cpu.Flags.z, Cpu.Flags.c)
+        testAdcNeg(-0x71, 0x61, -0x10, Cpu.Flags.n, Cpu.Flags.c);
+        testAdcNeg(-0x71, -0x61, 0x2E, Cpu.Flags.v, Cpu.Flags.c);
+        testAdcNeg(0x7F, 0x7F, 0xFE, Cpu.Flags.v | Cpu.Flags.n, Cpu.Flags.c);
+        testAdcBcd(0x03, 0x08, 0x11);
+        testAdcBcd(0x23, 0x44, 0x67);
+        testAdcBcd(0x76, 0x43, 0x19, Cpu.Flags.c);
+        testAdcBcd(0x77, 0x23, 0x00, Cpu.Flags.z | Cpu.Flags.c);
+        testAdcBcd(0x50, 0x44, 0x94, Cpu.Flags.n);
+
+        testDereferencingZeropage(0x65, 0x12, 3, {a: 0x23}, {a: 0x35});
+        testDereferencingZeropageX(0x75, 0x12, 4, {a: 0x23}, {a: 0x35});
+        testDereferencingAbsolute(0x6D, 0x12, 4, {a: 0x23}, {a: 0x35});
+        testDereferencingAbsoluteX(0x7D, 0x12, 4, 5, {a: 0x23}, {a: 0x35});
+        testDereferencingAbsoluteY(0x79, 0x12, 4, 5, {a: 0x23}, {a: 0x35});
+        testDereferencingIndirectX(0x61, 0x12, 6, {a: 0x23}, {a: 0x35});
+        testDereferencingIndirectY(0x71, 0x12, 5, 6, {a: 0x23}, {a: 0x35});
+
+    });
 
     suite('AND', function() {
         test('immediate, flags', function() {
