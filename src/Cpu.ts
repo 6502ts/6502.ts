@@ -74,22 +74,22 @@ function opCpy(state: Cpu.State, memory: MemoryInterface, operand: number): void
 }
 
 function opDex(state: Cpu.State): void {
-    state.x = (state.x + 0xFF) % 0x100;
+    state.x = (state.x + 0xFF) & 0xFF;
     setFlagsNZ(state, state.x);
 }
 
 function opDey(state: Cpu.State): void {
-    state.y = (state.y + 0xFF) % 0x100;
+    state.y = (state.y + 0xFF) & 0xFF;
     setFlagsNZ(state, state.y);
 }
 
 function opInx(state: Cpu.State): void {
-    state.x = (state.x + 0x01) % 0x100;
+    state.x = (state.x + 0x01) & 0xFF;
     setFlagsNZ(state, state.x);
 }
 
 function opIny(state: Cpu.State): void {
-    state.y = (state.y + 0x01) % 0x100;
+    state.y = (state.y + 0x01) & 0xFF;
     setFlagsNZ(state, state.y);
 }
 
@@ -98,12 +98,12 @@ function opJmp(state: Cpu.State, memory: MemoryInterface, operand: number): void
 }
 
 function opJsr(state: Cpu.State, memory: MemoryInterface, operand: number): void {
-    var returnPtr = (state.p + 0xFFFF) % 0x10000;
+    var returnPtr = (state.p + 0xFFFF) & 0xFFFF;
 
     memory.write(0x0100 + state.s, returnPtr >> 8);
-    state.s = (state.s + 0xFF) % 0x100;
+    state.s = (state.s + 0xFF) & 0xFF;
     memory.write(0x0100 + state.s, returnPtr & 0xFF);
-    state.s = (state.s + 0xFF) % 0x100;
+    state.s = (state.s + 0xFF) & 0xFF;
 
     state.p = operand;
 }
@@ -127,33 +127,33 @@ function opNop(): void {}
 
 function opPhp(state: Cpu.State, memory: MemoryInterface): void {
     memory.write(0x0100 + state.s, state.flags);
-    state.s = (state.s + 0xFF) % 0x100;
+    state.s = (state.s + 0xFF) & 0xFF;
 }
 
 function opPlp(state: Cpu.State, memory: MemoryInterface): void {
-    state.s = (state.s + 0x01) % 0x100;
+    state.s = (state.s + 0x01) & 0xFF;
     state.flags = memory.read(0x0100 + state.s);
 }
 
 function opPha(state: Cpu.State, memory: MemoryInterface): void {
     memory.write(0x0100 + state.s, state.a);
-    state.s = (state.s + 0xFF) % 0x100;
+    state.s = (state.s + 0xFF) & 0xFF;
 }
 
 function opPla(state: Cpu.State, memory: MemoryInterface): void {
-    state.s = (state.s + 0x01) % 0x100;
+    state.s = (state.s + 0x01) & 0xFF;
     state.a = memory.read(0x0100 + state.s);
 }
 
 function opRts(state: Cpu.State, memory: MemoryInterface): void {
     var returnPtr: number;
 
-    state.s = (state.s + 1) % 0x100;
+    state.s = (state.s + 1) & 0xFF;
     returnPtr = memory.read(0x0100 + state.s);
-    state.s = (state.s + 1) % 0x100;
+    state.s = (state.s + 1) & 0xFF;
     returnPtr += (memory.read(0x0100 + state.s) << 8);
 
-    state.p = (returnPtr + 1) % 0x10000;
+    state.p = (returnPtr + 1) & 0xFFFF;
 }
 
 function opSec(state: Cpu.State): void {
@@ -302,7 +302,7 @@ class Cpu {
                 if (this.state.flags & Cpu.Flags.c) {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this.state.p = (this.state.p + 1) & 0xFFFF;
                     this._opCycles = 1;
                 } else {
                     this._instructionCallback = opJmp;
@@ -317,7 +317,7 @@ class Cpu {
                 } else {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this.state.p = (this.state.p + 1) & 0xFFFF;
                     this._opCycles = 1;
                 }
                 break;
@@ -329,7 +329,7 @@ class Cpu {
                 } else {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this.state.p = (this.state.p + 1) & 0xFFFF;
                     this._opCycles = 1;
                 }
                 break;
@@ -338,7 +338,7 @@ class Cpu {
                 if (this.state.flags & Cpu.Flags.z) {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this.state.p = (this.state.p + 1) & 0xFFFF;
                     this._opCycles = 1;
                 } else {
                     this._instructionCallback = opJmp;
@@ -350,7 +350,7 @@ class Cpu {
                 if (this.state.flags & Cpu.Flags.n) {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) % 0x10000;
+                    this.state.p = (this.state.p + 1) & 0xFFFF;
                     this._opCycles = 1;
                 } else {
                     this._instructionCallback = opJmp;
@@ -523,7 +523,7 @@ class Cpu {
                 }
         }
 
-        this.state.p = (this.state.p + 1) % 0x10000;
+        this.state.p = (this.state.p + 1) & 0xFFFF;
 
         var value: number;
 
@@ -531,19 +531,19 @@ class Cpu {
             case Instruction.AddressingMode.immediate:
                 this._operand = this._memory.read(this.state.p);
                 dereference = false;
-                this.state.p = (this.state.p + 1) % 0x10000;
+                this.state.p = (this.state.p + 1) & 0xFFFF;
                 this._opCycles++;
                 break;
 
             case Instruction.AddressingMode.zeroPage:
                 this._operand = this._memory.read(this.state.p);
-                this.state.p = (this.state.p + 1) % 0x10000;
+                this.state.p = (this.state.p + 1) & 0xFFFF;
                 this._opCycles++;
                 break;
 
             case Instruction.AddressingMode.absolute:
                 this._operand = this._memory.readWord(this.state.p);
-                this.state.p = (this.state.p + 2) % 0x10000;
+                this.state.p = (this.state.p + 2) & 0xFFFF;
                 this._opCycles += 2;
                 break;
 
@@ -552,53 +552,53 @@ class Cpu {
                 if ((value & 0xFF) === 0xFF)
                     this._operand = this._memory.read(value) + (this._memory.read(value & 0xFF00) << 8);
                 else this._operand = this._memory.readWord(value);
-                this.state.p = (this.state.p + 2) % 0x10000;
+                this.state.p = (this.state.p + 2) & 0xFFFF;
                 this._opCycles += 4;
                 break;
 
             case Instruction.AddressingMode.relative:
                 value = this._memory.read(this.state.p);
                 value = (value & 0x80) ? -(~(value - 1) & 0xFF) : value;
-                this._operand = (this.state.p + value + 0x10001) % 0x10000;
+                this._operand = (this.state.p + value + 0x10001) & 0xFFFF;
                 this._opCycles += (((this._operand & 0xFF00) !== (this.state.p & 0xFF00)) ? 3 : 2);
-                this.state.p = (this.state.p + 1) % 0x10000;
+                this.state.p = (this.state.p + 1) & 0xFFFF;
                 break;
 
             case Instruction.AddressingMode.zeroPageX:
-                this._operand = (this._memory.read(this.state.p) + this.state.x) % 0x100;
-                this.state.p = (this.state.p + 1) % 0x10000;
+                this._operand = (this._memory.read(this.state.p) + this.state.x) & 0xFF;
+                this.state.p = (this.state.p + 1) & 0xFFFF;
                 this._opCycles += 2;
                 break;
 
             case Instruction.AddressingMode.absoluteX:
                 value = this._memory.readWord(this.state.p);
-                this._operand = (value + this.state.x) % 0x10000;
+                this._operand = (value + this.state.x) & 0xFFFF;
                 this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value & 0xFF00)) ? 3 : 2)
-                this.state.p = (this.state.p + 2) % 0x10000;
+                this.state.p = (this.state.p + 2) & 0xFFFF;
                 break;
 
             case Instruction.AddressingMode.zeroPageY:
-                this._operand = (this._memory.read(this.state.p) + this.state.y) % 0x100;
-                this.state.p = (this.state.p + 1) % 0x10000;
+                this._operand = (this._memory.read(this.state.p) + this.state.y) & 0xFF;
+                this.state.p = (this.state.p + 1) & 0xFFFF;
                 this._opCycles += 2;
                 break;
 
             case Instruction.AddressingMode.absoluteY:
                 value = this._memory.readWord(this.state.p);
-                this._operand = (value + this.state.y) % 0x10000;
+                this._operand = (value + this.state.y) & 0xFFFF;
                 this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value & 0xFF00)) ? 3 : 2);
-                this.state.p = (this.state.p + 2) % 0x10000;
+                this.state.p = (this.state.p + 2) & 0xFFFF;
                 break;
 
             case Instruction.AddressingMode.indexedIndirectX:
-                value = (this._memory.read(this.state.p) + this.state.x) % 0x100;
+                value = (this._memory.read(this.state.p) + this.state.x) & 0xFF;
 
                 if (value === 0xFF) 
                     this._operand = this._memory.read(0xFF) + (this._memory.read(0x00) << 8);
                 else this._operand = this._memory.readWord(value);
 
                 this._opCycles += 4;
-                this.state.p = (this.state.p + 1) % 0x10000;
+                this.state.p = (this.state.p + 1) & 0xFFFF;
                 break;
 
             case Instruction.AddressingMode.indirectIndexedY:
@@ -608,10 +608,10 @@ class Cpu {
                     value = this._memory.read(0xFF) + (this._memory.read(0x00) << 8);
                 else value = this._memory.readWord(value);
 
-                this._operand = (value + this.state.y) % 0x10000;
+                this._operand = (value + this.state.y) & 0xFFFF;
 
                 this._opCycles += ((slowIndexedAccess || (value & 0xFF00) !== (this._operand & 0xFF00)) ? 4 : 3);
-                this.state.p = (this.state.p + 1) % 0x10000;
+                this.state.p = (this.state.p + 1) & 0xFFFF;
                 break;
         }
 

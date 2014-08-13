@@ -13,10 +13,10 @@ class EhBasicMonitor extends SimpleMemory {
 
     readWord(address: number): number {
         if ((address & 0xFFF0) === 0xF000) {
-            return this.read(address) + this.read((address+1) % 0x10000) << 8;
+            return this.read(address) + this.read((address+1) & 0xFFFF) << 8;
         }
 
-        return this._data[address] + (this._data[(address+1) % 0x10000] << 8);
+        return this._data[address] + (this._data[(address+1) & 0xFFFF] << 8);
     }
 
     write(address: number, value: number) {

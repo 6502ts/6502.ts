@@ -12,7 +12,7 @@ class SimpleMemory implements MemoryInterface {
     }
 
     readWord(address: number): number {
-        return this._data[address] + (this._data[(address+1) % 0x10000] << 8);
+        return this._data[address] + (this._data[(address+1) & 0xFFFF] << 8);
     }
 
     write(address: number, value: number) {
