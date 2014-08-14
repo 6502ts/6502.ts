@@ -158,6 +158,54 @@ function testAdcBcd(in1, in2, out, flags, flagsDontcare, carry) {
     });
 }
 
+function testSbc(in1, in2, out, flags, flagsDontcare, borrow) {
+    if (typeof(flagsDontcare) === 'undefined') flagsDontcare = 0;
+
+    test(util.format('immediate, %s - %s%s = %s',
+        hex.encode(in1, 2), hex.encode(in2, 2), borrow ? ' - b' : '', hex.encode(out, 2)), function()
+    {
+        var runner = cpuRunner
+            .create([0xE9, in2])
+            .setState({
+                a: in1,
+                flags: Cpu.Flags.e | (borrow ? 0 : Cpu.Flags.c)
+            });
+
+        runner
+            .run()
+            .assertCycles(2)
+            .assertState({
+                a: out,
+                flags: ((Cpu.Flags.e | flags) & ~flagsDontcare) |
+                    (runner.getCpu().state.flags & (flagsDontcare | Cpu.Flags.v))
+            });
+    });
+}
+
+function testSbcBcd(in1, in2, out, flags, flagsDontcare, borrow) {
+    if (typeof(flagsDontcare) === 'undefined') flagsDontcare = 0;
+
+    test(util.format('immediate, BCD %s - %s%s = %s',
+        hex.encode(in1, 2), hex.encode(in2, 2), borrow ? ' - b' : '', hex.encode(out, 2)), function()
+    {
+        var runner = cpuRunner
+            .create([0xE9, in2])
+            .setState({
+                a: in1,
+                flags: Cpu.Flags.d | (borrow ? 0 : Cpu.Flags.c)
+            });
+
+        runner
+            .run()
+            .assertCycles(2)
+            .assertState({
+                a: out,
+                flags: ((Cpu.Flags.d | flags) & ~flagsDontcare) |
+                    (runner.getCpu().state.flags & (flagsDontcare | Cpu.Flags.v))
+            });
+    });
+}
+
 function testDereferencingZeropageX(opcode, operand, cycles, stateBefore, stateAfter) {
     stateBefore.x = 0x12;
 
@@ -1306,8 +1354,6 @@ suite('CPU', function() {
         });
     });
 
-    setFlagSuite('SEC', 0x38, Cpu.Flags.c);
-
     suite('RTS', function() {
         test('vanilla', function() {
             cpuRunner
@@ -1344,6 +1390,29 @@ suite('CPU', function() {
                     p: 0xABCD
                 });
         });
+    });
+
+    setFlagSuite('SEC', 0x38, Cpu.Flags.c);
+
+    suite('SBC', function() {
+        testSbc(0x45, 0x01, 0x44, Cpu.Flags.c, 0);
+        testSbc(0x45, 0x36, 0x0F, Cpu.Flags.c, 0);
+        testSbc(0x45, 0x36, 0x0F, Cpu.Flags.c, 0);
+        testSbc(0x45, 0x50, 0xF5, Cpu.Flags.n, 0);
+        testSbc(0xFF, 0xFE, 0x00, Cpu.Flags.z | Cpu.Flags.c, 0, true);
+        testSbcBcd(0x34, 0x12, 0x22, Cpu.Flags.c, 0);
+        testSbcBcd(0x34, 0x17, 0x17, Cpu.Flags.c, 0);
+        testSbcBcd(0x78, 0x80, 0x98, 0, Cpu.Flags.n);
+        testSbcBcd(0x56, 0x56, 0x00, Cpu.Flags.c | Cpu.Flags.z, 0);
+        testSbcBcd(0x56, 0x56, 0x99, Cpu.Flags.n, 0, true);
+
+        testDereferencingZeropage(0xE5, 0xFF, 3, {a: 0x10}, {a: 0x10});
+        testDereferencingZeropageX(0xF5, 0xFF, 4, {a: 0x10}, {a: 0x10});
+        testDereferencingAbsolute(0xED, 0xFF, 4, {a: 0x10}, {a: 0x10});
+        testDereferencingAbsoluteX(0xFD, 0xFF, 4, 5, {a: 0x10}, {a: 0x10});
+        testDereferencingAbsoluteY(0xF9, 0xFF, 4, 5, {a: 0x10}, {a: 0x10});
+        testDereferencingIndirectX(0xE1, 0xFF, 6, {a: 0x10}, {a: 0x10});
+        testDereferencingIndirectY(0xF1, 0xFF, 5, 6, {a: 0x10}, {a: 0x10});
     });
 
     suite('STA', function() {

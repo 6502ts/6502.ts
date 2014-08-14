@@ -156,6 +156,33 @@ function opRts(state: Cpu.State, memory: MemoryInterface): void {
     state.p = (returnPtr + 1) & 0xFFFF;
 }
 
+function opSbc(state: Cpu.State, memory: MemoryInterface, operand: number) {
+    if (state.flags & Cpu.Flags.d) {
+        var d0 = ((state.a & 0x0F) - (operand & 0x0F) - (~state.flags & Cpu.Flags.c)) % 10,
+            d1 = ((state.a >> 4) - (operand >> 4) - (d0 < 0 ? 1 : 0)) % 10;
+
+        state.a = (d0 < 0 ? 10 + d0 : d0) | ((d1 < 0 ? 10 + d1 : d1) << 4);
+
+        state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+            (state.a & 0x80) |  // negative
+            (state.a ? 0 : Cpu.Flags.z) |   // zero
+            (d1 < 0 ? 0 : Cpu.Flags.c);     // carry / borrow
+    } else {
+        operand = (~operand & 0xFF);
+
+        var sum = state.a + operand + (state.flags & Cpu.Flags.c),
+            result = sum & 0xFF;
+
+        state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c | Cpu.Flags.v)) |
+            (result & 0x80) |  // negative
+            (result ? 0 : Cpu.Flags.z) |   // zero
+            ((sum & 0x100) >> 8) |         // carry / borrow
+            (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >> 1); // overflow
+
+        state.a = result;
+    }
+}
+
 function opSec(state: Cpu.State): void {
     state.flags |= Cpu.Flags.c;
 }
@@ -468,6 +495,12 @@ class Cpu {
             case Instruction.Operation.rts:
                 this._opCycles = 5;
                 this._instructionCallback = opRts;
+                break;
+
+            case Instruction.Operation.sbc:
+                this._opCycles = 0;
+                this._instructionCallback = opSbc;
+                dereference = true;
                 break;
 
             case Instruction.Operation.sta:
