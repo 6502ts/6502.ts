@@ -107,6 +107,11 @@ function opDex(state: Cpu.State): void {
     setFlagsNZ(state, state.x);
 }
 
+function opEor(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    state.a = state.a ^ operand;
+    setFlagsNZ(state, state.a);
+}
+
 function opDey(state: Cpu.State): void {
     state.y = (state.y + 0xFF) & 0xFF;
     setFlagsNZ(state, state.y);
@@ -180,6 +185,48 @@ function opPha(state: Cpu.State, memory: MemoryInterface): void {
 function opPla(state: Cpu.State, memory: MemoryInterface): void {
     state.s = (state.s + 0x01) & 0xFF;
     state.a = memory.read(0x0100 + state.s);
+}
+
+function opRolAcc(state: Cpu.State): void {
+    var old = state.a;
+    state.a = ((state.a << 1) & 0xFF) | (state.flags & Cpu.Flags.c);
+
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+        (state.a & 0x80) |
+        (state.a ? 0 : Cpu.Flags.z) |
+        (old >> 7);
+}
+
+function opRolMem(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    var old = memory.read(operand),
+        value = ((old << 1) & 0xFF) | (state.flags & Cpu.Flags.c);
+    memory.write(operand, value);
+
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+        (value & 0x80) |
+        (value ? 0 : Cpu.Flags.z) |
+        (old >> 7);
+}
+
+function opRorAcc(state: Cpu.State): void {
+    var old = state.a;
+    state.a = (state.a >>> 1) | ((state.flags & Cpu.Flags.c) << 7);
+
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+        (state.a & 0x80) |
+        (state.a ? 0 : Cpu.Flags.z) |
+        (old & Cpu.Flags.c);
+}
+
+function opRorMem(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    var old = memory.read(operand),
+        value = (old >>> 1) | ((state.flags & Cpu.Flags.c) << 7);
+    memory.write(operand, value);
+
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+        (value & 0x80) |
+        (value ? 0 : Cpu.Flags.z) |
+        (old & Cpu.Flags.c);
 }
 
 function opRts(state: Cpu.State, memory: MemoryInterface): void {
@@ -415,6 +462,18 @@ class Cpu {
                 dereference = true;
                 break;
 
+            case Instruction.Operation.bmi:
+                if (this.state.flags & Cpu.Flags.n) {
+                    this._instructionCallback = opJmp;
+                    this._opCycles = 0;
+                } else {
+                    addressingMode = Instruction.AddressingMode.implied;
+                    this._instructionCallback = opNop;
+                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this._opCycles = 1;
+                }
+                break;
+
             case Instruction.Operation.bne:
                 if (this.state.flags & Cpu.Flags.z) {
                     addressingMode = Instruction.AddressingMode.implied;
@@ -475,6 +534,12 @@ class Cpu {
             case Instruction.Operation.dey:
                 this._opCycles = 1;
                 this._instructionCallback = opDey;
+                break;
+
+            case Instruction.Operation.eor:
+                this._opCycles = 0;
+                this._instructionCallback = opEor;
+                dereference = true;
                 break;
 
             case Instruction.Operation.inc:
@@ -550,6 +615,28 @@ class Cpu {
             case Instruction.Operation.sec:
                 this._opCycles = 1;
                 this._instructionCallback = opSec;
+                break;
+
+            case Instruction.Operation.rol:
+                if (addressingMode === Instruction.AddressingMode.implied) {
+                    this._opCycles = 1;
+                    this._instructionCallback = opRolAcc;
+                } else {
+                    this._opCycles = 3;
+                    this._instructionCallback = opRolMem;
+                    slowIndexedAccess = true;
+                }
+                break;
+
+            case Instruction.Operation.ror:
+                if (addressingMode === Instruction.AddressingMode.implied) {
+                    this._opCycles = 1;
+                    this._instructionCallback = opRolAcc;
+                } else {
+                    this._opCycles = 3;
+                    this._instructionCallback = opRolMem;
+                    slowIndexedAccess = true;
+                }
                 break;
 
             case Instruction.Operation.rts:
