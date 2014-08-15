@@ -76,7 +76,7 @@ function schedule(delay: number = 0) {
 var state = State.debug,
     commands: Array<string>,
     outputBuffer = '',
-    inputBuffer: Array<number> = ['C'.charCodeAt(0)];
+    inputBuffer: Array<number> = ['C'.charCodeAt(0), 0x0D];
 
 var rl = readline.createInterface({
     input: process.stdin,

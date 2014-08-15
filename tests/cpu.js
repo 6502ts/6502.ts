@@ -717,6 +717,48 @@ suite('CPU', function() {
 
     branchSuite('BCC', 0x90, 0, Cpu.Flags.c);
 
+    suite('BIT', function() {
+        testDereferencingZeropage(0x24, Cpu.Flags.n, 3,
+            {
+                flags: Cpu.Flags.e,
+                a: 0
+            }, {
+                flags: Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.e
+            },
+            ', n'
+        );
+
+        testDereferencingAbsolute(0x2C, Cpu.Flags.n | Cpu.Flags.v, 4,
+            {
+                flags: Cpu.Flags.e,
+                a: 0
+            }, {
+                flags: Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.e | Cpu.Flags.v
+            },
+            ', n | v'
+        );
+
+        testDereferencingAbsolute(0x2C, Cpu.Flags.n | Cpu.Flags.v, 4,
+            {
+                flags: Cpu.Flags.e,
+                a: 0xFF
+            }, {
+                flags: Cpu.Flags.n | Cpu.Flags.e | Cpu.Flags.v
+            },
+            ', n | v, a = 0xFF'
+        );
+
+        testDereferencingAbsolute(0x2C, 0x01, 4,
+            {
+                flags: Cpu.Flags.e,
+                a: 0x01
+            }, {
+                flags: Cpu.Flags.e
+            },
+            ', 0x01, a = 0xFF'
+        );
+    })
+
     branchSuite('BNE', 0xD0, 0, Cpu.Flags.z);
 
     branchSuite('BEQ', 0xF0, Cpu.Flags.z, 0);

@@ -29,7 +29,8 @@ function opAdc(state: Cpu.State, memory: MemoryInterface, operand: number) {
         var sum = state.a + operand + (state.flags & Cpu.Flags.c),
             result = sum & 0xFF;
 
-        state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c | Cpu.Flags.v)) |
+        state.flags =
+            (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c | Cpu.Flags.v)) |
             (result & 0x80) |  // negative
             (result ? 0 : Cpu.Flags.z) |   // zero
             ((sum & 0x100) >> 8) |         // carry
@@ -42,6 +43,13 @@ function opAdc(state: Cpu.State, memory: MemoryInterface, operand: number) {
 function opAnd(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.a &= operand;
     setFlagsNZ(state, state.a);
+}
+
+function opBit(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    state.flags =
+        (state.flags & ~(Cpu.Flags.n | Cpu.Flags.v | Cpu.Flags.z)) |
+        (operand & (Cpu.Flags.n | Cpu.Flags.v)) |
+        ((operand & state.a) ? 0 : Cpu.Flags.z);
 }
 
 function opClc(state: Cpu.State): void {
@@ -367,6 +375,12 @@ class Cpu {
                     this.state.p = (this.state.p + 1) & 0xFFFF;
                     this._opCycles = 1;
                 }
+                break;
+
+            case Instruction.Operation.bit:
+                this._opCycles = 0;
+                this._instructionCallback = opBit;
+                dereference = true;
                 break;
 
             case Instruction.Operation.bne:
