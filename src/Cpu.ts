@@ -45,6 +45,27 @@ function opAnd(state: Cpu.State, memory: MemoryInterface, operand: number): void
     setFlagsNZ(state, state.a);
 }
 
+function opAslAcc(state: Cpu.State): void {
+    var old = state.a;
+    state.a = (state.a << 1) & 0xFF;
+
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+        (state.a & 0x80) |
+        (state.a ? 0 : Cpu.Flags.z) |
+        (old >> 7);
+}
+
+function opAslMem(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    var old = memory.read(operand),
+        value = (old << 1) & 0xFF;
+    memory.write(operand, value);
+
+    state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
+        (value & 0x80) |
+        (value ? 0 : Cpu.Flags.z) |
+        (old >> 7);
+}
+
 function opBit(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.flags =
         (state.flags & ~(Cpu.Flags.n | Cpu.Flags.v | Cpu.Flags.z)) |
@@ -329,6 +350,17 @@ class Cpu {
             slowIndexedAccess = false;
 
         switch (instruction.operation) {
+            case Instruction.Operation.asl:
+                if (addressingMode === Instruction.AddressingMode.implied) {
+                    this._opCycles = 1;
+                    this._instructionCallback = opAslAcc;
+                } else {
+                    this._opCycles = 3;
+                    this._instructionCallback = opAslMem;
+                    slowIndexedAccess = true;
+                }
+                break;
+
             case Instruction.Operation.adc:
                 this._opCycles = 0;
                 this._instructionCallback = opAdc;

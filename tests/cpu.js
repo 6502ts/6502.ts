@@ -494,6 +494,73 @@ function testMutatingAbsoluteX(
 
 suite('CPU', function() {
 
+    suite('ASL', function() {
+        testImplied(0x0A, 2,
+            {
+                a: 0xFF,
+                flags: Cpu.Flags.e
+            }, {
+                a: 0xFE,
+                flags: Cpu.Flags.e | Cpu.Flags.n  | Cpu.Flags.c
+            },
+            ', 0xFF'
+        );
+
+        testImplied(0x0A, 2,
+            {
+                a: parseInt('01010101', 2),
+                flags: Cpu.Flags.e
+            }, {
+                a: parseInt('10101010', 2),
+                flags: Cpu.Flags.e | Cpu.Flags.n
+            },
+            ', pattern'
+        );
+
+        testImplied(0x0A, 2,
+            {
+                a: 0x80,
+                flags: Cpu.Flags.e
+            }, {
+                a: 0x00,
+                flags: Cpu.Flags.e | Cpu.Flags.z | Cpu.Flags.c
+            },
+            ', 0x01'
+        );
+
+        testMutatingZeropage(0x06, 0xFF, 0xFE, 5,
+            {
+                flags: Cpu.Flags.e
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.n  | Cpu.Flags.c
+            },
+            ', 0xFF'
+        );
+
+        testMutatingZeropage(0x06, parseInt('01010101', 2), parseInt('10101010', 2), 5,
+            {
+                flags: Cpu.Flags.e
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.n
+            },
+            ', pattern'
+        );
+
+        testMutatingZeropage(0x06, 0x80, 0x00, 5,
+            {
+                flags: Cpu.Flags.e
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.z | Cpu.Flags.c
+            },
+            ', 0x01'
+        );
+
+        testMutatingZeropageX(0x16, 0x01, 0x02, 6, {a: 0x02}, {});
+        testMutatingAbsolute(0x0E, 0x01, 0x02, 6, {a: 0x02}, {});
+        testMutatingAbsoluteX(0x1E, 0x01, 0x02, 7, 7, {a: 0x02}, {});
+
+    });
+
     suite('ADC', function() {
         testAdc(0x01, 0x30, 0x31, 0, Cpu.Flags.v);
         testAdc(0x01, 0x30, 0x32, 0, Cpu.Flags.v, true);

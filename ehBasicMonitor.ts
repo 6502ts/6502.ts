@@ -54,7 +54,7 @@ function executeSlice() {
         console.log(message);
         state = State.debug;
     }
-    schedule(10);
+    schedule(1);
 }
 
 function schedule(delay: number = 0) {
