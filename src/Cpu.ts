@@ -17,7 +17,7 @@ function opBoot(state: Cpu.State, memory: MemoryInterface): void {
 function opAdc(state: Cpu.State, memory: MemoryInterface, operand: number) {
     if (state.flags & Cpu.Flags.d) {
         var d0 = (operand & 0x0F) + (state.a & 0x0F) + (state.flags & Cpu.Flags.c),
-            d1 = (operand >> 4) + (state.a >> 4) + (d0 > 9 ? 1 : 0);
+            d1 = (operand >>> 4) + (state.a >>> 4) + (d0 > 9 ? 1 : 0);
 
         state.a = (d0 % 10) | ((d1 % 10) << 4);
 
@@ -33,8 +33,8 @@ function opAdc(state: Cpu.State, memory: MemoryInterface, operand: number) {
             (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c | Cpu.Flags.v)) |
             (result & 0x80) |  // negative
             (result ? 0 : Cpu.Flags.z) |   // zero
-            ((sum & 0x100) >> 8) |         // carry
-            (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >> 1); // overflow
+            ((sum & 0x100) >>> 8) |         // carry
+            (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >>> 1); // overflow
 
         state.a = result;
     }
@@ -52,7 +52,7 @@ function opAslAcc(state: Cpu.State): void {
     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
         (state.a & 0x80) |
         (state.a ? 0 : Cpu.Flags.z) |
-        (old >> 7);
+        (old >>> 7);
 }
 
 function opAslMem(state: Cpu.State, memory: MemoryInterface, operand: number): void {
@@ -63,7 +63,7 @@ function opAslMem(state: Cpu.State, memory: MemoryInterface, operand: number): v
     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
         (value & 0x80) |
         (value ? 0 : Cpu.Flags.z) |
-        (old >> 7);
+        (old >>> 7);
 }
 
 function opBit(state: Cpu.State, memory: MemoryInterface, operand: number): void {
@@ -102,6 +102,12 @@ function opCpy(state: Cpu.State, memory: MemoryInterface, operand: number): void
         (state.y >= operand ? Cpu.Flags.c : 0);
 }
 
+function opDec(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    var value = (memory.read(operand) + 0xFF) & 0xFF;
+    memory.write(operand, value);
+    setFlagsNZ(state, value);
+}
+
 function opDex(state: Cpu.State): void {
     state.x = (state.x + 0xFF) & 0xFF;
     setFlagsNZ(state, state.x);
@@ -110,12 +116,6 @@ function opDex(state: Cpu.State): void {
 function opEor(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     state.a = state.a ^ operand;
     setFlagsNZ(state, state.a);
-}
-
-function opDec(state: Cpu.State, memory: MemoryInterface, operand: number): void {
-    var value = (memory.read(operand) + 0xFF) & 0xFF;
-    memory.write(operand, value);
-    setFlagsNZ(state, value);
 }
 
 function opDey(state: Cpu.State): void {
@@ -146,7 +146,7 @@ function opJmp(state: Cpu.State, memory: MemoryInterface, operand: number): void
 function opJsr(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     var returnPtr = (state.p + 0xFFFF) & 0xFFFF;
 
-    memory.write(0x0100 + state.s, returnPtr >> 8);
+    memory.write(0x0100 + state.s, returnPtr >>> 8);
     state.s = (state.s + 0xFF) & 0xFF;
     memory.write(0x0100 + state.s, returnPtr & 0xFF);
     state.s = (state.s + 0xFF) & 0xFF;
@@ -226,7 +226,7 @@ function opRolAcc(state: Cpu.State): void {
     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
         (state.a & 0x80) |
         (state.a ? 0 : Cpu.Flags.z) |
-        (old >> 7);
+        (old >>> 7);
 }
 
 function opRolMem(state: Cpu.State, memory: MemoryInterface, operand: number): void {
@@ -237,7 +237,7 @@ function opRolMem(state: Cpu.State, memory: MemoryInterface, operand: number): v
     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
         (value & 0x80) |
         (value ? 0 : Cpu.Flags.z) |
-        (old >> 7);
+        (old >>> 7);
 }
 
 function opRorAcc(state: Cpu.State): void {
@@ -275,7 +275,7 @@ function opRts(state: Cpu.State, memory: MemoryInterface): void {
 function opSbc(state: Cpu.State, memory: MemoryInterface, operand: number) {
     if (state.flags & Cpu.Flags.d) {
         var d0 = ((state.a & 0x0F) - (operand & 0x0F) - (~state.flags & Cpu.Flags.c)) % 10,
-            d1 = ((state.a >> 4) - (operand >> 4) - (d0 < 0 ? 1 : 0)) % 10;
+            d1 = ((state.a >>> 4) - (operand >>> 4) - (d0 < 0 ? 1 : 0)) % 10;
 
         state.a = (d0 < 0 ? 10 + d0 : d0) | ((d1 < 0 ? 10 + d1 : d1) << 4);
 
@@ -292,8 +292,8 @@ function opSbc(state: Cpu.State, memory: MemoryInterface, operand: number) {
         state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c | Cpu.Flags.v)) |
             (result & 0x80) |  // negative
             (result ? 0 : Cpu.Flags.z) |   // zero
-            ((sum & 0x100) >> 8) |         // carry / borrow
-            (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >> 1); // overflow
+            ((sum & 0x100) >>> 8) |         // carry / borrow
+            (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >>> 1); // overflow
 
         state.a = result;
     }
@@ -691,10 +691,10 @@ class Cpu {
             case Instruction.Operation.ror:
                 if (addressingMode === Instruction.AddressingMode.implied) {
                     this._opCycles = 1;
-                    this._instructionCallback = opRolAcc;
+                    this._instructionCallback = opRorAcc;
                 } else {
                     this._opCycles = 3;
-                    this._instructionCallback = opRolMem;
+                    this._instructionCallback = opRorMem;
                     slowIndexedAccess = true;
                 }
                 break;

@@ -832,6 +832,8 @@ suite('CPU', function() {
 
     branchSuite('BPL', 0x10, 0, Cpu.Flags.n);
 
+    branchSuite('BMI', 0x30, Cpu.Flags.n, 0);
+
     clearFlagSuite('CLC', 0x18, Cpu.Flags.c);
 
     clearFlagSuite('CLD', 0xD8, Cpu.Flags.d);
@@ -1100,6 +1102,33 @@ suite('CPU', function() {
         );
     });
 
+    suite('DEC', function() {
+        testMutatingZeropage(0xC6, 0xFF, 0xFE, 5,
+            {
+                flags: Cpu.Flags.e
+            }, {
+                flags: Cpu.Flags.n | Cpu.Flags.e
+            }
+        );
+
+        testMutatingZeropageX(0xD6, 0x00, 0xFF, 6,
+            {
+                flags: Cpu.Flags.e
+            }, {
+                flags: Cpu.Flags.n | Cpu.Flags.e
+            }
+        );
+
+        testMutatingAbsolute(0xCE, 0x01, 0x00, 6,
+            {
+                flags: Cpu.Flags.e
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.z
+            }
+        );
+
+        testMutatingAbsoluteX(0xDE, 0x05, 0x04, 7, 7, {}, {});
+    });
 
     suite('DEX', function() {
         test('starting with 0x01, flags', function() {
@@ -1163,6 +1192,35 @@ suite('CPU', function() {
                     y: 0xFF
                 });
         });
+    });
+
+    suite('EOR', function() {
+        testImmediate(0x49, 0x3, 2, {a: 0x01}, {a: 0x02}, ', flags');
+        testDereferencingZeropage(0x45, 0xFF, 3,
+            {
+                a: 0x7F,
+                flags: Cpu.Flags.e
+            }, {
+                a: 0x80,
+                flags: Cpu.Flags.n | Cpu.Flags.e
+            },
+            ', flags'
+        );
+        testDereferencingZeropageX(0x55, 0xFF, 4,
+            {
+                a: 0xFF,
+                flags: Cpu.Flags.e
+            }, {
+                a: 0x00,
+                flags: Cpu.Flags.e | Cpu.Flags.z
+            },
+            ', flags'
+        );
+        testDereferencingAbsolute(0x4D, 0x3, 4, {a: 0x01}, {a: 0x02});
+        testDereferencingAbsoluteX(0x5D, 0x3, 4, 5, {a: 0x01}, {a: 0x02});
+        testDereferencingAbsoluteY(0x59, 0x3, 4, 5, {a: 0x01}, {a: 0x02});
+        testDereferencingIndirectX(0x41, 0x3, 6, {a: 0x01}, {a: 0x02});
+        testDereferencingIndirectY(0x51, 0x3, 5, 6, {a: 0x01}, {a: 0x02});
     });
 
     suite('INC', function() {
@@ -1687,6 +1745,67 @@ suite('CPU', function() {
         });
     });
 
+    suite('LSR', function() {
+        testImplied(0x4A, 2,
+            {
+                a: 0x01,
+                flags: Cpu.Flags.e
+            }, {
+                a: 0x00,
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+            },
+            ', 0x01, flags'
+        );
+
+        testImplied(0x4A, 2,
+            {
+                a: 0x01,
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                a: 0x00,
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+            },
+            ', 0x01 + c, flags'
+        );
+
+
+        testImplied(0x4A, 2,
+            {
+                a: parseInt('10101010', 2)
+            }, {
+                a: parseInt('01010101', 2)
+            },
+            ', pattern, flags'
+        );
+
+        testMutatingZeropage(0x46, 0x01, 0x00, 5,
+            {
+                flags: Cpu.Flags.e
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+            },
+            ', 0x01, flags'
+        );
+
+        testMutatingZeropageX(0x56, 0x01, 0x00, 6,
+            {
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+            },
+            ', 0x01 + c, flags'
+        );
+
+
+        testMutatingAbsolute(0x4E, parseInt('10101010', 2),  parseInt('01010101', 2), 6,
+            ', pattern, flags'
+        );
+
+        testMutatingAbsolute(0x5E, parseInt('10101010', 2),  parseInt('01010101', 2), 7, 7,
+            ', pattern, flags'
+        );
+    });
+
     suite('NOP', function() {
         test('implied', function() {
             cpuRunner
@@ -1695,6 +1814,35 @@ suite('CPU', function() {
                 .assertCycles(2)
                 .assertState();
         });
+    });
+
+    suite('ORA', function() {
+        testImmediate(0x09, 0x01, 2,
+            {
+                a: 0x80,
+                flags: Cpu.Flags.e
+            }, {
+                a: 0x81,
+                flags: Cpu.Flags.e | Cpu.Flags.n
+            }
+        );
+
+        testDereferencingZeropage(0x05, 0x00, 3,
+            {
+                a: 0x00,
+                flags: Cpu.Flags.e
+            }, {
+                a: 0x00,
+                flags: Cpu.Flags.e | Cpu.Flags.z
+            }
+        );
+
+        testDereferencingZeropageX(0x15, 0x40, 4, {a: 0x04}, {a: 0x44});
+        testDereferencingAbsolute(0x0D, 0x40, 4, {a: 0x04}, {a: 0x44});
+        testDereferencingAbsoluteX(0x1D, 0x40, 4, 5, {a: 0x04}, {a: 0x44});
+        testDereferencingAbsoluteY(0x19, 0x40, 4, 5, {a: 0x04}, {a: 0x44});
+        testDereferencingIndirectX(0x01, 0x40, 6, {a: 0x04}, {a: 0x44});
+        testDereferencingIndirectY(0x11, 0x40, 5, 6, {a: 0x04}, {a: 0x44});
     });
 
     suite('PHA', function() {
@@ -1844,6 +1992,134 @@ suite('CPU', function() {
                     a: 0xA7
                 });
         });
+    });
+
+    suite('ROL', function() {
+        testImplied(0x2A, 2,
+            {
+                a: 0x80,
+                flags: Cpu.Flags.e
+            }, {
+                a: 0x00,
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+            },
+            ', 0x80, flags'
+        );
+
+        testImplied(0x2A, 2,
+            {
+                a: 0x80,
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                a: 0x01,
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            },
+            ', 0x80 + c, flags'
+        );
+
+        testImplied(0x2A, 2,
+            {
+                a: 0x40,
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                a: 0x81,
+                flags: Cpu.Flags.e | Cpu.Flags.n
+            },
+            ', 0x40 + c, flags'
+        );
+
+        testMutatingZeropage(0x26, 0x80, 0x00, 5,
+            {
+                flags: Cpu.Flags.e
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+            },
+            ', 0x80, flags'
+        );
+
+        testMutatingZeropageX(0x36, 0x80, 0x01, 6,
+            {
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            },
+            ', 0x80 + c, flags'
+        );
+
+        testMutatingAbsolute(0x2E, 0x40, 0x81, 6,
+            {
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.n
+            },
+            ', 0x40 + c, flags'
+        );
+
+        testMutatingAbsoluteX(0x3E, 0x01, 0x02, 7, 7, {}, {});
+    });
+
+    suite('ROR', function() {
+        testImplied(0x6A, 2,
+            {
+                a: 0x01,
+                flags: Cpu.Flags.e
+            }, {
+                a: 0x00,
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+            },
+            ', 0x01, flags'
+        );
+
+        testImplied(0x6A, 2,
+            {
+                a: 0x01,
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                a: 0x80,
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.n
+            },
+            ', 0x01 + c, flags'
+        );
+
+        testImplied(0x6A, 2,
+            {
+                a: 0x40,
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                a: 0xA0,
+                flags: Cpu.Flags.e | Cpu.Flags.n
+            },
+            ', 0x40 + c, flags'
+        );
+
+        testMutatingZeropage(0x66, 0x01, 0x00, 5,
+            {
+                flags: Cpu.Flags.e
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+            },
+            ', 0x01, flags'
+        );
+
+        testMutatingZeropageX(0x76, 0x01, 0x80, 6,
+            {
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.n
+            },
+            ', 0x01 + c, flags'
+        );
+
+        testMutatingAbsolute(0x6E, 0x40, 0xA0, 6,
+            {
+                flags: Cpu.Flags.e | Cpu.Flags.c
+            }, {
+                flags: Cpu.Flags.e | Cpu.Flags.n
+            },
+            ', 0x40 + c, flags'
+        );
+
+        testMutatingAbsoluteX(0x7E, 0x02, 0x01, 7, 7, {}, {});
     });
 
 
@@ -2222,6 +2498,45 @@ suite('CPU', function() {
                     s: 0xDE
                 });
         });
+    });
+
+    suite('TXA', function() {
+        testImplied(0x8A, 2,
+            {
+                x: 0x11,
+                a: 0x00
+            }, {
+                x: 0x11,
+                a: 0x11
+            },
+            ', 0x11'
+        );
+
+        testImplied(0x8A, 2,
+            {
+                x: 0xFF,
+                a: 0x00,
+                flags: Cpu.Flags.e
+            }, {
+                x: 0xFF,
+                a: 0xFF,
+                flags: Cpu.Flags.e | Cpu.Flags.n
+            },
+            ', 0xFF'
+        );
+
+        testImplied(0x8A, 2,
+            {
+                x: 0x00,
+                a: 0xFF,
+                flags: Cpu.Flags.e
+            }, {
+                x: 0x00,
+                a: 0x00,
+                flags: Cpu.Flags.e | Cpu.Flags.z
+            },
+            ', 0x00'
+        );
     });
 
     suite('TYA', function() {
