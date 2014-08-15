@@ -83,6 +83,12 @@ function opDey(state: Cpu.State): void {
     setFlagsNZ(state, state.y);
 }
 
+function opInc(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    var value = (memory.read(operand) + 1) & 0xFF;
+    memory.write(operand, value);
+    setFlagsNZ(state, value);
+}
+
 function opInx(state: Cpu.State): void {
     state.x = (state.x + 0x01) & 0xFF;
     setFlagsNZ(state, state.x);
@@ -131,8 +137,10 @@ function opPhp(state: Cpu.State, memory: MemoryInterface): void {
 }
 
 function opPlp(state: Cpu.State, memory: MemoryInterface): void {
+    var mask = Cpu.Flags.b | Cpu.Flags.e;
+
     state.s = (state.s + 0x01) & 0xFF;
-    state.flags = memory.read(0x0100 + state.s);
+    state.flags = (state.flags & mask) | (memory.read(0x0100 + state.s) & ~mask);
 }
 
 function opPha(state: Cpu.State, memory: MemoryInterface): void {
@@ -205,7 +213,7 @@ function opTax(state: Cpu.State): void {
 }
 
 function opTay(state: Cpu.State): void {
-    state.x = state.a;
+    state.y = state.a;
     setFlagsNZ(state, state.a);
 }
 
@@ -423,6 +431,12 @@ class Cpu {
                 this._instructionCallback = opDey;
                 break;
 
+            case Instruction.Operation.inc:
+                this._opCycles = 3;
+                this._instructionCallback = opInc;
+                slowIndexedAccess = true;
+                break;
+
             case Instruction.Operation.inx:
                 this._opCycles = 1;
                 this._instructionCallback = opInx;
@@ -479,12 +493,12 @@ class Cpu {
 
             case Instruction.Operation.pha:
                 this._opCycles = 2;
-                this._instructionCallback = opPhp;
+                this._instructionCallback = opPha;
                 break;
 
             case Instruction.Operation.pla:
                 this._opCycles = 3;
-                this._instructionCallback = opPlp;
+                this._instructionCallback = opPla;
                 break;
 
             case Instruction.Operation.sec:

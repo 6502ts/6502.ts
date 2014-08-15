@@ -164,13 +164,13 @@ module Instruction {
         set(0xB4, Operation.ldy, AddressingMode.zeroPageX);
         set(0xBC, Operation.ldy, AddressingMode.absoluteX);
 
-        set(0xC0, Operation.cpx, AddressingMode.immediate);
-        set(0xC4, Operation.cpx, AddressingMode.zeroPage);
-        set(0xCC, Operation.cpx, AddressingMode.absolute);
+        set(0xC0, Operation.cpy, AddressingMode.immediate);
+        set(0xC4, Operation.cpy, AddressingMode.zeroPage);
+        set(0xCC, Operation.cpy, AddressingMode.absolute);
 
-        set(0xE0, Operation.cpy, AddressingMode.immediate);
-        set(0xE4, Operation.cpy, AddressingMode.zeroPage);
-        set(0xEC, Operation.cpy, AddressingMode.absolute);
+        set(0xE0, Operation.cpx, AddressingMode.immediate);
+        set(0xE4, Operation.cpx, AddressingMode.zeroPage);
+        set(0xEC, Operation.cpx, AddressingMode.absolute);
 
         set(0x10, Operation.bpl, AddressingMode.relative);
         set(0x30, Operation.bmi, AddressingMode.relative);
