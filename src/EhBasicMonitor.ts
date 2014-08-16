@@ -22,7 +22,7 @@ class EhBasicMonitor extends SimpleMemory {
     write(address: number, value: number) {
         if (address === 0xF001) {
             this._writeHandler(value);
-        } else if (address < 0xC000) {
+        } else if (address < 0xA000) {
             this._data[address] = value;
         }
     }

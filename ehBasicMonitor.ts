@@ -76,7 +76,7 @@ function schedule(delay: number = 0) {
 var state = State.debug,
     commands: Array<string>,
     outputBuffer = '',
-    inputBuffer: Array<number> = ['C'.charCodeAt(0), 0x0D];
+    inputBuffer: Array<number> = [];
 
 var rl = readline.createInterface({
     input: process.stdin,
@@ -94,6 +94,17 @@ rl.on('SIGINT', (): void => {
         case State.debug:
             state = State.quit;
             break;
+    }
+});
+
+rl.on('line', (data: string): void => {
+    if (state === State.run) {
+        var size = data.length;
+
+        for (var i = 0; i < size; i++) {
+            inputBuffer.push(data.charCodeAt(i) & 0xFF);
+        }
+        inputBuffer.push(0x0D);
     }
 });
 

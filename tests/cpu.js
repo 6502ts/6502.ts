@@ -1970,7 +1970,8 @@ suite('CPU', function() {
                 .create([0x68])
                 .setState({
                     a: 0,
-                    s: 0xFE
+                    s: 0xFE,
+                    flags: Cpu.Flags.e
                 })
                 .poke({
                     '0x01FF': 0xFF
@@ -1979,7 +1980,8 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     s: 0xFF,
-                    a: 0xFF
+                    a: 0xFF,
+                    flags: Cpu.Flags.e | Cpu.Flags.n
                 });
         });
 
@@ -1987,17 +1989,19 @@ suite('CPU', function() {
             cpuRunner
                 .create([0x68])
                 .setState({
-                    a: 0,
-                    s: 0xFF
+                    a: 0xFF,
+                    s: 0xFF,
+                    flags: Cpu.Flags.e
                 })
                 .poke({
-                    '0x0100': 0xA7
+                    '0x0100': 0x00
                 })
                 .run()
                 .assertCycles(4)
                 .assertState({
                     s: 0x00,
-                    a: 0xA7
+                    a: 0x00,
+                    flags: Cpu.Flags.e | Cpu.Flags.z
                 });
         });
     });

@@ -231,6 +231,7 @@ function opPha(state: Cpu.State, memory: MemoryInterface): void {
 function opPla(state: Cpu.State, memory: MemoryInterface): void {
     state.s = (state.s + 0x01) & 0xFF;
     state.a = memory.read(0x0100 + state.s);
+    setFlagsNZ(state, state.a);
 }
 
 function opRolAcc(state: Cpu.State): void {
