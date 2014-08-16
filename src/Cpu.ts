@@ -33,7 +33,7 @@ function opAdc(state: Cpu.State, memory: MemoryInterface, operand: number) {
             (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c | Cpu.Flags.v)) |
             (result & 0x80) |  // negative
             (result ? 0 : Cpu.Flags.z) |   // zero
-            ((sum & 0x100) >>> 8) |         // carry
+            (sum >>> 8) |         // carry
             (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >>> 1); // overflow
 
         state.a = result;
@@ -82,24 +82,30 @@ function opCld(state: Cpu.State): void {
 }
 
 function opCmp(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+    var diff = state.a + (~operand & 0xFF) + 1;
+
      state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
-        (state.a & 0x80) |
-        (state.a === operand ? Cpu.Flags.z : 0) |
-        (state.a >= operand ? Cpu.Flags.c : 0);
+        (diff & 0x80) |
+        ((diff & 0xFF) ? 0 : Cpu.Flags.z) |
+        (diff >>> 8);
 }
 
 function opCpx(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+     var diff = state.x + (~operand & 0xFF) + 1;
+
      state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
-        (state.x & 0x80) |
-        (state.x === operand ? Cpu.Flags.z : 0) |
-        (state.x >= operand ? Cpu.Flags.c : 0);
+        (diff & 0x80) |
+        ((diff & 0xFF) ? 0 : Cpu.Flags.z) |
+        (diff >>> 8);
 }
 
 function opCpy(state: Cpu.State, memory: MemoryInterface, operand: number): void {
+     var diff = state.y + (~operand & 0xFF) + 1;
+
      state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c)) |
-        (state.y & 0x80) |
-        (state.y === operand ? Cpu.Flags.z : 0) |
-        (state.y >= operand ? Cpu.Flags.c : 0);
+        (diff & 0x80) |
+        ((diff & 0xFF) ? 0 : Cpu.Flags.z) |
+        (diff >>> 8);
 }
 
 function opDec(state: Cpu.State, memory: MemoryInterface, operand: number): void {
@@ -193,7 +199,7 @@ function opLsrMem(state: Cpu.State, memory: MemoryInterface, operand: number): v
 function opNop(): void {}
 
 function opOra(state: Cpu.State, memory: MemoryInterface, operand: number): void {
-    state.a = state.a | operand;
+    state.a |= operand;
     setFlagsNZ(state, state.a);
 }
 
@@ -292,7 +298,7 @@ function opSbc(state: Cpu.State, memory: MemoryInterface, operand: number) {
         state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.c | Cpu.Flags.v)) |
             (result & 0x80) |  // negative
             (result ? 0 : Cpu.Flags.z) |   // zero
-            ((sum & 0x100) >>> 8) |         // carry / borrow
+            (sum >>> 8) |         // carry / borrow
             (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >>> 1); // overflow
 
         state.a = result;
