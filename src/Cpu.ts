@@ -81,6 +81,14 @@ function opCld(state: Cpu.State): void {
     state.flags &= ~Cpu.Flags.d;
 }
 
+function opCli(state: Cpu.State): void {
+    state.flags &= ~Cpu.Flags.i;
+}
+
+function opClv(state: Cpu.State): void {
+    state.flags &= ~Cpu.Flags.v;
+}
+
 function opCmp(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     var diff = state.a + (~operand & 0xFF) + 1;
 
@@ -309,6 +317,14 @@ function opSec(state: Cpu.State): void {
     state.flags |= Cpu.Flags.c;
 }
 
+function opSed(state: Cpu.State): void {
+    state.flags |= Cpu.Flags.d;
+}
+
+function opSei(state: Cpu.State): void {
+    state.flags |= Cpu.Flags.i;
+}
+
 function opSta(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     memory.write(operand, state.a);
 }
@@ -329,6 +345,10 @@ function opTax(state: Cpu.State): void {
 function opTay(state: Cpu.State): void {
     state.y = state.a;
     setFlagsNZ(state, state.a);
+}
+
+function opTsx(state: Cpu.State): void {
+    state.x = state.s;
 }
 
 function opTxa(state: Cpu.State): void {
@@ -440,17 +460,6 @@ class Cpu {
             slowIndexedAccess = false;
 
         switch (instruction.operation) {
-            case Instruction.Operation.asl:
-                if (addressingMode === Instruction.AddressingMode.implied) {
-                    this._opCycles = 1;
-                    this._instructionCallback = opAslAcc;
-                } else {
-                    this._opCycles = 3;
-                    this._instructionCallback = opAslMem;
-                    slowIndexedAccess = true;
-                }
-                break;
-
             case Instruction.Operation.adc:
                 this._opCycles = 0;
                 this._instructionCallback = opAdc;
@@ -461,6 +470,17 @@ class Cpu {
                 this._opCycles = 0;
                 this._instructionCallback = opAnd;
                 dereference = true;
+                break;
+
+            case Instruction.Operation.asl:
+                if (addressingMode === Instruction.AddressingMode.implied) {
+                    this._opCycles = 1;
+                    this._instructionCallback = opAslAcc;
+                } else {
+                    this._opCycles = 3;
+                    this._instructionCallback = opAslMem;
+                    slowIndexedAccess = true;
+                }
                 break;
 
             case Instruction.Operation.bcc:
@@ -541,6 +561,30 @@ class Cpu {
                 }
                 break;
 
+            case Instruction.Operation.bvc:
+                if (this.state.flags & Cpu.Flags.v) {
+                    addressingMode = Instruction.AddressingMode.implied;
+                    this._instructionCallback = opNop;
+                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this._opCycles = 1;
+                } else {
+                    this._instructionCallback = opJmp;
+                    this._opCycles = 0;
+                }
+                break;
+
+            case Instruction.Operation.bvs:
+                if (this.state.flags & Cpu.Flags.v) {
+                    this._instructionCallback = opJmp;
+                    this._opCycles = 0;
+                } else {
+                    addressingMode = Instruction.AddressingMode.implied;
+                    this._instructionCallback = opNop;
+                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this._opCycles = 1;
+                }
+                break;
+
             case Instruction.Operation.clc:
                 this._opCycles = 1;
                 this._instructionCallback = opClc;
@@ -549,6 +593,16 @@ class Cpu {
             case Instruction.Operation.cld:
                 this._opCycles = 1;
                 this._instructionCallback = opCld;
+                break;
+
+            case Instruction.Operation.cli:
+                this._opCycles = 1;
+                this._instructionCallback = opCli;
+                break;
+
+            case Instruction.Operation.clv:
+                this._opCycles = 1;
+                this._instructionCallback = opClv;
                 break;
 
             case Instruction.Operation.cmp:
@@ -662,12 +716,6 @@ class Cpu {
                 this._instructionCallback = opPhp;
                 break;
 
-            case Instruction.Operation.plp:
-                this._opCycles = 3;
-                this._instructionCallback = opPlp;
-                break;
-
-
             case Instruction.Operation.pha:
                 this._opCycles = 2;
                 this._instructionCallback = opPha;
@@ -678,9 +726,9 @@ class Cpu {
                 this._instructionCallback = opPla;
                 break;
 
-            case Instruction.Operation.sec:
-                this._opCycles = 1;
-                this._instructionCallback = opSec;
+            case Instruction.Operation.plp:
+                this._opCycles = 3;
+                this._instructionCallback = opPlp;
                 break;
 
             case Instruction.Operation.rol:
@@ -716,6 +764,21 @@ class Cpu {
                 dereference = true;
                 break;
 
+            case Instruction.Operation.sec:
+                this._opCycles = 1;
+                this._instructionCallback = opSec;
+                break;
+
+            case Instruction.Operation.sed:
+                this._opCycles = 1;
+                this._instructionCallback = opSed;
+                break;
+
+            case Instruction.Operation.sei:
+                this._opCycles = 1;
+                this._instructionCallback = opSei;
+                break;
+
             case Instruction.Operation.sta:
                 this._opCycles = 1;
                 this._instructionCallback = opSta;
@@ -742,6 +805,11 @@ class Cpu {
             case Instruction.Operation.tay:
                 this._opCycles = 1;
                 this._instructionCallback = opTay;
+                break;
+
+            case Instruction.Operation.tsx:
+                this._opCycles = 1;
+                this._instructionCallback = opTsx;
                 break;
 
             case Instruction.Operation.txa:

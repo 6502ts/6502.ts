@@ -834,9 +834,17 @@ suite('CPU', function() {
 
     branchSuite('BMI', 0x30, Cpu.Flags.n, 0);
 
+    branchSuite('BVC', 0x50, 0, Cpu.Flags.v);
+
+    branchSuite('BVS', 0x70, Cpu.Flags.v, 0);
+
     clearFlagSuite('CLC', 0x18, Cpu.Flags.c);
 
     clearFlagSuite('CLD', 0xD8, Cpu.Flags.d);
+
+    clearFlagSuite('CLI', 0x58, Cpu.Flags.i);
+
+    clearFlagSuite('CLV', 0xB8, Cpu.Flags.v);
 
     suite('CMP', function() {
         test('immediate, flags', function() {
@@ -2161,8 +2169,6 @@ suite('CPU', function() {
         });
     });
 
-    setFlagSuite('SEC', 0x38, Cpu.Flags.c);
-
     suite('SBC', function() {
         testSbc(0x45, 0x01, 0x44, Cpu.Flags.c, 0);
         testSbc(0x45, 0x36, 0x0F, Cpu.Flags.c, 0);
@@ -2183,6 +2189,12 @@ suite('CPU', function() {
         testDereferencingIndirectX(0xE1, 0xFF, 6, {a: 0x10}, {a: 0x10});
         testDereferencingIndirectY(0xF1, 0xFF, 5, 6, {a: 0x10}, {a: 0x10});
     });
+
+    setFlagSuite('SEC', 0x38, Cpu.Flags.c);
+
+    setFlagSuite('SED', 0xF8, Cpu.Flags.d);
+
+    setFlagSuite('SEI', 0x78, Cpu.Flags.i);
 
     suite('STA', function() {
         test('zeroPage , flags', function() {
@@ -2483,21 +2495,16 @@ suite('CPU', function() {
         );
     });
 
-    suite('TXS', function() {
-        test('implied, flags', function() {
-            cpuRunner
-                .create([0x9A])
-                .setState({
-                    x: 0xDE,
-                    s: 0x00,
-                    flags: 0xFF
-                })
-                .run()
-                .assertCycles(2)
-                .assertState({
-                    s: 0xDE
-                });
-        });
+    suite('TSX', function() {
+        testImplied(0xBA, 2,
+            {
+                s: 0x45,
+                x: 0x00,
+                flags: 0xFF
+            }, {
+                x:0x45
+            }
+        );
     });
 
     suite('TXA', function() {
@@ -2537,6 +2544,23 @@ suite('CPU', function() {
             },
             ', 0x00'
         );
+    });
+
+    suite('TXS', function() {
+        test('implied, flags', function() {
+            cpuRunner
+                .create([0x9A])
+                .setState({
+                    x: 0xDE,
+                    s: 0x00,
+                    flags: 0xFF
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    s: 0xDE
+                });
+        });
     });
 
     suite('TYA', function() {
