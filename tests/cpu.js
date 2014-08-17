@@ -2506,7 +2506,8 @@ suite('CPU', function() {
                 x: 0x00,
                 flags: 0xFF
             }, {
-                x:0x45
+                x:0x45,
+                flags: 0xFF & ~Cpu.Flags.z & ~Cpu.Flags.n
             }
         );
     });

@@ -350,6 +350,7 @@ function opTay(state: Cpu.State): void {
 
 function opTsx(state: Cpu.State): void {
     state.x = state.s;
+    setFlagsNZ(state, state.x);
 }
 
 function opTxa(state: Cpu.State): void {

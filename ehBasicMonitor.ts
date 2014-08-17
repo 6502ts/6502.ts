@@ -12,71 +12,17 @@ import fs = require('fs');
 enum State {
     debug, run, quit
 }
-    
-function runScripts(): void {
-    process.argv.slice(2).forEach((script: string): void => {
-        try {
-            fs.readFileSync(script)
-                .toString('utf8')
-                .split('\n')
-                .forEach((line: string): void => {
-                    var result = frontend.execute(line);
-                    if (result) console.log(result);
-                });
-        } catch(e) {
-            console.log('ERROR: ' + e.message);
-            process.exit(1);
-        }
-    });
-}
 
-function readCommand(): void {
-    rl.question('> ', (cmd: string): void => {
-        try {
-            var result = frontend.execute(cmd);
-            if (result) console.log(result);
-        } catch (e) {
-            console.log('ERROR: ' + e.message);
-        }
+var SAMPLE_SIZE = 20000000;
 
-        schedule();
-    });
-}
-
-function executeSlice() {
-    if (outputBuffer) {
-        process.stdout.write(outputBuffer);
-        outputBuffer = '';
-    }
-
-    var message = dbg.step(1000);
-    if (dbg.executionInterrupted()) {
-        console.log(message);
-        state = State.debug;
-    }
-    schedule(1);
-}
-
-function schedule(delay: number = 0) {
-    switch (state) {
-        case State.debug:
-            setTimeout(readCommand, delay);
-            break;
-
-        case State.run:
-            setTimeout(executeSlice, delay);
-            break;
-
-        case State.quit:
-            rl.close();
-            return;
-    }
-}
-
-var state = State.debug,
+var state: State,
     commands: Array<string>,
     outputBuffer = '',
-    inputBuffer: Array<number> = [];
+    inputBuffer: Array<number> = [],
+    promptForInput = true,
+    lastSpeedSample: number,
+    cyclesProcessed: number,
+    speed: number;
 
 var rl = readline.createInterface({
     input: process.stdin,
@@ -85,41 +31,161 @@ var rl = readline.createInterface({
         [commands.filter((candidate: string) => candidate.search(cmd) === 0), cmd]
 });
 
-rl.on('SIGINT', (): void => {
-    switch (state) {
-        case State.run:
-            state = State.debug;
-            break;
-
-        case State.debug:
-            state = State.quit;
-            break;
-    }
-});
-
-rl.on('line', (data: string): void => {
-    if (state === State.run) {
-        var size = data.length;
-
-        for (var i = 0; i < size; i++) {
-            inputBuffer.push(data.charCodeAt(i) & 0xFF);
-        }
-        inputBuffer.push(0x0D);
-    }
-});
-
 var monitor = new Monitor(),
     cpu = new Cpu(monitor),
     dbg = new Debugger(monitor, cpu),
     frontend = new DebuggerFrontend(dbg, {
         quit: (): string => (state = State.quit, 'bye'),
         run: (): string => {
-            state = State.run;
+            setState(State.run);
             return 'running, press ctl-c to interrupt...';
         }
     });
 
-monitor.setWriteHandler((value: number): void => {
+
+rl.on('SIGINT', onSigint);
+rl.on('line', onLine);
+
+monitor
+    .setWriteHandler(monitorWriteHandler)
+    .setReadHandler(readHandler);
+
+commands = frontend.getCommands();
+
+setState(State.debug);
+if (process.argv.length > 2) runDebuggerScript(process.argv[2]);
+schedule();
+
+function setState(newState: State): void {
+    var prompt = speed ? (speed.toFixed(2) + ' MHz ') : '';
+
+    state = newState;
+
+    switch (state) {
+        case State.run:
+            cyclesProcessed = 0;
+            break;
+    }
+
+    configurePrompt();
+}
+
+function configurePrompt() {
+    var prompt = speed ? (speed.toFixed(2) + ' MHz ') : '';
+
+    switch (state) {
+        case State.run:
+            prompt += '[run] # ';
+            lastSpeedSample = Date.now();
+            rl.setPrompt(prompt, prompt.length);
+            break;
+
+        case State.debug:
+            prompt += '[dbg] # ';
+            rl.setPrompt(prompt, prompt.length);
+            break;
+    }
+}
+
+function runDebuggerScript(filename: string): void {
+    fs.readFileSync(filename)
+        .toString('utf8')
+        .split('\n')
+        .forEach((line: string): void => {
+            var result = frontend.execute(line);
+            if (result) console.log(result);
+        });
+}
+
+function executeSlice() {
+    if (outputBuffer) {
+        process.stdout.write(outputBuffer);
+        outputBuffer = '';
+    }
+
+    var cycles = dbg.step(100000);
+    if (dbg.executionInterrupted()) {
+        switch (dbg.getExecutionState()) {
+            case Debugger.ExecutionState.breakpoint:
+                console.log('BREAKPOINT');
+                break;
+
+            case Debugger.ExecutionState.invalidInstruction:
+                console.log('INVALID INSTRUCTION');
+                break;
+        }
+        setState(State.debug);
+    }
+
+    processSpeedSample(cycles);
+    schedule();
+}
+
+function processSpeedSample(cycles: number): void {
+    cyclesProcessed += cycles;
+
+    if (cyclesProcessed > SAMPLE_SIZE) {
+        var timestamp = Date.now();
+        speed = cyclesProcessed / (timestamp - lastSpeedSample) / 1000;
+        cyclesProcessed = 0;
+        lastSpeedSample = timestamp;
+        configurePrompt();
+    }
+}
+
+function schedule() {
+    switch (state) {
+        case State.debug:
+            rl.prompt();
+            break;
+
+        case State.run:
+            setImmediate(executeSlice);
+            break;
+
+        case State.quit:
+            rl.close();
+            return;
+    }
+}
+
+function onSigint(): void {
+    switch (state) {
+        case State.run:
+            setState(State.debug);
+            break;
+
+        case State.debug:
+            setState(State.quit);
+            break;
+    }
+
+    schedule();
+}
+
+function onLine(data: string): void {
+    switch (state) {
+        case State.run:
+            var size = data.length;
+
+            for (var i = 0; i < size; i++) {
+                inputBuffer.push(data.charCodeAt(i) & 0xFF);
+            }
+            inputBuffer.push(0x0D);
+            break;
+
+        case State.debug:
+            try {
+                console.log(frontend.execute(data));
+            } catch (e) {
+                console.log('ERROR: ' + e.message);
+            }
+            schedule();
+            break;
+    }
+}
+
+function monitorWriteHandler(value: number): void {
     switch (state) {
         case State.debug:
             outputBuffer += String.fromCharCode(value);
@@ -132,11 +198,22 @@ monitor.setWriteHandler((value: number): void => {
             process.stdout.write(String.fromCharCode(value));
             break;
     }
-});
+}
 
-monitor.setReadHandler((): number => inputBuffer.length > 0 ? inputBuffer.shift() : 0);
+function readHandler(): number {
+    if (inputBuffer.length > 0) {
+        promptForInput = true;
+        return inputBuffer.shift();
+    }
 
-commands = frontend.getCommands();
-
-runScripts();
-schedule();
+    if (state === State.run && promptForInput) {
+        promptForInput = false;
+        setImmediate(function(): void
+            {
+                console.log();
+                rl.prompt();
+            }
+        );
+    }
+    return 0;
+}
