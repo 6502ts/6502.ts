@@ -39,6 +39,14 @@ var monitor = new Monitor(),
         run: (): string => {
             setState(State.run);
             return 'running, press ctl-c to interrupt...';
+        },
+        input: (args: Array<string>, cmd: string): string => {
+            var data = cmd.replace(/^\s*input\s*/, '').replace(/\\n/, '\n'),
+                length = data.length;
+
+            for (var i = 0; i < length; i++)
+                inputBuffer.push(data[i] === '\n' ? 0x0D : data.charCodeAt(i) & 0xFF);
+            return '';
         }
     });
 
@@ -54,6 +62,7 @@ commands = frontend.getCommands();
 
 setState(State.debug);
 if (process.argv.length > 2) runDebuggerScript(process.argv[2]);
+if (process.argv.length > 3) readBasicProgram(process.argv[3]);
 schedule();
 
 function setState(newState: State): void {
@@ -94,6 +103,17 @@ function runDebuggerScript(filename: string): void {
         .forEach((line: string): void => {
             var result = frontend.execute(line);
             if (result) console.log(result);
+        });
+}
+
+function readBasicProgram(filename: string): void {
+    fs.readFileSync(filename)
+        .toString('utf8')
+        .split('\n')
+        .forEach((line: string): void => {
+            var length = line.length;
+            for (var i = 0; i < length; i++) inputBuffer.push(line.charCodeAt(i) & 0xFF);
+            inputBuffer.push(0x0D);
         });
 }
 

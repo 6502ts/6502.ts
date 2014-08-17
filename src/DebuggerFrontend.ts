@@ -45,8 +45,7 @@ class DebuggerFrontend {
 
         if (typeof(extraTable) !== 'undefined') {
             Object.keys(extraTable).forEach((name: string) =>
-                this._commandTable[name] =
-                    (args: Array<string>): string => extraTable[name].apply(this, args)
+                this._commandTable[name] = extraTable[name]
             );
         }
     }
@@ -57,8 +56,8 @@ class DebuggerFrontend {
 
         var components = cmd.split(/\s+/).filter((value: string): boolean => !!value),
             commandName = components.shift();
-        
-        return this._locateCommand(commandName).call(this, components);
+       
+        return this._locateCommand(commandName).call(this, components, cmd);
     }
 
     public getCommands(): Array<string> {
@@ -226,7 +225,7 @@ class DebuggerFrontend {
 
 module DebuggerFrontend {
     export interface CommandInterface {
-        (args: Array<string>): string;
+        (args: Array<string>, cmdString?: string): string;
     }
 
     export interface CommandTableInterface {
