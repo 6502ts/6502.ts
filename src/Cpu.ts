@@ -4,7 +4,7 @@
 
 import Instruction = require('./Instruction');
 
-function setFlagsNZ(state: Cpu.State, operand: number) {
+function setFlagsNZ(state: Cpu.State, operand: number): void {
     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
         (operand & 0x80) |
         (operand ? 0 : Cpu.Flags.z);
@@ -14,7 +14,7 @@ function opBoot(state: Cpu.State, memory: MemoryInterface): void {
     state.p = memory.readWord(0xFFFC);
 }
 
-function opAdc(state: Cpu.State, memory: MemoryInterface, operand: number) {
+function opAdc(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     if (state.flags & Cpu.Flags.d) {
         var d0 = (operand & 0x0F) + (state.a & 0x0F) + (state.flags & Cpu.Flags.c),
             d1 = (operand >>> 4) + (state.a >>> 4) + (d0 > 9 ? 1 : 0);
@@ -287,7 +287,7 @@ function opRts(state: Cpu.State, memory: MemoryInterface): void {
     state.p = (returnPtr + 1) & 0xFFFF;
 }
 
-function opSbc(state: Cpu.State, memory: MemoryInterface, operand: number) {
+function opSbc(state: Cpu.State, memory: MemoryInterface, operand: number): void {
     if (state.flags & Cpu.Flags.d) {
         var d0 = ((state.a & 0x0F) - (operand & 0x0F) - (~state.flags & Cpu.Flags.c)) % 10,
             d1 = ((state.a >>> 4) - (operand >>> 4) - (d0 < 0 ? 1 : 0)) % 10;
@@ -413,6 +413,10 @@ class Cpu {
         return this._invalidInstructionCallback;
     }
 
+    getLastInstructionPointer(): number {
+        return this._lastInstructionPointer;
+    }
+
     reset(): Cpu {
         this.state.a = 0;
         this.state.x = 0;
@@ -456,9 +460,10 @@ class Cpu {
     private _fetch() {
         var instruction = Instruction.opcodes[this._memory.read(this.state.p)],
             addressingMode = instruction.addressingMode,
-            invalidInstructionHandler: Cpu.InstructionHandlerInterface,
             dereference = false,
             slowIndexedAccess = false;
+
+        this._lastInstructionPointer = this.state.p;
 
         switch (instruction.operation) {
             case Instruction.Operation.adc:
@@ -829,18 +834,10 @@ class Cpu {
                 break;
 
             default:
-                if (this._invalidInstructionCallback &&
-                        (invalidInstructionHandler = this._invalidInstructionCallback(this.state)))
-                {
-                    addressingMode = invalidInstructionHandler.addressingMode;
-                    this._opCycles = invalidInstructionHandler.cycles;
-                    this._instructionCallback = invalidInstructionHandler.handler;
-                    dereference = invalidInstructionHandler.dereference;
-                } else {
-                    addressingMode = Instruction.AddressingMode.invalid;
-                    this._opCycles = 2;
-                    this._instructionCallback = opNop;
-                }
+                if (this._invalidInstructionCallback) this._invalidInstructionCallback(this);
+                addressingMode = Instruction.AddressingMode.invalid;
+                this._opCycles = 1;
+                this._instructionCallback = opNop;
         }
 
         this.state.p = (this.state.p + 1) & 0xFFFF;
@@ -953,6 +950,7 @@ class Cpu {
     private _nmiPending: boolean = false;
     private _halted: boolean = false;
     private _operand: number;
+    private _lastInstructionPointer: number;
 }
 
 module Cpu {
@@ -969,13 +967,6 @@ module Cpu {
         flags: number = 0;
     }
 
-    export interface InstructionHandlerInterface {
-        cycles: number;
-        addressingMode: Instruction.AddressingMode;
-        handler: InstructionCallbackInterface;
-        dereference: boolean;
-    }
-
     export enum Flags {
         c = 0x01,
         z = 0x02,
@@ -988,7 +979,7 @@ module Cpu {
     }
 
     export interface InvalidInstructionCallbackInterface {
-        (state?: Cpu.State): InstructionHandlerInterface
+        (cpu?: Cpu): void
     }
 
     export interface InstructionCallbackInterface {

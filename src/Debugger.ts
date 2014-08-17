@@ -2,6 +2,8 @@
 
 'use strict';
 
+var TRACE_SIZE = 1024;
+
 import Instruction = require('./Instruction');
 import Disassembler = require('./Disassembler');
 import hex = require('./hex');
@@ -15,17 +17,11 @@ class Debugger {
     ) {
         this._disassembler = new Disassembler(this._memory);
 
-        var invalidInstructionCallback = this._cpu.getInvalidInstructionCallback();
-        this._cpu.setInvalidInstructionCallback(
-            (state: Cpu.State): Cpu.InstructionHandlerInterface => {
-                var handler: Cpu.InstructionHandlerInterface;
-            
-                if (invalidInstructionCallback && (handler = invalidInstructionCallback(state))) {
-                    return handler;
-                } else {
-                    this._invalidInstuction = true;
-                    return null;
-                }
+        var oldCallback = this._cpu.getInvalidInstructionCallback();
+        this._cpu.setInvalidInstructionCallback((cpu: Cpu): void =>
+            {
+                if (oldCallback) oldCallback(cpu); 
+                this._invalidInstuction = true;
             }
         );
     }
@@ -102,6 +98,21 @@ class Debugger {
         return this.disassembleAt(this._cpu.state.p, length);
     }
 
+    trace(length: number = TRACE_SIZE): string {
+        var result = '';
+        length = Math.min(length, this._traceLength);
+
+        for (var i = 0; i < length; i++) {
+            result += (
+                this.disassembleAt(
+                    this._trace[(TRACE_SIZE + this._traceIndex - length + i) % TRACE_SIZE],
+                    1
+                ) + '\n');
+        }
+
+        return result + this.disassemble(1);
+    }
+
     dumpAt(start: number, length: number): string {
         var result = '',
             address: number;
@@ -145,50 +156,57 @@ class Debugger {
         return 'Boot successful in ' + cycles + ' cycles';
     }
 
-    step(count: number = 1): string {
+    step(count: number = 1): number {
         if (this._cpu.executionState !== Cpu.ExecutionState.fetch)
             throw new Error('must boot first');
 
-        this._executionInterrupted = false;
+        this._executionState = Debugger.ExecutionState.ok;
 
-        var cycles = 0,
-            timestamp = Date.now(),
-            result = '';
+        var cycles = 0;
 
         for (var i = 0; i < count; i++) {
-            this._invalidInstuction = false;
-
             do {
                 this._cpu.cycle();
                 cycles++;
             } while (this._cpu.executionState === Cpu.ExecutionState.execute);
 
+            if (this._traceEnabled) {
+                this._trace[this._traceIndex] = this._cpu.getLastInstructionPointer();
+                this._traceIndex = (this._traceIndex + 1) % TRACE_SIZE;
+                if (this._traceLength < TRACE_SIZE) this._traceLength++;
+            }
+
             if (this._invalidInstuction) {
-                result += 'INVALID INSTRUCTION!\n';
-                this._cpu.state.p = (this._cpu.state.p + 0xFFFF) % 0x10000;
-                this._executionInterrupted = true;
+                this._cpu.state.p = (this._cpu.state.p + 0xFFFF) & 0xFFFF;
+                this._executionState = Debugger.ExecutionState.invalidInstruction;
                 break;
             }
 
             if (this._breakpointsEnabled && this._breakpoints[this._cpu.state.p]) {
-                result += ('BREAKPOINT: ' + this._breakpointDescriptions[this._cpu.state.p] + '\n');
-                this._executionInterrupted = true;
+                this._executionState = Debugger.ExecutionState.breakpoint;
                 break;
             }
         }
 
-        var time = Date.now() - timestamp;
-
-        return result + 'Used ' + cycles + ' cycles in ' + time +
-            ' milliseconds, now at\n' + this.disassembleAt(this._cpu.state.p, 1);
+        return cycles;
     }
 
     executionInterrupted(): boolean {
-        return this._executionInterrupted;
+        return this._executionState !== Debugger.ExecutionState.ok;
+    }
+
+    getExecutionState(): Debugger.ExecutionState {
+        return this._executionState;
     }
 
     setBreakpointsEnabled(breakpointsEnabled: boolean): Debugger {
         this._breakpointsEnabled = breakpointsEnabled;
+
+        return this;
+    }
+
+    setTraceEnabled(traceEnabled: boolean): Debugger {
+        this._traceEnabled = traceEnabled;
 
         return this;
     }
@@ -207,8 +225,18 @@ class Debugger {
 
     private _breakpoints = new Uint8Array(0x10000);
     private _breakpointDescriptions: Array<String> = [];
-    private _executionInterrupted = false;
     private _breakpointsEnabled = false;
+    private _traceEnabled = false;
+    private _trace = new Uint16Array(TRACE_SIZE);
+    private _traceLength = 0;
+    private _traceIndex = 0;
+    private _executionState = Debugger.ExecutionState.ok;
+};
+
+module Debugger {
+    export enum ExecutionState {
+        ok, breakpoint, invalidInstruction
+    }
 };
 
 export = Debugger;
