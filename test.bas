@@ -1,7 +1,9 @@
-10  FOR J = 1 TO 15:
+10  FOR J = 1 TO 20
 20  POT = 1
+30  TERM = 1
 40  FOR I = 1 TO 1000
-50      POT = POT + POT * (J / I)
+45      TERM = TERM * J / I
+50      POT = POT + TERM
 60  NEXT I
 70  PRINT "e ^ ";
 80  PRINT J;

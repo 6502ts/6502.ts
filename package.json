@@ -1,5 +1,5 @@
 {
-  "name": "2600ts",
+  "name": "6502.ts",
   "version": "0.0.0",
   "description": "A 6502 emulator written in typescript",
   "devDependencies": {
