@@ -35,7 +35,10 @@ var monitor = new Monitor(),
     cpu = new Cpu(monitor),
     dbg = new Debugger(monitor, cpu),
     frontend = new DebuggerFrontend(dbg, {
-        quit: (): string => (state = State.quit, 'bye'),
+        quit: (): string => {
+            setState(State.quit);
+            return 'bye';
+        },
         run: (): string => {
             setState(State.run);
             return 'running, press ctl-c to interrupt...';
@@ -66,8 +69,6 @@ if (process.argv.length > 3) readBasicProgram(process.argv[3]);
 schedule();
 
 function setState(newState: State): void {
-    var prompt = speed ? (speed.toFixed(2) + ' MHz ') : '';
-
     state = newState;
 
     switch (state) {
