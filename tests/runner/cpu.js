@@ -19,8 +19,8 @@ function Runner(code, base) {
     for (var i = 0; i < codeLength; i++)
         this._memory.poke(base + i, code[i]);
 
+    this._memory.poke(0xFFFC, base & 0xFF);
     this._memory.poke(0xFFFD, base >> 8);
-    this._memory.poke(0xFFFE, base & 0xFF);
 
     this._cpu.reset();
     while (this._cpu.executionState !== Cpu.ExecutionState.fetch) {
