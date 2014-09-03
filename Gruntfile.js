@@ -12,11 +12,12 @@ var TS_SOURCE = [
     'ehBasicMonitor.ts'
 ];
 
-var GARBAGE = [];
+var GARBAGE = [
+    '.tscache'
+];
 TS_SOURCE.forEach(function(tsFile) {
     GARBAGE.push(
-        tsFile.replace(/\.ts$/, '.js'),
-        tsFile.replace(/\.ts$/, '.d.ts')
+        tsFile.replace(/\.ts$/, '.js')
     );
 });
 
@@ -33,10 +34,11 @@ module.exports = function(grunt) {
             options: {
                 target: 'es5',
                 module: 'commonjs',
-                declaration: true,
+                declaration: false,
                 sourceMap: false,
                 removeComments: false,
-                fast: 'always'
+                fast: 'always',
+                noImplicitAny: true
             },
         },
 
@@ -53,5 +55,6 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.registerTask('initial', ['clean', 'tsd', 'ts:build']);
     grunt.registerTask('default', ['ts:build']);
 }
