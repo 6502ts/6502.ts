@@ -80,15 +80,13 @@ I don't yet have numbers for engines other than V8.
 
 ## Compilation
 
-In order to build the code you need the TypeScript
-[compiler](https://www.npmjs.org/package/typescript) and the DefinitelyTyped
-[definition manager](https://www.npmjs.org/package/tsd) installed.
 After checking out the repo, doing
 
-    tsd reinstall
-    make
+    npm install
+    grunt initial
 
-will compile the code
+will pull in the dependencies and build the code. Make sure that you have
+`grunt-cli` installed and available in your path beforehand.
 
 ## Usage
 
