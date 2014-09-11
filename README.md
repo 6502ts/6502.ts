@@ -92,7 +92,7 @@ will pull in the dependencies and build the code. Make sure that you have
 
 After bulding the code, you can launch an ehBasic session by doing
 
-    node ./ehBasicMonitor.js eh_basic.d
+    node ./ehBasicMonitor.js ehbasic_run.d
 
 which will present you with
 
