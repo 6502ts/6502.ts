@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="css/jquery.terminal.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <div id="term"></div>
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.mousewheel-min.js"></script>
+    <script src="js/jquery.terminal-min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('#term').terminal(
+          function(command, term) {
+            if (command.match(/^alert /)) {
+              var message = command.substr(6);
+
+              term.echo('Show alert with message "' + message + '"');
+              alert(message);
+            } else if ('help' === command) {
+              term.echo('alert [message]  Show an alert box with message');
+              term.echo('help             Display this help message');
+            } else {
+              term.echo('Commmand "' + command + '" not found');
+            }
+          },
+          {
+            greetings: 'Hello World\n',
+            height: 200,
+            width: 450
+          }
+        )
+      });
+    </script>
+  </body>
+</html>
