@@ -9,6 +9,7 @@ var TS_SOURCE = [
     'src/binary.ts',
     'src/hex.ts',
     'src/CommandInterpreter.ts',
+    'src/NodeFilesystemProvider.ts',
     'debugger.ts',
     'ehBasicMonitor.ts'
 ];

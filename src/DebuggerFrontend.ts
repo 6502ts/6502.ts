@@ -1,11 +1,10 @@
-/// <reference path="../typings/node/node.d.ts"/>
+/// <reference path="./FilesystemProviderInterface.d.ts"/>
 
 'use strict';
 
 import Debugger = require('./Debugger');
 import CommandInterpreter = require('./CommandInterpreter');
 import hex = require('./hex');
-import fs = require('fs');
 
 function decodeNumber(value: string): number {
     try {
@@ -19,7 +18,10 @@ function decodeNumber(value: string): number {
 }
 
 class DebuggerFrontend extends CommandInterpreter {
-    constructor(private _debugger: Debugger) {
+    constructor(
+            private _debugger: Debugger,
+            private _fileSystemProvider: FileSystemProviderInterface
+    ) {
         super();
 
         this.registerCommands({
@@ -77,7 +79,7 @@ class DebuggerFrontend extends CommandInterpreter {
 
         var file = args[0],
             base = Math.abs(decodeNumber(args[1])) % 0x10000,
-            buffer = fs.readFileSync(file),
+            buffer = this._fileSystemProvider.readBinaryFileSync(file),
             offset = args.length > 2 ? Math.min(Math.abs(decodeNumber(args[2])), buffer.length - 1) : 0,
             count = args.length > 3 ? Math.min(Math.abs(decodeNumber(args[3])), buffer.length) : buffer.length;
 

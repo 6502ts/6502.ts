@@ -7,7 +7,7 @@ import Monitor = require('./src/EhBasicMonitor');
 import Debugger = require('./src/Debugger');
 import DebuggerFrontend = require('./src/DebuggerFrontend');
 import Cpu = require('./src/Cpu');
-import fs = require('fs');
+import NodeFilesystemProvider = require('./src/NodeFilesystemProvider'); 
 
 enum State {
     debug, run, quit
@@ -34,7 +34,8 @@ var rl = readline.createInterface({
 var monitor = new Monitor(),
     cpu = new Cpu(monitor),
     dbg = new Debugger(monitor, cpu),
-    frontend = new DebuggerFrontend(dbg);
+    fsProvider = new NodeFilesystemProvider(),
+    frontend = new DebuggerFrontend(dbg, fsProvider);
 
 frontend.registerCommands({
     quit: (): string => {
@@ -100,8 +101,7 @@ function configurePrompt() {
 }
 
 function runDebuggerScript(filename: string): void {
-    fs.readFileSync(filename)
-        .toString('utf8')
+    fsProvider.readTextFileSync(filename)
         .split('\n')
         .forEach((line: string): void => {
             var result = frontend.execute(line);
@@ -110,8 +110,7 @@ function runDebuggerScript(filename: string): void {
 }
 
 function readBasicProgram(filename: string): void {
-    fs.readFileSync(filename)
-        .toString('utf8')
+    fsProvider.readTextFileSync(filename)
         .split('\n')
         .forEach((line: string): void => {
             var length = line.length;

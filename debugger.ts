@@ -7,7 +7,7 @@ import Memory = require('./src/SimpleMemory');
 import Debugger = require('./src/Debugger');
 import DebuggerFrontend = require('./src/DebuggerFrontend');
 import Cpu = require('./src/Cpu');
-import fs = require('fs');
+import NodeFilesystemProvider = require('./src/NodeFilesystemProvider');
 
 var quit = false,
     commands: Array<string>;
@@ -22,7 +22,8 @@ var rl = readline.createInterface({
 var memory = new Memory(),
     cpu = new Cpu(memory),
     dbg = new Debugger(memory, cpu),
-    frontend = new DebuggerFrontend(dbg);
+    fsProvider = new NodeFilesystemProvider(),
+    frontend = new DebuggerFrontend(dbg, fsProvider);
 
 frontend.registerCommands({
     quit: (args: Array<string>): string => (quit = true, 'bye')
@@ -32,8 +33,7 @@ commands = frontend.getCommands();
 
 process.argv.slice(2).forEach((script: string): void => {
     try {
-        fs.readFileSync(script)
-            .toString('utf8')
+        fsProvider.readTextFileSync(script)
             .split('\n')
             .forEach((line: string): void => {
                 var result = frontend.execute(line);
