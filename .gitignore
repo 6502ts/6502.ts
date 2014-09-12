@@ -5,3 +5,4 @@ node_modules
 src/*.js
 debugger.js
 ehBasicMonitor.js
+web/js/6502.js
