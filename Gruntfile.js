@@ -8,6 +8,7 @@ var TS_SOURCE = [
     'src/SimpleMemory.ts',
     'src/binary.ts',
     'src/hex.ts',
+    'src/CommandInterpreter.ts',
     'debugger.ts',
     'ehBasicMonitor.ts'
 ];
@@ -57,4 +58,4 @@ module.exports = function(grunt) {
 
     grunt.registerTask('initial', ['clean', 'tsd', 'ts:build']);
     grunt.registerTask('default', ['ts:build']);
-}
+};

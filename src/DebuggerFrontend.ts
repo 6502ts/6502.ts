@@ -3,6 +3,7 @@
 'use strict';
 
 import Debugger = require('./Debugger');
+import CommandInterpreter = require('./CommandInterpreter');
 import hex = require('./hex');
 import fs = require('fs');
 
@@ -17,12 +18,11 @@ function decodeNumber(value: string): number {
     }
 }
 
-class DebuggerFrontend {
-    constructor(
-        private _debugger: Debugger,
-        extraTable?: DebuggerFrontend.CommandTableInterface
-    ) {
-        this._commandTable = {
+class DebuggerFrontend extends CommandInterpreter {
+    constructor(private _debugger: Debugger) {
+        super();
+
+        this.registerCommands({
             disassemble:    this._disassemble,
             dump:           this._dump,
             load:           this._load,
@@ -41,44 +41,7 @@ class DebuggerFrontend {
             'trace-on':     this._enableTrace,
             'trace-off':    this._disableTrace,
             'trace':        this._trace
-        };
-
-        if (typeof(extraTable) !== 'undefined') {
-            Object.keys(extraTable).forEach((name: string) =>
-                this._commandTable[name] = extraTable[name]
-            );
-        }
-    }
-
-    public execute(cmd: string): string {
-        cmd = cmd.replace(/;.*/, '');
-        if (cmd.match(/^\s*$/)) return '';
-
-        var components = cmd.split(/\s+/).filter((value: string): boolean => !!value),
-            commandName = components.shift();
-       
-        return this._locateCommand(commandName).call(this, components, cmd);
-    }
-
-    public getCommands(): Array<string> {
-        return Object.keys(this._commandTable);
-    }
-
-    private _locateCommand(name: string): DebuggerFrontend.CommandInterface {
-        if (this._commandTable[name]) return this._commandTable[name];
-        if (this._aliasTable[name]) return this._aliasTable[name];
-
-        var candidates = Object.keys(this._commandTable).filter(
-            (candidate: string) => candidate.indexOf(name) === 0
-        );
-        var nCandidates = candidates.length;
-
-        if (nCandidates > 1) throw new Error('ambiguous command ' + name + ', candidates are ' +
-            candidates.join(', ').replace(/, $/, ''));
-
-        if (nCandidates === 0) throw new Error('invalid command ' + name);
-
-        return this._aliasTable[name] = this._commandTable[candidates[0]];
+        });
     }
 
     private _disassemble(args: Array<string>): string {
@@ -217,19 +180,6 @@ class DebuggerFrontend {
 
     private _trace(args: Array<string>): string {
         return this._debugger.trace(args.length > 0 ? decodeNumber(args[0]): 10);
-    }
-
-    private _commandTable: DebuggerFrontend.CommandTableInterface;
-    private _aliasTable: DebuggerFrontend.CommandTableInterface = {};
-}
-
-module DebuggerFrontend {
-    export interface CommandInterface {
-        (args: Array<string>, cmdString?: string): string;
-    }
-
-    export interface CommandTableInterface {
-        [command: string]: CommandInterface;
     }
 }
 

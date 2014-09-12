@@ -22,9 +22,11 @@ var rl = readline.createInterface({
 var memory = new Memory(),
     cpu = new Cpu(memory),
     dbg = new Debugger(memory, cpu),
-    frontend = new DebuggerFrontend(dbg, {
-        quit: (args: Array<string>): string => (quit = true, 'bye')
-    });
+    frontend = new DebuggerFrontend(dbg);
+
+frontend.registerCommands({
+    quit: (args: Array<string>): string => (quit = true, 'bye')
+});
 
 commands = frontend.getCommands();
 

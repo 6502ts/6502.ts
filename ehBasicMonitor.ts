@@ -34,24 +34,26 @@ var rl = readline.createInterface({
 var monitor = new Monitor(),
     cpu = new Cpu(monitor),
     dbg = new Debugger(monitor, cpu),
-    frontend = new DebuggerFrontend(dbg, {
-        quit: (): string => {
-            setState(State.quit);
-            return 'bye';
-        },
-        run: (): string => {
-            setState(State.run);
-            return 'running, press ctl-c to interrupt...';
-        },
-        input: (args: Array<string>, cmd: string): string => {
-            var data = cmd.replace(/^\s*input\s*/, '').replace(/\\n/, '\n'),
-                length = data.length;
+    frontend = new DebuggerFrontend(dbg);
 
-            for (var i = 0; i < length; i++)
-                inputBuffer.push(data[i] === '\n' ? 0x0D : data.charCodeAt(i) & 0xFF);
-            return '';
-        }
-    });
+frontend.registerCommands({
+    quit: (): string => {
+        setState(State.quit);
+        return 'bye';
+    },
+    run: (): string => {
+        setState(State.run);
+        return 'running, press ctl-c to interrupt...';
+    },
+    input: (args: Array<string>, cmd: string): string => {
+        var data = cmd.replace(/^\s*input\s*/, '').replace(/\\n/, '\n'),
+            length = data.length;
+
+        for (var i = 0; i < length; i++)
+            inputBuffer.push(data[i] === '\n' ? 0x0D : data.charCodeAt(i) & 0xFF);
+        return '';
+    }
+});
 
 
 rl.on('SIGINT', onSigint);
@@ -124,20 +126,25 @@ function executeSlice() {
         outputBuffer = '';
     }
 
-    var cycles = dbg.step(100000);
-    if (dbg.executionInterrupted()) {
-        switch (dbg.getExecutionState()) {
-            case Debugger.ExecutionState.breakpoint:
-                console.log('BREAKPOINT');
-                break;
+    try {
+        var cycles = dbg.step(100000);
+        if (dbg.executionInterrupted()) {
+            switch (dbg.getExecutionState()) {
+                case Debugger.ExecutionState.breakpoint:
+                    console.log('BREAKPOINT');
+                    break;
 
-            case Debugger.ExecutionState.invalidInstruction:
-                console.log('INVALID INSTRUCTION');
-                break;
+                case Debugger.ExecutionState.invalidInstruction:
+                    console.log('INVALID INSTRUCTION');
+                    break;
+            }
+            setState(State.debug);
         }
+    } catch (e) {
+        console.log('ERROR: ' + e.message);
         setState(State.debug);
     }
-
+  
     processSpeedSample(cycles);
     schedule();
 }
