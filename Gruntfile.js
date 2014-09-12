@@ -11,6 +11,8 @@ var TS_SOURCE = [
     'src/CommandInterpreter.ts',
     'src/NodeFilesystemProvider.ts',
     'src/TestCLI.ts',
+    'src/NodeCLIRunner.ts',
+    'testCLI.ts',
     'debugger.ts',
     'ehBasicMonitor.ts'
 ];
