@@ -12,7 +12,7 @@ interface CLIInterface {
     /**
       * Events:
       *
-      * - InputAvailable (no arguments)
+      * - outputAvailable (no arguments)
       * - quit (no arguments)
       * - changePrompt (string argument: new prompt)
       */
