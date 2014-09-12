@@ -14,19 +14,20 @@ var TS_SOURCE = [
     'ehBasicMonitor.ts'
 ];
 
+var JS_BUILD = TS_SOURCE.map(function(tsFile) {
+    return tsFile.replace(/\.ts$/, '.js');
+});
+
 var GARBAGE = [
     '.tscache'
 ];
-TS_SOURCE.forEach(function(tsFile) {
-    GARBAGE.push(
-        tsFile.replace(/\.ts$/, '.js')
-    );
-});
+Array.prototype.push.apply(GARBAGE, JS_BUILD);
 
 module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-tsd');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-browserify');
 
     grunt.initConfig({
         ts: {
@@ -52,6 +53,14 @@ module.exports = function(grunt) {
                     command: 'reinstall',
                     latest: true,
                     config: 'tsd.json'
+                }
+            }
+        },
+
+        browserify: {
+            browser: {
+                files: {
+                  'web/js/6502.js': JS_BUILD
                 }
             }
         }
