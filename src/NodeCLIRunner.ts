@@ -26,6 +26,7 @@ class NodeCLIRunner {
         this._cli.on('outputAvailable', this._onCLIOutputAvailable.bind(this));
         this._cli.on('changePrompt', this._onCLIChangePrompt.bind(this));
         this._cli.on('quit', this._onCLIQuit.bind(this));
+        this._cli.on('prompt', this._onCLIPrompt.bind(this));
     }
 
     startup(): void {
@@ -49,6 +50,12 @@ class NodeCLIRunner {
         if (this._closed) return;
 
         this._readline.setPrompt(prompt, prompt.length);
+    }
+
+    private _onCLIPrompt() {
+        if (this._closed) return;
+
+        this._readline.prompt();
     }
 
     private _closed = false;

@@ -15,6 +15,7 @@ interface CLIInterface {
       * - outputAvailable (no arguments)
       * - quit (no arguments)
       * - changePrompt (string argument: new prompt)
+      * - prompt
       */
     on(event: string, handler: Function): void;
 

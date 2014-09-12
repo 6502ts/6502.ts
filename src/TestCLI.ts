@@ -37,7 +37,9 @@ class TestCLI extends events.EventEmitter implements CLIInterface {
     }
 
     readOutput(): string {
-        return this._outputBuffer;
+        var buffer = this._outputBuffer;
+        this._outputBuffer = '';
+        return buffer;
     }
 
     availableCommands(): Array<string> {

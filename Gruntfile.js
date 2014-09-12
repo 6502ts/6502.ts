@@ -12,6 +12,8 @@ var TS_SOURCE = [
     'src/NodeFilesystemProvider.ts',
     'src/TestCLI.ts',
     'src/NodeCLIRunner.ts',
+    'src/EhBasicCLI.ts',
+    'ehBasicCLI.ts',
     'testCLI.ts',
     'debugger.ts',
     'ehBasicMonitor.ts'
