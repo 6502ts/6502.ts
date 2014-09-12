@@ -3,10 +3,12 @@ interface CLIInterface {
 
     interrupt(): void;
 
-    inputAvailable(): boolean;
+    outputAvailable(): boolean;
 
-    readInput(): string;
+    readOutput(): string;
 
-    // There are two events: inputReady and interrupt
+    availableCommands(): Array<string>;
+
+    // There are two events: outputReady and quit
     on(event: string, handler: () => void): void;
 }
