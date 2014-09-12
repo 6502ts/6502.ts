@@ -9,6 +9,14 @@ interface CLIInterface {
 
     availableCommands(): Array<string>;
 
-    // There are two events: outputReady and quit
-    on(event: string, handler: () => void): void;
+    /**
+      * Events:
+      *
+      * - InputAvailable (no arguments)
+      * - quit (no arguments)
+      * - changePrompt (string argument: new prompt)
+      */
+    on(event: string, handler: Function): void;
+
+    startup(): void;
 }
