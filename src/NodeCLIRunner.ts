@@ -21,34 +21,40 @@ class NodeCLIRunner {
         });
 
         this._readline.on('line', (data: string) => this._cli.pushInput(data));
-        this._readline.on('SIGINT', () => this._cli.interrupt);
+        this._readline.on('SIGINT', () => this._cli.interrupt());
 
         this._cli.on('outputAvailable', this._onCLIOutputAvailable.bind(this));
-        this._cli.on('changePrompt', this._onCLIChangePrompt.bind(this));
+        this._cli.on('promptChanged', this._onCLIPromptChanged.bind(this));
         this._cli.on('quit', this._onCLIQuit.bind(this));
         this._cli.on('prompt', this._onCLIPrompt.bind(this));
     }
 
     startup(): void {
         this._cli.startup();
+
+        var prompt = this._cli.getPrompt();
+        this._readline.setPrompt(prompt, prompt.length);
+
         this._readline.prompt();
     }
 
     private _onCLIQuit(): void {
         this._closed = true;
+        this._cli.shutdown()
         this._readline.close();
     }
 
     private _onCLIOutputAvailable(): void {
         if (this._closed) return;
 
-        console.log(this._cli.readOutput());
-        this._readline.prompt();
+        var output = this._cli.readOutput();
+        process.stdout.write(output);
     }
 
-    private _onCLIChangePrompt(prompt: string) {
+    private _onCLIPromptChanged() {
         if (this._closed) return;
 
+        var prompt = this._cli.getPrompt();
         this._readline.setPrompt(prompt, prompt.length);
     }
 

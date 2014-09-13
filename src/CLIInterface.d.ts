@@ -9,15 +9,19 @@ interface CLIInterface {
 
     availableCommands(): Array<string>;
 
+    getPrompt(): string;
+
     /**
       * Events:
       *
-      * - outputAvailable (no arguments)
-      * - quit (no arguments)
-      * - changePrompt (string argument: new prompt)
+      * - outputAvailable
+      * - quit
+      * - promptChanged
       * - prompt
       */
-    on(event: string, handler: Function): void;
+    on(event: string, handler: () => void): void;
 
     startup(): void;
+
+    shutdown(): void;
 }

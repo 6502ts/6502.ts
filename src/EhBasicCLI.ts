@@ -15,6 +15,7 @@ enum State {
 }
 
 var SAMPLE_SIZE = 20000000;
+var OUTPUT_FLUSH_INTERVAL = 50;
 
 class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     constructor(
@@ -54,7 +55,18 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
     startup(): void {
         this._setState(State.debug);
+
+        this._cliFlushOutputInterval = setInterval(this._flushOutput.bind(this),
+                OUTPUT_FLUSH_INTERVAL);
+
         this._schedule();
+    }
+
+    shutdown(): void {
+        if (typeof(this._cliFlushOutputInterval) === 'undefined') return;
+
+        clearInterval(this._cliFlushOutputInterval);
+        this._cliFlushOutputInterval = undefined;
     }
 
     readOutput(): string {
@@ -68,6 +80,17 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     }
 
     interrupt(): void {
+        switch (this._state) {
+            case State.run:
+                this._setState(State.debug);
+                break;
+
+            case State.debug:
+                this._setState(State.quit);
+                break;
+        }
+
+        this._schedule();
     }
 
     outputAvailable(): boolean {
@@ -87,13 +110,30 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
             case State.debug:
                 try {
-                    this._output(this._frontend.execute(data));
+                    this._outputLine(this._frontend.execute(data));
                 } catch (e) {
-                    this._output('ERROR: ' + e.message);
+                    this._outputLine('ERROR: ' + e.message);
                 }
                 this._schedule();
                 break;
         }
+    }
+
+    getPrompt(): string {
+        var prompt = this._speed ? (this._speed.toFixed(2) + ' MHz ') : '';
+
+        switch (this._state) {
+            case State.run:
+                prompt += '[run] # ';
+                this._lastSpeedSample = Date.now();
+                break;
+
+            case State.debug:
+                prompt += '[dbg] # ';
+                break;
+        }
+
+        return prompt;
     }
 
     private _setState(newState: State): void {
@@ -101,52 +141,35 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
         switch (this._state) {
             case State.run:
+                if (this._outputBuffer) {
+                    this._outputRaw(this._outputBuffer);
+                    this._outputBuffer = '';
+                }
+
                 this._cyclesProcessed = 0;
                 break;
         }
 
-        this._configurePrompt();
-    }
-
-    private _configurePrompt() {
-        var prompt = this._speed ? (this._speed.toFixed(2) + ' MHz ') : '';
-
-        switch (this._state) {
-            case State.run:
-                prompt += '[run] # ';
-                this._lastSpeedSample = Date.now();
-                this._setPrompt(prompt);
-                break;
-
-            case State.debug:
-                prompt += '[dbg] # ';
-                this._setPrompt(prompt);
-                break;
-        }
+        this.emit('promptChanged');
     }
 
     private _executeSlice() {
-        if (this._outputBuffer) {
-            this._outputRaw(this._outputBuffer);
-            this._outputBuffer = '';
-        }
-
         try {
             var cycles = this._debugger.step(100000);
             if (this._debugger.executionInterrupted()) {
                 switch (this._debugger.getExecutionState()) {
                     case Debugger.ExecutionState.breakpoint:
-                        this._output('BREAKPOINT');
+                        this._outputLine('BREAKPOINT');
                         break;
 
                     case Debugger.ExecutionState.invalidInstruction:
-                        this._output('INVALID INSTRUCTION');
+                        this._outputLine('INVALID INSTRUCTION');
                         break;
                 }
                 this._setState(State.debug);
             }
         } catch (e) {
-            this._output('ERROR: ' + e.message);
+            this._outputLine('ERROR: ' + e.message);
             this._setState(State.debug);
         }
       
@@ -163,14 +186,15 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
             this._speed = this._cyclesProcessed / (timestamp - this._lastSpeedSample) / 1000;
             this._cyclesProcessed = 0;
             this._lastSpeedSample = timestamp;
-            this._configurePrompt();
+
+            this.emit('promptChanged');
         }
     }
 
     private _schedule() {
         switch (this._state) {
             case State.debug:
-                this.emit('prompt');
+                this._prompt();
                 break;
 
             case State.run:
@@ -183,25 +207,11 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         }
     }
 
-    private _interrupt(): void {
-        switch (this._state) {
-            case State.run:
-                this._setState(State.debug);
-                break;
-
-            case State.debug:
-                this._setState(State.quit);
-                break;
-        }
-
-        this._schedule();
-    }
-
     private _monitorWriteHandler(value: number): void {
         switch (this._state) {
             case State.debug:
                 this._outputBuffer += String.fromCharCode(value);
-                this._output('output event, buffer now\n' +
+                this._outputLine('output event, buffer now\n' +
                     this._outputBuffer +
                     "\n"
                 );
@@ -223,8 +233,8 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
             this._promptForInput = false;
             setImmediate((): void =>
                 {
-                    this._output();
-                    this.emit('prompt');
+                    this._outputLine();
+                    this._prompt();
                 }
             );
         }
@@ -233,16 +243,19 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
     private _outputRaw(output: string) {
         this._cliOutputBuffer += output;
-        this.emit('outputAvailable');
     }
 
-    private _output(output: string = '') {
+    private _outputLine(output: string = '') {
         this._cliOutputBuffer += (output + "\n");
-        this.emit('outputAvailable');
     }
 
-    private _setPrompt(prompt: string) {
-        this.emit('changePrompt', prompt);
+    private _flushOutput(): void {
+        if (this._cliOutputBuffer) this.emit('outputAvailable');
+    }
+
+    private _prompt(): void {
+        this._flushOutput();
+        setImmediate(() => this.emit('prompt'));
     }
 
     private _state: State;
@@ -259,6 +272,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     private _speed: number;
 
     private _cliOutputBuffer = '';
+    private _cliFlushOutputInterval: number;
 
     private _monitor: Monitor;
     private _debugger: Debugger;

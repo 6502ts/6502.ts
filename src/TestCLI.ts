@@ -20,6 +20,12 @@ class TestCLI extends events.EventEmitter implements CLIInterface {
         this.emit('changePrompt', '[foo] > ');
     }
 
+    shutdown(): void {}
+
+    getPrompt(): string {
+        return '[foo] > ';
+    }
+
     pushInput(input: string) {
         var result: string;
 
