@@ -23,10 +23,10 @@ class NodeCLIRunner {
         this._readline.on('line', (data: string) => this._cli.pushInput(data));
         this._readline.on('SIGINT', () => this._cli.interrupt());
 
-        this._cli.on('outputAvailable', this._onCLIOutputAvailable.bind(this));
-        this._cli.on('promptChanged', this._onCLIPromptChanged.bind(this));
-        this._cli.on('quit', this._onCLIQuit.bind(this));
-        this._cli.on('prompt', this._onCLIPrompt.bind(this));
+        this._cli.on('outputAvailable',     () => this._onCLIOutputAvailable());
+        this._cli.on('promptChanged',       () => this._onCLIPromptChanged());
+        this._cli.on('quit',                () => this._onCLIQuit());
+        this._cli.on('prompt',              () => this._onCLIPrompt());
     }
 
     startup(): void {

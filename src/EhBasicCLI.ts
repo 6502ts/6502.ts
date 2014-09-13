@@ -49,8 +49,8 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
         this._commands = this._frontend.getCommands();
         this._monitor
-            .setWriteHandler(this._monitorWriteHandler.bind(this))
-            .setReadHandler(this._monitorReadHandler.bind(this));
+            .setWriteHandler((value: number) => this._monitorWriteHandler(value))
+            .setReadHandler(() => this._monitorReadHandler());
     }
 
     runDebuggerScript(filename: string): void {
@@ -74,7 +74,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     startup(): void {
         this._setState(State.debug);
 
-        this._cliFlushOutputInterval = setInterval(this._flushOutput.bind(this),
+        this._cliFlushOutputInterval = setInterval(() => this._flushOutput(),
                 OUTPUT_FLUSH_INTERVAL);
 
         this._schedule();
@@ -216,7 +216,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
                 break;
 
             case State.run:
-                setImmediate(this._executeSlice.bind(this));
+                setImmediate(() => this._executeSlice());
                 break;
 
             case State.quit:
@@ -249,13 +249,10 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
         if (this._state === State.run && this._promptForInput) {
             this._promptForInput = false;
-            setImmediate((): void =>
-                {
-                    this._outputLine();
-                    this._prompt();
-                }
-            );
+            this._outputLine();
+            this._prompt();
         }
+
         return 0;
     }
 
