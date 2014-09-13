@@ -92,7 +92,7 @@ will pull in the dependencies and build the code. Make sure that you have
 
 After bulding the code, you can launch an ehBasic session by doing
 
-    node ./ehBasicMonitor.js ehbasic_run.d
+    node ./ehBasicCLI.js ehbasic_run.d
 
 which will present you with
 
@@ -165,7 +165,7 @@ The handling prompt vs. output is a bit glitchy, so you might end up with
 emulator output overwriting the prompt, but pressing enter will redisplay it,
 and everything you type will be sent to the input buffer nevertheless.
 
-The first argument of `ehBasicMonitor.js` is an optional script containing
+The first argument of `ehBasicCLI.js` is an optional script containing
 debugger statements, so you can take a further look there. There is tab
 completion, so pressing tab at the debug prompt will show you all possible
 commands. `quit` will quit the emulator.
@@ -174,7 +174,7 @@ If you want to play with ehBasic a bit more, you can pass a basic program as
 second argument which will then be preloaded into the input buffer
 
 ```
-$ node ./ehBasicMonitor.js ehbasic_run.d  test.bas
+$ node ./ehBasicCLI.js ehbasic_run.d  test.bas
 
 successfully loaded 16384 bytes at $C000
 Boot successful in 7 cycles

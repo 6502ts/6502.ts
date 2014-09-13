@@ -19,14 +19,14 @@ var OUTPUT_FLUSH_INTERVAL = 50;
 
 class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     constructor(
-            private _filesystemProvider: FileSystemProviderInterface
+            private _fsProvider: FileSystemProviderInterface
     ) {
         super();
 
         this._monitor = new Monitor();
         this._cpu = new Cpu(this._monitor);
         this._debugger = new Debugger(this._monitor, this._cpu);
-        this._frontend = new DebuggerFrontend(this._debugger, this._filesystemProvider);
+        this._frontend = new DebuggerFrontend(this._debugger, this._fsProvider);
 
         this._frontend.registerCommands({
             quit: (): string => {
@@ -51,6 +51,24 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         this._monitor
             .setWriteHandler(this._monitorWriteHandler.bind(this))
             .setReadHandler(this._monitorReadHandler.bind(this));
+    }
+
+    runDebuggerScript(filename: string): void {
+        this._fsProvider.readTextFileSync(filename)
+            .split('\n')
+            .forEach((line: string): void => {
+                this.pushInput(line);
+            });
+    }
+
+    readBasicProgram(filename: string): void {
+        this._fsProvider.readTextFileSync(filename)
+            .split('\n')
+            .forEach((line: string): void => {
+                var length = line.length;
+                for (var i = 0; i < length; i++) this._inputBuffer.push(line.charCodeAt(i) & 0xFF);
+                this._inputBuffer.push(0x0D);
+            });
     }
 
     startup(): void {
@@ -255,7 +273,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
     private _prompt(): void {
         this._flushOutput();
-        setImmediate(() => this.emit('prompt'));
+        this.emit('prompt');
     }
 
     private _state: State;
