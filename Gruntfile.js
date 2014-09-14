@@ -34,6 +34,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-mocha-test');
+    grunt.loadNpmTasks('grunt-http-server');
 
     grunt.initConfig({
         ts: {
@@ -79,10 +80,22 @@ module.exports = function(grunt) {
                 },
                 src: ['tests/**.js']
             }
+        },
+
+        'http-server': {
+            dev: {
+                root: 'web',
+                port: 6502,
+                host: '127.0.0.1',
+                autoIndex: true,
+                ext: 'html',
+                cache: -1
+            }
         }
     });
 
-    grunt.registerTask('initial', ['clean', 'tsd', 'ts:build']);
-    grunt.registerTask('default', ['ts:build', 'browserify']);
-    grunt.registerTask('test', ['ts:build', 'mochaTest']);
+    grunt.registerTask('initial', ['clean', 'tsd', 'ts']);
+    grunt.registerTask('default', ['ts', 'browserify']);
+    grunt.registerTask('test', ['ts', 'mochaTest']);
+    grunt.registerTask('serve', ['default', 'http-server']);
 };
