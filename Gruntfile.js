@@ -33,6 +33,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-tsd');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-browserify');
+    grunt.loadNpmTasks('grunt-mocha-test');
 
     grunt.initConfig({
         ts: {
@@ -68,9 +69,20 @@ module.exports = function(grunt) {
                   'web/js/6502.js': JS_BUILD
                 }
             }
+        },
+
+        mochaTest: {
+            test: {
+                options: {
+                    reporter: 'spec',
+                    ui: 'tdd'
+                },
+                src: ['tests/**.js']
+            }
         }
     });
 
     grunt.registerTask('initial', ['clean', 'tsd', 'ts:build']);
-    grunt.registerTask('default', ['ts:build']);
+    grunt.registerTask('default', ['ts:build', 'browserify']);
+    grunt.registerTask('test', ['ts:build', 'mochaTest']);
 };
