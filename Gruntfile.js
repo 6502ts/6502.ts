@@ -15,8 +15,7 @@ var TS_SOURCE = [
     'src/EhBasicCLI.ts',
     'ehBasicCLI.ts',
     'testCLI.ts',
-    'debugger.ts',
-    'ehBasicMonitor.ts'
+    'debugger.ts'
 ];
 
 var JS_BUILD = TS_SOURCE.map(function(tsFile) {
@@ -28,6 +27,8 @@ var GARBAGE = [
 ];
 Array.prototype.push.apply(GARBAGE, JS_BUILD);
 
+var NOTSOGARBAGE = ['web/bower'];
+
 module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-tsd');
@@ -35,6 +36,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-http-server');
+    grunt.loadNpmTasks('grunt-bower-install-simple');
 
     grunt.initConfig({
         ts: {
@@ -52,7 +54,10 @@ module.exports = function(grunt) {
             },
         },
 
-        clean: GARBAGE,
+        clean: {
+            clean: GARBAGE,
+            mrproper: GARBAGE.concat(NOTSOGARBAGE)
+        },
 
         tsd: {
             refresh: {
@@ -91,10 +96,19 @@ module.exports = function(grunt) {
                 ext: 'html',
                 cache: -1
             }
+        },
+
+        "bower-install-simple": {
+            install: {
+                options: {
+                    directory: 'web/bower'
+                }
+            }
         }
     });
 
-    grunt.registerTask('initial', ['clean', 'tsd', 'ts']);
+    grunt.registerTask('bower', ['bower-install-simple']);
+    grunt.registerTask('initial', ['clean', 'tsd', 'ts', 'bower', 'browserify']);
     grunt.registerTask('default', ['ts', 'browserify']);
     grunt.registerTask('test', ['ts', 'mochaTest']);
     grunt.registerTask('serve', ['default', 'http-server']);

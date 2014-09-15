@@ -3,8 +3,8 @@ typings
 node_modules
 .tscache
 src/*.js
+web/bower
+
 debugger.js
-ehBasicMonitor.js
 testCLI.js
 ehBasicCLI.js
-web/js/6502.js

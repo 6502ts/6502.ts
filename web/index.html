@@ -4,15 +4,14 @@
     <title></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="css/jquery.terminal.css" rel="stylesheet" media="screen">
+    <link href="bower/jquery.terminal/css/jquery.terminal.css" rel="stylesheet" media="screen">
   </head>
   <body>
     <div id="term"></div>
-    <script src="http://code.jquery.com/jquery.js"></script>
+    <script src="bower/jquery/dist/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/jquery.mousewheel-min.js"></script>
-    <script src="js/jquery.terminal-min.js"></script>
-    <script src="js/6502.js"></script>
+    <script src="bower/jquery-mousewheel/jquery.mousewheel.min.js"></script>
+    <script src="bower/jquery.terminal/js/jquery.terminal-min.js"></script>
     <script>
       $(document).ready(function() {
         $('#term').terminal(
