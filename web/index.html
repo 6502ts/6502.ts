@@ -3,15 +3,60 @@
   <head>
     <title></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            padding-top: 50px;
+        }
+
+        .cs-terminal {
+            height: 350px;
+        }
+
+        .row .cs-terminal, .row .cmd {
+            font-family: DOS, Monaco, Menlo, Consolas, 'Courier New', monospace !important;
+            font-size: 16px;
+        }
+    </style>
+
     <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
     <link href="bower/jquery.terminal/css/jquery.terminal.css" rel="stylesheet" media="screen">
+
+    <script>_386 = {fastLoad: true}</script>
   </head>
   <body>
-    <div id="term"></div>
+
+  <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          </button>
+          <a class="brand" href="#">6502.ts</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+        <h1>A 6502 emulator written in Typescript</h1>
+        <br/>
+        <div class="row">
+            <div id="term" class="cs-terminal span6"></div>
+        </div>
+    </div>
+
     <script src="bower/jquery/dist/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="bower/jquery-mousewheel/jquery.mousewheel.min.js"></script>
     <script src="bower/jquery.terminal/js/jquery.terminal-min.js"></script>
+
     <script>
       $(document).ready(function() {
         $('#term').terminal(
@@ -29,9 +74,7 @@
             }
           },
           {
-            greetings: 'Hello World\n',
-            height: 200,
-            width: 450
+            greetings: 'Hello World\n'
           }
         )
       });
