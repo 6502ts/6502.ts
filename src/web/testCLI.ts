@@ -2,24 +2,18 @@
 /// <reference path="./jquery.terminal.d.ts"/>
 
 import TestCLI = require("../TestCLI");
+import JqtermCLIRunner = require('./JqtermCLIRunner');
 
-export function run(terminalElt: JQuery) {
-    terminalElt.terminal((cmd: string, terminal: JQueryTerminal): void => {
-        if (cmd.match(/^alert /)) {
-            var message = cmd.substr(6);
+export function run(
+    terminalElt: JQuery,
+    interruptButton: JQuery,
+    clearButton: JQuery
+) {
+    var cli = new TestCLI(),
+        runner = new JqtermCLIRunner(cli, terminalElt, {
+            interruptButton: interruptButton,
+            clearButton: clearButton
+        });
 
-                terminal.echo('Show alert with message "' + message + '"');
-                alert(message);
-
-            } else if (cmd === 'help') {
-              terminal.echo('alert [message]  Show an alert box with message');
-              terminal.echo('help             Display this help message');
-
-            } else {
-              terminal.echo('Commmand "' + cmd + '" not found');
-            }
-
-    }, {
-        greetings: 'Hello world!'
-    });
+    runner.startup();
 }

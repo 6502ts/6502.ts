@@ -14,6 +14,7 @@ var TS_SOURCE = [
     'src/NodeCLIRunner.ts',
     'src/EhBasicCLI.ts',
     'src/web/testCLI.ts',
+    'src/web/JqtermCLIRunner.ts',
     'ehBasicCLI.ts',
     'testCLI.ts',
     'debugger.ts'

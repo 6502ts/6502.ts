@@ -50,6 +50,11 @@
         <div class="row">
             <div id="term" class="cs-terminal span6"></div>
         </div>
+        <br/>
+        <div class="row">
+            <div class="span2"><button id="interrupt-btn" class="btn">Interrupt</button></div>
+            <div class="span2"><button id="clear-btn" class="btn">Clear</button></div>
+        </div>
     </div>
 
     <script src="bower/jquery/dist/jquery.min.js"></script>
@@ -61,7 +66,11 @@
 
     <script>
         $(function() {
-            require('testCLI').run($('#term'));
+            require('testCLI').run(
+                $('#term'),
+                $('#interrupt-btn'),
+                $('#clear-btn')
+            );
         });
     </script>
   </body>

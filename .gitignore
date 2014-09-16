@@ -2,7 +2,7 @@
 typings
 node_modules
 .tscache
-src/*.js
+src/**/*.js
 web/bower
 
 debugger.js
