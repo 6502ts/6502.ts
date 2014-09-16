@@ -60,29 +60,9 @@
     <script src="js/compiled/testCLI.js"></script>
 
     <script>
-        require('testCLI').run();
-        testCLI.run();
-
-      $(document).ready(function() {
-        $('#term').terminal(
-          function(command, term) {
-            if (command.match(/^alert /)) {
-              var message = command.substr(6);
-
-              term.echo('Show alert with message "' + message + '"');
-              alert(message);
-            } else if ('help' === command) {
-              term.echo('alert [message]  Show an alert box with message');
-              term.echo('help             Display this help message');
-            } else {
-              term.echo('Commmand "' + command + '" not found');
-            }
-          },
-          {
-            greetings: 'Hello World\n'
-          }
-        )
-      });
+        $(function() {
+            require('testCLI').run($('#term'));
+        });
     </script>
   </body>
 </html>
