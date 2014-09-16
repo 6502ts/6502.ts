@@ -13,6 +13,7 @@ var TS_SOURCE = [
     'src/TestCLI.ts',
     'src/NodeCLIRunner.ts',
     'src/EhBasicCLI.ts',
+    'src/web/testCLI.ts',
     'ehBasicCLI.ts',
     'testCLI.ts',
     'debugger.ts'
@@ -23,7 +24,8 @@ var JS_BUILD = TS_SOURCE.map(function(tsFile) {
 });
 
 var GARBAGE = [
-    '.tscache'
+    '.tscache',
+    'web/js/compiled'
 ];
 Array.prototype.push.apply(GARBAGE, JS_BUILD);
 
@@ -70,9 +72,12 @@ module.exports = function(grunt) {
         },
 
         browserify: {
-            browser: {
+            testCLI: {
                 files: {
-                  'web/js/6502.js': JS_BUILD
+                  'web/js/compiled/testCLI.js': 'src/web/testCLI.js'
+                },
+                options: {
+                    alias: ['./src/web/testCLI:testCLI']
                 }
             }
         },

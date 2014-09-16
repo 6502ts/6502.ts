@@ -57,7 +57,12 @@
     <script src="bower/jquery-mousewheel/jquery.mousewheel.min.js"></script>
     <script src="bower/jquery.terminal/js/jquery.terminal-min.js"></script>
 
+    <script src="js/compiled/testCLI.js"></script>
+
     <script>
+        require('testCLI').run();
+        testCLI.run();
+
       $(document).ready(function() {
         $('#term').terminal(
           function(command, term) {
