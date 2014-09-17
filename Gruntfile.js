@@ -15,6 +15,8 @@ var TS_SOURCE = [
     'src/EhBasicCLI.ts',
     'src/web/testCLI.ts',
     'src/web/JqtermCLIRunner.ts',
+    'src/web/PrepackagedFilesystemProvider.ts',
+    'src/web/ehBasicCLI.ts',
     'ehBasicCLI.ts',
     'testCLI.ts',
     'debugger.ts'
@@ -80,7 +82,16 @@ module.exports = function(grunt) {
                 options: {
                     alias: ['./src/web/testCLI:testCLI']
                 }
+            },
+            ehBasicCLI: {
+                files: {
+                  'web/js/compiled/ehBasicCLI.js': 'src/web/ehBasicCLI.js'
+                },
+                options: {
+                    alias: ['./src/web/ehBasicCLI:ehBasicCLI']
+                }
             }
+
         },
 
         mochaTest: {

@@ -48,7 +48,7 @@
         <h1>A 6502 emulator written in Typescript</h1>
         <br/>
         <div class="row">
-            <div id="term" class="cs-terminal span8"></div>
+            <div id="term" class="cs-terminal span6"></div>
         </div>
         <br/>
         <div class="row">
@@ -62,15 +62,11 @@
     <script src="bower/jquery-mousewheel/jquery.mousewheel.min.js"></script>
     <script src="bower/jquery.terminal/js/jquery.terminal-min.js"></script>
 
-    <script src="js/compiled/ehBasicCLI.js"></script>
+    <script src="js/compiled/testCLI.js"></script>
 
     <script>
-        function setImmediate(callback) {
-            setTimeout(callback, 0);
-        }
-
         $(function() {
-            require('ehBasicCLI').run(
+            require('testCLI').run(
                 $('#term'),
                 $('#interrupt-btn'),
                 $('#clear-btn')
