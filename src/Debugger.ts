@@ -160,6 +160,7 @@ class Debugger {
         if (this._cpu.executionState !== Cpu.ExecutionState.fetch)
             throw new Error('must boot first');
 
+        this._invalidInstuction = false;
         this._executionState = Debugger.ExecutionState.ok;
 
         var cycles = 0;
