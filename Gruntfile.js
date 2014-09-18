@@ -13,6 +13,7 @@ var TS_SOURCE = [
     'src/TestCLI.ts',
     'src/NodeCLIRunner.ts',
     'src/EhBasicCLI.ts',
+    'src/base64.ts',
     'src/web/testCLI.ts',
     'src/web/JqtermCLIRunner.ts',
     'src/web/PrepackagedFilesystemProvider.ts',

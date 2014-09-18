@@ -57,20 +57,20 @@
         </div>
     </div>
 
+
     <script src="bower/jquery/dist/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="bower/jquery-mousewheel/jquery.mousewheel.min.js"></script>
     <script src="bower/jquery.terminal/js/jquery.terminal-min.js"></script>
+    <script src="bower/setimmediate/setImmediate.js"></script>
+    <script src="js/staticFiles.js"></script>
 
     <script src="js/compiled/ehBasicCLI.js"></script>
 
     <script>
-        function setImmediate(callback) {
-            setTimeout(callback, 0);
-        }
-
         $(function() {
             require('ehBasicCLI').run(
+                window._staticFiles,
                 $('#term'),
                 $('#interrupt-btn'),
                 $('#clear-btn')

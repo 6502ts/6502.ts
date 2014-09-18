@@ -1,12 +1,47 @@
-/// <reference path="../FilesystemProviderInterface.d.ts"/>
+/// <reference path="../FilesystemProviderInterface"/>
+
+import base64 = require('../base64');
 
 class PrepackagedFilesystemProvider implements FileSystemProviderInterface {
-    readBinaryFileSync(name: string): Array<number> {
-        throw new Error('file not found');
+    constructor(private _blob: PrepackagedFilesystemProvider. BlobInterface) {}
+
+    readBinaryFileSync(name: string): Uint8Array {
+        var file = this._getFile(name);
+
+        if (!file.hasOwnProperty('base64')) throw new Error(
+            'file not available as raw data');
+
+        if (!file.hasOwnProperty('_base64'))
+            file._base64 = base64.decode(file.base64);
+
+        return file._base64;
     }
 
     readTextFileSync(name: string): string {
-        throw new Error('file not found');
+        var file = this._getFile(name);
+
+        if (!file.hasOwnProperty('plain')) throw new Error(
+            'file not available as plain text');
+
+        return file.plain;
+    }
+
+    private _getFile(name: string): PrepackagedFilesystemProvider.FileInterface {
+        if (!this._blob.hasOwnProperty(name)) throw new Error('file not found');
+        return this._blob[name];
+    }
+}
+
+module PrepackagedFilesystemProvider {
+    export interface FileInterface {
+        base64?: string;
+        _base64?: Uint8Array;
+
+        plain?: string;
+    }
+
+    export interface BlobInterface {
+        [name: string]: FileInterface;
     }
 }
 
