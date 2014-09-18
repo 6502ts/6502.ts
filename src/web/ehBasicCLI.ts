@@ -17,5 +17,6 @@ export function run(
             clearButton: clearButton
         });
 
+    cli.allowQuit(false);
     runner.startup();
 }

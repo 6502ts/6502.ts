@@ -44,6 +44,16 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
                 for (var i = 0; i < length; i++)
                     this._inputBuffer.push(data[i] === '\n' ? 0x0D : data.charCodeAt(i) & 0xFF);
                 return '';
+            },
+            'run-script': (args: Array<string>): string => {
+                if (!args.length) throw new Error('filenme required');
+                this.runDebuggerScript(args[0]);
+                return 'script executed';
+            },
+            'read-program': (args: Array<string>): string => {
+                if (!args.length) throw new Error('filenme required');
+                this.readBasicProgram(args[0]);
+                return 'program read into buffer';
             }
         });
 
@@ -104,7 +114,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
                 break;
 
             case State.debug:
-                this._setState(State.quit);
+                if (this._allowQuit) this._setState(State.quit);
                 break;
         }
 
@@ -135,6 +145,10 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
                 this._schedule();
                 break;
         }
+    }
+
+    allowQuit(toggle: boolean): void {
+        this._allowQuit = toggle;
     }
 
     getPrompt(): string {
@@ -274,6 +288,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     }
 
     private _state: State;
+    private _allowQuit = true;
 
     private _commands: Array<string>;
 
