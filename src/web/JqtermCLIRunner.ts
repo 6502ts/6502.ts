@@ -1,6 +1,8 @@
 /// <reference path="jquery.terminal.d.ts"/>
 /// <reference path="../../typings/jquery/jquery.d.ts"/>
-/// <reference path="../CLIInterface.d.ts"/>
+/// <reference path="../cli/CLIInterface.d.ts"/>
+
+'use strict';
 
 class JqtermCLIRunner {
     constructor(

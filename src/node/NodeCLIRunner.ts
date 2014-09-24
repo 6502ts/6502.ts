@@ -1,5 +1,5 @@
-/// <reference path="./CLIInterface.d.ts"/>
-/// <reference path="../typings/node/node.d.ts"/>
+/// <reference path="../cli/CLIInterface.d.ts"/>
+/// <reference path="../../typings/node/node.d.ts"/>
 
 'use strict';
 

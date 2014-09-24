@@ -1,5 +1,5 @@
 var cpuRunner = require('./runner/cpu'),
-    Cpu = require('../src/Cpu'),
+    Cpu = require('../src/cpu/Cpu'),
     hex = require('../src/hex'),
     util = require('util');
 

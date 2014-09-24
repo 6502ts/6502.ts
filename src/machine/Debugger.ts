@@ -4,11 +4,11 @@
 
 var TRACE_SIZE = 1024;
 
-import Instruction = require('./Instruction');
-import Disassembler = require('./Disassembler');
-import hex = require('./hex');
-import binary = require('./binary');
-import Cpu = require('./Cpu');
+import Instruction = require('../cpu/Instruction');
+import Disassembler = require('../cpu/Disassembler');
+import hex = require('../hex');
+import binary = require('../binary');
+import Cpu = require('../cpu/Cpu');
 
 class Debugger {
     constructor(

@@ -1,6 +1,8 @@
-import EhBasicCLI = require('./src/EhBasicCLI');
-import NodeCLIRunner = require('./src/NodeCLIRunner');
-import NodeFilesystemProvider = require('./src/NodeFilesystemProvider');
+'use strict';
+
+import EhBasicCLI = require('../src/cli/EhBasicCLI');
+import NodeCLIRunner = require('../src/node/NodeCLIRunner');
+import NodeFilesystemProvider = require('../src/node/NodeFilesystemProvider');
 
 var fsProvider = new NodeFilesystemProvider(),
     cli = new EhBasicCLI(fsProvider),
