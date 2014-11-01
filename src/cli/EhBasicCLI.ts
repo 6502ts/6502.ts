@@ -302,7 +302,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     private _speed: number;
 
     private _cliOutputBuffer = '';
-    private _cliFlushOutputInterval: number;
+    private _cliFlushOutputInterval: NodeJS.Timer;
 
     private _monitor: Monitor;
     private _debugger: Debugger;
