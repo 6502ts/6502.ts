@@ -1,6 +1,8 @@
 /// <reference path="./jquery.terminal.d.ts"/>
 
-import EhBasicCLI = require("../EhBasicCLI");
+'use strict';
+
+import EhBasicCLI = require("../cli/EhBasicCLI");
 import JqtermCLIRunner = require('./JqtermCLIRunner');
 import PrepackagedFilesystemProvider = require('./PrepackagedFilesystemProvider');
 

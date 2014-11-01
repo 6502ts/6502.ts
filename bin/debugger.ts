@@ -1,13 +1,13 @@
-/// <reference path="./typings/node/node.d.ts"/>
+/// <reference path="../typings/node/node.d.ts"/>
 
 'use strict';
 
 import readline = require('readline');
-import Memory = require('./src/SimpleMemory');
-import Debugger = require('./src/Debugger');
-import DebuggerFrontend = require('./src/DebuggerFrontend');
-import Cpu = require('./src/Cpu');
-import NodeFilesystemProvider = require('./src/NodeFilesystemProvider');
+import Memory = require('../src/machine/SimpleMemory');
+import Debugger = require('../src/machine/Debugger');
+import DebuggerFrontend = require('../src/cli/DebuggerFrontend');
+import Cpu = require('../src/cpu/Cpu');
+import NodeFilesystemProvider = require('../src/node/NodeFilesystemProvider');
 
 var quit = false,
     commands: Array<string>;

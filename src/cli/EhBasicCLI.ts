@@ -1,14 +1,14 @@
 /// <reference path="./CLIInterface.d.ts"/>
-/// <reference path="./FilesystemProviderInterface.d.ts"/>
-/// <reference path="../typings/node/node.d.ts"/>
+/// <reference path="../FilesystemProviderInterface.d.ts"/>
+/// <reference path="../../typings/node/node.d.ts"/>
 
 'use strict';
 
 import events = require('events');
-import Monitor = require('./EhBasicMonitor');
-import Debugger = require('./Debugger');
+import Monitor = require('../machine/EhBasicMonitor');
+import Debugger = require('../machine/Debugger');
 import DebuggerFrontend = require('./DebuggerFrontend');
-import Cpu = require('./Cpu');
+import Cpu = require('../cpu/Cpu');
 
 enum State {
     debug, run, quit

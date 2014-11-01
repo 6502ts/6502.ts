@@ -1,5 +1,7 @@
-/// <reference path="../typings/node/node.d.ts"/>
-/// <reference path="./FilesystemProviderInterface"/>
+/// <reference path="../../typings/node/node.d.ts"/>
+/// <reference path="../FilesystemProviderInterface.d.ts"/>
+
+'use strict';
 
 import fs = require('fs');
 

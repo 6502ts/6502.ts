@@ -1,7 +1,9 @@
 /// <reference path="../../typings/jquery/jquery.d.ts"/>
 /// <reference path="./jquery.terminal.d.ts"/>
 
-import TestCLI = require("../TestCLI");
+'use strict';
+
+import TestCLI = require("../cli/TestCLI");
 import JqtermCLIRunner = require('./JqtermCLIRunner');
 
 export function run(

@@ -1,5 +1,5 @@
-var Cpu = require('../../src/Cpu'),
-    SimpleMemory = require('../../src/SimpleMemory'),
+var Cpu = require('../../src/cpu/Cpu'),
+    SimpleMemory = require('../../src/machine/SimpleMemory'),
     hex = require('../../src/hex'),
     binary = require('../../src/binary'),
     _ = require('lodash'),

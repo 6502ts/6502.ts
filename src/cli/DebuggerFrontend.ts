@@ -1,10 +1,10 @@
-/// <reference path="./FilesystemProviderInterface.d.ts"/>
+/// <reference path="../FilesystemProviderInterface.d.ts"/>
 
 'use strict';
 
-import Debugger = require('./Debugger');
+import Debugger = require('../machine/Debugger');
 import CommandInterpreter = require('./CommandInterpreter');
-import hex = require('./hex');
+import hex = require('../hex');
 
 function decodeNumber(value: string): number {
     try {

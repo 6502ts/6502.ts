@@ -1,26 +1,32 @@
 var TS_SOURCE = [
-    'src/Cpu.ts',
-    'src/Debugger.ts',
-    'src/DebuggerFrontend.ts',
-    'src/Disassembler.ts',
-    'src/EhBasicMonitor.ts',
-    'src/Instruction.ts',
-    'src/SimpleMemory.ts',
-    'src/binary.ts',
-    'src/hex.ts',
-    'src/CommandInterpreter.ts',
-    'src/NodeFilesystemProvider.ts',
-    'src/TestCLI.ts',
-    'src/NodeCLIRunner.ts',
-    'src/EhBasicCLI.ts',
-    'src/base64.ts',
+    'src/cpu/Cpu.ts',
+    'src/cpu/Disassembler.ts',
+    'src/cpu,Instruction.ts',
+
+    'src/machine/Debugger.ts',
+    'src/machine/EhBasicMonitor.ts',
+    'src/machine/SimpleMemory.ts',
+
+    'src/cli/DebuggerFrontend.ts',
+    'src/cli/CommandInterpreter.ts',
+    'src/cli/TestCLI.ts',
+    'src/cli/EhBasicCLI.ts',
+
+    'src/node/NodeFilesystemProvider.ts',
+    'src/node/NodeCLIRunner.ts',
+
     'src/web/testCLI.ts',
     'src/web/JqtermCLIRunner.ts',
     'src/web/PrepackagedFilesystemProvider.ts',
     'src/web/ehBasicCLI.ts',
-    'ehBasicCLI.ts',
-    'testCLI.ts',
-    'debugger.ts'
+
+    'src/binary.ts',
+    'src/hex.ts',
+    'src/base64.ts',
+
+    'bin/ehBasicCLI.ts',
+    'bin/testCLI.ts',
+    'bin/debugger.ts'
 ];
 
 var JS_BUILD = TS_SOURCE.map(function(tsFile) {

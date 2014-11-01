@@ -1,4 +1,4 @@
-/// <reference path="./MemoryInterface.d.ts"/>
+/// <reference path="../machine/MemoryInterface.d.ts"/>
 
 'use strict'
 

@@ -1,4 +1,6 @@
-/// <reference path="../FilesystemProviderInterface"/>
+/// <reference path="../FilesystemProviderInterface.d.ts"/>
+
+'use strict';
 
 import base64 = require('../base64');
 
