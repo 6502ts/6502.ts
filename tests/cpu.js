@@ -1,6 +1,6 @@
 var cpuRunner = require('./runner/cpu'),
     Cpu = require('../src/cpu/Cpu'),
-    hex = require('../src/hex'),
+    hex = require('../src/tools/hex'),
     util = require('util');
 
 function branchSuite(mnemonic, opcode, jumpCondition, noJumpCondition) {
@@ -566,7 +566,7 @@ suite('CPU', function() {
         testAdc(0x01, 0x30, 0x32, 0, Cpu.Flags.v, true);
         testAdc(0xFE, 0x02, 0x00, Cpu.Flags.c | Cpu.Flags.z, Cpu.Flags.v);
         testAdc(0x80, 0x70, 0xF0, Cpu.Flags.n);
-        testAdcNeg(0x01, -0x01, 0x00, Cpu.Flags.z, Cpu.Flags.c)
+        testAdcNeg(0x01, -0x01, 0x00, Cpu.Flags.z, Cpu.Flags.c);
         testAdcNeg(-0x71, 0x61, -0x10, Cpu.Flags.n, Cpu.Flags.c);
         testAdcNeg(-0x71, -0x61, 0x2E, Cpu.Flags.v, Cpu.Flags.c);
         testAdcNeg(0x7F, 0x7F, 0xFE, Cpu.Flags.v | Cpu.Flags.n, Cpu.Flags.c);
@@ -599,7 +599,7 @@ suite('CPU', function() {
                 .assertState({
                     a: 0xF0,
                     flags: 0xFF & ~Cpu.Flags.z
-                })
+                });
         });
 
         test('zeroPage, flags', function() {
@@ -617,7 +617,7 @@ suite('CPU', function() {
                 .assertState({
                     a: 0x00,
                     flags: 0xFF & ~Cpu.Flags.n
-                })
+                });
         });
 
         test('zeroPage,X, flags', function() {
@@ -636,7 +636,7 @@ suite('CPU', function() {
                 .assertState({
                     a: 0x01,
                     flags: 0xFF & ~Cpu.Flags.n & ~Cpu.Flags.z
-                })
+                });
         });
 
         test('absolute', function() {
@@ -652,7 +652,7 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     a: 0x01
-                })
+                });
         });
 
         test('absolute,X', function() {
@@ -669,7 +669,7 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     a: 0x01
-                })
+                });
         });
 
         test('absolute,X , page crossing', function() {
@@ -686,7 +686,7 @@ suite('CPU', function() {
                 .assertCycles(5)
                 .assertState({
                     a: 0x01
-                })
+                });
         });
 
         test('absolute,Y', function() {
@@ -703,7 +703,7 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     a: 0x01
-                })
+                });
         });
 
         test('absolute,Y , page crossing', function() {
@@ -720,7 +720,7 @@ suite('CPU', function() {
                 .assertCycles(5)
                 .assertState({
                     a: 0x01
-                })
+                });
         });
 
         test('indirect.X', function() {
@@ -739,7 +739,7 @@ suite('CPU', function() {
                 .assertCycles(6)
                 .assertState({
                     a: 0x01
-                })
+                });
         });
 
         test('indirect,Y', function() {
@@ -758,7 +758,7 @@ suite('CPU', function() {
                 .assertCycles(5)
                 .assertState({
                     a: 0x01
-                })
+                });
         });
 
         test('indirect,Y , page crossing', function() {
@@ -777,7 +777,7 @@ suite('CPU', function() {
                 .assertCycles(6)
                 .assertState({
                     a: 0x01
-                })
+                });
         });
 
     });
@@ -824,7 +824,7 @@ suite('CPU', function() {
             },
             ', 0x01, a = 0xFF'
         );
-    })
+    });
 
     branchSuite('BNE', 0xD0, 0, Cpu.Flags.z);
 

@@ -7,7 +7,7 @@ import Memory = require('../src/machine/SimpleMemory');
 import Debugger = require('../src/machine/Debugger');
 import DebuggerFrontend = require('../src/cli/DebuggerFrontend');
 import Cpu = require('../src/cpu/Cpu');
-import NodeFilesystemProvider = require('../src/node/NodeFilesystemProvider');
+import NodeFilesystemProvider = require('../src/fs/NodeFilesystemProvider');
 
 var quit = false,
     commands: Array<string>;

@@ -1,5 +1,3 @@
-/// <reference path="./CLIInterface.d.ts"/>
-/// <reference path="../FilesystemProviderInterface.d.ts"/>
 /// <reference path="../../typings/node/node.d.ts"/>
 
 'use strict';
@@ -9,6 +7,8 @@ import Monitor = require('../machine/EhBasicMonitor');
 import Debugger = require('../machine/Debugger');
 import DebuggerFrontend = require('./DebuggerFrontend');
 import Cpu = require('../cpu/Cpu');
+import CLIInterface = require('./CLIInterface');
+import FileSystemProviderInterface = require('../fs/FilesystemProviderInterface');
 
 enum State {
     debug, run, quit

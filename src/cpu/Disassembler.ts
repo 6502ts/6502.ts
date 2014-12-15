@@ -1,9 +1,8 @@
-/// <reference path='../machine/MemoryInterface.d.ts'/>
-
 'use strict';
 
 import Instruction = require('./Instruction');
-import hex = require('../hex');
+import hex = require('../tools/hex');
+import MemoryInterface = require('../machine/MemoryInterface')
 
 class Disassembler {
     constructor(private _memory?: MemoryInterface)

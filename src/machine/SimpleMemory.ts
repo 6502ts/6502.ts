@@ -1,6 +1,6 @@
-/// <reference path='./MemoryInterface.d.ts'/>
-
 'use strict';
+
+import MemoryInterface = require('./MemoryInterface');
 
 class SimpleMemory implements MemoryInterface {
     constructor() {

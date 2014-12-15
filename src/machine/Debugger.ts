@@ -1,13 +1,12 @@
-/// <reference path='./MemoryInterface.d.ts'/>
-
 'use strict';
 
 var TRACE_SIZE = 1024;
 
+import MemoryInterface = require('./MemoryInterface');
 import Instruction = require('../cpu/Instruction');
 import Disassembler = require('../cpu/Disassembler');
-import hex = require('../hex');
-import binary = require('../binary');
+import hex = require('../tools/hex');
+import binary = require('../tools/binary');
 import Cpu = require('../cpu/Cpu');
 
 class Debugger {
@@ -61,7 +60,7 @@ class Debugger {
     }
 
     loadBlock(
-        block: MemoryBlockInterface,
+        block: MemoryInterface.MemoryBlockInterface,
         at: number,
         from: number = 0,
         to: number = block.length - 1

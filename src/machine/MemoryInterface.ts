@@ -10,7 +10,13 @@ interface MemoryInterface {
     poke(address: number, value: number): void;
 }
 
-interface MemoryBlockInterface {
-    [index: number]: number;
-    length: number;
+module MemoryInterface {
+
+    export interface MemoryBlockInterface {
+        [index: number]: number;
+        length: number;
+    }
+
 }
+
+export = MemoryInterface;

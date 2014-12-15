@@ -1,12 +1,12 @@
 /// <reference path="../../typings/node/node.d.ts"/>
-/// <reference path="../FilesystemProviderInterface.d.ts"/>
 
 'use strict';
 
 import fs = require('fs');
+import FileSystemProviderInterface = require('./FilesystemProviderInterface');
 
 class NodeFilesystemProvider implements FileSystemProviderInterface {
-    readBinaryFileSync(name: string): FileBufferInterface {
+    readBinaryFileSync(name: string): FileSystemProviderInterface.FileBufferInterface {
         return fs.readFileSync(name);
     }
 

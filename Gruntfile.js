@@ -1,43 +1,17 @@
-var TS_SOURCE = [
-    'src/cpu/Cpu.ts',
-    'src/cpu/Disassembler.ts',
-    'src/cpu,Instruction.ts',
-
-    'src/machine/Debugger.ts',
-    'src/machine/EhBasicMonitor.ts',
-    'src/machine/SimpleMemory.ts',
-
-    'src/cli/DebuggerFrontend.ts',
-    'src/cli/CommandInterpreter.ts',
-    'src/cli/TestCLI.ts',
-    'src/cli/EhBasicCLI.ts',
-
-    'src/node/NodeFilesystemProvider.ts',
-    'src/node/NodeCLIRunner.ts',
-
+var TS_MAIN = [
     'src/web/testCLI.ts',
-    'src/web/JqtermCLIRunner.ts',
-    'src/web/PrepackagedFilesystemProvider.ts',
     'src/web/ehBasicCLI.ts',
-
-    'src/binary.ts',
-    'src/hex.ts',
-    'src/base64.ts',
 
     'bin/ehBasicCLI.ts',
     'bin/testCLI.ts',
     'bin/debugger.ts'
 ];
 
-var JS_BUILD = TS_SOURCE.map(function(tsFile) {
-    return tsFile.replace(/\.ts$/, '.js');
-});
-
 var GARBAGE = [
     '.tscache',
-    'web/js/compiled'
+    'web/js/compiled',
+    'src/**/*.js'
 ];
-Array.prototype.push.apply(GARBAGE, JS_BUILD);
 
 var NOTSOGARBAGE = ['web/bower'];
 
@@ -53,7 +27,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         ts: {
             build: {
-                src: TS_SOURCE
+                src: TS_MAIN
             },
             options: {
                 target: 'es5',
@@ -61,7 +35,6 @@ module.exports = function(grunt) {
                 declaration: false,
                 sourceMap: false,
                 removeComments: false,
-                fast: 'always',
                 noImplicitAny: true
             },
         },

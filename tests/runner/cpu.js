@@ -1,7 +1,7 @@
 var Cpu = require('../../src/cpu/Cpu'),
     SimpleMemory = require('../../src/machine/SimpleMemory'),
-    hex = require('../../src/hex'),
-    binary = require('../../src/binary'),
+    hex = require('../../src/tools/hex'),
+    binary = require('../../src/tools/binary'),
     _ = require('lodash'),
     util = require('util');
 
@@ -130,7 +130,7 @@ Runner.prototype.assertMemory = function(checks) {
 
 Runner.prototype.getCpu = function() {
     return this._cpu;
-}
+};
 
 function create(code, base) {
     return new Runner(code, base);

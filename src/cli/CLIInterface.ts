@@ -25,3 +25,5 @@ interface CLIInterface {
 
     shutdown(): void;
 }
+
+export = CLIInterface;

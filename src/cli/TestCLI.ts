@@ -1,10 +1,10 @@
 /// <reference path="../../typings/node/node.d.ts"/>
-/// <reference path="./CLIInterface.d.ts"/>
 
 'use strict';
 
 import CommandInterpreter = require('./CommandInterpreter');
 import events = require('events');
+import CLIInterface = require('./CLIInterface');
 
 class TestCLI extends events.EventEmitter implements CLIInterface {
     constructor() {

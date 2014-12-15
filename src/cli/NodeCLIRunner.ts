@@ -1,9 +1,9 @@
-/// <reference path="../cli/CLIInterface.d.ts"/>
 /// <reference path="../../typings/node/node.d.ts"/>
 
 'use strict';
 
 import readline = require('readline');
+import CLIInterface = require('./CLIInterface');
 
 class NodeCLIRunner {
     constructor(

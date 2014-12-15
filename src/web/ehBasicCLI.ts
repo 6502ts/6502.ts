@@ -1,10 +1,10 @@
-/// <reference path="./jquery.terminal.d.ts"/>
+/// <reference path="../interface/jquery.terminal.d.ts"/>
 
 'use strict';
 
 import EhBasicCLI = require("../cli/EhBasicCLI");
-import JqtermCLIRunner = require('./JqtermCLIRunner');
-import PrepackagedFilesystemProvider = require('./PrepackagedFilesystemProvider');
+import JqtermCLIRunner = require('../cli/JqtermCLIRunner');
+import PrepackagedFilesystemProvider = require('../fs/PrepackagedFilesystemProvider');
 
 export function run(
     fileBlob: PrepackagedFilesystemProvider.BlobInterface,

@@ -1,11 +1,10 @@
-/// <reference path="../FilesystemProviderInterface.d.ts"/>
-
 'use strict';
 
-import base64 = require('../base64');
+import base64 = require('../tools/base64');
+import FileSystemProviderInterface = require('./PrepackagedFilesystemProvider');
 
 class PrepackagedFilesystemProvider implements FileSystemProviderInterface {
-    constructor(private _blob: PrepackagedFilesystemProvider. BlobInterface) {}
+    constructor(private _blob: PrepackagedFilesystemProvider.BlobInterface) {}
 
     readBinaryFileSync(name: string): Uint8Array {
         var file = this._getFile(name);

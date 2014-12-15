@@ -1,8 +1,7 @@
-/// <reference path="../machine/MemoryInterface.d.ts"/>
-
 'use strict'
 
 import Instruction = require('./Instruction');
+import MemoryInterface = require('../machine/MemoryInterface')
 
 function setFlagsNZ(state: Cpu.State, operand: number): void {
     state.flags = (state.flags & ~(Cpu.Flags.n | Cpu.Flags.z)) |
