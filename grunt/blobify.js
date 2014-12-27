@@ -121,7 +121,7 @@ module.exports = function(grunt) {
         }
 
         var options = me.options({
-            baseDir: process.cwd,
+            baseDir: process.cwd(),
             recurse: false
         });
 
