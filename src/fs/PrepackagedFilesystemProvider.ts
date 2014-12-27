@@ -1,49 +1,67 @@
+/// <reference path="../../typings/node/node.d.ts"/>
+
 'use strict';
 
-import base64 = require('../tools/base64');
-import FileSystemProviderInterface = require('./PrepackagedFilesystemProvider');
+import FileSystemProviderInterface = require('./FilesystemProviderInterface');
+import util = require('util');
 
 class PrepackagedFilesystemProvider implements FileSystemProviderInterface {
-    constructor(private _blob: PrepackagedFilesystemProvider.BlobInterface) {}
 
-    readBinaryFileSync(name: string): Uint8Array {
-        var file = this._getFile(name);
+    constructor(private _blob: PrepackagedFilesystemProvider.BlobInterface)
+    {}
 
-        if (!file.hasOwnProperty('base64')) throw new Error(
-            'file not available as raw data');
+    readBinaryFileSync(name: string): Buffer {
+        var resolved = this._resolve(name);
 
-        if (!file.hasOwnProperty('_base64'))
-            file._base64 = base64.decode(file.base64);
+        if (typeof(resolved) === 'undefined')
+            throw new Error(util.format('%s not part of file bundle', name));
 
-        return file._base64;
+        if (!Buffer.isBuffer(resolved))
+             throw new Error(util.format('%s is a directory, not a file', name));
+
+        return resolved;
     }
 
     readTextFileSync(name: string): string {
-        var file = this._getFile(name);
+        var buffer = this.readBinaryFileSync(name);
 
-        if (!file.hasOwnProperty('plain')) throw new Error(
-            'file not available as plain text');
-
-        return file.plain;
+        return buffer.toString();
     }
 
-    private _getFile(name: string): PrepackagedFilesystemProvider.FileInterface {
-        if (!this._blob.hasOwnProperty(name)) throw new Error('file not found');
-        return this._blob[name];
+    private _resolve(path: string): any {
+        var atoms: Array<string> = path.split('/'),
+            natoms = atoms.length,
+            i: number,
+            scope = this._blob;
+
+        if (natoms === 0) {
+            return undefined;
+        }
+
+        var name = atoms[natoms - 1];
+
+        for (i = 0; i < natoms - 1; i++) {
+            if (scope.hasOwnProperty(atoms[i])) {
+                scope = scope[atoms[i]];
+            } else {
+                return undefined;
+            }
+        }
+
+        if (typeof(scope[name]) === 'string')
+            scope[name] = new Buffer(scope[name], 'base64');
+        
+        return scope[name];
     }
+
 }
 
 module PrepackagedFilesystemProvider {
-    export interface FileInterface {
-        base64?: string;
-        _base64?: Uint8Array;
-
-        plain?: string;
-    }
 
     export interface BlobInterface {
-        [name: string]: FileInterface;
+        [index: string]: any
     }
+
 }
 
 export = PrepackagedFilesystemProvider;

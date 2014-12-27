@@ -24,6 +24,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-http-server');
     grunt.loadNpmTasks('grunt-bower-install-simple');
 
+    grunt.loadTasks('./grunt');
+
     grunt.initConfig({
         ts: {
             build: {
@@ -55,6 +57,11 @@ module.exports = function(grunt) {
         },
 
         browserify: {
+            options: {
+                browserifyOptions: {
+                    debug: true
+                }
+            },
             testCLI: {
                 files: {
                   'web/js/compiled/testCLI.js': 'src/web/testCLI.js'
@@ -101,12 +108,22 @@ module.exports = function(grunt) {
                     directory: 'web/bower'
                 }
             }
+        },
+
+        blobify: {
+            default: {
+                options: {
+                    baseDir: './aux'
+                },
+                src: 'aux/**',
+                dest: 'web/js/compiled/files.json'
+            }
         }
     });
 
     grunt.registerTask('bower', ['bower-install-simple']);
     grunt.registerTask('initial', ['clean', 'tsd', 'ts', 'bower', 'browserify']);
-    grunt.registerTask('default', ['ts', 'browserify']);
+    grunt.registerTask('default', ['ts', 'browserify', 'blobify']);
     grunt.registerTask('test', ['ts', 'mochaTest']);
     grunt.registerTask('serve', ['default', 'http-server']);
 };
