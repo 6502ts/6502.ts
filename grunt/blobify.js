@@ -78,7 +78,7 @@ module.exports = function(grunt) {
                 }
 
                 if (stats.isDirectory()) {
-                    if (recurse) visitDirectory(blob, _path);
+                    if (recurse) visitDirectory(blob, blobName, _path);
                 } else {
                     visitFile(blob, blobName, _path);
                 }
@@ -103,7 +103,7 @@ module.exports = function(grunt) {
             });
         }
 
-        function visitDirectory(blob, _path) {
+        function visitDirectory(blob, blobName, _path) {
             startTransaction();
 
             fs.readdir(_path, function(e, entries) {
@@ -113,7 +113,7 @@ module.exports = function(grunt) {
                 }
 
                 entries.forEach(function(entry) {
-                    visit(blob, path.join(_path, entry));
+                    visit(blob, blobName, path.join(_path, entry));
                 });
 
                 finishTransaction();
