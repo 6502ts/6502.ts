@@ -11,7 +11,8 @@ var GARBAGE = [
     '.tscache',
     'web/js/compiled',
     'src/**/*.js',
-    'bin/**/*.js'
+    'bin/**/*.js',
+    'tests/fs_provider/blob.json'
 ];
 
 var NOTSOGARBAGE = ['web/bower'];
@@ -85,8 +86,17 @@ module.exports = function(grunt) {
         mochaTest: {
             test: {
                 options: {
+                    reporter: 'nyan',
+                    ui: 'tdd',
+                    bail: false
+                },
+                src: ['tests/**.js']
+            },
+            debug: {
+                options: {
                     reporter: 'spec',
-                    ui: 'tdd'
+                    ui: 'tdd',
+                    bail: true
                 },
                 src: ['tests/**.js']
             }
@@ -118,6 +128,14 @@ module.exports = function(grunt) {
                 },
                 src: 'aux/**',
                 dest: 'web/js/compiled/files.json'
+            },
+            test: {
+                options: {
+                    baseDir: './tests/fs_provider',
+                    recurse: true
+                },
+                src: './tests/fs_provider/tree',
+                dest: './tests/fs_provider/blob.json'
             }
         },
 
@@ -138,8 +156,9 @@ module.exports = function(grunt) {
 
     grunt.registerTask('bower', ['bower-install-simple']);
     grunt.registerTask('initial', ['clean', 'tsd', 'ts', 'bower', 'browserify']);
-    grunt.registerTask('default', ['ts', 'browserify', 'blobify']);
-    grunt.registerTask('test', ['ts', 'mochaTest']);
+    grunt.registerTask('default', ['ts', 'browserify', 'blobify:default']);
+    grunt.registerTask('test', ['ts', 'blobify:test', 'mochaTest:test']);
+    grunt.registerTask('test:debug', ['ts', 'blobify:test', 'mochaTest:debug']);
     grunt.registerTask('serve', ['default', 'http-server']);
 
     grunt.task.run('notify_hooks');
