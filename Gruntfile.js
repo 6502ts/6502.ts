@@ -10,7 +10,8 @@ var TS_MAIN = [
 var GARBAGE = [
     '.tscache',
     'web/js/compiled',
-    'src/**/*.js'
+    'src/**/*.js',
+    'bin/**/*.js'
 ];
 
 var NOTSOGARBAGE = ['web/bower'];
@@ -65,19 +66,17 @@ module.exports = function(grunt) {
                 }
             },
             testCLI: {
-                files: {
-                  'web/js/compiled/testCLI.js': 'src/web/testCLI.js'
-                },
+                dest: 'web/js/compiled/testCLI.js',
+                src: [],
                 options: {
-                    alias: ['./src/web/testCLI:testCLI']
+                    alias: './src/web/testCLI.js:testCLI'
                 }
             },
             ehBasicCLI: {
-                files: {
-                  'web/js/compiled/ehBasicCLI.js': 'src/web/ehBasicCLI.js'
-                },
+                dest: 'web/js/compiled/ehBasicCLI.js',
+                src: [],
                 options: {
-                    alias: ['./src/web/ehBasicCLI:ehBasicCLI']
+                    alias: './src/web/ehBasicCLI:ehBasicCLI:ehBasicCLI'
                 }
             }
 
