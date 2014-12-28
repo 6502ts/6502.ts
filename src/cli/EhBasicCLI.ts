@@ -2,6 +2,7 @@
 
 'use strict';
 
+import path = require('path');
 import events = require('events');
 import Monitor = require('../machine/EhBasicMonitor');
 import Debugger = require('../machine/Debugger');
@@ -46,12 +47,12 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
                 return '';
             },
             'run-script': (args: Array<string>): string => {
-                if (!args.length) throw new Error('filenme required');
+                if (!args.length) throw new Error('filename required');
                 this.runDebuggerScript(args[0]);
                 return 'script executed';
             },
             'read-program': (args: Array<string>): string => {
-                if (!args.length) throw new Error('filenme required');
+                if (!args.length) throw new Error('filename required');
                 this.readBasicProgram(args[0]);
                 return 'program read into buffer';
             }
@@ -64,11 +65,20 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     }
 
     runDebuggerScript(filename: string): void {
-        this._fsProvider.readTextFileSync(filename)
-            .split('\n')
-            .forEach((line: string): void => {
-                this.pushInput(line);
-            });
+        this._fsProvider.pushd(path.dirname(filename));
+
+        try {
+            this._fsProvider.readTextFileSync(path.basename(filename))
+                .split('\n')
+                .forEach((line: string): void => {
+                    this.pushInput(line);
+                });
+        } catch (e) {
+            this._fsProvider.popd();
+            throw e;
+        }
+
+        this._fsProvider.popd();
     }
 
     readBasicProgram(filename: string): void {

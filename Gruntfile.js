@@ -22,7 +22,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-http-server');
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-bower-install-simple');
+    grunt.loadNpmTasks('grunt-notify');
 
     grunt.loadTasks('./grunt');
 
@@ -118,6 +120,20 @@ module.exports = function(grunt) {
                 src: 'aux/**',
                 dest: 'web/js/compiled/files.json'
             }
+        },
+
+        watch: {
+            typescript: {
+                files: ['src/**/*.ts', 'aux/**'],
+                tasks: 'default'
+            }
+        },
+
+        notify_hooks: {
+            options: {
+                enabled: true,
+                success: true
+            }
         }
     });
 
@@ -126,4 +142,6 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['ts', 'browserify', 'blobify']);
     grunt.registerTask('test', ['ts', 'mochaTest']);
     grunt.registerTask('serve', ['default', 'http-server']);
+
+    grunt.task.run('notify_hooks');
 };

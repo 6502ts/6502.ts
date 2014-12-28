@@ -2,24 +2,30 @@
 
 'use strict';
 
-import FileSystemProviderInterface = require('./FilesystemProviderInterface');
 import util = require('util');
+import AbstractFileSystemProvider = require('./AbstractFileSystemProvider');
+import FileSystemProviderInterface = require('./FilesystemProviderInterface');
 
-class PrepackagedFilesystemProvider implements FileSystemProviderInterface {
-
-    constructor(private _blob: PrepackagedFilesystemProvider.BlobInterface)
-    {}
+class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
+    implements FileSystemProviderInterface
+{
+    constructor(private _blob: PrepackagedFilesystemProvider.BlobInterface) {
+        super();
+        this._cwd = '/';
+    }
 
     readBinaryFileSync(name: string): Buffer {
-        var resolved = this._resolve(name);
+        name = this._resolvePath(name);
 
-        if (typeof(resolved) === 'undefined')
+        var content = this._lookup(name);
+
+        if (typeof(content) === 'undefined')
             throw new Error(util.format('%s not part of file bundle', name));
 
-        if (!Buffer.isBuffer(resolved))
+        if (!Buffer.isBuffer(content))
              throw new Error(util.format('%s is a directory, not a file', name));
 
-        return resolved;
+        return content;
     }
 
     readTextFileSync(name: string): string {
@@ -28,9 +34,12 @@ class PrepackagedFilesystemProvider implements FileSystemProviderInterface {
         return buffer.toString();
     }
 
-    private _resolve(path: string): any {
-        var atoms: Array<string> = path.split('/'),
-            natoms = atoms.length,
+    private _lookup(path: string): any {
+        var atoms: Array<string> = path.split('/');
+
+        if (atoms.length !== 0 && atoms[0] === '') atoms.shift();
+        
+        var natoms = atoms.length,
             i: number,
             scope = this._blob;
 

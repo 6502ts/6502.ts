@@ -4,14 +4,22 @@
 
 import fs = require('fs');
 import FileSystemProviderInterface = require('./FilesystemProviderInterface');
+import AbstractFileSystemProvider = require('./AbstractFileSystemProvider');
 
-class NodeFilesystemProvider implements FileSystemProviderInterface {
-    readBinaryFileSync(name: string): FileSystemProviderInterface.FileBufferInterface {
-        return fs.readFileSync(name);
+class NodeFilesystemProvider extends AbstractFileSystemProvider
+    implements FileSystemProviderInterface
+{
+    constructor() {
+        super();
+        this._cwd = process.cwd();
+    }
+
+    readBinaryFileSync(name: string): Buffer {
+        return fs.readFileSync(this._resolvePath(name));
     }
 
     readTextFileSync(name: string): string {
-        return fs.readFileSync(name).toString('utf8');
+        return this.readBinaryFileSync(name).toString('utf8');
     }
 }
 

@@ -4,7 +4,7 @@ node_modules
 .tscache
 src/**/*.js
 web/bower
+web/js/compiled
+bin/**/*.js
 
-debugger.js
-testCLI.js
-ehBasicCLI.js
+
