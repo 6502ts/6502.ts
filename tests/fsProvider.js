@@ -41,7 +41,9 @@ function runProviderTests(factory) {
     }
 
     testFileIdentity('tree/foo', 'foo');
+    testFileIdentity('tree/./bar/.././foo', 'foo');
     testFileIdentity('tree/bar/baz', 'baz');
+
 
     test('reading nonexisting files should throw', function() {
         assert.throws(function() {
