@@ -3,11 +3,11 @@
 'use strict';
 
 import fs = require('fs');
-import FileSystemProviderInterface = require('./FilesystemProviderInterface');
+import FilesystemProviderInterface = require('./FilesystemProviderInterface');
 import AbstractFileSystemProvider = require('./AbstractFileSystemProvider');
 
 class NodeFilesystemProvider extends AbstractFileSystemProvider
-    implements FileSystemProviderInterface
+    implements FilesystemProviderInterface
 {
     constructor() {
         super();
@@ -20,6 +20,18 @@ class NodeFilesystemProvider extends AbstractFileSystemProvider
 
     readTextFileSync(name: string): string {
         return this.readBinaryFileSync(name).toString('utf8');
+    }
+
+    readDirSync(name: string): Array<string> {
+        return fs.readdirSync(this._resolvePath(name));
+    }
+
+    getTypeSync(name: string): FilesystemProviderInterface.FileType {
+        if (fs.statSync(this._resolvePath(name)).isDirectory()) {
+            return FilesystemProviderInterface.FileType.DIRECTORY;
+        } else {
+            return FilesystemProviderInterface.FileType.FILE;
+        }
     }
 }
 

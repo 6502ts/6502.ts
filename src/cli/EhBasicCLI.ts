@@ -178,6 +178,10 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         return prompt;
     }
 
+    getFilesystemProvider(): FileSystemProviderInterface {
+        return this._fsProvider;
+    }
+
     private _setState(newState: State): void {
         this._state = newState;
 

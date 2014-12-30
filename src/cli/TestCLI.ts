@@ -5,6 +5,7 @@
 import CommandInterpreter = require('./CommandInterpreter');
 import events = require('events');
 import CLIInterface = require('./CLIInterface');
+import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
 
 class TestCLI extends events.EventEmitter implements CLIInterface {
     constructor() {
@@ -56,6 +57,10 @@ class TestCLI extends events.EventEmitter implements CLIInterface {
 
     interrupt(): void {
         this._output('Interrupted...');
+    }
+
+    getFilesystemProvider(): FilesystemProviderInterface {
+        return undefined;
     }
 
     private _output(output: string) {

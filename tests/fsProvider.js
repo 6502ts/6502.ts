@@ -4,11 +4,13 @@ var _ = require('lodash'),
     util = require('util');
 
 var NodeFilesystemProvider = require('../src/fs/NodeFilesystemProvider'),
-    PrepackagedFilesystemProvider = require('../src/fs/PrepackagedFilesystemProvider');
+    PrepackagedFilesystemProvider = require('../src/fs/PrepackagedFilesystemProvider'),
+    FilesystemProviderInterface = require('../src/fs/FilesystemProviderInterface');
 
 var artifacts = {
         foo: 'Балканская черепаха',
-        baz: 'foobar'
+        baz: 'foobar',
+        treeDir: ['bar', 'foo']
     };
 
 var blob;
@@ -40,10 +42,27 @@ function runProviderTests(factory) {
         });
     }
 
+    function testDirectoryListing(path, content) {
+        test(util.format('directory listing %s, sync', path), function() {
+            assert.deepEqual(provider.readDirSync(path).sort(), content.sort());
+        });
+    }
+
     testFileIdentity('tree/foo', 'foo');
     testFileIdentity('tree/./bar/.././foo', 'foo');
     testFileIdentity('tree/bar/baz', 'baz');
 
+    test('listing nonexisting directories should throw', function() {
+        assert.throws(function() {
+            provider.readDirSync('tree/baz');
+        });
+    });
+
+    test('listing files should throw', function() {
+        assert.throws(function() {
+            provider.readDirSync('tree/foo');
+        });
+    });
 
     test('reading nonexisting files should throw', function() {
         assert.throws(function() {
@@ -65,6 +84,23 @@ function runProviderTests(factory) {
         });
     });
 
+    testDirectoryListing('tree', artifacts.treeDir);
+    testDirectoryListing('tree/', artifacts.treeDir);
+    testDirectoryListing('tree/bar/./../', artifacts.treeDir);
+
+    test('tree is a directory, sync', function() {
+        assert.strictEqual(provider.getTypeSync('tree'), FilesystemProviderInterface.FileType.DIRECTORY);
+    });
+
+    test('tree/foo is a file, sync', function() {
+        assert.strictEqual(provider.getTypeSync('tree/foo'), FilesystemProviderInterface.FileType.FILE);
+    });
+
+    test('stating a nonexisting file should throw', function() {
+        assert.throws(function() {
+            provider.getTypeSync('bar');
+        });
+    });
 
     test('pushd / popd', function() {
         assert.strictEqual(provider.readTextFileSync('tree/bar/baz'), artifacts.baz);
@@ -77,6 +113,17 @@ function runProviderTests(factory) {
         assert.strictEqual(provider.readTextFileSync('bar/baz'), artifacts.baz);
         provider.popd();
         assert.strictEqual(provider.readTextFileSync('tree/bar/baz'), artifacts.baz);
+    });
+
+    test('cwd listing', function() {
+        provider.chdir('tree');
+        assert.deepEqual(provider.readDirSync('').sort(), artifacts.treeDir.sort());
+    });
+
+    test('root dir listing', function() {
+        var listing = provider.readDirSync('');
+
+        assert(listing.indexOf('tree') >= 0);
     });
 }
 

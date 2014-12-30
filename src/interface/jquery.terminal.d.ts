@@ -3,6 +3,7 @@
 interface JQueryTerminal {
     echo(message: string): void;
     set_prompt(prompt: string): void;
+    get_command(): string;
     clear(): void;
 }
 

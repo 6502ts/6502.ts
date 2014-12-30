@@ -3,6 +3,10 @@ interface FileSystemProviderInterface {
 
     readTextFileSync(name: string): string;
 
+    readDirSync(name: string): Array<string>;
+
+    getTypeSync(name: string): FileSystemProviderInterface.FileType;
+
     chdir(path: string): void;
 
     pushd(path?: string): void;
@@ -18,6 +22,8 @@ module FileSystemProviderInterface {
         [index: number]: number;
         length: number;
     }
+
+    export enum FileType {DIRECTORY, FILE}
 
 }
 

@@ -4,20 +4,20 @@
 
 import readline = require('readline');
 import CLIInterface = require('./CLIInterface');
+import Completer = require('./Completer');
 
 class NodeCLIRunner {
-    constructor(
-        private _cli: CLIInterface
-    ) {
-        this._availableCommands = this._cli.availableCommands();
+    constructor(private _cli: CLIInterface) {
+        this._completer = new Completer(
+            this._cli.availableCommands(), this._cli.getFilesystemProvider());
 
         this._readline = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
-            completer: (cmd: string): Array<any> =>
-                [this._availableCommands.filter(
-                    (candidate: string) => candidate.search(cmd) === 0
-                ), cmd]
+            completer: (cmd: string): Array<any> => {
+                var result = this._completer.complete(cmd);
+                return [result.candidates, result.match];
+            }
         });
 
         this._readline.on('line', (data: string) => this._cli.pushInput(data));
@@ -66,7 +66,7 @@ class NodeCLIRunner {
 
     private _closed = false;
     private _readline: readline.ReadLine;
-    private _availableCommands: Array<string>;
+    private _completer: Completer;
 }
 
 export = NodeCLIRunner;

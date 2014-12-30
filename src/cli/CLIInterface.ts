@@ -1,3 +1,5 @@
+import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
+
 interface CLIInterface {
     pushInput(input: string): void;
 
@@ -24,6 +26,8 @@ interface CLIInterface {
     startup(): void;
 
     shutdown(): void;
+
+    getFilesystemProvider(): FilesystemProviderInterface; 
 }
 
 export = CLIInterface;

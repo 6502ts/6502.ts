@@ -4,6 +4,7 @@
 'use strict';
 
 import CLIInterface = require('./CLIInterface');
+import Completer = require('./Completer');
 
 class JqtermCLIRunner {
     constructor(
@@ -11,7 +12,8 @@ class JqtermCLIRunner {
         terminalElt: JQuery,
         options: JqtermCLIRunner.Options = {}
     ) {
-        this._availableCommands = this._cli.availableCommands();
+        this._completer = new Completer(
+            this._cli.availableCommands(), this._cli.getFilesystemProvider());
 
         this._terminal = terminalElt.terminal(
             (input: string, terminal: JQueryTerminal): void =>
@@ -19,9 +21,8 @@ class JqtermCLIRunner {
             {
                 greetings: 'Ready.',
                 completion: (terminal: JQueryTerminal, cmd: string,
-                        handler: (candidates: Array<String>) => void)
-                    => handler(this._availableCommands.filter(
-                        (candidate: string) => candidate.indexOf(cmd) === 0)),
+                        handler: (candidates: Array<string>) => void
+                    ) => handler(this._completer.complete(terminal.get_command()).candidates),
                 exit: false,
                 clear: false
             }
@@ -51,7 +52,7 @@ class JqtermCLIRunner {
     }
 
     private _terminal: JQueryTerminal;
-    private _availableCommands: Array<string>
+    private _completer: Completer;
 }
 
 module JqtermCLIRunner {
