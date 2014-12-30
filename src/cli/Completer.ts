@@ -63,7 +63,6 @@ class Completer {
         } catch(e) {}
 
         return [];
-
     }
 
     private _appendSlashesToDirectories(paths: Array<string>) {
