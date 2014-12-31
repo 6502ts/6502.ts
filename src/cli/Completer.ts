@@ -64,14 +64,14 @@ class Completer {
 
     private _appendSlashesToDirectories(paths: Array<string>) {
         return paths.map((path: string): string =>
-                {
-                    try {
-                        return (this._fsProvider.getTypeSync(path) === FilesystemProviderInterface.FileType.DIRECTORY ?
-                            pathlib.join(path, pathlib.sep) : path);
-                    } catch(e) {
-                        return path;
-                    }
+            {
+                try {
+                    return (this._fsProvider.getTypeSync(path) === FilesystemProviderInterface.FileType.DIRECTORY ?
+                        pathlib.join(path, pathlib.sep) : path);
+                } catch(e) {
+                    return path;
                 }
+            }
         );
     }
 }
