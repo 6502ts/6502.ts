@@ -1,22 +1,3 @@
-var TS_MAIN = [
-    'src/web/testCLI.ts',
-    'src/web/ehBasicCLI.ts',
-
-    'bin/ehBasicCLI.ts',
-    'bin/testCLI.ts',
-    'bin/debugger.ts'
-];
-
-var GARBAGE = [
-    '.tscache',
-    'web/js/compiled',
-    'src/**/*.js',
-    'bin/**/*.js',
-    'tests/fs_provider/blob.json'
-];
-
-var NOTSOGARBAGE = ['web/bower'];
-
 module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-tsd');
@@ -32,8 +13,18 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         ts: {
-            build: {
-                src: TS_MAIN
+            main: {
+                src: [
+                    'src/web/testCLI.ts',
+                    'src/web/ehBasicCLI.ts',
+
+                    'bin/ehBasicCLI.ts',
+                    'bin/testCLI.ts',
+                    'bin/debugger.ts'
+                ]
+            },
+            tests: {
+                src: 'tests/ts/*.ts'
             },
             options: {
                 target: 'es5',
@@ -46,15 +37,24 @@ module.exports = function(grunt) {
         },
 
         clean: {
-            clean: GARBAGE,
-            mrproper: GARBAGE.concat(NOTSOGARBAGE)
+            base: [
+                '.tscache',
+                'web/js/compiled',
+                'src/**/*.js',
+                'bin/**/*.js',
+                'tests/ts/**/*.js',
+                'tests/fixtures/fs_provider/blob.json'
+            ],
+            mrproper: [
+                'web/bower'
+            ]
         },
 
         tsd: {
             refresh: {
                 options: {
                     command: 'reinstall',
-                    latest: true,
+                    latest: false,
                     config: 'tsd.json'
                 }
             }
@@ -90,7 +90,7 @@ module.exports = function(grunt) {
                     ui: 'tdd',
                     bail: false
                 },
-                src: ['tests/**.js']
+                src: ['tests/js/*.js', 'tests/ts/*.js']
             },
             debug: {
                 options: {
@@ -98,7 +98,7 @@ module.exports = function(grunt) {
                     ui: 'tdd',
                     bail: true
                 },
-                src: ['tests/**.js']
+                src: ['tests/js/*.js', 'tests/ts/*.js']
             }
         },
 
@@ -129,20 +129,20 @@ module.exports = function(grunt) {
                 src: 'aux/**',
                 dest: 'web/js/compiled/files.json'
             },
-            test: {
+            tests: {
                 options: {
-                    baseDir: './tests/fs_provider',
+                    baseDir: './tests/fixtures/fs_provider',
                     recurse: true
                 },
-                src: './tests/fs_provider/tree',
-                dest: './tests/fs_provider/blob.json'
+                src: './tests/fixtures/fs_provider/tree',
+                dest: './tests/fixtures/fs_provider/blob.json'
             }
         },
 
         watch: {
-            typescript: {
+            build: {
                 files: ['src/**/*.ts', 'aux/**'],
-                tasks: 'default'
+                tasks: 'build'
             }
         },
 
@@ -155,11 +155,17 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('bower', ['bower-install-simple']);
-    grunt.registerTask('initial', ['clean', 'tsd', 'ts', 'bower', 'browserify']);
-    grunt.registerTask('default', ['ts', 'browserify', 'blobify:default']);
-    grunt.registerTask('test', ['ts', 'blobify:test', 'mochaTest:test']);
-    grunt.registerTask('test:debug', ['ts', 'blobify:test', 'mochaTest:debug']);
-    grunt.registerTask('serve', ['default', 'http-server']);
+    grunt.registerTask('build', ['ts:main', 'browserify', 'blobify:default']);
+    grunt.registerTask('test', ['ts', 'blobify:tests', 'mochaTest:test']);
+    grunt.registerTask('test:debug', ['ts', 'blobify:tests', 'mochaTest:debug']);
+
+    grunt.registerTask('cleanup', ['clean:base']);
+    grunt.registerTask('mrproper', ['clean']);
+
+    grunt.registerTask('initial', ['clean', 'tsd', 'bower', 'build', 'test']);
+    grunt.registerTask('serve', ['http-server']);
+
+    grunt.registerTask('default', ['build']);
 
     grunt.task.run('notify_hooks');
 };

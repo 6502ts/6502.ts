@@ -1,7 +1,7 @@
-var Cpu = require('../../src/cpu/Cpu'),
-    SimpleMemory = require('../../src/machine/SimpleMemory'),
-    hex = require('../../src/tools/hex'),
-    binary = require('../../src/tools/binary'),
+var Cpu = require('../../../src/cpu/Cpu'),
+    SimpleMemory = require('../../../src/machine/SimpleMemory'),
+    hex = require('../../../src/tools/hex'),
+    binary = require('../../../src/tools/binary'),
     _ = require('lodash'),
     util = require('util');
 

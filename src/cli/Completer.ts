@@ -25,7 +25,7 @@ class Completer {
             case 1:
                 return new Completer.CompletionResult(
                     this._availableCommands.filter((candidate: string) => candidate.search(chunks[0]) === 0),
-                    cmd
+                    chunks[0]
                 );
 
             default:
@@ -42,13 +42,10 @@ class Completer {
 
         if (!this._fsProvider) return [];
 
-        try {
-            return this._appendSlashesToDirectories(
-                this._fsProvider
-                    .readDirSync(path)
-                    .map(entry => pathlib.join(path, entry))
-            );
-        } catch(e) {}
+        if (path && path[path.length - 1] === pathlib.sep || path[path.length - 1] === '/') {
+            dirname = path;
+            basename = '';
+        }
 
         try {
             directory = this._fsProvider.readDirSync(dirname);

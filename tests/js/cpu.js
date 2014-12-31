@@ -1,6 +1,6 @@
 var cpuRunner = require('./runner/cpu'),
-    Cpu = require('../src/cpu/Cpu'),
-    hex = require('../src/tools/hex'),
+    Cpu = require('../../src/cpu/Cpu'),
+    hex = require('../../src/tools/hex'),
     util = require('util');
 
 function branchSuite(mnemonic, opcode, jumpCondition, noJumpCondition) {

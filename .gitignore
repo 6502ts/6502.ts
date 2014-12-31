@@ -6,4 +6,5 @@ src/**/*.js
 web/bower
 web/js/compiled
 bin/**/*.js
-tests/fs_provider/blob.json
+tests/fixtures/fs_provider/blob.json
+tests/ts/**/*.js

@@ -128,6 +128,8 @@ module.exports = function(grunt) {
         baseDir = path.resolve(options.baseDir);
         recurse = options.recurse;
 
+        startTransaction();
+
         me.files.forEach(function(file) {
             var dest = file.dest,
                 blob = blobs[dest] = {};
@@ -136,6 +138,8 @@ module.exports = function(grunt) {
                 visit(blob, dest, path.resolve(src));
             });
         });
+
+        finishTransaction();
     }
     grunt.registerMultiTask('blobify', 'Base64 encode file tree to JSON', blobify);
 };

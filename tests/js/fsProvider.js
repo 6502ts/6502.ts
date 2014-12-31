@@ -3,11 +3,11 @@ var _ = require('lodash'),
     path = require('path'),
     util = require('util');
 
-var NodeFilesystemProvider = require('../src/fs/NodeFilesystemProvider'),
-    PrepackagedFilesystemProvider = require('../src/fs/PrepackagedFilesystemProvider'),
-    FilesystemProviderInterface = require('../src/fs/FilesystemProviderInterface');
+var NodeFilesystemProvider = require('../../src/fs/NodeFilesystemProvider'),
+    PrepackagedFilesystemProvider = require('../../src/fs/PrepackagedFilesystemProvider'),
+    FilesystemProviderInterface = require('../../src/fs/FilesystemProviderInterface');
 
-var artifacts = {
+var fixtures = {
         foo: 'Балканская черепаха',
         baz: 'foobar',
         treeDir: ['bar', 'foo']
@@ -34,11 +34,11 @@ function runProviderTests(factory) {
 
     function testFileIdentity(path, key) {
         test(util.format('%s as UTF-8, sync', path), function() {
-            assert.strictEqual(provider.readTextFileSync(path), artifacts[key]);
+            assert.strictEqual(provider.readTextFileSync(path), fixtures[key]);
         });
 
         test(util.format('%s as binary, sync', path), function() {
-            assertBufferIdentity(provider.readBinaryFileSync(path), new Buffer(artifacts[key]));
+            assertBufferIdentity(provider.readBinaryFileSync(path), new Buffer(fixtures[key]));
         });
     }
 
@@ -84,9 +84,9 @@ function runProviderTests(factory) {
         });
     });
 
-    testDirectoryListing('tree', artifacts.treeDir);
-    testDirectoryListing('tree/', artifacts.treeDir);
-    testDirectoryListing('tree/bar/./../', artifacts.treeDir);
+    testDirectoryListing('tree', fixtures.treeDir);
+    testDirectoryListing('tree/', fixtures.treeDir);
+    testDirectoryListing('tree/bar/./../', fixtures.treeDir);
 
     test('tree is a directory, sync', function() {
         assert.strictEqual(provider.getTypeSync('tree'), FilesystemProviderInterface.FileType.DIRECTORY);
@@ -103,21 +103,21 @@ function runProviderTests(factory) {
     });
 
     test('pushd / popd', function() {
-        assert.strictEqual(provider.readTextFileSync('tree/bar/baz'), artifacts.baz);
+        assert.strictEqual(provider.readTextFileSync('tree/bar/baz'), fixtures.baz);
         provider.pushd('tree');
-        assert.strictEqual(provider.readTextFileSync('bar/baz'), artifacts.baz);
+        assert.strictEqual(provider.readTextFileSync('bar/baz'), fixtures.baz);
         provider.pushd();
         provider.chdir('bar');
-        assert.strictEqual(provider.readTextFileSync('baz'), artifacts.baz);
+        assert.strictEqual(provider.readTextFileSync('baz'), fixtures.baz);
         provider.popd(); 
-        assert.strictEqual(provider.readTextFileSync('bar/baz'), artifacts.baz);
+        assert.strictEqual(provider.readTextFileSync('bar/baz'), fixtures.baz);
         provider.popd();
-        assert.strictEqual(provider.readTextFileSync('tree/bar/baz'), artifacts.baz);
+        assert.strictEqual(provider.readTextFileSync('tree/bar/baz'), fixtures.baz);
     });
 
     test('cwd listing', function() {
         provider.chdir('tree');
-        assert.deepEqual(provider.readDirSync('').sort(), artifacts.treeDir.sort());
+        assert.deepEqual(provider.readDirSync('').sort(), fixtures.treeDir.sort());
     });
 
     test('root dir listing', function() {
@@ -134,7 +134,7 @@ suite('FS Providers', function()  {
         function factory() {
             var provider = new NodeFilesystemProvider();
 
-            provider.chdir(path.join(__dirname, 'fs_provider'));
+            provider.chdir(path.join(__dirname, '../fixtures/fs_provider'));
 
             return provider;
         }
@@ -150,7 +150,7 @@ suite('FS Providers', function()  {
         }
 
         test('Loading the prepackaged blob', function() {
-            blob = require('./fs_provider/blob.json');
+            blob = require('../fixtures/fs_provider/blob.json');
         });
 
         runProviderTests(factory);
