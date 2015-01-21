@@ -1,4 +1,4 @@
-interface MemoryInterface {
+interface BusInterface {
     read(address: number): number;
 
     readWord(address: number): number;
@@ -10,13 +10,4 @@ interface MemoryInterface {
     poke(address: number, value: number): void;
 }
 
-module MemoryInterface {
-
-    export interface MemoryBlockInterface {
-        [index: number]: number;
-        length: number;
-    }
-
-}
-
-export = MemoryInterface;
+export = BusInterface;

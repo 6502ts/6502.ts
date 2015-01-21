@@ -1,11 +1,11 @@
 'use strict';
 
 import Instruction = require('./Instruction');
-import hex = require('../tools/hex');
-import MemoryInterface = require('../machine/MemoryInterface')
+import hex = require('../../tools/hex');
+import BusInterface = require('../bus/BusInterface')
 
 class Disassembler {
-    constructor(private _memory?: MemoryInterface)
+    constructor(private _bus?: BusInterface)
     {}
 
     disassembleAt(address: number): string {
@@ -68,16 +68,16 @@ class Disassembler {
     }
 
     private _peek(address: number) {
-        return this._memory.peek(address % 0x10000);
+        return this._bus.peek(address % 0x10000);
     }
 
-    setMemory(memory: MemoryInterface): Disassembler {
-        this._memory = memory;
+    setBus(bus: BusInterface): Disassembler {
+        this._bus = bus;
         return this;
     }
 
-    getMemory(): MemoryInterface {
-        return this._memory;
+    getBus(): BusInterface {
+        return this._bus;
     }
 }
 
