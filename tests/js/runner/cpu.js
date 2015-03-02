@@ -1,9 +1,12 @@
-var Cpu = require('../../../src/cpu/Cpu'),
-    SimpleMemory = require('../../../src/machine/SimpleMemory'),
+var Cpu = require('../../../src/machine/cpu/Cpu'),
+    CpuInterface = require('../../../src/machine/cpu/CpuInterface'),
+    SimpleMemory = require('../../../src/machine/bus/SimpleMemory'),
     hex = require('../../../src/tools/hex'),
     binary = require('../../../src/tools/binary'),
     _ = require('lodash'),
     util = require('util');
+
+var ExecutionState = CpuInterface.ExecutionState;
 
 function Runner(code, base) {
     if (typeof(base) === 'undefined') base = 0xE000;
@@ -23,7 +26,7 @@ function Runner(code, base) {
     this._memory.poke(0xFFFD, base >> 8);
 
     this._cpu.reset();
-    while (this._cpu.executionState !== Cpu.ExecutionState.fetch) {
+    while (this._cpu.executionState !== ExecutionState.fetch) {
         this._cpu.cycle();
     }
 }
@@ -65,7 +68,7 @@ Runner.prototype.run = function(maxCycles) {
             pBeforeExecute = this._cpu.state.p;
             this._cpu.cycle();
             this._cycles++;
-        } while (this._cpu.executionState !== Cpu.ExecutionState.fetch);
+        } while (this._cpu.executionState !== ExecutionState.fetch);
     }
 
     if (this._cycles > maxCycles)

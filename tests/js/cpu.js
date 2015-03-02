@@ -1,7 +1,10 @@
 var cpuRunner = require('./runner/cpu'),
-    Cpu = require('../../src/cpu/Cpu'),
+    Cpu = require('../../src/machine/cpu/Cpu'),
+    CpuInterface = require('../../src/machine/cpu/CpuInterface'),
     hex = require('../../src/tools/hex'),
     util = require('util');
+
+var Flags = CpuInterface.Flags;
 
 function branchSuite(mnemonic, opcode, jumpCondition, noJumpCondition) {
     suite(mnemonic, function() {
@@ -54,12 +57,12 @@ function clearFlagSuite(mnemonic, opcode, flag) {
             cpuRunner
                 .create([opcode])
                 .setState({
-                    flags: Cpu.Flags.e | flag
+                    flags: Flags.e | flag
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    flags: Cpu.Flags.e
+                    flags: Flags.e
                 });
         });
     });
@@ -71,12 +74,12 @@ function setFlagSuite(mnemonic, opcode, flag) {
             cpuRunner
                 .create([opcode])
                 .setState({
-                    flags: Cpu.Flags.e
+                    flags: Flags.e
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    flags: Cpu.Flags.e | flag
+                    flags: Flags.e | flag
                 });
         });
     });
@@ -92,7 +95,7 @@ function testAdc(in1, in2, out, flags, flagsDontcare, carry) {
             .create([0x69, in1])
             .setState({
                 a: in2,
-                flags: Cpu.Flags.e | (carry ? Cpu.Flags.c : 0)
+                flags: Flags.e | (carry ? Flags.c : 0)
             });
 
         runner
@@ -100,7 +103,7 @@ function testAdc(in1, in2, out, flags, flagsDontcare, carry) {
             .assertCycles(2)
             .assertState({
                 a: out,
-                flags: ((Cpu.Flags.e | flags) & ~flagsDontcare) |
+                flags: ((Flags.e | flags) & ~flagsDontcare) |
                     (runner.getCpu().state.flags & flagsDontcare)
             });
     });
@@ -120,7 +123,7 @@ function testAdcNeg(in1, in2, out, flags, flagsDontcare, carry) {
             .create([0x69, in1])
             .setState({
                 a: in2,
-                flags: Cpu.Flags.e | (carry ? Cpu.Flags.c : 0)
+                flags: Flags.e | (carry ? Flags.c : 0)
             })
             .run();
 
@@ -128,7 +131,7 @@ function testAdcNeg(in1, in2, out, flags, flagsDontcare, carry) {
             .assertCycles(2)
             .assertState({
                 a: out,
-                flags: ((Cpu.Flags.e | flags) & ~flagsDontcare) |
+                flags: ((Flags.e | flags) & ~flagsDontcare) |
                     (runner.getCpu().state.flags & flagsDontcare)
             });
     });
@@ -144,7 +147,7 @@ function testAdcBcd(in1, in2, out, flags, flagsDontcare, carry) {
             .create([0x69, in1])
             .setState({
                 a: in2,
-                flags: Cpu.Flags.d | (carry ? Cpu.Flags.c : 0)
+                flags: Flags.d | (carry ? Flags.c : 0)
             });
 
         runner
@@ -152,8 +155,8 @@ function testAdcBcd(in1, in2, out, flags, flagsDontcare, carry) {
             .assertCycles(2)
             .assertState({
                 a: out,
-                flags: ((Cpu.Flags.d | flags) & ~flagsDontcare) |
-                    (runner.getCpu().state.flags & (flagsDontcare | Cpu.Flags.v))
+                flags: ((Flags.d | flags) & ~flagsDontcare) |
+                    (runner.getCpu().state.flags & (flagsDontcare | Flags.v))
             });
     });
 }
@@ -168,7 +171,7 @@ function testSbc(in1, in2, out, flags, flagsDontcare, borrow) {
             .create([0xE9, in2])
             .setState({
                 a: in1,
-                flags: Cpu.Flags.e | (borrow ? 0 : Cpu.Flags.c)
+                flags: Flags.e | (borrow ? 0 : Flags.c)
             });
 
         runner
@@ -176,8 +179,8 @@ function testSbc(in1, in2, out, flags, flagsDontcare, borrow) {
             .assertCycles(2)
             .assertState({
                 a: out,
-                flags: ((Cpu.Flags.e | flags) & ~flagsDontcare) |
-                    (runner.getCpu().state.flags & (flagsDontcare | Cpu.Flags.v))
+                flags: ((Flags.e | flags) & ~flagsDontcare) |
+                    (runner.getCpu().state.flags & (flagsDontcare | Flags.v))
             });
     });
 }
@@ -192,7 +195,7 @@ function testSbcBcd(in1, in2, out, flags, flagsDontcare, borrow) {
             .create([0xE9, in2])
             .setState({
                 a: in1,
-                flags: Cpu.Flags.d | (borrow ? 0 : Cpu.Flags.c)
+                flags: Flags.d | (borrow ? 0 : Flags.c)
             });
 
         runner
@@ -200,8 +203,8 @@ function testSbcBcd(in1, in2, out, flags, flagsDontcare, borrow) {
             .assertCycles(2)
             .assertState({
                 a: out,
-                flags: ((Cpu.Flags.d | flags) & ~flagsDontcare) |
-                    (runner.getCpu().state.flags & (flagsDontcare | Cpu.Flags.v))
+                flags: ((Flags.d | flags) & ~flagsDontcare) |
+                    (runner.getCpu().state.flags & (flagsDontcare | Flags.v))
             });
     });
 }
@@ -498,10 +501,10 @@ suite('CPU', function() {
         testImplied(0x0A, 2,
             {
                 a: 0xFF,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: 0xFE,
-                flags: Cpu.Flags.e | Cpu.Flags.n  | Cpu.Flags.c
+                flags: Flags.e | Flags.n  | Flags.c
             },
             ', 0xFF'
         );
@@ -509,10 +512,10 @@ suite('CPU', function() {
         testImplied(0x0A, 2,
             {
                 a: parseInt('01010101', 2),
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: parseInt('10101010', 2),
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', pattern'
         );
@@ -520,37 +523,37 @@ suite('CPU', function() {
         testImplied(0x0A, 2,
             {
                 a: 0x80,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.z | Cpu.Flags.c
+                flags: Flags.e | Flags.z | Flags.c
             },
             ', 0x01'
         );
 
         testMutatingZeropage(0x06, 0xFF, 0xFE, 5,
             {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.n  | Cpu.Flags.c
+                flags: Flags.e | Flags.n  | Flags.c
             },
             ', 0xFF'
         );
 
         testMutatingZeropage(0x06, parseInt('01010101', 2), parseInt('10101010', 2), 5,
             {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', pattern'
         );
 
         testMutatingZeropage(0x06, 0x80, 0x00, 5,
             {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.z | Cpu.Flags.c
+                flags: Flags.e | Flags.z | Flags.c
             },
             ', 0x01'
         );
@@ -562,19 +565,19 @@ suite('CPU', function() {
     });
 
     suite('ADC', function() {
-        testAdc(0x01, 0x30, 0x31, 0, Cpu.Flags.v);
-        testAdc(0x01, 0x30, 0x32, 0, Cpu.Flags.v, true);
-        testAdc(0xFE, 0x02, 0x00, Cpu.Flags.c | Cpu.Flags.z, Cpu.Flags.v);
-        testAdc(0x80, 0x70, 0xF0, Cpu.Flags.n);
-        testAdcNeg(0x01, -0x01, 0x00, Cpu.Flags.z, Cpu.Flags.c);
-        testAdcNeg(-0x71, 0x61, -0x10, Cpu.Flags.n, Cpu.Flags.c);
-        testAdcNeg(-0x71, -0x61, 0x2E, Cpu.Flags.v, Cpu.Flags.c);
-        testAdcNeg(0x7F, 0x7F, 0xFE, Cpu.Flags.v | Cpu.Flags.n, Cpu.Flags.c);
+        testAdc(0x01, 0x30, 0x31, 0, Flags.v);
+        testAdc(0x01, 0x30, 0x32, 0, Flags.v, true);
+        testAdc(0xFE, 0x02, 0x00, Flags.c | Flags.z, Flags.v);
+        testAdc(0x80, 0x70, 0xF0, Flags.n);
+        testAdcNeg(0x01, -0x01, 0x00, Flags.z, Flags.c);
+        testAdcNeg(-0x71, 0x61, -0x10, Flags.n, Flags.c);
+        testAdcNeg(-0x71, -0x61, 0x2E, Flags.v, Flags.c);
+        testAdcNeg(0x7F, 0x7F, 0xFE, Flags.v | Flags.n, Flags.c);
         testAdcBcd(0x03, 0x08, 0x11);
         testAdcBcd(0x23, 0x44, 0x67);
-        testAdcBcd(0x76, 0x43, 0x19, Cpu.Flags.c);
-        testAdcBcd(0x77, 0x23, 0x00, Cpu.Flags.z | Cpu.Flags.c);
-        testAdcBcd(0x50, 0x44, 0x94, Cpu.Flags.n);
+        testAdcBcd(0x76, 0x43, 0x19, Flags.c);
+        testAdcBcd(0x77, 0x23, 0x00, Flags.z | Flags.c);
+        testAdcBcd(0x50, 0x44, 0x94, Flags.n);
 
         testDereferencingZeropage(0x65, 0x12, 3, {a: 0x23}, {a: 0x35});
         testDereferencingZeropageX(0x75, 0x12, 4, {a: 0x23}, {a: 0x35});
@@ -592,13 +595,13 @@ suite('CPU', function() {
                 .create([0x29, 0xFF])
                 .setState({
                     a: 0xF0,
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
                     a: 0xF0,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 });
         });
 
@@ -607,7 +610,7 @@ suite('CPU', function() {
                 .create([0x25, 0x34])
                 .setState({
                     a: 0x0F,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 })
                 .poke({
                     '0x0034': 0xF0
@@ -616,7 +619,7 @@ suite('CPU', function() {
                 .assertCycles(3)
                 .assertState({
                     a: 0x00,
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -635,7 +638,7 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     a: 0x01,
-                    flags: 0xFF & ~Cpu.Flags.n & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.n & ~Flags.z
                 });
         });
 
@@ -782,69 +785,69 @@ suite('CPU', function() {
 
     });
 
-    branchSuite('BCC', 0x90, 0, Cpu.Flags.c);
+    branchSuite('BCC', 0x90, 0, Flags.c);
 
     suite('BIT', function() {
-        testDereferencingZeropage(0x24, Cpu.Flags.n, 3,
+        testDereferencingZeropage(0x24, Flags.n, 3,
             {
-                flags: Cpu.Flags.e,
+                flags: Flags.e,
                 a: 0
             }, {
-                flags: Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.e
+                flags: Flags.n | Flags.z | Flags.e
             },
             ', n'
         );
 
-        testDereferencingAbsolute(0x2C, Cpu.Flags.n | Cpu.Flags.v, 4,
+        testDereferencingAbsolute(0x2C, Flags.n | Flags.v, 4,
             {
-                flags: Cpu.Flags.e,
+                flags: Flags.e,
                 a: 0
             }, {
-                flags: Cpu.Flags.n | Cpu.Flags.z | Cpu.Flags.e | Cpu.Flags.v
+                flags: Flags.n | Flags.z | Flags.e | Flags.v
             },
             ', n | v'
         );
 
-        testDereferencingAbsolute(0x2C, Cpu.Flags.n | Cpu.Flags.v, 4,
+        testDereferencingAbsolute(0x2C, Flags.n | Flags.v, 4,
             {
-                flags: Cpu.Flags.e,
+                flags: Flags.e,
                 a: 0xFF
             }, {
-                flags: Cpu.Flags.n | Cpu.Flags.e | Cpu.Flags.v
+                flags: Flags.n | Flags.e | Flags.v
             },
             ', n | v, a = 0xFF'
         );
 
         testDereferencingAbsolute(0x2C, 0x01, 4,
             {
-                flags: Cpu.Flags.e,
+                flags: Flags.e,
                 a: 0x01
             }, {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             },
             ', 0x01, a = 0xFF'
         );
     });
 
-    branchSuite('BNE', 0xD0, 0, Cpu.Flags.z);
+    branchSuite('BNE', 0xD0, 0, Flags.z);
 
-    branchSuite('BEQ', 0xF0, Cpu.Flags.z, 0);
+    branchSuite('BEQ', 0xF0, Flags.z, 0);
 
-    branchSuite('BPL', 0x10, 0, Cpu.Flags.n);
+    branchSuite('BPL', 0x10, 0, Flags.n);
 
-    branchSuite('BMI', 0x30, Cpu.Flags.n, 0);
+    branchSuite('BMI', 0x30, Flags.n, 0);
 
-    branchSuite('BVC', 0x50, 0, Cpu.Flags.v);
+    branchSuite('BVC', 0x50, 0, Flags.v);
 
-    branchSuite('BVS', 0x70, Cpu.Flags.v, 0);
+    branchSuite('BVS', 0x70, Flags.v, 0);
 
-    clearFlagSuite('CLC', 0x18, Cpu.Flags.c);
+    clearFlagSuite('CLC', 0x18, Flags.c);
 
-    clearFlagSuite('CLD', 0xD8, Cpu.Flags.d);
+    clearFlagSuite('CLD', 0xD8, Flags.d);
 
-    clearFlagSuite('CLI', 0x58, Cpu.Flags.i);
+    clearFlagSuite('CLI', 0x58, Flags.i);
 
-    clearFlagSuite('CLV', 0xB8, Cpu.Flags.v);
+    clearFlagSuite('CLV', 0xB8, Flags.v);
 
     suite('CMP', function() {
         test('immediate, flags', function() {
@@ -857,7 +860,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.c &~ Cpu.Flags.n &~ Cpu.Flags.z
+                    flags: 0xFF & ~Flags.c &~ Flags.n &~ Flags.z
                 });
         });
 
@@ -866,7 +869,7 @@ suite('CPU', function() {
                 .create([0xC5, 0x55])
                 .setState({
                     a: 0xFF,
-                    flags: 0xFF & ~Cpu.Flags.c & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.c & ~Flags.n
                 })
                 .poke({
                     '0x0055': 0x00
@@ -874,7 +877,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(3)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 });
         });
 
@@ -884,7 +887,7 @@ suite('CPU', function() {
                 .setState({
                     a: 0x34,
                     x: 0x01,
-                    flags: 0xFF & ~Cpu.Flags.c & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.c & ~Flags.z
                 })
                 .poke({
                     '0x0056': 0x34
@@ -892,7 +895,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(4)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -909,7 +912,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(4)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -927,7 +930,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(4)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -945,7 +948,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(5)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -963,7 +966,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(4)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -981,7 +984,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(5)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -1001,7 +1004,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(6)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -1021,7 +1024,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(5)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -1041,7 +1044,7 @@ suite('CPU', function() {
                 .run()
                 .assertCycles(6)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
     });
@@ -1050,9 +1053,9 @@ suite('CPU', function() {
         testImmediate(0xE0, 0x23, 2,
             {
                 x: 0x33,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             },
             ', flags'
         );
@@ -1060,9 +1063,9 @@ suite('CPU', function() {
         testDereferencingZeropage(0xE4, 0x33, 3,
             {
                 x: 0x33,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', flags'
         );
@@ -1070,9 +1073,9 @@ suite('CPU', function() {
         testDereferencingAbsolute(0xEC, 0xFF, 4,
             {
                 x: 0xFE,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', flags'
         );
@@ -1082,9 +1085,9 @@ suite('CPU', function() {
         testImmediate(0xC0, 0x23, 2,
             {
                 y: 0x33,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             },
             ', flags'
         );
@@ -1092,9 +1095,9 @@ suite('CPU', function() {
         testDereferencingZeropage(0xC4, 0x33, 3,
             {
                 y: 0x33,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', flags'
         );
@@ -1102,9 +1105,9 @@ suite('CPU', function() {
         testDereferencingAbsolute(0xCC, 0xFF, 4,
             {
                 y: 0xFE,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', flags'
         );
@@ -1113,25 +1116,25 @@ suite('CPU', function() {
     suite('DEC', function() {
         testMutatingZeropage(0xC6, 0xFF, 0xFE, 5,
             {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.n | Cpu.Flags.e
+                flags: Flags.n | Flags.e
             }
         );
 
         testMutatingZeropageX(0xD6, 0x00, 0xFF, 6,
             {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.n | Cpu.Flags.e
+                flags: Flags.n | Flags.e
             }
         );
 
         testMutatingAbsolute(0xCE, 0x01, 0x00, 6,
             {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.z
+                flags: Flags.e | Flags.z
             }
         );
 
@@ -1144,12 +1147,12 @@ suite('CPU', function() {
                 .create([0xCA])
                 .setState({
                     x: 0x01,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n,
+                    flags: 0xFF & ~Flags.n,
                     x: 0
                 });
         });
@@ -1159,12 +1162,12 @@ suite('CPU', function() {
                 .create([0xCA])
                 .setState({
                     x: 0,
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.z,
+                    flags: 0xFF & ~Flags.z,
                     x: 0xFF
                 });
         });
@@ -1176,12 +1179,12 @@ suite('CPU', function() {
                 .create([0x88])
                 .setState({
                     y: 0x01,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n,
+                    flags: 0xFF & ~Flags.n,
                     y: 0
                 });
         });
@@ -1191,12 +1194,12 @@ suite('CPU', function() {
                 .create([0x88])
                 .setState({
                     y: 0,
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.z,
+                    flags: 0xFF & ~Flags.z,
                     y: 0xFF
                 });
         });
@@ -1207,20 +1210,20 @@ suite('CPU', function() {
         testDereferencingZeropage(0x45, 0xFF, 3,
             {
                 a: 0x7F,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: 0x80,
-                flags: Cpu.Flags.n | Cpu.Flags.e
+                flags: Flags.n | Flags.e
             },
             ', flags'
         );
         testDereferencingZeropageX(0x55, 0xFF, 4,
             {
                 a: 0xFF,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.z
+                flags: Flags.e | Flags.z
             },
             ', flags'
         );
@@ -1233,9 +1236,9 @@ suite('CPU', function() {
 
     suite('INC', function() {
         testMutatingZeropage(0xE6, 0x11, 0x12, 5, {}, {}, ', 0x11');
-        testMutatingZeropageX(0xF6, 0xEF, 0xF0, 6, {flags: 0}, {flags: Cpu.Flags.n},
+        testMutatingZeropageX(0xF6, 0xEF, 0xF0, 6, {flags: 0}, {flags: Flags.n},
             ', 0xEF, flags');
-        testMutatingAbsolute(0xEE, 0xFF, 0x00, 6, {flags: 0}, {flags: Cpu.Flags.z},
+        testMutatingAbsolute(0xEE, 0xFF, 0x00, 6, {flags: 0}, {flags: Flags.z},
             ', 0xFF, flags');
         testMutatingAbsoluteX(0xFE, 0x11, 0x12, 7, 7, {}, {}, ', 0x11');
     });
@@ -1246,12 +1249,12 @@ suite('CPU', function() {
                 .create([0xC8])
                 .setState({
                     y: 0xFF,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.n,
+                    flags: 0xFF & ~Flags.n,
                     y: 0
                 });
         });
@@ -1261,12 +1264,12 @@ suite('CPU', function() {
                 .create([0xC8])
                 .setState({
                     y: 0x7F,
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    flags: 0xFF & ~Cpu.Flags.z,
+                    flags: 0xFF & ~Flags.z,
                     y: 0x80
                 });
         });
@@ -1276,10 +1279,10 @@ suite('CPU', function() {
         testImplied(0xE8, 2,
             {
                 x: 0xFF,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 x: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.z
+                flags: Flags.e | Flags.z
             },
             ', 0xFF, flags'
         );
@@ -1287,10 +1290,10 @@ suite('CPU', function() {
         testImplied(0xE8, 2,
             {
                 x: 0xEF,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 x: 0xF0,
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', 0xFF, flags'
         );
@@ -1382,13 +1385,13 @@ suite('CPU', function() {
                 .create([0xA9, 0])
                 .setState({
                     a: 0x10,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
                     a: 0,
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -1399,13 +1402,13 @@ suite('CPU', function() {
                     '0x12': 0xFF
                 })
                 .setState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 })
                 .run()
                 .assertCycles(3)
                 .assertState({
                     a: 0xFF,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 });
         });
 
@@ -1423,7 +1426,7 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     a: 0x34,
-                    flags: 0xFF & ~Cpu.Flags.z & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.z & ~Flags.n
                 });
         });
 
@@ -1565,13 +1568,13 @@ suite('CPU', function() {
                 .create([0xA2, 0x00])
                 .setState({
                     x: 0x10,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
                     x: 0,
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -1582,13 +1585,13 @@ suite('CPU', function() {
                     '0x0010': 0xFF
                 })
                 .setState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 })
                 .run()
                 .assertCycles(3)
                 .assertState({
                     x: 0xFF,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 });
         });
 
@@ -1606,7 +1609,7 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     x: 0x23,
-                    flags: 0xFF & ~Cpu.Flags.n & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.n & ~Flags.z
                 });
         });
 
@@ -1662,13 +1665,13 @@ suite('CPU', function() {
                 .create([0xA0, 0x00])
                 .setState({
                     y: 0x10,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
                     y: 0,
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 });
         });
 
@@ -1679,13 +1682,13 @@ suite('CPU', function() {
                     '0x0010': 0xFF
                 })
                 .setState({
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 })
                 .run()
                 .assertCycles(3)
                 .assertState({
                     y: 0xFF,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 });
         });
 
@@ -1703,7 +1706,7 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     y: 0x23,
-                    flags: 0xFF & ~Cpu.Flags.n & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.n & ~Flags.z
                 });
         });
 
@@ -1757,10 +1760,10 @@ suite('CPU', function() {
         testImplied(0x4A, 2,
             {
                 a: 0x01,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', 0x01, flags'
         );
@@ -1768,10 +1771,10 @@ suite('CPU', function() {
         testImplied(0x4A, 2,
             {
                 a: 0x01,
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
                 a: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', 0x01 + c, flags'
         );
@@ -1788,18 +1791,18 @@ suite('CPU', function() {
 
         testMutatingZeropage(0x46, 0x01, 0x00, 5,
             {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', 0x01, flags'
         );
 
         testMutatingZeropageX(0x56, 0x01, 0x00, 6,
             {
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', 0x01 + c, flags'
         );
@@ -1828,20 +1831,20 @@ suite('CPU', function() {
         testImmediate(0x09, 0x01, 2,
             {
                 a: 0x80,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: 0x81,
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             }
         );
 
         testDereferencingZeropage(0x05, 0x00, 3,
             {
                 a: 0x00,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.z
+                flags: Flags.e | Flags.z
             }
         );
 
@@ -1941,7 +1944,7 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     s: 0xFF,
-                    flags: 0xFF & ~Cpu.Flags.e & ~Cpu.Flags.b
+                    flags: 0xFF & ~Flags.e & ~Flags.b
                 });
         });
 
@@ -1959,7 +1962,7 @@ suite('CPU', function() {
                 .assertCycles(4)
                 .assertState({
                     s: 0x00,
-                    flags: 0xA7 & ~Cpu.Flags.e & ~Cpu.Flags.b
+                    flags: 0xA7 & ~Flags.e & ~Flags.b
                 });
         });
     });
@@ -1971,7 +1974,7 @@ suite('CPU', function() {
                 .setState({
                     a: 0,
                     s: 0xFE,
-                    flags: Cpu.Flags.e
+                    flags: Flags.e
                 })
                 .poke({
                     '0x01FF': 0xFF
@@ -1981,7 +1984,7 @@ suite('CPU', function() {
                 .assertState({
                     s: 0xFF,
                     a: 0xFF,
-                    flags: Cpu.Flags.e | Cpu.Flags.n
+                    flags: Flags.e | Flags.n
                 });
         });
 
@@ -1991,7 +1994,7 @@ suite('CPU', function() {
                 .setState({
                     a: 0xFF,
                     s: 0xFF,
-                    flags: Cpu.Flags.e
+                    flags: Flags.e
                 })
                 .poke({
                     '0x0100': 0x00
@@ -2001,7 +2004,7 @@ suite('CPU', function() {
                 .assertState({
                     s: 0x00,
                     a: 0x00,
-                    flags: Cpu.Flags.e | Cpu.Flags.z
+                    flags: Flags.e | Flags.z
                 });
         });
     });
@@ -2010,10 +2013,10 @@ suite('CPU', function() {
         testImplied(0x2A, 2,
             {
                 a: 0x80,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', 0x80, flags'
         );
@@ -2021,10 +2024,10 @@ suite('CPU', function() {
         testImplied(0x2A, 2,
             {
                 a: 0x80,
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
                 a: 0x01,
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             },
             ', 0x80 + c, flags'
         );
@@ -2032,37 +2035,37 @@ suite('CPU', function() {
         testImplied(0x2A, 2,
             {
                 a: 0x40,
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
                 a: 0x81,
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', 0x40 + c, flags'
         );
 
         testMutatingZeropage(0x26, 0x80, 0x00, 5,
             {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', 0x80, flags'
         );
 
         testMutatingZeropageX(0x36, 0x80, 0x01, 6,
             {
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             },
             ', 0x80 + c, flags'
         );
 
         testMutatingAbsolute(0x2E, 0x40, 0x81, 6,
             {
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', 0x40 + c, flags'
         );
@@ -2074,10 +2077,10 @@ suite('CPU', function() {
         testImplied(0x6A, 2,
             {
                 a: 0x01,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 a: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', 0x01, flags'
         );
@@ -2085,10 +2088,10 @@ suite('CPU', function() {
         testImplied(0x6A, 2,
             {
                 a: 0x01,
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
                 a: 0x80,
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.n
+                flags: Flags.e | Flags.c | Flags.n
             },
             ', 0x01 + c, flags'
         );
@@ -2096,37 +2099,37 @@ suite('CPU', function() {
         testImplied(0x6A, 2,
             {
                 a: 0x40,
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
                 a: 0xA0,
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', 0x40 + c, flags'
         );
 
         testMutatingZeropage(0x66, 0x01, 0x00, 5,
             {
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.z
+                flags: Flags.e | Flags.c | Flags.z
             },
             ', 0x01, flags'
         );
 
         testMutatingZeropageX(0x76, 0x01, 0x80, 6,
             {
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.c | Cpu.Flags.n
+                flags: Flags.e | Flags.c | Flags.n
             },
             ', 0x01 + c, flags'
         );
 
         testMutatingAbsolute(0x6E, 0x40, 0xA0, 6,
             {
-                flags: Cpu.Flags.e | Cpu.Flags.c
+                flags: Flags.e | Flags.c
             }, {
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', 0x40 + c, flags'
         );
@@ -2174,16 +2177,16 @@ suite('CPU', function() {
     });
 
     suite('SBC', function() {
-        testSbc(0x45, 0x01, 0x44, Cpu.Flags.c, 0);
-        testSbc(0x45, 0x36, 0x0F, Cpu.Flags.c, 0);
-        testSbc(0x45, 0x36, 0x0F, Cpu.Flags.c, 0);
-        testSbc(0x45, 0x50, 0xF5, Cpu.Flags.n, 0);
-        testSbc(0xFF, 0xFE, 0x00, Cpu.Flags.z | Cpu.Flags.c, 0, true);
-        testSbcBcd(0x34, 0x12, 0x22, Cpu.Flags.c, 0);
-        testSbcBcd(0x34, 0x17, 0x17, Cpu.Flags.c, 0);
-        testSbcBcd(0x78, 0x80, 0x98, 0, Cpu.Flags.n);
-        testSbcBcd(0x56, 0x56, 0x00, Cpu.Flags.c | Cpu.Flags.z, 0);
-        testSbcBcd(0x56, 0x56, 0x99, Cpu.Flags.n, 0, true);
+        testSbc(0x45, 0x01, 0x44, Flags.c, 0);
+        testSbc(0x45, 0x36, 0x0F, Flags.c, 0);
+        testSbc(0x45, 0x36, 0x0F, Flags.c, 0);
+        testSbc(0x45, 0x50, 0xF5, Flags.n, 0);
+        testSbc(0xFF, 0xFE, 0x00, Flags.z | Flags.c, 0, true);
+        testSbcBcd(0x34, 0x12, 0x22, Flags.c, 0);
+        testSbcBcd(0x34, 0x17, 0x17, Flags.c, 0);
+        testSbcBcd(0x78, 0x80, 0x98, 0, Flags.n);
+        testSbcBcd(0x56, 0x56, 0x00, Flags.c | Flags.z, 0);
+        testSbcBcd(0x56, 0x56, 0x99, Flags.n, 0, true);
 
         testDereferencingZeropage(0xE5, 0xFF, 3, {a: 0x10}, {a: 0x10});
         testDereferencingZeropageX(0xF5, 0xFF, 4, {a: 0x10}, {a: 0x10});
@@ -2194,11 +2197,11 @@ suite('CPU', function() {
         testDereferencingIndirectY(0xF1, 0xFF, 5, 6, {a: 0x10}, {a: 0x10});
     });
 
-    setFlagSuite('SEC', 0x38, Cpu.Flags.c);
+    setFlagSuite('SEC', 0x38, Flags.c);
 
-    setFlagSuite('SED', 0xF8, Cpu.Flags.d);
+    setFlagSuite('SED', 0xF8, Flags.d);
 
-    setFlagSuite('SEI', 0x78, Cpu.Flags.i);
+    setFlagSuite('SEI', 0x78, Flags.i);
 
     suite('STA', function() {
         test('zeroPage , flags', function() {
@@ -2452,10 +2455,10 @@ suite('CPU', function() {
             {
                 a: 0xFF,
                 x: 0,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 x: 0xFF,
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', 0xFF, flags'
         );
@@ -2464,10 +2467,10 @@ suite('CPU', function() {
             {
                 a: 0x00,
                 x: 0xFF,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 x: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.z
+                flags: Flags.e | Flags.z
             },
             ', 0x00, flags'
         );
@@ -2478,10 +2481,10 @@ suite('CPU', function() {
             {
                 a: 0xFF,
                 y: 0,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 y: 0xFF,
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', 0xFF, flags'
         );
@@ -2490,10 +2493,10 @@ suite('CPU', function() {
             {
                 a: 0x00,
                 y: 0xFF,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 y: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.z
+                flags: Flags.e | Flags.z
             },
             ', 0x00, flags'
         );
@@ -2507,7 +2510,7 @@ suite('CPU', function() {
                 flags: 0xFF
             }, {
                 x:0x45,
-                flags: 0xFF & ~Cpu.Flags.z & ~Cpu.Flags.n
+                flags: 0xFF & ~Flags.z & ~Flags.n
             }
         );
     });
@@ -2528,11 +2531,11 @@ suite('CPU', function() {
             {
                 x: 0xFF,
                 a: 0x00,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 x: 0xFF,
                 a: 0xFF,
-                flags: Cpu.Flags.e | Cpu.Flags.n
+                flags: Flags.e | Flags.n
             },
             ', 0xFF'
         );
@@ -2541,11 +2544,11 @@ suite('CPU', function() {
             {
                 x: 0x00,
                 a: 0xFF,
-                flags: Cpu.Flags.e
+                flags: Flags.e
             }, {
                 x: 0x00,
                 a: 0x00,
-                flags: Cpu.Flags.e | Cpu.Flags.z
+                flags: Flags.e | Flags.z
             },
             ', 0x00'
         );
@@ -2575,13 +2578,13 @@ suite('CPU', function() {
                 .setState({
                     y: 0xFF,
                     a: 0,
-                    flags: 0xFF & ~Cpu.Flags.n
+                    flags: 0xFF & ~Flags.n
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
                     a: 0xFF,
-                    flags: 0xFF & ~Cpu.Flags.z
+                    flags: 0xFF & ~Flags.z
                 });
         });
     });
