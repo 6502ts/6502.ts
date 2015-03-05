@@ -212,13 +212,9 @@ class Debugger {
     private _traceLength = 0;
     private _traceIndex = 0;
 
-    private _cpuClockHandler = function() {
-        this._handleCpuClock();
-    };
+    private _cpuClockHandler = () => this._handleCpuClock();
 
-    private _trapHandler = function(trap: BoardInterface.TrapPayload) {
-        this._handleTrap(trap);
-    };
+    private _trapHandler = (trap: BoardInterface.TrapPayload) => this._handleTrap(trap);
 };
 
 module Debugger {

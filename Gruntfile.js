@@ -16,7 +16,7 @@ module.exports = function(grunt) {
             main: {
                 src: [
                     'src/web/testCLI.ts',
-                    //'src/web/ehBasicCLI.ts',
+                    'src/web/ehBasicCLI.ts',
 
                     'bin/ehBasicCLI.ts',
                     'bin/testCLI.ts'/*,
@@ -156,8 +156,8 @@ module.exports = function(grunt) {
 
     grunt.registerTask('bower', ['bower-install-simple']);
     grunt.registerTask('build', ['ts:main', 'browserify', 'blobify:default']);
-    grunt.registerTask('test', ['ts:tests', 'blobify:tests', 'mochaTest:test']);
-    grunt.registerTask('test:debug', ['ts:tests', 'blobify:tests', 'mochaTest:debug']);
+    grunt.registerTask('test', ['ts', 'blobify:tests', 'mochaTest:test']);
+    grunt.registerTask('test:debug', ['ts', 'blobify:tests', 'mochaTest:debug']);
 
     grunt.registerTask('cleanup', ['clean:base']);
     grunt.registerTask('mrproper', ['clean']);

@@ -96,9 +96,6 @@ class Board implements BoardInterface {
     }
 
     private _step(instructions: number): void {
-        if (this._terminateSchedulerCallback) throw new Error(
-            'Cannot step while clock is running!');
-
         var instruction = 0;
 
         this._cpuTrap = false;
