@@ -1,9 +1,13 @@
+/// <reference path="../../typings/node/node.d.ts"/>
+
 'use strict';
 
 import Debugger = require('../machine/Debugger');
 import CommandInterpreter = require('./CommandInterpreter');
 import hex = require('../tools/hex');
 import FileSystemProviderInterface = require('../fs/FilesystemProviderInterface');
+import BoardInterface = require('../machine/board/BoardInterface');
+import util = require('util');
 
 function decodeNumber(value: string): number {
     try {
@@ -16,32 +20,31 @@ function decodeNumber(value: string): number {
     }
 }
 
-class DebuggerFrontend extends CommandInterpreter {
+class DebuggerFrontend {
     constructor(
             private _debugger: Debugger,
-            private _fileSystemProvider: FileSystemProviderInterface
+            private _fileSystemProvider: FileSystemProviderInterface,
+            private _commandInterpreter: CommandInterpreter
     ) {
-        super();
-
-        this.registerCommands({
-            disassemble:    this._disassemble,
-            dump:           this._dump,
-            load:           this._load,
-            hex2dec:        this._hex2dec,
-            dec2hex:        this._dec2hex,
-            state:          this._state,
-            boot:           this._boot,
-            stack:          this._stack,
-            step:           this._step,
-            'break-on':       this._enableBreakpoints,
-            'break-off':      this._disableBreakpoints,
-            'break':                this._setBreakpoint,
-            'break-clear':     this._clearBreakpoint,
-            'break-dump':     this._showBreakpoints,
-            'break-clear-all':    this._clearAllBreakpoints,
-            'trace-on':     this._enableTrace,
-            'trace-off':    this._disableTrace,
-            'trace':        this._trace
+        this._commandInterpreter.registerCommands({
+            disassemble:    this._disassemble.bind(this),
+            dump:           this._dump.bind(this),
+            load:           this._load.bind(this),
+            hex2dec:        this._hex2dec.bind(this),
+            dec2hex:        this._dec2hex.bind(this),
+            state:          this._state.bind(this),
+            boot:           this._boot.bind(this),
+            stack:          this._stack.bind(this),
+            step:           this._step.bind(this),
+            'break-on':       this._enableBreakpoints.bind(this),
+            'break-off':      this._disableBreakpoints.bind(this),
+            'break':                this._setBreakpoint.bind(this),
+            'break-clear':     this._clearBreakpoint.bind(this),
+            'break-dump':     this._showBreakpoints.bind(this),
+            'break-clear-all':    this._clearAllBreakpoints.bind(this),
+            'trace-on':     this._enableTrace.bind(this),
+            'trace-off':    this._disableTrace.bind(this),
+            'trace':        this._trace.bind(this)
         });
     }
 
@@ -100,23 +103,75 @@ class DebuggerFrontend extends CommandInterpreter {
     }
 
     private _boot(): string {
-        return this._debugger.boot();
+        var cycles = 0,
+            board = this._debugger.getBoard();
+
+        var clockHandler = () => cycles++;
+
+        board.cpuClock.addHandler(clockHandler);
+
+        try {
+            this._debugger.getBoard().boot();
+        } catch (e) {
+            var exception = e || new Error('unknown exception during boot');
+        }
+
+        board.cpuClock.removeHandler(clockHandler);
+
+        if (exception) throw (exception);
+
+        return util.format('Boot successful in %s cycles', cycles);
     }
 
     private _step(args: Array<string>): string {
         var timestamp = Date.now(),
-            cycles = this._debugger.step(args.length > 0 ? decodeNumber(args[0]) : 1),
-            result = 'Used ' + cycles + ' cycles in ' + (Date.now() - timestamp) +
-                ' milliseconds, now at\n' + this._debugger.disassemble(1);
+            instructionCount = args.length > 0 ? decodeNumber(args[0]) : 1,
+            board = this._debugger.getBoard(),
+            cycles = 0,
+            result: string,
+            trap = false,
+            trapReason: BoardInterface.TrapReason;
 
-        switch (this._debugger.getExecutionState()) {
-            case Debugger.ExecutionState.breakpoint:
-                result = 'BREAKPOINT!\n' + result;
-                break;
+        var clockHandler = () => cycles++,
+            trapHandler = (payload: BoardInterface.TrapPayload) => {
+                trap = true;
+                trapReason = payload.reason;
+            };
 
-            case Debugger.ExecutionState.invalidInstruction:
-                result = 'INVALID INSTRUCTION!\n' + result;
-                break;
+        board.cpuClock.addHandler(clockHandler);
+        board.trap.addHandler(trapHandler);
+
+        try {
+            board.getTimer().step(instructionCount);
+        } catch (e) {
+            var exception = e || new Error('unknown exception during stepping');
+        }
+
+        board.cpuClock.removeHandler(clockHandler);
+        board.trap.removeHandler(trapHandler);
+
+        if (exception) throw exception;
+
+        result = util.format('Used %s cycles in %s milliseconds, now at\n%s',
+            cycles,
+            Date.now() - timestamp,
+            this._debugger.disassemble(1)
+        );
+
+        if (trap) {
+            switch (trapReason) {
+                case BoardInterface.TrapReason.cpu:
+                    result = 'INVALID INSTRUCTION!\n' + result;
+                    break;
+
+                case BoardInterface.TrapReason.debug:
+                    result = 'BREAKPOINT\n' + result;
+                    break;
+
+                default:
+                    result = 'UNKNOWN TRAP\n' + result;
+                    break;
+            }
         }
 
         return result;

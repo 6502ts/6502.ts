@@ -33,13 +33,7 @@ class Board implements BoardInterface {
     }
 
     getTimer(): TimerInterface {
-        return {
-            tick: (clocks: number): void => this._tick(clocks),
-            step: (instructions: number): void => this._step(instructions),
-            start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler),
-            stop: (): void => this._stop(),
-            isRunning: (): boolean => !!this._terminateSchedulerCallback 
-        };
+        return this._timer;
     }
 
     reset(): Board {
@@ -80,12 +74,11 @@ class Board implements BoardInterface {
         return this._memory;
     }
 
-    clock: Event<void> = new Event<void>();
+    clock = new Event<void>();
 
     cpuClock: Event<void>;
 
-    trap: Event<BoardInterface.TrapPayload>
-        = new Event<BoardInterface.TrapPayload>();
+    trap = new Event<BoardInterface.TrapPayload>();
 
     private _tick(clocks: number): void {
         var clock = 0;
@@ -103,6 +96,9 @@ class Board implements BoardInterface {
     }
 
     private _step(instructions: number): void {
+        if (this._terminateSchedulerCallback) throw new Error(
+            'Cannot step while clock is running!');
+
         var instruction = 0;
 
         this._cpuTrap = false;
@@ -139,4 +135,14 @@ class Board implements BoardInterface {
     private _memory: Memory;
     private _cpuTrap = false;
     private _terminateSchedulerCallback: SchedulerInterface.TerminatorInterface = undefined;
+
+    private _timer = {
+        tick: (clocks: number): void => this._tick(clocks),
+        step: (instructions: number): void => this._step(instructions),
+        start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler),
+        stop: (): void => this._stop(),
+        isRunning: (): boolean => !!this._terminateSchedulerCallback 
+    };
 }
+
+export = Board;

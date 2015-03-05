@@ -16,11 +16,11 @@ module.exports = function(grunt) {
             main: {
                 src: [
                     'src/web/testCLI.ts',
-                    'src/web/ehBasicCLI.ts',
+                    //'src/web/ehBasicCLI.ts',
 
                     'bin/ehBasicCLI.ts',
-                    'bin/testCLI.ts',
-                    'bin/debugger.ts'
+                    'bin/testCLI.ts'/*,
+                    'bin/debugger.ts'*/
                 ]
             },
             tests: {

@@ -11,12 +11,29 @@ import BoardInterface = require('./board/BoardInterface');
 import BusInterface = require('./bus/BusInterface');
 
 class Debugger {
-    constructor(
-        private _bus: BusInterface,
-        private _board: BoardInterface
-    ) {
-        this._disassembler = new Disassembler(this._bus);
+
+    attach(board: BoardInterface): Debugger {
+        this._board = board;
+        this._bus = this._board.getBus();
         this._cpu = this._board.getCpu();
+        this._disassembler = new Disassembler(this._bus);
+
+        this._board.cpuClock.addHandler(this._cpuClockHandler);
+        this._board.trap.addHandler(this._trapHandler);
+
+        this._traceLength = 0;
+        this._traceIndex = 0;
+
+        return this;
+    }
+
+    detach(): Debugger {
+        if (!this._board) return;
+
+        this._board.cpuClock.removeHandler(this._cpuClockHandler);
+        this._board.trap.removeHandler(this._trapHandler);
+
+        return this;
     }
 
     clearAllBreakpoints(): Debugger {
@@ -149,7 +166,13 @@ class Debugger {
         return this;
     }
 
-    private _cpuClockHandler() {
+    getBoard(): BoardInterface {
+        return this._board;
+    }
+
+    private _handleCpuClock() {
+        if (this._cpu.executionState !== CpuInterface.ExecutionState.fetch) return; 
+
         if (this._traceEnabled) {
             this._trace[this._traceIndex] = this._cpu.getLastInstructionPointer();
             this._traceIndex = (this._traceIndex + 1) % TRACE_SIZE;
@@ -161,11 +184,9 @@ class Debugger {
         }
     }
 
-    private _trapHandler(trap: BoardInterface.TrapPayload) {
+    private _handleTrap(trap: BoardInterface.TrapPayload) {
         if (trap.reason === BoardInterface.TrapReason.cpu) {
-            if (this._invalidInstuction) {
-                this._cpu.state.p = (this._cpu.state.p + 0xFFFF) & 0xFFFF;
-            }
+            this._cpu.state.p = (this._cpu.state.p + 0xFFFF) & 0xFFFF;
         }
     }
 
@@ -179,16 +200,25 @@ class Debugger {
 
     private _disassembler: Disassembler;
     private _cpu: CpuInterface;
-
-    private _invalidInstuction = false;
+    private _bus: BusInterface;
+    private _board: BoardInterface;
 
     private _breakpoints = new Uint8Array(0x10000);
     private _breakpointDescriptions: Array<String> = [];
     private _breakpointsEnabled = false;
+
     private _traceEnabled = false;
     private _trace = new Uint16Array(TRACE_SIZE);
     private _traceLength = 0;
     private _traceIndex = 0;
+
+    private _cpuClockHandler = function() {
+        this._handleCpuClock();
+    };
+
+    private _trapHandler = function(trap: BoardInterface.TrapPayload) {
+        this._handleTrap(trap);
+    };
 };
 
 module Debugger {

@@ -4,18 +4,24 @@
 
 import path = require('path');
 import events = require('events');
-import Monitor = require('../machine/EhBasicMonitor');
+
+import Board = require('../machine/ehbasic/Board');
+import BoardInterface = require('../machine/board/BoardInterface');
+import SimpleSerialIOInterface = require('../machine/io/SimpleSerialIOInterface');
+
 import Debugger = require('../machine/Debugger');
 import DebuggerFrontend = require('./DebuggerFrontend');
-import Cpu = require('../cpu/Cpu');
+import CommandInterpreter = require('./CommandInterpreter');
 import CLIInterface = require('./CLIInterface');
 import FileSystemProviderInterface = require('../fs/FilesystemProviderInterface');
+
+import SchedulerInterface = require('../tools/scheduler/SchedulerInterface');
+import SetImmediateScheduler = require('../tools/scheduler/SetImmedateScheduler');
 
 enum State {
     debug, run, quit
 }
 
-var SAMPLE_SIZE = 20000000;
 var OUTPUT_FLUSH_INTERVAL = 50;
 
 class EhBasicCLI extends events.EventEmitter implements CLIInterface {
@@ -24,12 +30,14 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     ) {
         super();
 
-        this._monitor = new Monitor();
-        this._cpu = new Cpu(this._monitor);
-        this._debugger = new Debugger(this._monitor, this._cpu);
-        this._frontend = new DebuggerFrontend(this._debugger, this._fsProvider);
+        var board = new Board(),
+            dbg = new Debugger(),
+            commandInterpreter = new CommandInterpreter(),
+            debuggerFrontend = new  DebuggerFrontend(dbg, this._fsProvider, commandInterpreter);
 
-        this._frontend.registerCommands({
+        dbg.attach(board);
+
+        commandInterpreter.registerCommands({
             quit: (): string => {
                 this._setState(State.quit);
                 return 'bye';
@@ -58,10 +66,14 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
             }
         });
 
-        this._commands = this._frontend.getCommands();
-        this._monitor
-            .setWriteHandler((value: number) => this._monitorWriteHandler(value))
-            .setReadHandler(() => this._monitorReadHandler());
+        this._commands = commandInterpreter.getCommands();
+        board.getSerialIO()
+            .setOutCallback((value: number) => this._serialOutHandler(value))
+            .setInCallback(() => this._serialInHandler());
+
+        this._board = board;
+        this._commandInterpreter = commandInterpreter;
+        this._scheduler = new SetImmediateScheduler();
     }
 
     runDebuggerScript(filename: string): void {
@@ -97,7 +109,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         this._cliFlushOutputInterval = setInterval(() => this._flushOutput(),
                 OUTPUT_FLUSH_INTERVAL);
 
-        this._schedule();
+        this._prompt();
     }
 
     shutdown(): void {
@@ -114,7 +126,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     }
 
     availableCommands(): Array<string> {
-        return this._frontend.getCommands();
+        return this._commandInterpreter.getCommands();
     }
 
     interrupt(): void {
@@ -127,8 +139,6 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
                 if (this._allowQuit) this._setState(State.quit);
                 break;
         }
-
-        this._schedule();
     }
 
     outputAvailable(): boolean {
@@ -148,11 +158,11 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
             case State.debug:
                 try {
-                    this._outputLine(this._frontend.execute(data));
+                    this._outputLine(this._commandInterpreter.execute(data));
                 } catch (e) {
                     this._outputLine('ERROR: ' + e.message);
                 }
-                this._schedule();
+                this._prompt();
                 break;
         }
     }
@@ -162,12 +172,11 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     }
 
     getPrompt(): string {
-        var prompt = this._speed ? (this._speed.toFixed(2) + ' MHz ') : '';
+        var prompt = '';
 
         switch (this._state) {
             case State.run:
                 prompt += '[run] # ';
-                this._lastSpeedSample = Date.now();
                 break;
 
             case State.debug:
@@ -183,6 +192,10 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     }
 
     private _setState(newState: State): void {
+        if (this._state === newState) return;
+
+        var timer = this._board.getTimer();
+
         this._state = newState;
 
         switch (this._state) {
@@ -192,68 +205,24 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
                     this._outputBuffer = '';
                 }
 
-                this._cyclesProcessed = 0;
+                timer.start(this._scheduler);
+
+                break;
+
+            case State.debug:
+                timer.stop();
+                break;
+
+            case State.quit:
+                timer.stop();
+                if (this._allowQuit) this.emit('quit');
                 break;
         }
 
         this.emit('promptChanged');
     }
-
-    private _executeSlice() {
-        try {
-            var cycles = this._debugger.step(100000);
-            if (this._debugger.executionInterrupted()) {
-                switch (this._debugger.getExecutionState()) {
-                    case Debugger.ExecutionState.breakpoint:
-                        this._outputLine('BREAKPOINT');
-                        break;
-
-                    case Debugger.ExecutionState.invalidInstruction:
-                        this._outputLine('INVALID INSTRUCTION');
-                        break;
-                }
-                this._setState(State.debug);
-            }
-        } catch (e) {
-            this._outputLine('ERROR: ' + e.message);
-            this._setState(State.debug);
-        }
-      
-        this._processSpeedSample(cycles);
-        this._schedule();
-    }
-
-    private _processSpeedSample(cycles: number): void {
-        this._cyclesProcessed += cycles;
-
-        if (this._cyclesProcessed > SAMPLE_SIZE) {
-            var timestamp = Date.now();
-
-            this._speed = this._cyclesProcessed / (timestamp - this._lastSpeedSample) / 1000;
-            this._cyclesProcessed = 0;
-            this._lastSpeedSample = timestamp;
-
-            this.emit('promptChanged');
-        }
-    }
-
-    private _schedule() {
-        switch (this._state) {
-            case State.debug:
-                this._prompt();
-                break;
-
-            case State.run:
-                setImmediate(() => this._executeSlice());
-                break;
-
-            case State.quit:
-                this.emit('quit');
-                return;
-        }
-    }
-
-    private _monitorWriteHandler(value: number): void {
+    
+    private _serialOutHandler(value: number): void {
         switch (this._state) {
             case State.debug:
                 this._outputBuffer += String.fromCharCode(value);
@@ -269,7 +238,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         }
     }
 
-    private _monitorReadHandler(): number {
+    private _serialInHandler(): number {
         if (this._inputBuffer.length > 0) {
             this._promptForInput = true;
             return this._inputBuffer.shift();
@@ -311,17 +280,12 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
     private _promptForInput = true;
 
-    private _lastSpeedSample: number;
-    private _cyclesProcessed: number;
-    private _speed: number;
-
     private _cliOutputBuffer = '';
     private _cliFlushOutputInterval: NodeJS.Timer;
 
-    private _monitor: Monitor;
-    private _debugger: Debugger;
-    private _frontend: DebuggerFrontend;
-    private _cpu: Cpu;
+    private _board: BoardInterface;
+    private _commandInterpreter: CommandInterpreter;
+    private _scheduler: SchedulerInterface;
 }
 
 export = EhBasicCLI;
