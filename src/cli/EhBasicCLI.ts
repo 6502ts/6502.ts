@@ -16,13 +16,17 @@ import CLIInterface = require('./CLIInterface');
 import FileSystemProviderInterface = require('../fs/FilesystemProviderInterface');
 
 import SchedulerInterface = require('../tools/scheduler/SchedulerInterface');
-import SetImmediateScheduler = require('../tools/scheduler/SetImmedateScheduler');
+import ImmediateScheduler = require('../tools/scheduler/ImmedateScheduler');
+import PeriodicScheduler = require('../tools/scheduler/PeriodicScheduler');
+
+import ClockProbe = require('../tools/ClockProbe');
 
 enum State {
     debug, run, quit
 }
 
 var OUTPUT_FLUSH_INTERVAL = 50;
+var CLOCK_PROBE_INTERVAL = 1000;
 
 class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     constructor(
@@ -33,9 +37,13 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         var board = new Board(),
             dbg = new Debugger(),
             commandInterpreter = new CommandInterpreter(),
-            debuggerFrontend = new  DebuggerFrontend(dbg, this._fsProvider, commandInterpreter);
+            debuggerFrontend = new  DebuggerFrontend(dbg, this._fsProvider, commandInterpreter),
+            clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_PROBE_INTERVAL));
 
         dbg.attach(board);
+
+        clockProbe.attach(board.cpuClock);
+        clockProbe.frequencyUpdate.addHandler(() => this.emit('promptChanged'));
 
         commandInterpreter.registerCommands({
             quit: (): string => {
@@ -66,14 +74,15 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
             }
         });
 
-        this._commands = commandInterpreter.getCommands();
         board.getSerialIO()
             .setOutCallback((value: number) => this._serialOutHandler(value))
             .setInCallback(() => this._serialInHandler());
 
+        this._commands = commandInterpreter.getCommands();
         this._board = board;
         this._commandInterpreter = commandInterpreter;
-        this._scheduler = new SetImmediateScheduler();
+        this._scheduler = new ImmediateScheduler();
+        this._clockProbe = clockProbe;
     }
 
     runDebuggerScript(filename: string): void {
@@ -172,7 +181,8 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     }
 
     getPrompt(): string {
-        var prompt = '';
+        var prompt = this._clockProbe.getFrequency() > 0 ?
+            (this._clockProbe.getFrequency() / 1000000).toFixed(2) + ' MHz ' : '';
 
         switch (this._state) {
             case State.run:
@@ -206,11 +216,13 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
                 }
 
                 timer.start(this._scheduler);
+                this._clockProbe.start();
 
                 break;
 
             case State.debug:
                 timer.stop();
+                this._clockProbe.stop();
                 break;
 
             case State.quit:
@@ -286,6 +298,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     private _board: BoardInterface;
     private _commandInterpreter: CommandInterpreter;
     private _scheduler: SchedulerInterface;
+    private _clockProbe: ClockProbe;
 }
 
 export = EhBasicCLI;

@@ -136,7 +136,7 @@ class Board implements BoardInterface {
     private _timer = {
         tick: (clocks: number): void => this._tick(clocks),
         step: (instructions: number): void => this._step(instructions),
-        start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler),
+        start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler, sliceHint),
         stop: (): void => this._stop(),
         isRunning: (): boolean => !!this._terminateSchedulerCallback 
     };

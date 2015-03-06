@@ -4,7 +4,7 @@
 
 import SchedulerInterface = require('./SchedulerInterface');
 
-class SetImmediateScheduler implements SchedulerInterface {
+class ImmediateScheduler implements SchedulerInterface {
 
     start(worker: SchedulerInterface.WorkerInterface): SchedulerInterface.TerminatorInterface {
         var terminate = false;
@@ -24,4 +24,4 @@ class SetImmediateScheduler implements SchedulerInterface {
     }
 }
 
-export = SetImmediateScheduler;
+export = ImmediateScheduler;
