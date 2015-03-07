@@ -13,17 +13,24 @@ suite('Periodic Scheduler', function() {
 
     test('Preset period', function(callback: Mocha.ReadyCallback) {
         var scheduler = new PeriodicScheduler(50);
-        var counter = 0;
+        var counter = 0,
+            ctx = 0;
+
+        function handler(context: number) {
+            counter++;
+            ctx = context;
+        }
 
         assert.equal(scheduler.getPeriod(), 50, 'Perdiod schould be 50');
 
-        var terminator = scheduler.start(() => counter++);
+        var terminator = scheduler.start(handler, 50);
 
         setTimeout(terminator, 225);
 
         setTimeout(function() {
             try {
                 assert.equal(counter, 4, util.format('Worker should have been called four times, was %s', counter));
+                assert.equal(ctx, 50, 'Context was not transmitted correctly');
             } catch (e) {
                 return callback(e);
             }

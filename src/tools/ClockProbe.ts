@@ -20,7 +20,7 @@ class ClockProbe {
 
         this._timestamp = Date.now();
         this._counter = 0;
-        this._mesurementTerminator = this._scheduler.start(this._measurementHandler);
+        this._mesurementTerminator = this._scheduler.start(this._updateMeasurement, this);
 
         return this;
     }
@@ -49,15 +49,15 @@ class ClockProbe {
 
     frequencyUpdate = new Event<number>();
 
-    private _updateMeasurement() {
+    private _updateMeasurement(probe: ClockProbe) {
         var timestamp = Date.now();
 
-        this._frequency = this._counter / (timestamp - this._timestamp) * 1000;
+        probe._frequency = probe._counter / (timestamp - probe._timestamp) * 1000;
 
-        this._counter = 0;
-        this._timestamp = timestamp;
+        probe._counter = 0;
+        probe._timestamp = timestamp;
 
-        this.frequencyUpdate.dispatch(this._frequency);
+        probe.frequencyUpdate.dispatch(probe._frequency);
     }
 
     private _clockHandler(payload: any, ctx: ClockProbe) {
@@ -70,7 +70,6 @@ class ClockProbe {
     
     private _clock: EventInterface<any>;
 
-    private _measurementHandler = () => this._updateMeasurement();
     private _mesurementTerminator: SchedulerInterface.TerminatorInterface;
 }
 

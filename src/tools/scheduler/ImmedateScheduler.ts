@@ -6,13 +6,13 @@ import SchedulerInterface = require('./SchedulerInterface');
 
 class ImmediateScheduler implements SchedulerInterface {
 
-    start(worker: SchedulerInterface.WorkerInterface): SchedulerInterface.TerminatorInterface {
+    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): SchedulerInterface.TerminatorInterface {
         var terminate = false;
 
         function handler() {
             if (terminate) return;
 
-            worker();
+            worker(context);
             setImmediate(handler);
         }
 

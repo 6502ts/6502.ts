@@ -25,7 +25,7 @@ enum State {
     debug, run, quit
 }
 
-var OUTPUT_FLUSH_INTERVAL = 50;
+var OUTPUT_FLUSH_INTERVAL = 100;
 var CLOCK_PROBE_INTERVAL = 1000;
 
 class EhBasicCLI extends events.EventEmitter implements CLIInterface {
@@ -115,17 +115,16 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     startup(): void {
         this._setState(State.debug);
 
-        this._cliFlushOutputInterval = setInterval(() => this._flushOutput(),
-                OUTPUT_FLUSH_INTERVAL);
+        var scheduler = new PeriodicScheduler(OUTPUT_FLUSH_INTERVAL);
+        this._flushOutputTerminator = scheduler.start((cli: EhBasicCLI) => cli._flushOutput(), this);
 
         this._prompt();
     }
 
     shutdown(): void {
-        if (typeof(this._cliFlushOutputInterval) === 'undefined') return;
-
-        clearInterval(this._cliFlushOutputInterval);
-        this._cliFlushOutputInterval = undefined;
+        if (!this._flushOutputTerminator) return;
+        this._flushOutputTerminator();
+        this._flushOutputTerminator = undefined;
     }
 
     readOutput(): string {
@@ -293,7 +292,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     private _promptForInput = true;
 
     private _cliOutputBuffer = '';
-    private _cliFlushOutputInterval: NodeJS.Timer;
+    private _flushOutputTerminator: SchedulerInterface.TerminatorInterface;
 
     private _board: BoardInterface;
     private _commandInterpreter: CommandInterpreter;

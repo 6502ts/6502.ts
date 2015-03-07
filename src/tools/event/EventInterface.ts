@@ -1,8 +1,8 @@
 interface EventInterface <EventPayload> {
 
-    addHandler(handler: (payload: EventPayload, context: any) => void, context?: any): EventInterface<EventPayload>;
+    addHandler<T>(handler: (payload: EventPayload, context: T) => void, context?: T): EventInterface<EventPayload>;
 
-    removeHandler(handler: (payload: EventPayload, context: any) => void, context?: any): EventInterface<EventPayload>;
+    removeHandler<T>(handler: (payload: EventPayload, context: T) => void, context?: T): EventInterface<EventPayload>;
 }
 
 export = EventInterface;

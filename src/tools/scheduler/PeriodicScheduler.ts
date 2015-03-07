@@ -14,13 +14,13 @@ class PeriodicScheduler implements SchedulerInterface {
         return this._period;
     }
 
-    start(worker: SchedulerInterface.WorkerInterface): SchedulerInterface.TerminatorInterface {
+    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): SchedulerInterface.TerminatorInterface {
         var terminate = false;
 
         var handler = () => {
             if (terminate) return;
 
-            worker();
+            worker(context);
 
             setTimeout(handler, this._period);
         }

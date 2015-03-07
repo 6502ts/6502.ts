@@ -19,7 +19,7 @@ class Debugger {
         this._disassembler = new Disassembler(this._bus);
 
         this._board.cpuClock.addHandler(this._cpuClockHandler, this);
-        this._board.trap.addHandler(this._trapHandler);
+        this._board.trap.addHandler(this._trapHandler, this);
 
         this._traceLength = 0;
         this._traceIndex = 0;
@@ -184,9 +184,9 @@ class Debugger {
         }
     }
 
-    private _handleTrap(trap: BoardInterface.TrapPayload) {
+    private _trapHandler(trap: BoardInterface.TrapPayload, dbg: Debugger) {
         if (trap.reason === BoardInterface.TrapReason.cpu) {
-            this._cpu.state.p = (this._cpu.state.p + 0xFFFF) & 0xFFFF;
+            dbg._cpu.state.p = (dbg._cpu.state.p + 0xFFFF) & 0xFFFF;
         }
     }
 
@@ -211,8 +211,6 @@ class Debugger {
     private _trace = new Uint16Array(TRACE_SIZE);
     private _traceLength = 0;
     private _traceIndex = 0;
-
-    private _trapHandler = (trap: BoardInterface.TrapPayload) => this._handleTrap(trap);
 };
 
 module Debugger {

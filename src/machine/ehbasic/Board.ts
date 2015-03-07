@@ -115,9 +115,13 @@ class Board implements BoardInterface {
     private _start(scheduler: SchedulerInterface, sliceHint?: number) {
         if (this._terminateSchedulerCallback) return;
 
-        if (typeof(sliceHint) === 'undefined') sliceHint = 100000;
+        this._sliceHint = (typeof(sliceHint) === 'undefined') ? 100000 : sliceHint = 100000;
 
-        this._terminateSchedulerCallback = scheduler.start(() => this._step(sliceHint));
+        this._terminateSchedulerCallback = scheduler.start(this._executeSlice, this);
+    }
+
+    private _executeSlice(board: Board) {
+        board._step(board._sliceHint);
     }
 
     private _stop() {
@@ -131,6 +135,7 @@ class Board implements BoardInterface {
     private _cpu: CpuInterface;
     private _memory: Memory;
     private _cpuTrap = false;
+    private _sliceHint: number;
     private _terminateSchedulerCallback: SchedulerInterface.TerminatorInterface = undefined;
 
     private _timer = {
