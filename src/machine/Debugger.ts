@@ -18,7 +18,7 @@ class Debugger {
         this._cpu = this._board.getCpu();
         this._disassembler = new Disassembler(this._bus);
 
-        this._board.cpuClock.addHandler(this._cpuClockHandler);
+        this._board.cpuClock.addHandler(this._cpuClockHandler, this);
         this._board.trap.addHandler(this._trapHandler);
 
         this._traceLength = 0;
@@ -170,17 +170,17 @@ class Debugger {
         return this._board;
     }
 
-    private _handleCpuClock() {
-        if (this._cpu.executionState !== CpuInterface.ExecutionState.fetch) return; 
+    private _cpuClockHandler(payload: void, ctx: Debugger) {
+        if (ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch) return; 
 
-        if (this._traceEnabled) {
-            this._trace[this._traceIndex] = this._cpu.getLastInstructionPointer();
-            this._traceIndex = (this._traceIndex + 1) % TRACE_SIZE;
-            if (this._traceLength < TRACE_SIZE) this._traceLength++;
+        if (ctx._traceEnabled) {
+            ctx._trace[ctx._traceIndex] = ctx._cpu.getLastInstructionPointer();
+            ctx._traceIndex = (ctx._traceIndex + 1) % TRACE_SIZE;
+            if (ctx._traceLength < TRACE_SIZE) ctx._traceLength++;
         }
 
-        if (this._breakpointsEnabled && this._breakpoints[this._cpu.state.p]) {
-            this._board.triggerTrap(BoardInterface.TrapReason.debug);
+        if (ctx._breakpointsEnabled && ctx._breakpoints[ctx._cpu.state.p]) {
+            ctx._board.triggerTrap(BoardInterface.TrapReason.debug);
         }
     }
 
@@ -211,8 +211,6 @@ class Debugger {
     private _trace = new Uint16Array(TRACE_SIZE);
     private _traceLength = 0;
     private _traceIndex = 0;
-
-    private _cpuClockHandler = () => this._handleCpuClock();
 
     private _trapHandler = (trap: BoardInterface.TrapPayload) => this._handleTrap(trap);
 };

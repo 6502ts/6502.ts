@@ -19,39 +19,65 @@ suite('Event handling', function() {
         }, 'dispatch should not throw');
     });
 
-    test('one handler', function() {
-        var called = false;
+    suite('one handler', function() {
+        test('no context', function() {
+            var called = false;
 
-        event.addHandler(function(payload: string) {
-            assert.equal(payload, 'foo');
-            called = true;
+            event.addHandler(function(payload: string) {
+                assert.equal(payload, 'foo');
+                called = true;
+            });
+
+            assert(event.hasHandlers(), 'event should report registered handlers');
+            
+            event.dispatch('foo');
+            assert(called, 'the handler should have been called');
         });
 
-        assert(event.hasHandlers(), 'event should report registered handlers');
-        
-        event.dispatch('foo');
-        assert(called, 'the handler should have been called');
+        test('with context', function() {
+            var foo = 0;
+
+            function handler(payload: string, context: number) {
+                assert.equal(payload, 'foo');
+                foo = context;
+            };
+
+            event.addHandler(handler, 5).dispatch('foo');
+
+            assert.equal(foo, 5, 'context was not transferred correctly');
+
+            assert(event.removeHandler(handler).hasHandlers(), 'handler should only be remvoved if contet matches');
+            assert(!event.removeHandler(handler, 5).hasHandlers(), 'handler should be remvoved if contet matches');
+        });
     });
 
     suite('two handlers', function() {
         var called1: boolean, called2: boolean,
-            handler1: (payload: string) => void, handler2: (payload: string) => void;
+            contexts: Array<number>;
+
+        function handler1(payload: string) {
+            assert.equal(payload, 'foo');
+            called1 = true;
+        };
+
+        function handler2(payload: string) {
+            assert.equal(payload, 'foo');
+            called2 = true;
+        };
+
+        function ctxHandler(payload: string, context: any) {
+            contexts[context] = context;
+            assert.equal(payload, 'foo');
+        }
 
         setup(function() {
             called1 = called2 = false;
 
-            handler1 = function(payload: string) {
-                assert.equal(payload, 'foo');
-                called1 = true;
-            };
+            contexts = [0, 0, 0];
 
-            handler2 = function(payload: string) {
-                assert.equal(payload, 'foo');
-                called2 = true;
-            };
-
-            event.addHandler(handler1);
-            event.addHandler(handler2);
+            event
+                .addHandler(handler1)
+                .addHandler(handler2);
         });
 
         test('both attached', function() {
@@ -77,6 +103,38 @@ suite('Event handling', function() {
 
             assert(called1, 'handler 1 should have been called');
             assert(!called2, 'handler 2 should not have been called');
+        });
+
+        test('context, both attached', function() {
+            event
+                .addHandler(ctxHandler, 1)
+                .addHandler(ctxHandler, 2)
+                .dispatch('foo');
+
+            assert.equal(contexts[1], 1, 'context 1 was not transferred correctly');
+            assert.equal(contexts[2], 2, 'context 2 was not transferred correctly');
+        });
+
+        test('context, handler 1 detached', function() {
+            event
+                .addHandler(ctxHandler, 1)
+                .addHandler(ctxHandler, 2)
+                .removeHandler(ctxHandler, 1)
+                .dispatch('foo');
+
+            assert.equal(contexts[1], 0, 'handler was not detached');
+            assert.equal(contexts[2], 2, 'context 2 was not transferred correctly');
+        });
+
+        test('context, handler 2 detached', function() {
+            event
+                .addHandler(ctxHandler, 1)
+                .addHandler(ctxHandler, 2)
+                .removeHandler(ctxHandler, 2)
+                .dispatch('foo');
+
+            assert.equal(contexts[1], 1, 'context 1 was not transferred correctly');
+            assert.equal(contexts[2], 0, 'handler was not detached');
         });
     });
 

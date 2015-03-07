@@ -10,7 +10,7 @@ class ClockProbe {
         if (this._clock) this.detach();
 
         this._clock = clock;
-        clock.addHandler(this._clockHandler);
+        clock.addHandler(this._clockHandler, this);
 
         return this;
     }
@@ -28,7 +28,7 @@ class ClockProbe {
     detach(): ClockProbe {
         if (!this._clock) return;
 
-        this._clock.removeHandler(this._clockHandler);
+        this._clock.removeHandler(this._clockHandler, this);
         this._clock = null;
 
         return this;
@@ -60,13 +60,16 @@ class ClockProbe {
         this.frequencyUpdate.dispatch(this._frequency);
     }
 
+    private _clockHandler(payload: any, ctx: ClockProbe) {
+        ctx._counter++;
+    }
+
     private _counter = 0;
     private _timestamp: number;
     private _frequency = 0;
     
     private _clock: EventInterface<any>;
 
-    private _clockHandler = () => this._counter++;
     private _measurementHandler = () => this._updateMeasurement();
     private _mesurementTerminator: SchedulerInterface.TerminatorInterface;
 }

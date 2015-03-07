@@ -5,11 +5,15 @@ import EventInterface = require('./EventInterface');
 var factories: Array<Function> = [];
 
 factories[0] = function(): Function {
-    return function() {};
+    return function dispatcher0() {};
 };
 
-factories[1] = function(callback: Function): Function {
-    return callback;
+factories[1] = function(callback: Function, context?: any): Function {
+    if (typeof(context) === 'undefined') return callback;
+
+    return function dispatcher1(payload: any) {
+        callback(payload, context);
+    }
 }
 
 function getFactory(handlerCount: number) {
@@ -19,17 +23,19 @@ function getFactory(handlerCount: number) {
 }
 
 function compileFactory(handlerCount: number): Function {
-    var src: string = 'return function(payload) {\n',
-        args: Array<string> = [];
+    var src: string = 'return function dispatcher' + handlerCount + '(payload) {\n',
+        argsHandlers: Array<string> = [],
+        argsContexts: Array<string> = [];
 
     for (var i = 0; i < handlerCount; i++) {
-        args.push('c' + i);
-        src += '    c' + i + '(payload);\n';
+        argsHandlers.push('cb' + i);
+        argsContexts.push('ctx' + i);
+        src += '    cb' + i + '(payload, ctx' + i + ');\n';
     }
 
     src += '};';
 
-    return new (Function.bind(Function, args))(src);
+    return new (Function.bind(Function, argsHandlers.concat(argsContexts)))(src);
 }
 
 class Event<EventPayload> implements EventInterface<EventPayload> {
@@ -38,18 +44,24 @@ class Event<EventPayload> implements EventInterface<EventPayload> {
         this._createDispatcher();
     }
 
-    addHandler(handler: (payload: EventPayload) => void): Event<EventPayload> {
+    addHandler(handler: (payload: EventPayload, context: any) => void, context?: any): Event<EventPayload> {
         this._handlers.push(handler);
+        this._contexts.push(context);
         this._createDispatcher();
 
         return this;
     }
 
-    removeHandler(handler: (payload: EventPayload) => void): Event<EventPayload> {
-        var idx = this._handlers.indexOf(handler);
+    removeHandler(handler: (payload: EventPayload, context: any) => void, context?: any): Event<EventPayload> {
+        var handlerCount = this._handlers.length;
 
-        if (idx >= 0) {
+        for (var idx = 0; idx < handlerCount; idx++) {
+            if (this._handlers[idx] === handler && this._contexts[idx] === context) break;
+        }
+
+        if (idx < handlerCount) {
             this._handlers.splice(idx, 1);
+            this._contexts.splice(idx, 1);
             this._createDispatcher();
         }
 
@@ -63,10 +75,11 @@ class Event<EventPayload> implements EventInterface<EventPayload> {
     dispatch: (payload: EventPayload) => void;
 
     private _createDispatcher() {
-        this.dispatch = getFactory(this._handlers.length).apply(this, this._handlers);
+        this.dispatch = getFactory(this._handlers.length).apply(this, this._handlers.concat(this._contexts));
     }
 
-    private _handlers: Array<(payload: EventPayload) => void> = [];
+    private _handlers: Array<(payload: EventPayload, context: any) => void> = [];
+    private _contexts: Array<any> = [];
 }
 
 export = Event;
