@@ -82,6 +82,16 @@ class Board implements BoardInterface {
 
     cpuClock: Event<number>;
 
+    setClockMode(clockMode: BoardInterface.ClockMode): Board {
+        this._clockMode = clockMode;
+
+        return this;
+    }
+
+    getClockMode(): BoardInterface.ClockMode {
+        return this._clockMode;
+    }
+              
     trap = new Event<BoardInterface.TrapPayload>();
 
     private _tick(clocks: number): void {
@@ -94,7 +104,10 @@ class Board implements BoardInterface {
             this._cpu.cycle();
             clock++;
 
-            if (this._cpu.executionState === CpuInterface.ExecutionState.fetch && this.clock.hasHandlers) {
+            if (this._clockMode === BoardInterface.ClockMode.instruction &&
+                this._cpu.executionState === CpuInterface.ExecutionState.fetch &&
+                this.clock.hasHandlers
+            ) {
                 this.clock.dispatch(clock);
                 clock = 0;
             }
@@ -132,6 +145,7 @@ class Board implements BoardInterface {
     private _cpuTrap = false;
     private _sliceHint: number;
     private _runTask: TaskInterface;
+    private _clockMode = BoardInterface.ClockMode.lazy;
 
     private _timer = {
         tick: (clocks: number): void => this._tick(clocks),

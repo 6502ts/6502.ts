@@ -21,6 +21,10 @@ interface BoardInterface {
 
     clock: EventInterface<number>;
 
+    getClockMode(): BoardInterface.ClockMode;
+
+    setClockMode(clockMode: BoardInterface.ClockMode): BoardInterface;
+
     trap: EventInterface<BoardInterface.TrapPayload>;
 
     triggerTrap(reason: BoardInterface.TrapReason, error?: Error): BoardInterface;
@@ -31,6 +35,8 @@ interface BoardInterface {
 module BoardInterface {
     
     export enum TrapReason {cpu, bus, debug, board};
+
+    export enum ClockMode {instruction, lazy};
 
     export class TrapPayload {
         constructor(
