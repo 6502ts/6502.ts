@@ -154,6 +154,21 @@ class Debugger {
         return this.dumpAt(0x0100 + this._cpu.state.s, 0x100 - this._cpu.state.s);
     }
 
+    step(instructions: number): number {
+        var instruction = 0,
+            timer = this._board.getTimer();
+
+        this._lastTrap = undefined;
+
+        while (instruction++ < instructions && !this._lastTrap) {
+            do {
+                timer.tick(1);
+            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch);
+        }
+
+        return instruction;
+    }
+
     setBreakpointsEnabled(breakpointsEnabled: boolean): Debugger {
         this._breakpointsEnabled = breakpointsEnabled;
 
@@ -170,7 +185,11 @@ class Debugger {
         return this._board;
     }
 
-    private _cpuClockHandler(payload: void, ctx: Debugger) {
+    getLastTrap(): BoardInterface.TrapPayload {
+        return this._lastTrap;
+    }
+
+    private _cpuClockHandler(clocks: number, ctx: Debugger) {
         if (ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch) return; 
 
         if (ctx._traceEnabled) {
@@ -188,6 +207,8 @@ class Debugger {
         if (trap.reason === BoardInterface.TrapReason.cpu) {
             dbg._cpu.state.p = (dbg._cpu.state.p + 0xFFFF) & 0xFFFF;
         }
+
+        this._lastTrap = trap;
     }
 
     private _peek(address: number): number {
@@ -211,6 +232,8 @@ class Debugger {
     private _trace = new Uint16Array(TRACE_SIZE);
     private _traceLength = 0;
     private _traceIndex = 0;
+
+    private _lastTrap: BoardInterface.TrapPayload;
 };
 
 module Debugger {

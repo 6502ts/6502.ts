@@ -47,7 +47,9 @@ class Event<EventPayload> implements EventInterface<EventPayload> {
     addHandler(handler: (payload: EventPayload, context: any) => void, context?: any): Event<EventPayload> {
         this._handlers.push(handler);
         this._contexts.push(context);
+
         this._createDispatcher();
+        this._updateHasHandlers();
 
         return this;
     }
@@ -62,17 +64,21 @@ class Event<EventPayload> implements EventInterface<EventPayload> {
         if (idx < handlerCount) {
             this._handlers.splice(idx, 1);
             this._contexts.splice(idx, 1);
+
             this._createDispatcher();
+            this._updateHasHandlers();
         }
 
         return this;
     }
 
-    hasHandlers(): boolean {
-        return !!this._handlers.length;
-    }
-
     dispatch: (payload: EventPayload) => void;
+
+    hasHandlers = false;
+
+    private _updateHasHandlers() {
+        this.hasHandlers = !!this._handlers.length;
+    }
 
     private _createDispatcher() {
         this.dispatch = getFactory(this._handlers.length).apply(this, this._handlers.concat(this._contexts));

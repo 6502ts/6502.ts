@@ -106,7 +106,7 @@ class DebuggerFrontend {
         var cycles = 0,
             board = this._debugger.getBoard();
 
-        var clockHandler = () => cycles++;
+        var clockHandler = (clock: number) => cycles += clock;
 
         board.cpuClock.addHandler(clockHandler);
 
@@ -126,31 +126,10 @@ class DebuggerFrontend {
     private _step(args: Array<string>): string {
         var timestamp = Date.now(),
             instructionCount = args.length > 0 ? decodeNumber(args[0]) : 1,
-            board = this._debugger.getBoard(),
-            cycles = 0,
-            result: string,
-            trap = false,
-            trapReason: BoardInterface.TrapReason;
+            result: string;
 
-        var clockHandler = () => cycles++,
-            trapHandler = (payload: BoardInterface.TrapPayload) => {
-                trap = true;
-                trapReason = payload.reason;
-            };
-
-        board.cpuClock.addHandler(clockHandler);
-        board.trap.addHandler(trapHandler);
-
-        try {
-            board.getTimer().step(instructionCount);
-        } catch (e) {
-            var exception = e || new Error('unknown exception during stepping');
-        }
-
-        board.cpuClock.removeHandler(clockHandler);
-        board.trap.removeHandler(trapHandler);
-
-        if (exception) throw exception;
+        var cycles = this._debugger.step(instructionCount),
+            trap = this._debugger.getLastTrap();
 
         result = util.format('Used %s cycles in %s milliseconds, now at\n%s',
             cycles,
@@ -159,7 +138,7 @@ class DebuggerFrontend {
         );
 
         if (trap) {
-            switch (trapReason) {
+            switch (trap.reason) {
                 case BoardInterface.TrapReason.cpu:
                     result = 'INVALID INSTRUCTION!\n' + result;
                     break;

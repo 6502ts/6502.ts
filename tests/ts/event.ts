@@ -13,7 +13,7 @@ suite('Event handling', function() {
     });
 
     test('no handlers', function() {
-        assert(!event.hasHandlers(), 'event should report any registered handlers');
+        assert(!event.hasHandlers, 'event should report any registered handlers');
         assert.doesNotThrow(function() {
             event.dispatch('');
         }, 'dispatch should not throw');
@@ -28,7 +28,7 @@ suite('Event handling', function() {
                 called = true;
             });
 
-            assert(event.hasHandlers(), 'event should report registered handlers');
+            assert(event.hasHandlers, 'event should report registered handlers');
             
             event.dispatch('foo');
             assert(called, 'the handler should have been called');
@@ -46,8 +46,8 @@ suite('Event handling', function() {
 
             assert.equal(foo, 5, 'context was not transferred correctly');
 
-            assert(event.removeHandler(handler).hasHandlers(), 'handler should only be remvoved if contet matches');
-            assert(!event.removeHandler(handler, 5).hasHandlers(), 'handler should be remvoved if contet matches');
+            assert(event.removeHandler(handler).hasHandlers, 'handler should only be remvoved if contet matches');
+            assert(!event.removeHandler(handler, 5).hasHandlers, 'handler should be remvoved if contet matches');
         });
     });
 

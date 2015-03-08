@@ -10,6 +10,7 @@ import SimpleSerialIOInterface = require('../io/SimpleSerialIOInterface');
 import EventInterface = require('../../tools/event/EventInterface');
 import Event = require('../../tools/event/Event');
 import SchedulerInterface = require('../../tools/scheduler/SchedulerInterface');
+import TaskInterface = require('../../tools/scheduler/TaskInterface');
 
 class Board implements BoardInterface {
 
@@ -43,21 +44,24 @@ class Board implements BoardInterface {
     }
 
     boot(): Board {
+        var clock = 0;
+
         if (this._cpu.executionState !== CpuInterface.ExecutionState.boot)
             throw new Error("Already booted!");
 
         while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch) {
             this._cpu.cycle();
-            this.cpuClock.dispatch(undefined);
+            clock++;
         }
 
+        this.clock.dispatch(clock);
         return this;
     }
 
     triggerTrap(reason: BoardInterface.TrapReason, error?: Error): Board {
         this._stop();
 
-        if (this.trap.hasHandlers()) {
+        if (this.trap.hasHandlers) {
             this.trap.dispatch(new BoardInterface.TrapPayload(reason, this, error));
         } else {
             throw error;
@@ -74,38 +78,29 @@ class Board implements BoardInterface {
         return this._memory;
     }
 
-    clock = new Event<void>();
+    clock = new Event<number>();
 
-    cpuClock: Event<void>;
+    cpuClock: Event<number>;
 
     trap = new Event<BoardInterface.TrapPayload>();
 
     private _tick(clocks: number): void {
-        var clock = 0;
+        var i = 0,
+            clock = 0;
 
         this._cpuTrap = false;
 
-        while (clock++ < clocks && !this._cpuTrap) {
+        while (i++ < clocks && !this._cpuTrap) {
             this._cpu.cycle();
-            this.clock.dispatch(undefined);
+            clock++;
+
+            if (this._cpu.executionState === CpuInterface.ExecutionState.fetch && this.clock.hasHandlers) {
+                this.clock.dispatch(clock);
+                clock = 0;
+            }
         }
 
-        if (this._cpuTrap) {
-            this.triggerTrap(BoardInterface.TrapReason.cpu, new Error('invalid instruction'));
-        }
-    }
-
-    private _step(instructions: number): void {
-        var instruction = 0;
-
-        this._cpuTrap = false;
-
-        while (instruction++ < instructions && !this._cpuTrap) {
-            do {
-                this._cpu.cycle();
-                this.clock.dispatch(undefined);
-            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch);
-        }
+        if (clock > 0 && this.clock.hasHandlers) this.clock.dispatch(clock);
 
         if (this._cpuTrap) {
             this.triggerTrap(BoardInterface.TrapReason.cpu, new Error('invalid instruction'));
@@ -113,37 +108,36 @@ class Board implements BoardInterface {
     }
 
     private _start(scheduler: SchedulerInterface, sliceHint?: number) {
-        if (this._terminateSchedulerCallback) return;
+        if (this._runTask) return;
 
-        this._sliceHint = (typeof(sliceHint) === 'undefined') ? 100000 : sliceHint = 100000;
+        this._sliceHint = (typeof(sliceHint) === 'undefined') ? 100000 : sliceHint;
 
-        this._terminateSchedulerCallback = scheduler.start(this._executeSlice, this);
+        this._runTask = scheduler.start(this._executeSlice, this);
     }
 
     private _executeSlice(board: Board) {
-        board._step(board._sliceHint);
+        board._tick(board._sliceHint);
     }
 
     private _stop() {
-        if (!this._terminateSchedulerCallback) return;
+        if (!this._runTask) return;
 
-        this._terminateSchedulerCallback();
+        this._runTask.stop();
 
-        this._terminateSchedulerCallback = undefined;
+        this._runTask = undefined;
     }
 
     private _cpu: CpuInterface;
     private _memory: Memory;
     private _cpuTrap = false;
     private _sliceHint: number;
-    private _terminateSchedulerCallback: SchedulerInterface.TerminatorInterface = undefined;
+    private _runTask: TaskInterface;
 
     private _timer = {
         tick: (clocks: number): void => this._tick(clocks),
-        step: (instructions: number): void => this._step(instructions),
         start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler, sliceHint),
         stop: (): void => this._stop(),
-        isRunning: (): boolean => !!this._terminateSchedulerCallback 
+        isRunning: (): boolean => !!this._runTask 
     };
 }
 

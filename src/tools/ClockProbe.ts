@@ -1,6 +1,9 @@
+'use strict';
+
 import EventInterface = require('./event/EventInterface');
 import Event = require('./event/Event');
 import SchedulerInterface = require('./scheduler/SchedulerInterface');
+import TaskInterface = require('./scheduler/TaskInterface');
 
 class ClockProbe {
 
@@ -16,11 +19,11 @@ class ClockProbe {
     }
 
     start(): ClockProbe {
-        if (this._mesurementTerminator) return;
+        if (this._measurementTask) return;
 
         this._timestamp = Date.now();
         this._counter = 0;
-        this._mesurementTerminator = this._scheduler.start(this._updateMeasurement, this);
+        this._measurementTask = this._scheduler.start(this._updateMeasurement, this);
 
         return this;
     }
@@ -29,16 +32,16 @@ class ClockProbe {
         if (!this._clock) return;
 
         this._clock.removeHandler(this._clockHandler, this);
-        this._clock = null;
+        this._clock = undefined;
 
         return this;
     }
 
     stop(): ClockProbe {
-        if (!this._mesurementTerminator) return;
+        if (!this._measurementTask) return;
 
-        this._mesurementTerminator();
-        this._mesurementTerminator = null;
+        this._measurementTask.stop();
+        this._measurementTask = undefined;
 
         return this;
     }
@@ -60,8 +63,8 @@ class ClockProbe {
         probe.frequencyUpdate.dispatch(probe._frequency);
     }
 
-    private _clockHandler(payload: any, ctx: ClockProbe) {
-        ctx._counter++;
+    private _clockHandler(clocks: number, ctx: ClockProbe) {
+        ctx._counter += clocks;
     }
 
     private _counter = 0;
@@ -70,7 +73,7 @@ class ClockProbe {
     
     private _clock: EventInterface<any>;
 
-    private _mesurementTerminator: SchedulerInterface.TerminatorInterface;
+    private _measurementTask: TaskInterface;
 }
 
 export = ClockProbe;

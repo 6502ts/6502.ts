@@ -1,3 +1,5 @@
+'use strict';
+
 import BusInterface = require('../bus/BusInterface');
 import CpuInterface = require('../cpu/CpuInterface');
 import TimerInterface = require('./TimerInterface');
@@ -15,9 +17,9 @@ interface BoardInterface {
 
     boot(): BoardInterface;
 
-    cpuClock: EventInterface<void>;
+    cpuClock: EventInterface<number>;
 
-    clock: EventInterface<void>;
+    clock: EventInterface<number>;
 
     trap: EventInterface<BoardInterface.TrapPayload>;
 

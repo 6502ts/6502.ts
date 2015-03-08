@@ -1,10 +1,10 @@
+'use strict';
+
 import SchedulerInterface = require('../../tools/scheduler/SchedulerInterface');
 
 interface TimerInterface {
 
     tick(clocks: number): void;
-
-    step(instructions: number): void;
 
     start(scheduler: SchedulerInterface, sliceHint?: number): void;
 

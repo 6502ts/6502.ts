@@ -1,6 +1,8 @@
 ///<reference path="./interface/mocha.d.ts"/>
 ///<reference path="../../typings/node/node.d.ts"/>
 
+'use strict';
+
 import assert = require('assert');
 import util = require('util');
 import PeriodicScheduler = require('../../src/tools/scheduler/PeriodicScheduler');
@@ -23,9 +25,9 @@ suite('Periodic Scheduler', function() {
 
         assert.equal(scheduler.getPeriod(), 50, 'Perdiod schould be 50');
 
-        var terminator = scheduler.start(handler, 50);
+        var task = scheduler.start(handler, 50);
 
-        setTimeout(terminator, 225);
+        setTimeout(() => task.stop(), 225);
 
         setTimeout(function() {
             try {
@@ -45,12 +47,12 @@ suite('Periodic Scheduler', function() {
 
         assert.equal(scheduler.getPeriod(), 50, 'Perdiod schould be 50');
 
-        var terminator = scheduler.start(() => {
+        var task = scheduler.start(() => {
             counter++;
             scheduler.setPeriod(scheduler.getPeriod() - 10);
         });
 
-        setTimeout(terminator, 130);
+        setTimeout(() => task.stop(), 130);
 
         setTimeout(function() {
             try {

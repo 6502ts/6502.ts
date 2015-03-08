@@ -1,4 +1,7 @@
+'use strict';
+
 import SchedulerInterface = require('./SchedulerInterface');
+import TaskInterface = require('./TaskInterface');
 
 class PeriodicScheduler implements SchedulerInterface {
 
@@ -14,7 +17,7 @@ class PeriodicScheduler implements SchedulerInterface {
         return this._period;
     }
 
-    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): SchedulerInterface.TerminatorInterface {
+    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): TaskInterface {
         var terminate = false;
 
         var handler = () => {
@@ -27,7 +30,9 @@ class PeriodicScheduler implements SchedulerInterface {
 
         setTimeout(handler, this._period);
 
-        return () => terminate = true;
+        return {
+            stop: () => terminate = true
+        };
     }
 }
 

@@ -18,6 +18,7 @@ import FileSystemProviderInterface = require('../fs/FilesystemProviderInterface'
 import SchedulerInterface = require('../tools/scheduler/SchedulerInterface');
 import ImmediateScheduler = require('../tools/scheduler/ImmedateScheduler');
 import PeriodicScheduler = require('../tools/scheduler/PeriodicScheduler');
+import TaskInterface = require('../tools/scheduler/TaskInterface');
 
 import ClockProbe = require('../tools/ClockProbe');
 
@@ -116,15 +117,15 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         this._setState(State.debug);
 
         var scheduler = new PeriodicScheduler(OUTPUT_FLUSH_INTERVAL);
-        this._flushOutputTerminator = scheduler.start((cli: EhBasicCLI) => cli._flushOutput(), this);
+        this._flushOutputTask = scheduler.start((cli: EhBasicCLI) => cli._flushOutput(), this);
 
         this._prompt();
     }
 
     shutdown(): void {
-        if (!this._flushOutputTerminator) return;
-        this._flushOutputTerminator();
-        this._flushOutputTerminator = undefined;
+        if (!this._flushOutputTask) return;
+        this._flushOutputTask.stop();
+        this._flushOutputTask = undefined;
     }
 
     readOutput(): string {
@@ -292,7 +293,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     private _promptForInput = true;
 
     private _cliOutputBuffer = '';
-    private _flushOutputTerminator: SchedulerInterface.TerminatorInterface;
+    private _flushOutputTask: TaskInterface;
 
     private _board: BoardInterface;
     private _commandInterpreter: CommandInterpreter;

@@ -3,10 +3,11 @@
 'use strict';
 
 import SchedulerInterface = require('./SchedulerInterface');
+import TaskInterface = require('./TaskInterface');
 
 class ImmediateScheduler implements SchedulerInterface {
 
-    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): SchedulerInterface.TerminatorInterface {
+    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): TaskInterface {
         var terminate = false;
 
         function handler() {
@@ -18,9 +19,9 @@ class ImmediateScheduler implements SchedulerInterface {
 
         setImmediate(handler);
 
-        return function() {
-            terminate = true;
-        }
+        return {
+            stop: () => terminate = true
+        };
     }
 }
 
