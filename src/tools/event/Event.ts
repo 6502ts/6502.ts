@@ -44,24 +44,22 @@ class Event<EventPayload> implements EventInterface<EventPayload> {
         this._createDispatcher();
     }
 
-    addHandler(handler: (payload: EventPayload, context: any) => void, context?: any): Event<EventPayload> {
-        this._handlers.push(handler);
-        this._contexts.push(context);
+    addHandler<T>(handler: EventInterface.HandlerInterface<EventPayload, T>, context?: T): Event<EventPayload> {
+        if (!this.isHandlerAttached(handler, context)) {
+            this._handlers.push(handler);
+            this._contexts.push(context);
 
-        this._createDispatcher();
-        this._updateHasHandlers();
+            this._createDispatcher();
+            this._updateHasHandlers();
+        }
 
         return this;
     }
 
-    removeHandler(handler: (payload: EventPayload, context: any) => void, context?: any): Event<EventPayload> {
-        var handlerCount = this._handlers.length;
+    removeHandler<T>(handler: EventInterface.HandlerInterface<EventPayload, T>, context?: T): Event<EventPayload> {
+        var idx = this._getHandlerIndex(handler, context);
 
-        for (var idx = 0; idx < handlerCount; idx++) {
-            if (this._handlers[idx] === handler && this._contexts[idx] === context) break;
-        }
-
-        if (idx < handlerCount) {
+        if (typeof(idx) !== 'undefined') {
             this._handlers.splice(idx, 1);
             this._contexts.splice(idx, 1);
 
@@ -72,12 +70,26 @@ class Event<EventPayload> implements EventInterface<EventPayload> {
         return this;
     }
 
+    isHandlerAttached<T>(handler: EventInterface.HandlerInterface<EventPayload, T>, context?: T) {
+        return typeof(this._getHandlerIndex(handler, context)) !== 'undefined';
+    }
+
     dispatch: (payload: EventPayload) => void;
 
     hasHandlers = false;
 
     private _updateHasHandlers() {
         this.hasHandlers = !!this._handlers.length;
+    }
+
+    private _getHandlerIndex<T>(handler: EventInterface.HandlerInterface<EventPayload, T>, context?: T): number {
+        var handlerCount = this._handlers.length;
+
+        for (var idx = 0; idx < handlerCount; idx++) {
+            if (this._handlers[idx] === handler && this._contexts[idx] === context) break;
+        }
+
+        return idx < handlerCount ? idx : undefined;
     }
 
     private _createDispatcher() {

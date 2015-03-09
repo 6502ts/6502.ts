@@ -46,6 +46,8 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         clockProbe.attach(board.cpuClock);
         clockProbe.frequencyUpdate.addHandler(() => this.emit('promptChanged'));
 
+        board.trap.addHandler(this._onTrap, this);
+
         commandInterpreter.registerCommands({
             quit: (): string => {
                 this._setState(State.quit);
@@ -84,6 +86,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         this._commandInterpreter = commandInterpreter;
         this._scheduler = new ImmediateScheduler();
         this._clockProbe = clockProbe;
+        this._debuggerFrontend = debuggerFrontend;
     }
 
     runDebuggerScript(filename: string): void {
@@ -282,6 +285,15 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         this.emit('prompt');
     }
 
+    private _onTrap(trap: BoardInterface.TrapPayload, ctx: EhBasicCLI) {
+        if (ctx._state === State.run) {
+            ctx._setState(State.debug);
+
+            ctx._outputLine('\n' + ctx._debuggerFrontend.describeTrap(trap));
+            ctx._prompt();
+        }
+    }
+
     private _state: State;
     private _allowQuit = true;
 
@@ -297,6 +309,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
     private _board: BoardInterface;
     private _commandInterpreter: CommandInterpreter;
+    private _debuggerFrontend: DebuggerFrontend;
     private _scheduler: SchedulerInterface;
     private _clockProbe: ClockProbe;
 }

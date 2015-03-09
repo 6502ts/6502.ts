@@ -836,9 +836,7 @@ class Cpu {
 
             default:
                 if (this._invalidInstructionCallback) this._invalidInstructionCallback(this);
-                addressingMode = Instruction.AddressingMode.invalid;
-                this._opCycles = 1;
-                this._instructionCallback = opNop;
+                return;
         }
 
         this.state.p = (this.state.p + 1) & 0xFFFF;

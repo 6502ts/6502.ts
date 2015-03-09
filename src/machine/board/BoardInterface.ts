@@ -27,7 +27,7 @@ interface BoardInterface {
 
     trap: EventInterface<BoardInterface.TrapPayload>;
 
-    triggerTrap(reason: BoardInterface.TrapReason, error?: Error): BoardInterface;
+    triggerTrap(reason: BoardInterface.TrapReason, message?: string): BoardInterface;
 
     getBoardStateDebug(): string;
 }
@@ -42,7 +42,7 @@ module BoardInterface {
         constructor(
             public reason: TrapReason,
             public board: BoardInterface,
-            public error?: Error
+            public message?: string
         ) {}
     }
 }

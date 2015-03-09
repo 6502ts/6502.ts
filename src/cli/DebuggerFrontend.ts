@@ -48,6 +48,25 @@ class DebuggerFrontend {
         });
     }
 
+    describeTrap(trap?: BoardInterface.TrapPayload): string {
+        if (typeof(trap) === 'undefined') trap = this._debugger.getLastTrap();
+
+        if (!trap) return '';
+
+        var message = trap.message ? trap.message : 'unknown';
+
+        switch (trap.reason) {
+            case BoardInterface.TrapReason.cpu:
+                return util.format('CPU TRAP: %s', message);
+
+            case BoardInterface.TrapReason.debug:
+                return util.format('DEBUGGER TRAP: %s', message);
+
+            default:
+                return util.format('UNKNOWN TRAP: %s', message);
+        }
+    }
+
     private _disassemble(args: Array<string>): string {
         var address: number,
             size: number;
@@ -131,27 +150,12 @@ class DebuggerFrontend {
         var cycles = this._debugger.step(instructionCount),
             trap = this._debugger.getLastTrap();
 
-        result = util.format('Used %s cycles in %s milliseconds, now at\n%s',
+        result = util.format('Used %s cycles in %s milliseconds, now at\n%s\n%s\n',
             cycles,
             Date.now() - timestamp,
-            this._debugger.disassemble(1)
+            this._debugger.disassemble(1),
+            this.describeTrap(trap)
         );
-
-        if (trap) {
-            switch (trap.reason) {
-                case BoardInterface.TrapReason.cpu:
-                    result = 'INVALID INSTRUCTION!\n' + result;
-                    break;
-
-                case BoardInterface.TrapReason.debug:
-                    result = 'BREAKPOINT\n' + result;
-                    break;
-
-                default:
-                    result = 'UNKNOWN TRAP\n' + result;
-                    break;
-            }
-        }
 
         return result;
     }

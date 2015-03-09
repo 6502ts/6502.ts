@@ -1,3 +1,5 @@
+/// <reference path="../../typings/node/node.d.ts"/>
+
 'use strict';
 
 import Instruction = require('./cpu/Instruction');
@@ -7,6 +9,8 @@ import binary = require('../tools/binary');
 import CpuInterface = require('./cpu/CpuInterface');
 import BoardInterface = require('./board/BoardInterface');
 import BusInterface = require('./bus/BusInterface');
+
+import util = require('util');
 
 class Debugger {
 
@@ -171,21 +175,15 @@ class Debugger {
     setBreakpointsEnabled(breakpointsEnabled: boolean): Debugger {
         this._breakpointsEnabled = breakpointsEnabled;
 
+        this._attachToCpuIfNecessary();
+
         return this;
     }
 
     setTraceEnabled(traceEnabled: boolean): Debugger {
-        if (traceEnabled == this._traceEnabled) return;
-
         this._traceEnabled = traceEnabled;
 
-        if (traceEnabled) {
-            this._board.cpuClock.addHandler(this._cpuClockHandler, this);
-            this._board.setClockMode(BoardInterface.ClockMode.instruction);
-        } else {
-            this._board.cpuClock.removeHandler(this._cpuClockHandler, this);
-            this._board.setClockMode(BoardInterface.ClockMode.lazy);
-        }
+        this._attachToCpuIfNecessary();
 
         return this;
     }
@@ -198,24 +196,37 @@ class Debugger {
         return this._lastTrap;
     }
 
-    private _cpuClockHandler(clocks: number, ctx: Debugger) {
-        if (ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch) return; 
-
-        ctx._trace[ctx._traceIndex] = ctx._cpu.getLastInstructionPointer();
-        ctx._traceIndex = (ctx._traceIndex + 1) % ctx._traceSize;
-        if (ctx._traceLength < ctx._traceSize) ctx._traceLength++;
-
-        if (ctx._breakpointsEnabled && ctx._breakpoints[ctx._cpu.state.p]) {
-            ctx._board.triggerTrap(BoardInterface.TrapReason.debug);
+    private _attachToCpuIfNecessary(): void {
+        if (this._traceEnabled || this._breakpointsEnabled) {
+            this._board.cpuClock.addHandler(this._cpuClockHandler, this);
+            this._board.setClockMode(BoardInterface.ClockMode.instruction);
+        } else {
+            this._board.cpuClock.removeHandler(this._cpuClockHandler, this);
+            this._board.setClockMode(BoardInterface.ClockMode.lazy);
         }
     }
 
-    private _trapHandler(trap: BoardInterface.TrapPayload, dbg: Debugger) {
-        if (trap.reason === BoardInterface.TrapReason.cpu) {
-            dbg._cpu.state.p = (dbg._cpu.state.p + 0xFFFF) & 0xFFFF;
+    private _cpuClockHandler(clocks: number, ctx: Debugger): void {
+        if (ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch) return; 
+
+        if (ctx._traceEnabled) {
+            ctx._trace[ctx._traceIndex] = ctx._cpu.getLastInstructionPointer();
+            ctx._traceIndex = (ctx._traceIndex + 1) % ctx._traceSize;
+            if (ctx._traceLength < ctx._traceSize) ctx._traceLength++;
         }
 
-        this._lastTrap = trap;
+        if (ctx._breakpointsEnabled && ctx._breakpoints[ctx._cpu.state.p]) {
+            ctx._board.triggerTrap(BoardInterface.TrapReason.debug,
+                util.format('breakpoint "%s" sat %s',
+                    ctx._breakpointDescriptions[ctx._cpu.state.p] || '',
+                    hex.encode(ctx._cpu.state.p)
+                )
+            );
+        }
+    }
+
+    private _trapHandler(trap: BoardInterface.TrapPayload, dbg: Debugger): void {
+        dbg._lastTrap = trap;
     }
 
     private _peek(address: number): number {
@@ -232,7 +243,7 @@ class Debugger {
     private _board: BoardInterface;
 
     private _breakpoints = new Uint8Array(0x10000);
-    private _breakpointDescriptions: Array<String> = [];
+    private _breakpointDescriptions: Array<String> = new Array(0x10000);
     private _breakpointsEnabled = false;
 
     private _traceEnabled = false;

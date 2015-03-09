@@ -22,7 +22,7 @@ class Board implements BoardInterface {
         if (typeof(cpuFactory) === 'undefined') cpuFactory = bus => new Cpu(bus);
 
         this._cpu = cpuFactory(this._memory);
-        this._cpu.setInvalidInstructionCallback(() => this._cpuTrap = true);
+        this._cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
     }
 
     getCpu(): CpuInterface {
@@ -58,13 +58,15 @@ class Board implements BoardInterface {
         return this;
     }
 
-    triggerTrap(reason: BoardInterface.TrapReason, error?: Error): Board {
+    triggerTrap(reason: BoardInterface.TrapReason, message?: string): Board {
         this._stop();
 
+        this._trap = true;
+
         if (this.trap.hasHandlers) {
-            this.trap.dispatch(new BoardInterface.TrapPayload(reason, this, error));
+            this.trap.dispatch(new BoardInterface.TrapPayload(reason, this, message));
         } else {
-            throw error;
+            throw new Error(message);
         }
 
         return this;
@@ -98,9 +100,9 @@ class Board implements BoardInterface {
         var i = 0,
             clock = 0;
 
-        this._cpuTrap = false;
+        this._trap = false;
 
-        while (i++ < clocks && !this._cpuTrap) {
+        while (i++ < clocks && !this._trap) {
             this._cpu.cycle();
             clock++;
 
@@ -114,10 +116,6 @@ class Board implements BoardInterface {
         }
 
         if (clock > 0 && this.clock.hasHandlers) this.clock.dispatch(clock);
-
-        if (this._cpuTrap) {
-            this.triggerTrap(BoardInterface.TrapReason.cpu, new Error('invalid instruction'));
-        }
     }
 
     private _start(scheduler: SchedulerInterface, sliceHint?: number) {
@@ -140,9 +138,13 @@ class Board implements BoardInterface {
         this._runTask = undefined;
     }
 
+    private _onInvalidInstruction() {
+        this.triggerTrap(BoardInterface.TrapReason.cpu, 'invalid instruction');
+    }
+
     private _cpu: CpuInterface;
     private _memory: Memory;
-    private _cpuTrap = false;
+    private _trap = false;
     private _sliceHint: number;
     private _runTask: TaskInterface;
     private _clockMode = BoardInterface.ClockMode.lazy;
