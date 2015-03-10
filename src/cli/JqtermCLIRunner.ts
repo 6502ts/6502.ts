@@ -28,8 +28,8 @@ class JqtermCLIRunner {
             }
         );
 
-        this._cli.on('outputAvailable', (): void => this._onCLIOutputAvailable());
-        this._cli.on('promptChanged', (): void => this._onCLIPromptChanged());
+        this._cli.events.outputAvailable.addHandler(this._onCLIOutputAvailable, this);
+        this._cli.events.promptChanged.addHandler(this._onCLIPromptChanged, this);
 
         if (options.interruptButton)
             options.interruptButton.mousedown((): void => this._cli.interrupt());
@@ -43,12 +43,12 @@ class JqtermCLIRunner {
         this._terminal.set_prompt(this._cli.getPrompt());
     }
 
-    private _onCLIOutputAvailable(): void {
-        this._terminal.echo(this._cli.readOutput());
+    private _onCLIOutputAvailable(payload: void, ctx: JqtermCLIRunner): void {
+        ctx._terminal.echo(ctx._cli.readOutput());
     }
 
-    private _onCLIPromptChanged(): void {
-        this._terminal.set_prompt(this._cli.getPrompt());
+    private _onCLIPromptChanged(payload: void, ctx: JqtermCLIRunner): void {
+        ctx._terminal.set_prompt(ctx._cli.getPrompt());
     }
 
     private _terminal: JQueryTerminal;

@@ -3,7 +3,6 @@
 'use strict';
 
 import path = require('path');
-import events = require('events');
 
 import Board = require('../machine/ehbasic/Board');
 import BoardInterface = require('../machine/board/BoardInterface');
@@ -13,6 +12,7 @@ import Debugger = require('../machine/Debugger');
 import DebuggerFrontend = require('./DebuggerFrontend');
 import CommandInterpreter = require('./CommandInterpreter');
 import CLIInterface = require('./CLIInterface');
+import AbstractCLI = require('./AbstractCLI');
 import FileSystemProviderInterface = require('../fs/FilesystemProviderInterface');
 
 import SchedulerInterface = require('../tools/scheduler/SchedulerInterface');
@@ -29,7 +29,7 @@ enum State {
 var OUTPUT_FLUSH_INTERVAL = 100;
 var CLOCK_PROBE_INTERVAL = 1000;
 
-class EhBasicCLI extends events.EventEmitter implements CLIInterface {
+class EhBasicCLI extends AbstractCLI implements CLIInterface {
     constructor(
             private _fsProvider: FileSystemProviderInterface
     ) {
@@ -44,7 +44,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         dbg.attach(board);
 
         clockProbe.attach(board.cpuClock);
-        clockProbe.frequencyUpdate.addHandler(() => this.emit('promptChanged'));
+        clockProbe.frequencyUpdate.addHandler(() => this.events.promptChanged.dispatch(undefined));
 
         board.trap.addHandler(this._onTrap, this);
 
@@ -145,6 +145,7 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
         switch (this._state) {
             case State.run:
                 this._setState(State.debug);
+                this._prompt();
                 break;
 
             case State.debug:
@@ -230,11 +231,11 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
 
             case State.quit:
                 timer.stop();
-                if (this._allowQuit) this.emit('quit');
+                if (this._allowQuit) this.events.quit.dispatch(undefined);
                 break;
         }
 
-        this.emit('promptChanged');
+        this.events.promptChanged.dispatch(undefined);
     }
     
     private _serialOutHandler(value: number): void {
@@ -277,12 +278,12 @@ class EhBasicCLI extends events.EventEmitter implements CLIInterface {
     }
 
     private _flushOutput(): void {
-        if (this._cliOutputBuffer) this.emit('outputAvailable');
+        if (this._cliOutputBuffer) this.events.outputAvailable.dispatch(undefined);
     }
 
     private _prompt(): void {
         this._flushOutput();
-        this.emit('prompt');
+        this.events.prompt.dispatch(undefined);
     }
 
     private _onTrap(trap: BoardInterface.TrapPayload, ctx: EhBasicCLI) {

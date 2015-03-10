@@ -23,10 +23,10 @@ class NodeCLIRunner {
         this._readline.on('line', (data: string) => this._cli.pushInput(data));
         this._readline.on('SIGINT', () => this._cli.interrupt());
 
-        this._cli.on('outputAvailable',     () => this._onCLIOutputAvailable());
-        this._cli.on('promptChanged',       () => this._onCLIPromptChanged());
-        this._cli.on('quit',                () => this._onCLIQuit());
-        this._cli.on('prompt',              () => this._onCLIPrompt());
+        this._cli.events.outputAvailable.addHandler(this._onCLIOutputAvailable, this);
+        this._cli.events.promptChanged.addHandler(this._onCLIPromptChanged, this);
+        this._cli.events.quit.addHandler(this._onCLIQuit, this);
+        this._cli.events.prompt.addHandler(this._onCLIPrompt, this);
     }
 
     startup(): void {
@@ -38,30 +38,32 @@ class NodeCLIRunner {
         this._readline.prompt();
     }
 
-    private _onCLIQuit(): void {
-        this._closed = true;
-        this._cli.shutdown()
-        this._readline.close();
+    private _onCLIQuit(payload: void, ctx: NodeCLIRunner): void {
+        ctx._closed = true;
+        ctx._cli.shutdown()
+        ctx._readline.close();
     }
 
-    private _onCLIOutputAvailable(): void {
-        if (this._closed) return;
+    private _onCLIOutputAvailable(payload: void, ctx: NodeCLIRunner): void {
+        if (ctx._closed) return;
 
-        var output = this._cli.readOutput();
+        var output = ctx._cli.readOutput();
         process.stdout.write(output);
+
+        ctx._readline.prompt();
     }
 
-    private _onCLIPromptChanged() {
-        if (this._closed) return;
+    private _onCLIPromptChanged(payload: void, ctx: NodeCLIRunner) {
+        if (ctx._closed) return;
 
-        var prompt = this._cli.getPrompt();
-        this._readline.setPrompt(prompt, prompt.length);
+        var prompt = ctx._cli.getPrompt();
+        ctx._readline.setPrompt(prompt, prompt.length);
     }
 
-    private _onCLIPrompt() {
-        if (this._closed) return;
+    private _onCLIPrompt(payload: void, ctx: NodeCLIRunner) {
+        if (ctx._closed) return;
 
-        this._readline.prompt();
+        ctx._readline.prompt();
     }
 
     private _closed = false;

@@ -1,4 +1,7 @@
+'use strict';
+
 import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
+import EventInterface = require('../tools/event/EventInterface');
 
 interface CLIInterface {
     pushInput(input: string): void;
@@ -13,21 +16,21 @@ interface CLIInterface {
 
     getPrompt(): string;
 
-    /**
-      * Events:
-      *
-      * - outputAvailable
-      * - quit
-      * - promptChanged
-      * - prompt
-      */
-    on(event: string, handler: () => void): void;
-
     startup(): void;
 
     shutdown(): void;
 
     getFilesystemProvider(): FilesystemProviderInterface; 
+
+    events: {
+        outputAvailable: EventInterface<void>;
+
+        quit: EventInterface<void>;
+
+        promptChanged: EventInterface<void>;
+
+        prompt: EventInterface<void>
+    }
 }
 
 export = CLIInterface;

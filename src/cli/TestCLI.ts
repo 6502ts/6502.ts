@@ -1,26 +1,24 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
 'use strict';
 
 import CommandInterpreter = require('./CommandInterpreter');
-import events = require('events');
 import CLIInterface = require('./CLIInterface');
 import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
+import AbstractCLI = require('./AbstractCLI');
 
-class TestCLI extends events.EventEmitter implements CLIInterface {
+class TestCLI extends AbstractCLI implements CLIInterface {
     constructor() {
         super();
         this._interpreter = new CommandInterpreter({
             hello: () => "Hello world!",
             quit: (): string => {
-                this.emit('quit');
+                this.events.quit.dispatch(undefined);
                 return 'Bye...';
             }
         });
     }
 
     startup(): void {
-        this.emit('changePrompt', '[foo] > ');
+        this.events.prompt.dispatch(undefined);
     }
 
     shutdown(): void {}
@@ -65,7 +63,7 @@ class TestCLI extends events.EventEmitter implements CLIInterface {
 
     private _output(output: string) {
         this._outputBuffer += (output + "\n");
-        this.emit('outputAvailable');
+        this.events.outputAvailable.dispatch(undefined);
     }
 
     private _outputBuffer = '';
