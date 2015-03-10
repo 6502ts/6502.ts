@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 import Instruction = require('./Instruction');
 import BusInterface = require('../bus/BusInterface')

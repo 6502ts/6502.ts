@@ -1,3 +1,5 @@
+'use strict';
+
 import BusInterface = require('../bus/BusInterface');
 
 interface CpuInterface {

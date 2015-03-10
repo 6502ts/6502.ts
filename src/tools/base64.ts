@@ -1,3 +1,5 @@
+'use strict';
+
 var encodingsString = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
     encodings = new Uint8Array(256);
 

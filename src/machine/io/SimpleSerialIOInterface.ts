@@ -1,3 +1,5 @@
+'use strict';
+
 interface SimpleSerialIOInterface {
 
     setOutCallback(callback: SimpleSerialIOInterface.OutCallbackInterface): SimpleSerialIOInterface;

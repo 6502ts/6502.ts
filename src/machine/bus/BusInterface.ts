@@ -1,3 +1,5 @@
+'use strict';
+
 interface BusInterface {
     read(address: number): number;
 

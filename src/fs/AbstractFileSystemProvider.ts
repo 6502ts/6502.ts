@@ -1,5 +1,7 @@
 /// <reference path="../../typings/node/node.d.ts"/>
 
+'use strict';
+
 import pathlib = require('path');
 
 class AbstractFileSystemProvider {

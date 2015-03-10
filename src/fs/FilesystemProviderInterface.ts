@@ -1,3 +1,5 @@
+'use strict';
+
 interface FileSystemProviderInterface {
     readBinaryFileSync(name: string): FileSystemProviderInterface.FileBufferInterface;
 
