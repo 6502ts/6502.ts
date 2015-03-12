@@ -17,10 +17,11 @@ module.exports = function(grunt) {
                 src: [
                     'src/web/testCLI.ts',
                     'src/web/ehBasicCLI.ts',
+                    'src/web/debuggerCLI.ts',
 
                     'bin/ehBasicCLI.ts',
-                    'bin/testCLI.ts'/*,
-                    'bin/debugger.ts'*/
+                    'bin/testCLI.ts',
+                    'bin/debugger.ts'
                 ]
             },
             tests: {
@@ -77,10 +78,16 @@ module.exports = function(grunt) {
                 dest: 'web/js/compiled/ehBasicCLI.js',
                 src: [],
                 options: {
-                    alias: './src/web/ehBasicCLI:ehBasicCLI:ehBasicCLI'
+                    alias: './src/web/ehBasicCLI:ehBasicCLI'
+                }
+            },
+            debuggerCLI: {
+                dest: 'web/js/compiled/debuggerCLI.js',
+                src: [],
+                options: {
+                    alias: './src/web/debuggerCLI:debuggerCLI'
                 }
             }
-
         },
 
         mochaTest: {

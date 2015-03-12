@@ -1,9 +1,9 @@
 'use strict';
 
-import SimpleMemory = require('../bus/SimpleMemory');
+import VanillaMemory = require('../vanilla/Memory');
 import SimpleSerialIOInterface = require('../io/SimpleSerialIOInterface');
 
-class Memory extends SimpleMemory implements SimpleSerialIOInterface {
+class Memory extends VanillaMemory implements SimpleSerialIOInterface {
     read(address: number): number {
         if (address === 0xF004) {
             return this._inCallback(this);

@@ -1,8 +1,8 @@
 'use strict';
 
-import BusInterface = require('./BusInterface');
+import BusInterface = require('../bus/BusInterface');
 
-class SimpleMemory implements BusInterface {
+class Memory implements BusInterface {
     constructor() {
         this.clear();
     }
@@ -34,4 +34,4 @@ class SimpleMemory implements BusInterface {
     _data = new Uint8Array(0x10000);
 }
 
-export = SimpleMemory;
+export = Memory;

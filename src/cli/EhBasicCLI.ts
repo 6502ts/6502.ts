@@ -50,7 +50,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
 
         commandInterpreter.registerCommands({
             quit: (): string => {
-                this._setState(State.quit);
+                if (this._allowQuit) this._setState(State.quit);
                 return 'bye';
             },
             run: (): string => {

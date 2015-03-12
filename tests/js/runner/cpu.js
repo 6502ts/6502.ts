@@ -1,6 +1,6 @@
 var Cpu = require('../../../src/machine/cpu/Cpu'),
     CpuInterface = require('../../../src/machine/cpu/CpuInterface'),
-    SimpleMemory = require('../../../src/machine/bus/SimpleMemory'),
+    VanillaMemory = require('../../../src/machine/vanilla/Memory'),
     hex = require('../../../src/tools/hex'),
     binary = require('../../../src/tools/binary'),
     _ = require('lodash'),
@@ -11,7 +11,7 @@ var ExecutionState = CpuInterface.ExecutionState;
 function Runner(code, base) {
     if (typeof(base) === 'undefined') base = 0xE000;
 
-    this._memory = new SimpleMemory();
+    this._memory = new VanillaMemory();
     this._cpu = new Cpu(this._memory);
     this._code = code;
     this._cycles = 0;
