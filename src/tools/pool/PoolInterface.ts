@@ -8,7 +8,7 @@ interface PoolInterface<T> {
     get(): PoolMemberInterface<T>;
 
     event: {
-        recycle: EventInterface<T>;
+        release: EventInterface<T>;
         dispose: EventInterface<T>;
     }
 

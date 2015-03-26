@@ -6,7 +6,7 @@ class PoolMember<T> implements PoolMemberInterface<T> {
 
     constructor(
         private _value: T,
-        private _recycleCB: (victim: PoolMember<T>) => void,
+        private _releaseCB: (victim: PoolMember<T>) => void,
         private _disposeCB: (victim: PoolMember<T>) => void
     ) {}
 
@@ -14,8 +14,8 @@ class PoolMember<T> implements PoolMemberInterface<T> {
         return this._value;
     }
 
-    recycle(): void {
-        this._recycleCB(this);
+    release(): void {
+        this._releaseCB(this);
     }
 
     dispose(): void {

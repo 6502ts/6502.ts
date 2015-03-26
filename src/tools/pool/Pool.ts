@@ -17,8 +17,8 @@ class Pool<T> implements PoolInterface<T> {
         if (this._poolSize === 0) {
             member = new PoolMember<T>(
                 this._factory(),
-                this._recycleMember.bind(this),
-                this._disposeMember.bind(this)
+                (victim: PoolMember<T>) => this._releaseMember(victim),
+                (victim: PoolMember<T>) => this._disposeMember(victim)
             );
         } else {
             member = this._pool[--this._poolSize];
@@ -29,16 +29,16 @@ class Pool<T> implements PoolInterface<T> {
     }
 
     event = {
-        recycle: new Event<T>(),
+        release: new Event<T>(),
         dispose: new Event<T>()
     }
 
-    private _recycleMember(victim: PoolMember<T>) {
+    private _releaseMember(victim: PoolMember<T>) {
         if (victim._isAvailable)
-            throw new Error('Trying to recycle already recycled pool member');
+            throw new Error('Trying to release an already released pool member');
 
         if (victim._isDisposed)
-            throw new Error('Trying to recycle an already disposed pool member');
+            throw new Error('Trying to release an already disposed pool member');
 
         var position = this._poolSize++;
 
@@ -47,7 +47,7 @@ class Pool<T> implements PoolInterface<T> {
         victim._isAvailable = true;
         victim._poolPosition = position;
 
-        this.event.recycle.dispatch(victim.get());
+        this.event.release.dispatch(victim.get());
     }
 
     private _disposeMember(victim: PoolMember<T>) {

@@ -6,20 +6,10 @@ import util = require('util');
 
 import Pool = require('../../src/tools/pool/Pool');
 
-var recycleCtr = 0,
+var releaseCtr = 0,
     disposeCtr = 0;
 
-class Probe {
-    recycle(): void {
-        recycleCtr++;
-    }
-
-    dispose(): void {
-        disposeCtr++;
-    }
-}
-
-
+class Probe {}
 
 suite('Object Pool', function() {
 
@@ -28,7 +18,7 @@ suite('Object Pool', function() {
 
     setup(function() {
         factoryInvocations = 0;
-        recycleCtr = 0,
+        releaseCtr = 0,
         disposeCtr = 0;
 
         pool = new Pool(() => {
@@ -36,16 +26,16 @@ suite('Object Pool', function() {
             return new Probe();
         });
 
-        pool.event.recycle.addHandler((value: Probe) => value.recycle());
-        pool.event.dispose.addHandler((value: Probe) => value.dispose());
+        pool.event.release.addHandler((value: Probe) => releaseCtr++);
+        pool.event.dispose.addHandler((value: Probe) => disposeCtr++);
     });
 
-    function assertCallCount(factoryReference: number, recycleReference: number, disposeReference: number) {
+    function assertCallCount(factoryReference: number, releaseReference: number, disposeReference: number) {
         assert.equal(factoryReference, factoryInvocations, util.format(
             'factory should have been called %s times, was called %s times', factoryReference, factoryInvocations));
 
-        assert.equal(recycleReference, recycleCtr, util.format(
-            'recycle should have been called %s times, was called %s times', recycleReference, recycleCtr));
+        assert.equal(releaseReference, releaseCtr, util.format(
+            'release should have been called %s times, was called %s times', releaseReference, releaseCtr));
         
         assert.equal(disposeReference, disposeCtr, util.format(
             'dispose should have been called %s times, was called %s times', disposeReference, disposeCtr));
@@ -59,10 +49,10 @@ suite('Object Pool', function() {
         assertCallCount(2, 0, 0);
     });
 
-    test('get - recycle - get', function() {
+    test('get - release - get', function() {
         var p1 = pool.get();
 
-        p1.recycle();
+        p1.release();
 
         var p2 = pool.get();
 
@@ -81,12 +71,12 @@ suite('Object Pool', function() {
         assertCallCount(2, 0, 1);
     });
 
-    test('get - get - recycle - recycle - dispose - get - get', function() {
+    test('get - get - release - release - dispose - get - get', function() {
         var p1 = pool.get(),
             p2 = pool.get();
 
-        p2.recycle();
-        p1.recycle();
+        p2.release();
+        p1.release();
 
         p2.dispose();
 
@@ -107,19 +97,19 @@ suite('Object Pool', function() {
         assert.throws(() => p1.dispose(), 'second dispose should throw');
     });
 
-    test('double recycle should throw', function() {
+    test('double release should throw', function() {
         var p1 = pool.get();
 
-        p1.recycle();
+        p1.release();
 
-        assert.throws(() => p1.recycle(), 'second recycle should throw');
+        assert.throws(() => p1.release(), 'second release should throw');
     });
 
-    test('recycling an already disposed instance should throw', function() {
+    test('releasing an already disposed instance should throw', function() {
         var p1 = pool.get();
 
         p1.dispose();
 
-        assert.throws(() => p1.recycle(), 'recycle should throw');
+        assert.throws(() => p1.release(), 'release should throw');
     });
 });

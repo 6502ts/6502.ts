@@ -4,7 +4,7 @@ interface PoolMemberInterface<T> {
 
     get(): T;
 
-    recycle(): void;
+    release(): void;
 
     dispose(): void;
 
