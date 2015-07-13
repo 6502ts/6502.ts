@@ -4,17 +4,17 @@
   "description": "A 6502 emulator written in typescript",
   "dependencies": {
     "grunt": "~0.4.5",
-    "grunt-bower-install-simple": "~1.1.0",
-    "grunt-browserify": "~3.2.1",
+    "grunt-bower-install-simple": "~1.1.3",
+    "grunt-browserify": "~3.8.0",
     "grunt-contrib-clean": "~0.6.0",
     "grunt-contrib-watch": "~0.6.1",
-    "grunt-http-server": "~1.1.0",
-    "grunt-mocha-test": "~0.12.0",
+    "grunt-http-server": "~1.4.0",
+    "grunt-mocha-test": "~0.12.7",
     "grunt-notify": "~0.4.1",
-    "grunt-ts": "~2.0.0",
+    "grunt-ts": "~4.1.2",
     "grunt-tsd": "~0.1.0",
-    "lodash": "~2.4.1",
-    "mocha": "~2.1.0",
-    "typescript": "~1.4.0"
+    "lodash": "~3.10.0",
+    "mocha": "~2.2.5",
+    "typescript": "~1.4.1"
   }
 }

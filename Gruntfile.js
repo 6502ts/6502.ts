@@ -71,21 +71,27 @@ module.exports = function(grunt) {
                 dest: 'web/js/compiled/testCLI.js',
                 src: [],
                 options: {
-                    alias: './src/web/testCLI.js:testCLI'
+                    alias: {
+                        testCLI: './src/web/testCLI'
+                    }
                 }
             },
             ehBasicCLI: {
                 dest: 'web/js/compiled/ehBasicCLI.js',
                 src: [],
                 options: {
-                    alias: './src/web/ehBasicCLI:ehBasicCLI'
+                    alias: {
+                        ehBasicCLI: './src/web/ehBasicCLI'
+                    }
                 }
             },
             debuggerCLI: {
                 dest: 'web/js/compiled/debuggerCLI.js',
                 src: [],
                 options: {
-                    alias: './src/web/debuggerCLI:debuggerCLI'
+                    alias: {
+                        debuggerCLI: './src/web/debuggerCLI'
+                    }
                 }
             }
         },
