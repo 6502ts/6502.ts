@@ -4,39 +4,55 @@ import BusInterface = require('../bus/BusInterface');
 import Event = require('../../tools/event/Event');
 import Tia = require('./Tia');
 import Pia = require('./Pia');
-import Cartridge = require('./Cartridge');
+import Cartridge = require('./AbstractCartridge');
 
 class Bus implements BusInterface {
 
-    constructor (
-        private tia: Tia,
-        private pia: Pia,
-        private cartridge: Cartridge
-    ) {
+    setTia(tia: Tia): Bus {
         tia.trap.addHandler((payload: Tia.TrapPayload) =>
                 this.triggerTrap(Bus.TrapReason.tia, 'TIA: ' + (payload.message || '')));
 
+        this._tia = tia;
+
+        return this;
+    }
+
+    setPia(pia: Pia): Bus {
         pia.trap.addHandler((payload: Pia.TrapPayload) =>
                 this.triggerTrap(Bus.TrapReason.pia, 'PIA: ' + (payload.message || '')));
 
+        this._pia = pia;
+
+        return this;
+    }
+
+    setCartridge(cartridge: Cartridge): Bus {
         cartridge.trap.addHandler((payload: Cartridge.TrapPayload) =>
                 this.triggerTrap(Bus.TrapReason.cartridge, 'CARTRIDGE: ' + (payload.message || '')));
+
+        this._cartridge = cartridge;
+
+        return this;
     }
 
     event = new Event<Bus.TrapPayload>();
 
     read(address: number): number {
+        // Mask out bits 13-15
         address &= 0x1FFF;
 
+        // Chip select A12 -> cartridge
         if (address & 0x1000) {
-            return this.cartridge.read(address);
+            return this._cartridge.read(address);
         }
 
+        // Chip select A7 -> PIA
         if (address & 0x80) {
-            return this.pia.read(address);
+            return this._pia.read(address);
         }
 
-        return this.tia.read(address);
+        // All chip selects low -> TIA
+        return this._tia.read(address);
     }
 
     readWord(address: number): number {
@@ -44,17 +60,21 @@ class Bus implements BusInterface {
     }
 
     write(address: number, value: number): void {
+        // Mask out bits 12-15
         address &= 0x1FFF;
 
+        // Chip select A12 -> cartridge
         if (address & 0x1000) {
-            this.cartridge.write(address, value);
+            this._cartridge.write(address, value);
         }
 
+        // Chip select A7 -> PIA
         if (address & 0x80) {
-            return this.pia.write(address, value);
+            return this._pia.write(address, value);
         }
 
-        return this.tia.write(address, value);
+        // All chip selects low -> TIA
+        return this._tia.write(address, value);
     }
 
     // Stub
@@ -74,6 +94,10 @@ class Bus implements BusInterface {
             throw new Error(message);
         }
     }
+
+    private _tia: Tia;
+    private _pia: Pia;
+    private _cartridge: Cartridge;
 }
 
 module Bus {

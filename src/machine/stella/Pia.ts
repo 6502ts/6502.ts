@@ -4,14 +4,34 @@ import Event = require('../../tools/event/Event');
 
 class Pia {
 
-    read(address: number): number
-
-    write(address: number, value: number) {
+    reset(): void {
+        for (var i = 0; i < 128; i++) this.ram[i] = 0;
     }
 
-    tick(): void {}
+    read(address: number): number {
+        // RAM select = A9 low?
+        if (address & 0x0200) {
+            return 0;
+        } else {
+            // Mask out A7 - A15
+            return this.ram[address & 0x7F];
+        }
+    }
+
+    write(address: number, value: number) {
+        // RAM select = A9 low?
+        if (address & 0x0200) {
+        } else {
+            // Mask out A7 - A15
+            this.ram[address & 0x7F] = value;
+        }
+    }
+
+    cycle(): void {}
 
     trap = new Event<Pia.TrapPayload>();
+
+    ram = new Uint8Array(128);
 }
 
 module Pia {

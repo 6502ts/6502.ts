@@ -3,25 +3,41 @@
 import BoardInterface = require('../board/BoardInterface');
 import CpuInterface = require('../cpu/CpuInterface');
 import Cpu = require('../cpu/Cpu');
-import Memory = require('./Memory');
+import Bus = require('./Bus');
 import BusInterface = require('../bus/BusInterface');
 import TimerInterface = require('../board/TimerInterface');
 import EventInterface = require('../../tools/event/EventInterface');
 import Event = require('../../tools/event/Event');
 import SchedulerInterface = require('../../tools/scheduler/SchedulerInterface');
 import TaskInterface = require('../../tools/scheduler/TaskInterface');
+import Pia = require('./Pia');
+import Tia = require('./Tia');
+import Cartridge = require('./AbstractCartridge');
+import Config = require('./Config');
 
 class Board implements BoardInterface {
 
-    constructor(cpuFactory?: (bus: BusInterface) => CpuInterface) {
-        this.cpuClock = this.clock;
-
-        this._bus = this._createBus();
-
+    constructor(config: Config, cartridge: Cartridge, cpuFactory?: (bus: BusInterface) => CpuInterface) {
+        var bus = new Bus();
+        
         if (typeof(cpuFactory) === 'undefined') cpuFactory = bus => new Cpu(bus);
 
-        this._cpu = cpuFactory(this._bus);
-        this._cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
+        var cpu = cpuFactory(bus);
+        var pia = new Pia();
+        var tia = new Tia(config);
+
+        cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
+        tia.setCpu(this._cpu);
+        bus
+            .setTia(tia)
+            .setPia(pia)
+            .setCartridge(cartridge);
+
+        this._bus = bus;
+        this._cpu = cpu;
+        this._tia = tia;
+        this._pia = pia;
+        this._cartridge = cartridge;
     }
 
     getCpu(): CpuInterface {
@@ -38,18 +54,22 @@ class Board implements BoardInterface {
 
     reset(): Board {
         this._cpu.reset();
-        this._bus.clear();
+        this._tia.reset();
+        this._pia.reset();
+
         return this;
     }
 
     boot(): Board {
         var clock = 0;
 
+        this.reset();
+
         if (this._cpu.executionState !== CpuInterface.ExecutionState.boot)
             throw new Error("Already booted!");
 
         while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch) {
-            this._cpu.cycle();
+            this._cycle();
             clock++;
         }
 
@@ -72,12 +92,16 @@ class Board implements BoardInterface {
     }
 
     getBoardStateDebug(): string {
-        return undefined;
+        var sep = "============";
+
+        return  'TIA:\n' +
+                sep + '\n' +
+                this._tia.getDebugState() + '\n';
     }
 
     clock = new Event<number>();
 
-    cpuClock: Event<number>;
+    cpuClock = new Event<number>();
 
     setClockMode(clockMode: BoardInterface.ClockMode): Board {
         this._clockMode = clockMode;
@@ -91,11 +115,13 @@ class Board implements BoardInterface {
               
     trap = new Event<BoardInterface.TrapPayload>();
 
-    protected _createBus() {
-        return new Memory();
+    private _cycle(): void {
+        this._pia.cycle();
+        this._tia.cycle();
+        this._cpu.cycle();
     }
 
-    protected _tick(clocks: number): void {
+    private _tick(clocks: number): void {
         var i = 0,
             clock = 0;
 
@@ -117,7 +143,7 @@ class Board implements BoardInterface {
         if (clock > 0 && this.clock.hasHandlers) this.clock.dispatch(clock);
     }
 
-    protected _start(scheduler: SchedulerInterface, sliceHint?: number) {
+    private _start(scheduler: SchedulerInterface, sliceHint?: number) {
         if (this._runTask) return;
 
         this._sliceHint = (typeof(sliceHint) === 'undefined') ? 100000 : sliceHint;
@@ -125,11 +151,11 @@ class Board implements BoardInterface {
         this._runTask = scheduler.start(this._executeSlice, this);
     }
 
-    protected _executeSlice(board: Board) {
+    private _executeSlice(board: Board) {
         board._tick(board._sliceHint);
     }
 
-    protected _stop() {
+    private _stop() {
         if (!this._runTask) return;
 
         this._runTask.stop();
@@ -137,18 +163,22 @@ class Board implements BoardInterface {
         this._runTask = undefined;
     }
 
-    protected _onInvalidInstruction() {
+    private _onInvalidInstruction() {
         this.triggerTrap(BoardInterface.TrapReason.cpu, 'invalid instruction');
     }
 
-    protected _cpu: CpuInterface;
-    protected _bus: Memory;
-    protected _trap = false;
-    protected _sliceHint: number;
-    protected _runTask: TaskInterface;
-    protected _clockMode = BoardInterface.ClockMode.lazy;
+    private _cpu: CpuInterface;
+    private _bus: Bus;
+    private _tia: Tia;
+    private _pia: Pia;
+    private _cartridge: Cartridge;
 
-    protected _timer = {
+    private _sliceHint: number;
+    private _runTask: TaskInterface;
+    private _clockMode = BoardInterface.ClockMode.lazy;
+    private _trap = false;
+
+    private _timer = {
         tick: (clocks: number): void => this._tick(clocks),
         start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler, sliceHint),
         stop: (): void => this._stop(),

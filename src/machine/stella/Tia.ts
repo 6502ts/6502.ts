@@ -13,9 +13,20 @@ var VISIBLE_WIDTH = 160,
 class Tia implements VideoOutputInterface {
 
     constructor(
-        private _config: Config,
-        private _cpu: CpuInterface
+        private _config: Config
     ) {}
+
+    reset(): void {
+        this._hClock = this._vClock = 0;
+        this._cpuHold = false;
+        this._cpu.resume();
+    }
+
+    setCpu(cpu: CpuInterface): Tia {
+        this._cpu = cpu;
+
+        return this;
+    }
 
     getWidth(): number {
         return VISIBLE_WIDTH;
@@ -43,18 +54,52 @@ class Tia implements VideoOutputInterface {
 
     newFrame = new Event<RGBASurfaceInterface>();
 
-    tick(): void {}
+    cycle(): void {
+        this._hClock += 3;
+        
+        if (this._hClock > 227) {
+            this._hClock -= 228;
+            this._vClock++;
+            
+            if (this._cpuHold) {
+                this._cpuHold = false;
+                this._cpu.resume();
+            }
+        }
+    }
 
     read(address: number): number {
         return 0;
     }
 
     write(address: number, value: number): void {
+        // Mask out A6 - A15
+        address &= 0x3F;
+
+        switch (address) {
+            case Tia.Registers.wsync:
+                this._cpuHold = true;
+                this._cpu.halt();
+                break;
+        }
+    }
+
+    getDebugState(): string {
+        return  'HCLOCK: ' + this._hClock + '\n'
+                'VCLOCK: ' + this._vClock + '\n'
+                'CPU HOLD: ' + this._cpuHold ? 'TRUE' : 'FALSE' + '\n';
     }
 
     trap = new Event<Tia.TrapPayload>();
 
     private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface;
+
+    private _cpu: CpuInterface;
+
+    private _hClock = 0;
+    private _vClock = 0;
+
+    private _cpuHold = false;
 }
 
 module Tia {
