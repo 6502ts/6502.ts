@@ -4,7 +4,7 @@ import BusInterface = require('../bus/BusInterface');
 import Event = require('../../tools/event/Event');
 import Tia = require('./Tia');
 import Pia = require('./Pia');
-import Cartridge = require('./AbstractCartridge');
+import CartridgeInterface = require('./CartridgeInterface');
 
 class Bus implements BusInterface {
 
@@ -26,8 +26,8 @@ class Bus implements BusInterface {
         return this;
     }
 
-    setCartridge(cartridge: Cartridge): Bus {
-        cartridge.trap.addHandler((payload: Cartridge.TrapPayload) =>
+    setCartridge(cartridge: CartridgeInterface): Bus {
+        cartridge.trap.addHandler((payload: CartridgeInterface.TrapPayload) =>
                 this.triggerTrap(Bus.TrapReason.cartridge, 'CARTRIDGE: ' + (payload.message || '')));
 
         this._cartridge = cartridge;
@@ -97,7 +97,7 @@ class Bus implements BusInterface {
 
     private _tia: Tia;
     private _pia: Pia;
-    private _cartridge: Cartridge;
+    private _cartridge: CartridgeInterface;
 }
 
 module Bus {

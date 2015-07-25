@@ -12,12 +12,12 @@ import SchedulerInterface = require('../../tools/scheduler/SchedulerInterface');
 import TaskInterface = require('../../tools/scheduler/TaskInterface');
 import Pia = require('./Pia');
 import Tia = require('./Tia');
-import Cartridge = require('./AbstractCartridge');
+import CartridgeInterface = require('./CartridgeInterface');
 import Config = require('./Config');
 
 class Board implements BoardInterface {
 
-    constructor(config: Config, cartridge: Cartridge, cpuFactory?: (bus: BusInterface) => CpuInterface) {
+    constructor(config: Config, cartridge: CartridgeInterface, cpuFactory?: (bus: BusInterface) => CpuInterface) {
         var bus = new Bus();
         
         if (typeof(cpuFactory) === 'undefined') cpuFactory = bus => new Cpu(bus);
@@ -171,7 +171,7 @@ class Board implements BoardInterface {
     private _bus: Bus;
     private _tia: Tia;
     private _pia: Pia;
-    private _cartridge: Cartridge;
+    private _cartridge: CartridgeInterface;
 
     private _sliceHint: number;
     private _runTask: TaskInterface;
