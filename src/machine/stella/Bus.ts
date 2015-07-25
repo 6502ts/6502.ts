@@ -77,9 +77,8 @@ class Bus implements BusInterface {
         return this._tia.write(address, value);
     }
 
-    // Stub
     peek(address: number): number {
-        return 0;
+        return this.read(address);
     }
 
     // Stub

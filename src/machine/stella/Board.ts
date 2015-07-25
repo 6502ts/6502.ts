@@ -27,7 +27,7 @@ class Board implements BoardInterface {
         var tia = new Tia(config);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
-        tia.setCpu(this._cpu);
+        tia.setCpu(cpu);
         bus
             .setTia(tia)
             .setPia(pia)
@@ -38,6 +38,8 @@ class Board implements BoardInterface {
         this._tia = tia;
         this._pia = pia;
         this._cartridge = cartridge;
+
+        this.clock = this.cpuClock;
     }
 
     getCpu(): CpuInterface {
@@ -73,7 +75,7 @@ class Board implements BoardInterface {
             clock++;
         }
 
-        this.clock.dispatch(clock);
+        this.cpuClock.dispatch(clock);
         return this;
     }
 
@@ -99,7 +101,7 @@ class Board implements BoardInterface {
                 this._tia.getDebugState() + '\n';
     }
 
-    clock = new Event<number>();
+    clock: Event<number>;
 
     cpuClock = new Event<number>();
 
@@ -128,19 +130,19 @@ class Board implements BoardInterface {
         this._trap = false;
 
         while (i++ < clocks && !this._trap) {
-            this._cpu.cycle();
+            this._cycle();
             clock++;
 
             if (this._clockMode === BoardInterface.ClockMode.instruction &&
                 this._cpu.executionState === CpuInterface.ExecutionState.fetch &&
                 this.clock.hasHandlers
             ) {
-                this.clock.dispatch(clock);
+                this.cpuClock.dispatch(clock);
                 clock = 0;
             }
         }
 
-        if (clock > 0 && this.clock.hasHandlers) this.clock.dispatch(clock);
+        if (clock > 0 && this.clock.hasHandlers) this.cpuClock.dispatch(clock);
     }
 
     private _start(scheduler: SchedulerInterface, sliceHint?: number) {

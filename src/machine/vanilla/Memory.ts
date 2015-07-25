@@ -23,14 +23,6 @@ class Memory implements BusInterface {
         this._data[address] = value;
     }
 
-    peek(address: number): number {
-        return this._data[address];
-    }
-
-    poke(address: number, value: number) {
-        this._data[address] = value;
-    }
-
     _data = new Uint8Array(0x10000);
 }
 

@@ -20,10 +20,10 @@ function Runner(code, base) {
 
     var codeLength = code.length;
     for (var i = 0; i < codeLength; i++)
-        this._memory.poke(base + i, code[i]);
+        this._memory.write(base + i, code[i]);
 
-    this._memory.poke(0xFFFC, base & 0xFF);
-    this._memory.poke(0xFFFD, base >> 8);
+    this._memory.write(0xFFFC, base & 0xFF);
+    this._memory.write(0xFFFD, base >> 8);
 
     this._cpu.reset();
     while (this._cpu.executionState !== ExecutionState.fetch) {
@@ -45,7 +45,7 @@ Runner.prototype.poke = function(peeks) {
     var me = this;
 
     Object.keys(peeks).forEach(function(address) {
-        me._memory.poke(hex.decode(address), peeks[address]);
+        me._memory.write(hex.decode(address), peeks[address]);
     });
 
     return this;
@@ -122,11 +122,11 @@ Runner.prototype.assertMemory = function(checks) {
     var me = this;
 
     Object.keys(checks).forEach(function(address) {
-        if (checks[address] !== me._memory.peek(hex.decode(address)))
+        if (checks[address] !== me._memory.read(hex.decode(address)))
             throw new Error(util.format('memory corrupt at %s: expected %s, got %s',
                 address,
                 hex.encode(checks[address], 2),
-                hex.encode(me._memory.peek(hex.decode(address)), 2)
+                hex.encode(me._memory.read(hex.decode(address)), 2)
             ));
     });
 };

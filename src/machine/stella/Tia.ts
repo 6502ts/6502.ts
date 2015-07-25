@@ -56,15 +56,15 @@ class Tia implements VideoOutputInterface {
 
     cycle(): void {
         this._hClock += 3;
-        
+       
+        if (this._hClock == 227 && this._cpuHold) {
+            this._cpuHold = false;
+            this._cpu.resume();
+        }
+
         if (this._hClock > 227) {
             this._hClock -= 228;
             this._vClock++;
-            
-            if (this._cpuHold) {
-                this._cpuHold = false;
-                this._cpu.resume();
-            }
         }
     }
 
@@ -78,6 +78,7 @@ class Tia implements VideoOutputInterface {
 
         switch (address) {
             case Tia.Registers.wsync:
+
                 this._cpuHold = true;
                 this._cpu.halt();
                 break;
@@ -85,9 +86,10 @@ class Tia implements VideoOutputInterface {
     }
 
     getDebugState(): string {
-        return  'HCLOCK: ' + this._hClock + '\n'
-                'VCLOCK: ' + this._vClock + '\n'
-                'CPU HOLD: ' + this._cpuHold ? 'TRUE' : 'FALSE' + '\n';
+        return (
+            'HCLOCK: ' + this._hClock + '\n' +
+            'VCLOCK: ' + this._vClock + '\n'
+        );
     }
 
     trap = new Event<Tia.TrapPayload>();

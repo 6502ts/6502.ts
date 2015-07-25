@@ -68,7 +68,7 @@ class Disassembler {
     }
 
     private _peek(address: number) {
-        return this._bus.peek(address % 0x10000);
+        return this._bus.read(address % 0x10000);
     }
 
     setBus(bus: BusInterface): Disassembler {

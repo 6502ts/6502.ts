@@ -4,12 +4,11 @@ import AbstractCartridge = require('./AbstractCartridge');
 
 class Cartridge4k extends AbstractCartridge {
 
-    constructor (buffer?: {[i: number]: number}) {
+    constructor (buffer: {[i: number]: number; length: number}) {
         super();
 
-        if (typeof(buffer) !== 'undefined') {
-            for (var i = 0; i < 0x1000; i++) this.rom[i] = buffer[i];
-        }
+        for (var i = 0; i < 0x1000 && i < buffer.length; i++)
+            this.rom[0x0FFF - i] = buffer[buffer.length -1 - i];
     }
 
     read(address: number): number {

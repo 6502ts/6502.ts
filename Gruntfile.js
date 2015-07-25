@@ -21,7 +21,8 @@ module.exports = function(grunt) {
 
                     'bin/ehBasicCLI.ts',
                     'bin/testCLI.ts',
-                    'bin/debugger.ts'
+                    'bin/debugger.ts',
+                    'bin/stellaCLI.ts'
                 ]
             },
             tests: {

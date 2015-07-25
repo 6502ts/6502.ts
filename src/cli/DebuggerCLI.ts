@@ -12,20 +12,33 @@ import AbstractCLI = require('./AbstractCLI');
 import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
 
 import Board = require('../machine/vanilla/Board');
+import BoardInterface = require('../machine/board/BoardInterface');
 
 class DebuggerCLI extends AbstractCLI implements CLIInterface {
 
-    constructor(private _fsProvider: FilesystemProviderInterface) {
+    constructor(fsProvider: FilesystemProviderInterface) {
         super();
 
-        var board = new Board(),
-            dbg = new Debugger(),
+        this._fsProvider = fsProvider;
+        this._initializeHardware();
+
+        var dbg = new Debugger(),
             commandInterpreter = new CommandInterpreter(),
             debuggerFrontend = new  DebuggerFrontend(dbg, this._fsProvider, commandInterpreter);
 
-        dbg.attach(board);
+        dbg.attach(this._board);
 
-        commandInterpreter.registerCommands({
+        this._commandInterpreter = commandInterpreter;
+
+        this._extendCommandInterpreter();
+    }
+
+    protected _initializeHardware(): void {
+        this._board = new Board();
+    }
+
+    protected _extendCommandInterpreter(): void {
+        this._commandInterpreter.registerCommands({
             quit: (): string => {
                 this._quit();
                 return 'bye';
@@ -36,9 +49,6 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
                 return 'script executed';
             }
         });
-
-        this._board = board;
-        this._commandInterpreter = commandInterpreter;
     }
 
     runDebuggerScript(filename: string): void {
@@ -104,24 +114,26 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
         this._allowQuit = allowQuit;
     }
 
-    private _prompt(): void {
+    protected _prompt(): void {
         this.events.prompt.dispatch(undefined);
     }
 
-    private _quit(): void {
+    protected _quit(): void {
         if (this._allowQuit) this.events.quit.dispatch(undefined);
     }
 
-    private _outputLine(line: string): void {
+    protected _outputLine(line: string): void {
         this._output += (line + '\n');
         this.events.outputAvailable.dispatch(undefined);
     }
 
-    private _board: Board;
-    private _commandInterpreter: CommandInterpreter;
+    protected _board: BoardInterface;
+    protected _commandInterpreter: CommandInterpreter;
 
-    private _output = '';
-    private _allowQuit = true;
+    protected _output = '';
+    protected _allowQuit = true;
+
+    protected _fsProvider: FilesystemProviderInterface;
 }
 
 export = DebuggerCLI;

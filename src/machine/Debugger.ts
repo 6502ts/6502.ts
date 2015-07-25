@@ -150,6 +150,16 @@ class Debugger {
                 'P = ' + hex.encode(state.p, 4) + '\n' +
                 'flags = ' + binary.encode(state.flags, 8);
         
+        var boardState = this._board.getBoardStateDebug();
+
+        if (boardState) {
+            result += (
+                '\n' +
+                '\n' +
+                boardState
+            );
+        }
+
         return result;
     }
 
@@ -159,6 +169,7 @@ class Debugger {
 
     step(instructions: number): number {
         var instruction = 0,
+            cycles = 0,
             timer = this._board.getTimer();
 
         this._lastTrap = undefined;
@@ -166,10 +177,11 @@ class Debugger {
         while (instruction++ < instructions && !this._lastTrap) {
             do {
                 timer.tick(1);
-            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch);
+                cycles++;
+            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch || this._cpu.isHalt());
         }
 
-        return instruction;
+        return cycles;
     }
 
     setBreakpointsEnabled(breakpointsEnabled: boolean): Debugger {
@@ -230,11 +242,11 @@ class Debugger {
     }
 
     private _peek(address: number): number {
-        return this._bus.peek(address % 0x10000);
+        return this._bus.read(address % 0x10000);
     }
 
     private _poke(address: number, value: number) {
-        this._bus.poke(address % 0x10000, value & 0xFF);
+        this._bus.write(address % 0x10000, value & 0xFF);
     }
 
     private _disassembler: Disassembler;
