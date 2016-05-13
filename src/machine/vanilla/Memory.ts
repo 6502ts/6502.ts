@@ -20,7 +20,7 @@ class Memory implements BusInterface {
     }
 
     write(address: number, value: number) {
-        console.log(address, value);
+        this._data[address] = value;
     }
 
     _data = new Uint8Array(0x10000);
