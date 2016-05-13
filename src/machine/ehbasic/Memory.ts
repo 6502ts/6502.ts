@@ -20,10 +20,10 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
         return this._data[address] + (this._data[(address+1) & 0xFFFF] << 8);
     }
 
-    write(address: number, value: number) {
+    write(address: number, value: number, poke = false) {
         if (address === 0xF001) {
             this._outCallback(value, this);
-        } else if (address < 0xC000) {
+        } else if (address < 0xC000 || poke) {
             this._data[address] = value;
         }
     }

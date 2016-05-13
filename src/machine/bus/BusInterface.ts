@@ -5,7 +5,7 @@ interface BusInterface {
 
     readWord(address: number): number;
 
-    write(address: number, value: number): void;
+    write(address: number, value: number, poke?: boolean): void;
 }
 
 export = BusInterface;

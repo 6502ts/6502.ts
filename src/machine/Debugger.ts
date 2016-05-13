@@ -246,7 +246,7 @@ class Debugger {
     }
 
     private _poke(address: number, value: number) {
-        this._bus.write(address % 0x10000, value & 0xFF);
+        this._bus.write(address % 0x10000, value & 0xFF, true);
     }
 
     private _disassembler: Disassembler;
