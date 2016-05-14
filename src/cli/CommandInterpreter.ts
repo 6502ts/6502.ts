@@ -15,7 +15,7 @@ class CommandInterpreter {
         cmd = cmd.replace(/;.*/, '');
         if (cmd.match(/^\s*$/)) return '';
 
-        var components = cmd.split(/\s+/).filter((value: string): boolean => !!value),
+        const components = cmd.split(/\s+/).filter((value: string): boolean => !!value),
             commandName = components.shift();
 
         return this._locateCommand(commandName).call(this, components, cmd);
@@ -29,10 +29,10 @@ class CommandInterpreter {
         if (this._commandTable[name]) return this._commandTable[name];
         if (this._aliasTable[name]) return this._aliasTable[name];
 
-        var candidates = Object.keys(this._commandTable).filter(
+        const candidates = Object.keys(this._commandTable).filter(
             (candidate: string) => candidate.indexOf(name) === 0
         );
-        var nCandidates = candidates.length;
+        const nCandidates = candidates.length;
 
         if (nCandidates > 1) throw new Error('ambiguous command ' + name + ', candidates are ' +
             candidates.join(', ').replace(/, $/, ''));

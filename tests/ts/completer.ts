@@ -8,13 +8,13 @@ import NodeFilesystemProvider = require('../../src/fs/NodeFilesystemProvider');
 
 suite('CLI Completer', function() {
 
-    var completer: Completer;
+    let completer: Completer;
 
     function testCompletion(cmd: string, candidates:  Array<string>, match: string): void {
         test(
             util.format('"%s" completes to [%s], match: "%s"', cmd, candidates.join(', '), match),
             function() {
-                var result = completer.complete(cmd);
+                let result = completer.complete(cmd);
 
                 assert.deepEqual(result.candidates.sort(), candidates.sort());
                 assert.strictEqual(result.match, match);
@@ -23,7 +23,7 @@ suite('CLI Completer', function() {
     }
 
     setup(function() {
-        var fsProvider = new NodeFilesystemProvider();
+        const fsProvider = new NodeFilesystemProvider();
         fsProvider.chdir(pathlib.join(__dirname, '../fixtures/completer'));
 
         completer = new Completer(

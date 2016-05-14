@@ -22,8 +22,8 @@ const enum State {
     debug, run, quit
 }
 
-var OUTPUT_FLUSH_INTERVAL = 100;
-var CLOCK_PROBE_INTERVAL = 1000;
+const OUTPUT_FLUSH_INTERVAL = 100;
+const CLOCK_PROBE_INTERVAL = 1000;
 
 class EhBasicCLI extends AbstractCLI implements CLIInterface {
     constructor(
@@ -31,7 +31,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     ) {
         super();
 
-        var board = new Board(),
+        const board = new Board(),
             dbg = new Debugger(),
             commandInterpreter = new CommandInterpreter(),
             debuggerFrontend = new  DebuggerFrontend(dbg, this._fsProvider, commandInterpreter),
@@ -54,10 +54,10 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
                 return 'running, press ctl-c to interrupt...';
             },
             input: (args: Array<string>, cmd: string): string => {
-                var data = cmd.replace(/^\s*input\s*/, '').replace(/\\n/, '\n'),
+                const data = cmd.replace(/^\s*input\s*/, '').replace(/\\n/, '\n'),
                     length = data.length;
 
-                for (var i = 0; i < length; i++)
+                for (let i = 0; i < length; i++)
                     this._inputBuffer.push(data[i] === '\n' ? 0x0D : data.charCodeAt(i) & 0xFF);
                 return '';
             },
@@ -106,8 +106,10 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         this._fsProvider.readTextFileSync(filename)
             .split('\n')
             .forEach((line: string): void => {
-                var length = line.length;
-                for (var i = 0; i < length; i++) this._inputBuffer.push(line.charCodeAt(i) & 0xFF);
+                let length = line.length;
+                for (let i = 0; i < length; i++) {
+                    this._inputBuffer.push(line.charCodeAt(i) & 0xFF);
+                }
                 this._inputBuffer.push(0x0D);
             });
     }
@@ -115,7 +117,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     startup(): void {
         this._setState(State.debug);
 
-        var scheduler = new PeriodicScheduler(OUTPUT_FLUSH_INTERVAL);
+        const scheduler = new PeriodicScheduler(OUTPUT_FLUSH_INTERVAL);
         this._flushOutputTask = scheduler.start((cli: EhBasicCLI) => cli._flushOutput(), this);
 
         this._prompt();
@@ -128,7 +130,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     }
 
     readOutput(): string {
-        var buffer = this._cliOutputBuffer;
+        const buffer = this._cliOutputBuffer;
         this._cliOutputBuffer = '';
         return buffer;
     }
@@ -157,9 +159,9 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     pushInput (data: string): void {
         switch (this._state) {
             case State.run:
-                var size = data.length;
+                const size = data.length;
 
-                for (var i = 0; i < size; i++) {
+                for (let i = 0; i < size; i++) {
                     this._inputBuffer.push(data.charCodeAt(i) & 0xFF);
                 }
                 this._inputBuffer.push(0x0D);
@@ -181,7 +183,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     }
 
     getPrompt(): string {
-        var prompt = this._clockProbe.getFrequency() > 0 ?
+        let prompt = this._clockProbe.getFrequency() > 0 ?
             (this._clockProbe.getFrequency() / 1000000).toFixed(2) + ' MHz ' : '';
 
         switch (this._state) {
@@ -204,7 +206,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     private _setState(newState: State): void {
         if (this._state === newState) return;
 
-        var timer = this._board.getTimer();
+        const timer = this._board.getTimer();
 
         this._state = newState;
 

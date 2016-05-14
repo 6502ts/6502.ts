@@ -1,5 +1,3 @@
-'use strict';
-
 import BusInterface = require('../bus/BusInterface');
 
 interface CpuInterface {
@@ -59,7 +57,7 @@ module CpuInterface {
     }
 
     export interface InvalidInstructionCallbackInterface {
-        (cpu?: CpuInterface): void
+        (cpu?: CpuInterface): void;
     }
 }
 

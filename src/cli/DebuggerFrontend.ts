@@ -49,7 +49,7 @@ class DebuggerFrontend {
 
         if (!trap) return '';
 
-        var message = trap.message ? trap.message : 'unknown';
+        const message = trap.message ? trap.message : 'unknown';
 
         switch (trap.reason) {
             case BoardInterface.TrapReason.cpu:
@@ -89,7 +89,7 @@ class DebuggerFrontend {
     private _load(args: Array<string>): string {
         if (args.length < 2) throw new Error('at least two arguments. expected');
 
-        var file = args[0],
+        const file = args[0],
             base = Math.abs(decodeNumber(args[1])) % 0x10000,
             buffer = this._fileSystemProvider.readBinaryFileSync(file),
             offset = args.length > 2 ? Math.min(Math.abs(decodeNumber(args[2])), buffer.length - 1) : 0,
@@ -113,17 +113,18 @@ class DebuggerFrontend {
     }
 
     private _boot(): string {
-        var cycles = 0,
-            board = this._debugger.getBoard();
+        const board = this._debugger.getBoard();
+        let cycles = 0;
 
-        var clockHandler = (clock: number) => cycles += clock;
+        const clockHandler = (clock: number) => cycles += clock;
 
         board.cpuClock.addHandler(clockHandler);
 
+        let exception: Error;
         try {
             this._debugger.getBoard().boot();
         } catch (e) {
-            var exception = e || new Error('unknown exception during boot');
+            exception = e || new Error('unknown exception during boot');
         }
 
         board.cpuClock.removeHandler(clockHandler);
@@ -134,21 +135,17 @@ class DebuggerFrontend {
     }
 
     private _step(args: Array<string>): string {
-        var timestamp = Date.now(),
+        const timestamp = Date.now(),
             instructionCount = args.length > 0 ? decodeNumber(args[0]) : 1,
-            result: string;
-
-        var cycles = this._debugger.step(instructionCount),
+            cycles = this._debugger.step(instructionCount),
             trap = this._debugger.getLastTrap();
 
-        result = util.format('Used %s cycles in %s milliseconds, now at\n%s\n%s\n',
+        return util.format('Used %s cycles in %s milliseconds, now at\n%s\n%s\n',
             cycles,
             Date.now() - timestamp,
             this._debugger.disassemble(1),
             this.describeTrap(trap)
         );
-
-        return result;
     }
 
     private _stack(): string {
@@ -168,7 +165,7 @@ class DebuggerFrontend {
     private _setBreakpoint(args: Array<string>): string {
         if (args.length < 1) throw new Error('at least one argument expected');
 
-        var name = args.length > 1 ? args[1] : '-',
+        const name = args.length > 1 ? args[1] : '-',
             address = decodeNumber(args[0]);
 
         this._debugger.setBreakpoint(address, name);
@@ -179,7 +176,7 @@ class DebuggerFrontend {
     private _clearBreakpoint(args: Array<string>): string {
         if (args.length < 1) throw new Error('argument expected');
 
-        var address = decodeNumber(args[0]);
+        const address = decodeNumber(args[0]);
 
         this._debugger.clearBreakpoint(address);
 

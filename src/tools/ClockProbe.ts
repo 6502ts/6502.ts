@@ -1,5 +1,3 @@
-'use strict';
-
 import EventInterface = require('./event/EventInterface');
 import Event = require('./event/Event');
 import SchedulerInterface = require('./scheduler/SchedulerInterface');
@@ -53,7 +51,7 @@ class ClockProbe {
     frequencyUpdate = new Event<number>();
 
     private _updateMeasurement(probe: ClockProbe) {
-        var timestamp = Date.now();
+        const timestamp = Date.now();
 
         probe._frequency = probe._counter / (timestamp - probe._timestamp) * 1000;
 
@@ -70,7 +68,7 @@ class ClockProbe {
     private _counter = 0;
     private _timestamp: number;
     private _frequency = 0;
-    
+
     private _clock: EventInterface<any>;
 
     private _measurementTask: TaskInterface;

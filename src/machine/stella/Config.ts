@@ -1,5 +1,3 @@
-'use strict';
-
 class Config {
     constructor(
         public tvMode: Config.TvMode = Config.TvMode.ntsc
@@ -8,7 +6,7 @@ class Config {
 
 module Config {
 
-    export enum TvMode {ntsc, pal, secam};
+    export const enum TvMode {ntsc, pal, secam};
 
 }
 

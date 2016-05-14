@@ -1,8 +1,6 @@
-'use strict';
-
 import EventInterface = require('./EventInterface');
 
-var factories: Array<Function> = [];
+const factories: Array<Function> = [];
 
 factories[0] = function(): Function {
     return function dispatcher0() {};
@@ -13,8 +11,8 @@ factories[1] = function(callback: Function, context?: any): Function {
 
     return function dispatcher1(payload: any) {
         callback(payload, context);
-    }
-}
+    };
+};
 
 function getFactory(handlerCount: number) {
     if (!factories[handlerCount]) factories[handlerCount] = compileFactory(handlerCount);
@@ -23,11 +21,12 @@ function getFactory(handlerCount: number) {
 }
 
 function compileFactory(handlerCount: number): Function {
-    var src: string = 'return function dispatcher' + handlerCount + '(payload) {\n',
-        argsHandlers: Array<string> = [],
+    let src: string = 'return function dispatcher' + handlerCount + '(payload) {\n';
+
+    const argsHandlers: Array<string> = [],
         argsContexts: Array<string> = [];
 
-    for (var i = 0; i < handlerCount; i++) {
+    for (let i = 0; i < handlerCount; i++) {
         argsHandlers.push('cb' + i);
         argsContexts.push('ctx' + i);
         src += '    cb' + i + '(payload, ctx' + i + ');\n';
@@ -35,7 +34,7 @@ function compileFactory(handlerCount: number): Function {
 
     src += '};';
 
-    return new (Function.bind(Function, argsHandlers.concat(argsContexts)))(src);
+    return new Function(...argsHandlers.concat(argsContexts), src);
 }
 
 class Event<EventPayload> implements EventInterface<EventPayload> {
@@ -57,7 +56,7 @@ class Event<EventPayload> implements EventInterface<EventPayload> {
     }
 
     removeHandler<T>(handler: EventInterface.HandlerInterface<EventPayload, T>, context?: T): Event<EventPayload> {
-        var idx = this._getHandlerIndex(handler, context);
+        const idx = this._getHandlerIndex(handler, context);
 
         if (typeof(idx) !== 'undefined') {
             this._handlers.splice(idx, 1);
@@ -83,9 +82,10 @@ class Event<EventPayload> implements EventInterface<EventPayload> {
     }
 
     private _getHandlerIndex<T>(handler: EventInterface.HandlerInterface<EventPayload, T>, context?: T): number {
-        var handlerCount = this._handlers.length;
+        const handlerCount = this._handlers.length;
 
-        for (var idx = 0; idx < handlerCount; idx++) {
+        let idx: number;
+        for (idx = 0; idx < handlerCount; idx++) {
             if (this._handlers[idx] === handler && this._contexts[idx] === context) break;
         }
 

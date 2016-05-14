@@ -1,5 +1,3 @@
-'use strict';
-
 import StellaCLI = require('../src/cli/StellaCLI');
 import NodeCLIRunner = require('../src/cli/NodeCLIRunner');
 import NodeFilesystemProvider = require('../src/fs/NodeFilesystemProvider');
@@ -9,9 +7,9 @@ if (process.argv.length < 3) {
     process.exit(1);
 }
 
-var cartridgeFile = process.argv[2];
+const cartridgeFile = process.argv[2];
 
-var fsProvider = new NodeFilesystemProvider(),
+const fsProvider = new NodeFilesystemProvider(),
     cli = new StellaCLI(fsProvider, cartridgeFile),
     runner = new NodeCLIRunner(cli);
 

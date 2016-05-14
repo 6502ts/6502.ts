@@ -27,8 +27,8 @@ interface CLIInterface {
 
         promptChanged: EventInterface<void>;
 
-        prompt: EventInterface<void>
-    }
+        prompt: EventInterface<void>;
+    };
 }
 
 export = CLIInterface;

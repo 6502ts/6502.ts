@@ -1,7 +1,5 @@
-'use strict';
-
 export function encode(value: number, width?: number): string {
-    var result = Math.abs(value).toString(16).toUpperCase();
+    let result = Math.abs(value).toString(16).toUpperCase();
 
     if (typeof(width) !== 'undefined') {
         while (result.length < width) result = '0' + result;
@@ -11,12 +9,17 @@ export function encode(value: number, width?: number): string {
 }
 
 export function decode(value: string): number {
-    var sign = value.match(/^-/) ? -1 : 1,
-        stripped = value.replace(/^-/, '').toUpperCase();
+    const sign = value.match(/^-/) ? -1 : 1;
 
-    if      (stripped.match(/^0X[0-9A-F]+$/)) stripped = stripped.replace(/^0x/, '')
-    else if (stripped.match(/^$[0-9A-F]+$/)) stripped = stripped.replace(/^$/, '')
-    else    throw new TypeError('invalid hex number ' + value);
+    let stripped = value.replace(/^-/, '').toUpperCase();
+
+    if (stripped.match(/^0X[0-9A-F]+$/)) {
+        stripped = stripped.replace(/^0x/, '');
+    } else if (stripped.match(/^$[0-9A-F]+$/)) {
+        stripped = stripped.replace(/^$/, '');
+    } else {
+        throw new TypeError('invalid hex number ' + value);
+    }
 
     return sign * parseInt(stripped, 16);
 }

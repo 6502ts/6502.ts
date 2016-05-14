@@ -13,7 +13,7 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
     readBinaryFileSync(name: string): Buffer {
         name = this._resolvePath(name);
 
-        var content = this._lookup(name);
+        const content = this._lookup(name);
 
         if (typeof(content) === 'undefined')
             throw new Error(util.format('%s not part of file bundle', name));
@@ -25,7 +25,7 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
     }
 
     readTextFileSync(name: string): string {
-        var buffer = this.readBinaryFileSync(name);
+        const buffer = this.readBinaryFileSync(name);
 
         return buffer.toString();
     }
@@ -33,7 +33,7 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
     readDirSync(name: string): Array<string> {
         name = this._resolvePath(name);
 
-        var content = this._lookup(name);
+        const content = this._lookup(name);
 
         if (typeof(content) === 'undefined')
             throw new Error(util.format('%s not part of file bundle', name));
@@ -48,7 +48,7 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
     getTypeSync(name: string): FilesystemProviderInterface.FileType {
         name = this._resolvePath(name);
 
-        var content = this._lookup(name);
+        const content = this._lookup(name);
 
         if (typeof(content) === 'undefined')
              throw new Error(util.format('%s not part of file bundle', name));
@@ -61,13 +61,13 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
     }
 
     private _lookup(path: string): any {
-        var atoms: Array<string> = path.split('/');
+        const atoms: Array<string> = path.split('/'),
+            natoms = atoms.length;
 
-        var natoms = atoms.length,
-            i: number,
+        let i: number,
             scope = this._blob;
 
-        var name = atoms[natoms - 1];
+        const name = atoms[natoms - 1];
 
         for (i = 0; i < natoms - 1; i++) {
             if (atoms[i] === '') {
@@ -90,7 +90,7 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
 module PrepackagedFilesystemProvider {
 
     export interface BlobInterface {
-        [index: string]: any
+        [index: string]: any;
     }
 
 }

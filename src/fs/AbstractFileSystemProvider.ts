@@ -1,6 +1,6 @@
 import pathlib = require('path');
 
-class AbstractFileSystemProvider {
+abstract class AbstractFileSystemProvider {
 
     pushd(path?: string): void {
         this._directoryStack.unshift(this._cwd);
@@ -11,7 +11,7 @@ class AbstractFileSystemProvider {
     popd(): string {
         if (this._directoryStack.length === 0) return;
 
-        var targetDir = this._directoryStack.shift();
+        const targetDir = this._directoryStack.shift();
 
         this.chdir(targetDir);
 

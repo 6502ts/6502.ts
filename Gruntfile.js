@@ -8,6 +8,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-bower-install-simple');
     grunt.loadNpmTasks('grunt-notify');
+    grunt.loadNpmTasks('grunt-tslint');
 
     grunt.loadTasks('./grunt');
 
@@ -29,6 +30,17 @@ module.exports = function(grunt) {
             ],
             mrproper: [
                 'web/bower'
+            ]
+        },
+
+        tslint: {
+            options: {
+                configuration: "tslint.json"
+            },
+            files: [
+                "bin/*.ts",
+                "src/*/**.ts",
+                "tests/ts/**.ts",
             ]
         },
 
@@ -130,7 +142,7 @@ module.exports = function(grunt) {
         watch: {
             build: {
                 files: ['src/**/*.ts', 'aux/**'],
-                tasks: 'build'
+                tasks: ['build']
             }
         },
 
@@ -143,9 +155,9 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('bower', ['bower-install-simple']);
-    grunt.registerTask('build', ['ts:main', 'browserify', 'blobify:default']);
-    grunt.registerTask('test', ['ts', 'blobify:tests', 'mochaTest:test']);
-    grunt.registerTask('test:debug', ['ts', 'blobify:tests', 'mochaTest:debug']);
+    grunt.registerTask('build', ['tslint', 'ts', 'browserify', 'blobify:default']);
+    grunt.registerTask('test', ['ts', 'tslint', 'blobify:tests', 'mochaTest:test']);
+    grunt.registerTask('test:debug', ['ts', 'tslint', 'blobify:tests', 'mochaTest:debug']);
 
     grunt.registerTask('cleanup', ['clean:base']);
     grunt.registerTask('mrproper', ['clean']);

@@ -1,6 +1,4 @@
-'use strict';
-
-import PoolMemberInterface = require('./PoolMemberInterface')
+import PoolMemberInterface = require('./PoolMemberInterface');
 
 class PoolMember<T> implements PoolMemberInterface<T> {
 

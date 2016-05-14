@@ -1,5 +1,3 @@
-'use strict';
-
 import SchedulerInterface = require('../../tools/scheduler/SchedulerInterface');
 
 interface TimerInterface {

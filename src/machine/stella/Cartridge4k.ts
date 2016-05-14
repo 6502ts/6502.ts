@@ -1,5 +1,3 @@
-'use strict';
-
 import AbstractCartridge = require('./AbstractCartridge');
 
 class Cartridge4k extends AbstractCartridge {
@@ -7,7 +5,7 @@ class Cartridge4k extends AbstractCartridge {
     constructor (buffer: {[i: number]: number; length: number}) {
         super();
 
-        for (var i = 0; i < 0x1000 && i < buffer.length; i++)
+        for (let i = 0; i < 0x1000 && i < buffer.length; i++)
             this.rom[0x0FFF - i] = buffer[buffer.length -1 - i];
     }
 

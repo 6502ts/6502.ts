@@ -1,12 +1,10 @@
-'use strict';
-
 import VideoOutputInterface = require('../io/VideoOutputInterface');
 import RGBASurfaceInterface = require('../../tools/surface/RGBASurfaceInterface');
 import Event = require('../../tools/event/Event');
 import Config = require('./Config');
 import CpuInterface = require('../cpu/CpuInterface');
 
-var VISIBLE_WIDTH = 160,
+const VISIBLE_WIDTH = 160,
     VISIBLE_LINES_NTSC = 192,
     VISIBLE_LINES_PAL = 228;
 
@@ -56,8 +54,8 @@ class Tia implements VideoOutputInterface {
 
     cycle(): void {
         this._hClock += 3;
-       
-        if (this._hClock == 227 && this._cpuHold) {
+
+        if (this._hClock === 227 && this._cpuHold) {
             this._cpuHold = false;
             this._cpu.resume();
         }
@@ -105,8 +103,8 @@ class Tia implements VideoOutputInterface {
 }
 
 module Tia {
-    
-    export enum Registers {
+
+    export const enum Registers {
         vsync   = 0x00,
         vblank  = 0x01,
         wsync   = 0x02,
@@ -168,7 +166,7 @@ module Tia {
         inpt5   = 0x3D
     }
 
-    export enum TrapReason {invalidRead, invalidWrite}
+    export const enum TrapReason {invalidRead, invalidWrite}
 
     export class TrapPayload {
         constructor(

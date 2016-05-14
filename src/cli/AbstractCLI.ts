@@ -1,7 +1,7 @@
 import CLIInterface = require('./CLIInterface');
 import Event = require('../tools/event/Event');
 
-class AbstractCLI {
+abstract class AbstractCLI {
 
     events = {
         outputAvailable: new Event<void>(),

@@ -56,8 +56,8 @@ class JqtermCLIRunner {
 
 module JqtermCLIRunner {
     export interface Options {
-        interruptButton?: JQuery
-        clearButton?: JQuery
+        interruptButton?: JQuery;
+        clearButton?: JQuery;
     }
 }
 

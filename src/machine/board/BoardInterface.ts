@@ -1,5 +1,3 @@
-'use strict';
-
 import BusInterface = require('../bus/BusInterface');
 import CpuInterface = require('../cpu/CpuInterface');
 import TimerInterface = require('./TimerInterface');
@@ -33,10 +31,10 @@ interface BoardInterface {
 }
 
 module BoardInterface {
-    
-    export enum TrapReason {cpu, bus, debug, board};
 
-    export enum ClockMode {instruction, lazy};
+    export const enum TrapReason {cpu, bus, debug, board};
+
+    export const enum ClockMode {instruction, lazy};
 
     export class TrapPayload {
         constructor(

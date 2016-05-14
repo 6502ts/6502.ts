@@ -5,7 +5,7 @@ import DebuggerCLI = require('./DebuggerCLI');
 
 import Board = require('../machine/stella/Board');
 import CartridgeInterface = require('../machine/stella/CartridgeInterface');
-import Cartridge4k = require('../machine/stella/Cartridge4k')
+import Cartridge4k = require('../machine/stella/Cartridge4k');
 import StellaConfig = require('../machine/stella/Config');
 
 class StellaCLI extends DebuggerCLI {
@@ -19,7 +19,7 @@ class StellaCLI extends DebuggerCLI {
     }
 
     protected _initializeHardware(): void {
-        var fileBuffer = this._fsProvider.readBinaryFileSync(this._cartridgeFile),
+        const fileBuffer = this._fsProvider.readBinaryFileSync(this._cartridgeFile),
             cartridge = new Cartridge4k(fileBuffer),
             config = new StellaConfig(StellaConfig.TvMode.ntsc),
             board = new Board(config, cartridge);

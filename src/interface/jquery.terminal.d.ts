@@ -6,10 +6,10 @@ interface JQueryTerminal {
 }
 
 interface JQueryTerminalOptions {
-    greetings?: string
-    completion?: JQueryTerminalCompletionHandler
-    exit?: boolean
-    clear?: boolean
+    greetings?: string;
+    completion?: JQueryTerminalCompletionHandler;
+    exit?: boolean;
+    clear?: boolean;
 }
 
 interface JQueryTerminalInterpreterFunction {
@@ -17,7 +17,7 @@ interface JQueryTerminalInterpreterFunction {
 }
 
 interface JQueryTerminalCompletionHandler {
-    (terminal: JQueryTerminal, cmd: string, handler: (candidates: Array<string>) => void): void
+    (terminal: JQueryTerminal, cmd: string, handler: (candidates: Array<string>) => void): void;
 }
 
 interface JQuery {

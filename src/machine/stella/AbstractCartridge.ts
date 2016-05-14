@@ -1,5 +1,3 @@
-'use strict';
-
 import Event = require('../../tools/event/Event');
 import CartridgeInterface = require('./CartridgeInterface');
 

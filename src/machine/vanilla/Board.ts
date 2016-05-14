@@ -1,5 +1,3 @@
-'use strict';
-
 import BoardInterface = require('../board/BoardInterface');
 import CpuInterface = require('../cpu/CpuInterface');
 import Cpu = require('../cpu/Cpu');
@@ -43,7 +41,7 @@ class Board implements BoardInterface {
     }
 
     boot(): Board {
-        var clock = 0;
+        let clock = 0;
 
         if (this._cpu.executionState !== CpuInterface.ExecutionState.boot)
             throw new Error("Already booted!");
@@ -88,7 +86,7 @@ class Board implements BoardInterface {
     getClockMode(): BoardInterface.ClockMode {
         return this._clockMode;
     }
-              
+
     trap = new Event<BoardInterface.TrapPayload>();
 
     protected _createBus() {
@@ -96,7 +94,7 @@ class Board implements BoardInterface {
     }
 
     protected _tick(clocks: number): void {
-        var i = 0,
+        let i = 0,
             clock = 0;
 
         this._trap = false;
@@ -152,7 +150,7 @@ class Board implements BoardInterface {
         tick: (clocks: number): void => this._tick(clocks),
         start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler, sliceHint),
         stop: (): void => this._stop(),
-        isRunning: (): boolean => !!this._runTask 
+        isRunning: (): boolean => !!this._runTask
     };
 }
 

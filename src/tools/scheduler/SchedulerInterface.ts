@@ -1,5 +1,3 @@
-'use strict';
-
 import TaskInterface = require('./TaskInterface');
 
 interface SchedulerInterface {

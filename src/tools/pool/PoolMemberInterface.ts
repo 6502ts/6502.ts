@@ -1,5 +1,3 @@
-'use strict';
-
 interface PoolMemberInterface<T> {
 
     get(): T;

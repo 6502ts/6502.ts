@@ -18,7 +18,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
         this._fsProvider = fsProvider;
         this._initializeHardware();
 
-        var dbg = new Debugger(),
+        const dbg = new Debugger(),
             commandInterpreter = new CommandInterpreter(),
             debuggerFrontend = new  DebuggerFrontend(dbg, this._fsProvider, commandInterpreter);
 
@@ -87,7 +87,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
     }
 
     readOutput(): string {
-        var output = this._output;
+        const output = this._output;
 
         this._output = '';
 

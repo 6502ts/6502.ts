@@ -1,5 +1,3 @@
-'use strict';
-
 import PoolMember = require('./PoolMember');
 import Event = require('../event/Event');
 import PoolInterface = require('./PoolInterface');
@@ -12,7 +10,7 @@ class Pool<T> implements PoolInterface<T> {
     ) {}
 
     get(): PoolMemberInterface<T> {
-        var member: PoolMember<T>;
+        let member: PoolMember<T>;
 
         if (this._poolSize === 0) {
             member = new PoolMember<T>(
@@ -31,7 +29,7 @@ class Pool<T> implements PoolInterface<T> {
     event = {
         release: new Event<T>(),
         dispose: new Event<T>()
-    }
+    };
 
     private _releaseMember(victim: PoolMember<T>) {
         if (victim._isAvailable)
@@ -40,10 +38,10 @@ class Pool<T> implements PoolInterface<T> {
         if (victim._isDisposed)
             throw new Error('Trying to release an already disposed pool member');
 
-        var position = this._poolSize++;
+        const position = this._poolSize++;
 
         this._pool[position] = victim;
-        
+
         victim._isAvailable = true;
         victim._poolPosition = position;
 
@@ -68,13 +66,13 @@ class Pool<T> implements PoolInterface<T> {
     }
 
     private _pool: Array<PoolMember<T> > = [];
-    
+
     private _poolSize = 0;
 }
 
 module Pool {
     export interface FactoryInterface<T> {
-        (): T
+        (): T;
     }
 
     export interface RecycleCallbackInterface<T> {

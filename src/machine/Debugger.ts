@@ -36,7 +36,7 @@ class Debugger {
     }
 
     clearAllBreakpoints(): Debugger {
-        for (var i = 0; i < 0x10000; i++) this._breakpoints[i] = 0;
+        for (let i = 0; i < 0x10000; i++) this._breakpoints[i] = 0;
 
         return this;
     }
@@ -57,13 +57,13 @@ class Debugger {
     }
 
     dumpBreakpoints(): string {
-        var result = '';
+        let result = '';
 
-        for (var address = 0; address < 0x10000; address++) {
+        for (let address = 0; address < 0x10000; address++) {
             if (this._breakpoints[address])
                 result += (
                     hex.encode(address, 4) + ': ' +
-                    this._breakpointDescriptions[address] + '\n')
+                    this._breakpointDescriptions[address] + '\n');
         }
 
         return result.replace(/\n$/, '');
@@ -75,14 +75,14 @@ class Debugger {
         from: number = 0,
         to: number = block.length - 1
     ) {
-        var address: number;
+        let address: number;
 
-        for (var i = 0; i <= to - from; i++)
+        for (let i = 0; i <= to - from; i++)
             this._poke(at + i, block[i]);
     }
 
     disassembleAt(start: number, length: number): string {
-        var i = 0,
+        let i = 0,
             result = '',
             instruction: Instruction,
             address: number;
@@ -108,10 +108,10 @@ class Debugger {
     }
 
     trace(length: number = this._traceSize): string {
-        var result = '';
+        let result = '';
         length = Math.min(length, this._traceLength);
 
-        for (var i = 0; i < length; i++) {
+        for (let i = 0; i < length; i++) {
             result += (
                 this.disassembleAt(
                     this._trace[(this._traceSize + this._traceIndex - length + i) % this._traceSize],
@@ -123,22 +123,23 @@ class Debugger {
     }
 
     dumpAt(start: number, length: number): string {
-        var result = '',
+        let result = '',
             address: number;
 
-        for (var i = 0; i < length; i++) {
+        for (let i = 0; i < length; i++) {
             address = (start + i) % 0x10000;
 
             result += (hex.encode(address, 4) + ':   ' +
-                hex.encode(this._peek(address), 2) + '\n')
+                hex.encode(this._peek(address), 2) + '\n');
         }
 
         return result.replace(/\n$/, '');
     }
 
     dumpState(): string {
-        var state = this._cpu.state,
-            result = '' +
+        const state = this._cpu.state;
+
+        let result = '' +
                 'A = ' + hex.encode(state.a, 2) + '   ' +
                 'X = ' + hex.encode(state.x, 2) + '   ' +
                 'Y = ' + hex.encode(state.y, 2) + '   ' +
@@ -146,7 +147,7 @@ class Debugger {
                 'P = ' + hex.encode(state.p, 4) + '\n' +
                 'flags = ' + binary.encode(state.flags, 8);
 
-        var boardState = this._board.getBoardStateDebug();
+        const boardState = this._board.getBoardStateDebug();
 
         if (boardState) {
             result += (
@@ -164,7 +165,7 @@ class Debugger {
     }
 
     step(instructions: number): number {
-        var instruction = 0,
+        let instruction = 0,
             cycles = 0,
             timer = this._board.getTimer();
 

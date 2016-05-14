@@ -1,11 +1,11 @@
 {
     "compilerOptions": {
         "allowJs": false,
-        "inlineSourceMap": true,
         "module": "commonjs",
         "moduleResolution": "node",
         "noImplicitAny": true,
-        "target": "es5"
+        "target": "es5",
+        "preserveConstEnums": true
     },
     "filesGlob": [
         "bin/*.ts",

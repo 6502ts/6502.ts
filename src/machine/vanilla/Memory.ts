@@ -1,5 +1,3 @@
-'use strict';
-
 import BusInterface = require('../bus/BusInterface');
 
 class Memory implements BusInterface {
@@ -8,7 +6,7 @@ class Memory implements BusInterface {
     }
 
     clear(): void {
-        for (var i = 0; i < 0x10000; i++) this._data[i] = 0;
+        for (let i = 0; i < 0x10000; i++) this._data[i] = 0;
     }
 
     read(address: number): number {

@@ -1,5 +1,3 @@
-'use strict';
-
 import BusInterface = require('../bus/BusInterface');
 import Event = require('../../tools/event/Event');
 import Tia = require('./Tia');
@@ -101,7 +99,7 @@ class Bus implements BusInterface {
 
 module Bus {
 
-    export enum TrapReason {tia, pia, cartridge}
+    export const enum TrapReason {tia, pia, cartridge}
 
     export class TrapPayload {
 

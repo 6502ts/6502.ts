@@ -1,5 +1,3 @@
-'use strict';
-
 import RGBASurfaceInterface = require('../../tools/surface/RGBASurfaceInterface');
 import EventInterface = require('../../tools/event/EventInterface');
 

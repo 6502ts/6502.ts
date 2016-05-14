@@ -1,11 +1,9 @@
-'use strict';
-
 import Event = require('../../tools/event/Event');
 
 class Pia {
 
     reset(): void {
-        for (var i = 0; i < 128; i++) this.ram[i] = 0;
+        for (let i = 0; i < 128; i++) this.ram[i] = 0;
     }
 
     read(address: number): number {
@@ -35,7 +33,7 @@ class Pia {
 }
 
 module Pia {
-    export enum Registers {
+    export const enum Registers {
         swcha   = 0x280,
         swacnt  = 0x281,
         swchb   = 0x282,
@@ -48,7 +46,7 @@ module Pia {
         t1024t  = 0x297
     }
 
-    export enum TrapReason {invalidRead, invalidWrite}
+    export const enum TrapReason {invalidRead, invalidWrite}
 
     export class TrapPayload {
         constructor (

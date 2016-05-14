@@ -5,14 +5,14 @@ import util = require('util');
 
 import Pool = require('../../src/tools/pool/Pool');
 
-var releaseCtr = 0,
+let releaseCtr = 0,
     disposeCtr = 0;
 
 class Probe {}
 
 suite('Object Pool', function() {
 
-    var pool: Pool<Probe>,
+    let pool: Pool<Probe>,
         factoryInvocations: number;
 
     setup(function() {
@@ -41,7 +41,7 @@ suite('Object Pool', function() {
     }
 
     test('get - get', function() {
-        var p1 = pool.get(),
+        const p1 = pool.get(),
             p2 = pool.get();
 
         assert(p1.get() !== p2.get(), 'pool should have returned different instances');
@@ -49,29 +49,29 @@ suite('Object Pool', function() {
     });
 
     test('get - release - get', function() {
-        var p1 = pool.get();
+        const p1 = pool.get();
 
         p1.release();
 
-        var p2 = pool.get();
+        let p2 = pool.get();
 
         assert (p1.get() === p2.get(), 'pool should have returned identical instances');
         assertCallCount(1, 1, 0);
     });
 
     test('get - dispose - get', function() {
-        var p1 = pool.get();
+        const p1 = pool.get();
 
         p1.dispose();
 
-        var p2 = pool.get();
+        const p2 = pool.get();
 
         assert(p1.get() !== p2.get(), 'pool should have returned a new instance');
         assertCallCount(2, 0, 1);
     });
 
     test('get - get - release - release - dispose - get - get', function() {
-        var p1 = pool.get(),
+        const p1 = pool.get(),
             p2 = pool.get();
 
         p2.release();
@@ -79,7 +79,7 @@ suite('Object Pool', function() {
 
         p2.dispose();
 
-        var p3 = pool.get(),
+        const p3 = pool.get(),
             p4 = pool.get();
 
         assert(p1.get() === p3.get(), 'pool should have reused the first instance');
@@ -89,7 +89,7 @@ suite('Object Pool', function() {
     });
 
     test('double dispose should throw', function() {
-        var p1 = pool.get();
+        const p1 = pool.get();
 
         p1.dispose();
 
@@ -97,7 +97,7 @@ suite('Object Pool', function() {
     });
 
     test('double release should throw', function() {
-        var p1 = pool.get();
+        const p1 = pool.get();
 
         p1.release();
 
@@ -105,7 +105,7 @@ suite('Object Pool', function() {
     });
 
     test('releasing an already disposed instance should throw', function() {
-        var p1 = pool.get();
+        const p1 = pool.get();
 
         p1.dispose();
 

@@ -1,7 +1,5 @@
 ///<reference path="./interface/mocha.d.ts"/>
 
-'use strict';
-
 import assert = require('assert');
 import util = require('util');
 import PeriodicScheduler = require('../../src/tools/scheduler/PeriodicScheduler');
@@ -13,8 +11,8 @@ suite('Periodic Scheduler', function() {
     }
 
     test('Preset period', function(callback: Mocha.ReadyCallback) {
-        var scheduler = new PeriodicScheduler(50);
-        var counter = 0,
+        const scheduler = new PeriodicScheduler(50);
+        let counter = 0,
             ctx = 0;
 
         function handler(context: number) {
@@ -24,7 +22,7 @@ suite('Periodic Scheduler', function() {
 
         assert.equal(scheduler.getPeriod(), 50, 'Perdiod schould be 50');
 
-        var task = scheduler.start(handler, 50);
+        const task = scheduler.start(handler, 50);
 
         setTimeout(() => task.stop(), 225);
 
@@ -41,12 +39,12 @@ suite('Periodic Scheduler', function() {
     });
 
     test('Preset period', function(callback: Mocha.ReadyCallback) {
-        var scheduler = new PeriodicScheduler(50);
-        var counter = 0;
+        const scheduler = new PeriodicScheduler(50);
+        let counter = 0;
 
         assert.equal(scheduler.getPeriod(), 50, 'Perdiod schould be 50');
 
-        var task = scheduler.start(() => {
+        const task = scheduler.start(() => {
             counter++;
             scheduler.setPeriod(scheduler.getPeriod() - 10);
         });

@@ -1,25 +1,23 @@
-'use strict';
-
 import Instruction = require('./Instruction');
 import hex = require('../../tools/hex');
-import BusInterface = require('../bus/BusInterface')
+import BusInterface = require('../bus/BusInterface');
 
 class Disassembler {
     constructor(private _bus?: BusInterface)
     {}
 
     disassembleAt(address: number): string {
-        var instruction = Instruction.opcodes[this._peek(address)],
+        const instruction = Instruction.opcodes[this._peek(address)],
             operation = Instruction.OperationMap[instruction.operation].toUpperCase();
 
-        var read8 =  (a: number = address + 1) =>
+        const read8 =  (a: number = address + 1) =>
             hex.encode(this._peek(a), 2);
 
-        var read16 = (a: number = address + 1) =>
+        const read16 = (a: number = address + 1) =>
             hex.encode(
                 this._peek(a) + (this._peek(a + 1) << 8), 4);
 
-        var decodeSint8 = (value: number) => (value & 0x80) ? (-(~(value-1) & 0xFF)) : value;
+        const decodeSint8 = (value: number) => (value & 0x80) ? (-(~(value-1) & 0xFF)) : value;
 
         switch (instruction.addressingMode) {
             case Instruction.AddressingMode.implied:
@@ -38,7 +36,7 @@ class Disassembler {
                 return operation + ' (' + read16() + ')';
 
             case Instruction.AddressingMode.relative:
-                var distance = decodeSint8(this._peek(address + 1));
+                const distance = decodeSint8(this._peek(address + 1));
 
                 return operation + ' ' +
                     hex.encode(distance, 2) + ' ; -> '

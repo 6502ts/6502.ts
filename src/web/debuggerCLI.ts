@@ -1,7 +1,5 @@
 /// <reference path="../interface/jquery.terminal.d.ts"/>
 
-'use strict';
-
 import DebuggerCLI = require("../cli/DebuggerCLI");
 import JqtermCLIRunner = require('../cli/JqtermCLIRunner');
 import PrepackagedFilesystemProvider = require('../fs/PrepackagedFilesystemProvider');
@@ -12,7 +10,7 @@ export function run(
     interruptButton: JQuery,
     clearButton: JQuery
 ) {
-    var fsProvider = new PrepackagedFilesystemProvider(fileBlob),
+    const fsProvider = new PrepackagedFilesystemProvider(fileBlob),
         cli = new DebuggerCLI(fsProvider),
         runner = new JqtermCLIRunner(cli, terminalElt, {
             interruptButton: interruptButton,

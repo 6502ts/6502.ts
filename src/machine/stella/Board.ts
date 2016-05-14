@@ -1,5 +1,3 @@
-'use strict';
-
 import BoardInterface = require('../board/BoardInterface');
 import CpuInterface = require('../cpu/CpuInterface');
 import Cpu = require('../cpu/Cpu');
@@ -18,13 +16,13 @@ import Config = require('./Config');
 class Board implements BoardInterface {
 
     constructor(config: Config, cartridge: CartridgeInterface, cpuFactory?: (bus: BusInterface) => CpuInterface) {
-        var bus = new Bus();
-        
+        const bus = new Bus();
+
         if (typeof(cpuFactory) === 'undefined') cpuFactory = bus => new Cpu(bus);
 
-        var cpu = cpuFactory(bus);
-        var pia = new Pia();
-        var tia = new Tia(config);
+        const cpu = cpuFactory(bus);
+        const pia = new Pia();
+        const tia = new Tia(config);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
         tia.setCpu(cpu);
@@ -63,7 +61,7 @@ class Board implements BoardInterface {
     }
 
     boot(): Board {
-        var clock = 0;
+        let  clock = 0;
 
         this.reset();
 
@@ -94,7 +92,7 @@ class Board implements BoardInterface {
     }
 
     getBoardStateDebug(): string {
-        var sep = "============";
+        const sep = "============";
 
         return  'TIA:\n' +
                 sep + '\n' +
@@ -114,7 +112,7 @@ class Board implements BoardInterface {
     getClockMode(): BoardInterface.ClockMode {
         return this._clockMode;
     }
-              
+
     trap = new Event<BoardInterface.TrapPayload>();
 
     private _cycle(): void {
@@ -124,7 +122,7 @@ class Board implements BoardInterface {
     }
 
     private _tick(clocks: number): void {
-        var i = 0,
+        let i = 0,
             clock = 0;
 
         this._trap = false;
@@ -184,7 +182,7 @@ class Board implements BoardInterface {
         tick: (clocks: number): void => this._tick(clocks),
         start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler, sliceHint),
         stop: (): void => this._stop(),
-        isRunning: (): boolean => !!this._runTask 
+        isRunning: (): boolean => !!this._runTask
     };
 }
 

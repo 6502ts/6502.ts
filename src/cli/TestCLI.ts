@@ -26,7 +26,7 @@ class TestCLI extends AbstractCLI implements CLIInterface {
     }
 
     pushInput(input: string) {
-        var result: string;
+        let result: string;
 
         try {
             result = this._interpreter.execute(input);
@@ -42,7 +42,7 @@ class TestCLI extends AbstractCLI implements CLIInterface {
     }
 
     readOutput(): string {
-        var buffer = this._outputBuffer;
+        const buffer = this._outputBuffer;
         this._outputBuffer = '';
         return buffer;
     }

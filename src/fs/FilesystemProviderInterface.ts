@@ -23,7 +23,7 @@ module FileSystemProviderInterface {
         length: number;
     }
 
-    export enum FileType {DIRECTORY, FILE}
+    export const enum FileType {DIRECTORY, FILE}
 
 }
 

@@ -4,7 +4,7 @@ import TaskInterface = require('./TaskInterface');
 class ImmediateScheduler implements SchedulerInterface {
 
     start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): TaskInterface {
-        var terminate = false;
+        let terminate = false;
 
         function handler() {
             if (terminate) return;

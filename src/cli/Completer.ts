@@ -10,7 +10,7 @@ class Completer {
     ) {}
 
     complete(cmd: string): Completer.CompletionResult {
-        var chunks = cmd.split(/\s+/);
+        const chunks = cmd.split(/\s+/);
 
         if (chunks.length > 0 && chunks[0] === '') chunks.shift();
 
@@ -25,14 +25,14 @@ class Completer {
                 );
 
             default:
-                var path = chunks[chunks.length - 1];
+                const path = chunks[chunks.length - 1];
 
                 return new Completer.CompletionResult(this._completePath(path), path);
         }
     }
 
     private _completePath(path: string): Array<string> {
-        var dirname = pathlib.dirname(path),
+        let dirname = pathlib.dirname(path),
             basename = pathlib.basename(path),
             directory: Array<string>;
 
@@ -59,16 +59,14 @@ class Completer {
     }
 
     private _appendSlashesToDirectories(paths: Array<string>) {
-        return paths.map((path: string): string =>
-            {
-                try {
-                    return (this._fsProvider.getTypeSync(path) === FilesystemProviderInterface.FileType.DIRECTORY ?
-                        pathlib.join(path, pathlib.sep) : path);
-                } catch(e) {
-                    return path;
-                }
+        return paths.map((path: string): string => {
+            try {
+                return (this._fsProvider.getTypeSync(path) === FilesystemProviderInterface.FileType.DIRECTORY ?
+                    pathlib.join(path, pathlib.sep) : path);
+            } catch(e) {
+                return path;
             }
-        );
+        });
     }
 }
 

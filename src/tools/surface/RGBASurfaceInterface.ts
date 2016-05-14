@@ -11,7 +11,7 @@ interface RGBASurfaceInterface {
 }
 
 module RGBASurfaceInterface {
-    export enum ByteOrder {rgba};
+    export const enum ByteOrder {rgba};
 
     export interface BufferInterface {
         [index: number]: number;

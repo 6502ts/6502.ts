@@ -5,7 +5,7 @@ import assert = require('assert');
 
 suite('Event handling', function() {
 
-    var event: Event<string>;
+    let event: Event<string>;
 
     setup(function() {
         event = new Event();
@@ -20,7 +20,7 @@ suite('Event handling', function() {
 
     suite('one handler', function() {
         test('no context', function() {
-            var called = false;
+            let called = false;
 
             event.addHandler(function(payload: string) {
                 assert.equal(payload, 'foo');
@@ -34,7 +34,7 @@ suite('Event handling', function() {
         });
 
         test('with context', function() {
-            var foo = 0;
+            let foo = 0;
 
             function handler(payload: string, context: number) {
                 assert.equal(payload, 'foo');
@@ -50,7 +50,7 @@ suite('Event handling', function() {
         });
 
         test('one handler, no context, multiple attachments', function() {
-            var i = 0;
+            let i = 0;
 
             function handler(): void {
                 i++;
@@ -62,11 +62,11 @@ suite('Event handling', function() {
             assert(event.isHandlerAttached(handler), 'handler should be reported as attached');
 
             event.removeHandler(handler);
-            assert(!event.isHandlerAttached(handler), 'handler should be reported as not attached after removal')
+            assert(!event.isHandlerAttached(handler), 'handler should be reported as not attached after removal');
         });
 
         test('one handler, different contexts, multiple attachments', function() {
-            var i = 0;
+            let i = 0;
 
             function handler(): void {
                 i++;
@@ -82,7 +82,7 @@ suite('Event handling', function() {
     });
 
     suite('two handlers', function() {
-        var called1: boolean, called2: boolean,
+        let called1: boolean, called2: boolean,
             contexts: Array<number>;
 
         function handler1(payload: string) {

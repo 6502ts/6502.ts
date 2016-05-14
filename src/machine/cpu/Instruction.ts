@@ -1,5 +1,3 @@
-'use strict';
-
 class Instruction {
     constructor(
         public operation: Instruction.Operation,
@@ -63,17 +61,17 @@ export = Instruction;
 
 module Instruction {
     (function() {
-        for (var i = 0; i < 256; i++) {
+        for (let i = 0; i < 256; i++) {
             opcodes[i] = new Instruction(Operation.invalid, AddressingMode.invalid);
         }
     })();
 
     (function() {
-        var operation: Operation,
+        let operation: Operation,
             addressingMode: AddressingMode,
             opcode: number;
 
-        for (var i = 0; i < 8; i++) {
+        for (let i = 0; i < 8; i++) {
             switch (i) {
                 case 0: operation = Operation.ora; break;
                 case 1: operation = Operation.and; break;
@@ -84,7 +82,7 @@ module Instruction {
                 case 6: operation = Operation.cmp; break;
                 case 7: operation = Operation.sbc; break;
             };
-            for (var j = 0; j < 8; j++) {
+            for (let j = 0; j < 8; j++) {
                 switch (j) {
                     case 0: addressingMode = AddressingMode.indexedIndirectX; break;
                     case 1: addressingMode = AddressingMode.zeroPage; break;

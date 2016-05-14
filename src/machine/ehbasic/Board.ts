@@ -1,5 +1,3 @@
-'use strict';
-
 import SimpleSerialIOInterface = require('../io/SimpleSerialIOInterface');
 import VanillaBoard = require('../vanilla/Board');
 import Memory = require('./Memory');

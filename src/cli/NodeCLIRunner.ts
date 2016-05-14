@@ -11,7 +11,7 @@ class NodeCLIRunner {
             input: process.stdin,
             output: process.stdout,
             completer: (cmd: string): any => {
-                var result = this._completer.complete(cmd);
+                const result = this._completer.complete(cmd);
                 return [result.candidates, result.match];
             }
         });
@@ -28,7 +28,7 @@ class NodeCLIRunner {
     startup(): void {
         this._cli.startup();
 
-        var prompt = this._cli.getPrompt();
+        const prompt = this._cli.getPrompt();
         this._readline.setPrompt(prompt);
 
         this._readline.prompt();
@@ -36,14 +36,14 @@ class NodeCLIRunner {
 
     private _onCLIQuit(payload: void, ctx: NodeCLIRunner): void {
         ctx._closed = true;
-        ctx._cli.shutdown()
+        ctx._cli.shutdown();
         ctx._readline.close();
     }
 
     private _onCLIOutputAvailable(payload: void, ctx: NodeCLIRunner): void {
         if (ctx._closed) return;
 
-        var output = ctx._cli.readOutput();
+        const output = ctx._cli.readOutput();
         process.stdout.write(output);
 
         ctx._readline.prompt();
@@ -52,7 +52,7 @@ class NodeCLIRunner {
     private _onCLIPromptChanged(payload: void, ctx: NodeCLIRunner) {
         if (ctx._closed) return;
 
-        var prompt = ctx._cli.getPrompt();
+        const prompt = ctx._cli.getPrompt();
         ctx._readline.setPrompt(prompt);
     }
 

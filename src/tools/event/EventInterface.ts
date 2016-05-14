@@ -1,5 +1,3 @@
-'use strict';
-
 interface EventInterface <EventPayload> {
 
     addHandler<T>(handler: EventInterface.HandlerInterface<EventPayload, T>, context?: T): EventInterface<EventPayload>;
@@ -10,7 +8,7 @@ interface EventInterface <EventPayload> {
 module EventInterface {
 
     export interface HandlerInterface<EventPayload, T> {
-        (payload: EventPayload, context: T): void
+        (payload: EventPayload, context: T): void;
     }
 
 }

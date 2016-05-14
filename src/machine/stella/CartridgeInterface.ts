@@ -1,5 +1,3 @@
-'use strict';
-
 import EventInterface = require('../../tools/event/EventInterface');
 
 interface CartridgeInterface {
@@ -14,7 +12,7 @@ interface CartridgeInterface {
 
 module CartridgeInterface {
 
-    export enum TrapReason {invalidRead, invalidWrite}
+    export const enum TrapReason {invalidRead, invalidWrite}
 
     export class TrapPayload {
         constructor(
