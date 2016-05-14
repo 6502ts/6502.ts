@@ -5,7 +5,8 @@
         "moduleResolution": "node",
         "noImplicitAny": true,
         "target": "es5",
-        "preserveConstEnums": true
+        "preserveConstEnums": true,
+        "sourceMap": false
     },
     "filesGlob": [
         "bin/*.ts",
