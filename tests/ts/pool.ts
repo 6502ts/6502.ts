@@ -1,5 +1,4 @@
 ///<reference path="./interface/mocha.d.ts"/>
-///<reference path="../../typings/node/node.d.ts"/>
 
 import assert = require('assert');
 import util = require('util');
@@ -36,7 +35,7 @@ suite('Object Pool', function() {
 
         assert.equal(releaseReference, releaseCtr, util.format(
             'release should have been called %s times, was called %s times', releaseReference, releaseCtr));
-        
+
         assert.equal(disposeReference, disposeCtr, util.format(
             'dispose should have been called %s times, was called %s times', disposeReference, disposeCtr));
     }
@@ -62,7 +61,7 @@ suite('Object Pool', function() {
 
     test('get - dispose - get', function() {
         var p1 = pool.get();
-        
+
         p1.dispose();
 
         var p2 = pool.get();

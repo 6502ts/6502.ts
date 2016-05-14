@@ -1,5 +1,3 @@
-'use strict';
-
 class CommandInterpreter {
     constructor(
         commandTable?: CommandInterpreter.CommandTableInterface
@@ -19,7 +17,7 @@ class CommandInterpreter {
 
         var components = cmd.split(/\s+/).filter((value: string): boolean => !!value),
             commandName = components.shift();
-       
+
         return this._locateCommand(commandName).call(this, components, cmd);
     }
 

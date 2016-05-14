@@ -1,7 +1,3 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import fs = require('fs');
 import FilesystemProviderInterface = require('./FilesystemProviderInterface');
 import AbstractFileSystemProvider = require('./AbstractFileSystemProvider');

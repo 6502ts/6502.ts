@@ -1,7 +1,3 @@
-/// <reference path="../../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import SchedulerInterface = require('./SchedulerInterface');
 import TaskInterface = require('./TaskInterface');
 

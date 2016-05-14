@@ -1,7 +1,3 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import path = require('path');
 
 import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
@@ -15,6 +11,8 @@ import StellaConfig = require('../machine/stella/Config');
 class StellaCLI extends DebuggerCLI {
 
     constructor(fsProvider: FilesystemProviderInterface, cartridgeFile: string) {
+        super(fsProvider);
+
         this._cartridgeFile = cartridgeFile;
 
         super(fsProvider);
@@ -32,7 +30,7 @@ class StellaCLI extends DebuggerCLI {
 
     protected _board: Board;
     protected _cartridge: CartridgeInterface;
-    
+
     protected _cartridgeFile: string;
 
 }

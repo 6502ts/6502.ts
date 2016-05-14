@@ -1,5 +1,3 @@
-'use strict';
-
 import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
 import EventInterface = require('../tools/event/EventInterface');
 
@@ -20,7 +18,7 @@ interface CLIInterface {
 
     shutdown(): void;
 
-    getFilesystemProvider(): FilesystemProviderInterface; 
+    getFilesystemProvider(): FilesystemProviderInterface;
 
     events: {
         outputAvailable: EventInterface<void>;

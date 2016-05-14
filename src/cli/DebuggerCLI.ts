@@ -1,7 +1,3 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import path = require('path');
 
 import Debugger = require('../machine/Debugger');
@@ -94,7 +90,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
         var output = this._output;
 
         this._output = '';
-        
+
         return output;
     }
 

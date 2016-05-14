@@ -1,7 +1,3 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import Debugger = require('../machine/Debugger');
 import CommandInterpreter = require('./CommandInterpreter');
 import hex = require('../tools/hex');
@@ -13,9 +9,9 @@ function decodeNumber(value: string): number {
     try {
         return hex.decode(value);
     } catch (e) {
-        if (!value.match(/^-?\d+$/)) 
+        if (!value.match(/^-?\d+$/))
             throw new TypeError('number expected, got ' + value);
-        
+
         return Number(value);
     }
 }
@@ -68,9 +64,6 @@ class DebuggerFrontend {
     }
 
     private _disassemble(args: Array<string>): string {
-        var address: number,
-            size: number;
-
         switch (args.length) {
             case 0:
                 return this._debugger.disassemble(1);
@@ -82,8 +75,6 @@ class DebuggerFrontend {
                 return this._debugger.disassembleAt(
                     decodeNumber(args[0]), decodeNumber(args[1]));
         }
-
-        return this._debugger.disassembleAt(address, size);
     }
 
     private _dump(args: Array<string>): string {

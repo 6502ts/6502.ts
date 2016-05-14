@@ -1,5 +1,3 @@
-/// <reference path="../../typings/jquery/jquery.d.ts"/>
-
 interface JQueryTerminal {
     echo(message: string): void;
     set_prompt(prompt: string): void;

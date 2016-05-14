@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-ts');
-    grunt.loadNpmTasks('grunt-tsd');
+    grunt.loadNpmTasks('grunt-typings');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-mocha-test');
@@ -14,28 +14,8 @@ module.exports = function(grunt) {
     grunt.initConfig({
         ts: {
             main: {
-                src: [
-                    'src/web/testCLI.ts',
-                    'src/web/ehBasicCLI.ts',
-                    'src/web/debuggerCLI.ts',
-
-                    'bin/ehBasicCLI.ts',
-                    'bin/testCLI.ts',
-                    'bin/debugger.ts',
-                    'bin/stellaCLI.ts'
-                ]
-            },
-            tests: {
-                src: 'tests/ts/*.ts'
-            },
-            options: {
-                target: 'es5',
-                module: 'commonjs',
-                declaration: false,
-                sourceMap: false,
-                removeComments: false,
-                noImplicitAny: true
-            },
+                tsconfig: true
+            }
         },
 
         clean: {
@@ -52,14 +32,8 @@ module.exports = function(grunt) {
             ]
         },
 
-        tsd: {
-            refresh: {
-                options: {
-                    command: 'reinstall',
-                    latest: false,
-                    config: 'tsd.json'
-                }
-            }
+        typings: {
+            install: {}
         },
 
         browserify: {
@@ -176,7 +150,7 @@ module.exports = function(grunt) {
     grunt.registerTask('cleanup', ['clean:base']);
     grunt.registerTask('mrproper', ['clean']);
 
-    grunt.registerTask('initial', ['clean', 'tsd', 'bower', 'build', 'test']);
+    grunt.registerTask('initial', ['clean', 'typings', 'bower', 'build', 'test']);
     grunt.registerTask('serve', ['http-server']);
 
     grunt.registerTask('default', ['build']);

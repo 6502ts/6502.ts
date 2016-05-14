@@ -1,5 +1,4 @@
 /// <reference path="../interface/jquery.terminal.d.ts"/>
-/// <reference path="../../typings/jquery/jquery.d.ts"/>
 
 'use strict';
 

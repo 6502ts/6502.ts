@@ -1,7 +1,3 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import util = require('util');
 import AbstractFileSystemProvider = require('./AbstractFileSystemProvider');
 import FilesystemProviderInterface = require('./FilesystemProviderInterface');
@@ -36,7 +32,7 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
 
     readDirSync(name: string): Array<string> {
         name = this._resolvePath(name);
-        
+
         var content = this._lookup(name);
 
         if (typeof(content) === 'undefined')
@@ -85,7 +81,7 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
 
         if (name && typeof(scope[name]) === 'string')
             scope[name] = new Buffer(scope[name], 'base64');
-        
+
         return name ? scope[name] : scope;
     }
 

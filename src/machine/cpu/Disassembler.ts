@@ -10,7 +10,7 @@ class Disassembler {
 
     disassembleAt(address: number): string {
         var instruction = Instruction.opcodes[this._peek(address)],
-            operation = Instruction.Operation[instruction.operation].toUpperCase();
+            operation = Instruction.OperationMap[instruction.operation].toUpperCase();
 
         var read8 =  (a: number = address + 1) =>
             hex.encode(this._peek(a), 2);

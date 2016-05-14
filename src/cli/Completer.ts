@@ -1,7 +1,3 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import CLIInterface = require('./CLIInterface');
 import pathlib = require('path');
 import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
@@ -77,7 +73,7 @@ class Completer {
 }
 
 module Completer {
-    
+
     export class CompletionResult {
         constructor(
             public candidates: Array<string>,

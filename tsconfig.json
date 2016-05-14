@@ -1,0 +1,54 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "inlineSourceMap": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "target": "es5"
+    },
+    "filesGlob": [
+        "bin/*.ts",
+        "src/*/**.ts",
+        "tests/ts/**.ts",
+        "typings/main.d.ts"
+    ],
+    "files": [
+        "bin/debuggerCLI.ts",
+        "bin/ehBasicCLI.ts",
+        "bin/stellaCLI.ts",
+        "bin/testCLI.ts",
+        "src/cli/AbstractCLI.ts",
+        "src/cli/CLIInterface.ts",
+        "src/cli/CommandInterpreter.ts",
+        "src/cli/Completer.ts",
+        "src/cli/DebuggerCLI.ts",
+        "src/cli/DebuggerFrontend.ts",
+        "src/cli/EhBasicCLI.ts",
+        "src/cli/JqtermCLIRunner.ts",
+        "src/cli/NodeCLIRunner.ts",
+        "src/cli/StellaCLI.ts",
+        "src/cli/TestCLI.ts",
+        "src/fs/AbstractFileSystemProvider.ts",
+        "src/fs/FilesystemProviderInterface.ts",
+        "src/fs/NodeFilesystemProvider.ts",
+        "src/fs/PrepackagedFilesystemProvider.ts",
+        "src/interface/jquery.terminal.d.ts",
+        "src/machine/Debugger.ts",
+        "src/tools/base64.ts",
+        "src/tools/binary.ts",
+        "src/tools/ClockProbe.ts",
+        "src/tools/hex.ts",
+        "src/web/debuggerCLI.ts",
+        "src/web/ehBasicCLI.ts",
+        "src/web/testCLI.ts",
+        "tests/ts/completer.ts",
+        "tests/ts/event.ts",
+        "tests/ts/pool.ts",
+        "tests/ts/scheduler.ts",
+        "typings/main.d.ts"
+    ],
+    "atom": {
+        "rewriteTsconfig": true
+    }
+}

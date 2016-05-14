@@ -30,7 +30,7 @@ class Instruction {
 };
 
 module Instruction {
-    export enum Operation {
+    export const enum Operation {
         adc, and, asl, bcc, bcs, beq, bit, bmi, bne, bpl, brk, bvc, bvs, clc,
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
@@ -38,7 +38,15 @@ module Instruction {
         invalid
     };
 
-    export enum AddressingMode {
+    export enum OperationMap {
+        adc, and, asl, bcc, bcs, beq, bit, bmi, bne, bpl, brk, bvc, bvs, clc,
+        cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
+        jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
+        rts, sbc, sec, sed, sei, sta, stx, sty, tax, tay, tsx, txa, txs, tya,
+        invalid
+    };
+
+    export const enum AddressingMode {
         implied,
         immediate, zeroPage, absolute, indirect, relative,
         zeroPageX, absoluteX, indexedIndirectX,
@@ -101,7 +109,7 @@ module Instruction {
 
         function set(opcode: number, operation: Operation, addressingMode: AddressingMode): void {
             opcodes[opcode].operation = operation;
-            opcodes[opcode].addressingMode = addressingMode; 
+            opcodes[opcode].addressingMode = addressingMode;
         }
 
         set(0x06, Operation.asl, AddressingMode.zeroPage);
@@ -109,7 +117,7 @@ module Instruction {
         set(0x0E, Operation.asl, AddressingMode.absolute);
         set(0x16, Operation.asl, AddressingMode.zeroPageX);
         set(0x1E, Operation.asl, AddressingMode.absoluteX);
-        
+
         set(0x26, Operation.rol, AddressingMode.zeroPage);
         set(0x2A, Operation.rol, AddressingMode.implied);
         set(0x2E, Operation.rol, AddressingMode.absolute);

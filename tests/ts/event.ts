@@ -1,5 +1,4 @@
 ///<reference path="./interface/mocha.d.ts"/>
-///<reference path="../../typings/node/node.d.ts"/>
 
 import Event = require('../../src/tools/event/Event');
 import assert = require('assert');
@@ -29,7 +28,7 @@ suite('Event handling', function() {
             });
 
             assert(event.hasHandlers, 'event should report registered handlers');
-            
+
             event.dispatch('foo');
             assert(called, 'the handler should have been called');
         });

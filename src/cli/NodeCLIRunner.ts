@@ -1,7 +1,3 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import readline = require('readline');
 import CLIInterface = require('./CLIInterface');
 import Completer = require('./Completer');
@@ -14,7 +10,7 @@ class NodeCLIRunner {
         this._readline = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
-            completer: (cmd: string): Array<any> => {
+            completer: (cmd: string): any => {
                 var result = this._completer.complete(cmd);
                 return [result.candidates, result.match];
             }
@@ -33,7 +29,7 @@ class NodeCLIRunner {
         this._cli.startup();
 
         var prompt = this._cli.getPrompt();
-        this._readline.setPrompt(prompt, prompt.length);
+        this._readline.setPrompt(prompt);
 
         this._readline.prompt();
     }
@@ -57,7 +53,7 @@ class NodeCLIRunner {
         if (ctx._closed) return;
 
         var prompt = ctx._cli.getPrompt();
-        ctx._readline.setPrompt(prompt, prompt.length);
+        ctx._readline.setPrompt(prompt);
     }
 
     private _onCLIPrompt(payload: void, ctx: NodeCLIRunner) {

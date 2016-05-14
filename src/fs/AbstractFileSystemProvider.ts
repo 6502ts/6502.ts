@@ -1,14 +1,8 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import pathlib = require('path');
 
 class AbstractFileSystemProvider {
-   
-    pushd(path?: string): void {
-        if (typeof(path) !== 'undefined');
 
+    pushd(path?: string): void {
         this._directoryStack.unshift(this._cwd);
 
         if (typeof(path) !== 'undefined') this.chdir(path);

@@ -34,7 +34,7 @@ interface CpuInterface {
 }
 
 module CpuInterface {
-    export enum ExecutionState {
+    export const enum ExecutionState {
         boot, fetch, execute
     }
 
@@ -47,7 +47,7 @@ module CpuInterface {
         flags: number = 0;
     }
 
-    export enum Flags {
+    export const enum Flags {
         c = 0x01,
         z = 0x02,
         i = 0x04,

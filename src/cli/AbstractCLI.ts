@@ -1,5 +1,3 @@
-'use strict';
-
 import CLIInterface = require('./CLIInterface');
 import Event = require('../tools/event/Event');
 

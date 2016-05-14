@@ -1,7 +1,3 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import path = require('path');
 
 import Board = require('../machine/ehbasic/Board');
@@ -22,7 +18,7 @@ import TaskInterface = require('../tools/scheduler/TaskInterface');
 
 import ClockProbe = require('../tools/ClockProbe');
 
-enum State {
+const enum State {
     debug, run, quit
 }
 
@@ -237,7 +233,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
 
         this.events.promptChanged.dispatch(undefined);
     }
-    
+
     private _serialOutHandler(value: number): void {
         switch (this._state) {
             case State.debug:

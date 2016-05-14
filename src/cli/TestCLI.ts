@@ -1,5 +1,3 @@
-'use strict';
-
 import CommandInterpreter = require('./CommandInterpreter');
 import CLIInterface = require('./CLIInterface');
 import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');

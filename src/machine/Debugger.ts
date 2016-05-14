@@ -1,7 +1,3 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-
-'use strict';
-
 import Instruction = require('./cpu/Instruction');
 import Disassembler = require('./cpu/Disassembler');
 import hex = require('../tools/hex');
@@ -149,7 +145,7 @@ class Debugger {
                 'S = ' + hex.encode(state.s, 2) + '   ' +
                 'P = ' + hex.encode(state.p, 4) + '\n' +
                 'flags = ' + binary.encode(state.flags, 8);
-        
+
         var boardState = this._board.getBoardStateDebug();
 
         if (boardState) {
@@ -219,7 +215,7 @@ class Debugger {
     }
 
     private _cpuClockHandler(clocks: number, ctx: Debugger): void {
-        if (ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch) return; 
+        if (ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch) return;
 
         if (ctx._traceEnabled) {
             ctx._trace[ctx._traceIndex] = ctx._cpu.getLastInstructionPointer();
