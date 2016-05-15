@@ -13,11 +13,19 @@ class Memory implements BusInterface {
         return this._data[address];
     }
 
+    peek(address: number): number {
+        return this._data[address];
+    }
+
     readWord(address: number): number {
         return this._data[address] + (this._data[(address+1) & 0xFFFF] << 8);
     }
 
     write(address: number, value: number) {
+        this._data[address] = value;
+    }
+
+    poke(address: number, value: number) {
         this._data[address] = value;
     }
 

@@ -1,9 +1,13 @@
 interface BusInterface {
     read(address: number): number;
 
+    peek(address: number): number;
+
     readWord(address: number): number;
 
-    write(address: number, value: number, poke?: boolean): void;
+    write(address: number, value: number): void;
+
+    poke(address: number, value: number): void;
 }
 
 export = BusInterface;

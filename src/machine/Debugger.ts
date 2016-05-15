@@ -239,11 +239,11 @@ class Debugger {
     }
 
     private _peek(address: number): number {
-        return this._bus.read(address % 0x10000);
+        return this._bus.peek(address % 0x10000);
     }
 
     private _poke(address: number, value: number) {
-        this._bus.write(address % 0x10000, value & 0xFF, true);
+        this._bus.poke(address % 0x10000, value & 0xFF);
     }
 
     private _disassembler: Disassembler;

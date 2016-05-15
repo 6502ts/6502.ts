@@ -14,8 +14,6 @@ class StellaCLI extends DebuggerCLI {
         super(fsProvider);
 
         this._cartridgeFile = cartridgeFile;
-
-        super(fsProvider);
     }
 
     protected _initializeHardware(): void {

@@ -1,42 +1,22 @@
 {
     "rules": {
         "class-name": true,
-        "comment-format": [
-            false,
-            "check-space"
-        ],
-        "indent": [
-            false,
-            "spaces"
-        ],
+        "comment-format": false,
+        "indent": false,
         "no-duplicate-variable": true,
         "no-eval": true,
         "no-internal-module": false,
         "no-trailing-whitespace": true,
         "no-var-keyword": true,
-        "one-line": [
-            false,
-            "check-open-brace",
-            "check-whitespace"
-        ],
-        "quotemark": [
-            false
-        ],
+        "one-line": false,
+        "quotemark": false,
         "semicolon": [
             true,
             "always"
         ],
-        "triple-equals": [
-            true
-        ],
-        "typedef-whitespace": [
-            false
-        ],
-        "variable-name": [
-            false
-        ],
-        "whitespace": [
-            false
-        ]
+        "triple-equals": true,
+        "typedef-whitespace": true,
+        "variable-name": false,
+        "whitespace": false
     }
 }
