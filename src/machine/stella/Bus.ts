@@ -33,8 +33,6 @@ class Bus implements BusInterface {
         return this;
     }
 
-    event = new Event<Bus.TrapPayload>();
-
     read(address: number): number {
         // Mask out bits 13-15
         address &= 0x1FFF;

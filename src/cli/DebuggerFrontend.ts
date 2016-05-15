@@ -23,24 +23,26 @@ class DebuggerFrontend {
             private _commandInterpreter: CommandInterpreter
     ) {
         this._commandInterpreter.registerCommands({
-            disassemble:    this._disassemble.bind(this),
-            dump:           this._dump.bind(this),
-            load:           this._load.bind(this),
-            hex2dec:        this._hex2dec.bind(this),
-            dec2hex:        this._dec2hex.bind(this),
-            state:          this._state.bind(this),
-            boot:           this._boot.bind(this),
-            stack:          this._stack.bind(this),
-            step:           this._step.bind(this),
-            'break-on':       this._enableBreakpoints.bind(this),
-            'break-off':      this._disableBreakpoints.bind(this),
-            'break':                this._setBreakpoint.bind(this),
-            'break-clear':     this._clearBreakpoint.bind(this),
-            'break-dump':     this._showBreakpoints.bind(this),
-            'break-clear-all':    this._clearAllBreakpoints.bind(this),
-            'trace-on':     this._enableTrace.bind(this),
-            'trace-off':    this._disableTrace.bind(this),
-            'trace':        this._trace.bind(this)
+            disassemble:        this._disassemble.bind(this),
+            dump:               this._dump.bind(this),
+            load:               this._load.bind(this),
+            hex2dec:            this._hex2dec.bind(this),
+            dec2hex:            this._dec2hex.bind(this),
+            state:              this._state.bind(this),
+            boot:               this._boot.bind(this),
+            stack:              this._stack.bind(this),
+            step:               this._step.bind(this),
+            "reset":            () => this._reset(false),
+            "reset-hard":       () => this._reset(true),
+            'break-on':         this._enableBreakpoints.bind(this),
+            'break-off':        this._disableBreakpoints.bind(this),
+            'break':            this._setBreakpoint.bind(this),
+            'break-clear':      this._clearBreakpoint.bind(this),
+            'break-dump':       this._showBreakpoints.bind(this),
+            'break-clear-all':  this._clearAllBreakpoints.bind(this),
+            'trace-on':         this._enableTrace.bind(this),
+            'trace-off':        this._disableTrace.bind(this),
+            'trace':            this._trace.bind(this)
         });
     }
 
@@ -132,6 +134,12 @@ class DebuggerFrontend {
         if (exception) throw (exception);
 
         return util.format('Boot successful in %s cycles', cycles);
+    }
+
+    private _reset(hard: boolean): string {
+        this._debugger.getBoard().reset(hard);
+
+        return 'reset successful';
     }
 
     private _step(args: Array<string>): string {

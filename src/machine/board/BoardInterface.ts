@@ -11,7 +11,7 @@ interface BoardInterface {
 
     getTimer(): TimerInterface;
 
-    reset(): BoardInterface;
+    reset(hard: boolean): BoardInterface;
 
     boot(): BoardInterface;
 

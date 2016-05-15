@@ -34,9 +34,13 @@ class Board implements BoardInterface {
         return this._timer;
     }
 
-    reset(): Board {
+    reset(hard: boolean): Board {
         this._cpu.reset();
-        this._bus.clear();
+
+        if (hard) {
+            this._bus.clear();
+        }
+
         return this;
     }
 
