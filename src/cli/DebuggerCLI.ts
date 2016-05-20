@@ -12,21 +12,21 @@ import BoardInterface = require('../machine/board/BoardInterface');
 
 class DebuggerCLI extends AbstractCLI implements CLIInterface {
 
-    constructor(fsProvider: FilesystemProviderInterface) {
+    constructor(protected _fsProvider: FilesystemProviderInterface) {
         super();
-
-        this._fsProvider = fsProvider;
-        this._initializeHardware();
 
         const dbg = new Debugger(),
             commandInterpreter = new CommandInterpreter(),
             debuggerFrontend = new  DebuggerFrontend(dbg, this._fsProvider, commandInterpreter);
 
-        dbg.attach(this._board);
-
+        this._debugger = dbg;
         this._commandInterpreter = commandInterpreter;
-
         this._extendCommandInterpreter();
+    }
+
+    protected _initialize() {
+        this._initializeHardware();
+        this._debugger.attach(this._board);
     }
 
     protected _initializeHardware(): void {
@@ -65,6 +65,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
     }
 
     startup(): void {
+        this._initialize();
         this._prompt();
     }
 
@@ -129,7 +130,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
     protected _output = '';
     protected _allowQuit = true;
 
-    protected _fsProvider: FilesystemProviderInterface;
+    protected _debugger: Debugger;
 }
 
 export = DebuggerCLI;

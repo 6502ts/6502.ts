@@ -10,10 +10,8 @@ import StellaConfig = require('../machine/stella/Config');
 
 class StellaCLI extends DebuggerCLI {
 
-    constructor(fsProvider: FilesystemProviderInterface, cartridgeFile: string) {
+    constructor(fsProvider: FilesystemProviderInterface, protected _cartridgeFile: string) {
         super(fsProvider);
-
-        this._cartridgeFile = cartridgeFile;
     }
 
     protected _initializeHardware(): void {
@@ -28,8 +26,6 @@ class StellaCLI extends DebuggerCLI {
 
     protected _board: Board;
     protected _cartridge: CartridgeInterface;
-
-    protected _cartridgeFile: string;
 
 }
 
