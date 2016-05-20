@@ -5,17 +5,52 @@ import Config = require('./Config');
 import CpuInterface = require('../cpu/CpuInterface');
 
 const VISIBLE_WIDTH = 160,
+    TOTAL_WIDTH = 228,
     VISIBLE_LINES_NTSC = 192,
-    VISIBLE_LINES_PAL = 228;
+    VISIBLE_LINES_PAL = 228,
+    VBLANK_NTSC = 40,
+    VBLANK_PAL = 48,
+    OVERSCAN_NTSC = 30,
+    OVERSCAN_PAL = 36;
 
 class Tia implements VideoOutputInterface {
 
     constructor(
         private _config: Config
-    ) {}
+    ) {
+        switch (this._config.tvMode) {
+
+            case Config.TvMode.secam:
+            case Config.TvMode.pal:
+                this._metrics = {
+                    visibleWidth: VISIBLE_WIDTH,
+                    totalWidth: TOTAL_WIDTH,
+                    visibleLines: VISIBLE_LINES_PAL,
+                    vblank: VBLANK_PAL,
+                    overscanStart: VBLANK_PAL + VISIBLE_LINES_PAL,
+                    overscanEnd: VBLANK_PAL + VISIBLE_LINES_PAL + OVERSCAN_PAL
+                };
+                break;
+
+            case Config.TvMode.ntsc:
+                this._metrics = {
+                    visibleWidth: VISIBLE_WIDTH,
+                    totalWidth: TOTAL_WIDTH,
+                    visibleLines: VISIBLE_LINES_NTSC,
+                    vblank: VBLANK_NTSC,
+                    overscanStart: VBLANK_NTSC + VISIBLE_LINES_NTSC,
+                    overscanEnd: VBLANK_NTSC + VISIBLE_LINES_NTSC + OVERSCAN_NTSC
+                };
+                break;
+
+            default:
+                throw new Error('invalid TV mode');
+        }
+    }
 
     reset(): void {
         this._hClock = this._vClock = 0;
+        this._vsync = this._frameInProgress = false;
         this._cpu.resume();
     }
 
@@ -26,21 +61,11 @@ class Tia implements VideoOutputInterface {
     }
 
     getWidth(): number {
-        return VISIBLE_WIDTH;
+        return this._metrics.visibleWidth;
     }
 
     getHeight(): number {
-        switch (this._config.tvMode) {
-            case Config.TvMode.ntsc:
-                return VISIBLE_LINES_NTSC;
-
-            case Config.TvMode.pal:
-            case Config.TvMode.secam:
-                return VISIBLE_LINES_PAL;
-
-            default:
-                throw new Error("invalid TV mode");
-        }
+        return this._metrics.visibleLines;
     }
 
     setSurfaceFactory(factory: VideoOutputInterface.SurfaceFactoryInterface): Tia {
@@ -58,7 +83,7 @@ class Tia implements VideoOutputInterface {
             this._cpu.resume();
 
             this._hClock = 0;
-            this._vClock++;
+            this._nextLine();
         }
     }
 
@@ -74,21 +99,58 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.wsync:
                 this._cpu.halt();
                 break;
+
+            case Tia.Registers.vsync:
+                if (value > 0 && !this._vsync) {
+                    this._vsync = true;
+                    this._finalizeFrame();
+                } else if (this._vsync) {
+                    this._vsync = false;
+                    this._startFrame();
+                }
         }
     }
 
     getDebugState(): string {
-        return `hclock: ${this._hClock}   vclock: ${this._vClock}`;
+        return '' +
+            `hclock: ${this._hClock}   vclock: ${this._vClock}    vsync: ${this._vsync ? 1 : 0}    frame pending: ${this._frameInProgress ? "yes" : "no"}`;
     }
 
     trap = new Event<Tia.TrapPayload>();
+
+    private _nextLine() {
+        this._vClock++;
+
+        if (this._frameInProgress) {
+            if (this._vClock >= this._metrics.overscanStart){
+                this._finalizeFrame();
+            }
+        }
+    }
+
+    private _finalizeFrame(): void {
+        if (this._frameInProgress) {
+            console.log('end frame');
+            this._frameInProgress = false;
+        }
+    }
+
+    private _startFrame(): void {
+        console.log('start frame');
+        this._frameInProgress = true;
+        this._vClock = 0;
+    }
 
     private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface;
 
     private _cpu: CpuInterface;
 
+    private _metrics: Tia.Metrics;
     private _hClock = 0;
     private _vClock = 0;
+
+    private _frameInProgress = false;
+    private _vsync = false;
 }
 
 module Tia {
@@ -165,6 +227,14 @@ module Tia {
         ) {}
     }
 
+    export interface Metrics {
+        visibleWidth: number;
+        totalWidth: number;
+        visibleLines: number;
+        vblank: number;
+        overscanStart: number;
+        overscanEnd: number;
+    }
 }
 
 export = Tia;
