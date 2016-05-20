@@ -1,7 +1,7 @@
-import BusInterface = require('../bus/BusInterface');
-import CpuInterface = require('../cpu/CpuInterface');
-import TimerInterface = require('./TimerInterface');
-import EventInterface = require('../../tools/event/EventInterface');
+import BusInterface from '../bus/BusInterface';
+import CpuInterface from '../cpu/CpuInterface';
+import TimerInterface from './TimerInterface';
+import EventInterface from '../../tools/event/EventInterface';
 
 interface BoardInterface {
 
@@ -45,4 +45,4 @@ module BoardInterface {
     }
 }
 
-export = BoardInterface;
+export default BoardInterface;

@@ -55,7 +55,7 @@ module Instruction {
     export var opcodes = new Array<Instruction>(256);
 };
 
-export = Instruction;
+export default Instruction;
 
 // Opcodes init
 

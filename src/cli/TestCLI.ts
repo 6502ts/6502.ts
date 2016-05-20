@@ -1,7 +1,7 @@
-import CommandInterpreter = require('./CommandInterpreter');
-import CLIInterface = require('./CLIInterface');
-import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
-import AbstractCLI = require('./AbstractCLI');
+import CommandInterpreter from './CommandInterpreter';
+import CLIInterface from './CLIInterface';
+import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
+import AbstractCLI from './AbstractCLI';
 
 class TestCLI extends AbstractCLI implements CLIInterface {
     constructor() {
@@ -68,4 +68,4 @@ class TestCLI extends AbstractCLI implements CLIInterface {
     private _interpreter: CommandInterpreter;
 }
 
-export = TestCLI;
+export default TestCLI;

@@ -1,5 +1,5 @@
-import SchedulerInterface = require('./SchedulerInterface');
-import TaskInterface = require('./TaskInterface');
+import SchedulerInterface from './SchedulerInterface';
+import TaskInterface from './TaskInterface';
 
 class PeriodicScheduler implements SchedulerInterface {
 
@@ -34,4 +34,4 @@ class PeriodicScheduler implements SchedulerInterface {
     }
 }
 
-export = PeriodicScheduler;
+export default PeriodicScheduler;

@@ -1,8 +1,8 @@
 /// <reference path="../interface/jquery.terminal.d.ts"/>
 
-import DebuggerCLI = require("../cli/DebuggerCLI");
-import JqtermCLIRunner = require('../cli/JqtermCLIRunner');
-import PrepackagedFilesystemProvider = require('../fs/PrepackagedFilesystemProvider');
+import DebuggerCLI from "../cli/DebuggerCLI";
+import JqtermCLIRunner from '../cli/JqtermCLIRunner';
+import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 
 export function run(
     fileBlob: PrepackagedFilesystemProvider.BlobInterface,

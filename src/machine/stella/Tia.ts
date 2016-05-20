@@ -1,8 +1,8 @@
-import VideoOutputInterface = require('../io/VideoOutputInterface');
-import RGBASurfaceInterface = require('../../tools/surface/RGBASurfaceInterface');
-import Event = require('../../tools/event/Event');
-import Config = require('./Config');
-import CpuInterface = require('../cpu/CpuInterface');
+import VideoOutputInterface from '../io/VideoOutputInterface';
+import RGBASurfaceInterface from '../../tools/surface/RGBASurfaceInterface';
+import Event from '../../tools/event/Event';
+import Config from './Config';
+import CpuInterface from '../cpu/CpuInterface';
 
 const VISIBLE_WIDTH = 160,
     TOTAL_WIDTH = 228,
@@ -237,4 +237,4 @@ module Tia {
     }
 }
 
-export = Tia;
+export default Tia;

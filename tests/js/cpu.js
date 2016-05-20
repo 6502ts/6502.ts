@@ -1,6 +1,6 @@
 var cpuRunner = require('./runner/cpu'),
-    Cpu = require('../../src/machine/cpu/Cpu'),
-    CpuInterface = require('../../src/machine/cpu/CpuInterface'),
+    Cpu = require('../../src/machine/cpu/Cpu').default,
+    CpuInterface = require('../../src/machine/cpu/CpuInterface').default,
     hex = require('../../src/tools/hex'),
     util = require('util');
 

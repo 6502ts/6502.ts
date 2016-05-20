@@ -1,4 +1,4 @@
-import AbstractCartridge = require('./AbstractCartridge');
+import AbstractCartridge from './AbstractCartridge';
 
 class Cartridge2k extends AbstractCartridge {
 
@@ -18,4 +18,4 @@ class Cartridge2k extends AbstractCartridge {
     rom = new Uint8Array(0x0800);
 }
 
-export = Cartridge2k;
+export default Cartridge2k;

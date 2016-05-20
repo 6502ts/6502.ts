@@ -1,6 +1,6 @@
-import SimpleSerialIOInterface = require('../io/SimpleSerialIOInterface');
-import VanillaBoard = require('../vanilla/Board');
-import Memory = require('./Memory');
+import SimpleSerialIOInterface from '../io/SimpleSerialIOInterface';
+import VanillaBoard from '../vanilla/Board';
+import Memory from './Memory';
 
 class Board extends VanillaBoard {
 
@@ -15,4 +15,4 @@ class Board extends VanillaBoard {
     protected _bus: Memory;
 }
 
-export = Board;
+export default Board;

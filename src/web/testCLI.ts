@@ -1,7 +1,7 @@
 /// <reference path="../interface/jquery.terminal.d.ts"/>
 
-import TestCLI = require("../cli/TestCLI");
-import JqtermCLIRunner = require('../cli/JqtermCLIRunner');
+import TestCLI from "../cli/TestCLI";
+import JqtermCLIRunner from '../cli/JqtermCLIRunner';
 
 export function run(
     terminalElt: JQuery,

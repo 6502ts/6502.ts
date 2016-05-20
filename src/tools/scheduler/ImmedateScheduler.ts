@@ -1,5 +1,5 @@
-import SchedulerInterface = require('./SchedulerInterface');
-import TaskInterface = require('./TaskInterface');
+import SchedulerInterface from './SchedulerInterface';
+import TaskInterface from './TaskInterface';
 
 class ImmediateScheduler implements SchedulerInterface {
 
@@ -21,4 +21,4 @@ class ImmediateScheduler implements SchedulerInterface {
     }
 }
 
-export = ImmediateScheduler;
+export default ImmediateScheduler;

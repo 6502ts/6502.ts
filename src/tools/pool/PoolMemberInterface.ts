@@ -8,4 +8,4 @@ interface PoolMemberInterface<T> {
 
 }
 
-export = PoolMemberInterface;
+export default PoolMemberInterface;

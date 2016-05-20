@@ -18,4 +18,4 @@ module RGBASurfaceInterface {
     }
 }
 
-export = RGBASurfaceInterface;
+export default RGBASurfaceInterface;

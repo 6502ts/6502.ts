@@ -1,6 +1,6 @@
-import CLIInterface = require('./CLIInterface');
-import pathlib = require('path');
-import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
+import CLIInterface from './CLIInterface';
+import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
+import * as pathlib from 'path';
 
 class Completer {
 
@@ -81,4 +81,4 @@ module Completer {
 
 }
 
-export = Completer;
+export default Completer;

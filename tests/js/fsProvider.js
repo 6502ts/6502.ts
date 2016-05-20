@@ -3,9 +3,9 @@ var _ = require('lodash'),
     path = require('path'),
     util = require('util');
 
-var NodeFilesystemProvider = require('../../src/fs/NodeFilesystemProvider'),
-    PrepackagedFilesystemProvider = require('../../src/fs/PrepackagedFilesystemProvider'),
-    FilesystemProviderInterface = require('../../src/fs/FilesystemProviderInterface');
+var NodeFilesystemProvider = require('../../src/fs/NodeFilesystemProvider').default,
+    PrepackagedFilesystemProvider = require('../../src/fs/PrepackagedFilesystemProvider').default,
+    FilesystemProviderInterface = require('../../src/fs/FilesystemProviderInterface').default;
 
 var fixtures = {
         foo: 'Балканская черепаха',
@@ -109,7 +109,7 @@ function runProviderTests(factory) {
         provider.pushd();
         provider.chdir('bar');
         assert.strictEqual(provider.readTextFileSync('baz'), fixtures.baz);
-        provider.popd(); 
+        provider.popd();
         assert.strictEqual(provider.readTextFileSync('bar/baz'), fixtures.baz);
         provider.popd();
         assert.strictEqual(provider.readTextFileSync('tree/bar/baz'), fixtures.baz);

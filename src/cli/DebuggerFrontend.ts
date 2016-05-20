@@ -1,9 +1,10 @@
-import Debugger = require('../machine/Debugger');
-import CommandInterpreter = require('./CommandInterpreter');
-import hex = require('../tools/hex');
-import FileSystemProviderInterface = require('../fs/FilesystemProviderInterface');
-import BoardInterface = require('../machine/board/BoardInterface');
-import util = require('util');
+import Debugger from '../machine/Debugger';
+import CommandInterpreter from './CommandInterpreter';
+import FileSystemProviderInterface from '../fs/FilesystemProviderInterface';
+import BoardInterface from '../machine/board/BoardInterface';
+
+import * as hex from '../tools/hex';
+import * as util from 'util';
 
 function decodeNumber(value: string): number {
     try {
@@ -228,4 +229,4 @@ class DebuggerFrontend {
     }
 }
 
-export = DebuggerFrontend;
+export default DebuggerFrontend;

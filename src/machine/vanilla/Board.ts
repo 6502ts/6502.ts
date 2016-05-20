@@ -1,13 +1,13 @@
-import BoardInterface = require('../board/BoardInterface');
-import CpuInterface = require('../cpu/CpuInterface');
-import Cpu = require('../cpu/Cpu');
-import Memory = require('./Memory');
-import BusInterface = require('../bus/BusInterface');
-import TimerInterface = require('../board/TimerInterface');
-import EventInterface = require('../../tools/event/EventInterface');
-import Event = require('../../tools/event/Event');
-import SchedulerInterface = require('../../tools/scheduler/SchedulerInterface');
-import TaskInterface = require('../../tools/scheduler/TaskInterface');
+import BoardInterface from '../board/BoardInterface';
+import CpuInterface from '../cpu/CpuInterface';
+import Cpu from '../cpu/Cpu';
+import Memory from './Memory';
+import BusInterface from '../bus/BusInterface';
+import TimerInterface from '../board/TimerInterface';
+import EventInterface from '../../tools/event/EventInterface';
+import Event from '../../tools/event/Event';
+import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
+import TaskInterface from '../../tools/scheduler/TaskInterface';
 
 class Board implements BoardInterface {
 
@@ -158,4 +158,4 @@ class Board implements BoardInterface {
     };
 }
 
-export = Board;
+export default Board;

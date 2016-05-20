@@ -1,4 +1,4 @@
-import BusInterface = require('../bus/BusInterface');
+import BusInterface from '../bus/BusInterface';
 
 class Memory implements BusInterface {
     constructor() {
@@ -32,4 +32,4 @@ class Memory implements BusInterface {
     _data = new Uint8Array(0x10000);
 }
 
-export = Memory;
+export default Memory;

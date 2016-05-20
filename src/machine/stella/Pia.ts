@@ -1,4 +1,4 @@
-import Event = require('../../tools/event/Event');
+import Event from '../../tools/event/Event';
 
 class Pia {
 
@@ -131,4 +131,4 @@ module Pia {
     }
 }
 
-export = Pia;
+export default Pia;

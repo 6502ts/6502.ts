@@ -10,4 +10,4 @@ module Config {
 
 }
 
-export = Config;
+export default Config;

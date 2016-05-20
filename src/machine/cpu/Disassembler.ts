@@ -1,6 +1,7 @@
-import Instruction = require('./Instruction');
-import hex = require('../../tools/hex');
-import BusInterface = require('../bus/BusInterface');
+import Instruction from './Instruction';
+import BusInterface from '../bus/BusInterface';
+
+import * as hex from '../../tools/hex';
 
 class Disassembler {
     constructor(private _bus?: BusInterface)
@@ -79,4 +80,4 @@ class Disassembler {
     }
 }
 
-export = Disassembler;
+export default Disassembler;

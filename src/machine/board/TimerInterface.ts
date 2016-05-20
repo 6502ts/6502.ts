@@ -1,4 +1,4 @@
-import SchedulerInterface = require('../../tools/scheduler/SchedulerInterface');
+import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 
 interface TimerInterface {
 
@@ -11,4 +11,4 @@ interface TimerInterface {
     isRunning(): boolean;
 }
 
-export = TimerInterface;
+export default TimerInterface;

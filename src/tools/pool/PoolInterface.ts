@@ -1,5 +1,5 @@
-import PoolMemberInterface = require('./PoolMemberInterface');
-import EventInterface = require('../event/EventInterface');
+import PoolMemberInterface from './PoolMemberInterface';
+import EventInterface from '../event/EventInterface';
 
 interface PoolInterface<T> {
 
@@ -12,4 +12,4 @@ interface PoolInterface<T> {
 
 }
 
-export = PoolInterface;
+export default PoolInterface;

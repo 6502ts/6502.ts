@@ -56,4 +56,4 @@ module CommandInterpreter {
     }
 }
 
-export = CommandInterpreter;
+export default CommandInterpreter;

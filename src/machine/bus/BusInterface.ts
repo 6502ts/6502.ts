@@ -10,4 +10,4 @@ interface BusInterface {
     poke(address: number, value: number): void;
 }
 
-export = BusInterface;
+export default BusInterface;

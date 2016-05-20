@@ -1,5 +1,5 @@
-import VanillaMemory = require('../vanilla/Memory');
-import SimpleSerialIOInterface = require('../io/SimpleSerialIOInterface');
+import VanillaMemory from '../vanilla/Memory';
+import SimpleSerialIOInterface from '../io/SimpleSerialIOInterface';
 
 class Memory extends VanillaMemory implements SimpleSerialIOInterface {
     read(address: number): number {
@@ -50,4 +50,4 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
         (): void => undefined;
 }
 
-export = Memory;
+export default Memory;

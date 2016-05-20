@@ -1,9 +1,7 @@
 /// <reference path="../interface/jquery.terminal.d.ts"/>
 
-'use strict';
-
-import CLIInterface = require('./CLIInterface');
-import Completer = require('./Completer');
+import CLIInterface from './CLIInterface';
+import Completer from './Completer';
 
 class JqtermCLIRunner {
     constructor(
@@ -61,4 +59,4 @@ module JqtermCLIRunner {
     }
 }
 
-export = JqtermCLIRunner;
+export default JqtermCLIRunner;

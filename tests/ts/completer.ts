@@ -1,10 +1,10 @@
 ///<reference path="./interface/mocha.d.ts"/>
 
-import pathlib = require('path');
-import assert = require('assert');
-import util = require('util');
-import Completer = require('../../src/cli/Completer');
-import NodeFilesystemProvider = require('../../src/fs/NodeFilesystemProvider');
+import * as pathlib from 'path';
+import * as assert from 'assert';
+import * as util from 'util';
+import Completer from '../../src/cli/Completer';
+import NodeFilesystemProvider from '../../src/fs/NodeFilesystemProvider';
 
 suite('CLI Completer', function() {
 

@@ -1,22 +1,22 @@
-import path = require('path');
+import * as path from 'path';
 
-import Board = require('../machine/ehbasic/Board');
-import BoardInterface = require('../machine/board/BoardInterface');
-import SimpleSerialIOInterface = require('../machine/io/SimpleSerialIOInterface');
+import Board from '../machine/ehbasic/Board';
+import BoardInterface from '../machine/board/BoardInterface';
+import SimpleSerialIOInterface from '../machine/io/SimpleSerialIOInterface';
 
-import Debugger = require('../machine/Debugger');
-import DebuggerFrontend = require('./DebuggerFrontend');
-import CommandInterpreter = require('./CommandInterpreter');
-import CLIInterface = require('./CLIInterface');
-import AbstractCLI = require('./AbstractCLI');
-import FileSystemProviderInterface = require('../fs/FilesystemProviderInterface');
+import Debugger from '../machine/Debugger';
+import DebuggerFrontend from './DebuggerFrontend';
+import CommandInterpreter from './CommandInterpreter';
+import CLIInterface from './CLIInterface';
+import AbstractCLI from './AbstractCLI';
+import FileSystemProviderInterface from '../fs/FilesystemProviderInterface';
 
-import SchedulerInterface = require('../tools/scheduler/SchedulerInterface');
-import ImmediateScheduler = require('../tools/scheduler/ImmedateScheduler');
-import PeriodicScheduler = require('../tools/scheduler/PeriodicScheduler');
-import TaskInterface = require('../tools/scheduler/TaskInterface');
+import SchedulerInterface from '../tools/scheduler/SchedulerInterface';
+import ImmediateScheduler from '../tools/scheduler/ImmedateScheduler';
+import PeriodicScheduler from '../tools/scheduler/PeriodicScheduler';
+import TaskInterface from '../tools/scheduler/TaskInterface';
 
-import ClockProbe = require('../tools/ClockProbe');
+import ClockProbe from '../tools/ClockProbe';
 
 const enum State {
     debug, run, quit
@@ -313,4 +313,4 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     private _clockProbe: ClockProbe;
 }
 
-export = EhBasicCLI;
+export default EhBasicCLI;

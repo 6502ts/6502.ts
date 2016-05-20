@@ -1,4 +1,4 @@
-import BusInterface = require('../bus/BusInterface');
+import BusInterface from '../bus/BusInterface';
 
 interface CpuInterface {
     setInterrupt(): CpuInterface;
@@ -61,4 +61,4 @@ module CpuInterface {
     }
 }
 
-export = CpuInterface;
+export default CpuInterface;

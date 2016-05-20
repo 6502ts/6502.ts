@@ -1,8 +1,9 @@
 /// <reference path="../interface/jquery.terminal.d.ts"/>
 
-import StellaCLI = require("../cli/StellaCLI");
-import JqtermCLIRunner = require('../cli/JqtermCLIRunner');
-import PrepackagedFilesystemProvider = require('../fs/PrepackagedFilesystemProvider');
+import StellaCLI from "../cli/StellaCLI";
+import JqtermCLIRunner from '../cli/JqtermCLIRunner';
+import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
+import ObjectPool from "../tools/pool/Pool";
 
 export function run(
     fileBlob: PrepackagedFilesystemProvider.BlobInterface,

@@ -1,7 +1,7 @@
-import EventInterface = require('./event/EventInterface');
-import Event = require('./event/Event');
-import SchedulerInterface = require('./scheduler/SchedulerInterface');
-import TaskInterface = require('./scheduler/TaskInterface');
+import EventInterface from './event/EventInterface';
+import Event from './event/Event';
+import SchedulerInterface from './scheduler/SchedulerInterface';
+import TaskInterface from './scheduler/TaskInterface';
 
 class ClockProbe {
 
@@ -74,4 +74,4 @@ class ClockProbe {
     private _measurementTask: TaskInterface;
 }
 
-export = ClockProbe;
+export default ClockProbe;

@@ -1,7 +1,7 @@
-import PoolMember = require('./PoolMember');
-import Event = require('../event/Event');
-import PoolInterface = require('./PoolInterface');
-import PoolMemberInterface = require('./PoolMemberInterface');
+import PoolMember from './PoolMember';
+import Event from '../event/Event';
+import PoolInterface from './PoolInterface';
+import PoolMemberInterface from './PoolMemberInterface';
 
 class Pool<T> implements PoolInterface<T> {
 
@@ -84,4 +84,4 @@ module Pool {
     }
 }
 
-export = Pool;
+export default Pool;

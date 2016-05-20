@@ -1,6 +1,6 @@
-import fs = require('fs');
-import FilesystemProviderInterface = require('./FilesystemProviderInterface');
-import AbstractFileSystemProvider = require('./AbstractFileSystemProvider');
+import * as fs from 'fs';
+import FilesystemProviderInterface from './FilesystemProviderInterface';
+import AbstractFileSystemProvider from './AbstractFileSystemProvider';
 
 class NodeFilesystemProvider extends AbstractFileSystemProvider
     implements FilesystemProviderInterface
@@ -31,4 +31,4 @@ class NodeFilesystemProvider extends AbstractFileSystemProvider
     }
 }
 
-export = NodeFilesystemProvider;
+export default NodeFilesystemProvider;

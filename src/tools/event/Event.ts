@@ -1,4 +1,4 @@
-import EventInterface = require('./EventInterface');
+import EventInterface from './EventInterface';
 
 const factories: Array<Function> = [];
 
@@ -100,4 +100,4 @@ class Event<EventPayload> implements EventInterface<EventPayload> {
     private _contexts: Array<any> = [];
 }
 
-export = Event;
+export default Event;

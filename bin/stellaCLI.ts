@@ -1,6 +1,6 @@
-import StellaCLI = require('../src/cli/StellaCLI');
-import NodeCLIRunner = require('../src/cli/NodeCLIRunner');
-import NodeFilesystemProvider = require('../src/fs/NodeFilesystemProvider');
+import StellaCLI from '../src/cli/StellaCLI';
+import NodeCLIRunner from '../src/cli/NodeCLIRunner';
+import NodeFilesystemProvider from '../src/fs/NodeFilesystemProvider';
 
 if (process.argv.length < 3) {
     console.log('usage: stellaCLI.ts cartridge_file [debugger_script]');

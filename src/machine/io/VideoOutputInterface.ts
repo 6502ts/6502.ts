@@ -1,5 +1,5 @@
-import RGBASurfaceInterface = require('../../tools/surface/RGBASurfaceInterface');
-import EventInterface = require('../../tools/event/EventInterface');
+import RGBASurfaceInterface from '../../tools/surface/RGBASurfaceInterface';
+import EventInterface from '../../tools/event/EventInterface';
 
 interface VideoOutputInterface {
 
@@ -22,4 +22,4 @@ module VideoOutputInterface {
 
 }
 
-export = VideoOutputInterface;
+export default VideoOutputInterface;

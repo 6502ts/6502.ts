@@ -13,4 +13,4 @@ module EventInterface {
 
 }
 
-export = EventInterface;
+export default EventInterface;

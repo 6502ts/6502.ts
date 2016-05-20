@@ -1,8 +1,8 @@
 /// <reference path="../interface/jquery.terminal.d.ts"/>
 
-import EhBasicCLI = require("../cli/EhBasicCLI");
-import JqtermCLIRunner = require('../cli/JqtermCLIRunner');
-import PrepackagedFilesystemProvider = require('../fs/PrepackagedFilesystemProvider');
+import EhBasicCLI from "../cli/EhBasicCLI";
+import JqtermCLIRunner from '../cli/JqtermCLIRunner';
+import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 
 export function run(
     fileBlob: PrepackagedFilesystemProvider.BlobInterface,

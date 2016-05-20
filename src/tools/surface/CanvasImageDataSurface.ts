@@ -1,4 +1,4 @@
-import RGBASurfaceInterface = require('./RGBASurfaceInterface');
+import RGBASurfaceInterface from './RGBASurfaceInterface';
 
 class CanvasImageDataSurface implements RGBASurfaceInterface {
 
@@ -32,3 +32,5 @@ class CanvasImageDataSurface implements RGBASurfaceInterface {
     private _imageData: ImageData;
     private _buffer: Uint32Array;
 }
+
+export default CanvasImageDataSurface;

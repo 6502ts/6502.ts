@@ -1,6 +1,6 @@
-var Cpu = require('../../../src/machine/cpu/Cpu'),
-    CpuInterface = require('../../../src/machine/cpu/CpuInterface'),
-    VanillaMemory = require('../../../src/machine/vanilla/Memory'),
+var Cpu = require('../../../src/machine/cpu/Cpu').default,
+    CpuInterface = require('../../../src/machine/cpu/CpuInterface').default,
+    VanillaMemory = require('../../../src/machine/vanilla/Memory').default,
     hex = require('../../../src/tools/hex'),
     binary = require('../../../src/tools/binary'),
     _ = require('lodash'),
@@ -95,7 +95,7 @@ Runner.prototype.assertState = function(state) {
             state[property] : me._originalState[property];
 
         if (reference !== me._cpu.state[property]) throw new Error(
-            util.format('expected %s to be %s, got %s', 
+            util.format('expected %s to be %s, got %s',
                 property.toUpperCase(),
                 hex.encode(reference, 2),
                 hex.encode(me._cpu.state[property], 2)

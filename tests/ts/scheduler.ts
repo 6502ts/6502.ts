@@ -1,8 +1,8 @@
 ///<reference path="./interface/mocha.d.ts"/>
 
-import assert = require('assert');
-import util = require('util');
-import PeriodicScheduler = require('../../src/tools/scheduler/PeriodicScheduler');
+import * as assert from 'assert';
+import * as util from 'util';
+import PeriodicScheduler from '../../src/tools/scheduler/PeriodicScheduler';
 
 suite('Periodic Scheduler', function() {
 

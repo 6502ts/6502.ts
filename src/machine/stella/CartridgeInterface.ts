@@ -1,4 +1,4 @@
-import EventInterface = require('../../tools/event/EventInterface');
+import EventInterface from '../../tools/event/EventInterface';
 
 interface CartridgeInterface {
 
@@ -23,4 +23,4 @@ module CartridgeInterface {
     }
 }
 
-export = CartridgeInterface;
+export default CartridgeInterface;

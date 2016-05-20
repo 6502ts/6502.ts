@@ -3,7 +3,7 @@
 import assert = require('assert');
 import util = require('util');
 
-import Pool = require('../../src/tools/pool/Pool');
+import Pool from '../../src/tools/pool/Pool';
 
 let releaseCtr = 0,
     disposeCtr = 0;

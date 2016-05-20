@@ -1,14 +1,14 @@
-import path = require('path');
+import * as path from 'path';
 
-import Debugger = require('../machine/Debugger');
-import DebuggerFrontend = require('./DebuggerFrontend');
-import CommandInterpreter = require('./CommandInterpreter');
-import CLIInterface = require('./CLIInterface');
-import AbstractCLI = require('./AbstractCLI');
-import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
+import Debugger from '../machine/Debugger';
+import DebuggerFrontend from './DebuggerFrontend';
+import CommandInterpreter from './CommandInterpreter';
+import CLIInterface from './CLIInterface';
+import AbstractCLI from './AbstractCLI';
+import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
 
-import Board = require('../machine/vanilla/Board');
-import BoardInterface = require('../machine/board/BoardInterface');
+import Board from '../machine/vanilla/Board';
+import BoardInterface from '../machine/board/BoardInterface';
 
 class DebuggerCLI extends AbstractCLI implements CLIInterface {
 
@@ -133,4 +133,4 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
     protected _debugger: Debugger;
 }
 
-export = DebuggerCLI;
+export default DebuggerCLI;

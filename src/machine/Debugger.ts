@@ -1,12 +1,12 @@
-import Instruction = require('./cpu/Instruction');
-import Disassembler = require('./cpu/Disassembler');
-import hex = require('../tools/hex');
-import binary = require('../tools/binary');
-import CpuInterface = require('./cpu/CpuInterface');
-import BoardInterface = require('./board/BoardInterface');
-import BusInterface = require('./bus/BusInterface');
+import Instruction from './cpu/Instruction';
+import Disassembler from './cpu/Disassembler';
+import CpuInterface from './cpu/CpuInterface';
+import BoardInterface from './board/BoardInterface';
+import BusInterface from './bus/BusInterface';
 
-import util = require('util');
+import * as hex from '../tools/hex';
+import * as binary from '../tools/binary';
+import * as util from 'util';
 
 class Debugger {
 
@@ -310,4 +310,4 @@ module Debugger {
     }
 };
 
-export = Debugger;
+export default Debugger;

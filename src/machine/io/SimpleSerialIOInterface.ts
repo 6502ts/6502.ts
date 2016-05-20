@@ -21,4 +21,4 @@ module SimpleSerialIOInterface {
     }
 }
 
-export = SimpleSerialIOInterface;
+export default SimpleSerialIOInterface;

@@ -1,5 +1,5 @@
-import CLIInterface = require('./CLIInterface');
-import Event = require('../tools/event/Event');
+import CLIInterface from './CLIInterface';
+import Event from '../tools/event/Event';
 
 abstract class AbstractCLI {
 
@@ -12,4 +12,4 @@ abstract class AbstractCLI {
 
 }
 
-export = AbstractCLI;
+export default AbstractCLI;

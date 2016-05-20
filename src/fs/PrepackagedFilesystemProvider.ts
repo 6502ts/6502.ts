@@ -1,6 +1,6 @@
-import util = require('util');
-import AbstractFileSystemProvider = require('./AbstractFileSystemProvider');
-import FilesystemProviderInterface = require('./FilesystemProviderInterface');
+import * as util from 'util';
+import AbstractFileSystemProvider from './AbstractFileSystemProvider';
+import FilesystemProviderInterface from './FilesystemProviderInterface';
 
 class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
     implements FilesystemProviderInterface
@@ -95,4 +95,4 @@ module PrepackagedFilesystemProvider {
 
 }
 
-export = PrepackagedFilesystemProvider;
+export default PrepackagedFilesystemProvider;

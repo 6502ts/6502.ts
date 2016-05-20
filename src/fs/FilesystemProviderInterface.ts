@@ -27,5 +27,4 @@ module FileSystemProviderInterface {
 
 }
 
-
-export = FileSystemProviderInterface;
+export default FileSystemProviderInterface;

@@ -1,5 +1,5 @@
-import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
-import EventInterface = require('../tools/event/EventInterface');
+import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
+import EventInterface from '../tools/event/EventInterface';
 
 interface CLIInterface {
     pushInput(input: string): void;
@@ -31,4 +31,4 @@ interface CLIInterface {
     };
 }
 
-export = CLIInterface;
+export default CLIInterface;

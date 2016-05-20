@@ -1,4 +1,4 @@
-import pathlib = require('path');
+import * as pathlib from 'path';
 
 abstract class AbstractFileSystemProvider {
 
@@ -34,4 +34,4 @@ abstract class AbstractFileSystemProvider {
     protected _cwd = '/';
 }
 
-export = AbstractFileSystemProvider;
+export default AbstractFileSystemProvider;

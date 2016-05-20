@@ -1,8 +1,8 @@
-import BusInterface = require('../bus/BusInterface');
-import Event = require('../../tools/event/Event');
-import Tia = require('./Tia');
-import Pia = require('./Pia');
-import CartridgeInterface = require('./CartridgeInterface');
+import BusInterface from '../bus/BusInterface';
+import Event from '../../tools/event/Event';
+import Tia from './Tia';
+import Pia from './Pia';
+import CartridgeInterface from './CartridgeInterface';
 
 class Bus implements BusInterface {
 
@@ -111,4 +111,4 @@ module Bus {
 
 }
 
-export = Bus;
+export default Bus;

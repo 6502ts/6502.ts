@@ -1,4 +1,4 @@
-import PoolMemberInterface = require('./PoolMemberInterface');
+import PoolMemberInterface from './PoolMemberInterface';
 
 class PoolMember<T> implements PoolMemberInterface<T> {
 
@@ -25,4 +25,4 @@ class PoolMember<T> implements PoolMemberInterface<T> {
     public _poolPosition: number;
 }
 
-export = PoolMember;
+export default PoolMember;

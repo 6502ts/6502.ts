@@ -1,6 +1,6 @@
-import DebuggerCLI = require('../src/cli/DebuggerCLI');
-import NodeCLIRunner = require('../src/cli/NodeCLIRunner');
-import NodeFilesystemProvider = require('../src/fs/NodeFilesystemProvider');
+import DebuggerCLI from '../src/cli/DebuggerCLI';
+import NodeCLIRunner  from '../src/cli/NodeCLIRunner';
+import NodeFilesystemProvider from '../src/fs/NodeFilesystemProvider';
 
 const fsProvider = new NodeFilesystemProvider(),
     cli = new DebuggerCLI(fsProvider),

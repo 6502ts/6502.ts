@@ -1,17 +1,22 @@
-import path = require('path');
+import * as path from 'path';
 
-import FilesystemProviderInterface = require('../fs/FilesystemProviderInterface');
-import DebuggerCLI = require('./DebuggerCLI');
+import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
+import DebuggerCLI from './DebuggerCLI';
 
-import Board = require('../machine/stella/Board');
-import CartridgeInterface = require('../machine/stella/CartridgeInterface');
-import Cartridge4k = require('../machine/stella/Cartridge4k');
-import StellaConfig = require('../machine/stella/Config');
+import Board from '../machine/stella/Board';
+import CartridgeInterface from '../machine/stella/CartridgeInterface';
+import Cartridge4k from '../machine/stella/Cartridge4k';
+import StellaConfig from '../machine/stella/Config';
+import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 
 class StellaCLI extends DebuggerCLI {
 
     constructor(fsProvider: FilesystemProviderInterface, protected _cartridgeFile: string) {
         super(fsProvider);
+    }
+
+    getVideoOutput(): VideoOutputInterface {
+        return this._board.getVideoOutput();
     }
 
     protected _initializeHardware(): void {
@@ -29,4 +34,4 @@ class StellaCLI extends DebuggerCLI {
 
 }
 
-export = StellaCLI;
+export default StellaCLI;

@@ -1,7 +1,7 @@
 ///<reference path="./interface/mocha.d.ts"/>
 
-import Event = require('../../src/tools/event/Event');
-import assert = require('assert');
+import Event from '../../src/tools/event/Event';
+import * as assert from 'assert';
 
 suite('Event handling', function() {
 

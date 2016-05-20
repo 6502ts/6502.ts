@@ -1,6 +1,6 @@
-import readline = require('readline');
-import CLIInterface = require('./CLIInterface');
-import Completer = require('./Completer');
+import * as readline from 'readline';
+import CLIInterface from './CLIInterface';
+import Completer from './Completer';
 
 class NodeCLIRunner {
     constructor(private _cli: CLIInterface) {
@@ -67,4 +67,4 @@ class NodeCLIRunner {
     private _completer: Completer;
 }
 
-export = NodeCLIRunner;
+export default NodeCLIRunner;

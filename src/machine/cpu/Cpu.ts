@@ -1,6 +1,6 @@
-import Instruction = require('./Instruction');
-import BusInterface = require('../bus/BusInterface');
-import CpuInterface = require('./CpuInterface');
+import Instruction from './Instruction';
+import BusInterface from '../bus/BusInterface';
+import CpuInterface from './CpuInterface';
 
 function setFlagsNZ(state: CpuInterface.State, operand: number): void {
     state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)) |
@@ -951,10 +951,8 @@ class Cpu {
     private _lastInstructionPointer: number;
 }
 
-
 interface InstructionCallbackInterface {
     (state?: CpuInterface.State, bus?: BusInterface, operand?: number): void;
 }
 
-
-export = Cpu;
+export default Cpu;

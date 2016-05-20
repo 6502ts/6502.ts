@@ -2,4 +2,4 @@ interface TaskInterface {
     stop(): void;
 }
 
-export = TaskInterface;
+export default TaskInterface;
