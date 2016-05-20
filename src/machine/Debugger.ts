@@ -10,7 +10,7 @@ import util = require('util');
 
 class Debugger {
 
-    constructor(private _traceSize: number = 1024) {}
+    constructor(private _traceSize: number = 1024, private _stepMaxCycles = 100000) {}
 
     attach(board: BoardInterface): Debugger {
         this._board = board;
@@ -169,21 +169,38 @@ class Debugger {
         return this.dumpAt(0x0100 + this._cpu.state.s, 0x100 - this._cpu.state.s);
     }
 
-    step(instructions: number): number {
+    step(instructions: number): {cycles: number, cpuCycles: number} {
         let instruction = 0,
             cycles = 0,
+            cpuCycled = false,
+            cpuCycles = 0,
             timer = this._board.getTimer();
+
+        const cpuClockHandler = (c: number) => {
+            cpuCycled = c > 0;
+            cpuCycles++;
+        };
+        this._board.cpuClock.addHandler(cpuClockHandler);
 
         this._lastTrap = undefined;
 
-        while (instruction++ < instructions && !this._lastTrap) {
+        instruction_level: while (instruction++ < instructions && !this._lastTrap && cycles < this._stepMaxCycles) {
             do {
-                timer.tick(1);
-                cycles++;
+                cpuCycled = false;
+                while (!cpuCycled) {
+                    timer.tick(1);
+                    cycles++;
+                }
+
+                if (cycles > this._stepMaxCycles) {
+                    break instruction_level;
+                }
             } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch || this._cpu.isHalt());
         }
 
-        return cycles;
+        this._board.cpuClock.removeHandler(cpuClockHandler);
+
+        return {cycles, cpuCycles};
     }
 
     stepClock(cycles: number): void {

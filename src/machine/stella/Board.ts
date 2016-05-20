@@ -36,8 +36,6 @@ class Board implements BoardInterface {
         this._tia = tia;
         this._pia = pia;
         this._cartridge = cartridge;
-
-        this.clock = this.cpuClock;
     }
 
     getCpu(): CpuInterface {
@@ -57,11 +55,14 @@ class Board implements BoardInterface {
         this._tia.reset();
         this._pia.reset();
 
+        this._subClock = 0;
+
         return this;
     }
 
     boot(): Board {
-        let  clock = 0;
+        let cyclesCpu = 0,
+            cycles = 0;
 
         this.reset();
 
@@ -70,10 +71,15 @@ class Board implements BoardInterface {
 
         while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch) {
             this._cycle();
-            clock++;
+
+            cycles++;
+            if (this._subClock === 0) {
+                cyclesCpu++;
+            }
         }
 
-        this.cpuClock.dispatch(clock);
+        this.cpuClock.dispatch(cyclesCpu);
+        this.clock.dispatch(cycles);
         return this;
     }
 
@@ -99,7 +105,7 @@ class Board implements BoardInterface {
                 this._tia.getDebugState() + '\n';
     }
 
-    clock: Event<number>;
+    clock = new Event<number>();
 
     cpuClock = new Event<number>();
 
@@ -118,29 +124,43 @@ class Board implements BoardInterface {
     private _cycle(): void {
         this._pia.cycle();
         this._tia.cycle();
-        this._cpu.cycle();
+
+        if (this._subClock++ >= 2) {
+            this._cpu.cycle();
+            this._subClock = 0;
+        }
     }
 
-    private _tick(clocks: number): void {
+    private _tick(requestedCycles: number): void {
         let i = 0,
-            clock = 0;
+            cycles = 0,
+            cpuCycles = 0;
 
         this._trap = false;
 
-        while (i++ < clocks && !this._trap) {
+        while (i++ < requestedCycles && !this._trap) {
             this._cycle();
-            clock++;
+            cycles++;
+
+            if (this._subClock === 0) {
+                cpuCycles++;
+            }
 
             if (this._clockMode === BoardInterface.ClockMode.instruction &&
                 this._cpu.executionState === CpuInterface.ExecutionState.fetch &&
-                this.clock.hasHandlers
+                this.cpuClock.hasHandlers
             ) {
-                this.cpuClock.dispatch(clock);
-                clock = 0;
+                this.cpuClock.dispatch(cpuCycles);
+                cpuCycles = 0;
             }
         }
 
-        if (clock > 0 && this.clock.hasHandlers) this.cpuClock.dispatch(clock);
+        if (cpuCycles > 0 && this._clockMode === BoardInterface.ClockMode.lazy && this.cpuClock.hasHandlers) {
+            this.cpuClock.dispatch(cpuCycles);
+        }
+        if (cycles > 0 && this.clock.hasHandlers) {
+            this.clock.dispatch(cycles);
+        }
     }
 
     private _start(scheduler: SchedulerInterface, sliceHint?: number) {
@@ -177,6 +197,8 @@ class Board implements BoardInterface {
     private _runTask: TaskInterface;
     private _clockMode = BoardInterface.ClockMode.lazy;
     private _trap = false;
+
+    private _subClock = 0;
 
     private _timer = {
         tick: (clocks: number): void => this._tick(clocks),

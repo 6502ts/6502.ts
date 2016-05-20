@@ -53,15 +53,13 @@ class Tia implements VideoOutputInterface {
     newFrame = new Event<RGBASurfaceInterface>();
 
     cycle(): void {
-        this._hClock += 3;
+        this._hClock++;
 
-        if (this._hClock === 227 && this._cpuHold) {
+        if (this._hClock === 228 && this._cpuHold) {
             this._cpuHold = false;
             this._cpu.resume();
-        }
 
-        if (this._hClock > 227) {
-            this._hClock -= 228;
+            this._hClock = 0;
             this._vClock++;
         }
     }
@@ -84,10 +82,7 @@ class Tia implements VideoOutputInterface {
     }
 
     getDebugState(): string {
-        return (
-            'HCLOCK: ' + this._hClock + '\n' +
-            'VCLOCK: ' + this._vClock + '\n'
-        );
+        return `hclock: ${this._hClock}   vclock: ${this._vClock}`;
     }
 
     trap = new Event<Tia.TrapPayload>();

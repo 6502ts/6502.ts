@@ -146,11 +146,12 @@ class DebuggerFrontend {
     private _step(args: Array<string>): string {
         const timestamp = Date.now(),
             instructionCount = args.length > 0 ? decodeNumber(args[0]) : 1,
-            cycles = this._debugger.step(instructionCount),
+            {cycles, cpuCycles} = this._debugger.step(instructionCount),
             trap = this._debugger.getLastTrap();
 
-        return util.format('Used %s cycles in %s milliseconds, now at\n%s\n%s\n',
+        return util.format('Used %s cycles (CPU: %s) in %s milliseconds, now at\n%s\n%s\n',
             cycles,
+            cpuCycles,
             Date.now() - timestamp,
             this._debugger.disassemble(1),
             this.describeTrap(trap)
