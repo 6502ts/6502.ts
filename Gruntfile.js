@@ -80,6 +80,15 @@ module.exports = function(grunt) {
                         debuggerCLI: './src/web/debuggerCLI'
                     }
                 }
+            },
+            stellaCLI: {
+                dest: 'web/js/compiled/stellaCLI.js',
+                src: [],
+                options: {
+                    alias: {
+                        stellaCLI: './src/web/stellaCLI'
+                    }
+                }
             }
         },
 

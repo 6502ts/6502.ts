@@ -76,6 +76,7 @@
         "src/tools/surface/RGBASurfaceInterface.ts",
         "src/web/debuggerCLI.ts",
         "src/web/ehBasicCLI.ts",
+        "src/web/stellaCLI.ts",
         "src/web/testCLI.ts",
         "tests/ts/completer.ts",
         "tests/ts/event.ts",
