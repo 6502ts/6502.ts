@@ -146,7 +146,8 @@ class Board implements BoardInterface {
                 cpuCycles++;
             }
 
-            if (this._clockMode === BoardInterface.ClockMode.instruction &&
+            if (cpuCycles > 0 &&
+                this._clockMode === BoardInterface.ClockMode.instruction &&
                 this._cpu.executionState === CpuInterface.ExecutionState.fetch &&
                 this.cpuClock.hasHandlers
             ) {

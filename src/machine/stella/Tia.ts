@@ -16,7 +16,6 @@ class Tia implements VideoOutputInterface {
 
     reset(): void {
         this._hClock = this._vClock = 0;
-        this._cpuHold = false;
         this._cpu.resume();
     }
 
@@ -55,8 +54,7 @@ class Tia implements VideoOutputInterface {
     cycle(): void {
         this._hClock++;
 
-        if (this._hClock === 228 && this._cpuHold) {
-            this._cpuHold = false;
+        if (this._hClock === 228) {
             this._cpu.resume();
 
             this._hClock = 0;
@@ -74,8 +72,6 @@ class Tia implements VideoOutputInterface {
 
         switch (address) {
             case Tia.Registers.wsync:
-
-                this._cpuHold = true;
                 this._cpu.halt();
                 break;
         }
@@ -93,8 +89,6 @@ class Tia implements VideoOutputInterface {
 
     private _hClock = 0;
     private _vClock = 0;
-
-    private _cpuHold = false;
 }
 
 module Tia {

@@ -172,22 +172,19 @@ class Debugger {
     step(instructions: number): {cycles: number, cpuCycles: number} {
         let instruction = 0,
             cycles = 0,
-            cpuCycled = false,
+            lastExecutionState = this._cpu.executionState,
             cpuCycles = 0,
             timer = this._board.getTimer();
 
-        const cpuClockHandler = (c: number) => {
-            cpuCycled = c > 0;
-            cpuCycles++;
-        };
+        const cpuClockHandler = (c: number) => cpuCycles++;
         this._board.cpuClock.addHandler(cpuClockHandler);
 
         this._lastTrap = undefined;
 
         instruction_level: while (instruction++ < instructions && !this._lastTrap && cycles < this._stepMaxCycles) {
             do {
-                cpuCycled = false;
-                while (!cpuCycled) {
+                lastExecutionState = this._cpu.executionState;
+                while (lastExecutionState === this._cpu.executionState) {
                     timer.tick(1);
                     cycles++;
                 }
@@ -195,7 +192,7 @@ class Debugger {
                 if (cycles > this._stepMaxCycles) {
                     break instruction_level;
                 }
-            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch || this._cpu.isHalt());
+            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch);
         }
 
         this._board.cpuClock.removeHandler(cpuClockHandler);
