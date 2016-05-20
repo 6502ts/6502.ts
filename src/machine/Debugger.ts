@@ -176,7 +176,7 @@ class Debugger {
             cpuCycles = 0,
             timer = this._board.getTimer();
 
-        const cpuClockHandler = (c: number) => cpuCycles++;
+        const cpuClockHandler = (c: number) => cpuCycles += c;
         this._board.cpuClock.addHandler(cpuClockHandler);
 
         this._lastTrap = undefined;
@@ -266,7 +266,7 @@ class Debugger {
 
         if (ctx._breakpointsEnabled && ctx._breakpoints[ctx._cpu.state.p]) {
             ctx._board.triggerTrap(BoardInterface.TrapReason.debug,
-                util.format('breakpoint "%s" sat %s',
+                util.format('breakpoint "%s" at %s',
                     ctx._breakpointDescriptions[ctx._cpu.state.p] || '',
                     hex.encode(ctx._cpu.state.p)
                 )
