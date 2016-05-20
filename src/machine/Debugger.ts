@@ -139,13 +139,18 @@ class Debugger {
     dumpState(): string {
         const state = this._cpu.state;
 
+        switch (this._cpu.executionState) {
+            case CpuInterface.ExecutionState.boot:
+        }
+
         let result = '' +
                 'A = ' + hex.encode(state.a, 2) + '   ' +
                 'X = ' + hex.encode(state.x, 2) + '   ' +
                 'Y = ' + hex.encode(state.y, 2) + '   ' +
                 'S = ' + hex.encode(state.s, 2) + '   ' +
                 'P = ' + hex.encode(state.p, 4) + '\n' +
-                'flags = ' + binary.encode(state.flags, 8);
+                'flags = ' + binary.encode(state.flags, 8) + '\n' +
+                'state: ' + this._humanReadableExecutionState();
 
         const boardState = this._board.getBoardStateDebug();
 
@@ -181,6 +186,10 @@ class Debugger {
         return cycles;
     }
 
+    stepClock(cycles: number): void {
+        this._board.getTimer().tick(cycles);
+    }
+
     setBreakpointsEnabled(breakpointsEnabled: boolean): Debugger {
         this._breakpointsEnabled = breakpointsEnabled;
 
@@ -203,6 +212,23 @@ class Debugger {
 
     getLastTrap(): BoardInterface.TrapPayload {
         return this._lastTrap;
+    }
+
+    private _humanReadableExecutionState() {
+        if (this._cpu.isHalt()) {
+            return 'halted';
+        }
+
+        switch (this._cpu.executionState) {
+            case CpuInterface.ExecutionState.boot:
+                return 'boot';
+
+            case CpuInterface.ExecutionState.fetch:
+                return 'fetch';
+
+            case CpuInterface.ExecutionState.execute:
+                return 'execute';
+        }
     }
 
     private _attachToCpuIfNecessary(): void {

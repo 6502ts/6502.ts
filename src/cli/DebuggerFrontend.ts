@@ -31,7 +31,8 @@ class DebuggerFrontend {
             state:              this._state.bind(this),
             boot:               this._boot.bind(this),
             stack:              this._stack.bind(this),
-            step:               this._step.bind(this),
+            'step':             this._step.bind(this),
+            'step-clock':       this._stepClock.bind(this),
             "reset":            () => this._reset(false),
             "reset-hard":       () => this._reset(true),
             'break-on':         this._enableBreakpoints.bind(this),
@@ -215,6 +216,14 @@ class DebuggerFrontend {
 
     private _trace(args: Array<string>): string {
         return this._debugger.trace(args.length > 0 ? decodeNumber(args[0]): 10);
+    }
+
+    private _stepClock(args: Array<string>): string {
+        const cycles = args.length > 0 ? decodeNumber(args[0]) : 1;
+
+        this._debugger.stepClock(cycles);
+
+        return `clock stepped ${cycles} cycles`;
     }
 }
 
