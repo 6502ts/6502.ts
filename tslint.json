@@ -17,6 +17,7 @@
         "triple-equals": true,
         "typedef-whitespace": true,
         "variable-name": false,
-        "whitespace": false
+        "whitespace": false,
+        "no-conditional-assignment": true
     }
 }

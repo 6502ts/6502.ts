@@ -10,7 +10,7 @@ import * as util from 'util';
 
 class Debugger {
 
-    constructor(private _traceSize: number = 1024, private _stepMaxCycles = 100000) {}
+    constructor(private _traceSize: number = 1024, private _stepMaxCycles = 10000000) {}
 
     attach(board: BoardInterface): Debugger {
         this._board = board;
@@ -181,18 +181,17 @@ class Debugger {
 
         this._lastTrap = undefined;
 
-        instruction_level: while (instruction++ < instructions && !this._lastTrap && cycles < this._stepMaxCycles) {
-            do {
-                lastExecutionState = this._cpu.executionState;
-                while (lastExecutionState === this._cpu.executionState) {
-                    timer.tick(1);
-                    cycles++;
-                }
+        while (instruction < instructions && !this._lastTrap && cycles < this._stepMaxCycles) {
+            timer.tick(1);
+            cycles++;
 
-                if (cycles > this._stepMaxCycles) {
-                    break instruction_level;
+            if (lastExecutionState !== this._cpu.executionState) {
+                lastExecutionState = this._cpu.executionState;
+
+                if (lastExecutionState === CpuInterface.ExecutionState.fetch) {
+                    instruction++;
                 }
-            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch);
+            }
         }
 
         this._board.cpuClock.removeHandler(cpuClockHandler);
@@ -247,6 +246,7 @@ class Debugger {
 
     private _attachToCpuIfNecessary(): void {
         if (this._traceEnabled || this._breakpointsEnabled) {
+            this._lastInstructionPointer = this._cpu.getLastInstructionPointer() || 0;
             this._board.cpuClock.addHandler(this._cpuClockHandler, this);
             this._board.setClockMode(BoardInterface.ClockMode.instruction);
         } else {
@@ -256,10 +256,18 @@ class Debugger {
     }
 
     private _cpuClockHandler(clocks: number, ctx: Debugger): void {
-        if (ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch) return;
+        const lastInstructionPointer = ctx._cpu.getLastInstructionPointer();
+
+        if (ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch ||
+            lastInstructionPointer === ctx._lastInstructionPointer
+        ) {
+            return;
+        }
+
+        ctx._lastInstructionPointer = lastInstructionPointer;
 
         if (ctx._traceEnabled) {
-            ctx._trace[ctx._traceIndex] = ctx._cpu.getLastInstructionPointer();
+            ctx._trace[ctx._traceIndex] = lastInstructionPointer;
             ctx._traceIndex = (ctx._traceIndex + 1) % ctx._traceSize;
             if (ctx._traceLength < ctx._traceSize) ctx._traceLength++;
         }
@@ -299,6 +307,7 @@ class Debugger {
     private _trace = new Uint16Array(this._traceSize);
     private _traceLength = 0;
     private _traceIndex = 0;
+    private _lastInstructionPointer: number;
 
     private _lastTrap: BoardInterface.TrapPayload;
 };

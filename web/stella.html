@@ -14,6 +14,11 @@
             height: 350px;
         }
 
+        #viewport {
+            height: 370px;
+            width: 100%;
+        }
+
         .row .cs-terminal, .row .cmd {
             font-family: DOS, Monaco, Menlo, Consolas, 'Courier New', monospace !important;
             font-size: 16px;
@@ -45,11 +50,14 @@
       </div>
     </div>
 
-    <div class="container">
+    <div class="container-fluid">
         <h1>A 6502 emulator written in Typescript</h1>
         <br/>
         <div class="row">
-            <div id="term" class="cs-terminal span8"></div>
+            <div id="term" class="cs-terminal span6"></div>
+            <div class="span6">
+                <canvas id="viewport" width="160" height="192"></canvas>
+            </div>
         </div>
         <br/>
         <div class="row">

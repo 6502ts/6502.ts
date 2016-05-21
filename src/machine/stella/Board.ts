@@ -61,13 +61,13 @@ class Board implements BoardInterface {
         this._pia.reset();
 
         this._subClock = 0;
-        this._cpuCycleBuffer = 0;
 
         return this;
     }
 
     boot(): Board {
-        let cycles = 0;
+        let cycles = 0,
+            cpuCycles = 0;
 
         this.reset();
 
@@ -79,11 +79,11 @@ class Board implements BoardInterface {
 
             cycles++;
             if (this._subClock === 0) {
-                this._cpuCycleBuffer++;
+                cpuCycles++;
             }
         }
 
-        this._dispatchCpuClock();
+        this.cpuClock.dispatch(cpuCycles);
         this.clock.dispatch(cycles);
         return this;
     }
@@ -142,7 +142,9 @@ class Board implements BoardInterface {
 
     private _tick(requestedCycles: number): void {
         let i = 0,
-            cycles = 0;
+            cycles = 0,
+            cpuCycles = 0,
+            lastExecutionState = this._cpu.executionState;
 
         this._trap = false;
 
@@ -151,29 +153,31 @@ class Board implements BoardInterface {
             cycles++;
 
             if (this._subClock === 0) {
-                this._cpuCycleBuffer++;
+                cpuCycles++;
             }
 
-            if (this._cpuCycleBuffer > 0 &&
-                this._clockMode === BoardInterface.ClockMode.instruction &&
-                this._cpu.executionState === CpuInterface.ExecutionState.fetch &&
-                this.cpuClock.hasHandlers
+            if (this._clockMode === BoardInterface.ClockMode.instruction &&
+                lastExecutionState !== this._cpu.executionState
             ) {
-                this._dispatchCpuClock();
+                lastExecutionState = this._cpu.executionState;
+
+                if (lastExecutionState === CpuInterface.ExecutionState.fetch &&
+                    cpuCycles > 0 &&
+                    this.cpuClock.hasHandlers
+                ) {
+                    this.cpuClock.dispatch(cpuCycles);
+                    cpuCycles = 0;
+                }
             }
         }
 
-        if (this._cpuCycleBuffer > 0 && this._clockMode === BoardInterface.ClockMode.lazy && this.cpuClock.hasHandlers) {
-            this._dispatchCpuClock();
+        if (cpuCycles > 0 && this.cpuClock.hasHandlers) {
+            this.cpuClock.dispatch(cpuCycles);
         }
+
         if (cycles > 0 && this.clock.hasHandlers) {
             this.clock.dispatch(cycles);
         }
-    }
-
-    private _dispatchCpuClock(): void {
-        this.cpuClock.dispatch(this._cpuCycleBuffer);
-        this._cpuCycleBuffer = 0;
     }
 
     private _start(scheduler: SchedulerInterface, sliceHint?: number) {
@@ -212,7 +216,6 @@ class Board implements BoardInterface {
     private _trap = false;
 
     private _subClock = 0;
-    private _cpuCycleBuffer = 0;
 
     private _timer = {
         tick: (clocks: number): void => this._tick(clocks),

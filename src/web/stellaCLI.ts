@@ -4,6 +4,7 @@ import StellaCLI from "../cli/StellaCLI";
 import JqtermCLIRunner from '../cli/JqtermCLIRunner';
 import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 import ObjectPool from "../tools/pool/Pool";
+import CanvasImageDataSurface from '../tools/surface/CanvasImageDataSurface';
 
 export function run(
     fileBlob: PrepackagedFilesystemProvider.BlobInterface,
