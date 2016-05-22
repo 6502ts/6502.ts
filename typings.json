@@ -1,6 +1,6 @@
 {
   "ambientDependencies": {
     "jquery": "registry:dt/jquery#1.10.0+20160417213236",
-    "node-4": "registry:dt/node-4#4.0.0+20160514165920"
+    "node": "registry:dt/node#6.0.0+20160514165920"
   }
 }

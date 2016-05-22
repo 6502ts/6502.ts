@@ -8,7 +8,7 @@ class CanvasImageDataSurface implements RGBASurfaceInterface {
         context: CanvasRenderingContext2D
     ) {
         this._imageData = context.createImageData(this._width, this._height);
-        this._buffer = new Uint32Array(<ArrayBuffer>(<any>this._imageData.data).buffer);
+        this._buffer = new Uint32Array(this._imageData.data.buffer);
     }
 
     getWidth(): number {
@@ -27,7 +27,9 @@ class CanvasImageDataSurface implements RGBASurfaceInterface {
         return RGBASurfaceInterface.ByteOrder.rgba;
     }
 
-    sync(): void {}
+    getImageData(): ImageData {
+        return this._imageData;
+    }
 
     private _imageData: ImageData;
     private _buffer: Uint32Array;

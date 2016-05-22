@@ -34,6 +34,7 @@
         "src/fs/FilesystemProviderInterface.ts",
         "src/fs/NodeFilesystemProvider.ts",
         "src/fs/PrepackagedFilesystemProvider.ts",
+        "src/interface/es6-bits.d.ts",
         "src/interface/jquery.terminal.d.ts",
         "src/machine/board/BoardInterface.ts",
         "src/machine/board/TimerInterface.ts",

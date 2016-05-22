@@ -5,8 +5,6 @@ interface RGBASurfaceInterface {
 
     getBuffer(): RGBASurfaceInterface.BufferInterface;
 
-    sync(): void;
-
     getByteOrder(): RGBASurfaceInterface.ByteOrder;
 }
 

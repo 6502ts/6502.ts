@@ -97,13 +97,14 @@
                 url: 'js/compiled/files.json'
             }).then(function(fileBlob) {
                 try {
-                    require('stellaCLI').run(
-                        fileBlob,
-                        $('#term'),
-                        $('#interrupt-btn'),
-                        $('#clear-btn'),
-                        getUrlParameter('cartridge')
-                    );
+                    require('stellaCLI').run({
+                        fileBlob: fileBlob,
+                        terminalElt: $('#term'),
+                        interruptButton: $('#interrupt-btn'),
+                        clearButton: $('#clear-btn'),
+                        cartridgeFile: getUrlParameter('cartridge'),
+                        canvas: $('#viewport')
+                    });
                 } catch(e) {
                     alert(e.message);
                     throw e;

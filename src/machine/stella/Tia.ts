@@ -25,6 +25,8 @@ class Tia implements VideoOutputInterface {
                 this._metrics = {
                     visibleWidth: VISIBLE_WIDTH,
                     totalWidth: TOTAL_WIDTH,
+                    hblank: TOTAL_WIDTH - VISIBLE_WIDTH,
+
                     visibleLines: VISIBLE_LINES_PAL,
                     vblank: VBLANK_PAL,
                     overscanStart: VBLANK_PAL + VISIBLE_LINES_PAL,
@@ -36,6 +38,8 @@ class Tia implements VideoOutputInterface {
                 this._metrics = {
                     visibleWidth: VISIBLE_WIDTH,
                     totalWidth: TOTAL_WIDTH,
+                    hblank: TOTAL_WIDTH - VISIBLE_WIDTH,
+
                     visibleLines: VISIBLE_LINES_NTSC,
                     vblank: VBLANK_NTSC,
                     overscanStart: VBLANK_NTSC + VISIBLE_LINES_NTSC,
@@ -78,6 +82,13 @@ class Tia implements VideoOutputInterface {
 
     cycle(): void {
         this._hClock++;
+
+        if (this._frameInProgress &&
+            this._hClock >= this._metrics.hblank &&
+            this._vClock >= this._metrics.vblank
+        ) {
+            this._raster(this._hClock - this._metrics.hblank, this._vClock - this._metrics.vblank);
+        }
 
         if (this._hClock === 228) {
             this._cpu.resume();
@@ -130,18 +141,37 @@ class Tia implements VideoOutputInterface {
 
     private _finalizeFrame(): void {
         if (this._frameInProgress) {
-            console.log('end frame');
+            if (this._surface) {
+                this.newFrame.dispatch(this._surface);
+                this._surface = null;
+            }
+
             this._frameInProgress = false;
         }
     }
 
     private _startFrame(): void {
-        console.log('start frame');
+        if (this._surfaceFactory) {
+            this._surface = this._surfaceFactory();
+        }
+
         this._frameInProgress = true;
         this._vClock = 0;
     }
 
+    private _raster(x: number, y: number): void {
+        if (!this._surface) {
+            return;
+        }
+
+        const buffer = this._surface.getBuffer(),
+            idx = y * this._metrics.visibleWidth + x;
+
+        buffer[idx] = 0xFF000000;
+    }
+
     private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface;
+    private _surface: RGBASurfaceInterface = null;
 
     private _cpu: CpuInterface;
 
@@ -230,6 +260,7 @@ module Tia {
     export interface Metrics {
         visibleWidth: number;
         totalWidth: number;
+        hblank: number;
         visibleLines: number;
         vblank: number;
         overscanStart: number;
