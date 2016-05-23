@@ -5,6 +5,7 @@ import Config from '../Config';
 import CpuInterface from '../../cpu/CpuInterface';
 import Metrics from './Metrics';
 import Missile from './Missile';
+import * as palette from './palette';
 
 const VISIBLE_WIDTH = 160,
     TOTAL_WIDTH = 228,
@@ -20,7 +21,9 @@ class Tia implements VideoOutputInterface {
     constructor(
         private _config: Config
     ) {
-        this._setupMetrics(this._config);
+        this._metrics = this._getMetrics(this._config);
+        this._palette = this._getPalette(this._config);
+
         this._missile0 = new Missile(this._metrics);
         this._missile1 = new Missile(this._metrics);
     }
@@ -79,8 +82,6 @@ class Tia implements VideoOutputInterface {
         // Mask out A6 - A15
         address &= 0x3F;
 
-        let masked = 0;
-
         switch (address) {
             case Tia.Registers.wsync:
                 this._cpu.halt();
@@ -118,6 +119,17 @@ class Tia implements VideoOutputInterface {
                 this._missile1.hmove();
                 break;
 
+            case Tia.Registers.colubk:
+                this._colorBk = this._palette[(value & 0xFF) >> 1];
+                break;
+
+            case Tia.Registers.colup0:
+                this._missile0.color = this._palette[(value & 0xFF) >> 1];
+                break;
+
+            case Tia.Registers.colup1:
+                this._missile1.color = this._palette[(value & 0xFF) >> 1];
+                break;
         }
 
     }
@@ -129,17 +141,30 @@ class Tia implements VideoOutputInterface {
 
     trap = new Event<Tia.TrapPayload>();
 
-    private _setupMetrics(config: Config): void {
+    private _getMetrics(config: Config): Metrics {
         switch (this._config.tvMode) {
-
             case Config.TvMode.secam:
             case Config.TvMode.pal:
-                this._metrics = new Metrics(VISIBLE_WIDTH, TOTAL_WIDTH, VISIBLE_LINES_PAL, VBLANK_PAL);
-                break;
+                return new Metrics(VISIBLE_WIDTH, TOTAL_WIDTH, VISIBLE_LINES_PAL, VBLANK_PAL);
 
             case Config.TvMode.ntsc:
-                this._metrics = new Metrics(VISIBLE_WIDTH, TOTAL_WIDTH, VISIBLE_LINES_NTSC, VBLANK_NTSC);
-                break;
+                return new Metrics(VISIBLE_WIDTH, TOTAL_WIDTH, VISIBLE_LINES_NTSC, VBLANK_NTSC);
+
+            default:
+                throw new Error('invalid TV mode');
+        }
+    }
+
+    private _getPalette(config: Config) {
+        switch (config.tvMode) {
+            case Config.TvMode.ntsc:
+                return palette.NTSC;
+
+            case Config.TvMode.pal:
+                return palette.PAL;
+
+            case Config.TvMode.secam:
+                return palette.SECAM;
 
             default:
                 throw new Error('invalid TV mode');
@@ -182,8 +207,8 @@ class Tia implements VideoOutputInterface {
         }
 
         let colorMP = -1;
-        colorMP = this._missile0.raster(x, y, colorMP);
-        colorMP = this._missile1.raster(x, y, colorMP);
+        colorMP = this._missile0.renderPixel(x, y, colorMP);
+        colorMP = this._missile1.renderPixel(x, y, colorMP);
 
         let color = this._colorBk;
 
@@ -198,6 +223,8 @@ class Tia implements VideoOutputInterface {
     private _surface: RGBASurfaceInterface = null;
 
     private _cpu: CpuInterface;
+
+    private _palette: Uint32Array;
 
     private _metrics: Metrics;
     private _hClock = 0;
