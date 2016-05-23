@@ -11,12 +11,15 @@ import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 
 import CommandInterpreter from './CommandInterpreter';
 import ImmedateScheduler from '../tools/scheduler/ImmedateScheduler';
+import LimitedScheduler from '../tools/scheduler/LimitingImmediateScheduler';
 import TaskInterface from '../tools/scheduler/TaskInterface';
 import PeriodicScheduler from '../tools/scheduler/PeriodicScheduler';
+import SchedulerInterface from '../tools/scheduler/SchedulerInterface';
 
 import ClockProbe from '../tools/ClockProbe';
 
 const enum State {debug, run};
+const enum RunMode {limited, unlimited};
 
 const CLOCK_PROBE_INTERVAL = 1000;
 
@@ -32,6 +35,14 @@ class StellaCLI extends DebuggerCLI {
         this._runModeCommandInterpreter = new CommandInterpreter({
             stop: () => (this._setState(State.debug), 'stopped, entered debugger')
         });
+
+        const runModeCommands: CommandInterpreter.CommandTableInterface = {
+            'set-speed-limited': () => (this._setRunMode(RunMode.limited), 'speed limiting on'),
+            'set-speed-unlimited': () => (this._setRunMode(RunMode.unlimited), 'speed limiting off')
+        };
+
+        this._commandInterpreter.registerCommands(runModeCommands);
+        this._runModeCommandInterpreter.registerCommands(runModeCommands);
     }
 
     getVideoOutput(): VideoOutputInterface {
@@ -100,8 +111,36 @@ class StellaCLI extends DebuggerCLI {
 
             case State.run:
                 this._clockProbe.start();
-                this._board.getTimer().start(this._scheduler);
+                this._board.getTimer().start(this._getScheduler());
                 break;
+        }
+    }
+
+    protected _setRunMode(runMode: RunMode) {
+        if (runMode === this._runMode) {
+            return;
+        }
+
+        this._runMode = runMode;
+
+        if (this._state === State.run) {
+            const timer = this._board.getTimer();
+
+            timer.stop();
+            timer.start(this._getScheduler());
+        }
+    }
+
+    protected _getScheduler(): SchedulerInterface {
+        switch (this._runMode) {
+            case RunMode.limited:
+                return this._limitingScheduler;
+
+            case RunMode.unlimited:
+                return this._nonLimitingScheduler;
+
+            default:
+                throw new Error('invalid run mode');
         }
     }
 
@@ -109,10 +148,12 @@ class StellaCLI extends DebuggerCLI {
     protected _cartridge: CartridgeInterface;
     protected _runModeCommandInterpreter: CommandInterpreter;
 
-    protected _scheduler = new ImmedateScheduler();
+    protected _limitingScheduler = new LimitedScheduler();
+    protected _nonLimitingScheduler = new ImmedateScheduler();
     protected _clockProbe: ClockProbe;
 
     protected _state = State.debug;
+    protected _runMode = RunMode.limited;
 }
 
 export default StellaCLI;

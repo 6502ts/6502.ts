@@ -140,7 +140,7 @@ class Board implements BoardInterface {
         }
     }
 
-    private _tick(requestedCycles: number): void {
+    private _tick(requestedCycles: number): number {
         let i = 0,
             cycles = 0,
             cpuCycles = 0,
@@ -178,6 +178,8 @@ class Board implements BoardInterface {
         if (cycles > 0 && this.clock.hasHandlers) {
             this.clock.dispatch(cycles);
         }
+
+        return cycles;
     }
 
     private _start(scheduler: SchedulerInterface, sliceHint = 50000) {
@@ -189,7 +191,7 @@ class Board implements BoardInterface {
     }
 
     private _executeSlice(board: Board) {
-        board._tick(board._sliceHint);
+        return board._tick(board._sliceHint) * (16686 / 262 / 228) / 1000;
     }
 
     private _stop() {
@@ -218,7 +220,7 @@ class Board implements BoardInterface {
     private _subClock = 0;
 
     private _timer = {
-        tick: (clocks: number): void => this._tick(clocks),
+        tick: (clocks: number): number => this._tick(clocks),
         start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler, sliceHint),
         stop: (): void => this._stop(),
         isRunning: (): boolean => !!this._runTask

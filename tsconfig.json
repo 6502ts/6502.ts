@@ -73,6 +73,8 @@
         "src/tools/pool/PoolMember.ts",
         "src/tools/pool/PoolMemberInterface.ts",
         "src/tools/scheduler/ImmedateScheduler.ts",
+        "src/tools/scheduler/LimitingImmediateScheduler.ts",
+        "src/tools/scheduler/LimitingSchedulerInterface.ts",
         "src/tools/scheduler/PeriodicScheduler.ts",
         "src/tools/scheduler/SchedulerInterface.ts",
         "src/tools/scheduler/TaskInterface.ts",

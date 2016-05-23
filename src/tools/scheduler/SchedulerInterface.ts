@@ -1,7 +1,10 @@
 import TaskInterface from './TaskInterface';
 
 interface SchedulerInterface {
-    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): TaskInterface;
+    start<T>(
+        worker: SchedulerInterface.WorkerInterface<T>,
+        context?: T
+    ): TaskInterface;
 }
 
 module SchedulerInterface {
