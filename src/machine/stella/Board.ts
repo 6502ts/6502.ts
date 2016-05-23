@@ -180,10 +180,10 @@ class Board implements BoardInterface {
         }
     }
 
-    private _start(scheduler: SchedulerInterface, sliceHint?: number) {
+    private _start(scheduler: SchedulerInterface, sliceHint = 50000) {
         if (this._runTask) return;
 
-        this._sliceHint = (typeof(sliceHint) === 'undefined') ? 100000 : sliceHint;
+        this._sliceHint = sliceHint;
 
         this._runTask = scheduler.start(this._executeSlice, this);
     }

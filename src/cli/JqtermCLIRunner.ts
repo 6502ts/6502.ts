@@ -9,8 +9,7 @@ class JqtermCLIRunner {
         terminalElt: JQuery,
         options: JqtermCLIRunner.Options = {}
     ) {
-        this._completer = new Completer(
-            this._cli.availableCommands(), this._cli.getFilesystemProvider());
+        this._updateCompleter();
 
         this._terminal = terminalElt.terminal(
             (input: string, terminal: JQueryTerminal): void =>
@@ -27,6 +26,7 @@ class JqtermCLIRunner {
 
         this._cli.events.outputAvailable.addHandler(this._onCLIOutputAvailable, this);
         this._cli.events.promptChanged.addHandler(this._onCLIPromptChanged, this);
+        this._cli.events.availableCommandsChanged.addHandler(this._updateCompleter.bind(this));
 
         if (options.interruptButton)
             options.interruptButton.mousedown((): void => this._cli.interrupt());
@@ -38,6 +38,11 @@ class JqtermCLIRunner {
     startup() {
         this._cli.startup();
         this._terminal.set_prompt(this._cli.getPrompt());
+    }
+
+    private _updateCompleter() {
+        this._completer = new Completer(
+            this._cli.availableCommands(), this._cli.getFilesystemProvider());
     }
 
     private _onCLIOutputAvailable(payload: void, ctx: JqtermCLIRunner): void {

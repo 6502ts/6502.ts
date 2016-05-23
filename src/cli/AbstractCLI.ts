@@ -7,7 +7,8 @@ abstract class AbstractCLI {
         outputAvailable: new Event<void>(),
         quit: new Event<void>(),
         promptChanged: new Event<void>(),
-        prompt: new Event<void>()
+        prompt: new Event<void>(),
+        availableCommandsChanged: new Event<void>()
     };
 
 }

@@ -73,7 +73,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
 
     pushInput(input: string): void {
         try {
-            this._outputLine(this._commandInterpreter.execute(input));
+            this._outputLine(this._getCommandInterpreter().execute(input));
         } catch (e) {
             this._outputLine('ERROR: ' + e.message);
         }
@@ -96,7 +96,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
     }
 
     availableCommands(): Array<string> {
-        return this._commandInterpreter.getCommands();
+        return this._getCommandInterpreter().getCommands();
     }
 
     getPrompt(): string {
@@ -122,6 +122,10 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
     protected _outputLine(line: string): void {
         this._output += (line + '\n');
         this.events.outputAvailable.dispatch(undefined);
+    }
+
+    protected _getCommandInterpreter(): CommandInterpreter {
+        return this._commandInterpreter;
     }
 
     protected _board: BoardInterface;

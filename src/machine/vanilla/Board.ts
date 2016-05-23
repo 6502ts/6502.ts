@@ -119,10 +119,10 @@ class Board implements BoardInterface {
         if (clock > 0 && this.clock.hasHandlers) this.clock.dispatch(clock);
     }
 
-    protected _start(scheduler: SchedulerInterface, sliceHint?: number) {
+    protected _start(scheduler: SchedulerInterface, sliceHint = 100000) {
         if (this._runTask) return;
 
-        this._sliceHint = (typeof(sliceHint) === 'undefined') ? 100000 : sliceHint;
+        this._sliceHint = sliceHint;
 
         this._runTask = scheduler.start(this._executeSlice, this);
     }

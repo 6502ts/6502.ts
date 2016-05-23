@@ -4,8 +4,7 @@ import Completer from './Completer';
 
 class NodeCLIRunner {
     constructor(private _cli: CLIInterface) {
-        this._completer = new Completer(
-            this._cli.availableCommands(), this._cli.getFilesystemProvider());
+        this._updateCompleter();
 
         this._readline = readline.createInterface({
             input: process.stdin,
@@ -23,6 +22,7 @@ class NodeCLIRunner {
         this._cli.events.promptChanged.addHandler(this._onCLIPromptChanged, this);
         this._cli.events.quit.addHandler(this._onCLIQuit, this);
         this._cli.events.prompt.addHandler(this._onCLIPrompt, this);
+        this._cli.events.availableCommandsChanged.addHandler(this._updateCompleter.bind(this));
     }
 
     startup(): void {
@@ -60,6 +60,11 @@ class NodeCLIRunner {
         if (ctx._closed) return;
 
         ctx._readline.prompt();
+    }
+
+    private _updateCompleter() {
+        this._completer = new Completer(
+            this._cli.availableCommands(), this._cli.getFilesystemProvider());
     }
 
     private _closed = false;

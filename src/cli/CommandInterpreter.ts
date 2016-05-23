@@ -48,7 +48,7 @@ class CommandInterpreter {
 
 module CommandInterpreter {
     export interface CommandInterface {
-        (args: Array<string>, cmdString?: string): string;
+        (args?: Array<string>, cmdString?: string): string;
     }
 
     export interface CommandTableInterface {

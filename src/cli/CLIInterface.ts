@@ -28,6 +28,8 @@ interface CLIInterface {
         promptChanged: EventInterface<void>;
 
         prompt: EventInterface<void>;
+
+        availableCommandsChanged: EventInterface<void>;
     };
 }
 
