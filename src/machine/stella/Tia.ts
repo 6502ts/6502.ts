@@ -18,38 +18,7 @@ class Tia implements VideoOutputInterface {
     constructor(
         private _config: Config
     ) {
-        switch (this._config.tvMode) {
-
-            case Config.TvMode.secam:
-            case Config.TvMode.pal:
-                this._metrics = {
-                    visibleWidth: VISIBLE_WIDTH,
-                    totalWidth: TOTAL_WIDTH,
-                    hblank: TOTAL_WIDTH - VISIBLE_WIDTH,
-
-                    visibleLines: VISIBLE_LINES_PAL,
-                    vblank: VBLANK_PAL,
-                    overscanStart: VBLANK_PAL + VISIBLE_LINES_PAL,
-                    overscanEnd: VBLANK_PAL + VISIBLE_LINES_PAL + OVERSCAN_PAL
-                };
-                break;
-
-            case Config.TvMode.ntsc:
-                this._metrics = {
-                    visibleWidth: VISIBLE_WIDTH,
-                    totalWidth: TOTAL_WIDTH,
-                    hblank: TOTAL_WIDTH - VISIBLE_WIDTH,
-
-                    visibleLines: VISIBLE_LINES_NTSC,
-                    vblank: VBLANK_NTSC,
-                    overscanStart: VBLANK_NTSC + VISIBLE_LINES_NTSC,
-                    overscanEnd: VBLANK_NTSC + VISIBLE_LINES_NTSC + OVERSCAN_NTSC
-                };
-                break;
-
-            default:
-                throw new Error('invalid TV mode');
-        }
+        this._setupMetrics(this._config);
     }
 
     reset(): void {
@@ -87,7 +56,7 @@ class Tia implements VideoOutputInterface {
             this._hClock >= this._metrics.hblank &&
             this._vClock >= this._metrics.vblank
         ) {
-            this._raster(this._hClock - this._metrics.hblank, this._vClock - this._metrics.vblank);
+            this._renderPixel(this._hClock - this._metrics.hblank, this._vClock - this._metrics.vblank);
         }
 
         if (this._hClock === 228) {
@@ -106,20 +75,54 @@ class Tia implements VideoOutputInterface {
         // Mask out A6 - A15
         address &= 0x3F;
 
+        let masked = 0;
+
         switch (address) {
             case Tia.Registers.wsync:
                 this._cpu.halt();
                 break;
 
             case Tia.Registers.vsync:
-                if (value > 0 && !this._vsync) {
+                if ((value & 2) > 0 && !this._vsync) {
                     this._vsync = true;
                     this._finalizeFrame();
                 } else if (this._vsync) {
                     this._vsync = false;
                     this._startFrame();
                 }
+
+                break;
+
+            case Tia.Registers.enam0:
+                this._enableM0 = (value & 2) > 0;
+                break;
+
+            case Tia.Registers.enam1:
+                this._enableM1 = (value & 2) > 0;
+                break;
+
+            case Tia.Registers.hmm0:
+                masked = (value & 0xF0) >> 4;
+                this._moveM0 = (masked & 0x80) ? -masked : 0xF - masked + 1;
+                break;
+
+            case Tia.Registers.hmm0:
+                masked = (value & 0xF0) >> 4;
+                this._moveM1 = (masked & 0x80) ? -masked : 0xF - masked + 1;
+                break;
+
+            case Tia.Registers.hmove:
+                this._posM0 += this._moveM0;
+                this._posM1 += this._moveM1;
+
+                if (this._posM0 >= this._metrics.visibleWidth) this._posM0 -= this._metrics.visibleWidth;
+                if (this._posM0 < 0) this._posM0 = this._posM0 + this._metrics.visibleWidth;
+
+
+                break;
+
         }
+
     }
 
     getDebugState(): string {
@@ -128,6 +131,23 @@ class Tia implements VideoOutputInterface {
     }
 
     trap = new Event<Tia.TrapPayload>();
+
+    private _setupMetrics(config: Config): void {
+        switch (this._config.tvMode) {
+
+            case Config.TvMode.secam:
+            case Config.TvMode.pal:
+                this._metrics = new Metrics(VISIBLE_LINES_PAL, VBLANK_PAL, OVERSCAN_PAL);
+                break;
+
+            case Config.TvMode.ntsc:
+                this._metrics = new Metrics(VISIBLE_LINES_NTSC, VBLANK_NTSC, OVERSCAN_NTSC);
+                break;
+
+            default:
+                throw new Error('invalid TV mode');
+        }
+    }
 
     private _nextLine() {
         this._vClock++;
@@ -159,15 +179,26 @@ class Tia implements VideoOutputInterface {
         this._vClock = 0;
     }
 
-    private _raster(x: number, y: number): void {
+    private _renderPixel(x: number, y: number): void {
         if (!this._surface) {
             return;
         }
 
-        const buffer = this._surface.getBuffer(),
-            idx = y * this._metrics.visibleWidth + x;
+        let colorMP = -1;
 
-        buffer[idx] = 0xFF000000;
+        if (this._enableM0 && x >= this._posM0 && (x - this._posM0) < this._widthM0) {
+            colorMP = this._colorM0;
+        }
+        if (this._enableM1 && x >= this._posM1 && (x - this._posM1) < this._widthM1) {
+            colorMP = this._colorM1;
+        }
+
+        let color = this._colorBk;
+        if (colorMP > 0) {
+            color = colorMP;
+        }
+
+        this._surface.getBuffer()[y * this._metrics.visibleWidth + x] = color;
     }
 
     private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface;
@@ -175,12 +206,27 @@ class Tia implements VideoOutputInterface {
 
     private _cpu: CpuInterface;
 
-    private _metrics: Tia.Metrics;
+    private _metrics: Metrics;
     private _hClock = 0;
     private _vClock = 0;
 
     private _frameInProgress = false;
     private _vsync = false;
+
+    private _colorBk = 0xFF000000;
+
+    private _colorM0 = 0xFFFFFFFF;
+    private _posM0 = 0;
+    private _widthM0 = 1;
+    private _enableM0 = false;
+
+    private _colorM1 = 0xFFFFFFFF;
+    private _posM1 = 0;
+    private _widthM1 = 0;
+    private _enableM1 = false;
+
+    private _moveM0 = 0;
+    private _moveM1 = 0;
 }
 
 module Tia {
@@ -256,16 +302,26 @@ module Tia {
             public message?: string
         ) {}
     }
-
-    export interface Metrics {
-        visibleWidth: number;
-        totalWidth: number;
-        hblank: number;
-        visibleLines: number;
-        vblank: number;
-        overscanStart: number;
-        overscanEnd: number;
-    }
 }
+
+class Metrics {
+    constructor(
+        public visibleLines: number,
+        public vblank: number,
+        public overscan: number
+    ) {
+        this.visibleWidth = VISIBLE_WIDTH;
+        this.totalWidth = TOTAL_WIDTH;
+        this.hblank = TOTAL_WIDTH - VISIBLE_WIDTH;
+        this.overscanStart = vblank + visibleLines;
+    }
+
+    public visibleWidth: number;
+    public totalWidth: number;
+    public overscanStart: number;
+    public hblank: number;
+    public maxX: number;
+}
+
 
 export default Tia;
