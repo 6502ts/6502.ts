@@ -1,6 +1,6 @@
 import BusInterface from '../bus/BusInterface';
 import Event from '../../tools/event/Event';
-import Tia from './Tia';
+import Tia from './tia/Tia';
 import Pia from './Pia';
 import CartridgeInterface from './CartridgeInterface';
 

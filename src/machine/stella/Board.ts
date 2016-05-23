@@ -9,7 +9,7 @@ import Event from '../../tools/event/Event';
 import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 import TaskInterface from '../../tools/scheduler/TaskInterface';
 import Pia from './Pia';
-import Tia from './Tia';
+import Tia from './tia/Tia';
 import CartridgeInterface from './CartridgeInterface';
 import Config from './Config';
 import VideoOutputInterface from '../io/VideoOutputInterface';

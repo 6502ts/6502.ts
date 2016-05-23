@@ -1,8 +1,10 @@
-import VideoOutputInterface from '../io/VideoOutputInterface';
-import RGBASurfaceInterface from '../../tools/surface/RGBASurfaceInterface';
-import Event from '../../tools/event/Event';
-import Config from './Config';
-import CpuInterface from '../cpu/CpuInterface';
+import VideoOutputInterface from '../../io/VideoOutputInterface';
+import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
+import Event from '../../../tools/event/Event';
+import Config from '../Config';
+import CpuInterface from '../../cpu/CpuInterface';
+import Metrics from './Metrics';
+import Missile from './Missile';
 
 const VISIBLE_WIDTH = 160,
     TOTAL_WIDTH = 228,
@@ -19,6 +21,8 @@ class Tia implements VideoOutputInterface {
         private _config: Config
     ) {
         this._setupMetrics(this._config);
+        this._missile0 = new Missile(this._metrics);
+        this._missile1 = new Missile(this._metrics);
     }
 
     reset(): void {
@@ -94,31 +98,24 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.enam0:
-                this._enableM0 = (value & 2) > 0;
+                this._missile0.enam(value);
                 break;
 
             case Tia.Registers.enam1:
-                this._enableM1 = (value & 2) > 0;
+                this._missile1.enam(value);
                 break;
 
             case Tia.Registers.hmm0:
-                masked = (value & 0xF0) >> 4;
-                this._moveM0 = (masked & 0x80) ? -masked : 0xF - masked + 1;
+                this._missile0.hmm(value);
                 break;
 
             case Tia.Registers.hmm0:
-                masked = (value & 0xF0) >> 4;
-                this._moveM1 = (masked & 0x80) ? -masked : 0xF - masked + 1;
+                this._missile1.hmm(value);
                 break;
 
             case Tia.Registers.hmove:
-                this._posM0 += this._moveM0;
-                this._posM1 += this._moveM1;
-
-                if (this._posM0 >= this._metrics.visibleWidth) this._posM0 -= this._metrics.visibleWidth;
-                if (this._posM0 < 0) this._posM0 = this._posM0 + this._metrics.visibleWidth;
-
-
+                this._missile0.hmove();
+                this._missile1.hmove();
                 break;
 
         }
@@ -137,11 +134,11 @@ class Tia implements VideoOutputInterface {
 
             case Config.TvMode.secam:
             case Config.TvMode.pal:
-                this._metrics = new Metrics(VISIBLE_LINES_PAL, VBLANK_PAL, OVERSCAN_PAL);
+                this._metrics = new Metrics(VISIBLE_WIDTH, TOTAL_WIDTH, VISIBLE_LINES_PAL, VBLANK_PAL);
                 break;
 
             case Config.TvMode.ntsc:
-                this._metrics = new Metrics(VISIBLE_LINES_NTSC, VBLANK_NTSC, OVERSCAN_NTSC);
+                this._metrics = new Metrics(VISIBLE_WIDTH, TOTAL_WIDTH, VISIBLE_LINES_NTSC, VBLANK_NTSC);
                 break;
 
             default:
@@ -185,15 +182,11 @@ class Tia implements VideoOutputInterface {
         }
 
         let colorMP = -1;
-
-        if (this._enableM0 && x >= this._posM0 && (x - this._posM0) < this._widthM0) {
-            colorMP = this._colorM0;
-        }
-        if (this._enableM1 && x >= this._posM1 && (x - this._posM1) < this._widthM1) {
-            colorMP = this._colorM1;
-        }
+        colorMP = this._missile0.raster(x, y, colorMP);
+        colorMP = this._missile1.raster(x, y, colorMP);
 
         let color = this._colorBk;
+
         if (colorMP > 0) {
             color = colorMP;
         }
@@ -215,18 +208,8 @@ class Tia implements VideoOutputInterface {
 
     private _colorBk = 0xFF000000;
 
-    private _colorM0 = 0xFFFFFFFF;
-    private _posM0 = 0;
-    private _widthM0 = 1;
-    private _enableM0 = false;
-
-    private _colorM1 = 0xFFFFFFFF;
-    private _posM1 = 0;
-    private _widthM1 = 0;
-    private _enableM1 = false;
-
-    private _moveM0 = 0;
-    private _moveM1 = 0;
+    private _missile0: Missile;
+    private _missile1: Missile;
 }
 
 module Tia {
@@ -303,25 +286,5 @@ module Tia {
         ) {}
     }
 }
-
-class Metrics {
-    constructor(
-        public visibleLines: number,
-        public vblank: number,
-        public overscan: number
-    ) {
-        this.visibleWidth = VISIBLE_WIDTH;
-        this.totalWidth = TOTAL_WIDTH;
-        this.hblank = TOTAL_WIDTH - VISIBLE_WIDTH;
-        this.overscanStart = vblank + visibleLines;
-    }
-
-    public visibleWidth: number;
-    public totalWidth: number;
-    public overscanStart: number;
-    public hblank: number;
-    public maxX: number;
-}
-
 
 export default Tia;
