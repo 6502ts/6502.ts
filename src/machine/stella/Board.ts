@@ -212,7 +212,7 @@ class Board implements BoardInterface {
     private _pia: Pia;
     private _cartridge: CartridgeInterface;
 
-    private _sliceHint: number;
+    private _sliceHint = 50000;
     private _runTask: TaskInterface;
     private _clockMode = BoardInterface.ClockMode.lazy;
     private _trap = false;
