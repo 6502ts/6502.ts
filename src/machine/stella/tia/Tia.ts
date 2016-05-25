@@ -69,11 +69,26 @@ class Tia implements VideoOutputInterface {
     newFrame = new Event<RGBASurfaceInterface>();
 
     cycle(): void {
+        if (this._movementInProgress) {
+            // The actual clock supplied to the sprites is mod 4
+            const clock = this._movementCtr >>> 2;
+
+            if ((this._movementCtr & 0x3) === 0) {
+                // The tick is only propagated to the sprite counters if we are in blank
+                // mode --- in frame mode, it overlaps with the sprite clock and is gobbled
+                const apply = this._hstate === HState.blank;
+
+                this._movementInProgress =
+                    this._missile0.movementTick(clock, apply) ||
+                    this._missile1.movementTick(clock, apply);
+            }
+
+            this._movementCtr++;
+        }
+
         switch (this._hstate) {
             case HState.blank:
                 // Fire the movement clock if applicable
-                this._movementTick();
-
                 if (++this._hblankCtr >= this._metrics.hblank) {
                     this._hstate = HState.frame;
                 }
@@ -94,29 +109,29 @@ class Tia implements VideoOutputInterface {
                 this._missile1.tick();
 
                 if (++this._hctr >= this._metrics.totalWidth) {
+                    // Resume the CPU if it was halted
+                    this._cpu.resume();
+
+                    // Reset the counters
+                    this._hctr = 0;
+                    this._vctr++;
+
+                    // Reset sprite state
+                    this._missile0.newLine();
+                    this._missile1.newLine();
+
+                    if (this._frameInProgress) {
+                        // Overscan reached? -> pump out frame
+                        if (this._vctr >= this._metrics.overscanStart){
+                            this._finalizeFrame();
+                        }
+                    }
+
                     this._hstate = HState.blank;
                     this._hblankCtr = 0;
-
-                    this._nextLine();
                 }
-        }
-    }
 
-    private _movementTick() {
-        if (this._movementInProgress) {
-
-            // The actual clock supplied to the sprites is mod 4
-            const clock = this._movementCtr >>> 2;
-
-            if ((this._movementCtr & 0x3) === 0) {
-                const m0 = this._missile0.movementTick(clock),
-                    m1 = this._missile1.movementTick(clock);
-
-                // Stop timer if all sprites signal "movement finished"
-                this._movementInProgress = m0 || m1;
-            }
-
-            this._movementCtr++;
+                break;
         }
     }
 

@@ -14,6 +14,7 @@ class Missile {
         this._rendering = false;
         this._pixelsRendered = 0;
         this._moving = false;
+        this._hmmClocks = 8;
     }
 
     public newLine() {
@@ -37,18 +38,19 @@ class Missile {
         this._moving = true;
     }
 
-    public movementTick(clock: number): boolean {
+    public movementTick(clock: number, apply: boolean): boolean {
         // Stop movement only if the clock matches exactly --- this is crucial for cosmic ark type hacks
         if (clock === this._hmmClocks) {
             this._moving = false;
         }
 
-        if (this._moving) {
+        if (this._moving && apply) {
             this.tick();
         }
 
         return this._moving;
     }
+
 
     public tick() {
         // Start rendering if the counter overflows. Order matters: we start rendering
@@ -74,7 +76,7 @@ class Missile {
     public width = 1;
     public enabled = false;
 
-    private _hmmClocks = 0;
+    private _hmmClocks = 8;
     private _counter = 0;
     private _moving = false;
 
