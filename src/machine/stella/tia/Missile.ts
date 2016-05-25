@@ -9,12 +9,12 @@ class Missile {
     public reset() {
         this.color = 0xFFFFFFFF;
         this._width = 1;
-        this.enabled = true;
+        this.enabled = false;
         this._counter = 0;
         this._rendering = false;
         this._pixelsRendered = 0;
         this._moving = false;
-        this._hmmClocks = 8;
+        this._hmmClocks = 0;
     }
 
     public newLine() {
@@ -32,6 +32,10 @@ class Missile {
         // Shift and flip the highest bit --- this gives us the necessary movement to the right
         value = value >>> 4;
         this._hmmClocks = ((((~value) & 0xF) >>> 3) << 3) | (value & 0x7);
+    }
+
+    public resm() {
+        this._counter = 0;
     }
 
     public startMovement() {
