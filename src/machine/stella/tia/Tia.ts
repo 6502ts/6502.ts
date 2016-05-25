@@ -11,8 +11,8 @@ const VISIBLE_WIDTH = 160,
     TOTAL_WIDTH = 228,
     VISIBLE_LINES_NTSC = 192,
     VISIBLE_LINES_PAL = 228,
-    VBLANK_NTSC = 40,
-    VBLANK_PAL = 48,
+    VBLANK_NTSC = 37,
+    VBLANK_PAL = 45,
     OVERSCAN_NTSC = 30,
     OVERSCAN_PAL = 36;
 
@@ -118,10 +118,6 @@ class Tia implements VideoOutputInterface {
                     this._hctr = 0;
                     this._vctr++;
 
-                    // Reset sprite state
-                    this._missile0.newLine();
-                    this._missile1.newLine();
-
                     if (this._frameInProgress) {
                         // Overscan reached? -> pump out frame
                         if (this._vctr >= this._metrics.overscanStart){
@@ -186,6 +182,14 @@ class Tia implements VideoOutputInterface {
                 this._missile1.resm();
                 break;
 
+            case Tia.Registers.nusiz0:
+                this._missile0.nusiz(value);
+                break;
+
+            case Tia.Registers.nusiz1:
+                this._missile1.nusiz(value);
+                break;
+
             case Tia.Registers.hmove:
                 // Start the timer and increase hblank
                 this._movementCtr = -7;
@@ -193,6 +197,7 @@ class Tia implements VideoOutputInterface {
 
                 if (!this._extendedHblank) {
                     this._hblankCtr -= 8;
+                    this._clearHmoveComb();
                     this._extendedHblank = true;
                 }
 
@@ -257,6 +262,7 @@ class Tia implements VideoOutputInterface {
     private _finalizeFrame(): void {
         if (this._frameInProgress) {
             if (this._surface) {
+                this._clearHmoveComb();
                 this.newFrame.dispatch(this._surface);
                 this._surface = null;
             }
@@ -285,6 +291,18 @@ class Tia implements VideoOutputInterface {
 
         this._surface.getBuffer()[y * 160 + x] = color;
     }
+
+    private _clearHmoveComb(): void {
+        if (this._surface && this._frameInProgress && this._hstate === HState.blank) {
+            const buffer = this._surface.getBuffer(),
+                offset = (this._vctr - this._metrics.vblank) * 160;
+
+            for (let i = 0; i < 8; i++) {
+                buffer[offset + i] = 0xFF000000;
+            }
+        }
+    }
+
 
     private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface;
     private _surface: RGBASurfaceInterface = null;

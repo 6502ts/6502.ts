@@ -32,10 +32,15 @@ ClearMem
 	STA RESM1
 
 MainLoop
+	; line 1
 	LDA #2
 	STA VSYNC
 	STA WSYNC
+
+	; line 2
 	STA WSYNC
+
+	; line 3
 	STA WSYNC
 	LDA  #43
 	STA  TIM64T
@@ -45,26 +50,43 @@ MainLoop
 WaitForVblankEnd
 	LDA INTIM
 	BNE WaitForVblankEnd
-	LDY #191
 
+	; Somewhere in line 39
 	STA WSYNC
+
+	; Line 40
 	STA HMOVE
+	LDY #191
+	LDX #0
+	STA WSYNC
+
+	; Line 41
 	STA VBLANK
 ScanLoop
 	STA WSYNC
+	inx
+	txa
+	and #$30
+	sta NUSIZ0
+	eor #$30
+	sta NUSIZ1
 	DEY
 	BNE ScanLoop
 
+	; line 232
 	LDA #2
 	STA WSYNC
+
+	; line 233
 	STA VBLANK
 	LDX #30
 OverScanWait
 	STA WSYNC
 	DEX
 	BNE OverScanWait
-	JMP  MainLoop
 
+	; line 263 = line 1
+	JMP  MainLoop
 	org $FFFC
 	.word Start
 	.word Start

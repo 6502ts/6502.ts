@@ -6,7 +6,7 @@ class Missile {
         this.reset();
     }
 
-    public reset() {
+    public reset(): void {
         this.color = 0xFFFFFFFF;
         this._width = 1;
         this.enabled = false;
@@ -17,28 +17,25 @@ class Missile {
         this._hmmClocks = 0;
     }
 
-    public newLine() {
-        // Stop rendering if a line ends, but allow positioning at x = 0
-        if (this._rendering && this._pixelsRendered > 0) {
-            this._rendering = false;
-        }
-    }
-
-    public enam(value: number) {
+    public enam(value: number): void {
         this.enabled = (value & 2) > 0;
     }
 
-    public hmm(value: number) {
+    public hmm(value: number): void {
         // Shift and flip the highest bit --- this gives us the necessary movement to the right
         value = value >>> 4;
         this._hmmClocks = ((((~value) & 0xF) >>> 3) << 3) | (value & 0x7);
     }
 
-    public resm() {
+    public resm(): void {
         this._counter = 0;
     }
 
-    public startMovement() {
+    public nusiz(value: number): void {
+        this._width = (value & 0x30) >>> 2;
+    }
+
+    public startMovement(): void {
         this._moving = true;
     }
 
@@ -56,7 +53,7 @@ class Missile {
     }
 
 
-    public tick() {
+    public tick(): void {
         if (this._counter === 159) {
             this._rendering = true;
             this._pixelsRendered = 0;
