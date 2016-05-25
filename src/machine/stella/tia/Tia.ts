@@ -34,7 +34,7 @@ class Tia implements VideoOutputInterface {
 
     reset(): void {
         this._hblankCtr = this._hctr = this._vctr = 0;
-        this._movementInProgress = false;
+        this._movementInProgress = this._extendedHblank = false;;
         this._movementCtr = 0;
         this._vsync = this._frameInProgress = false;
 
@@ -71,12 +71,11 @@ class Tia implements VideoOutputInterface {
     cycle(): void {
         if (this._movementInProgress) {
             // The actual clock supplied to the sprites is mod 4
-            const clock = this._movementCtr >>> 2;
-
             if ((this._movementCtr & 0x3) === 0) {
                 // The tick is only propagated to the sprite counters if we are in blank
                 // mode --- in frame mode, it overlaps with the sprite clock and is gobbled
-                const apply = this._hstate === HState.blank;
+                const apply = this._hstate === HState.blank,
+                    clock = this._movementCtr >>> 2;
 
                 this._movementInProgress =
                     this._missile0.movementTick(clock, apply) ||
@@ -129,6 +128,7 @@ class Tia implements VideoOutputInterface {
 
                     this._hstate = HState.blank;
                     this._hblankCtr = 0;
+                    this._extendedHblank = false;
                 }
 
                 break;
@@ -200,7 +200,11 @@ class Tia implements VideoOutputInterface {
                 // Start the timer and increase hblank
                 this._movementCtr = 0;
                 this._movementInProgress = true;
-                this._hblankCtr -= 8;
+
+                if (!this._extendedHblank) {
+                    this._hblankCtr -= 8;
+                    this._extendedHblank = true;
+                }
 
                 // Start sprite movement
                 this._missile0.startMovement();
@@ -314,6 +318,8 @@ class Tia implements VideoOutputInterface {
     private _movementCtr = 0;
     // Is the movement clock active and shoud pulse?
     private _movementInProgress = false;
+    //
+    private _extendedHblank = false;
 
     private _frameInProgress = false;
     private _vsync = false;
