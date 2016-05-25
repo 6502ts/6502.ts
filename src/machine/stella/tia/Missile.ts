@@ -8,7 +8,7 @@ class Missile {
 
     public reset() {
         this.color = 0xFFFFFFFF;
-        this.width = 1;
+        this._width = 1;
         this.enabled = true;
         this._counter = 0;
         this._rendering = false;
@@ -53,14 +53,15 @@ class Missile {
 
 
     public tick() {
-        // Start rendering if the counter overflows. Order matters: we start rendering
-        // now and will render the first pixel in the next cycle.
-        if (++this._counter >= this._metrics.visibleWidth) {
-            this._counter = 0;
+        if (this._counter === 159) {
             this._rendering = true;
             this._pixelsRendered = 0;
-        } else if (this._rendering && ++this._pixelsRendered >= this.width) {
+        } else if (this._rendering && ++this._pixelsRendered >= this._width) {
             this._rendering = false;
+        }
+
+        if (++this._counter >= 160) {
+            this._counter = 0;
         }
     }
 
@@ -73,12 +74,12 @@ class Missile {
     }
 
     public color = 0xFFFFFFFF;
-    public width = 1;
     public enabled = false;
 
     private _hmmClocks = 8;
     private _counter = 0;
     private _moving = false;
+    private _width = 1;
 
     private _rendering = false;
     private _pixelsRendered = 0;

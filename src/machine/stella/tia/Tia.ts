@@ -53,7 +53,7 @@ class Tia implements VideoOutputInterface {
     }
 
     getWidth(): number {
-        return this._metrics.visibleWidth;
+        return 160;
     }
 
     getHeight(): number {
@@ -71,15 +71,18 @@ class Tia implements VideoOutputInterface {
     cycle(): void {
         if (this._movementInProgress) {
             // The actual clock supplied to the sprites is mod 4
-            if ((this._movementCtr & 0x3) === 0) {
+            if (this._movementCtr >= 0 && (this._movementCtr & 0x3) === 0) {
                 // The tick is only propagated to the sprite counters if we are in blank
                 // mode --- in frame mode, it overlaps with the sprite clock and is gobbled
                 const apply = this._hstate === HState.blank,
                     clock = this._movementCtr >>> 2;
 
-                this._movementInProgress =
-                    this._missile0.movementTick(clock, apply) ||
-                    this._missile1.movementTick(clock, apply);
+                let m = false;
+
+                m = this._missile0.movementTick(clock, apply) || m;
+                m = this._missile1.movementTick(clock, apply) || m;
+
+                this._movementInProgress = m;
             }
 
             this._movementCtr++;
@@ -88,7 +91,7 @@ class Tia implements VideoOutputInterface {
         switch (this._hstate) {
             case HState.blank:
                 // Fire the movement clock if applicable
-                if (++this._hblankCtr >= this._metrics.hblank) {
+                if (++this._hblankCtr >= 68) {
                     this._hstate = HState.frame;
                 }
 
@@ -97,17 +100,17 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case HState.frame:
-                // Order matters: Sprites enter rendering state when their counters reset and render
-                // their first pixrl in the NEXT clock cycle
+                // Order matters: sprites determine whether they should start drawing during tick and
+                // draw the first pixel during the next frame
                 if (this._frameInProgress && this._vctr >= this._metrics.vblank) {
-                    this._renderPixel(this._hctr - this._metrics.hblank, this._vctr - this._metrics.vblank);
+                    this._renderPixel(this._hctr - 68, this._vctr - this._metrics.vblank);
                 }
 
                 // Spin the sprite timers
                 this._missile0.tick();
                 this._missile1.tick();
 
-                if (++this._hctr >= this._metrics.totalWidth) {
+                if (++this._hctr >= 228) {
                     // Resume the CPU if it was halted
                     this._cpu.resume();
 
@@ -134,27 +137,6 @@ class Tia implements VideoOutputInterface {
                 break;
         }
     }
-
-    private _nextLine() {
-        // Resume the CPU if it was halted
-        this._cpu.resume();
-
-        // Reset the counters
-        this._hctr = 0;
-        this._vctr++;
-
-        // Reset sprite state
-        this._missile0.newLine();
-        this._missile1.newLine();
-
-        if (this._frameInProgress) {
-            // Overscan reached? -> pump out frame
-            if (this._vctr >= this._metrics.overscanStart){
-                this._finalizeFrame();
-            }
-        }
-    }
-
 
     read(address: number): number {
         return 0;
@@ -198,7 +180,7 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.hmove:
                 // Start the timer and increase hblank
-                this._movementCtr = 0;
+                this._movementCtr = -7;
                 this._movementInProgress = true;
 
                 if (!this._extendedHblank) {
@@ -238,10 +220,10 @@ class Tia implements VideoOutputInterface {
         switch (this._config.tvMode) {
             case Config.TvMode.secam:
             case Config.TvMode.pal:
-                return new Metrics(VISIBLE_WIDTH, TOTAL_WIDTH, VISIBLE_LINES_PAL, VBLANK_PAL);
+                return new Metrics(VISIBLE_LINES_PAL, VBLANK_PAL);
 
             case Config.TvMode.ntsc:
-                return new Metrics(VISIBLE_WIDTH, TOTAL_WIDTH, VISIBLE_LINES_NTSC, VBLANK_NTSC);
+                return new Metrics(VISIBLE_LINES_NTSC, VBLANK_NTSC);
 
             default:
                 throw new Error('invalid TV mode');
@@ -293,7 +275,7 @@ class Tia implements VideoOutputInterface {
         color = this._missile1.renderPixel(x, y, color);
         color = this._missile0.renderPixel(x, y, color);
 
-        this._surface.getBuffer()[y * this._metrics.visibleWidth + x] = color;
+        this._surface.getBuffer()[y * 160 + x] = color;
     }
 
     private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface;
