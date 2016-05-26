@@ -33,7 +33,7 @@ class Missile {
     }
 
     public nusiz(value: number): void {
-        this._width = (value & 0x30) >>> 2;
+        this._width = this._widths[(value & 0x30) >>> 4];
         this._decodes = decodes[value & 0x07];
     }
 
@@ -88,6 +88,7 @@ class Missile {
     private _pixelsRendered = 0;
 
     private _decodes: Uint8Array;
+    private _widths = new Uint8Array([1, 2, 4, 8]);
 }
 
 export default Missile;
