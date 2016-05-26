@@ -1,4 +1,5 @@
 import Metrics from './Metrics';
+import {decodes} from './drawCounterDecodes';
 
 class Missile {
 
@@ -15,6 +16,7 @@ class Missile {
         this._pixelsRendered = 0;
         this._moving = false;
         this._hmmClocks = 0;
+        this._decodes = decodes[0];
     }
 
     public enam(value: number): void {
@@ -32,6 +34,7 @@ class Missile {
 
     public nusiz(value: number): void {
         this._width = (value & 0x30) >>> 2;
+        this._decodes = decodes[value & 0x07];
     }
 
     public startMovement(): void {
@@ -53,7 +56,7 @@ class Missile {
 
 
     public tick(): void {
-        if (this._counter === 159) {
+        if (this._decodes[this._counter]) {
             this._rendering = true;
             this._pixelsRendered = 0;
         } else if (this._rendering && ++this._pixelsRendered >= this._width) {
@@ -84,6 +87,7 @@ class Missile {
     private _rendering = false;
     private _pixelsRendered = 0;
 
+    private _decodes: Uint8Array;
 }
 
 export default Missile;
