@@ -23,8 +23,7 @@ class Missile {
 
     public hmm(value: number): void {
         // Shift and flip the highest bit --- this gives us the necessary movement to the right
-        value = value >>> 4;
-        this._hmmClocks = ((((~value) & 0xF) >>> 3) << 3) | (value & 0x7);
+        this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
     public resm(): void {
