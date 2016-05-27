@@ -97,7 +97,7 @@ class Board implements BoardInterface {
         return new Memory();
     }
 
-    protected _tick(clocks: number): void {
+    protected _tick(clocks: number): number {
         let i = 0,
             clock = 0;
 
@@ -117,6 +117,8 @@ class Board implements BoardInterface {
         }
 
         if (clock > 0 && this.clock.hasHandlers) this.clock.dispatch(clock);
+
+        return clock;
     }
 
     protected _start(scheduler: SchedulerInterface, sliceHint = 100000) {
@@ -151,7 +153,7 @@ class Board implements BoardInterface {
     protected _clockMode = BoardInterface.ClockMode.lazy;
 
     protected _timer = {
-        tick: (clocks: number): void => this._tick(clocks),
+        tick: (clocks: number): number => this._tick(clocks),
         start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler, sliceHint),
         stop: (): void => this._stop(),
         isRunning: (): boolean => !!this._runTask

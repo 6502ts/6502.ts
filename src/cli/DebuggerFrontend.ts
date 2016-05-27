@@ -221,11 +221,15 @@ class DebuggerFrontend {
     }
 
     private _stepClock(args: Array<string>): string {
-        const cycles = args.length > 0 ? decodeNumber(args[0]) : 1;
+        const requestedCycles = args.length > 0 ? decodeNumber(args[0]) : 1,
+            timestamp = Date.now();
 
-        this._debugger.stepClock(cycles);
+        const cycles = this._debugger.stepClock(requestedCycles);
 
-        return `clock stepped ${cycles} cycles`;
+        const time = Date.now() - timestamp,
+            trap = this._debugger.getLastTrap();
+
+        return `clock stepped ${cycles} cycles in ${time} msec; now at ${this._debugger.disassemble(1)}\n${trap ? this.describeTrap(trap) : ''}`;
     }
 }
 

@@ -199,8 +199,9 @@ class Debugger {
         return {cycles, cpuCycles};
     }
 
-    stepClock(cycles: number): void {
-        this._board.getTimer().tick(cycles);
+    stepClock(cycles: number): number {
+        this._lastTrap = undefined;
+        return this._board.getTimer().tick(cycles);
     }
 
     setBreakpointsEnabled(breakpointsEnabled: boolean): Debugger {
