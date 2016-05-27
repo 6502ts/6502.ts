@@ -29,7 +29,7 @@ class Missile {
     }
 
     public resm(): void {
-        this._counter = 0;
+        this._counter = 157;
     }
 
     public nusiz(value: number): void {

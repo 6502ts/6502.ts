@@ -27,6 +27,7 @@ ClearMem
 	STA 0,X
 	DEX
 	BNE ClearMem
+
 	LDA #33
 	STA Color0
 	LDA #$F0

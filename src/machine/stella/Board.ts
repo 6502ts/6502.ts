@@ -37,6 +37,8 @@ class Board implements BoardInterface {
         this._tia = tia;
         this._pia = pia;
         this._cartridge = cartridge;
+
+        this.reset();
     }
 
     getCpu(): CpuInterface {
@@ -60,7 +62,7 @@ class Board implements BoardInterface {
         this._tia.reset();
         this._pia.reset();
 
-        this._subClock = 0;
+        this._subClock = 2;
 
         return this;
     }
@@ -217,7 +219,7 @@ class Board implements BoardInterface {
     private _clockMode = BoardInterface.ClockMode.lazy;
     private _trap = false;
 
-    private _subClock = 0;
+    private _subClock = 2;
 
     private _timer = {
         tick: (clocks: number): number => this._tick(clocks),
