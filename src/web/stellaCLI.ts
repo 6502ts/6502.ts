@@ -47,6 +47,9 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
     canvas.width = width;
     canvas.height = height;
 
+    context.fillStyle = 'solid black';
+    context.fillRect(0, 0, width, height);
+
     video.setSurfaceFactory((): Surface => {
         const member = surfacePool.get(),
             surface = member.get();

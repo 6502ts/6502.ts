@@ -22,6 +22,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
         this._debugger = dbg;
         this._commandInterpreter = commandInterpreter;
         this._extendCommandInterpreter();
+        this._debuggerFrontend = debuggerFrontend;
     }
 
     protected _initialize() {
@@ -130,6 +131,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
 
     protected _board: BoardInterface;
     protected _commandInterpreter: CommandInterpreter;
+    protected _debuggerFrontend: DebuggerFrontend;
 
     protected _output = '';
     protected _allowQuit = true;

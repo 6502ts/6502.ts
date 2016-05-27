@@ -3,6 +3,7 @@ import * as path from 'path';
 import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
 import DebuggerCLI from './DebuggerCLI';
 
+import BoardInterface from '../machine/board/BoardInterface';
 import Board from '../machine/stella/Board';
 import CartridgeInterface from '../machine/stella/CartridgeInterface';
 import Cartridge4k from '../machine/stella/Cartridge4k';
@@ -65,6 +66,19 @@ class StellaCLI extends DebuggerCLI {
         }
     }
 
+    interrupt(): void {
+        switch (this._state) {
+            case State.debug:
+                return this._quit();
+
+            case State.run:
+                return this._setState(State.debug);
+
+            default:
+                throw new Error('invalid run state');
+        }
+    }
+
     protected _getCommandInterpreter(): CommandInterpreter {
         switch (this._state) {
             case State.debug:
@@ -90,6 +104,8 @@ class StellaCLI extends DebuggerCLI {
         const clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_PROBE_INTERVAL));
         clockProbe.attach(this._board.clock);
         clockProbe.frequencyUpdate.addHandler(() => this.events.promptChanged.dispatch(undefined));
+
+        this._board.trap.addHandler(this._onTrap, this);
 
         this._clockProbe = clockProbe;
     }
@@ -141,6 +157,13 @@ class StellaCLI extends DebuggerCLI {
 
             default:
                 throw new Error('invalid run mode');
+        }
+    }
+
+    protected _onTrap(trap: BoardInterface.TrapPayload, ctx: this): void {
+        if (ctx._state === State.run) {
+            ctx._setState(State.debug);
+            ctx._outputLine(ctx._debuggerFrontend.describeTrap(trap));
         }
     }
 
