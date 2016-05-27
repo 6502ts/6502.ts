@@ -29,6 +29,9 @@ class Missile {
     }
 
     public resm(): void {
+        // This is the slightly mysterious four clock offset quoted in several places. I am
+        // not quite sure about the internal mechanism in the original silicon, but this
+        // place should be as good as any other.
         this._counter = 157;
     }
 
