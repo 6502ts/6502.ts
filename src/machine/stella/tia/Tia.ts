@@ -183,6 +183,11 @@ class Tia implements VideoOutputInterface {
                 this._missile1.resm();
                 break;
 
+            case Tia.Registers.hmclr:
+                this._missile0.hmm(0);
+                this._missile1.hmm(0);
+                break;
+
             case Tia.Registers.nusiz0:
                 this._missile0.nusiz(value);
                 break;
