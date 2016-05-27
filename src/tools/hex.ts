@@ -15,8 +15,8 @@ export function decode(value: string): number {
 
     if (stripped.match(/^0X[0-9A-F]+$/)) {
         stripped = stripped.replace(/^0x/, '');
-    } else if (stripped.match(/^$[0-9A-F]+$/)) {
-        stripped = stripped.replace(/^$/, '');
+    } else if (stripped.match(/^\$[0-9A-F]+$/)) {
+        stripped = stripped.replace(/^\$/, '');
     } else {
         throw new TypeError('invalid hex number ' + value);
     }
