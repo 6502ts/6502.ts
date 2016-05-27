@@ -90,7 +90,11 @@ class Tia implements VideoOutputInterface {
 
         switch (this._hstate) {
             case HState.blank:
-                // Fire the movement clock if applicable
+                // Release halt at clock 1 so that the CPU has its 1st cycle on clock 3
+                if (this._hblankCtr === 1) {
+                    this._cpu.resume();
+                }
+
                 if (++this._hblankCtr >= 68) {
                     this._hstate = HState.frame;
                 }
@@ -111,9 +115,6 @@ class Tia implements VideoOutputInterface {
                 this._missile1.tick();
 
                 if (++this._hctr >= 228) {
-                    // Resume the CPU if it was halted
-                    this._cpu.resume();
-
                     // Reset the counters
                     this._hctr = 0;
                     this._vctr++;
