@@ -6,10 +6,6 @@ import PeriodicScheduler from '../../src/tools/scheduler/PeriodicScheduler';
 
 suite('Periodic Scheduler', function() {
 
-    function implementation(scheduler: PeriodicScheduler, callback: Mocha.ReadyCallback) {
-
-    }
-
     test('Preset period', function(callback: Mocha.ReadyCallback) {
         const scheduler = new PeriodicScheduler(50);
         let counter = 0,

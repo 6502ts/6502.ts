@@ -1,4 +1,3 @@
-import CLIInterface from './CLIInterface';
 import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
 import * as pathlib from 'path';
 

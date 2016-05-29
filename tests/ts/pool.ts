@@ -1,7 +1,7 @@
 ///<reference path="./interface/mocha.d.ts"/>
 
-import assert = require('assert');
-import util = require('util');
+import * as assert from 'assert';
+import * as util from 'util';
 
 import Pool from '../../src/tools/pool/Pool';
 
@@ -17,13 +17,14 @@ suite('Object Pool', function() {
 
     setup(function() {
         factoryInvocations = 0;
-        releaseCtr = 0,
-        disposeCtr = 0;
 
         pool = new Pool(() => {
             factoryInvocations++;
             return new Probe();
         });
+
+        releaseCtr = 0;
+        disposeCtr = 0;
 
         pool.event.release.addHandler((value: Probe) => releaseCtr++);
         pool.event.dispose.addHandler((value: Probe) => disposeCtr++);
@@ -55,7 +56,7 @@ suite('Object Pool', function() {
 
         let p2 = pool.get();
 
-        assert (p1.get() === p2.get(), 'pool should have returned identical instances');
+        assert(p1.get() === p2.get(), 'pool should have returned identical instances');
         assertCallCount(1, 1, 0);
     });
 

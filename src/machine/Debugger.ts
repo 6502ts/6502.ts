@@ -75,8 +75,6 @@ class Debugger {
         from: number = 0,
         to: number = block.length - 1
     ) {
-        let address: number;
-
         for (let i = 0; i <= to - from; i++)
             this._poke(at + i, block[i]);
     }

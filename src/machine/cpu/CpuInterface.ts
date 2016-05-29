@@ -1,5 +1,3 @@
-import BusInterface from '../bus/BusInterface';
-
 interface CpuInterface {
     setInterrupt(): CpuInterface;
 

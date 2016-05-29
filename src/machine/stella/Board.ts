@@ -4,7 +4,6 @@ import Cpu from '../cpu/Cpu';
 import Bus from './Bus';
 import BusInterface from '../bus/BusInterface';
 import TimerInterface from '../board/TimerInterface';
-import EventInterface from '../../tools/event/EventInterface';
 import Event from '../../tools/event/Event';
 import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 import TaskInterface from '../../tools/scheduler/TaskInterface';

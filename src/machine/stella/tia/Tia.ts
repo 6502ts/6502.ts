@@ -7,14 +7,12 @@ import Metrics from './Metrics';
 import Missile from './Missile';
 import * as palette from './palette';
 
-const VISIBLE_WIDTH = 160,
-    TOTAL_WIDTH = 228,
-    VISIBLE_LINES_NTSC = 192,
+const VISIBLE_LINES_NTSC = 192,
     VISIBLE_LINES_PAL = 228,
     VBLANK_NTSC = 37,
-    VBLANK_PAL = 45,
-    OVERSCAN_NTSC = 30,
-    OVERSCAN_PAL = 36;
+    VBLANK_PAL = 45;
+    //OVERSCAN_NTSC = 30,
+    //OVERSCAN_PAL = 36;
 
 const enum HState {blank, frame};
 

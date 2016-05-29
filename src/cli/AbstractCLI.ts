@@ -1,4 +1,3 @@
-import CLIInterface from './CLIInterface';
 import Event from '../tools/event/Event';
 
 abstract class AbstractCLI {

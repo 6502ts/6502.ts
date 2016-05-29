@@ -2,12 +2,30 @@
     "rules": {
         "class-name": true,
         "comment-format": false,
-        "indent": false,
+        "curly": false,
+        "forin": true,
+        "indent": [
+            true,
+            "spaces"
+        ],
+        "new-parens": true,
+        "no-angle-bracket-type-assertion": true,
+        "no-arg": true,
+        "no-duplicate-key": true,
         "no-duplicate-variable": true,
         "no-eval": true,
         "no-internal-module": false,
         "no-trailing-whitespace": true,
         "no-var-keyword": true,
+        "no-invalid-this": true,
+        "no-require-imports": true,
+        "no-unused-variable": true,
+        "no-unused-expression": true,
+        "no-use-before-declare": true,
+        "no-var-requires": true,
+        "typedef": {
+            "call-signature": true
+        },
         "one-line": false,
         "quotemark": false,
         "semicolon": [

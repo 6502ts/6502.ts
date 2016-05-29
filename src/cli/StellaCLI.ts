@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
 import DebuggerCLI from './DebuggerCLI';
 
@@ -13,7 +11,6 @@ import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 import CommandInterpreter from './CommandInterpreter';
 import ImmedateScheduler from '../tools/scheduler/ImmedateScheduler';
 import LimitedScheduler from '../tools/scheduler/LimitingImmediateScheduler';
-import TaskInterface from '../tools/scheduler/TaskInterface';
 import PeriodicScheduler from '../tools/scheduler/PeriodicScheduler';
 import SchedulerInterface from '../tools/scheduler/SchedulerInterface';
 import Event from '../tools/event/Event';

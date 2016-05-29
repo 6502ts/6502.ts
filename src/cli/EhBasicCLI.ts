@@ -2,7 +2,6 @@ import * as path from 'path';
 
 import Board from '../machine/ehbasic/Board';
 import BoardInterface from '../machine/board/BoardInterface';
-import SimpleSerialIOInterface from '../machine/io/SimpleSerialIOInterface';
 
 import Debugger from '../machine/Debugger';
 import DebuggerFrontend from './DebuggerFrontend';
