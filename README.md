@@ -77,7 +77,7 @@ implemented frontends (including web) host a debugger console.
 ## CPU
 
 On my 2.7 GHz core-i7 laptop, the EhBasic interpreter reaches top speeds of
-about 80 MHz with current V8 versions (Chrome & Node). Jägermonkey / Firefox are slower
+about 80 MHz with current V8 versions (Chrome & Node). Ionmonkey / Firefox are slower
 by about 40%. Chrome Mobile on my Nexus 6P scores about 20 MHz.
 
 ## Atari 2600
