@@ -1,26 +1,29 @@
 # What is it?
 
-6502.ts is an emulator for the MOS 6502 CPU written in TypeScript. As emulating
-a CPU is a bit boring as of itself, I plan on extending the code to emulate an
-Atari 2600 console. Other 6502 based systems like the C64 are also possible.
+6502.ts is an emulator for MOS 6502 based systems written in Typescript. The current state
+of affairs:
 
-At the moment, the emulator contains minimal hardware support for running
-the
-[EhBasic interpreter](https://github.com/jefftranter/6502/tree/master/asm/ehbasic).
-The compiled binary taken from this nice stack overflow
-[code challenge](http://codegolf.stackexchange.com/questions/12844/emulate-a-mos-6502-cpu)
-is included and can be loaded, run and debugged to your hearts content in an
-interactive nodejs command line interface (see below).
-
+ * Cycle exact CPU emulation is complete (with the exception of interrupt handling)
+ * A minimal serial I/O implementation for running the
+   [EhBasic interpreter](https://github.com/jefftranter/6502/tree/master/asm/ehbasic).
+   The compiled binary was taken from this nice stack overflow
+   [code challenge](http://codegolf.stackexchange.com/questions/12844/emulate-a-mos-6502-cpu)
+   and is included
+ * Emulation for the Atari 2600 is a work in progress. Parts of PIA and TIA are
+   implemented, and the example code in `aux/2600` works. Just don't expect
+   to play any games just yet.
+ * There's a debug shell with supports disassbling, memory and hardware state inspection,
+   breakpoints and execution tracing
+ * Frontends exist both for node and the browser (you won't get any graphics on node though ;) )
 
 ## Why?
 
 There are many 6502 emulators out there, and even one written in Typescript.
-So, why the effort? 
+So, why the effort?
 
  * Exploring how coding in typescript feels and whether it adds value for me
    over plain javascript.
- * Getting a better feeling for performance in javascript. Emulating a CPU,
+ * Getting a better feeling for performance in javascript. Emulating a CPU and connected hardware,
    even an ancient one, is hard on the host CPU and a nice playground for
    exploring the performance that can be achieved with recent JS engines. I
    also hope for insights into the performance behavior of different JS
@@ -29,7 +32,9 @@ So, why the effort?
 
 # Implementation state
 
-## Emulation accuracy
+## CPU
+
+### Emulation accuracy
 
 The CPU implementation is almost complete, the only thing still missing is
 interrupt handling --- the interrupt lines are currently ignored, and BRK
@@ -47,34 +52,43 @@ In addition, there is currently no implementation of undocumented instructions,
 and the behavior of ADC and SBC in BCD mode differs from the original for
 inputs that are not valid BCD numbers. Oh, and of course there might be bugs :)
 
-## Debugger and disassembler
+## Hardware
 
-The code also contains a disassembler and a debugger which supports stepping,
-break points, state and memory inspection and execution tracing.
-
-## Hardware emulation and frontends
+### Minimal serial IO / EhBasic
 
 The emulator implements the minimal hardware interface support required for
 running the EhBasic interpreter --- writes to 0xFF01 print to stdout, and input
-is read from 0xFF04.
+is read from 0xFF04. The interpreter runs and is fully functional.
 
-## Speed
+### Atari 2600
 
-Using node 0.11.13, the emulated CPU runs at about
-13 - 18 MHz on my 1.8 GHz ARM chromebook, depending on the code executed
-(polling for input is obviously faster than number crunching). On my 2.7 GHz
-core-i7 laptop, the top speed is about 60 MHz.
+WIP. Parts of TIA and PIA are implemented, and the code samples in `aux/2600` work.
 
-I have some ideas on speeding up the emulation. In particular, V8 seems to
-translate switch blocks into linear searches rather than jump tables (as I had
-originally thought), so performance might be gained from switching to a
-dispatch table rather that the current switch blocks. However, I am already
-now quite satisfied with the emulation speed :)
+## Tooling
 
-I don't yet have numbers for engines other than V8.
+### Debugger and disassembler
 
-**IMPORTANT** There is a huge perfomance gap between node 0.10.x and 0.11.x
---- 0.11.x is fast by a factor of almost two!
+The code contains a disassembler and a debugger which supports stepping,
+break points, state and memory inspection and execution tracing. All currently
+implemented frontends (including web) host a debugger console.
+
+# Speed
+
+## CPU
+
+On my 2.7 GHz core-i7 laptop, the EhBasic interpreter reaches top speeds of
+about 80 MHz with current V8 versions (Chrome & Node). Jägermonkey / Firefox are slower
+by about 40%. Chrome Mobile on my Nexus 6P scores about 20 MHz.
+
+## Atari 2600
+
+On my laptop, the `line_test` demo currently runs with about 35MHz if the speed limit is removed
+(as compared to the original system clock of about 3.8MHz) on current Chrome versions.
+This includes rendering all frames generated by TIA to a canvas. Firefox again is slower, but the
+emulation still achieves about 20MHz. On my Nexus, Chrome Mobile scores about 10MHz.
+This should leave plenty of breathing space for full system emulation, including audio.
+
+All tested systems achieve a nice and steady 3.8MHz / 60 FPS when frame rate is limited.
 
 # How to use it
 
@@ -90,11 +104,24 @@ will pull in the dependencies and build the code. Make sure that you have
 
 ## Usage
 
+### Web
+
+You can launch a simple web server by doing `grunt serve`. The frontends are then served on
+`localhost:6502`. During the build process, the contents of the `aux` directory are
+packaged into the build, and [JQuery Terminal](http://terminal.jcubic.pl/) is used
+to provide a full CLI, including tab completion and search.
+
+### EhBasic
+
 After bulding the code, you can launch an ehBasic session by doing
 
-    node ./ehBasicCLI.js ehbasic_run.d
+    node ./ehBasicCLI.js aux/ehbasic/run.d
 
-which will present you with
+Alternatively, you can access the web CLI on (http://localhost:6502) where you can
+launch the session by doing `run-script ehbasic/run.d`. A current build is also
+available online [here](https://www.cspeckner.de/6502.ts/web).
+
+After launch you will be presented with
 
 ```
 successfully loaded 16384 bytes at $C000
@@ -103,7 +130,7 @@ running, press ctl-c to interrupt...
 
 6502 EhBASIC [C]old/[W]arm ?
 
-Memory size ? 
+Memory size ?
 
 40191 Bytes free
 
@@ -111,7 +138,7 @@ Enhanced BASIC 2.22
 
 Ready
 
-[run] # 
+[run] #
 ```
 
 All input you enter at the `[run] #` prompt is sent to the emulator input buffer.
@@ -123,7 +150,7 @@ Hello world
 
 Ready
 
-17.81 MHz [run] # 
+17.81 MHz [run] #
 ```
 
 The BASIC interpreter will print all input on stdout, so all input you
@@ -182,7 +209,7 @@ running, press ctl-c to interrupt...
 
 6502 EhBASIC [C]old/[W]arm ?
 
-Memory size ? 
+Memory size ?
 
 40191 Bytes free
 
@@ -217,8 +244,30 @@ e ^  8 =  2980.96
 ...
 ```
 
-There is also a simpler debugging frontend `debugger.js` which does not
-emulate any hardware besides the CPU itself
+### Arari 2600
+
+You can access the emulation console on (http://localhost:6502/stella.html) or
+[here]((https://www.cspeckner.de/6502.ts/web/stella.html). The CLI has three different
+modes: setup, debug and run.
+
+After opening the page, you can user `load-cartridge path/to/image` to load a cartidge image
+(all paths refer to the content of the aux directory that is packaged into the build).
+The following demos are included and work:
+
+ * `2600/red_line/image.bin`: A test program taken from a 2600 tutorial by Kirk
+   Israel available [here](http://www.atariage.com/2600/programming/2600_101/03first.html).
+   This demo uses the player 0 missile graphics to display a moving vertical red line.
+ * `2600/line_test/image.bin`: An extended version of the red line example that excercises
+   more aspects of missile graphics.
+
+After loading the cartridge, the CLI enters debug mode. You now can use debugger
+commands to step and inspect the harware state. There is no documentation yet for
+the commands, but tab completion and the EhBasic example above should be enough get you going.
+
+By doing `run` you can start running the emulation continously. The CLI is now in run
+mode, and the debugger commands are replaced by commands to remove / restore the
+frame rate limit and to stop the emulation &mdash; use tab completion to see them.
+Upon stopping the emulation, the CLI returns to the debugger state.
 
 # License
 
