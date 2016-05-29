@@ -247,7 +247,7 @@ e ^  8 =  2980.96
 ### Arari 2600
 
 You can access the emulation console on (http://localhost:6502/stella.html) or
-[here]((https://www.cspeckner.de/6502.ts/web/stella.html). The CLI has three different
+[here](https://www.cspeckner.de/6502.ts/web/stella.html). The CLI has three different
 modes: setup, debug and run.
 
 After opening the page, you can user `load-cartridge path/to/image` to load a cartidge image
