@@ -19,7 +19,7 @@ export function run({
         interruptButton: JQuery,
         clearButton: JQuery,
         canvas: JQuery
-        cartridgeFile: string
+        cartridgeFile?: string
     }
 ) {
     const fsProvider = new PrepackagedFilesystemProvider(fileBlob),
@@ -30,9 +30,18 @@ export function run({
         });
 
     cli.allowQuit(false);
-    runner.startup();
 
-    setupVideo(canvas.get(0) as HTMLCanvasElement, cli.getVideoOutput());
+    const canvasElt = canvas.get(0) as HTMLCanvasElement,
+        context = canvasElt.getContext('2d');
+
+    context.fillStyle = 'solid black';
+    context.fillRect(0, 0, canvasElt.width, canvasElt.height);
+
+    cli.hardwareInitialized.addHandler(() =>
+        setupVideo(canvas.get(0) as HTMLCanvasElement, cli.getVideoOutput())
+    );
+
+    runner.startup();
 }
 
 function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {

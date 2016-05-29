@@ -16,17 +16,18 @@ import LimitedScheduler from '../tools/scheduler/LimitingImmediateScheduler';
 import TaskInterface from '../tools/scheduler/TaskInterface';
 import PeriodicScheduler from '../tools/scheduler/PeriodicScheduler';
 import SchedulerInterface from '../tools/scheduler/SchedulerInterface';
+import Event from '../tools/event/Event';
 
 import ClockProbe from '../tools/ClockProbe';
 
-const enum State {debug, run};
+const enum State {setup, debug, run};
 const enum RunMode {limited, unlimited};
 
 const CLOCK_PROBE_INTERVAL = 1000;
 
 class StellaCLI extends DebuggerCLI {
 
-    constructor(fsProvider: FilesystemProviderInterface, protected _cartridgeFile: string) {
+    constructor(fsProvider: FilesystemProviderInterface, protected _cartridgeFile?: string) {
         super(fsProvider);
 
         this._commandInterpreter.registerCommands({
@@ -35,6 +36,10 @@ class StellaCLI extends DebuggerCLI {
 
         this._runModeCommandInterpreter = new CommandInterpreter({
             stop: () => (this._setState(State.debug), 'stopped, entered debugger')
+        });
+
+        this._setupModeCommandInterpreter = new CommandInterpreter({
+            'load-cartridge': this._executeLoadCartridge.bind(this)
         });
 
         const runModeCommands: CommandInterpreter.CommandTableInterface = {
@@ -51,10 +56,13 @@ class StellaCLI extends DebuggerCLI {
     }
 
     getPrompt(): string {
-        const frequency = this._clockProbe.getFrequency(),
+        const frequency = this._clockProbe ? this._clockProbe.getFrequency() : 0,
             prefix = frequency > 0 ? `${(frequency / 1000000).toFixed(2)} MHz ` : '';
 
         switch (this._state) {
+            case State.setup:
+                return `[setup] > `;
+
             case State.debug:
                 return `${prefix}[debug] > `;
 
@@ -74,13 +82,14 @@ class StellaCLI extends DebuggerCLI {
             case State.run:
                 return this._setState(State.debug);
 
-            default:
-                throw new Error('invalid run state');
         }
     }
 
     protected _getCommandInterpreter(): CommandInterpreter {
         switch (this._state) {
+            case State.setup:
+                return this._setupModeCommandInterpreter;
+
             case State.debug:
                 return super._getCommandInterpreter();
 
@@ -92,22 +101,61 @@ class StellaCLI extends DebuggerCLI {
         }
     }
 
+    protected _executeLoadCartridge(args: Array<string>): string {
+        if (args.length === 0) {
+            return 'ERROR: filename required';
+        }
+
+        const file = args[0];
+
+        try {
+            this._loadCartridge(file);
+            this._cartridgeFile = file;
+            this._initializeHardware();
+            this._setState(State.debug);
+        } catch (e) {
+            return e.message;
+        }
+
+        return `succesfully loaded ${file}`;
+    }
+
+    protected _loadCartridge(file: string): void {
+        const fileBuffer = this._fsProvider.readBinaryFileSync(file);
+
+        this._cartridge = new Cartridge4k(fileBuffer);
+    }
+
+    protected _initialize(): void {
+        if (this._cartridgeFile) {
+            try {
+                this._loadCartridge(this._cartridgeFile);
+                this._initializeHardware();
+                this._setState(State.debug);
+            } catch (e) {
+                this._outputLine(e.message);
+            }
+        }
+
+        this._prompt();
+    }
+
     protected _initializeHardware(): void {
-        const fileBuffer = this._fsProvider.readBinaryFileSync(this._cartridgeFile),
-            cartridge = new Cartridge4k(fileBuffer),
-            config = new StellaConfig(StellaConfig.TvMode.ntsc),
-            board = new Board(config, cartridge);
+        const config = new StellaConfig(StellaConfig.TvMode.ntsc),
+            board = new Board(config, this._cartridge);
 
         this._board = board;
-        this._cartridge = cartridge;
 
         const clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_PROBE_INTERVAL));
         clockProbe.attach(this._board.clock);
         clockProbe.frequencyUpdate.addHandler(() => this.events.promptChanged.dispatch(undefined));
 
+        this._debugger.attach(this._board);
         this._board.trap.addHandler(this._onTrap, this);
 
         this._clockProbe = clockProbe;
+
+        this.hardwareInitialized.dispatch(undefined);
     }
 
     protected _setState(state: State) {
@@ -167,15 +215,18 @@ class StellaCLI extends DebuggerCLI {
         }
     }
 
+    hardwareInitialized = new Event<void>();
+
     protected _board: Board;
     protected _cartridge: CartridgeInterface;
     protected _runModeCommandInterpreter: CommandInterpreter;
+    protected _setupModeCommandInterpreter: CommandInterpreter;
 
     protected _limitingScheduler = new LimitedScheduler();
     protected _nonLimitingScheduler = new ImmedateScheduler();
     protected _clockProbe: ClockProbe;
 
-    protected _state = State.debug;
+    protected _state = State.setup;
     protected _runMode = RunMode.limited;
 }
 
