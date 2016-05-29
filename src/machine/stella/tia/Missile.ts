@@ -38,6 +38,10 @@ class Missile {
     public nusiz(value: number): void {
         this._width = this._widths[(value & 0x30) >>> 4];
         this._decodes = decodes[value & 0x07];
+
+        if (this._rendering && this._pixelsRendered >= this._width) {
+            this._rendering = false;
+        }
     }
 
     public startMovement(): void {
