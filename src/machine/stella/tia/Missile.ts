@@ -1,9 +1,8 @@
-import Metrics from './Metrics';
 import {decodes} from './drawCounterDecodes';
 
 class Missile {
 
-    constructor(private _metrics: Metrics) {
+    constructor() {
         this.reset();
     }
 

@@ -62,7 +62,6 @@ class Pia {
 
             case Pia.Registers.tim1t:
                 return this._setTimer(1, value);
-
         }
     }
 
