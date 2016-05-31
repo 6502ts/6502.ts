@@ -263,6 +263,10 @@ The following demos are included and work:
    his [2600 cookbook](http://alienbill.com/2600/cookbook/playfield.html).
  * `2600/playfield_2/image.bin`: A playfield example from Andrew Davie's programming
    excercises on [AtariAge](http://atariage.com/forums/topic/28219-session-15-playfield-continued/).
+ * `2600/playfield_4/image.bin`: Another playfield test that features a moving missile.
+ * `2600/flapping/flapping.bin`: [FlapPing](http://localhost:6502/web/) by Kirk Isreal.
+   Not a demo, but an original homebrew pong-like game with flaps :) Some things work,
+   but not playable on 6502.ts just yet.
 
 After loading the cartridge, the CLI enters debug mode. You now can use debugger
 commands to step and inspect the harware state. There is no documentation yet for
@@ -290,3 +294,5 @@ mostly were written by folks other than me. Specifically:
  * `playfield_2` was taken from Andrew Davie's 2600 programming excercises on
    [AtariAge](http://atariage.com/forums/topic/28219-session-15-playfield-continued/).
  * The `macro.h` and `vcs.h` headers can be found free-floating on the internet
+ * `flapping` is a homebrew game written by Kirk Israel available
+   [here](http://alienbill.com/2600/flapping/).
