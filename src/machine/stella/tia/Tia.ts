@@ -16,6 +16,7 @@ const VISIBLE_LINES_NTSC = 192,
     //OVERSCAN_PAL = 36;
 
 const enum HState {blank, frame};
+const enum Priority {normal, inverted};
 
 class Tia implements VideoOutputInterface {
 
@@ -33,6 +34,7 @@ class Tia implements VideoOutputInterface {
         this._movementInProgress = this._extendedHblank = false;;
         this._movementCtr = 0;
         this._vsync = this._frameInProgress = false;
+        this._priority = Priority.normal;
 
         this._missile0.reset();
         this._missile1.reset();
@@ -255,6 +257,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.ctrlpf:
+                this._priority = (value & 0x04) ? Priority.inverted : Priority.normal;
                 this._playfield.ctrlpf(value);
                 break;
 
@@ -329,9 +332,20 @@ class Tia implements VideoOutputInterface {
         }
 
         let color = this._colorBk;
-        color = this._playfield.renderPixel(x, y, color);
-        color = this._missile1.renderPixel(x, y, color);
-        color = this._missile0.renderPixel(x, y, color);
+
+        switch (this._priority) {
+            case Priority.normal:
+                color = this._playfield.renderPixel(x, y, color);
+                color = this._missile1.renderPixel(x, y, color);
+                color = this._missile0.renderPixel(x, y, color);
+                break;
+
+            case Priority.inverted:
+                color = this._missile1.renderPixel(x, y, color);
+                color = this._missile0.renderPixel(x, y, color);
+                color = this._playfield.renderPixel(x, y, color);
+                break;
+        }
 
         this._surface.getBuffer()[y * 160 + x] = color;
     }
@@ -377,6 +391,7 @@ class Tia implements VideoOutputInterface {
     private _vsync = false;
 
     private _colorBk = 0xFF000000;
+    private _priority = Priority.normal;
 
     private _missile0 = new Missile();
     private _missile1 = new Missile();

@@ -18,6 +18,12 @@ class Playfield {
         this._pf1 = 0;
         this._pf2 = 0;
 
+        this._color = 0;
+        this._colorP0 = 0;
+        this._colorP1 = 0;
+        this._colorMode = ColorMode.normal;
+        this._applyColors();
+
         this._pending = false;
     }
 

@@ -1,6 +1,8 @@
 	processor 6502
 	include ../vcs.h
 
+SwitchPeriod = 121
+
 	SEG.U VARS
 	ORG $80
 CtrlpfContents 			ds 1
@@ -35,11 +37,20 @@ ClearMem
 	LDA #$86
 	STA COLUPF
 
+	LDA #$20
+	STA NUSIZ0
+	LDA #$F0
+	STA HMM0
+	LDA #2
+	STA ENAM0
+	STA WSYNC
+	STA RESM0
+
 	LDA #$02
 	STA CTRLPF
 	STA CtrlpfContents
 
-	LDA #61
+	LDA #SwitchPeriod
 	STA FrameCounter
 
 MainLoop
@@ -65,10 +76,10 @@ HandleFrameCounter
 	BNE AfterHandleFrameCounter
 
 	LDA CtrlpfContents
-	EOR #$02
+	EOR #$06
 	STA CTRLPF
 	STA CtrlpfContents
-	LDA #61
+	LDA #SwitchPeriod
 	TAY
 
 AfterHandleFrameCounter
@@ -80,6 +91,7 @@ WaitForVblankEnd
 
 	; Somewhere in line 39
 	STA WSYNC
+	STA HMOVE
 
 	; Line 40
 	STA WSYNC
@@ -89,7 +101,35 @@ WaitForVblankEnd
 	LDY #191
 ScanLoop
 	STA WSYNC
+
+	CPY #91
+	BCC BelowScanline80
+
+	CPY #101
+	BCC BelowScanline90
+	BCS AboveScanline90
+
+BelowScanline80
+	LDA #0
+	NOP
+	NOP
+	NOP
+	BCC AfterHandleMissile
+
+BelowScanline90
+	LDA #2
+	NOP
+	BCC AfterHandleMissile
+
+AboveScanline90
+	LDA #0
+	BCS AfterHandleMissile
+
+AfterHandleMissile
+	STA ENAM0
+
 	DEY
+
 	BNE ScanLoop
 
 	; line 232
