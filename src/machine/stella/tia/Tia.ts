@@ -138,14 +138,21 @@ class Tia implements VideoOutputInterface {
     }
 
     read(address: number): number {
+        // Only keep the lowest four bits
+        switch (address & 0x0F) {
+            case Tia.Registers.inpt4:
+                return 0x80;
+
+            case Tia.Registers.inpt5:
+                return 0x80;
+        }
+
         return 0;
     }
 
     write(address: number, value: number): void {
         // Mask out A6 - A15
-        address &= 0x3F;
-
-        switch (address) {
+        switch (address & 0x3F) {
             case Tia.Registers.wsync:
                 this._cpu.halt();
                 break;
@@ -416,20 +423,20 @@ module Tia {
         hmove   = 0x2A,
         hmclr   = 0x2B,
         cxclr   = 0x2C,
-        cxm0p   = 0x30,
-        cxm1p   = 0x31,
-        cxp0fb  = 0x32,
-        cxp1fb  = 0x33,
-        cxm0fb  = 0x34,
-        cxm1fb  = 0x35,
-        cxblpf  = 0x36,
-        cxppmm  = 0x37,
-        inpt0   = 0x38,
-        inpt1   = 0x39,
-        inpt2   = 0x3A,
-        inpt3   = 0x3B,
-        inpt4   = 0x3C,
-        inpt5   = 0x3D
+        cxm0p   = 0x00,
+        cxm1p   = 0x01,
+        cxp0fb  = 0x02,
+        cxp1fb  = 0x03,
+        cxm0fb  = 0x04,
+        cxm1fb  = 0x05,
+        cxblpf  = 0x06,
+        cxppmm  = 0x07,
+        inpt0   = 0x08,
+        inpt1   = 0x09,
+        inpt2   = 0x0A,
+        inpt3   = 0x0B,
+        inpt4   = 0x0C,
+        inpt5   = 0x0D
     }
 
     export const enum TrapReason {invalidRead, invalidWrite}

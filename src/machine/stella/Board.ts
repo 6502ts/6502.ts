@@ -37,6 +37,10 @@ class Board implements BoardInterface {
         this._pia = pia;
         this._cartridge = cartridge;
 
+        this._bus.trap.addHandler(
+            (payload: Bus.TrapPayload) => this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
+        );
+
         this.reset();
     }
 

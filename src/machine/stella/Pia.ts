@@ -72,6 +72,14 @@ class Pia {
     }
 
     private _readIo(address: number): number {
+        switch (address & 0x0283) {
+            case Pia.Registers.swcha:
+                return 0xFF;
+
+            case Pia.Registers.swchb:
+                return 0x0B;
+        }
+
         return 0;
     }
 
@@ -79,7 +87,6 @@ class Pia {
         switch (address & 0x029F) {
             case Pia.Registers.intim:
                 return this._timerValue;
-
         }
 
         return 0;
