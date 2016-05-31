@@ -115,7 +115,7 @@ to provide a full CLI, including tab completion and search.
 
 After bulding the code, you can launch an ehBasic session by doing
 
-    node ./ehBasicCLI.js aux/ehbasic/run.d
+    node ./bin/ehBasicCLI.js aux/ehbasic/run.d
 
 Alternatively, you can access the web CLI on (http://localhost:6502) where you can
 launch the session by doing `run-script ehbasic/run.d`. A current build is also
@@ -250,7 +250,7 @@ You can access the emulation console on (http://localhost:6502/stella.html) or
 [here](https://www.cspeckner.de/6502.ts/web/stella.html). The CLI has three different
 modes: setup, debug and run.
 
-After opening the page, you can user `load-cartridge path/to/image` to load a cartidge image
+After opening the page, you can use the command `load-cartridge path/to/image` to load a cartidge image
 (all paths refer to the content of the aux directory that is packaged into the build).
 The following demos are included and work:
 
@@ -259,6 +259,10 @@ The following demos are included and work:
    This demo uses the player 0 missile graphics to display a moving vertical red line.
  * `2600/line_test/image.bin`: An extended version of the red line example that excercises
    more aspects of missile graphics.
+ * `2600/playfield_1/image.bin`: A asymmetrical playfield example by Kirk Israel from
+   his [2600 cookbook](http://alienbill.com/2600/cookbook/playfield.html).
+ * `2600/playfield_2/image.bin`: A playfield example from Andrew Davie's programming
+   excercises on [AtariAge](http://atariage.com/forums/topic/28219-session-15-playfield-continued/).
 
 After loading the cartridge, the CLI enters debug mode. You now can use debugger
 commands to step and inspect the harware state. There is no documentation yet for
@@ -273,3 +277,16 @@ Upon stopping the emulation, the CLI returns to the debugger state.
 
 You are free to use, modify and redistribute this code under the conditions
 of the MIT license --- see `LICENSE` for details.
+
+These license conditions do not apply to the contents of the `aux` directory which
+mostly were written by folks other than me. Specifically:
+
+ * `ehBasic` was taken from Jeff Tranters repository
+   [here](https://github.com/jefftranter/6502/tree/master/asm/ehbasic)
+ * The `red_line` sample was taken from Kirk Israel's 2600 programming tutorial on
+   [AtariAge](http://www.atariage.com/2600/programming/2600_101/03first.html). The
+   `line_test` is a modified version of this code.
+ * The `playfield_1` sample was taken from Kirk Israel's [2600 cookbook](http://alienbill.com/2600/cookbook/playfield.html).
+ * `playfield_2` was taken from Andrew Davie's 2600 programming excercises on
+   [AtariAge](http://atariage.com/forums/topic/28219-session-15-playfield-continued/).
+ * The `macro.h` and `vcs.h` headers can be found free-floating on the internet
