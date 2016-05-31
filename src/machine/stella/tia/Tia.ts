@@ -151,6 +151,8 @@ class Tia implements VideoOutputInterface {
     }
 
     write(address: number, value: number): void {
+        let v = 0;
+
         // Mask out A6 - A15
         switch (address & 0x3F) {
             case Tia.Registers.wsync:
@@ -227,11 +229,17 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.colup0:
-                this._missile0.color = this._palette[(value & 0xFF) >>> 1];
+                v = this._palette[(value & 0xFF) >>> 1];
+                this._missile0.color = v;
+                this._playfield.setColorP0(v);
+
                 break;
 
             case Tia.Registers.colup1:
-                this._missile1.color = this._palette[(value & 0xFF) >>> 1];
+                v = this._palette[(value & 0xFF) >>> 1];
+                this._missile1.color = v;
+                this._playfield.setColorP1(v);
+
                 break;
 
             case Tia.Registers.pf0:
@@ -251,7 +259,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.colupf:
-                this._playfield.color = this._palette[(value & 0xFF) >>> 1];
+                this._playfield.setColor(this._palette[(value & 0xFF) >>> 1]);
                 break;
         }
 

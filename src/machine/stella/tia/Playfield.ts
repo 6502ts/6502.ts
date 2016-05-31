@@ -1,3 +1,5 @@
+const enum ColorMode {normal, score};
+
 class Playfield {
 
     constructor() {
@@ -39,6 +41,23 @@ class Playfield {
 
     ctrlpf(value: number): void {
         this._reflected = (value & 1) > 0;
+        this._colorMode = (value & 2) > 0 ? ColorMode.score : ColorMode.normal;
+        this._applyColors();
+    }
+
+    setColor(color: number): void {
+        this._color = color;
+        this._applyColors();
+    }
+
+    setColorP0(color: number): void {
+        this._colorP0 = color;
+        this._applyColors();
+    }
+
+    setColorP1(color: number): void {
+        this._colorP1 = color;
+        this._applyColors();
     }
 
     tick(): void {
@@ -68,12 +87,25 @@ class Playfield {
         }
 
         if (x < 80) {
-            return (this._pattern & (1 << (x >>> 2))) > 0 ? this.color : colorIn;
+            return (this._pattern & (1 << (x >>> 2))) > 0 ? this._colorLeft : colorIn;
         } else if (this._reflected) {
-            return (this._pattern & (1 << (39 - (x >>> 2)))) > 0 ? this.color : colorIn;
+            return (this._pattern & (1 << (39 - (x >>> 2)))) > 0 ? this._colorRight : colorIn;
         }
 
-        return (this._pattern & (1 << ((x >>> 2) - 20))) > 0 ? this.color : colorIn;
+        return (this._pattern & (1 << ((x >>> 2) - 20))) > 0 ? this._colorRight : colorIn;
+    }
+
+    private _applyColors(): void {
+        switch (this._colorMode) {
+            case ColorMode.normal:
+                this._colorLeft = this._colorRight = this._color;
+                break;
+
+            case ColorMode.score:
+                this._colorLeft = this._colorP0;
+                this._colorRight = this._colorP1;
+                break;
+        }
     }
 
     private _applyPf0(value: number): void {
@@ -96,7 +128,12 @@ class Playfield {
         this._pattern = (this._pattern & 0x00000FFF) | ((value & 0xFF) << 12);
     }
 
-    color = 0;
+    private _colorLeft = 0;
+    private _colorRight = 0;
+    private _color = 0;
+    private _colorP0 = 0;
+    private _colorP1 = 0;
+    private _colorMode = ColorMode.normal;
 
     private _pattern = 0;
     private _reflected = false;
