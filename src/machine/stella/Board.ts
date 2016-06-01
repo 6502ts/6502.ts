@@ -65,7 +65,7 @@ class Board implements BoardInterface {
         this._tia.reset();
         this._pia.reset();
 
-        this._subClock = 2;
+        this._subClock = 0;
 
         return this;
     }
@@ -222,7 +222,7 @@ class Board implements BoardInterface {
     private _clockMode = BoardInterface.ClockMode.lazy;
     private _trap = false;
 
-    private _subClock = 2;
+    private _subClock = 0;
 
     private _timer = {
         tick: (clocks: number): number => this._tick(clocks),

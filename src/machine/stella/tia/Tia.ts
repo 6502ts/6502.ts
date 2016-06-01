@@ -91,8 +91,7 @@ class Tia implements VideoOutputInterface {
 
         switch (this._hstate) {
             case HState.blank:
-                // Release halt at clock 1 so that the CPU has its 1st cycle on clock 4
-                if (this._hblankCtr === 1) {
+                if (this._hblankCtr === 0) {
                     this._cpu.resume();
                 }
 

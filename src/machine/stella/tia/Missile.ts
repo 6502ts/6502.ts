@@ -12,7 +12,7 @@ class Missile {
         this.enabled = false;
         this._counter = 0;
         this._rendering = false;
-        this._pixelsRendered = 0;
+        this._renderCounter = -3;
         this._moving = false;
         this._hmmClocks = 0;
         this._decodes = decodes[0];
@@ -28,17 +28,14 @@ class Missile {
     }
 
     public resm(): void {
-        // This is the slightly mysterious four clock offset quoted in several places. I am
-        // not quite sure about the internal mechanism in the original silicon, but this
-        // place should be as good as any other.
-        this._counter = 157;
+        this._counter = 0;
     }
 
     public nusiz(value: number): void {
         this._width = this._widths[(value & 0x30) >>> 4];
         this._decodes = decodes[value & 0x07];
 
-        if (this._rendering && this._pixelsRendered >= this._width) {
+        if (this._rendering && this._renderCounter >= this._width) {
             this._rendering = false;
         }
     }
@@ -64,8 +61,8 @@ class Missile {
     public tick(): void {
         if (this._decodes[this._counter]) {
             this._rendering = true;
-            this._pixelsRendered = 0;
-        } else if (this._rendering && ++this._pixelsRendered >= this._width) {
+            this._renderCounter = -3;
+        } else if (this._rendering && ++this._renderCounter >= this._width) {
             this._rendering = false;
         }
 
@@ -75,7 +72,7 @@ class Missile {
     }
 
     public renderPixel(x: number, y: number, colorIn: number): number {
-        if (this._rendering) {
+        if (this._rendering && this._renderCounter >= 0) {
             return this.enabled ? this.color : colorIn;
         }
 
@@ -91,7 +88,7 @@ class Missile {
     private _width = 1;
 
     private _rendering = false;
-    private _pixelsRendered = 0;
+    private _renderCounter = -3;
 
     private _decodes: Uint8Array;
     private _widths = new Uint8Array([1, 2, 4, 8]);
