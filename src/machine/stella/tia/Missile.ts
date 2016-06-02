@@ -71,7 +71,7 @@ class Missile {
         }
     }
 
-    public renderPixel(x: number, y: number, colorIn: number): number {
+    public renderPixel(colorIn: number): number {
         if (this._rendering && this._renderCounter >= 0) {
             return this.enabled ? this.color : colorIn;
         }

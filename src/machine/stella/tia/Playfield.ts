@@ -87,7 +87,7 @@ class Playfield {
         }
     }
 
-    renderPixel(x: number, y: number, colorIn: number): number {
+    renderPixel(x: number, colorIn: number): number {
         if (this._pattern === 0) {
             return colorIn;
         }

@@ -60,6 +60,7 @@
         "src/machine/stella/tia/Metrics.ts",
         "src/machine/stella/tia/Missile.ts",
         "src/machine/stella/tia/palette.ts",
+        "src/machine/stella/tia/Player.ts",
         "src/machine/stella/tia/Playfield.ts",
         "src/machine/stella/tia/Tia.ts",
         "src/machine/vanilla/Board.ts",
