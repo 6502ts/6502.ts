@@ -1,5 +1,9 @@
 const enum ColorMode {normal, score};
 
+const enum Count {
+    delay = 1
+}
+
 class Playfield {
 
     constructor() {
@@ -10,9 +14,9 @@ class Playfield {
         this._pattern = 0;
         this._reflected = false;
 
-        this._delay0 = 0;
-        this._delay1 = 0;
-        this._delay2 = 0;
+        this._delay0 = -1;
+        this._delay1 = -1;
+        this._delay2 = -1;
 
         this._pf0 = 0;
         this._pf1 = 0;
@@ -29,19 +33,19 @@ class Playfield {
 
     pf0(value: number) {
         this._pf0 = value;
-        this._delay0 = 3;
+        this._delay0 = Count.delay;
         this._pending = true;
     }
 
     pf1(value: number) {
         this._pf1 = value;
-        this._delay1 = 3;
+        this._delay1 = Count.delay;
         this._pending = true;
     }
 
     pf2(value: number) {
         this._pf2 = value;
-        this._delay2 = 3;
+        this._delay2 = Count.delay;
         this._pending = true;
     }
 
@@ -71,19 +75,19 @@ class Playfield {
             return;
         }
 
-        if (this._delay0 > 0 && --this._delay0 === 0) {
+        if (this._delay0 >= 0 && this._delay0-- === 0) {
             this._applyPf0(this._pf0);
-            this._pending = this._delay1 > 0 || this._delay2 > 0;
+            this._pending = this._delay1 >= 0 || this._delay2 >= 0;
         }
 
         if (this._delay1 >= 0 && this._delay1-- === 0) {
             this._applyPf1(this._pf1);
-            this._pending = this._delay0 > 0 || this._delay2 > 0;
+            this._pending = this._delay0 >= 0 || this._delay2 >= 0;
         }
 
         if (this._delay2 >= 0 && this._delay2-- === 0) {
             this._applyPf2(this._pf2);
-            this._pending = this._delay0 > 0 || this._delay1 > 0;
+            this._pending = this._delay0 >= 0 || this._delay1 >= 0;
         }
     }
 
@@ -92,13 +96,17 @@ class Playfield {
             return colorIn;
         }
 
-        if (x < 80) {
-            return (this._pattern & (1 << (x >>> 2))) > 0 ? this._colorLeft : colorIn;
-        } else if (this._reflected) {
-            return (this._pattern & (1 << (39 - (x >>> 2)))) > 0 ? this._colorRight : colorIn;
+        if ((x & 0x03) === 0) {
+            if (x < 80) {
+                this._currentPixel = this._pattern & (1 << (x >>> 2));
+            } else if (this._reflected) {
+                this._currentPixel = this._pattern & (1 << (39 - (x >>> 2)));
+            } else {
+                this._currentPixel = this._pattern & (1 << ((x >>> 2) - 20));
+            }
         }
 
-        return (this._pattern & (1 << ((x >>> 2) - 20))) > 0 ? this._colorRight : colorIn;
+        return this._currentPixel > 0 ? (x > 80 ? this._colorRight : this._colorLeft) : colorIn;
     }
 
     private _applyColors(): void {
@@ -143,6 +151,7 @@ class Playfield {
 
     private _pattern = 0;
     private _reflected = false;
+    private _currentPixel = -1;
 
     private _delay0 = -1;
     private _delay1 = -1;

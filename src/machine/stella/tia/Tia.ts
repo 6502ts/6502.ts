@@ -16,6 +16,10 @@ const VISIBLE_LINES_NTSC = 192,
     //OVERSCAN_NTSC = 30,
     //OVERSCAN_PAL = 36;
 
+const enum Count {
+    movementCounterOffset = -8
+}
+
 const enum HState {blank, frame};
 const enum Priority {normal, inverted};
 
@@ -223,7 +227,7 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.hmove:
                 // Start the timer and increase hblank
-                this._movementCtr = -7;
+                this._movementCtr = Count.movementCounterOffset;
                 this._movementInProgress = true;
 
                 if (!this._extendedHblank) {
