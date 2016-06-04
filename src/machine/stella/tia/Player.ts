@@ -6,7 +6,7 @@ const enum Count {
 
 export default class Player {
 
-    constructor() {
+    constructor(private _collisionMask: number) {
         this.reset();
     }
 
@@ -97,9 +97,16 @@ export default class Player {
 
     renderPixel(colorIn: number): number {
         if (this._rendering && this._renderCounter >= 0) {
-            return (this._pattern & (1 << (this._width - this._renderCounter - 1))) > 0 ? this.color : colorIn;
+            if ((this._pattern & (1 << (this._width - this._renderCounter - 1))) > 0) {
+                this.collision = this._collisionMask;
+                return this.color;
+            } else {
+                this.collision = 0;
+                return colorIn;
+            }
         }
 
+        this.collision = 0;
         return colorIn;
     }
 
@@ -172,6 +179,7 @@ export default class Player {
     }
 
     color = 0xFFFFFFFF;
+    collision = 0;
 
     private _hmmClocks = 0;
     private _counter = 0;

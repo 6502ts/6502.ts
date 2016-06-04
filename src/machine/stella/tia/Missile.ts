@@ -6,11 +6,11 @@ const enum Count {
 
 class Missile {
 
-    constructor() {
+    constructor(private _collisionMask: number) {
         this.reset();
     }
 
-    public reset(): void {
+    reset(): void {
         this.color = 0xFFFFFFFF;
         this._width = 1;
         this.enabled = false;
@@ -22,20 +22,20 @@ class Missile {
         this._decodes = decodes[0];
     }
 
-    public enam(value: number): void {
+    enam(value: number): void {
         this.enabled = (value & 2) > 0;
     }
 
-    public hmm(value: number): void {
+    hmm(value: number): void {
         // Shift and flip the highest bit --- this gives us the necessary movement to the right
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    public resm(): void {
+    resm(): void {
         this._counter = 0;
     }
 
-    public nusiz(value: number): void {
+    nusiz(value: number): void {
         this._width = this._widths[(value & 0x30) >>> 4];
         this._decodes = decodes[value & 0x07];
 
@@ -44,11 +44,11 @@ class Missile {
         }
     }
 
-    public startMovement(): void {
+    startMovement(): void {
         this._moving = true;
     }
 
-    public movementTick(clock: number, apply: boolean): boolean {
+    movementTick(clock: number, apply: boolean): boolean {
         // Stop movement only if the clock matches exactly --- this is crucial for cosmic ark type hacks
         if (clock === this._hmmClocks) {
             this._moving = false;
@@ -62,7 +62,7 @@ class Missile {
     }
 
 
-    public tick(): void {
+    tick(): void {
         if (this._decodes[this._counter]) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
@@ -75,16 +75,21 @@ class Missile {
         }
     }
 
-    public renderPixel(colorIn: number): number {
-        if (this._rendering && this._renderCounter >= 0) {
-            return this.enabled ? this.color : colorIn;
+    renderPixel(colorIn: number): number {
+        if (this._rendering && this._renderCounter >= 0 && this.enabled) {
+            this.collision = this._collisionMask;
+            return this.color;
         }
 
+        this.collision = 0;
         return colorIn;
     }
 
-    public color = 0xFFFFFFFF;
-    public enabled = false;
+
+
+    color = 0xFFFFFFFF;
+    enabled = false;
+    collision = 0;
 
     private _hmmClocks = 8;
     private _counter = 0;

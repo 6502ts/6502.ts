@@ -6,7 +6,7 @@ const enum Count {
 
 class Playfield {
 
-    constructor() {
+    constructor(private _collisionMask: number) {
         this.reset();
     }
 
@@ -93,6 +93,7 @@ class Playfield {
 
     renderPixel(x: number, colorIn: number): number {
         if (this._pattern === 0) {
+            this.collision = 0;
             return colorIn;
         }
 
@@ -106,7 +107,13 @@ class Playfield {
             }
         }
 
-        return this._currentPixel > 0 ? (x > 80 ? this._colorRight : this._colorLeft) : colorIn;
+        if (this._currentPixel > 0) {
+            this.collision = this._collisionMask;
+            return x > 80 ? this._colorRight : this._colorLeft;
+        }
+
+        this.collision = 0;
+        return colorIn;
     }
 
     private _applyColors(): void {
@@ -141,6 +148,8 @@ class Playfield {
     private _applyPf2(value: number): void {
         this._pattern = (this._pattern & 0x00000FFF) | ((value & 0xFF) << 12);
     }
+
+    collision = 0;
 
     private _colorLeft = 0;
     private _colorRight = 0;

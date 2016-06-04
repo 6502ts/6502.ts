@@ -20,6 +20,16 @@ const enum Count {
     movementCounterOffset = -7
 }
 
+// Each bit in the collision mask identifies a single collision pair
+const enum CollisionMask {
+    player0 =       0b0111110000000000,
+    player1 =       0b0100001111000000,
+    missile0 =      0b0010001000111000,
+    missile1 =      0b0001000100100110,
+    ball =          0b0000100010010101,
+    playfield =     0b0000010001001011
+}
+
 const enum HState {blank, frame};
 const enum Priority {normal, inverted};
 
@@ -41,6 +51,7 @@ class Tia implements VideoOutputInterface {
         this._vsync = this._frameInProgress = false;
         this._priority = Priority.normal;
         this._freshLine = true;
+        this._collisionMask = 0;
 
         this._missile0.reset();
         this._missile1.reset();
@@ -162,6 +173,45 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.inpt5:
                 return 0x80;
+
+            case Tia.Registers.cxm0p:
+                return (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player0) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player1) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxm1p:
+                return (
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player1) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player0) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxp0fb:
+                return (
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxp1fb:
+                return (
+                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxm0fb:
+                return (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxm1fb:
+                return (
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxppmm:
+                return (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.missile1) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.player1) > 0 ? 0x80 : 0)
+                );
+
         }
 
         return 0;
@@ -319,6 +369,10 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.hmp1:
                 this._player1.hmp(value);
                 break;
+
+            case Tia.Registers.cxclr:
+                this._collisionMask = 0;
+                break;
         }
     }
 
@@ -381,10 +435,6 @@ class Tia implements VideoOutputInterface {
     }
 
     private _renderPixel(x: number, y: number): void {
-        if (!this._surface) {
-            return;
-        }
-
         let color = this._colorBk;
 
         switch (this._priority) {
@@ -405,7 +455,22 @@ class Tia implements VideoOutputInterface {
                 break;
         }
 
-        this._surface.getBuffer()[y * 160 + x] = color;
+        this._collisionMask |= (
+            (this._player0.collision & this._player1.collision)     |
+            (this._player0.collision & this._missile0.collision)    |
+            (this._player0.collision & this._missile1.collision)    |
+            (this._player0.collision & this._playfield.collision)   |
+            (this._player1.collision & this._missile0.collision)    |
+            (this._player1.collision & this._missile1.collision)    |
+            (this._player1.collision & this._playfield.collision)   |
+            (this._missile0.collision & this._missile1.collision)   |
+            (this._missile0.collision & this._playfield.collision)  |
+            (this._missile1.collision & this._playfield.collision)
+        );
+
+        if (this._surface) {
+            this._surface.getBuffer()[y * 160 + x] = color;
+        }
     }
 
     private _clearHmoveComb(): void {
@@ -451,12 +516,13 @@ class Tia implements VideoOutputInterface {
 
     private _colorBk = 0xFF000000;
     private _priority = Priority.normal;
+    private _collisionMask = 0;
 
-    private _missile0 = new Missile();
-    private _missile1 = new Missile();
-    private _player0 = new Player();
-    private _player1 = new Player();
-    private _playfield = new Playfield();
+    private _player0 =   new Player(CollisionMask.player0);
+    private _player1 =   new Player(CollisionMask.player1);
+    private _missile0 =  new Missile(CollisionMask.missile0);
+    private _missile1 =  new Missile(CollisionMask.missile1);
+    private _playfield = new Playfield(CollisionMask.playfield);
 }
 
 module Tia {
