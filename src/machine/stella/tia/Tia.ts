@@ -17,7 +17,7 @@ const VISIBLE_LINES_NTSC = 192,
     //OVERSCAN_PAL = 36;
 
 const enum Count {
-    movementCounterOffset = -8
+    movementCounterOffset = -7
 }
 
 const enum HState {blank, frame};
@@ -40,6 +40,7 @@ class Tia implements VideoOutputInterface {
         this._movementCtr = 0;
         this._vsync = this._frameInProgress = false;
         this._priority = Priority.normal;
+        this._freshLine = true;
 
         this._missile0.reset();
         this._missile1.reset();
@@ -106,8 +107,10 @@ class Tia implements VideoOutputInterface {
     private _tickHclock(): void {
         switch (this._hstate) {
             case HState.blank:
-                if (this._hblankCtr === 0) {
+                if (this._freshLine) {
+                    this._hblankCtr = 0;
                     this._cpu.resume();
+                    this._freshLine = false;
                 }
 
                 if (++this._hblankCtr >= 68) {
@@ -144,7 +147,7 @@ class Tia implements VideoOutputInterface {
                 }
 
                 this._hstate = HState.blank;
-                this._hblankCtr = 0;
+                this._freshLine = true;
                 this._extendedHblank = false;
             }
                 break;
@@ -155,7 +158,7 @@ class Tia implements VideoOutputInterface {
         // Only keep the lowest four bits
         switch (address & 0x0F) {
             case Tia.Registers.inpt4:
-                return 0x80;
+                return 0x00;
 
             case Tia.Registers.inpt5:
                 return 0x80;
@@ -211,8 +214,8 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.hmclr:
                 this._missile0.hmm(0);
                 this._missile1.hmm(0);
-                this._player0.hmm(0);
-                this._player1.hmm(0);
+                this._player0.hmp(0);
+                this._player1.hmp(0);
                 break;
 
             case Tia.Registers.nusiz0:
@@ -309,8 +312,14 @@ class Tia implements VideoOutputInterface {
                 this._player1.refp(value);
                 break;
 
-        }
+            case Tia.Registers.hmp0:
+                this._player0.hmp(value);
+                break;
 
+            case Tia.Registers.hmp1:
+                this._player1.hmp(value);
+                break;
+        }
     }
 
     getDebugState(): string {
@@ -421,6 +430,7 @@ class Tia implements VideoOutputInterface {
     private _metrics: Metrics;
 
     private _hstate = HState.blank;
+    private _freshLine = true;
 
     // We need a separate counter for the blank period that will be decremented by hmove
     private _hblankCtr = 0;

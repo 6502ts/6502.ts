@@ -1,5 +1,9 @@
 import {decodes} from './drawCounterDecodes';
 
+const enum Count {
+    renderCounterOffset = -5
+}
+
 export default class Player {
 
     constructor() {
@@ -13,7 +17,7 @@ export default class Player {
         this._moving = false;
         this._width = 8;
         this._rendering = false;
-        this._renderCounter = -4;
+        this._renderCounter = Count.renderCounterOffset;
         this._decodes = decodes[0];
         this._originalPattern = 0;
         this._pattern = 0;
@@ -48,7 +52,7 @@ export default class Player {
         }
     }
 
-    hmm(value: number): void {
+    hmp(value: number): void {
         // Shift and flip the highest bit --- this gives us the necessary movement to the right
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
@@ -81,8 +85,8 @@ export default class Player {
     tick(): void {
         if (this._decodes[this._counter]) {
             this._rendering = true;
-            this._renderCounter = -4;
-        } else if (this._rendering && ++this._renderCounter >= this._width) {
+            this._renderCounter = Count.renderCounterOffset;
+        } else if (this._rendering && this._renderCounter++ >= this._width) {
             this._rendering = false;
         }
 
@@ -175,7 +179,7 @@ export default class Player {
     private _width = 8;
 
     private _rendering = false;
-    private _renderCounter = -4;
+    private _renderCounter = Count.renderCounterOffset;
 
     private _decodes: Uint8Array;
 

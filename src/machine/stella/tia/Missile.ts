@@ -1,5 +1,9 @@
 import {decodes} from './drawCounterDecodes';
 
+const enum Count {
+    renderCounterOffset = -3
+}
+
 class Missile {
 
     constructor() {
@@ -12,7 +16,7 @@ class Missile {
         this.enabled = false;
         this._counter = 0;
         this._rendering = false;
-        this._renderCounter = -3;
+        this._renderCounter = Count.renderCounterOffset;
         this._moving = false;
         this._hmmClocks = 0;
         this._decodes = decodes[0];
@@ -61,7 +65,7 @@ class Missile {
     public tick(): void {
         if (this._decodes[this._counter]) {
             this._rendering = true;
-            this._renderCounter = -3;
+            this._renderCounter = Count.renderCounterOffset;
         } else if (this._rendering && ++this._renderCounter >= this._width) {
             this._rendering = false;
         }
@@ -88,7 +92,7 @@ class Missile {
     private _width = 1;
 
     private _rendering = false;
-    private _renderCounter = -3;
+    private _renderCounter = Count.renderCounterOffset;
 
     private _decodes: Uint8Array;
     private _widths = new Uint8Array([1, 2, 4, 8]);
