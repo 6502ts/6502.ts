@@ -12,6 +12,8 @@ import Tia from './tia/Tia';
 import CartridgeInterface from './CartridgeInterface';
 import Config from './Config';
 import VideoOutputInterface from '../io/VideoOutputInterface';
+import ControlPanel from './ControlPanel';
+import ControlPanelInterface from './ControlPanelInterface';
 
 class Board implements BoardInterface {
 
@@ -20,8 +22,9 @@ class Board implements BoardInterface {
 
         if (typeof(cpuFactory) === 'undefined') cpuFactory = bus => new Cpu(bus);
 
+        const controlPanel = new ControlPanel();
         const cpu = cpuFactory(bus);
-        const pia = new Pia();
+        const pia = new Pia(controlPanel);
         const tia = new Tia(config);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
@@ -36,6 +39,7 @@ class Board implements BoardInterface {
         this._tia = tia;
         this._pia = pia;
         this._cartridge = cartridge;
+        this._controlPanel = controlPanel;
 
         this._bus.trap.addHandler(
             (payload: Bus.TrapPayload) => this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
@@ -64,6 +68,12 @@ class Board implements BoardInterface {
         this._cpu.reset();
         this._tia.reset();
         this._pia.reset();
+
+        this._controlPanel.getResetButton().toggle(false);
+        this._controlPanel.getSelectSwitch().toggle(false);
+        this._controlPanel.getColorSwitch().toggle(false);
+        this._controlPanel.getDifficultySwitchP0().toggle(true);
+        this._controlPanel.getDifficultySwitchP1().toggle(true);
 
         this._subClock = 0;
 
@@ -105,6 +115,10 @@ class Board implements BoardInterface {
         }
 
         return this;
+    }
+
+    getControlPanel(): ControlPanelInterface {
+        return this._controlPanel;
     }
 
     getBoardStateDebug(): string {
@@ -216,6 +230,7 @@ class Board implements BoardInterface {
     private _tia: Tia;
     private _pia: Pia;
     private _cartridge: CartridgeInterface;
+    private _controlPanel: ControlPanel;
 
     private _sliceHint = 50000;
     private _runTask: TaskInterface;

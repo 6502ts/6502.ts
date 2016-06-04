@@ -169,7 +169,7 @@ class Tia implements VideoOutputInterface {
         // Only keep the lowest four bits
         switch (address & 0x0F) {
             case Tia.Registers.inpt4:
-                return 0x00;
+                return 0x80;
 
             case Tia.Registers.inpt5:
                 return 0x80;

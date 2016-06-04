@@ -7,6 +7,7 @@ import CartridgeInterface from '../machine/stella/CartridgeInterface';
 import Cartridge4k from '../machine/stella/Cartridge4k';
 import StellaConfig from '../machine/stella/Config';
 import VideoOutputInterface from '../machine/io/VideoOutputInterface';
+import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 
 import CommandInterpreter from './CommandInterpreter';
 import ImmedateScheduler from '../tools/scheduler/ImmedateScheduler';
@@ -80,6 +81,10 @@ class StellaCLI extends DebuggerCLI {
                 return this._setState(State.debug);
 
         }
+    }
+
+    getControlPanel(): ControlPanelInterface {
+        return this._board.getControlPanel();
     }
 
     protected _getCommandInterpreter(): CommandInterpreter {

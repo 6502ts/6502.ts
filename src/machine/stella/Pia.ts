@@ -1,6 +1,9 @@
 import Event from '../../tools/event/Event';
+import ControlPanelInterface from './ControlPanelInterface';
 
 class Pia {
+
+    constructor(private _controlPanel: ControlPanelInterface) {}
 
     reset(): void {
         for (let i = 0; i < 128; i++) this.ram[i] = 0;
@@ -77,7 +80,13 @@ class Pia {
                 return 0xFF;
 
             case Pia.Registers.swchb:
-                return 0x0B;
+                return (
+                    (this._controlPanel.getResetButton().read()         ? 0 : 0x01) |
+                    (this._controlPanel.getSelectSwitch().read()        ? 0 : 0x02) |
+                    (this._controlPanel.getColorSwitch().read()         ? 0 : 0x08) |
+                    (this._controlPanel.getDifficultySwitchP0().read()  ? 0 : 0x40) |
+                    (this._controlPanel.getDifficultySwitchP1().read()  ? 0 : 0x80)
+                );
         }
 
         return 0;

@@ -5,6 +5,7 @@ import ObjectPool from "../tools/pool/Pool";
 import ObjectPoolMember from '../tools/pool/PoolMemberInterface';
 import Surface from '../tools/surface/CanvasImageDataSurface';
 import VideoOutputInterface from '../machine/io/VideoOutputInterface';
+import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 
 export function run({
         fileBlob,
@@ -37,9 +38,10 @@ export function run({
     context.fillStyle = 'solid black';
     context.fillRect(0, 0, canvasElt.width, canvasElt.height);
 
-    cli.hardwareInitialized.addHandler(() =>
-        setupVideo(canvas.get(0) as HTMLCanvasElement, cli.getVideoOutput())
-    );
+    cli.hardwareInitialized.addHandler(() => {
+        setupVideo(canvas.get(0) as HTMLCanvasElement, cli.getVideoOutput());
+        setupKeyboardControls(canvas, cli.getControlPanel());
+    });
 
     runner.startup();
 }
@@ -77,5 +79,31 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
             poolMember.release();
         }
     });
+}
 
+
+function setupKeyboardControls(element: JQuery, controlPanel: ControlPanelInterface) {
+    element.keydown((e: JQueryKeyEventObject) => {
+        switch (e.which) {
+            case 17: // left ctrl
+                controlPanel.getSelectSwitch().toggle(true);
+                break;
+
+            case 18: // left alt
+                controlPanel.getResetButton().toggle(true);
+                break;
+        }
+    });
+
+    element.keyup((e: JQueryKeyEventObject) => {
+        switch (e.which) {
+            case 17: // left ctrl
+                controlPanel.getSelectSwitch().toggle(false);
+                break;
+
+            case 18: // left alt
+                controlPanel.getResetButton().toggle(false);
+                break;
+        }
+    });
 }
