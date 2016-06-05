@@ -1,3 +1,4 @@
+import Event from '../../../tools/event/Event';
 import {decodes} from './drawCounterDecodes';
 
 const enum Count {
@@ -22,11 +23,18 @@ export default class Player {
         this._originalPattern = 0;
         this._pattern = 0;
         this._reflected = false;
+        this._delaying = false;
     }
 
     grp(pattern: number) {
-        this._originalPattern = pattern;
-        this._updatePattern();
+        if (this._delaying) {
+            this._originalPatternPending = pattern;
+        } else {
+            this._originalPattern = pattern;
+            this._updatePattern();
+        }
+
+        this.patternChange.dispatch(undefined);
     }
 
     nusiz(value: number): void {
@@ -63,6 +71,10 @@ export default class Player {
 
     refp(value: number): void {
         this._reflected = (value & 0x08) > 0;
+    }
+
+    vdelp(value: number): void {
+        this._delaying = (value & 0x01) > 0;
     }
 
     startMovement(): void {
@@ -108,6 +120,13 @@ export default class Player {
 
         this.collision = 0;
         return colorIn;
+    }
+
+    shufflePatterns(): void {
+        if (this._delaying) {
+            this._originalPattern = this._originalPatternPending;
+            this._updatePattern();
+        }
     }
 
     private _updatePattern(): void {
@@ -180,6 +199,7 @@ export default class Player {
 
     color = 0xFFFFFFFF;
     collision = 0;
+    patternChange = new Event<void>();
 
     private _hmmClocks = 0;
     private _counter = 0;
@@ -192,6 +212,8 @@ export default class Player {
     private _decodes: Uint8Array;
 
     private _originalPattern = 0;
+    private _originalPatternPending = 0;
     private _pattern = 0;
     private _reflected = false;
+    private _delaying = false;
 }

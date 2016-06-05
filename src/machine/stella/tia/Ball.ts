@@ -1,10 +1,8 @@
-import {decodes} from './drawCounterDecodes';
-
 const enum Count {
-    renderCounterOffset = -3
+    renderCounterOffset = -4
 }
 
-class Missile {
+export default class Ball {
 
     constructor(private _collisionMask: number) {
         this.reset();
@@ -19,29 +17,35 @@ class Missile {
         this._renderCounter = Count.renderCounterOffset;
         this._moving = false;
         this._hmmClocks = 0;
-        this._decodes = decodes[0];
+        this._delaying = false;
+        this._enabledPending = false;
     }
 
-    enam(value: number): void {
-        this._enabled = (value & 2) > 0;
+    enabl(value: number): void {
+        if (this._delaying) {
+            this._enabledPending = (value & 2) > 0;
+        } else {
+            this._enabled = (value & 2) > 0;
+        }
     }
 
-    hmm(value: number): void {
+    hmbl(value: number): void {
         // Shift and flip the highest bit --- this gives us the necessary movement to the right
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    resm(): void {
+    resbl(): void {
         this._counter = 0;
+        this._rendering = true;
+        this._renderCounter = 0;
     }
 
-    nusiz(value: number): void {
+    ctrlpf(value: number) {
         this._width = this._widths[(value & 0x30) >>> 4];
-        this._decodes = decodes[value & 0x07];
+    }
 
-        if (this._rendering && this._renderCounter >= this._width) {
-            this._rendering = false;
-        }
+    vdelbl(value: number) {
+        this._delaying = (value & 0x01) > 0;
     }
 
     startMovement(): void {
@@ -61,9 +65,8 @@ class Missile {
         return this._moving;
     }
 
-
     tick(): void {
-        if (this._decodes[this._counter]) {
+        if (this._counter === 159) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
         } else if (this._rendering && ++this._renderCounter >= this._width) {
@@ -85,10 +88,17 @@ class Missile {
         return colorIn;
     }
 
+    shuffleStatus(): void {
+        if (this._delaying) {
+            this._enabled = this._enabledPending;
+        }
+    }
+
     color = 0xFFFFFFFF;
     collision = 0;
 
     private _enabled = false;
+    private _enabledPending = false;
 
     private _hmmClocks = 8;
     private _counter = 0;
@@ -98,8 +108,7 @@ class Missile {
     private _rendering = false;
     private _renderCounter = Count.renderCounterOffset;
 
-    private _decodes: Uint8Array;
     private _widths = new Uint8Array([1, 2, 4, 8]);
-}
 
-export default Missile;
+    private _delaying = false;
+}

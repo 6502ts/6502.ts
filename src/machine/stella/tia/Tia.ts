@@ -8,6 +8,7 @@ import Metrics from './Metrics';
 import Missile from './Missile';
 import Playfield from './Playfield';
 import Player from './Player';
+import Ball from './Ball';
 import LatchedInput from './LatchedInput';
 import * as palette from './palette';
 
@@ -47,6 +48,12 @@ class Tia implements VideoOutputInterface {
         this._input0 = new LatchedInput(joystick0.getFire());
         this._input1 = new LatchedInput(joystick1.getFire());
 
+        this._player0.patternChange.addHandler(() => this._player1.shufflePatterns());
+        this._player1.patternChange.addHandler(() => {
+            this._player0.shufflePatterns();
+            this._ball.shuffleStatus();
+        });
+
         this.reset();
     }
 
@@ -64,6 +71,7 @@ class Tia implements VideoOutputInterface {
         this._player0.reset();
         this._player1.reset();
         this._playfield.reset();
+        this._ball.reset();
 
         this._input0.reset();
         this._input1.reset();
@@ -116,6 +124,7 @@ class Tia implements VideoOutputInterface {
                 m = this._missile1.movementTick(clock, apply) || m;
                 m = this._player0.movementTick(clock, apply) || m;
                 m = this._player1.movementTick(clock, apply) || m;
+                m = this._ball.movementTick(clock, apply) || m;
 
                 this._movementInProgress = m;
             }
@@ -153,6 +162,7 @@ class Tia implements VideoOutputInterface {
             this._missile1.tick();
             this._player0.tick();
             this._player1.tick();
+            this._ball.tick();
 
             if (++this._hctr >= 228) {
                 // Reset the counters
@@ -197,21 +207,25 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.cxp0fb:
                 return (
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
                     ((this._collisionMask & CollisionMask.player0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
                 );
 
             case Tia.Registers.cxp1fb:
                 return (
+                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
                     ((this._collisionMask & CollisionMask.player1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
                 );
 
             case Tia.Registers.cxm0fb:
                 return (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
                     ((this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
                 );
 
             case Tia.Registers.cxm1fb:
                 return (
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
                     ((this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
                 );
 
@@ -280,6 +294,7 @@ class Tia implements VideoOutputInterface {
                 this._missile1.hmm(0);
                 this._player0.hmp(0);
                 this._player1.hmp(0);
+                this._ball.hmbl(0);
                 break;
 
             case Tia.Registers.nusiz0:
@@ -308,6 +323,7 @@ class Tia implements VideoOutputInterface {
                 this._missile1.startMovement();
                 this._player0.startMovement();
                 this._player1.startMovement();
+                this._ball.startMovement();
 
                 break;
 
@@ -346,10 +362,13 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.ctrlpf:
                 this._priority = (value & 0x04) ? Priority.inverted : Priority.normal;
                 this._playfield.ctrlpf(value);
+                this._ball.ctrlpf(value);
                 break;
 
             case Tia.Registers.colupf:
-                this._playfield.setColor(this._palette[(value & 0xFF) >>> 1]);
+                v = this._palette[(value & 0xFF) >>> 1];
+                this._playfield.setColor(v);
+                this._ball.color = v;
                 break;
 
             case Tia.Registers.grp0:
@@ -382,6 +401,30 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.hmp1:
                 this._player1.hmp(value);
+                break;
+
+            case Tia.Registers.vdelp0:
+                this._player0.vdelp(value);
+                break;
+
+            case Tia.Registers.vdelp1:
+                this._player1.vdelp(value);
+                break;
+
+            case Tia.Registers.enabl:
+                this._ball.enabl(value);
+                break;
+
+            case Tia.Registers.hmbl:
+                this._ball.hmbl(value);
+                break;
+
+            case Tia.Registers.resbl:
+                this._ball.resbl();
+                break;
+
+            case Tia.Registers.vdelbl:
+                this._ball.vdelbl(value);
                 break;
 
             case Tia.Registers.cxclr:
@@ -454,6 +497,7 @@ class Tia implements VideoOutputInterface {
         switch (this._priority) {
             case Priority.normal:
                 color = this._playfield.renderPixel(x, color);
+                color = this._ball.renderPixel(color);
                 color = this._missile1.renderPixel(color);
                 color = this._player1.renderPixel(color);
                 color = this._missile0.renderPixel(color);
@@ -466,6 +510,7 @@ class Tia implements VideoOutputInterface {
                 color = this._missile0.renderPixel(color);
                 color = this._player0.renderPixel(color);
                 color = this._playfield.renderPixel(x, color);
+                color = this._ball.renderPixel(color);
                 break;
         }
 
@@ -474,12 +519,16 @@ class Tia implements VideoOutputInterface {
             (this._player0.collision & this._missile0.collision)    |
             (this._player0.collision & this._missile1.collision)    |
             (this._player0.collision & this._playfield.collision)   |
+            (this._player0.collision & this._ball.collision)        |
             (this._player1.collision & this._missile0.collision)    |
             (this._player1.collision & this._missile1.collision)    |
             (this._player1.collision & this._playfield.collision)   |
+            (this._player1.collision & this._ball.collision)        |
             (this._missile0.collision & this._missile1.collision)   |
             (this._missile0.collision & this._playfield.collision)  |
-            (this._missile1.collision & this._playfield.collision)
+            (this._missile0.collision & this._ball.collision)       |
+            (this._missile1.collision & this._playfield.collision)  |
+            (this._missile1.collision & this._ball.collision)
         );
 
         if (this._surface) {
@@ -537,6 +586,7 @@ class Tia implements VideoOutputInterface {
     private _missile0 =  new Missile(CollisionMask.missile0);
     private _missile1 =  new Missile(CollisionMask.missile1);
     private _playfield = new Playfield(CollisionMask.playfield);
+    private _ball =      new Ball(CollisionMask.ball);
 
     private _input0: LatchedInput;
     private _input1: LatchedInput;
@@ -576,7 +626,7 @@ module Tia {
         grp1    = 0x1C,
         enam0   = 0x1D,
         enam1   = 0x1E,
-        enambl  = 0x1F,
+        enabl  = 0x1F,
         hmp0    = 0x20,
         hmp1    = 0x21,
         hmm0    = 0x22,

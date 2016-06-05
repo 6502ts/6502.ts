@@ -97,54 +97,65 @@ function setupKeyboardControls(
     element.keydown((e: JQueryKeyEventObject) => {
         switch (e.which) {
             case 17: // left ctrl
+                e.preventDefault();
                 return controlPanel.getSelectSwitch().toggle(true);
 
             case 18: // left alt
+                e.preventDefault();
                 return controlPanel.getResetButton().toggle(true);
 
             case 65: // a
+                e.preventDefault();
                 return joystick0.getLeft().toggle(true);
 
             case 68: // d
+                e.preventDefault();
                 return joystick0.getRight().toggle(true);
 
             case 83: // s
+                e.preventDefault();
                 return joystick0.getDown().toggle(true);
 
             case 87: // w
+                e.preventDefault();
                 return joystick0.getUp().toggle(true);
 
             case 86: // v
             case 32: // space
+                e.preventDefault();
                 return joystick0.getFire().toggle(true);
-
-            default:
-                console.log(e.which);
         }
     });
 
     element.keyup((e: JQueryKeyEventObject) => {
         switch (e.which) {
             case 17: // left ctrl
+                e.preventDefault();
                 return controlPanel.getSelectSwitch().toggle(false);
 
             case 18: // left alt
+                e.preventDefault();
                 return controlPanel.getResetButton().toggle(false);
 
             case 65: // a
+                e.preventDefault();
                 return joystick0.getLeft().toggle(false);
 
             case 68: // d
+                e.preventDefault();
                 return joystick0.getRight().toggle(false);
 
             case 83: // s
+                e.preventDefault();
                 return joystick0.getDown().toggle(false);
 
             case 87: // w
+                e.preventDefault();
                 return joystick0.getUp().toggle(false);
 
             case 86: // v
             case 32: // space
+                e.preventDefault();
                 return joystick0.getFire().toggle(false);
         }
     });

@@ -62,6 +62,7 @@
         "src/machine/stella/ControlPanel.ts",
         "src/machine/stella/ControlPanelInterface.ts",
         "src/machine/stella/Pia.ts",
+        "src/machine/stella/tia/Ball.ts",
         "src/machine/stella/tia/drawCounterDecodes.ts",
         "src/machine/stella/tia/LatchedInput.ts",
         "src/machine/stella/tia/Metrics.ts",
