@@ -1,4 +1,5 @@
 import VideoOutputInterface from '../../io/VideoOutputInterface';
+import DigitalJoystickInterface from '../../io/DigitalJoystickInterface';
 import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
 import Event from '../../../tools/event/Event';
 import Config from '../Config';
@@ -7,6 +8,7 @@ import Metrics from './Metrics';
 import Missile from './Missile';
 import Playfield from './Playfield';
 import Player from './Player';
+import LatchedInput from './LatchedInput';
 import * as palette from './palette';
 
 const VISIBLE_LINES_NTSC = 192,
@@ -36,10 +38,14 @@ const enum Priority {normal, inverted};
 class Tia implements VideoOutputInterface {
 
     constructor(
-        private _config: Config
+        private _config: Config,
+        joystick0: DigitalJoystickInterface,
+        joystick1: DigitalJoystickInterface
     ) {
         this._metrics = this._getMetrics(this._config);
         this._palette = this._getPalette(this._config);
+        this._input0 = new LatchedInput(joystick0.getFire());
+        this._input1 = new LatchedInput(joystick1.getFire());
 
         this.reset();
     }
@@ -58,6 +64,9 @@ class Tia implements VideoOutputInterface {
         this._player0.reset();
         this._player1.reset();
         this._playfield.reset();
+
+        this._input0.reset();
+        this._input1.reset();
 
         if (this._cpu) {
             this._cpu.resume();
@@ -169,10 +178,10 @@ class Tia implements VideoOutputInterface {
         // Only keep the lowest four bits
         switch (address & 0x0F) {
             case Tia.Registers.inpt4:
-                return 0x80;
+                return this._input0.inpt();
 
             case Tia.Registers.inpt5:
-                return 0x80;
+                return this._input1.inpt();
 
             case Tia.Registers.cxm0p:
                 return (
@@ -235,6 +244,11 @@ class Tia implements VideoOutputInterface {
                     this._startFrame();
                 }
 
+                break;
+
+            case Tia.Registers.vblank:
+                this._input0.vblank(value);
+                this._input1.vblank(value);
                 break;
 
             case Tia.Registers.enam0:
@@ -523,6 +537,9 @@ class Tia implements VideoOutputInterface {
     private _missile0 =  new Missile(CollisionMask.missile0);
     private _missile1 =  new Missile(CollisionMask.missile1);
     private _playfield = new Playfield(CollisionMask.playfield);
+
+    private _input0: LatchedInput;
+    private _input1: LatchedInput;
 }
 
 module Tia {

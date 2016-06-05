@@ -6,6 +6,7 @@ import ObjectPoolMember from '../tools/pool/PoolMemberInterface';
 import Surface from '../tools/surface/CanvasImageDataSurface';
 import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
+import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
 
 export function run({
         fileBlob,
@@ -40,7 +41,12 @@ export function run({
 
     cli.hardwareInitialized.addHandler(() => {
         setupVideo(canvas.get(0) as HTMLCanvasElement, cli.getVideoOutput());
-        setupKeyboardControls(canvas, cli.getControlPanel());
+        setupKeyboardControls(
+            canvas,
+            cli.getControlPanel(),
+            cli.getJoystick0(),
+            cli.getJoystick1()
+        );
     });
 
     runner.startup();
@@ -82,28 +88,64 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
 }
 
 
-function setupKeyboardControls(element: JQuery, controlPanel: ControlPanelInterface) {
+function setupKeyboardControls(
+    element: JQuery,
+    controlPanel: ControlPanelInterface,
+    joystick0: DigitalJoystickInterface,
+    joystick1: DigitalJoystickInterface
+) {
     element.keydown((e: JQueryKeyEventObject) => {
         switch (e.which) {
             case 17: // left ctrl
-                controlPanel.getSelectSwitch().toggle(true);
-                break;
+                return controlPanel.getSelectSwitch().toggle(true);
 
             case 18: // left alt
-                controlPanel.getResetButton().toggle(true);
-                break;
+                return controlPanel.getResetButton().toggle(true);
+
+            case 65: // a
+                return joystick0.getLeft().toggle(true);
+
+            case 68: // d
+                return joystick0.getRight().toggle(true);
+
+            case 83: // s
+                return joystick0.getDown().toggle(true);
+
+            case 87: // w
+                return joystick0.getUp().toggle(true);
+
+            case 86: // v
+            case 32: // space
+                return joystick0.getFire().toggle(true);
+
+            default:
+                console.log(e.which);
         }
     });
 
     element.keyup((e: JQueryKeyEventObject) => {
         switch (e.which) {
             case 17: // left ctrl
-                controlPanel.getSelectSwitch().toggle(false);
-                break;
+                return controlPanel.getSelectSwitch().toggle(false);
 
             case 18: // left alt
-                controlPanel.getResetButton().toggle(false);
-                break;
+                return controlPanel.getResetButton().toggle(false);
+
+            case 65: // a
+                return joystick0.getLeft().toggle(false);
+
+            case 68: // d
+                return joystick0.getRight().toggle(false);
+
+            case 83: // s
+                return joystick0.getDown().toggle(false);
+
+            case 87: // w
+                return joystick0.getUp().toggle(false);
+
+            case 86: // v
+            case 32: // space
+                return joystick0.getFire().toggle(false);
         }
     });
 }

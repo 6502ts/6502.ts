@@ -8,6 +8,7 @@ import Cartridge4k from '../machine/stella/Cartridge4k';
 import StellaConfig from '../machine/stella/Config';
 import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
+import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
 
 import CommandInterpreter from './CommandInterpreter';
 import ImmedateScheduler from '../tools/scheduler/ImmedateScheduler';
@@ -85,6 +86,14 @@ class StellaCLI extends DebuggerCLI {
 
     getControlPanel(): ControlPanelInterface {
         return this._board.getControlPanel();
+    }
+
+    getJoystick0(): DigitalJoystickInterface {
+        return this._board.getJoystick0();
+    }
+
+    getJoystick1(): DigitalJoystickInterface {
+        return this._board.getJoystick1();
     }
 
     protected _getCommandInterpreter(): CommandInterpreter {

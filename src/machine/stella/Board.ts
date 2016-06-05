@@ -14,6 +14,8 @@ import Config from './Config';
 import VideoOutputInterface from '../io/VideoOutputInterface';
 import ControlPanel from './ControlPanel';
 import ControlPanelInterface from './ControlPanelInterface';
+import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
+import DigitalJoystick from '../io/DigitalJoystick';
 
 class Board implements BoardInterface {
 
@@ -22,10 +24,12 @@ class Board implements BoardInterface {
 
         if (typeof(cpuFactory) === 'undefined') cpuFactory = bus => new Cpu(bus);
 
-        const controlPanel = new ControlPanel();
+        const controlPanel = new ControlPanel(),
+            joystick0 = new DigitalJoystick(),
+            joystick1 = new DigitalJoystick();
         const cpu = cpuFactory(bus);
-        const pia = new Pia(controlPanel);
-        const tia = new Tia(config);
+        const pia = new Pia(controlPanel, joystick0, joystick1);
+        const tia = new Tia(config, joystick0, joystick1);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
         tia.setCpu(cpu);
@@ -40,6 +44,8 @@ class Board implements BoardInterface {
         this._pia = pia;
         this._cartridge = cartridge;
         this._controlPanel = controlPanel;
+        this._joystick0 = joystick0;
+        this._joystick1 = joystick1;
 
         this._bus.trap.addHandler(
             (payload: Bus.TrapPayload) => this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
@@ -119,6 +125,14 @@ class Board implements BoardInterface {
 
     getControlPanel(): ControlPanelInterface {
         return this._controlPanel;
+    }
+
+    getJoystick0(): DigitalJoystickInterface {
+        return this._joystick0;
+    }
+
+    getJoystick1(): DigitalJoystickInterface {
+        return this._joystick1;
     }
 
     getBoardStateDebug(): string {
@@ -231,6 +245,8 @@ class Board implements BoardInterface {
     private _pia: Pia;
     private _cartridge: CartridgeInterface;
     private _controlPanel: ControlPanel;
+    private _joystick0: DigitalJoystick;
+    private _joystick1: DigitalJoystick;
 
     private _sliceHint = 50000;
     private _runTask: TaskInterface;

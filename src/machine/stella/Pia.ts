@@ -1,9 +1,14 @@
 import Event from '../../tools/event/Event';
 import ControlPanelInterface from './ControlPanelInterface';
+import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
 
 class Pia {
 
-    constructor(private _controlPanel: ControlPanelInterface) {}
+    constructor(
+        private _controlPanel: ControlPanelInterface,
+        private _joystick0 : DigitalJoystickInterface,
+        private _joystick1 : DigitalJoystickInterface
+    ) {}
 
     reset(): void {
         for (let i = 0; i < 128; i++) this.ram[i] = 0;
@@ -77,7 +82,16 @@ class Pia {
     private _readIo(address: number): number {
         switch (address & 0x0283) {
             case Pia.Registers.swcha:
-                return 0xFF;
+                return (
+                    (this._joystick1.getUp().read()      ? 0 : 0x01) |
+                    (this._joystick1.getDown().read()    ? 0 : 0x02) |
+                    (this._joystick1.getLeft().read()    ? 0 : 0x04) |
+                    (this._joystick1.getRight().read()   ? 0 : 0x08) |
+                    (this._joystick0.getUp().read()      ? 0 : 0x10) |
+                    (this._joystick0.getDown().read()    ? 0 : 0x20) |
+                    (this._joystick0.getLeft().read()    ? 0 : 0x40) |
+                    (this._joystick0.getRight().read()   ? 0 : 0x80)
+                );
 
             case Pia.Registers.swchb:
                 return (
