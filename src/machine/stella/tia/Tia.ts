@@ -65,6 +65,7 @@ class Tia implements VideoOutputInterface {
         this._priority = Priority.normal;
         this._freshLine = true;
         this._collisionMask = 0;
+        this._vblank = false;
 
         this._missile0.reset();
         this._missile1.reset();
@@ -263,6 +264,7 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.vblank:
                 this._input0.vblank(value);
                 this._input1.vblank(value);
+                this._vblank = (value & 0x02) > 0;
                 break;
 
             case Tia.Registers.enam0:
@@ -532,7 +534,7 @@ class Tia implements VideoOutputInterface {
         );
 
         if (this._surface) {
-            this._surface.getBuffer()[y * 160 + x] = color;
+            this._surface.getBuffer()[y * 160 + x] = this._vblank ? 0xFF000000 : color;
         }
     }
 
@@ -576,6 +578,7 @@ class Tia implements VideoOutputInterface {
 
     private _frameInProgress = false;
     private _vsync = false;
+    private _vblank = false;
 
     private _colorBk = 0xFF000000;
     private _priority = Priority.normal;
