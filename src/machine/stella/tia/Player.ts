@@ -13,6 +13,7 @@ export default class Player {
 
     reset(): void {
         this.color = 0xFFFFFFFF;
+        this.collision = 0;
         this._hmmClocks = 0;
         this._counter = 0;
         this._moving = false;

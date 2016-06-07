@@ -10,6 +10,7 @@ export default class Ball {
 
     reset(): void {
         this.color = 0xFFFFFFFF;
+        this.collision = 0;
         this._width = 1;
         this._enabled = false;
         this._counter = 0;
@@ -100,7 +101,7 @@ export default class Ball {
     private _enabled = false;
     private _enabledPending = false;
 
-    private _hmmClocks = 8;
+    private _hmmClocks = 0;
     private _counter = 0;
     private _moving = false;
     private _width = 1;

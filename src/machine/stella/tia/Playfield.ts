@@ -13,6 +13,7 @@ class Playfield {
     reset() {
         this._pattern = 0;
         this._reflected = false;
+        this._currentPixel = -1;
 
         this._delay0 = -1;
         this._delay1 = -1;

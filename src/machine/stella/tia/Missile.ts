@@ -90,7 +90,7 @@ class Missile {
 
     private _enabled = false;
 
-    private _hmmClocks = 8;
+    private _hmmClocks = 0;
     private _counter = 0;
     private _moving = false;
     private _width = 1;
