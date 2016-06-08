@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "target": "es5",
+        "preserveConstEnums": true,
+        "sourceMap": false,
+        "noLib": true
+    },
+    "filesGlob": [
+        "src/**/*.ts",
+        "../node_modules/typescript/lib/lib.webworker.d.ts"
+    ],
+    "files": [
+        "src/main.ts",
+        "../node_modules/typescript/lib/lib.webworker.d.ts"
+    ],
+    "atom": {
+        "rewriteTsconfig": true
+    }
+}

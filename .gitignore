@@ -8,3 +8,4 @@ web/js/compiled
 bin/**/*.js
 tests/fixtures/fs_provider/blob.json
 tests/ts/**/*.js
+worker/src/**/*.js

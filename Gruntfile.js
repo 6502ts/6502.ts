@@ -30,6 +30,9 @@ module.exports = function(grunt) {
             ],
             mrproper: [
                 'web/bower'
+            ],
+            worker: [
+                'worker/src/**/**.js'
             ]
         },
 
@@ -89,6 +92,10 @@ module.exports = function(grunt) {
                         stellaCLI: './src/web/stellaCLI'
                     }
                 }
+            },
+            stellaWorker: {
+                dest: 'web/js/compiled/stellaWorker.js',
+                src: ['worker/src/main.js']
             }
         },
 
@@ -168,7 +175,7 @@ module.exports = function(grunt) {
     grunt.registerTask('test', ['ts', 'tslint', 'blobify:tests', 'mochaTest:test']);
     grunt.registerTask('test:debug', ['ts', 'tslint', 'blobify:tests', 'mochaTest:debug']);
 
-    grunt.registerTask('cleanup', ['clean:base']);
+    grunt.registerTask('cleanup', ['clean:base', 'clean:worker']);
     grunt.registerTask('mrproper', ['clean']);
 
     grunt.registerTask('initial', ['clean', 'typings', 'bower', 'build', 'test']);
