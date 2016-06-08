@@ -12,6 +12,8 @@ class Pia {
 
     reset(): void {
         for (let i = 0; i < 128; i++) this.ram[i] = 0;
+        this._interruptFlag = 0;
+        this._flagSetDuringThisCycle = false;
     }
 
     read(address: number): number {
@@ -77,6 +79,7 @@ class Pia {
         this._timerBase = base;
         this._timerSub = 0;
         this._timerValue = value;
+        this._interruptFlag = 0;
     }
 
     private _readIo(address: number): number {
@@ -107,21 +110,33 @@ class Pia {
     }
 
     private _readTimer(address: number): number {
-        switch (address & 0x029F) {
-            case Pia.Registers.intim:
-                return this._timerValue;
-        }
+        if (address & 0x01) {
+            const flag = this._interruptFlag;
 
-        return 0;
+            if (!this._flagSetDuringThisCycle) {
+                this._interruptFlag = 0;
+            }
+
+            return flag;
+        } else {
+            if (!this._flagSetDuringThisCycle) {
+                this._interruptFlag = 0;
+            }
+
+            return this._timerValue;
+        }
     }
 
     private _cycleTimer(): void {
         this._timerSub++;
+        this._flagSetDuringThisCycle = false;
 
         if (this._timerSub === this._timerBase) {
             if (this._timerValue === 0) {
                 this._timerValue = 0xFF;
                 this._timerBase = 1;
+                this._flagSetDuringThisCycle = true;
+                this._interruptFlag = 0xFF;
             } else {
                 this._timerValue--;
             }
@@ -133,6 +148,8 @@ class Pia {
     private _timerValue = 0;
     private _timerSub = 0;
     private _timerBase = 1;
+    private _interruptFlag = 0;
+    private _flagSetDuringThisCycle = false;
 }
 
 module Pia {
