@@ -243,6 +243,9 @@ class Tia implements VideoOutputInterface {
                     ((this._collisionMask & CollisionMask.player0 & CollisionMask.player1) > 0 ? 0x80 : 0)
                 );
 
+            case Tia.Registers.cxblpf:
+                return (this._collisionMask & CollisionMask.ball & CollisionMask.playfield) > 0 ? 0x80 : 0;
+
         }
 
         return 0;
