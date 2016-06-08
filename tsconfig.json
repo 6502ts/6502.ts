@@ -12,7 +12,7 @@
         "bin/*.ts",
         "src/**/*.ts",
         "tests/**/*.ts",
-        "typings/main.d.ts"
+        "typings/index.d.ts"
     ],
     "files": [
         "bin/debuggerCLI.ts",
@@ -100,7 +100,7 @@
         "tests/ts/interface/mocha.d.ts",
         "tests/ts/pool.ts",
         "tests/ts/scheduler.ts",
-        "typings/main.d.ts"
+        "typings/index.d.ts"
     ],
     "atom": {
         "rewriteTsconfig": true
