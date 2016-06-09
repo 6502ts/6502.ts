@@ -1,7 +1,7 @@
 import {decodes} from './drawCounterDecodes';
 
 const enum Count {
-    renderCounterOffset = -3
+    renderCounterOffset = -4
 }
 
 class Missile {
