@@ -18,7 +18,7 @@ const VISIBLE_LINES_NTSC = 192,
     VBLANK_PAL = 45;
 
 const enum Count {
-    movementCounterOffset = -7
+    movementCounterOffset = -3
 }
 
 // Each bit in the collision mask identifies a single collision pair
