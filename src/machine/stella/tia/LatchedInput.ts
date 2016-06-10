@@ -6,8 +6,8 @@ export default class LatchedInput {
         this.reset();
 
         this._switch.stateChanged.addHandler((state: boolean) => {
-            if (this._modeLatched && state) {
-                this._latchedValue = 0;
+            if (this._modeLatched && !state) {
+                this._latchedValue = 0x80;
             }
         });
     }
@@ -21,7 +21,7 @@ export default class LatchedInput {
         if ((value & 0x40) > 0) {
             if (!this._modeLatched) {
                 this._modeLatched = true;
-                this._latchedValue = 0x80;
+                this._latchedValue = 0;
             }
         } else {
             this._modeLatched = false;

@@ -4,11 +4,11 @@ import DebuggerCLI from './DebuggerCLI';
 import BoardInterface from '../machine/board/BoardInterface';
 import Board from '../machine/stella/Board';
 import CartridgeInterface from '../machine/stella/CartridgeInterface';
-import Cartridge4k from '../machine/stella/Cartridge4k';
 import StellaConfig from '../machine/stella/Config';
 import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
+import CartridgeFactory from '../machine/stella/CartridgeFactory';
 
 import CommandInterpreter from './CommandInterpreter';
 import ImmedateScheduler from '../tools/scheduler/ImmedateScheduler';
@@ -132,9 +132,10 @@ class StellaCLI extends DebuggerCLI {
     }
 
     protected _loadCartridge(file: string): void {
-        const fileBuffer = this._fsProvider.readBinaryFileSync(file);
+        const fileBuffer = this._fsProvider.readBinaryFileSync(file),
+            factory = new CartridgeFactory();
 
-        this._cartridge = new Cartridge4k(fileBuffer);
+        this._cartridge = factory.createCartridge(fileBuffer);
     }
 
     protected _initialize(): void {
