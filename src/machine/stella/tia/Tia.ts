@@ -10,6 +10,7 @@ import Playfield from './Playfield';
 import Player from './Player';
 import Ball from './Ball';
 import LatchedInput from './LatchedInput';
+import Audio from './Audio';
 import * as palette from './palette';
 
 const VISIBLE_LINES_NTSC = 192,
@@ -77,6 +78,9 @@ class Tia implements VideoOutputInterface {
         this._player1.reset();
         this._playfield.reset();
         this._ball.reset();
+
+        this._audio0.reset();
+        this._audio1.reset();
 
         this._input0.reset();
         this._input1.reset();
@@ -442,6 +446,24 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.cxclr:
                 this._collisionMask = 0;
                 break;
+
+            case Tia.Registers.audc0:
+                break;
+
+            case Tia.Registers.audc1:
+                break;
+
+            case Tia.Registers.audf0:
+                break;
+
+            case Tia.Registers.audf1:
+                break;
+
+            case Tia.Registers.audv0:
+                break;
+
+            case Tia.Registers.audv1:
+                break;
         }
     }
 
@@ -604,6 +626,9 @@ class Tia implements VideoOutputInterface {
     private _missile1 =  new Missile(CollisionMask.missile1);
     private _playfield = new Playfield(CollisionMask.playfield);
     private _ball =      new Ball(CollisionMask.ball);
+
+    private _audio0 = new Audio();
+    private _audio1 = new Audio();
 
     private _input0: LatchedInput;
     private _input1: LatchedInput;
