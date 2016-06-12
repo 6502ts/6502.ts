@@ -158,9 +158,7 @@ class Tia implements VideoOutputInterface {
             case HState.frame:
                 // Order matters: sprites determine whether they should start drawing during tick and
                 // draw the first pixel during the next frame
-                if (this._rendering) {
-                    this._renderPixel(this._hctr - 68, this._line);
-                }
+                this._renderPixel(this._hctr - 68, this._line);
 
                 // Spin the sprite timers
                 this._missile0.tick();
@@ -178,7 +176,7 @@ class Tia implements VideoOutputInterface {
                     }
 
                     if (this._frameInProgress) {
-                        this._rendering = true;
+                        this._rendering = !!this._surface;
 
                         // Overscan reached? -> pump out frame
                         if (this._line >= this._visibleLines){
@@ -489,6 +487,7 @@ class Tia implements VideoOutputInterface {
                 this.newFrame.dispatch(this._surface);
                 this._surface = null;
                 this._surfaceBuffer = null;
+                this._rendering = false;
             }
 
             this._frameInProgress = false;
@@ -506,7 +505,7 @@ class Tia implements VideoOutputInterface {
         }
 
         this._frameInProgress = true;
-        this._rendering = (this._hctr ===0);
+        this._rendering = (!!this._surface && this._hctr === 0);
         this._line = 0;
     }
 
@@ -551,7 +550,7 @@ class Tia implements VideoOutputInterface {
             (this._ball.collision & this._playfield.collision)
         );
 
-        if (this._surface) {
+        if (this._rendering) {
             this._surfaceBuffer[y * 160 + x] = this._vblank ? 0xFF000000 : color;
         }
     }
