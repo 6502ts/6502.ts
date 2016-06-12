@@ -4,7 +4,6 @@ import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
 import Event from '../../../tools/event/Event';
 import Config from '../Config';
 import CpuInterface from '../../cpu/CpuInterface';
-import Metrics from './Metrics';
 import Missile from './Missile';
 import Playfield from './Playfield';
 import Player from './Player';
@@ -14,8 +13,7 @@ import * as palette from './palette';
 
 const VISIBLE_LINES_NTSC = 192,
     VISIBLE_LINES_PAL = 228,
-    VBLANK_NTSC = 37,
-    VBLANK_PAL = 45;
+    OVERSCAN = 15;
 
 const enum Count {
     movementCounterOffset = -3
@@ -41,7 +39,7 @@ class Tia implements VideoOutputInterface {
         joystick0: DigitalJoystickInterface,
         joystick1: DigitalJoystickInterface
     ) {
-        this._metrics = this._getMetrics(this._config);
+        this._visibleLines = this._getVisibleLines(this._config);
         this._palette = this._getPalette(this._config);
         this._input0 = new LatchedInput(joystick0.getFire());
         this._input1 = new LatchedInput(joystick1.getFire());
@@ -58,7 +56,7 @@ class Tia implements VideoOutputInterface {
     reset(): void {
         this._hblankCtr = 0;
         this._hctr = 0;
-        this._vctr = 0;
+        this._line = 0;
         this._movementInProgress = false;
         this._extendedHblank = false;
         this._movementCtr = 0;
@@ -99,7 +97,7 @@ class Tia implements VideoOutputInterface {
     }
 
     getHeight(): number {
-        return this._metrics.visibleLines;
+        return this._visibleLines;
     }
 
     setSurfaceFactory(factory: VideoOutputInterface.SurfaceFactoryInterface): Tia {
@@ -160,8 +158,8 @@ class Tia implements VideoOutputInterface {
             case HState.frame:
                 // Order matters: sprites determine whether they should start drawing during tick and
                 // draw the first pixel during the next frame
-                if (this._frameInProgress && this._vctr >= this._metrics.vblank) {
-                    this._renderPixel(this._hctr - 68, this._vctr - this._metrics.vblank);
+                if (this._rendering) {
+                    this._renderPixel(this._hctr - 68, this._line);
                 }
 
                 // Spin the sprite timers
@@ -174,11 +172,16 @@ class Tia implements VideoOutputInterface {
                 if (++this._hctr >= 228) {
                     // Reset the counters
                     this._hctr = 0;
-                    this._vctr++;
+
+                    if (this._rendering) {
+                        this._line++;
+                    }
 
                     if (this._frameInProgress) {
+                        this._rendering = true;
+
                         // Overscan reached? -> pump out frame
-                        if (this._vctr >= this._metrics.overscanStart){
+                        if (this._line >= this._visibleLines){
                             this._finalizeFrame();
                         }
                     }
@@ -261,19 +264,17 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.vsync:
-                if ((value & 2) > 0 && !this._vsync) {
-                    this._vsync = true;
-                    this._finalizeFrame();
-                } else if (this._vsync) {
-                    this._vsync = false;
-                    this._startFrame();
-                }
-
+                this._vsync = (value & 0x02) > 0;
                 break;
 
             case Tia.Registers.vblank:
                 this._input0.vblank(value);
                 this._input1.vblank(value);
+
+                if ((value & 0x02) === 0 && this._vblank) {
+                    this._startFrame();
+                }
+
                 this._vblank = (value & 0x02) > 0;
                 break;
 
@@ -447,19 +448,19 @@ class Tia implements VideoOutputInterface {
 
     getDebugState(): string {
         return '' +
-            `hclock: ${this._hctr}   vclock: ${this._vctr}    vsync: ${this._vsync ? 1 : 0}    frame pending: ${this._frameInProgress ? "yes" : "no"}`;
+            `hclock: ${this._hctr}   line: ${this._line}    vsync: ${this._vsync ? 1 : 0}    frame pending: ${this._frameInProgress ? "yes" : "no"}`;
     }
 
     trap = new Event<Tia.TrapPayload>();
 
-    private _getMetrics(config: Config): Metrics {
+    private _getVisibleLines(config: Config): number {
         switch (this._config.tvMode) {
             case Config.TvMode.secam:
             case Config.TvMode.pal:
-                return new Metrics(VISIBLE_LINES_PAL, VBLANK_PAL);
+                return VISIBLE_LINES_PAL + OVERSCAN;
 
             case Config.TvMode.ntsc:
-                return new Metrics(VISIBLE_LINES_NTSC, VBLANK_NTSC);
+                return VISIBLE_LINES_NTSC + OVERSCAN;
 
             default:
                 throw new Error('invalid TV mode');
@@ -485,7 +486,6 @@ class Tia implements VideoOutputInterface {
     private _finalizeFrame(): void {
         if (this._frameInProgress) {
             if (this._surface) {
-                this._clearHmoveComb();
                 this.newFrame.dispatch(this._surface);
                 this._surface = null;
                 this._surfaceBuffer = null;
@@ -496,13 +496,18 @@ class Tia implements VideoOutputInterface {
     }
 
     private _startFrame(): void {
+        if (this._frameInProgress) {
+            this._finalizeFrame();
+        }
+
         if (this._surfaceFactory) {
             this._surface = this._surfaceFactory();
             this._surfaceBuffer = this._surface.getBuffer();
         }
 
         this._frameInProgress = true;
-        this._vctr = 0;
+        this._rendering = (this._hctr ===0);
+        this._line = 0;
     }
 
     private _renderPixel(x: number, y: number): void {
@@ -554,14 +559,13 @@ class Tia implements VideoOutputInterface {
     private _clearHmoveComb(): void {
         if (this._surface && this._frameInProgress && this._hstate === HState.blank) {
             const buffer = this._surface.getBuffer(),
-                offset = (this._vctr - this._metrics.vblank) * 160;
+                offset = this._line * 160;
 
             for (let i = 0; i < 8; i++) {
                 buffer[offset + i] = 0xFF000000;
             }
         }
     }
-
 
     private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface;
     private _surface: RGBASurfaceInterface = null;
@@ -571,8 +575,6 @@ class Tia implements VideoOutputInterface {
 
     private _palette: Uint32Array;
 
-    private _metrics: Metrics;
-
     private _hstate = HState.blank;
     private _freshLine = true;
 
@@ -581,7 +583,9 @@ class Tia implements VideoOutputInterface {
 
     // Line and row counters
     private _hctr = 0;
-    private _vctr = 0;
+    private _line = 0;
+    private _visibleLines = 0;
+    private _rendering = false;
 
     // Count the extra clocks triggered by move
     private _movementCtr = 0;

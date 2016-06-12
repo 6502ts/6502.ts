@@ -62,10 +62,10 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
         );
 
     canvas.width = width;
-    canvas.height = height;
+    canvas.height = height + 5;
 
     context.fillStyle = 'solid black';
-    context.fillRect(0, 0, width, height);
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
     video.setSurfaceFactory((): Surface => {
         const member = surfacePool.get(),
@@ -79,7 +79,7 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
     video.newFrame.addHandler((surface: Surface) => {
         const poolMember = poolMembers.get(surface);
 
-        context.putImageData(surface.getImageData(), 0, 0);
+        context.putImageData(surface.getImageData(), 0, 5);
 
         if (poolMember) {
             poolMember.release();
