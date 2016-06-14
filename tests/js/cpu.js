@@ -841,6 +841,58 @@ suite('CPU', function() {
 
     branchSuite('BVS', 0x70, Flags.v, 0);
 
+    suite('BRK', function() {
+        test('immediate', function() {
+            cpuRunner
+                .create([0x00])
+                .setState({
+                    flags: Flags.z,
+                    s: 0xFF
+                })
+                .poke({
+                    '0xFFFE': 0x12,
+                    '0xFFFF': 0x34
+                })
+                .run()
+                .assertCycles(7)
+                .assertState({
+                    flags: Flags.i | Flags.z,
+                    p: 0x3412,
+                    s: 0xFC
+                })
+                .assertMemory({
+                    '0x01FF': 0xE0,
+                    '0x01FE': 0x02,
+                    '0x01FD': Flags.z | Flags.b
+                });
+        });
+
+        test('immediate, stack overflow', function() {
+            cpuRunner
+                .create([0x00])
+                .setState({
+                    flags: Flags.z,
+                    s: 0x01
+                })
+                .poke({
+                    '0xFFFE': 0x12,
+                    '0xFFFF': 0x34
+                })
+                .run()
+                .assertCycles(7)
+                .assertState({
+                    flags: Flags.i | Flags.z,
+                    p: 0x3412,
+                    s: 0xFE
+                })
+                .assertMemory({
+                    '0x0101': 0xE0,
+                    '0x0100': 0x02,
+                    '0x01FF': Flags.z | Flags.b
+                });
+        });
+    });
+
     clearFlagSuite('CLC', 0x18, Flags.c);
 
     clearFlagSuite('CLD', 0xD8, Flags.d);
@@ -2137,6 +2189,52 @@ suite('CPU', function() {
         testMutatingAbsoluteX(0x7E, 0x02, 0x01, 7, 7, {}, {});
     });
 
+    suite('RTI', function() {
+        test('implied', function() {
+            cpuRunner
+                .create([0x40])
+                .setState({
+                    s: 0xFC,
+                    p: 0x1234,
+                    flags: Flags.d
+                })
+                .poke({
+                    '0x01FD': Flags.z | Flags.b,
+                    '0x01FE': 0x45,
+                    '0x01FF': 0x67
+                })
+                .run()
+                .assertCycles(6)
+                .assertState({
+                    s: 0xFF,
+                    p: 0x6745,
+                    flags: Flags.z | Flags.b
+                });
+        });
+
+        test('implied, stack underflow', function() {
+            cpuRunner
+                .create([0x40])
+                .setState({
+                    s: 0xFE,
+                    p: 0x1234,
+                    flags: Flags.d
+                })
+                .poke({
+                    '0x01FF': Flags.z | Flags.b,
+                    '0x0100': 0x45,
+                    '0x0101': 0x67
+                })
+                .run()
+                .assertCycles(6)
+                .assertState({
+                    s: 0x01,
+                    p: 0x6745,
+                    flags: Flags.z | Flags.b
+                });
+        });
+
+    });
 
     suite('RTS', function() {
         test('implied', function() {
