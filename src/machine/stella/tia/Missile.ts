@@ -20,6 +20,7 @@ class Missile {
         this._moving = false;
         this._hmmClocks = 0;
         this._decodes = decodes[0];
+        this._currentPixel = false;
     }
 
     enam(value: number): void {
@@ -55,14 +56,24 @@ class Missile {
         }
 
         if (this._moving && apply) {
-            this.tick();
+            this.tick(true);
         }
 
         return this._moving;
     }
 
 
-    tick(): void {
+    tick(render: boolean): void {
+        if (render) {
+            if (this._rendering && this._renderCounter >= 0 && this._enabled) {
+                this.collision = this._collisionMask;
+                this._currentPixel = true;
+            } else {
+                this.collision = 0;
+                this._currentPixel = false;
+            }
+        }
+
         if (this._decodes[this._counter]) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
@@ -76,13 +87,7 @@ class Missile {
     }
 
     renderPixel(colorIn: number): number {
-        if (this._rendering && this._renderCounter >= 0 && this._enabled) {
-            this.collision = this._collisionMask;
-            return this.color;
-        }
-
-        this.collision = 0;
-        return colorIn;
+        return this._currentPixel ? this.color : colorIn;
     }
 
     color = 0xFFFFFFFF;
@@ -97,6 +102,7 @@ class Missile {
 
     private _rendering = false;
     private _renderCounter = Count.renderCounterOffset;
+    private _currentPixel = false;
 
     private _decodes: Uint8Array;
     private _widths = new Uint8Array([1, 2, 4, 8]);

@@ -68,6 +68,9 @@ class Tia implements VideoOutputInterface {
         this._collisionMask = 0;
         this._vblank = false;
         this._colorBk = 0xFF000000;
+        this._linesSinceChange = 0;
+        this._lineCached = false;
+        this._collisionUpdateRequired = false;
 
         this._missile0.reset();
         this._missile1.reset();
@@ -109,13 +112,26 @@ class Tia implements VideoOutputInterface {
     newFrame = new Event<RGBASurfaceInterface>();
 
     cycle(): void {
+        this._collisionUpdateRequired = false;
+
         this._tickMovement();
-        this._playfield.tick();
-        this._tickHclock();
+        this._playfield.clockTick();
+
+        if (this._hstate === HState.blank) {
+            this._tickHblank();
+        } else {
+            this._tickHframe();
+        }
+
+        if (this._collisionUpdateRequired) {
+            this._updateCollision();
+        }
     }
 
     private _tickMovement(): void {
         if (this._movementInProgress) {
+            this._linesSinceChange = 0;
+
             // The actual clock supplied to the sprites is mod 4
             if (this._movementCtr >= 0 && (this._movementCtr & 0x3) === 0) {
                 // The tick is only propagated to the sprite counters if we are in blank
@@ -132,65 +148,76 @@ class Tia implements VideoOutputInterface {
                 m = this._ball.movementTick(clock, apply) || m;
 
                 this._movementInProgress = m;
+                this._collisionUpdateRequired = m;
             }
 
             this._movementCtr++;
         }
     }
 
-    private _tickHclock(): void {
-        switch (this._hstate) {
-            case HState.blank:
-                if (this._freshLine) {
-                    this._hblankCtr = 0;
-                    this._cpu.resume();
-                    this._freshLine = false;
-                }
-
-                if (++this._hblankCtr >= 68) {
-                    this._hstate = HState.frame;
-                }
-
-                this._hctr++;
-
-                break;
-
-            case HState.frame:
-                // Order matters: sprites determine whether they should start drawing during tick and
-                // draw the first pixel during the next frame
-                this._renderPixel(this._hctr - 68, this._line);
-
-                // Spin the sprite timers
-                this._missile0.tick();
-                this._missile1.tick();
-                this._player0.tick();
-                this._player1.tick();
-                this._ball.tick();
-
-                if (++this._hctr >= 228) {
-                    // Reset the counters
-                    this._hctr = 0;
-
-                    if (this._rendering) {
-                        this._line++;
-                    }
-
-                    if (this._frameInProgress) {
-                        this._rendering = !!this._surface;
-
-                        // Overscan reached? -> pump out frame
-                        if (this._line >= this._visibleLines){
-                            this._finalizeFrame();
-                        }
-                    }
-
-                    this._hstate = HState.blank;
-                    this._freshLine = true;
-                    this._extendedHblank = false;
-                }
-
-                break;
+    private _tickHblank() {
+        if (this._freshLine) {
+            this._hblankCtr = 0;
+            this._cpu.resume();
+            this._freshLine = false;
         }
+
+        if (++this._hblankCtr >= 68) {
+            this._hstate = HState.frame;
+        }
+
+        this._hctr++;
+    }
+
+    private _tickHframe() {
+        const lineNotCached = this._linesSinceChange < 2,
+            x = this._hctr - 68;
+
+        this._collisionUpdateRequired = lineNotCached;
+
+        this._tickSprites(x, lineNotCached);
+        this._renderPixel(x, this._line, lineNotCached);
+
+        if (++this._hctr >= 228) {
+            this._nextLine();
+        }
+    }
+
+    private _tickSprites(x: number, render: boolean) {
+        if (render) {
+            this._player1.render();
+            this._player0.render();
+        }
+
+        this._missile0.tick(render);
+        this._missile1.tick(render);
+        this._player0.tick();
+        this._player1.tick();
+        this._ball.tick(render);
+        this._playfield.tick(x, render);
+    }
+
+    private _nextLine() {
+        // Reset the counters
+        this._hctr = 0;
+        this._linesSinceChange++;
+
+        if (this._rendering) {
+            this._line++;
+        }
+
+        if (this._frameInProgress) {
+            this._rendering = !!this._surface;
+
+            // Overscan reached? -> pump out frame
+            if (this._line >= this._visibleLines){
+                this._finalizeFrame();
+            }
+        }
+
+        this._hstate = HState.blank;
+        this._freshLine = true;
+        this._extendedHblank = false;
     }
 
     read(address: number): number {
@@ -266,6 +293,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.vblank:
+                this._linesSinceChange = 0;
                 this._input0.vblank(value);
                 this._input1.vblank(value);
 
@@ -277,30 +305,37 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.enam0:
+                this._linesSinceChange = 0;
                 this._missile0.enam(value);
                 break;
 
             case Tia.Registers.enam1:
+                this._linesSinceChange = 0;
                 this._missile1.enam(value);
                 break;
 
             case Tia.Registers.hmm0:
+                this._linesSinceChange = 0;
                 this._missile0.hmm(value);
                 break;
 
             case Tia.Registers.hmm1:
+                this._linesSinceChange = 0;
                 this._missile1.hmm(value);
                 break;
 
             case Tia.Registers.resm0:
+                this._linesSinceChange = 0;
                 this._missile0.resm();
                 break;
 
             case Tia.Registers.resm1:
+                this._linesSinceChange = 0;
                 this._missile1.resm();
                 break;
 
             case Tia.Registers.hmclr:
+                this._linesSinceChange = 0;
                 this._missile0.hmm(0);
                 this._missile1.hmm(0);
                 this._player0.hmp(0);
@@ -309,16 +344,20 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.nusiz0:
+                this._linesSinceChange = 0;
                 this._missile0.nusiz(value);
                 this._player0.nusiz(value);
                 break;
 
             case Tia.Registers.nusiz1:
+                this._linesSinceChange = 0;
                 this._missile1.nusiz(value);
                 this._player1.nusiz(value);
                 break;
 
             case Tia.Registers.hmove:
+                this._linesSinceChange = 0;
+
                 // Start the timer and increase hblank
                 this._movementCtr = Count.movementCounterOffset;
                 this._movementInProgress = true;
@@ -339,10 +378,13 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.colubk:
+                this._linesSinceChange = 0;
                 this._colorBk = this._palette[(value & 0xFF) >>> 1];
                 break;
 
             case Tia.Registers.colup0:
+                this._linesSinceChange = 0;
+
                 v = this._palette[(value & 0xFF) >>> 1];
                 this._missile0.color = v;
                 this._player0.color = v;
@@ -351,6 +393,8 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.colup1:
+                this._linesSinceChange = 0;
+
                 v = this._palette[(value & 0xFF) >>> 1];
                 this._missile1.color = v;
                 this._player1.color = v;
@@ -359,10 +403,12 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.pf0:
+                this._linesSinceChange = 0;
                 this._playfield.pf0(value);
                 break;
 
             case Tia.Registers.pf1:
+                this._linesSinceChange = 0;
                 this._playfield.pf1(value);
                 break;
 
@@ -371,74 +417,91 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.ctrlpf:
+                this._linesSinceChange = 0;
                 this._priority = (value & 0x04) ? Priority.inverted : Priority.normal;
                 this._playfield.ctrlpf(value);
                 this._ball.ctrlpf(value);
                 break;
 
             case Tia.Registers.colupf:
+                this._linesSinceChange = 0;
                 v = this._palette[(value & 0xFF) >>> 1];
                 this._playfield.setColor(v);
                 this._ball.color = v;
                 break;
 
             case Tia.Registers.grp0:
+                this._linesSinceChange = 0;
                 this._player0.grp(value);
                 break;
 
             case Tia.Registers.grp1:
+                this._linesSinceChange = 0;
                 this._player1.grp(value);
                 break;
 
             case Tia.Registers.resp0:
+                this._linesSinceChange = 0;
                 this._player0.resp();
                 break;
 
             case Tia.Registers.resp1:
+                this._linesSinceChange = 0;
                 this._player1.resp();
                 break;
 
             case Tia.Registers.refp0:
+                this._linesSinceChange = 0;
                 this._player0.refp(value);
                 break;
 
             case Tia.Registers.refp1:
+                this._linesSinceChange = 0;
                 this._player1.refp(value);
                 break;
 
             case Tia.Registers.hmp0:
+                this._linesSinceChange = 0;
                 this._player0.hmp(value);
                 break;
 
             case Tia.Registers.hmp1:
+                this._linesSinceChange = 0;
                 this._player1.hmp(value);
                 break;
 
             case Tia.Registers.vdelp0:
+                this._linesSinceChange = 0;
                 this._player0.vdelp(value);
                 break;
 
             case Tia.Registers.vdelp1:
+                this._linesSinceChange = 0;
                 this._player1.vdelp(value);
                 break;
 
             case Tia.Registers.enabl:
+                this._linesSinceChange = 0;
                 this._ball.enabl(value);
                 break;
 
             case Tia.Registers.hmbl:
+                this._linesSinceChange = 0;
                 this._ball.hmbl(value);
                 break;
 
             case Tia.Registers.resbl:
+                this._linesSinceChange = 0;
                 this._ball.resbl();
                 break;
 
             case Tia.Registers.vdelbl:
+                this._linesSinceChange = 0;
                 this._ball.vdelbl(value);
                 break;
 
             case Tia.Registers.cxclr:
+                this._linesSinceChange = 0;
                 this._collisionMask = 0;
                 break;
         }
@@ -509,29 +572,41 @@ class Tia implements VideoOutputInterface {
         this._line = 0;
     }
 
-    private _renderPixel(x: number, y: number): void {
-        let color = this._colorBk;
+    private _renderPixel(x: number, y: number, lineNotCached: boolean): void {
+        if (lineNotCached || this._line === 0) {
+            let color = this._colorBk;
 
-        switch (this._priority) {
-            case Priority.normal:
-                color = this._playfield.renderPixel(x, color);
-                color = this._ball.renderPixel(color);
-                color = this._missile1.renderPixel(color);
-                color = this._player1.renderPixel(color);
-                color = this._missile0.renderPixel(color);
-                color = this._player0.renderPixel(color);
-                break;
+            switch (this._priority) {
+                case Priority.normal:
+                    color = this._playfield.renderPixel(color);
+                    color = this._ball.renderPixel(color);
+                    color = this._missile1.renderPixel(color);
+                    color = this._player1.renderPixel(color);
+                    color = this._missile0.renderPixel(color);
+                    color = this._player0.renderPixel(color);
+                    break;
 
-            case Priority.inverted:
-                color = this._ball.renderPixel(color);
-                color = this._missile1.renderPixel(color);
-                color = this._player1.renderPixel(color);
-                color = this._missile0.renderPixel(color);
-                color = this._player0.renderPixel(color);
-                color = this._playfield.renderPixel(x, color);
-                break;
+                case Priority.inverted:
+                    color = this._ball.renderPixel(color);
+                    color = this._missile1.renderPixel(color);
+                    color = this._player1.renderPixel(color);
+                    color = this._missile0.renderPixel(color);
+                    color = this._player0.renderPixel(color);
+                    color = this._playfield.renderPixel(color);
+                    break;
+            }
+
+            if (this._rendering) {
+                this._surfaceBuffer[y * 160 + x] = this._vblank ? 0xFF000000 : color;
+            }
+        } else {
+            if (this._rendering) {
+                this._surfaceBuffer[y * 160 + x] = this._surfaceBuffer[(y-1) * 160 + x];
+            }
         }
+    }
 
+    private _updateCollision() {
         this._collisionMask |= (
             (this._player0.collision & this._player1.collision)     |
             (this._player0.collision & this._missile0.collision)    |
@@ -549,10 +624,6 @@ class Tia implements VideoOutputInterface {
             (this._missile1.collision & this._playfield.collision)  |
             (this._ball.collision & this._playfield.collision)
         );
-
-        if (this._rendering) {
-            this._surfaceBuffer[y * 160 + x] = this._vblank ? 0xFF000000 : color;
-        }
     }
 
     private _clearHmoveComb(): void {
@@ -585,6 +656,7 @@ class Tia implements VideoOutputInterface {
     private _line = 0;
     private _visibleLines = 0;
     private _rendering = false;
+    private _collisionUpdateRequired = false;
 
     // Count the extra clocks triggered by move
     private _movementCtr = 0;
@@ -596,6 +668,9 @@ class Tia implements VideoOutputInterface {
     private _frameInProgress = false;
     private _vsync = false;
     private _vblank = false;
+
+    private _lineCached = false;
+    private _linesSinceChange = 0;
 
     private _colorBk = 0xFF000000;
     private _priority = Priority.normal;
