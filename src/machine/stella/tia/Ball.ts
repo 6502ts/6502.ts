@@ -20,7 +20,6 @@ export default class Ball {
         this._hmmClocks = 0;
         this._delaying = false;
         this._enabledPending = false;
-        this._currentPixel = false;
     }
 
     enabl(value: number): void {
@@ -61,23 +60,18 @@ export default class Ball {
         }
 
         if (this._moving && apply) {
-            this.tick(true);
+            this.render();
+            this.tick();
         }
 
         return this._moving;
     }
 
-    tick(render: boolean): void {
-        if (render) {
-            if (this._rendering && this._renderCounter >= 0 && this._enabled) {
-                this.collision = this._collisionMask;
-                this._currentPixel = true;
-            } else {
-                this.collision = 0;
-                this._currentPixel = false;
-            }
-        }
+    render(): void {
+        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? this._collisionMask : 0;
+    }
 
+    tick(): void {
         if (this._counter === 159) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
@@ -90,8 +84,8 @@ export default class Ball {
         }
     }
 
-    renderPixel(colorIn: number): number {
-        return this._currentPixel ? this.color : colorIn;
+    getPixel(colorIn: number): number {
+        return this.collision > 0 ? this.color : colorIn;
     }
 
     shuffleStatus(): void {
@@ -113,7 +107,6 @@ export default class Ball {
 
     private _rendering = false;
     private _renderCounter = Count.renderCounterOffset;
-    private _currentPixel: boolean;
 
     private _widths = new Uint8Array([1, 2, 4, 8]);
 

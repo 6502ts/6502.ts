@@ -69,7 +69,6 @@ class Tia implements VideoOutputInterface {
         this._vblank = false;
         this._colorBk = 0xFF000000;
         this._linesSinceChange = 0;
-        this._lineCached = false;
         this._collisionUpdateRequired = false;
 
         this._missile0.reset();
@@ -129,33 +128,41 @@ class Tia implements VideoOutputInterface {
     }
 
     private _tickMovement(): void {
-        if (this._movementInProgress) {
-            this._linesSinceChange = 0;
-
-            // The actual clock supplied to the sprites is mod 4
-            if (this._movementCtr >= 0 && (this._movementCtr & 0x3) === 0) {
-                // The tick is only propagated to the sprite counters if we are in blank
-                // mode --- in frame mode, it overlaps with the sprite clock and is gobbled
-                const apply = this._hstate === HState.blank,
-                    clock = this._movementCtr >>> 2;
-
-                let m = false;
-
-                m = this._missile0.movementTick(clock, apply) || m;
-                m = this._missile1.movementTick(clock, apply) || m;
-                m = this._player0.movementTick(clock, apply) || m;
-                m = this._player1.movementTick(clock, apply) || m;
-                m = this._ball.movementTick(clock, apply) || m;
-
-                this._movementInProgress = m;
-                this._collisionUpdateRequired = m;
-            }
-
-            this._movementCtr++;
+        if (!this._movementInProgress) {
+            return;
         }
+
+        // the movement counter dirties the line cache
+        this._linesSinceChange = 0;
+
+        // The actual clock supplied to the sprites is mod 4
+        if (this._movementCtr >= 0 && (this._movementCtr & 0x3) === 0) {
+            // The tick is only propagated to the sprite counters if we are in blank
+            // mode --- in frame mode, it overlaps with the sprite clock and is gobbled
+            const apply = this._hstate === HState.blank,
+                clock = this._movementCtr >>> 2;
+
+            // did any sprite receive the clock?
+            let m = false;
+
+            m = this._missile0.movementTick(clock, apply) || m;
+            m = this._missile1.movementTick(clock, apply) || m;
+            m = this._player0.movementTick(clock, apply) || m;
+            m = this._player1.movementTick(clock, apply) || m;
+            m = this._ball.movementTick(clock, apply) || m;
+
+            // stop collision counter if all latches were cleared
+            this._movementInProgress = m;
+
+            // the collision latches must be updated if any sprite received a tick
+            this._collisionUpdateRequired = m;
+        }
+
+        this._movementCtr++;
     }
 
     private _tickHblank() {
+        // we cannot use hblankctr === 0 here because it is not positive definite
         if (this._freshLine) {
             this._hblankCtr = 0;
             this._cpu.resume();
@@ -173,9 +180,23 @@ class Tia implements VideoOutputInterface {
         const lineNotCached = this._linesSinceChange < 2,
             x = this._hctr - 68;
 
+        // collision latches must be updated if we cannot use cached line daa
         this._collisionUpdateRequired = lineNotCached;
 
-        this._tickSprites(x, lineNotCached);
+        // The playfield does not have its own counter and must be cycled before rendering the sprites.
+        // We can never cache this as the current pixel register must be up to date if
+        // we leave caching mode.
+        this._playfield.tick(x);
+
+        // sprites are only rendered if we cannot reuse line data
+        if (lineNotCached) {
+            this._renderSprites(x);
+        }
+
+        // spin sprite timers
+        this._tickSprites();
+
+        // render pixel data
         this._renderPixel(x, this._line, lineNotCached);
 
         if (++this._hctr >= 228) {
@@ -183,18 +204,20 @@ class Tia implements VideoOutputInterface {
         }
     }
 
-    private _tickSprites(x: number, render: boolean) {
-        if (render) {
-            this._player1.render();
-            this._player0.render();
-        }
+    private _renderSprites(x: number) {
+        this._player0.render();
+        this._player1.render();
+        this._missile0.render();
+        this._missile1.render();
+        this._ball.render();
+    }
 
-        this._missile0.tick(render);
-        this._missile1.tick(render);
+    private _tickSprites() {
+        this._missile0.tick();
+        this._missile1.tick();
         this._player0.tick();
         this._player1.tick();
-        this._ball.tick(render);
-        this._playfield.tick(x, render);
+        this._ball.tick();
     }
 
     private _nextLine() {
@@ -545,16 +568,18 @@ class Tia implements VideoOutputInterface {
     }
 
     private _finalizeFrame(): void {
-        if (this._frameInProgress) {
-            if (this._surface) {
-                this.newFrame.dispatch(this._surface);
-                this._surface = null;
-                this._surfaceBuffer = null;
-                this._rendering = false;
-            }
-
-            this._frameInProgress = false;
+        if (!this._frameInProgress) {
+            return;
         }
+
+        if (this._surface) {
+            this.newFrame.dispatch(this._surface);
+            this._surface = null;
+            this._surfaceBuffer = null;
+            this._rendering = false;
+        }
+
+        this._frameInProgress = false;
     }
 
     private _startFrame(): void {
@@ -573,36 +598,32 @@ class Tia implements VideoOutputInterface {
     }
 
     private _renderPixel(x: number, y: number, lineNotCached: boolean): void {
+        if (!this._rendering) {
+            return;
+        }
+
         if (lineNotCached || this._line === 0) {
             let color = this._colorBk;
 
-            switch (this._priority) {
-                case Priority.normal:
-                    color = this._playfield.renderPixel(color);
-                    color = this._ball.renderPixel(color);
-                    color = this._missile1.renderPixel(color);
-                    color = this._player1.renderPixel(color);
-                    color = this._missile0.renderPixel(color);
-                    color = this._player0.renderPixel(color);
-                    break;
-
-                case Priority.inverted:
-                    color = this._ball.renderPixel(color);
-                    color = this._missile1.renderPixel(color);
-                    color = this._player1.renderPixel(color);
-                    color = this._missile0.renderPixel(color);
-                    color = this._player0.renderPixel(color);
-                    color = this._playfield.renderPixel(color);
-                    break;
+            if (this._priority === Priority.normal) {
+                color = this._playfield.getPixel(color);
+                color = this._ball.getPixel(color);
+                color = this._missile1.getPixel(color);
+                color = this._player1.getPixel(color);
+                color = this._missile0.getPixel(color);
+                color = this._player0.getPixel(color);
+            } else {
+                color = this._ball.getPixel(color);
+                color = this._missile1.getPixel(color);
+                color = this._player1.getPixel(color);
+                color = this._missile0.getPixel(color);
+                color = this._player0.getPixel(color);
+                color = this._playfield.getPixel(color);
             }
 
-            if (this._rendering) {
-                this._surfaceBuffer[y * 160 + x] = this._vblank ? 0xFF000000 : color;
-            }
+            this._surfaceBuffer[y * 160 + x] = this._vblank ? 0xFF000000 : color;
         } else {
-            if (this._rendering) {
-                this._surfaceBuffer[y * 160 + x] = this._surfaceBuffer[(y-1) * 160 + x];
-            }
+            this._surfaceBuffer[y * 160 + x] = this._surfaceBuffer[(y-1) * 160 + x];
         }
     }
 
@@ -651,29 +672,35 @@ class Tia implements VideoOutputInterface {
     // We need a separate counter for the blank period that will be decremented by hmove
     private _hblankCtr = 0;
 
-    // Line and row counters
+    // hclock counter
     private _hctr = 0;
+    // frame line counter
     private _line = 0;
+    // visible lines; dynamically chosen depending on TV mode
     private _visibleLines = 0;
+    // true if we are rendering a frame and have a surface
     private _rendering = false;
+    // collision latch update required?
     private _collisionUpdateRequired = false;
 
     // Count the extra clocks triggered by move
     private _movementCtr = 0;
     // Is the movement clock active and shoud pulse?
     private _movementInProgress = false;
-    //
+    // do we have an extended hblank triggered by hmove?
     private _extendedHblank = false;
 
+    // has frame rendering been triggerd by vblank?
     private _frameInProgress = false;
     private _vsync = false;
     private _vblank = false;
 
-    private _lineCached = false;
+    // Lines since the last cache-invalidating change. If this is > 1 we can safely use the linecache
     private _linesSinceChange = 0;
 
     private _colorBk = 0xFF000000;
     private _priority = Priority.normal;
+    // bitfield with collision latches
     private _collisionMask = 0;
 
     private _player0 =   new Player(CollisionMask.player0);

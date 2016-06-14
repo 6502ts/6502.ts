@@ -13,7 +13,6 @@ class Playfield {
     reset() {
         this._pattern = 0;
         this._reflected = false;
-        this._currentPixel = -1;
 
         this._delay0 = -1;
         this._delay1 = -1;
@@ -92,29 +91,31 @@ class Playfield {
         }
     }
 
-    tick(x: number, render: boolean) {
-        if (render) {
-            if ((x & 0x03) === 0) {
-                if (this._pattern === 0) {
-                    this._currentPixel = 0;
-                } else if (x < 80) {
-                    this._currentPixel = this._pattern & (1 << (x >>> 2));
-                    this._currentColor = this._colorLeft;
-                } else if (this._reflected) {
-                    this._currentPixel = this._pattern & (1 << (39 - (x >>> 2)));
-                    this._currentColor = this._colorRight;
-                } else {
-                    this._currentPixel = this._pattern & (1 << ((x >>> 2) - 20));
-                    this._currentColor = this._colorRight;
-                }
-
-                this.collision = this._currentPixel > 0 ? this._collisionMask : 0;
-            }
+    tick(x: number) {
+        if ((x & 0x03) !== 0) {
+            return;
         }
+
+        let currentPixel: number;
+
+        if (this._pattern === 0) {
+            currentPixel = 0;
+        } else if (x < 80) {
+            currentPixel = this._pattern & (1 << (x >>> 2));
+            this._currentColor = this._colorLeft;
+        } else if (this._reflected) {
+            currentPixel = this._pattern & (1 << (39 - (x >>> 2)));
+            this._currentColor = this._colorRight;
+        } else {
+            currentPixel = this._pattern & (1 << ((x >>> 2) - 20));
+            this._currentColor = this._colorRight;
+        }
+
+        this.collision = currentPixel > 0 ? this._collisionMask : 0;
     }
 
-    renderPixel(colorIn: number): number {
-        return this._currentPixel ? this._currentColor : colorIn;
+    getPixel(colorIn: number): number {
+        return this.collision > 0 ? this._currentColor : colorIn;
     }
 
     private _applyColors(): void {
@@ -162,7 +163,6 @@ class Playfield {
     private _currentColor = 0;
     private _pattern = 0;
     private _reflected = false;
-    private _currentPixel = -1;
 
     private _delay0 = -1;
     private _delay1 = -1;

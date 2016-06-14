@@ -25,7 +25,6 @@ export default class Player {
         this._pattern = 0;
         this._reflected = false;
         this._delaying = false;
-        this._currentPixel = false;
     }
 
     grp(pattern: number) {
@@ -98,13 +97,11 @@ export default class Player {
     }
 
     render() {
-        if (this._rendering && this._renderCounter >= 0 && (this._pattern & (1 << (this._width - this._renderCounter - 1))) > 0) {
-            this.collision = this._collisionMask;
-            this._currentPixel = true;
-        } else {
-            this.collision = 0;
-            this._currentPixel = false;
-        }
+        this.collision = (
+            this._rendering &&
+            this._renderCounter >= 0 &&
+            (this._pattern & (1 << (this._width - this._renderCounter - 1))) > 0
+        ) ? this._collisionMask : 0;
     }
 
     tick(): void {
@@ -120,8 +117,8 @@ export default class Player {
         }
     }
 
-    renderPixel(colorIn: number): number {
-        return this._currentPixel ? this.color : colorIn;
+    getPixel(colorIn: number): number {
+        return this.collision ? this.color : colorIn;
     }
 
     shufflePatterns(): void {
@@ -210,7 +207,6 @@ export default class Player {
 
     private _rendering = false;
     private _renderCounter = Count.renderCounterOffset;
-    private _currentPixel = false;
 
     private _decodes: Uint8Array;
 
