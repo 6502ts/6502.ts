@@ -23,6 +23,14 @@
             margin-bottom: 5px;
         }
 
+        #cartridge-file-input {
+            display: none;
+        }
+
+        #control-buttons .control-button :first-child {
+            width: 90%;
+        }
+
         .row .cs-terminal, .row .cmd {
             font-family: DOS, Monaco, Menlo, Consolas, 'Courier New', monospace !important;
             font-size: 16px;
@@ -67,9 +75,13 @@
             </div>
         </div>
         <br/>
-        <div class="row">
-            <div class="span2"><button id="interrupt-btn" class="btn">Interrupt</button></div>
-            <div class="span2"><button id="clear-btn" class="btn">Clear</button></div>
+        <div class="row" id="control-buttons">
+            <div class="span2 control-button"><button id="interrupt-btn" class="btn">Interrupt</button></div>
+            <div class="span2 control-button"><button id="clear-btn" class="btn">Clear</button></div>
+            <div class="span2 control-button">
+                <label for="cartridge-file-input" class="btn" id="cartridge-file-input-label">Load ROM</label>
+                <input type="file" id="cartridge-file-input"/>
+            </div>
         </div>
     </div>
 
@@ -109,7 +121,9 @@
                     interruptButton: $('#interrupt-btn'),
                     clearButton: $('#clear-btn'),
                     cartridgeFile: getUrlParameter('cartridge'),
-                    canvas: $('#viewport')
+                    canvas: $('#viewport'),
+                    cartridgeFileInput: $('#cartridge-file-input'),
+                    cartridgeFileInputLabel: $('#cartridge-file-input-label')
                 });
             });
         });

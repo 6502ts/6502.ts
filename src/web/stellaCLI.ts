@@ -14,7 +14,9 @@ export function run({
         interruptButton,
         clearButton,
         cartridgeFile,
-        canvas
+        canvas,
+        cartridgeFileInput,
+        cartridgeFileInputLabel
     }: {
         fileBlob: PrepackagedFilesystemProvider.BlobInterface,
         terminalElt: JQuery,
@@ -22,6 +24,8 @@ export function run({
         clearButton: JQuery,
         canvas: JQuery
         cartridgeFile?: string
+        cartridgeFileInput?: JQuery
+        cartridgeFileInputLabel?: JQuery
     }
 ) {
     const fsProvider = new PrepackagedFilesystemProvider(fileBlob),
@@ -50,6 +54,44 @@ export function run({
     });
 
     runner.startup();
+
+    if (cartridgeFileInput) {
+        setupCartridgeReader(cli, cartridgeFileInput, cartridgeFileInputLabel);
+    }
+}
+
+function setupCartridgeReader(
+    cli: StellaCLI,
+    cartridgeFileInput: JQuery,
+    cartridgeFileInputLabel?: JQuery
+): void {
+    if (cli.getState() !== StellaCLI.State.setup && cartridgeFileInputLabel) {
+        cartridgeFileInputLabel.hide();
+    }
+
+    cartridgeFileInput.change((e: JQueryInputEventObject) => {
+        const files = (e.currentTarget as HTMLInputElement).files;
+
+        if (files.length !== 1) {
+            return;
+        }
+
+        const reader = new FileReader(),
+            file = files[0];
+        reader.addEventListener('load', () => {
+            if (cli.getState() !== StellaCLI.State.setup) {
+                return;
+            }
+
+            cli.loadCartridgeFromBuffer(new Uint8Array(reader.result), file.name);
+
+            if (cli.getState() !== StellaCLI.State.setup && cartridgeFileInputLabel) {
+                cartridgeFileInputLabel.hide();
+            }
+        });
+
+        reader.readAsArrayBuffer(files[0]);
+    });
 }
 
 function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
