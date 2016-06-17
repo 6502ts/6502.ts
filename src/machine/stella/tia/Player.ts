@@ -128,6 +128,22 @@ export default class Player {
         }
     }
 
+    getRespClock(): number {
+        switch (this._width) {
+            case 8:
+                return this._counter + 3;
+
+            case 16:
+                return this._counter + 6;
+
+            case 32:
+                return this._counter + 10;
+
+            default:
+                throw new Error(`cannot happen: invalid width ${this._width}`);
+        }
+    }
+
     private _updatePattern(): void {
         switch (this._width) {
             case 8:
