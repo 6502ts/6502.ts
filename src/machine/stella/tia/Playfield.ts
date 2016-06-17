@@ -1,7 +1,7 @@
 const enum ColorMode {normal, score};
 
 const enum Count {
-    delay = 1
+    delay = 2
 }
 
 class Playfield {
