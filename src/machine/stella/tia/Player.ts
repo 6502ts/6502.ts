@@ -75,7 +75,15 @@ export default class Player {
     }
 
     vdelp(value: number): void {
-        this._delaying = (value & 0x01) > 0;
+        if ((value & 0x01) > 0) {
+            this._delaying = true;
+        } else {
+            if (this._delaying) {
+                this.shufflePatterns();
+            }
+
+            this._delaying = false;
+        }
     }
 
     startMovement(): void {
