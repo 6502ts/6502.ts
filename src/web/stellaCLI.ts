@@ -65,9 +65,14 @@ function setupCartridgeReader(
     cartridgeFileInput: JQuery,
     cartridgeFileInputLabel?: JQuery
 ): void {
-    if (cli.getState() !== StellaCLI.State.setup && cartridgeFileInputLabel) {
-        cartridgeFileInputLabel.hide();
-    }
+
+    const onCliStateChange: () => void =
+        cartridgeFileInputLabel ?
+        ()  => (cli.getState() === StellaCLI.State.setup ? cartridgeFileInputLabel.show() : cartridgeFileInputLabel.hide()) :
+        () => undefined;
+
+    cli.events.stateChanged.addHandler(onCliStateChange);
+    onCliStateChange();
 
     cartridgeFileInput.change((e: JQueryInputEventObject) => {
         const files = (e.currentTarget as HTMLInputElement).files;
@@ -84,10 +89,6 @@ function setupCartridgeReader(
             }
 
             cli.loadCartridgeFromBuffer(new Uint8Array(reader.result), file.name);
-
-            if (cli.getState() !== StellaCLI.State.setup && cartridgeFileInputLabel) {
-                cartridgeFileInputLabel.hide();
-            }
         });
 
         reader.readAsArrayBuffer(files[0]);

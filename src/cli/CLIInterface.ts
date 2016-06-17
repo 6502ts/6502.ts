@@ -20,7 +20,11 @@ interface CLIInterface {
 
     getFilesystemProvider(): FilesystemProviderInterface;
 
-    events: {
+    events: CLIInterface.Events;
+}
+
+module CLIInterface {
+    export interface Events {
         outputAvailable: EventInterface<void>;
 
         quit: EventInterface<void>;
@@ -30,7 +34,7 @@ interface CLIInterface {
         prompt: EventInterface<void>;
 
         availableCommandsChanged: EventInterface<void>;
-    };
+    }
 }
 
 export default CLIInterface;

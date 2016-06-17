@@ -1,5 +1,6 @@
 import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
 import DebuggerCLI from './DebuggerCLI';
+import AbstractCLI from './AbstractCLI';
 
 import BoardInterface from '../machine/board/BoardInterface';
 import Board from '../machine/stella/Board';
@@ -27,6 +28,8 @@ class StellaCLI extends DebuggerCLI {
 
     constructor(fsProvider: FilesystemProviderInterface, protected _cartridgeFile?: string) {
         super(fsProvider);
+
+        this.events.stateChanged = new Event<StellaCLI.State>();
 
         this._commandInterpreter.registerCommands({
             run: () => (this._setState(StellaCLI.State.run), 'running...')
@@ -208,6 +211,8 @@ class StellaCLI extends DebuggerCLI {
                 this._board.getTimer().start(this._getScheduler());
                 break;
         }
+
+        this.events.stateChanged.dispatch(state);
     }
 
     protected _setRunMode(runMode: RunMode) {
@@ -246,6 +251,7 @@ class StellaCLI extends DebuggerCLI {
     }
 
     hardwareInitialized = new Event<void>();
+    events: Events;
 
     protected _board: Board;
     protected _cartridge: CartridgeInterface;
@@ -258,6 +264,10 @@ class StellaCLI extends DebuggerCLI {
 
     protected _state = StellaCLI.State.setup;
     protected _runMode = RunMode.limited;
+}
+
+interface Events extends AbstractCLI.Events {
+    stateChanged: Event<StellaCLI.State>;
 }
 
 module StellaCLI {
