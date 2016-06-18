@@ -46,7 +46,15 @@ export default class Ball {
     }
 
     vdelbl(value: number) {
-        this._delaying = (value & 0x01) > 0;
+        if ((value & 0x01) > 0) {
+            this._delaying = true;
+        } else {
+            if (this._delaying) {
+                this.shuffleStatus();
+            }
+
+            this._delaying = false;
+        }
     }
 
     startMovement(): void {
