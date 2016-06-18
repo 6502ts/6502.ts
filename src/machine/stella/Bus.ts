@@ -61,7 +61,7 @@ class Bus implements BusInterface {
 
         // Chip select A12 -> cartridge
         if (address & 0x1000) {
-            this._cartridge.write(address, value);
+            return this._cartridge.write(address, value);
         }
 
         // Chip select A7 -> PIA

@@ -766,7 +766,7 @@ module Tia {
         grp1    = 0x1C,
         enam0   = 0x1D,
         enam1   = 0x1E,
-        enabl  = 0x1F,
+        enabl   = 0x1F,
         hmp0    = 0x20,
         hmp1    = 0x21,
         hmm0    = 0x22,

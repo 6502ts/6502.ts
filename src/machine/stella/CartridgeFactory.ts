@@ -1,6 +1,7 @@
 import Cartridge2k from './cartridge/Cartridge2k';
 import Cartridge4k from './cartridge/Cartridge4k';
 import CartridgeF8 from './cartridge/CartridgeF8';
+import CartridgeF6 from './cartridge/CartridgeF6';
 import CartridgeInterface from './CartridgeInterface';
 
 export default class CartridgeFactory {
@@ -15,6 +16,9 @@ export default class CartridgeFactory {
 
             case 0x2000:
                 return new CartridgeF8(buffer);
+
+            case 0x4000:
+                return new CartridgeF6(buffer);
 
             default:
                 throw new Error(`invalid cartridge image`);

@@ -18,7 +18,7 @@ class CartridgeF8 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address = address & 0x0FFF;
+        address &= 0x0FFF;
 
         switch (address) {
             case 0x0FF8:
@@ -31,6 +31,21 @@ class CartridgeF8 extends AbstractCartridge {
 
             default:
                 return this._bank[address];
+        }
+    }
+
+    write(address: number, value: number): void {
+        switch (address) {
+            case 0x0FF8:
+                this._bank = this._bank0;
+                return;
+
+            case 0xFF9:
+                this._bank = this._bank1;
+                return;
+
+            default:
+                return super.write(address, value);
         }
     }
 
