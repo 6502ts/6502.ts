@@ -1,5 +1,5 @@
-import Event from '../../tools/event/Event';
-import CartridgeInterface from './CartridgeInterface';
+import Event from '../../../tools/event/Event';
+import CartridgeInterface from '../CartridgeInterface';
 
 class AbstractCartridge implements CartridgeInterface {
 
