@@ -46,7 +46,15 @@ export default class Ball {
     }
 
     vdelbl(value: number) {
-        this._delaying = (value & 0x01) > 0;
+        if ((value & 0x01) > 0) {
+            this._delaying = true;
+        } else {
+            if (this._delaying) {
+                this.shuffleStatus();
+            }
+
+            this._delaying = false;
+        }
     }
 
     startMovement(): void {
@@ -60,10 +68,15 @@ export default class Ball {
         }
 
         if (this._moving && apply) {
+            this.render();
             this.tick();
         }
 
         return this._moving;
+    }
+
+    render(): void {
+        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? this._collisionMask : 0;
     }
 
     tick(): void {
@@ -79,14 +92,8 @@ export default class Ball {
         }
     }
 
-    renderPixel(colorIn: number): number {
-        if (this._rendering && this._renderCounter >= 0 && this._enabled) {
-            this.collision = this._collisionMask;
-            return this.color;
-        }
-
-        this.collision = 0;
-        return colorIn;
+    getPixel(colorIn: number): number {
+        return this.collision > 0 ? this.color : colorIn;
     }
 
     shuffleStatus(): void {

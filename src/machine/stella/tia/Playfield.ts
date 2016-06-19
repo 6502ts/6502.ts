@@ -1,7 +1,7 @@
 const enum ColorMode {normal, score};
 
 const enum Count {
-    delay = 1
+    delay = 2
 }
 
 class Playfield {
@@ -13,7 +13,6 @@ class Playfield {
     reset() {
         this._pattern = 0;
         this._reflected = false;
-        this._currentPixel = -1;
 
         this._delay0 = -1;
         this._delay1 = -1;
@@ -71,7 +70,7 @@ class Playfield {
         this._applyColors();
     }
 
-    tick(): void {
+    clockTick(): void {
         if (!this._pending) {
             return;
         }
@@ -92,29 +91,31 @@ class Playfield {
         }
     }
 
-    renderPixel(x: number, colorIn: number): number {
+    tick(x: number) {
+        if ((x & 0x03) !== 0) {
+            return;
+        }
+
+        let currentPixel: number;
+
         if (this._pattern === 0) {
-            this.collision = 0;
-            return colorIn;
+            currentPixel = 0;
+        } else if (x < 80) {
+            currentPixel = this._pattern & (1 << (x >>> 2));
+            this._currentColor = this._colorLeft;
+        } else if (this._reflected) {
+            currentPixel = this._pattern & (1 << (39 - (x >>> 2)));
+            this._currentColor = this._colorRight;
+        } else {
+            currentPixel = this._pattern & (1 << ((x >>> 2) - 20));
+            this._currentColor = this._colorRight;
         }
 
-        if ((x & 0x03) === 0) {
-            if (x < 80) {
-                this._currentPixel = this._pattern & (1 << (x >>> 2));
-            } else if (this._reflected) {
-                this._currentPixel = this._pattern & (1 << (39 - (x >>> 2)));
-            } else {
-                this._currentPixel = this._pattern & (1 << ((x >>> 2) - 20));
-            }
-        }
+        this.collision = currentPixel > 0 ? this._collisionMask : 0;
+    }
 
-        if (this._currentPixel > 0) {
-            this.collision = this._collisionMask;
-            return x > 80 ? this._colorRight : this._colorLeft;
-        }
-
-        this.collision = 0;
-        return colorIn;
+    getPixel(colorIn: number): number {
+        return this.collision > 0 ? this._currentColor : colorIn;
     }
 
     private _applyColors(): void {
@@ -159,9 +160,9 @@ class Playfield {
     private _colorP1 = 0;
     private _colorMode = ColorMode.normal;
 
+    private _currentColor = 0;
     private _pattern = 0;
     private _reflected = false;
-    private _currentPixel = -1;
 
     private _delay0 = -1;
     private _delay1 = -1;

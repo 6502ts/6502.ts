@@ -1,5 +1,7 @@
 import {decodes} from './drawCounterDecodes';
 
+import Player from './Player';
+
 const enum Count {
     renderCounterOffset = -4
 }
@@ -20,10 +22,13 @@ class Missile {
         this._moving = false;
         this._hmmClocks = 0;
         this._decodes = decodes[0];
+        this._resmp = false;
+        this._enam = false;
     }
 
     enam(value: number): void {
-        this._enabled = (value & 2) > 0;
+        this._enam = (value & 2) > 0;
+        this._enabled = this._enam && !this._resmp;
     }
 
     hmm(value: number): void {
@@ -33,6 +38,17 @@ class Missile {
 
     resm(): void {
         this._counter = 0;
+    }
+
+    resmp(value: number, player: Player) {
+        if (value & 0x02) {
+            this._resmp = true;
+            this._enabled = false;
+        } else {
+            this._resmp = false;
+            this._enabled = this._enam;
+            this._counter = player.getRespClock();
+        }
     }
 
     nusiz(value: number): void {
@@ -55,12 +71,16 @@ class Missile {
         }
 
         if (this._moving && apply) {
+            this.render();
             this.tick();
         }
 
         return this._moving;
     }
 
+    render(): void {
+        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? this._collisionMask : 0;
+    }
 
     tick(): void {
         if (this._decodes[this._counter]) {
@@ -75,20 +95,16 @@ class Missile {
         }
     }
 
-    renderPixel(colorIn: number): number {
-        if (this._rendering && this._renderCounter >= 0 && this._enabled) {
-            this.collision = this._collisionMask;
-            return this.color;
-        }
-
-        this.collision = 0;
-        return colorIn;
+    getPixel(colorIn: number): number {
+        return this.collision > 0 ? this.color : colorIn;
     }
 
     color = 0xFFFFFFFF;
     collision = 0;
 
     private _enabled = false;
+    private _enam = false;
+    private _resmp = false;
 
     private _hmmClocks = 0;
     private _counter = 0;

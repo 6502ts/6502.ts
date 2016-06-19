@@ -16,7 +16,9 @@ export function run({
         interruptButton,
         clearButton,
         cartridgeFile,
-        canvas
+        canvas,
+        cartridgeFileInput,
+        cartridgeFileInputLabel
     }: {
         fileBlob: PrepackagedFilesystemProvider.BlobInterface,
         terminalElt: JQuery,
@@ -24,6 +26,8 @@ export function run({
         clearButton: JQuery,
         canvas: JQuery
         cartridgeFile?: string
+        cartridgeFileInput?: JQuery
+        cartridgeFileInputLabel?: JQuery
     }
 ) {
     const fsProvider = new PrepackagedFilesystemProvider(fileBlob),
@@ -54,6 +58,45 @@ export function run({
     });
 
     runner.startup();
+
+    if (cartridgeFileInput) {
+        setupCartridgeReader(cli, cartridgeFileInput, cartridgeFileInputLabel);
+    }
+}
+
+function setupCartridgeReader(
+    cli: StellaCLI,
+    cartridgeFileInput: JQuery,
+    cartridgeFileInputLabel?: JQuery
+): void {
+
+    const onCliStateChange: () => void =
+        cartridgeFileInputLabel ?
+        ()  => (cli.getState() === StellaCLI.State.setup ? cartridgeFileInputLabel.show() : cartridgeFileInputLabel.hide()) :
+        () => undefined;
+
+    cli.events.stateChanged.addHandler(onCliStateChange);
+    onCliStateChange();
+
+    cartridgeFileInput.change((e: JQueryInputEventObject) => {
+        const files = (e.currentTarget as HTMLInputElement).files;
+
+        if (files.length !== 1) {
+            return;
+        }
+
+        const reader = new FileReader(),
+            file = files[0];
+        reader.addEventListener('load', () => {
+            if (cli.getState() !== StellaCLI.State.setup) {
+                return;
+            }
+
+            cli.loadCartridgeFromBuffer(new Uint8Array(reader.result), file.name);
+        });
+
+        reader.readAsArrayBuffer(files[0]);
+    });
 }
 
 function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
@@ -66,10 +109,10 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
         );
 
     canvas.width = width;
-    canvas.height = height;
+    canvas.height = height + 5;
 
     context.fillStyle = 'solid black';
-    context.fillRect(0, 0, width, height);
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
     video.setSurfaceFactory((): Surface => {
         const member = surfacePool.get(),
@@ -83,7 +126,7 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
     video.newFrame.addHandler((surface: Surface) => {
         const poolMember = poolMembers.get(surface);
 
-        context.putImageData(surface.getImageData(), 0, 0);
+        context.putImageData(surface.getImageData(), 0, 5);
 
         if (poolMember) {
             poolMember.release();

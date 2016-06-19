@@ -1,15 +1,16 @@
 import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
 import DebuggerCLI from './DebuggerCLI';
+import AbstractCLI from './AbstractCLI';
 
 import BoardInterface from '../machine/board/BoardInterface';
 import Board from '../machine/stella/Board';
 import CartridgeInterface from '../machine/stella/CartridgeInterface';
-import Cartridge4k from '../machine/stella/Cartridge4k';
 import StellaConfig from '../machine/stella/Config';
 import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 import AudioOutputInterface from '../machine/io/AudioOutputInterface';
 import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
+import CartridgeFactory from '../machine/stella/CartridgeFactory';
 
 import CommandInterpreter from './CommandInterpreter';
 import ImmedateScheduler from '../tools/scheduler/ImmedateScheduler';
@@ -20,7 +21,6 @@ import Event from '../tools/event/Event';
 
 import ClockProbe from '../tools/ClockProbe';
 
-const enum State {setup, debug, run};
 const enum RunMode {limited, unlimited};
 
 const CLOCK_PROBE_INTERVAL = 1000;
@@ -30,12 +30,14 @@ class StellaCLI extends DebuggerCLI {
     constructor(fsProvider: FilesystemProviderInterface, protected _cartridgeFile?: string) {
         super(fsProvider);
 
+        this.events.stateChanged = new Event<StellaCLI.State>();
+
         this._commandInterpreter.registerCommands({
-            run: () => (this._setState(State.run), 'running...')
+            run: () => (this._setState(StellaCLI.State.run), 'running...')
         });
 
         this._runModeCommandInterpreter = new CommandInterpreter({
-            stop: () => (this._setState(State.debug), 'stopped, entered debugger')
+            stop: () => (this._setState(StellaCLI.State.debug), 'stopped, entered debugger')
         });
 
         this._setupModeCommandInterpreter = new CommandInterpreter({
@@ -64,13 +66,13 @@ class StellaCLI extends DebuggerCLI {
             prefix = frequency > 0 ? `${(frequency / 1000000).toFixed(2)} MHz ` : '';
 
         switch (this._state) {
-            case State.setup:
+            case StellaCLI.State.setup:
                 return `[setup] > `;
 
-            case State.debug:
+            case StellaCLI.State.debug:
                 return `${prefix}[debug] > `;
 
-            case State.run:
+            case StellaCLI.State.run:
                 return `${prefix}[run] > `;
 
             default:
@@ -80,11 +82,11 @@ class StellaCLI extends DebuggerCLI {
 
     interrupt(): void {
         switch (this._state) {
-            case State.debug:
+            case StellaCLI.State.debug:
                 return this._quit();
 
-            case State.run:
-                return this._setState(State.debug);
+            case StellaCLI.State.run:
+                return this._setState(StellaCLI.State.debug);
 
         }
     }
@@ -101,15 +103,34 @@ class StellaCLI extends DebuggerCLI {
         return this._board.getJoystick1();
     }
 
+    getState(): StellaCLI.State {
+        return this._state;
+    }
+
+    loadCartridgeFromBuffer(buffer: {[idx: number]: number, length: number}, name: string): void {
+        const factory = new CartridgeFactory();
+
+        try {
+            this._cartridge = factory.createCartridge(buffer);
+            this._initializeHardware();
+            this._setState(StellaCLI.State.debug);
+            this._cartridgeFile = name;
+
+            this._outputLine(`successfully loaded ${name}`);
+        } catch (e) {
+            this._outputLine(e.message);
+        }
+    }
+
     protected _getCommandInterpreter(): CommandInterpreter {
         switch (this._state) {
-            case State.setup:
+            case StellaCLI.State.setup:
                 return this._setupModeCommandInterpreter;
 
-            case State.debug:
+            case StellaCLI.State.debug:
                 return super._getCommandInterpreter();
 
-            case State.run:
+            case StellaCLI.State.run:
                 return this._runModeCommandInterpreter;
 
             default:
@@ -128,7 +149,7 @@ class StellaCLI extends DebuggerCLI {
             this._loadCartridge(file);
             this._cartridgeFile = file;
             this._initializeHardware();
-            this._setState(State.debug);
+            this._setState(StellaCLI.State.debug);
         } catch (e) {
             return e.message;
         }
@@ -137,9 +158,10 @@ class StellaCLI extends DebuggerCLI {
     }
 
     protected _loadCartridge(file: string): void {
-        const fileBuffer = this._fsProvider.readBinaryFileSync(file);
+        const fileBuffer = this._fsProvider.readBinaryFileSync(file),
+            factory = new CartridgeFactory();
 
-        this._cartridge = new Cartridge4k(fileBuffer);
+        this._cartridge = factory.createCartridge(fileBuffer);
     }
 
     protected _initialize(): void {
@@ -147,7 +169,7 @@ class StellaCLI extends DebuggerCLI {
             try {
                 this._loadCartridge(this._cartridgeFile);
                 this._initializeHardware();
-                this._setState(State.debug);
+                this._setState(StellaCLI.State.debug);
             } catch (e) {
                 this._outputLine(e.message);
             }
@@ -174,7 +196,7 @@ class StellaCLI extends DebuggerCLI {
         this.hardwareInitialized.dispatch(undefined);
     }
 
-    protected _setState(state: State) {
+    protected _setState(state: StellaCLI.State) {
         if (state === this._state) {
             return;
         }
@@ -184,16 +206,18 @@ class StellaCLI extends DebuggerCLI {
         this.events.promptChanged.dispatch(undefined);
 
         switch (state) {
-            case State.debug:
+            case StellaCLI.State.debug:
                 this._clockProbe.stop();
                 this._board.getTimer().stop();
                 break;
 
-            case State.run:
+            case StellaCLI.State.run:
                 this._clockProbe.start();
                 this._board.getTimer().start(this._getScheduler());
                 break;
         }
+
+        this.events.stateChanged.dispatch(state);
     }
 
     protected _setRunMode(runMode: RunMode) {
@@ -203,7 +227,7 @@ class StellaCLI extends DebuggerCLI {
 
         this._runMode = runMode;
 
-        if (this._state === State.run) {
+        if (this._state === StellaCLI.State.run) {
             const timer = this._board.getTimer();
 
             timer.stop();
@@ -225,13 +249,14 @@ class StellaCLI extends DebuggerCLI {
     }
 
     protected _onTrap(trap: BoardInterface.TrapPayload, ctx: this): void {
-        if (ctx._state === State.run) {
-            ctx._setState(State.debug);
+        if (ctx._state === StellaCLI.State.run) {
+            ctx._setState(StellaCLI.State.debug);
             ctx._outputLine(ctx._debuggerFrontend.describeTrap(trap));
         }
     }
 
     hardwareInitialized = new Event<void>();
+    events: Events;
 
     protected _board: Board;
     protected _cartridge: CartridgeInterface;
@@ -242,8 +267,16 @@ class StellaCLI extends DebuggerCLI {
     protected _nonLimitingScheduler = new ImmedateScheduler();
     protected _clockProbe: ClockProbe;
 
-    protected _state = State.setup;
+    protected _state = StellaCLI.State.setup;
     protected _runMode = RunMode.limited;
+}
+
+interface Events extends AbstractCLI.Events {
+    stateChanged: Event<StellaCLI.State>;
+}
+
+module StellaCLI {
+    export const enum State {setup, debug, run};
 }
 
 export default StellaCLI;

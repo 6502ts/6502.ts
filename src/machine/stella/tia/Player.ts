@@ -75,7 +75,15 @@ export default class Player {
     }
 
     vdelp(value: number): void {
-        this._delaying = (value & 0x01) > 0;
+        if ((value & 0x01) > 0) {
+            this._delaying = true;
+        } else {
+            if (this._delaying) {
+                this.shufflePatterns();
+            }
+
+            this._delaying = false;
+        }
     }
 
     startMovement(): void {
@@ -89,10 +97,19 @@ export default class Player {
         }
 
         if (this._moving && apply) {
+            this.render();
             this.tick();
         }
 
         return this._moving;
+    }
+
+    render() {
+        this.collision = (
+            this._rendering &&
+            this._renderCounter >= 0 &&
+            (this._pattern & (1 << (this._width - this._renderCounter - 1))) > 0
+        ) ? this._collisionMask : 0;
     }
 
     tick(): void {
@@ -108,25 +125,30 @@ export default class Player {
         }
     }
 
-    renderPixel(colorIn: number): number {
-        if (this._rendering && this._renderCounter >= 0) {
-            if ((this._pattern & (1 << (this._width - this._renderCounter - 1))) > 0) {
-                this.collision = this._collisionMask;
-                return this.color;
-            } else {
-                this.collision = 0;
-                return colorIn;
-            }
-        }
-
-        this.collision = 0;
-        return colorIn;
+    getPixel(colorIn: number): number {
+        return this.collision ? this.color : colorIn;
     }
 
     shufflePatterns(): void {
         if (this._delaying) {
             this._originalPattern = this._originalPatternPending;
             this._updatePattern();
+        }
+    }
+
+    getRespClock(): number {
+        switch (this._width) {
+            case 8:
+                return this._counter - 3;
+
+            case 16:
+                return this._counter - 6;
+
+            case 32:
+                return this._counter - 10;
+
+            default:
+                throw new Error(`cannot happen: invalid width ${this._width}`);
         }
     }
 

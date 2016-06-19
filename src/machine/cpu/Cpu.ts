@@ -71,6 +71,22 @@ function opBit(state: CpuInterface.State, bus: BusInterface, operand: number): v
         ((operand & state.a) ? 0 : CpuInterface.Flags.z);
 }
 
+function opBrk(state: CpuInterface.State, bus: BusInterface): void {
+    const nextOpAddr = (state.p + 1) & 0xFFFF;
+
+    bus.write(state.s + 0x0100, (nextOpAddr >>> 8) & 0xFF);
+    state.s = (state.s + 0xFF) & 0xFF;
+    bus.write(state.s + 0x0100, nextOpAddr & 0xFF);
+    state.s = (state.s + 0xFF) & 0xFF;
+
+    bus.write(state.s + 0x0100, state.flags | CpuInterface.Flags.b);
+    state.s = (state.s + 0xFF) & 0xFF;
+
+    state.flags |= CpuInterface.Flags.i;
+
+    state.p = (bus.readWord(0xFFFE));
+}
+
 function opClc(state: CpuInterface.State): void {
     state.flags &= ~CpuInterface.Flags.c;
 }
@@ -274,6 +290,20 @@ function opRorMem(state: CpuInterface.State, bus: BusInterface, operand: number)
         (old & CpuInterface.Flags.c);
 }
 
+function opRti(state: CpuInterface.State, bus: BusInterface): void {
+    let returnPtr: number;
+
+    state.s = (state.s + 1) & 0xFF;
+    state.flags = bus.read(0x0100 + state.s);
+
+    state.s = (state.s + 1) & 0xFF;
+    returnPtr = bus.read(0x0100 + state.s);
+    state.s = (state.s + 1) & 0xFF;
+    returnPtr |= (bus.read(0x0100 + state.s) << 8);
+
+    state.p = returnPtr;
+}
+
 function opRts(state: CpuInterface.State, bus: BusInterface): void {
     let returnPtr: number;
 
@@ -422,7 +452,7 @@ class Cpu {
         this.state.y = 0;
         this.state.s = 0;
         this.state.p = 0;
-        this.state.flags = 0 | CpuInterface.Flags.i;
+        this.state.flags = 0 | CpuInterface.Flags.i | CpuInterface.Flags.e;
 
         this.executionState = CpuInterface.ExecutionState.boot;
         this._opCycles = 7;
@@ -591,6 +621,11 @@ class Cpu {
                 }
                 break;
 
+            case Instruction.Operation.brk:
+                this._opCycles = 6;
+                this._instructionCallback = opBrk;
+                break;
+
             case Instruction.Operation.clc:
                 this._opCycles = 1;
                 this._instructionCallback = opClc;
@@ -757,6 +792,11 @@ class Cpu {
                     this._instructionCallback = opRorMem;
                     slowIndexedAccess = true;
                 }
+                break;
+
+            case Instruction.Operation.rti:
+                this._opCycles = 5;
+                this._instructionCallback = opRti;
                 break;
 
             case Instruction.Operation.rts:
