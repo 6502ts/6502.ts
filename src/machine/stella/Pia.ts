@@ -8,12 +8,22 @@ class Pia {
         private _controlPanel: ControlPanelInterface,
         private _joystick0 : DigitalJoystickInterface,
         private _joystick1 : DigitalJoystickInterface
-    ) {}
+    ) {
+        this.reset();
+    }
 
     reset(): void {
         for (let i = 0; i < 128; i++) this.ram[i] = 0;
         this._interruptFlag = 0;
         this._flagSetDuringThisCycle = false;
+
+        // Several cartridges (at least winter / summer / california games) seem
+        // to rely on a graceful buffer in terms of cycles before the timer wraps the
+        // first time. This looks like a bug in these games to me, unless there is some
+        // magic going on that I don't understand.
+        this._timerBase = 1024;
+        this._timerValue = 255;
+        this._timerSub = 0;
     }
 
     read(address: number): number {
@@ -145,9 +155,9 @@ class Pia {
         }
     }
 
-    private _timerValue = 0;
+    private _timerValue = 255;
     private _timerSub = 0;
-    private _timerBase = 1;
+    private _timerBase = 1024;
     private _interruptFlag = 0;
     private _flagSetDuringThisCycle = false;
 }
