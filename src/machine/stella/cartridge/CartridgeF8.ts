@@ -25,7 +25,7 @@ class CartridgeF8 extends AbstractCartridge {
                 this._bank = this._bank0;
                 return 0;
 
-            case 0xFF9:
+            case 0x0FF9:
                 this._bank = this._bank1;
                 return 0;
 
@@ -35,12 +35,12 @@ class CartridgeF8 extends AbstractCartridge {
     }
 
     write(address: number, value: number): void {
-        switch (address) {
+        switch (address & 0x0FFF) {
             case 0x0FF8:
                 this._bank = this._bank0;
                 return;
 
-            case 0xFF9:
+            case 0x0FF9:
                 this._bank = this._bank1;
                 return;
 
