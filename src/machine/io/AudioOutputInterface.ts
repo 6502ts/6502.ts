@@ -3,8 +3,9 @@ import EventInterface from '../../tools/event/EventInterface';
 
 interface AudioOutputInterface {
 
-    changedBuffer: EventInterface<AudioOutputBuffer>;
+    buffer0Changed: EventInterface<AudioOutputBuffer>;
 
+    buffer1Changed: EventInterface<AudioOutputBuffer>;
 }
 
 module AudioOutputInterface {

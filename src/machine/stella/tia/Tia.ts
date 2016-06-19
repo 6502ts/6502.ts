@@ -116,7 +116,8 @@ class Tia implements VideoOutputInterface, AudioOutputInterface {
 
     newFrame = new Event<RGBASurfaceInterface>();
 
-    changedBuffer = new Event<AudioOutputBuffer>();
+    buffer0Changed = new Event<AudioOutputBuffer>();
+    buffer1Changed = new Event<AudioOutputBuffer>();
 
     cycle(): void {
         this._collisionUpdateRequired = false;
@@ -548,26 +549,32 @@ class Tia implements VideoOutputInterface, AudioOutputInterface {
 
             case Tia.Registers.audc0:
                 this._audio0.audc(value);
+                this.buffer0Changed.dispatch(this._audio0.getOutputBuffer());
                 break;
 
             case Tia.Registers.audc1:
                 this._audio1.audc(value);
+                this.buffer1Changed.dispatch(this._audio1.getOutputBuffer());
                 break;
 
             case Tia.Registers.audf0:
                 this._audio0.audf(value);
+                this.buffer0Changed.dispatch(this._audio0.getOutputBuffer());
                 break;
 
             case Tia.Registers.audf1:
                 this._audio1.audf(value);
+                this.buffer1Changed.dispatch(this._audio1.getOutputBuffer());
                 break;
 
             case Tia.Registers.audv0:
                 this._audio0.audv(value);
+                this.buffer0Changed.dispatch(this._audio0.getOutputBuffer());
                 break;
 
             case Tia.Registers.audv1:
                 this._audio1.audv(value);
+                this.buffer1Changed.dispatch(this._audio1.getOutputBuffer());
                 break;
         }
     }

@@ -46,9 +46,11 @@ export function run({
     context.fillStyle = 'solid black';
     context.fillRect(0, 0, canvasElt.width, canvasElt.height);
 
+    audioContext.destination.channelCount = 1;
+
     cli.hardwareInitialized.addHandler(() => {
         setupVideo(canvas.get(0) as HTMLCanvasElement, cli.getVideoOutput());
-        setupAudio(audioContext, cli.getAudioOutput(), cli.getAudioOutput());
+        setupAudio(audioContext, cli.getAudioOutput());
         setupKeyboardControls(
             canvas,
             cli.getControlPanel(),
@@ -134,20 +136,21 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
     });
 }
 
-function setupAudio(context: AudioContext, audio0: AudioOutputInterface, audio1: AudioOutputInterface) {
-    context.destination.channelCount = 1;
-
+function setupAudio(context: AudioContext, audio: AudioOutputInterface) {
     let source0: AudioBufferSourceNode;
     let source1: AudioBufferSourceNode;
 
     const merger = context.createChannelMerger(2);
     merger.connect(context.destination);
 
-    audio0.changedBuffer.addHandler((outputBuffer: AudioOutputBuffer) => {
+    audio.buffer0Changed.addHandler((outputBuffer: AudioOutputBuffer) => {
         const buffer = context.createBuffer(1, outputBuffer.getLength(), 44100);
         buffer.getChannelData(0).set(outputBuffer.getContent());
 
-        source0.stop();
+        if (source0) {
+            source0.stop();
+        }
+
         source0 = context.createBufferSource();
         source0.loop = true;
         source0.buffer = buffer;
@@ -155,11 +158,14 @@ function setupAudio(context: AudioContext, audio0: AudioOutputInterface, audio1:
         source0.start();
     });
 
-    audio1.changedBuffer.addHandler((outputBuffer: AudioOutputBuffer) => {
+    audio.buffer1Changed.addHandler((outputBuffer: AudioOutputBuffer) => {
         const buffer = context.createBuffer(1, outputBuffer.getLength(), 44100);
         buffer.getChannelData(0).set(outputBuffer.getContent());
 
-        source1.stop();
+        if (source1) {
+            source1.stop();
+        }
+
         source1 = context.createBufferSource();
         source1.loop = true;
         source1.buffer = buffer;
