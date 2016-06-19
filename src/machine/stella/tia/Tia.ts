@@ -1,6 +1,8 @@
 import VideoOutputInterface from '../../io/VideoOutputInterface';
+import AudioOutputInterface from '../../io/AudioOutputInterface';
 import DigitalJoystickInterface from '../../io/DigitalJoystickInterface';
 import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
+import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import Event from '../../../tools/event/Event';
 import Config from '../Config';
 import CpuInterface from '../../cpu/CpuInterface';
@@ -35,7 +37,7 @@ const enum CollisionMask {
 const enum HState {blank, frame};
 const enum Priority {normal, inverted};
 
-class Tia implements VideoOutputInterface {
+class Tia implements VideoOutputInterface, AudioOutputInterface {
 
     constructor(
         private _config: Config,
@@ -113,6 +115,8 @@ class Tia implements VideoOutputInterface {
     }
 
     newFrame = new Event<RGBASurfaceInterface>();
+
+    changedBuffer = new Event<AudioOutputBuffer>();
 
     cycle(): void {
         this._tickMovement();
@@ -448,21 +452,27 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.audc0:
+                this._audio0.audc(value);
                 break;
 
             case Tia.Registers.audc1:
+                this._audio1.audc(value);
                 break;
 
             case Tia.Registers.audf0:
+                this._audio0.audf(value);
                 break;
 
             case Tia.Registers.audf1:
+                this._audio1.audf(value);
                 break;
 
             case Tia.Registers.audv0:
+                this._audio0.audv(value);
                 break;
 
             case Tia.Registers.audv1:
+                this._audio1.audv(value);
                 break;
         }
     }

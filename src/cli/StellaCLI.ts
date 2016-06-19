@@ -7,6 +7,7 @@ import CartridgeInterface from '../machine/stella/CartridgeInterface';
 import Cartridge4k from '../machine/stella/Cartridge4k';
 import StellaConfig from '../machine/stella/Config';
 import VideoOutputInterface from '../machine/io/VideoOutputInterface';
+import AudioOutputInterface from '../machine/io/AudioOutputInterface';
 import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
 
@@ -52,6 +53,10 @@ class StellaCLI extends DebuggerCLI {
 
     getVideoOutput(): VideoOutputInterface {
         return this._board.getVideoOutput();
+    }
+
+    getAudioOutput(): AudioOutputInterface {
+        return this._board.getAudioOutput();
     }
 
     getPrompt(): string {

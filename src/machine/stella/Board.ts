@@ -12,6 +12,7 @@ import Tia from './tia/Tia';
 import CartridgeInterface from './CartridgeInterface';
 import Config from './Config';
 import VideoOutputInterface from '../io/VideoOutputInterface';
+import AudioOutputInterface from '../io/AudioOutputInterface';
 import ControlPanel from './ControlPanel';
 import ControlPanelInterface from './ControlPanelInterface';
 import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
@@ -63,6 +64,10 @@ class Board implements BoardInterface {
     }
 
     getVideoOutput(): VideoOutputInterface {
+        return this._tia;
+    }
+
+    getAudioOutput(): AudioOutputInterface {
         return this._tia;
     }
 
