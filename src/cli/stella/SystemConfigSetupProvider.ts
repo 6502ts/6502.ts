@@ -34,6 +34,16 @@ export default class SystemConfigSetupProvider {
         return `switched TV mode to ${this._humanReadableTvMode(this._config.tvMode)}`;
     }
 
+    protected _setupAudio(args?: Array<string>) {
+        if (args && args.length !== 0) {
+            const arg = args[0].toLowerCase();
+
+            this._config.enableAudio = (arg === 'yes' || arg === 'true' || arg === '1');
+        }
+
+        return `audio ${this._config.enableAudio ? 'enabled' : 'disabled'}`;
+    }
+
     protected _humanReadableTvMode(mode: Config.TvMode) {
         switch (mode) {
             case Config.TvMode.ntsc:
@@ -51,7 +61,8 @@ export default class SystemConfigSetupProvider {
     }
 
     _commands: CommandInterpreter.CommandTableInterface = {
-        'tv-mode': this._setupVideo.bind(this)
+        'tv-mode': this._setupVideo.bind(this),
+        'audio': this._setupAudio.bind(this)
     };
 
 }

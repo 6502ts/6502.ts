@@ -122,8 +122,8 @@ class Tia implements VideoOutputInterface {
     }
 
     setAudioEnabled(state: boolean): void {
-        this._audio0.setActive(state);
-        this._audio1.setActive(state);
+        this._audio0.setActive(state && this._config.enableAudio);
+        this._audio1.setActive(state && this._config.enableAudio);
     }
 
     cycle(): void {
