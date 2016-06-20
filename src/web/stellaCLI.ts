@@ -1,12 +1,14 @@
-import StellaCLI from "../cli/StellaCLI";
+import StellaCLI from '../cli/StellaCLI';
 import JqtermCLIRunner from '../cli/JqtermCLIRunner';
 import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
-import ObjectPool from "../tools/pool/Pool";
+import ObjectPool from '../tools/pool/Pool';
 import ObjectPoolMember from '../tools/pool/PoolMemberInterface';
 import Surface from '../tools/surface/CanvasImageDataSurface';
 import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
+import AudioOutputBuffer from '../tools/AudioOutputBuffer';
+import AudioOutputInterface from '../machine/io/AudioOutputInterface';
 
 export function run({
         fileBlob,
@@ -38,13 +40,17 @@ export function run({
     cli.allowQuit(false);
 
     const canvasElt = canvas.get(0) as HTMLCanvasElement,
-        context = canvasElt.getContext('2d');
+        context = canvasElt.getContext('2d'),
+        audioContext = new AudioContext();
 
     context.fillStyle = 'solid black';
     context.fillRect(0, 0, canvasElt.width, canvasElt.height);
 
+    audioContext.destination.channelCount = 1;
+
     cli.hardwareInitialized.addHandler(() => {
         setupVideo(canvas.get(0) as HTMLCanvasElement, cli.getVideoOutput());
+        setupAudio(audioContext, cli.getAudioOutput());
         setupKeyboardControls(
             canvas,
             cli.getControlPanel(),
@@ -130,6 +136,43 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
     });
 }
 
+function setupAudio(context: AudioContext, audio: AudioOutputInterface) {
+    let source0: AudioBufferSourceNode;
+    let source1: AudioBufferSourceNode;
+
+    const merger = context.createChannelMerger(2);
+    merger.connect(context.destination);
+
+    audio.buffer0Changed.addHandler((outputBuffer: AudioOutputBuffer) => {
+        const buffer = context.createBuffer(1, outputBuffer.getLength(), 44100);
+        buffer.getChannelData(0).set(outputBuffer.getContent());
+
+        if (source0) {
+            source0.stop();
+        }
+
+        source0 = context.createBufferSource();
+        source0.loop = true;
+        source0.buffer = buffer;
+        source0.connect(merger);
+        source0.start();
+    });
+
+    audio.buffer1Changed.addHandler((outputBuffer: AudioOutputBuffer) => {
+        const buffer = context.createBuffer(1, outputBuffer.getLength(), 44100);
+        buffer.getChannelData(0).set(outputBuffer.getContent());
+
+        if (source1) {
+            source1.stop();
+        }
+
+        source1 = context.createBufferSource();
+        source1.loop = true;
+        source1.buffer = buffer;
+        source1.connect(merger);
+        source1.start();
+    });
+}
 
 function setupKeyboardControls(
     element: JQuery,

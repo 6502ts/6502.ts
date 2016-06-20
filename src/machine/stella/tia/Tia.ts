@@ -1,6 +1,8 @@
 import VideoOutputInterface from '../../io/VideoOutputInterface';
+import AudioOutputInterface from '../../io/AudioOutputInterface';
 import DigitalJoystickInterface from '../../io/DigitalJoystickInterface';
 import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
+import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import Event from '../../../tools/event/Event';
 import Config from '../Config';
 import CpuInterface from '../../cpu/CpuInterface';
@@ -9,6 +11,7 @@ import Playfield from './Playfield';
 import Player from './Player';
 import Ball from './Ball';
 import LatchedInput from './LatchedInput';
+import Audio from './Audio';
 import * as palette from './palette';
 
 const VISIBLE_LINES_NTSC = 192,
@@ -32,7 +35,7 @@ const enum CollisionMask {
 const enum HState {blank, frame};
 const enum Priority {normal, inverted};
 
-class Tia implements VideoOutputInterface {
+class Tia implements VideoOutputInterface, AudioOutputInterface {
 
     constructor(
         private _config: Config,
@@ -78,6 +81,9 @@ class Tia implements VideoOutputInterface {
         this._playfield.reset();
         this._ball.reset();
 
+        this._audio0.reset();
+        this._audio1.reset();
+
         this._input0.reset();
         this._input1.reset();
 
@@ -109,6 +115,9 @@ class Tia implements VideoOutputInterface {
     }
 
     newFrame = new Event<RGBASurfaceInterface>();
+
+    buffer0Changed = new Event<AudioOutputBuffer>();
+    buffer1Changed = new Event<AudioOutputBuffer>();
 
     cycle(): void {
         this._collisionUpdateRequired = false;
@@ -539,11 +548,33 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.audc0:
+                this._audio0.audc(value);
+                this.buffer0Changed.dispatch(this._audio0.getOutputBuffer());
+                break;
+
             case Tia.Registers.audc1:
+                this._audio1.audc(value);
+                this.buffer1Changed.dispatch(this._audio1.getOutputBuffer());
+                break;
+
             case Tia.Registers.audf0:
+                this._audio0.audf(value);
+                this.buffer0Changed.dispatch(this._audio0.getOutputBuffer());
+                break;
+
             case Tia.Registers.audf1:
+                this._audio1.audf(value);
+                this.buffer1Changed.dispatch(this._audio1.getOutputBuffer());
+                break;
+
             case Tia.Registers.audv0:
+                this._audio0.audv(value);
+                this.buffer0Changed.dispatch(this._audio0.getOutputBuffer());
+                break;
+
             case Tia.Registers.audv1:
+                this._audio1.audv(value);
+                this.buffer1Changed.dispatch(this._audio1.getOutputBuffer());
                 break;
         }
     }
@@ -727,6 +758,9 @@ class Tia implements VideoOutputInterface {
     private _missile1 =  new Missile(CollisionMask.missile1);
     private _playfield = new Playfield(CollisionMask.playfield);
     private _ball =      new Ball(CollisionMask.ball);
+
+    private _audio0 = new Audio();
+    private _audio1 = new Audio();
 
     private _input0: LatchedInput;
     private _input1: LatchedInput;
