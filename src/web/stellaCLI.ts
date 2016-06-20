@@ -1,4 +1,4 @@
-import StellaCLI from '../cli/StellaCLI';
+import StellaCLI from '../cli/stella/StellaCLI';
 import Board from '../machine/stella/Board';
 import JqtermCLIRunner from '../cli/JqtermCLIRunner';
 import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';

@@ -1,21 +1,22 @@
-import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
-import DebuggerCLI from './DebuggerCLI';
-import AbstractCLI from './AbstractCLI';
+import FilesystemProviderInterface from '../../fs/FilesystemProviderInterface';
+import DebuggerCLI from '../DebuggerCLI';
+import AbstractCLI from '../AbstractCLI';
 
-import BoardInterface from '../machine/board/BoardInterface';
-import Board from '../machine/stella/Board';
-import CartridgeInterface from '../machine/stella/CartridgeInterface';
-import StellaConfig from '../machine/stella/Config';
-import CartridgeFactory from '../machine/stella/CartridgeFactory';
+import BoardInterface from '../../machine/board/BoardInterface';
+import Board from '../../machine/stella/Board';
+import CartridgeInterface from '../../machine/stella/CartridgeInterface';
+import StellaConfig from '../../machine/stella/Config';
+import CartridgeFactory from '../../machine/stella/CartridgeFactory';
 
-import CommandInterpreter from './CommandInterpreter';
-import ImmedateScheduler from '../tools/scheduler/ImmedateScheduler';
-import LimitedScheduler from '../tools/scheduler/LimitingImmediateScheduler';
-import PeriodicScheduler from '../tools/scheduler/PeriodicScheduler';
-import SchedulerInterface from '../tools/scheduler/SchedulerInterface';
-import Event from '../tools/event/Event';
+import CommandInterpreter from '../CommandInterpreter';
+import ImmedateScheduler from '../../tools/scheduler/ImmedateScheduler';
+import LimitedScheduler from '../../tools/scheduler/LimitingImmediateScheduler';
+import PeriodicScheduler from '../../tools/scheduler/PeriodicScheduler';
+import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
+import Event from '../../tools/event/Event';
+import ClockProbe from '../../tools/ClockProbe';
 
-import ClockProbe from '../tools/ClockProbe';
+import SystemConfigSetupProvider from './SystemConfigSetupProvider';
 
 const enum RunMode {limited, unlimited};
 
@@ -28,6 +29,8 @@ class StellaCLI extends DebuggerCLI {
 
         this.events.stateChanged = new Event<StellaCLI.State>();
 
+        const systemConfigSetupProvider = new SystemConfigSetupProvider(this._stellaConfig);
+
         this._commandInterpreter.registerCommands({
             run: () => (this._setState(StellaCLI.State.run), 'running...')
         });
@@ -39,6 +42,7 @@ class StellaCLI extends DebuggerCLI {
         this._setupModeCommandInterpreter = new CommandInterpreter({
             'load-cartridge': this._executeLoadCartridge.bind(this)
         });
+        this._setupModeCommandInterpreter.registerCommands(systemConfigSetupProvider.getCommands());
 
         const runModeCommands: CommandInterpreter.CommandTableInterface = {
             'set-speed-limited': () => (this._setRunMode(RunMode.limited), 'speed limiting on'),
@@ -159,8 +163,7 @@ class StellaCLI extends DebuggerCLI {
     }
 
     protected _initializeHardware(): void {
-        const config = new StellaConfig(StellaConfig.TvMode.ntsc),
-            board = new Board(config, this._cartridge);
+        const board = new Board(this._stellaConfig, this._cartridge);
 
         this._board = board;
 
@@ -240,6 +243,7 @@ class StellaCLI extends DebuggerCLI {
     hardwareInitialized = new Event<void>();
     events: Events;
 
+    protected _stellaConfig = new StellaConfig();
     protected _board: Board;
     protected _cartridge: CartridgeInterface;
     protected _runModeCommandInterpreter: CommandInterpreter;

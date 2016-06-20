@@ -1,4 +1,4 @@
-import StellaCLI from '../src/cli/StellaCLI';
+import StellaCLI from '../src/cli/stella/StellaCLI';
 import NodeCLIRunner from '../src/cli/NodeCLIRunner';
 import NodeFilesystemProvider from '../src/fs/NodeFilesystemProvider';
 
