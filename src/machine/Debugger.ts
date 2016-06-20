@@ -179,6 +179,8 @@ class Debugger {
 
         this._lastTrap = undefined;
 
+        this._board.resume();
+
         while (instruction < instructions && !this._lastTrap && cycles < this._stepMaxCycles) {
             timer.tick(1);
             cycles++;
@@ -193,13 +195,21 @@ class Debugger {
         }
 
         this._board.cpuClock.removeHandler(cpuClockHandler);
+        this._board.suspend();
 
         return {cycles, cpuCycles};
     }
 
     stepClock(cycles: number): number {
         this._lastTrap = undefined;
-        return this._board.getTimer().tick(cycles);
+
+        this._board.resume();
+
+        const usedCycles = this._board.getTimer().tick(cycles);
+
+        this._board.suspend();
+
+        return usedCycles;
     }
 
     setBreakpointsEnabled(breakpointsEnabled: boolean): Debugger {

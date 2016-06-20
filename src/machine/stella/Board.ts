@@ -67,8 +67,11 @@ class Board implements BoardInterface {
         return this._tia;
     }
 
-    getAudioOutput(): AudioOutputInterface {
-        return this._tia;
+    getAudioOutput(): Board.Audio {
+        return {
+            channel0: this._tia.getAudioChannel0(),
+            channel1: this._tia.getAudioChannel1()
+        };
     }
 
     getTimer(): TimerInterface {
@@ -112,6 +115,25 @@ class Board implements BoardInterface {
         this.cpuClock.dispatch(cpuCycles);
         this.clock.dispatch(cycles);
         return this;
+    }
+
+    suspend(): void {
+        this._suspended = true;
+        this._updateAudioState();
+    }
+
+    resume(): void {
+        this._suspended = false;
+        this._updateAudioState();
+    }
+
+    setAudioEnabled(state: boolean) {
+        this._audioEnabled = state;
+        this._updateAudioState();
+    }
+
+    _updateAudioState(): void {
+        this._tia.setAudioEnabled(this._audioEnabled && !this._suspended);
     }
 
     triggerTrap(reason: BoardInterface.TrapReason, message?: string): Board {
@@ -258,6 +280,9 @@ class Board implements BoardInterface {
     private _clockMode = BoardInterface.ClockMode.lazy;
     private _trap = false;
 
+    private _audioEnabled = true;
+    private _suspended = true;
+
     private _subClock = 0;
 
     private _timer = {
@@ -266,6 +291,13 @@ class Board implements BoardInterface {
         stop: (): void => this._stop(),
         isRunning: (): boolean => !!this._runTask
     };
+}
+
+module Board {
+    export interface Audio {
+        channel0: AudioOutputInterface;
+        channel1: AudioOutputInterface;
+    }
 }
 
 export default Board;

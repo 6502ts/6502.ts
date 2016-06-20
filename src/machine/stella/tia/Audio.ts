@@ -1,4 +1,6 @@
 import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
+import AudioOutputInterface from '../../io/AudioOutputInterface';
+import Event from '../../../tools/event/Event';
 
 const FREQUENCY_DIVISIORS = new Int8Array([
     1, 1, 15, 1,
@@ -66,7 +68,7 @@ const POLYS = [
     POLY1, POLY1, POLY2, POLY68
 ];
 
-export default class Audio {
+export default class Audio implements AudioOutputInterface {
 
     constructor() {
         this.reset();
@@ -80,14 +82,27 @@ export default class Audio {
 
     audc(value: number): void {
         this._tone = (value & 0x0F);
+        this._dispatchBuffer();
     }
 
     audf(value: number): void {
         this._frequency = (value & 0x1F);
+        this._dispatchBuffer();
     }
 
     audv(value: number): void {
         this._volume = (value & 0x0F);
+        this._dispatchBuffer();
+    }
+
+    setActive(active: boolean): void {
+        this._active = active;
+
+        if (active) {
+            this._dispatchBuffer();
+        } else {
+            this.stop.dispatch(undefined);
+        }
     }
 
     getOutputBuffer(): AudioOutputBuffer {
@@ -143,8 +158,18 @@ export default class Audio {
         return new AudioOutputBuffer(content);
     }
 
+    protected _dispatchBuffer() {
+        if (this._active && this.bufferChanged.hasHandlers) {
+            this.bufferChanged.dispatch(this.getOutputBuffer());
+        }
+    }
+
+    bufferChanged = new Event<AudioOutputBuffer>();
+    stop = new Event<void>();
+
     private _volume = 0;
     private _tone = 0;
     private _frequency = 0;
+    private _active = false;
 
 }

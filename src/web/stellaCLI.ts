@@ -1,4 +1,5 @@
 import StellaCLI from '../cli/StellaCLI';
+import Board from '../machine/stella/Board';
 import JqtermCLIRunner from '../cli/JqtermCLIRunner';
 import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 import ObjectPool from '../tools/pool/Pool';
@@ -8,7 +9,6 @@ import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
 import AudioOutputBuffer from '../tools/AudioOutputBuffer';
-import AudioOutputInterface from '../machine/io/AudioOutputInterface';
 
 export function run({
         fileBlob,
@@ -49,14 +49,18 @@ export function run({
     audioContext.destination.channelCount = 1;
 
     cli.hardwareInitialized.addHandler(() => {
-        setupVideo(canvas.get(0) as HTMLCanvasElement, cli.getVideoOutput());
-        setupAudio(audioContext, cli.getAudioOutput());
+        const board = cli.getBoard();
+
+        setupVideo(canvas.get(0) as HTMLCanvasElement, board.getVideoOutput());
+        setupAudio(audioContext, board.getAudioOutput());
         setupKeyboardControls(
             canvas,
-            cli.getControlPanel(),
-            cli.getJoystick0(),
-            cli.getJoystick1()
+            board.getControlPanel(),
+            board.getJoystick0(),
+            board.getJoystick1()
         );
+
+        board.setAudioEnabled(true);
     });
 
     runner.startup();
@@ -136,14 +140,15 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
     });
 }
 
-function setupAudio(context: AudioContext, audio: AudioOutputInterface) {
+function setupAudio(context: AudioContext, audio: Board.Audio) {
+
     let source0: AudioBufferSourceNode;
     let source1: AudioBufferSourceNode;
 
     const merger = context.createChannelMerger(2);
     merger.connect(context.destination);
 
-    audio.buffer0Changed.addHandler((outputBuffer: AudioOutputBuffer) => {
+    audio.channel0.bufferChanged.addHandler((outputBuffer: AudioOutputBuffer) => {
         const buffer = context.createBuffer(1, outputBuffer.getLength(), 44100);
         buffer.getChannelData(0).set(outputBuffer.getContent());
 
@@ -158,7 +163,14 @@ function setupAudio(context: AudioContext, audio: AudioOutputInterface) {
         source0.start();
     });
 
-    audio.buffer1Changed.addHandler((outputBuffer: AudioOutputBuffer) => {
+    audio.channel0.stop.addHandler(() => {
+        if (source0) {
+            source0.stop();
+            source0 = null;
+        }
+    });
+
+    audio.channel1.bufferChanged.addHandler((outputBuffer: AudioOutputBuffer) => {
         const buffer = context.createBuffer(1, outputBuffer.getLength(), 44100);
         buffer.getChannelData(0).set(outputBuffer.getContent());
 
@@ -171,6 +183,13 @@ function setupAudio(context: AudioContext, audio: AudioOutputInterface) {
         source1.buffer = buffer;
         source1.connect(merger);
         source1.start();
+    });
+
+    audio.channel1.stop.addHandler(() => {
+        if (source1) {
+            source1.stop();
+            source1 = null;
+        }
     });
 }
 

@@ -15,6 +15,10 @@ interface BoardInterface {
 
     boot(): BoardInterface;
 
+    suspend(): void;
+
+    resume(): void;
+
     cpuClock: EventInterface<number>;
 
     clock: EventInterface<number>;

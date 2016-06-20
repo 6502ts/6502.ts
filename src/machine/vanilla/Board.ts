@@ -58,6 +58,10 @@ class Board implements BoardInterface {
         return this;
     }
 
+    suspend(): void {}
+
+    resume(): void {}
+
     triggerTrap(reason: BoardInterface.TrapReason, message?: string): Board {
         this._stop();
 

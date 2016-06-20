@@ -6,10 +6,6 @@ import BoardInterface from '../machine/board/BoardInterface';
 import Board from '../machine/stella/Board';
 import CartridgeInterface from '../machine/stella/CartridgeInterface';
 import StellaConfig from '../machine/stella/Config';
-import VideoOutputInterface from '../machine/io/VideoOutputInterface';
-import AudioOutputInterface from '../machine/io/AudioOutputInterface';
-import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
-import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
 import CartridgeFactory from '../machine/stella/CartridgeFactory';
 
 import CommandInterpreter from './CommandInterpreter';
@@ -53,14 +49,6 @@ class StellaCLI extends DebuggerCLI {
         this._runModeCommandInterpreter.registerCommands(runModeCommands);
     }
 
-    getVideoOutput(): VideoOutputInterface {
-        return this._board.getVideoOutput();
-    }
-
-    getAudioOutput(): AudioOutputInterface {
-        return this._board.getAudioOutput();
-    }
-
     getPrompt(): string {
         const frequency = this._clockProbe ? this._clockProbe.getFrequency() : 0,
             prefix = frequency > 0 ? `${(frequency / 1000000).toFixed(2)} MHz ` : '';
@@ -91,16 +79,8 @@ class StellaCLI extends DebuggerCLI {
         }
     }
 
-    getControlPanel(): ControlPanelInterface {
-        return this._board.getControlPanel();
-    }
-
-    getJoystick0(): DigitalJoystickInterface {
-        return this._board.getJoystick0();
-    }
-
-    getJoystick1(): DigitalJoystickInterface {
-        return this._board.getJoystick1();
+    getBoard(): Board {
+        return this._board;
     }
 
     getState(): StellaCLI.State {
@@ -207,11 +187,13 @@ class StellaCLI extends DebuggerCLI {
 
         switch (state) {
             case StellaCLI.State.debug:
+                this._board.suspend();
                 this._clockProbe.stop();
                 this._board.getTimer().stop();
                 break;
 
             case StellaCLI.State.run:
+                this._board.resume();
                 this._clockProbe.start();
                 this._board.getTimer().start(this._getScheduler());
                 break;
