@@ -8,8 +8,6 @@ class AbstractCartridge implements CartridgeInterface {
     }
 
     write(address: number, value: number) {
-        this.triggerTrap(CartridgeInterface.TrapReason.invalidWrite,
-            `attempt to write to ROM at 0x${address.toString(16)}`);
     }
 
     trap = new Event<CartridgeInterface.TrapPayload>();

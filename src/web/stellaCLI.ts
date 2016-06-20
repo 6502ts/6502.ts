@@ -89,6 +89,8 @@ export function run({
             cli.pushInput(`load-cartridge ${pageConfig.cartridge}\n`);
         }
     }
+
+    window.addEventListener('resize', () => resizeForFullscreenIfApplicable(canvas));
 }
 
 function setupCartridgeReader(
@@ -244,6 +246,19 @@ function setupKeyboardControls(
         if (mappings[e.which]) {
             mappings[e.which].toggle(true);
             e.preventDefault();
+
+            return;
+        }
+
+        switch (e.which) {
+            case 13: // enter
+                if (fullscreenActive()) {
+                    exitFullscreen();
+                } else {
+                    enterFullscreen(element);
+
+                }
+                return;
         }
     });
 
@@ -252,5 +267,73 @@ function setupKeyboardControls(
             mappings[e.which].toggle(false);
             e.preventDefault();
         }
+    });
+}
+
+function enterFullscreen(elt: JQuery) {
+    const unwrapped: any = elt.get(0),
+        requestFullscreen: () => void =
+            unwrapped.requestFullscreen ||
+            unwrapped.webkitRequestFullScreen ||
+            unwrapped.webkitRequestFullscreen ||
+            unwrapped.mozRequestFullscreen ||
+            unwrapped.mozRequestFullScreen ||
+            unwrapped.msRequestFullscreen ||
+            unwrapped.msRequestFullScreen;
+
+    if (requestFullscreen) {
+        requestFullscreen.apply(unwrapped);
+    }
+}
+
+function exitFullscreen() {
+    const doc: any = document,
+        exitFullscreen =
+            doc.exitFullscreen ||
+            doc.webkitExitFullScreen ||
+            doc.webkitExitFullscreen ||
+            doc.mozExitFullscreen ||
+            doc.mozExitFullScreen ||
+            doc.msRequestFullscreen ||
+            doc.msRequestFullScreen;
+
+    if (exitFullscreen) {
+        exitFullscreen.apply(doc);
+    }
+}
+
+function fullscreenActive() {
+    const doc = document as any;
+
+    return  doc.fullscreen ||
+            doc.webkitIsFullScreen ||
+            doc.webkitIsFullscreen ||
+            doc.mozFullscreen ||
+            doc.mozFullScreen ||
+            !!doc.msFullsceenElement;
+}
+
+function resizeForFullscreenIfApplicable(canvas: JQuery) {
+    if (!fullscreenActive()) {
+        canvas.removeAttr('style');
+        return;
+    }
+
+    const actualWidth = window.innerWidth,
+        actualHeight = window.innerHeight;
+
+    let correctedWidth: number, correctedHeight: number;
+
+    if (actualWidth > actualHeight) {
+        correctedHeight = actualHeight;
+        correctedWidth = actualHeight / 3 * 4;
+    } else {
+        correctedWidth = actualWidth;
+        correctedHeight = actualHeight / 4 * 3;
+    }
+
+    canvas.css({
+        width: correctedWidth,
+        height: correctedHeight
     });
 }
