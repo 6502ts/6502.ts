@@ -10,13 +10,19 @@ import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
 import AudioOutputBuffer from '../tools/AudioOutputBuffer';
 
+interface PageConfig {
+    cartridge?: string;
+    tvMode?: string;
+    audio?: string;
+}
+
 export function run({
         fileBlob,
         terminalElt,
         interruptButton,
         clearButton,
-        cartridgeFile,
         canvas,
+        pageConfig,
         cartridgeFileInput,
         cartridgeFileInputLabel
     }: {
@@ -25,13 +31,13 @@ export function run({
         interruptButton: JQuery,
         clearButton: JQuery,
         canvas: JQuery
-        cartridgeFile?: string
+        pageConfig: PageConfig,
         cartridgeFileInput?: JQuery
         cartridgeFileInputLabel?: JQuery
     }
 ) {
     const fsProvider = new PrepackagedFilesystemProvider(fileBlob),
-        cli = new StellaCLI(fsProvider, cartridgeFile),
+        cli = new StellaCLI(fsProvider),
         runner = new JqtermCLIRunner(cli, terminalElt, {
             interruptButton: interruptButton,
             clearButton: clearButton
@@ -67,6 +73,20 @@ export function run({
 
     if (cartridgeFileInput) {
         setupCartridgeReader(cli, cartridgeFileInput, cartridgeFileInputLabel);
+    }
+
+    if (pageConfig) {
+        if (pageConfig.tvMode) {
+            cli.pushInput(`tv-mode ${pageConfig.tvMode}\n`);
+        }
+
+        if (pageConfig.audio) {
+            cli.pushInput(`audio ${pageConfig.audio}\n`);
+        }
+
+        if (pageConfig.cartridge) {
+            cli.pushInput(`load-cartridge ${pageConfig.cartridge}\n`);
+        }
     }
 }
 

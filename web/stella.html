@@ -120,10 +120,14 @@
                     terminalElt: $('#term'),
                     interruptButton: $('#interrupt-btn'),
                     clearButton: $('#clear-btn'),
-                    cartridgeFile: getUrlParameter('cartridge'),
                     canvas: $('#viewport'),
                     cartridgeFileInput: $('#cartridge-file-input'),
-                    cartridgeFileInputLabel: $('#cartridge-file-input-label')
+                    cartridgeFileInputLabel: $('#cartridge-file-input-label'),
+                    pageConfig: {
+                        cartridge: getUrlParameter('cartridge'),
+                        tvMode: getUrlParameter('tvmode'),
+                        audio: getUrlParameter('audio')
+                    }
                 });
             });
         });
