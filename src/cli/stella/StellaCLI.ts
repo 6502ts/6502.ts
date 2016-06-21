@@ -17,6 +17,7 @@ import Event from '../../tools/event/Event';
 import ClockProbe from '../../tools/ClockProbe';
 
 import SystemConfigSetupProvider from './SystemConfigSetupProvider';
+import ControlPanelManagementProvider from './ControlPanelManagementProvider';
 
 const enum RunMode {limited, unlimited};
 
@@ -175,6 +176,15 @@ class StellaCLI extends DebuggerCLI {
         this._board.trap.addHandler(this._onTrap, this);
 
         this._clockProbe = clockProbe;
+
+        const controlPanel = this._board.getControlPanel(),
+            controlPanelManagementProvider = new ControlPanelManagementProvider(controlPanel);
+
+        this._commandInterpreter.registerCommands(controlPanelManagementProvider.getCommands());
+        this._runModeCommandInterpreter.registerCommands(controlPanelManagementProvider.getCommands());
+
+        controlPanel.getDifficultySwitchP0().toggle(true);
+        controlPanel.getDifficultySwitchP0().toggle(true);
 
         this.hardwareInitialized.dispatch(undefined);
     }

@@ -28,6 +28,7 @@
         "src/cli/EhBasicCLI.ts",
         "src/cli/JqtermCLIRunner.ts",
         "src/cli/NodeCLIRunner.ts",
+        "src/cli/stella/ControlPanelManagementProvider.ts",
         "src/cli/stella/StellaCLI.ts",
         "src/cli/stella/SystemConfigSetupProvider.ts",
         "src/cli/TestCLI.ts",
