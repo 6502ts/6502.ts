@@ -18,7 +18,7 @@ const VISIBLE_LINES_NTSC = 192,
     OVERSCAN = 15;
 
 const enum Count {
-    movementCounterOffset = -3
+    hmoveDelay = 6
 }
 
 // Each bit in the collision mask identifies a single collision pair
@@ -144,6 +144,10 @@ class Tia implements VideoOutputInterface {
     }
 
     private _tickMovement(): void {
+        if (this._hmoveDelay >= 0 && this._hmoveDelay-- === 0) {
+            this._hmove();
+        }
+
         if (!this._movementInProgress) {
             return;
         }
@@ -152,7 +156,7 @@ class Tia implements VideoOutputInterface {
         this._linesSinceChange = 0;
 
         // The actual clock supplied to the sprites is mod 4
-        if (this._movementCtr >= 0 && (this._movementCtr & 0x3) === 0) {
+        if ((this._movementCtr & 0x3) === 0) {
             // The tick is only propagated to the sprite counters if we are in blank
             // mode --- in frame mode, it overlaps with the sprite clock and is gobbled
             const apply = this._hstate === HState.blank,
@@ -405,25 +409,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.hmove:
-                this._linesSinceChange = 0;
-
-                // Start the timer and increase hblank
-                this._movementCtr = Count.movementCounterOffset;
-                this._movementInProgress = true;
-
-                if (!this._extendedHblank) {
-                    this._hblankCtr -= 8;
-                    this._clearHmoveComb();
-                    this._extendedHblank = true;
-                }
-
-                // Start sprite movement
-                this._missile0.startMovement();
-                this._missile1.startMovement();
-                this._player0.startMovement();
-                this._player1.startMovement();
-                this._ball.startMovement();
-
+                this._hmoveDelay = Count.hmoveDelay;
                 break;
 
             case Tia.Registers.colubk:
@@ -587,6 +573,27 @@ class Tia implements VideoOutputInterface {
 
     trap = new Event<Tia.TrapPayload>();
 
+    private _hmove(): void {
+        this._linesSinceChange = 0;
+
+        // Start the timer and increase hblank
+        this._movementCtr = 0;
+        this._movementInProgress = true;
+
+        if (!this._extendedHblank) {
+            this._hblankCtr -= 8;
+            this._clearHmoveComb();
+            this._extendedHblank = true;
+        }
+
+        // Start sprite movement
+        this._missile0.startMovement();
+        this._missile1.startMovement();
+        this._player0.startMovement();
+        this._player1.startMovement();
+        this._ball.startMovement();
+    }
+
     private _getVisibleLines(config: Config): number {
         switch (this._config.tvMode) {
             case Config.TvMode.secam:
@@ -739,6 +746,7 @@ class Tia implements VideoOutputInterface {
     private _movementInProgress = false;
     // do we have an extended hblank triggered by hmove?
     private _extendedHblank = false;
+    private _hmoveDelay = -1;
 
     // has frame rendering been triggerd by vblank?
     private _frameInProgress = false;
