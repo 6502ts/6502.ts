@@ -10,19 +10,19 @@ const FREQUENCY_DIVISIORS = new Int8Array([
 ]);
 
 // all ones
-const POLY0 = new Int8Array([ 1, -1 ]);
+const POLY0 = new Int8Array([ 1 ]);
 
 // 50% duty cycle
-const POLY1 = new Int8Array([ 1, 1, -1 ]);
+const POLY1 = new Int8Array([ 1, 1 ]);
 
 // 16/31 duty cycle
-const POLY2 = new Int8Array([ 16, 15, -1 ]);
+const POLY2 = new Int8Array([ 16, 15 ]);
 
 // 4 bit LFSR
-const POLY4 = new Int8Array([ 1, 2, 2, 1, 1, 1, 4, 3, -1 ]);
+const POLY4 = new Int8Array([ 1, 2, 2, 1, 1, 1, 4, 3 ]);
 
 // 5 bit LFSR
-const POLY5 = new Int8Array([ 1, 2, 1, 1, 2, 2, 5, 4, 2, 1, 3, 1, 1, 1, 1, 4, -1 ]);
+const POLY5 = new Int8Array([ 1, 2, 1, 1, 2, 2, 5, 4, 2, 1, 3, 1, 1, 1, 1, 4 ]);
 
 // 9 bit LFSR
 const POLY9 = new Int8Array([
@@ -41,12 +41,11 @@ const POLY9 = new Int8Array([
     4, 4, 9, 5, 4, 1, 5, 3, 1, 1, 3, 2, 2, 2, 1, 5,
     1, 2, 1, 1, 1, 2, 3, 1, 2, 1, 1, 3, 4, 2, 5, 2,
     2, 1, 2, 3, 1, 1, 1, 1, 1, 2, 1, 3, 3, 3, 2, 1,
-    2, 1, 1, 1, 1, 1, 3, 3, 1, 2, 2, 3, 1, 3, 1, 8,
-    -1
+    2, 1, 1, 1, 1, 1, 3, 3, 1, 2, 2, 3, 1, 3, 1, 8
 ]);
 
 // used by mode 15
-const POLY68 = new Int8Array([ 5, 6, 4, 5, 10, 5, 3, 7, 4, 10, 6, 3, 6, 4, 9, 6, -1 ]);
+const POLY68 = new Int8Array([ 5, 6, 4, 5, 10, 5, 3, 7, 4, 10, 6, 3, 6, 4, 9, 6 ]);
 
 // used by mode 3
 const POLY465 = new Int8Array([
@@ -58,7 +57,7 @@ const POLY465 = new Int8Array([
     2, 5, 3, 7, 3, 4, 3, 2, 2, 2, 5, 9, 3, 1, 5,
     3, 1, 2, 2, 11, 5, 1, 5, 3, 1, 1, 2, 12, 5, 1,
     2, 5, 2, 1, 1, 12, 6, 1, 2, 5, 1, 2, 1, 10, 6,
-    3, 2, 2, 4, 1, 2, 6, 10, -1
+    3, 2, 2, 4, 1, 2, 6, 10
 ]);
 
 const POLYS = [
@@ -107,7 +106,7 @@ export default class Audio implements AudioOutputInterface {
 
     getOutputBuffer(): AudioOutputBuffer {
         // TODO length depending on PAL/NTSC or normalizing on 44.1 kHz?
-        const length = 44100;
+        const length = 14700;
         const content = new Float32Array(length);
 
         // TODO rate depending on PAL/NTSC?
@@ -117,7 +116,7 @@ export default class Audio implements AudioOutputInterface {
         let f = 0;
         let count = 0;
         let offset = 0;
-        let last = true;
+        let state = true;
         let rate = 0;
 
         let i = 0;
@@ -135,19 +134,18 @@ export default class Audio implements AudioOutputInterface {
                     offset++;
                     count = 0;
 
-                    if (poly[offset] === -1) {
+                    if (poly.length === offset) {
                         offset = 0;
                     }
                 }
 
-                last = !(offset & 0x01);
+                state = !(offset & 0x01);
             }
 
             rate += 44100;
 
-
             while (rate >= sampleRate && size > 0) {
-                content[i] = (last ? (this._volume << 3) : 0);
+                content[i] = (state ? 1 : -1) * (this._volume / 15);
                 rate -= sampleRate;
 
                 i++;
