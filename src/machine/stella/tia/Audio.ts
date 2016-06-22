@@ -105,8 +105,15 @@ export default class Audio implements AudioOutputInterface {
     }
 
     getOutputBuffer(): AudioOutputBuffer {
-        // TODO length depending on PAL/NTSC or normalizing on 44.1 kHz?
-        const length = 14700;
+        const poly = POLYS[this._tone];
+
+        let length = 0;
+        for (let i = 0; i < poly.length; i++) {
+            length += poly[i];
+        }
+
+        length = length * FREQUENCY_DIVISIORS[this._tone] * (this._frequency + 1);
+
         const content = new Float32Array(length);
 
         // TODO rate depending on PAL/NTSC?
@@ -120,8 +127,6 @@ export default class Audio implements AudioOutputInterface {
         let rate = 0;
 
         let i = 0;
-
-        const poly = POLYS[this._tone];
 
         while (size > 0) {
             f++;
@@ -153,7 +158,7 @@ export default class Audio implements AudioOutputInterface {
             }
         }
 
-        return new AudioOutputBuffer(content);
+        return new AudioOutputBuffer(content, sampleRate);
     }
 
     protected _dispatchBuffer() {

@@ -172,7 +172,7 @@ function setupAudio(context: AudioContext, audio: Board.Audio) {
     merger.connect(context.destination);
 
     audio.channel0.bufferChanged.addHandler((outputBuffer: AudioOutputBuffer) => {
-        const buffer = context.createBuffer(1, outputBuffer.getLength(), 44100);
+        const buffer = context.createBuffer(1, outputBuffer.getLength(), outputBuffer.getSampleRate());
         buffer.getChannelData(0).set(outputBuffer.getContent());
 
         if (source0) {
@@ -194,7 +194,7 @@ function setupAudio(context: AudioContext, audio: Board.Audio) {
     });
 
     audio.channel1.bufferChanged.addHandler((outputBuffer: AudioOutputBuffer) => {
-        const buffer = context.createBuffer(1, outputBuffer.getLength(), 44100);
+        const buffer = context.createBuffer(1, outputBuffer.getLength(), outputBuffer.getSampleRate());
         buffer.getChannelData(0).set(outputBuffer.getContent());
 
         if (source1) {
