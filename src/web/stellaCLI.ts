@@ -8,8 +8,8 @@ import Surface from '../tools/surface/CanvasImageDataSurface';
 import VideoOutputInterface from '../machine/io/VideoOutputInterface';
 import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
-import AudioOutputBuffer from '../tools/AudioOutputBuffer';
 import SwitchInterface from '../machine/io/SwitchInterface';
+import AudioOutputInterface from '../machine/io/AudioOutputInterface';
 
 interface PageConfig {
     cartridge?: string;
@@ -165,15 +165,29 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
 
 function setupAudio(context: AudioContext, audio: Board.Audio) {
 
+    let bufferCache: {[key: number]: AudioBuffer} = {};
+
+    function getBuffer(key: number, audio: AudioOutputInterface) {
+        if (!bufferCache[key]) {
+            const buffer = audio.getBuffer(key),
+                audioBuffer = context.createBuffer(1, buffer.getLength(), buffer.getSampleRate());
+
+            audioBuffer.getChannelData(0).set(buffer.getContent());
+
+            bufferCache[key] = audioBuffer;
+        }
+
+        return bufferCache[key];
+    }
+
     let source0: AudioBufferSourceNode;
     let source1: AudioBufferSourceNode;
 
     const merger = context.createChannelMerger(2);
     merger.connect(context.destination);
 
-    audio.channel0.bufferChanged.addHandler((outputBuffer: AudioOutputBuffer) => {
-        const buffer = context.createBuffer(1, outputBuffer.getLength(), outputBuffer.getSampleRate());
-        buffer.getChannelData(0).set(outputBuffer.getContent());
+    audio.channel0.bufferChanged.addHandler((key: number) => {
+        const buffer = getBuffer(key, audio.channel0);
 
         if (source0) {
             source0.stop();
@@ -193,9 +207,8 @@ function setupAudio(context: AudioContext, audio: Board.Audio) {
         }
     });
 
-    audio.channel1.bufferChanged.addHandler((outputBuffer: AudioOutputBuffer) => {
-        const buffer = context.createBuffer(1, outputBuffer.getLength(), outputBuffer.getSampleRate());
-        buffer.getChannelData(0).set(outputBuffer.getContent());
+    audio.channel1.bufferChanged.addHandler((key: number) => {
+        const buffer = getBuffer(key, audio.channel1);
 
         if (source1) {
             source1.stop();

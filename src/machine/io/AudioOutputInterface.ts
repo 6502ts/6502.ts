@@ -3,9 +3,11 @@ import EventInterface from '../../tools/event/EventInterface';
 
 interface AudioOutputInterface {
 
-    bufferChanged: EventInterface<AudioOutputBuffer>;
+    bufferChanged: EventInterface<number>;
 
     stop: EventInterface<void>;
+
+    getBuffer(key: number): AudioOutputBuffer;
 
 }
 

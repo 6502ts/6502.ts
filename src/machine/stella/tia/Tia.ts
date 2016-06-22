@@ -45,6 +45,8 @@ class Tia implements VideoOutputInterface {
         this._palette = this._getPalette(this._config);
         this._input0 = new LatchedInput(joystick0.getFire());
         this._input1 = new LatchedInput(joystick1.getFire());
+        this._audio0 = new Audio(this._config);
+        this._audio1 = new Audio(this._config);
 
         this._player0.patternChange.addHandler(() => this._player1.shufflePatterns());
         this._player1.patternChange.addHandler(() => {
@@ -768,8 +770,8 @@ class Tia implements VideoOutputInterface {
     private _playfield = new Playfield(CollisionMask.playfield);
     private _ball =      new Ball(CollisionMask.ball);
 
-    private _audio0 = new Audio();
-    private _audio1 = new Audio();
+    private _audio0: Audio;
+    private _audio1: Audio;
 
     private _input0: LatchedInput;
     private _input1: LatchedInput;

@@ -1,6 +1,7 @@
 import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import AudioOutputInterface from '../../io/AudioOutputInterface';
 import Event from '../../../tools/event/Event';
+import Config from '../Config';
 
 const FREQUENCY_DIVISIORS = new Int8Array([
     1, 1, 15, 1,
@@ -69,7 +70,7 @@ const POLYS = [
 
 export default class Audio implements AudioOutputInterface {
 
-    constructor() {
+    constructor(private _config: Config ) {
         this.reset();
     }
 
@@ -81,57 +82,57 @@ export default class Audio implements AudioOutputInterface {
 
     audc(value: number): void {
         this._tone = (value & 0x0F);
-        this._dispatchBuffer();
+        this._dispatchBufferChanged();
     }
 
     audf(value: number): void {
         this._frequency = (value & 0x1F);
-        this._dispatchBuffer();
+        this._dispatchBufferChanged();
     }
 
     audv(value: number): void {
         this._volume = (value & 0x0F);
-        this._dispatchBuffer();
+        this._dispatchBufferChanged();
     }
 
     setActive(active: boolean): void {
         this._active = active;
 
         if (active) {
-            this._dispatchBuffer();
+            this._dispatchBufferChanged();
         } else {
             this.stop.dispatch(undefined);
         }
     }
 
-    getOutputBuffer(): AudioOutputBuffer {
-        const poly = POLYS[this._tone];
+    getBuffer(key: number): AudioOutputBuffer {
+        const tone = (key >>> 9) & 0x0F,
+            volume = (key >>> 5) & 0x0F,
+            frequency = key & 0x1F;
+
+        const poly = POLYS[tone];
 
         let length = 0;
         for (let i = 0; i < poly.length; i++) {
             length += poly[i];
         }
 
-        length = length * FREQUENCY_DIVISIORS[this._tone] * (this._frequency + 1);
+        length = length * FREQUENCY_DIVISIORS[tone] * (frequency + 1);
 
         const content = new Float32Array(length);
 
         // TODO rate depending on PAL/NTSC?
-        const sampleRate = 31456;
+        const sampleRate = this._config.tvMode === Config.TvMode.ntsc ? 31400 : 31113;
 
-        let size = length;
         let f = 0;
         let count = 0;
         let offset = 0;
         let state = true;
-        let rate = 0;
 
-        let i = 0;
-
-        while (size > 0) {
+        for (let i = 0; i < length; i++) {
             f++;
 
-            if (f === FREQUENCY_DIVISIORS[this._tone] * (this._frequency + 1)) {
+            if (f === FREQUENCY_DIVISIORS[tone] * (frequency + 1)) {
                 f = 0;
                 count++;
 
@@ -147,27 +148,23 @@ export default class Audio implements AudioOutputInterface {
                 state = !(offset & 0x01);
             }
 
-            rate += 44100;
-
-            while (rate >= sampleRate && size > 0) {
-                content[i] = (state ? 1 : -1) * (this._volume / 15);
-                rate -= sampleRate;
-
-                i++;
-                size--;
-            }
+            content[i] = (state ? 1 : -1) * (volume / 15);
         }
 
         return new AudioOutputBuffer(content, sampleRate);
     }
 
-    protected _dispatchBuffer() {
+    protected _getKey(): number {
+        return (this._tone << 9) | (this._volume << 5) | this._frequency;
+    }
+
+    protected _dispatchBufferChanged() {
         if (this._active && this.bufferChanged.hasHandlers) {
-            this.bufferChanged.dispatch(this.getOutputBuffer());
+            this.bufferChanged.dispatch(this._getKey());
         }
     }
 
-    bufferChanged = new Event<AudioOutputBuffer>();
+    bufferChanged = new Event<number>();
     stop = new Event<void>();
 
     private _volume = 0;
