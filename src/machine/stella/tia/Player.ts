@@ -71,7 +71,13 @@ export default class Player {
     }
 
     refp(value: number): void {
+        const oldReflected = this._reflected;
+
         this._reflected = (value & 0x08) > 0;
+
+        if (this._reflected !== oldReflected) {
+            this._updatePattern();
+        }
     }
 
     vdelp(value: number): void {
