@@ -293,11 +293,9 @@ function setupPaddles(paddle0: PaddleInterface): void {
             const dx = e.screenX - x;
             let value = paddle0.getValue();
 
-            value += -dx / window.innerWidth;
+            value += -dx / window.innerWidth / 0.9;
             if (value < 0) value = 0;
             if (value > 1) value = 1;
-
-            console.log(paddle0.getValue(), dx , window.innerWidth, value);
 
             paddle0.setValue(value);
         }

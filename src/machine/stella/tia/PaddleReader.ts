@@ -1,10 +1,13 @@
 import Paddle from '../../io/Paddle';
-const C = 68e-9,
-    RPOT = 1e6,
-    R0 = 1.8e3,
-    U = 5,
-    LINES_FULL = 380;
 
+const C = 68e-9,            // capacitor
+    RPOT = 1e6,             // total paddle resistance
+    R0 = 1.8e3,             // series resistor
+    U = 5,                  // supply voltage
+    LINES_FULL = 380;       // treshold voltage in terms of scanline count
+
+// We only use the fourth order approximation for the exponential; should give
+// the exact trip point up to a few percent.
 function exp(x: number): number {
     const x2 = x * x / 2,
         x3 = x2 * x / 3,
@@ -40,7 +43,7 @@ export default class PaddleReader {
     vblank(value: number): void {
         const oldValue = this._dumped;
 
-        if (value & 0x40) {
+        if (value & 0x80) {
             this._dumped = true;
             this._u = 0;
         } else if (oldValue) {
@@ -65,6 +68,7 @@ export default class PaddleReader {
 
         const timestamp = this._timestampRef();
 
+        // Update the voltage with the integral between the two timestamps
         this._u = U * (1 - (1 - this._u / U) *
             exp(-(timestamp - this._timestamp) / (this._value * RPOT + R0) / C / this._clockFreq));
 
