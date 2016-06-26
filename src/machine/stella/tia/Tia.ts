@@ -63,7 +63,7 @@ class Tia implements VideoOutputInterface {
 
         this._paddles = new Array(4);
         for (let i = 0; i < 4; i++) {
-            this._paddles[i] = new PaddleReader(clockFreq, paddles[i]);
+            this._paddles[i] = new PaddleReader(clockFreq, () => this._clock, paddles[i]);
         }
 
         this.reset();
@@ -86,6 +86,7 @@ class Tia implements VideoOutputInterface {
         this._colorBk = 0xFF000000;
         this._linesSinceChange = 0;
         this._collisionUpdateRequired = false;
+        this._clock = 0.;
 
         this._missile0.reset();
         this._missile1.reset();
@@ -147,10 +148,6 @@ class Tia implements VideoOutputInterface {
     cycle(): void {
         this._collisionUpdateRequired = false;
 
-        for (let i = 0; i < 4; i++) {
-            this._paddles[i].tick();
-        }
-
         this._tickMovement();
         this._playfield.clockTick();
 
@@ -163,6 +160,8 @@ class Tia implements VideoOutputInterface {
         if (this._collisionUpdateRequired) {
             this._updateCollision();
         }
+
+        this._clock++;
     }
 
     private _tickMovement(): void {
@@ -797,6 +796,7 @@ class Tia implements VideoOutputInterface {
     private _frameInProgress = false;
     private _vsync = false;
     private _vblank = false;
+    private _clock = 0.;
 
     // Lines since the last cache-invalidating change. If this is > 1 we can safely use the linecache
     private _linesSinceChange = 0;
