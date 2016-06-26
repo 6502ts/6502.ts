@@ -10,6 +10,7 @@ import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
 import SwitchInterface from '../machine/io/SwitchInterface';
 import AudioOutputInterface from '../machine/io/AudioOutputInterface';
+import PaddleInterface from '../machine/io/PaddleInterface';
 
 interface PageConfig {
     cartridge?: string;
@@ -66,6 +67,7 @@ export function run({
             board.getJoystick0(),
             board.getJoystick1()
         );
+        setupPaddles(board.getPaddle(0));
 
         board.setAudioEnabled(true);
     });
@@ -280,6 +282,27 @@ function setupKeyboardControls(
             mappings[e.which].toggle(false);
             e.preventDefault();
         }
+    });
+}
+
+function setupPaddles(paddle0: PaddleInterface): void {
+    let x = -1;
+
+    document.addEventListener('mousemove', (e: MouseEvent) => {
+        if (x >= 0) {
+            const dx = e.screenX - x;
+            let value = paddle0.getValue();
+
+            value += -dx / window.innerWidth;
+            if (value < 0) value = 0;
+            if (value > 1) value = 1;
+
+            console.log(paddle0.getValue(), dx , window.innerWidth, value);
+
+            paddle0.setValue(value);
+        }
+
+        x = e.screenX;
     });
 }
 

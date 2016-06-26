@@ -17,6 +17,8 @@ import ControlPanel from './ControlPanel';
 import ControlPanelInterface from './ControlPanelInterface';
 import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
 import DigitalJoystick from '../io/DigitalJoystick';
+import PaddleInterface from '../io/PaddleInterface';
+import Paddle from '../io/Paddle';
 
 class Board implements BoardInterface {
 
@@ -27,10 +29,16 @@ class Board implements BoardInterface {
 
         const controlPanel = new ControlPanel(),
             joystick0 = new DigitalJoystick(),
-            joystick1 = new DigitalJoystick();
+            joystick1 = new DigitalJoystick(),
+            paddles = new Array(4);
+
+        for (let i = 0; i < 4; i++) {
+            paddles[i] = new Paddle();
+        }
+
         const cpu = cpuFactory(bus);
         const pia = new Pia(controlPanel, joystick0, joystick1);
-        const tia = new Tia(config, joystick0, joystick1);
+        const tia = new Tia(config, joystick0, joystick1, paddles);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
         tia.setCpu(cpu);
@@ -47,6 +55,7 @@ class Board implements BoardInterface {
         this._controlPanel = controlPanel;
         this._joystick0 = joystick0;
         this._joystick1 = joystick1;
+        this._paddles = paddles;
 
         this._bus.trap.addHandler(
             (payload: Bus.TrapPayload) => this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
@@ -188,6 +197,10 @@ class Board implements BoardInterface {
         return this._clockMode;
     }
 
+    getPaddle(idx: number): PaddleInterface {
+        return this._paddles[idx];
+    }
+
     trap = new Event<BoardInterface.TrapPayload>();
 
     private _cycle(): void {
@@ -274,6 +287,7 @@ class Board implements BoardInterface {
     private _controlPanel: ControlPanel;
     private _joystick0: DigitalJoystick;
     private _joystick1: DigitalJoystick;
+    private _paddles: Array<Paddle>;
 
     private _sliceHint = 50000;
     private _runTask: TaskInterface;

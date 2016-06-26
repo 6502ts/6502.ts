@@ -10,11 +10,15 @@ import Playfield from './Playfield';
 import Player from './Player';
 import Ball from './Ball';
 import LatchedInput from './LatchedInput';
+import PaddleReader from './PaddleReader';
 import Audio from './Audio';
+import Paddle from '../../io/Paddle';
 import * as palette from './palette';
 
 const VISIBLE_LINES_NTSC = 192,
     VISIBLE_LINES_PAL = 228,
+    FRAME_LINES_NTSC = 262,
+    FRAME_LINES_PAL = 312,
     OVERSCAN = 15;
 
 const enum Count {
@@ -39,7 +43,8 @@ class Tia implements VideoOutputInterface {
     constructor(
         private _config: Config,
         joystick0: DigitalJoystickInterface,
-        joystick1: DigitalJoystickInterface
+        joystick1: DigitalJoystickInterface,
+        paddles: Array<Paddle>
     ) {
         this._visibleLines = this._getVisibleLines(this._config);
         this._palette = this._getPalette(this._config);
@@ -53,6 +58,13 @@ class Tia implements VideoOutputInterface {
             this._player0.shufflePatterns();
             this._ball.shuffleStatus();
         });
+
+        const clockFreq = this._getClockFreq(this._config);
+
+        this._paddles = new Array(4);
+        for (let i = 0; i < 4; i++) {
+            this._paddles[i] = new PaddleReader(clockFreq, paddles[i]);
+        }
 
         this.reset();
     }
@@ -87,6 +99,10 @@ class Tia implements VideoOutputInterface {
 
         this._input0.reset();
         this._input1.reset();
+
+        for (let i = 0; i < 4; i++) {
+            this._paddles[i].reset();
+        }
 
         if (this._cpu) {
             this._cpu.resume();
@@ -130,6 +146,10 @@ class Tia implements VideoOutputInterface {
 
     cycle(): void {
         this._collisionUpdateRequired = false;
+
+        for (let i = 0; i < 4; i++) {
+            this._paddles[i].tick();
+        }
 
         this._tickMovement();
         this._playfield.clockTick();
@@ -268,6 +288,18 @@ class Tia implements VideoOutputInterface {
     read(address: number): number {
         // Only keep the lowest four bits
         switch (address & 0x0F) {
+            case Tia.Registers.inpt0:
+                return this._paddles[0].inpt();
+
+            case Tia.Registers.inpt1:
+                return this._paddles[1].inpt();
+
+            case Tia.Registers.inpt2:
+                return this._paddles[2].inpt();
+
+            case Tia.Registers.inpt3:
+                return this._paddles[3].inpt();
+
             case Tia.Registers.inpt4:
                 return this._input0.inpt();
 
@@ -339,8 +371,13 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.vblank:
                 this._linesSinceChange = 0;
+
                 this._input0.vblank(value);
                 this._input1.vblank(value);
+
+                for (let i = 0; i < 4; i++) {
+                    this._paddles[i].vblank(value);
+                }
 
                 if ((value & 0x02) === 0 && this._vblank) {
                     this._startFrame();
@@ -626,6 +663,12 @@ class Tia implements VideoOutputInterface {
         }
     }
 
+    private _getClockFreq(config: Config) {
+        return (config.tvMode === Config.TvMode.ntsc) ?
+            60 * 228 * FRAME_LINES_NTSC :
+            50 * 228 * FRAME_LINES_PAL;
+    }
+
     private _finalizeFrame(): void {
         if (!this._frameInProgress) {
             return;
@@ -775,6 +818,8 @@ class Tia implements VideoOutputInterface {
 
     private _input0: LatchedInput;
     private _input1: LatchedInput;
+
+    private _paddles: Array<PaddleReader>;
 
     newFrame = new Event<RGBASurfaceInterface>();
 }
