@@ -407,12 +407,12 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.resm0:
                 this._linesSinceChange = 0;
-                this._missile0.resm();
+                this._missile0.resm(this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.resm1:
                 this._linesSinceChange = 0;
-                this._missile1.resm();
+                this._missile1.resm(this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.resmp0:
@@ -515,12 +515,12 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.resp0:
                 this._linesSinceChange = 0;
-                this._player0.resp();
+                this._player0.resp(this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.resp1:
                 this._linesSinceChange = 0;
-                this._player1.resp();
+                this._player1.resp(this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.refp0:
@@ -565,7 +565,7 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.resbl:
                 this._linesSinceChange = 0;
-                this._ball.resbl();
+                this._ball.resbl(this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.vdelbl:

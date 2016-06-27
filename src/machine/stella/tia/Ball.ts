@@ -35,10 +35,13 @@ export default class Ball {
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    resbl(): void {
-        this._counter = 0;
-        this._rendering = true;
-        this._renderCounter = 0;
+    resbl(hblank: boolean): void {
+        this._counter = hblank ? 159 : 157;
+
+        if (!hblank) {
+            this._rendering = true;
+            this._renderCounter = Count.renderCounterOffset;
+        }
     }
 
     ctrlpf(value: number) {
@@ -80,7 +83,7 @@ export default class Ball {
     }
 
     tick(): void {
-        if (this._counter === 159) {
+        if (this._counter === 156) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
         } else if (this._rendering && ++this._renderCounter >= this._width) {

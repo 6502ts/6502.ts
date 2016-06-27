@@ -30,12 +30,12 @@ module init {
             decodes[i] = 0;
         }
 
-        decodes[159] = 1;
+        decodes[156] = 1;
     });
 
-    decodes1[15] = 1;
-    decodes2[31] = 1;
-    decodes3[15] = decodes3[31] = 1;
-    decodes4[63] = 1;
-    decodes6[31] = decodes6[63] = 1;
+    decodes1[12] = 1;
+    decodes2[28] = 1;
+    decodes3[12] = decodes3[28] = 1;
+    decodes4[60] = 1;
+    decodes6[28] = decodes6[60] = 1;
 }

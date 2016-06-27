@@ -66,8 +66,8 @@ export default class Player {
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    resp(): void {
-        this._counter = 0;
+    resp(hblank: boolean): void {
+        this._counter = hblank ? 159 : 157;
     }
 
     refp(value: number): void {
