@@ -138,6 +138,7 @@ export default class Player {
     shufflePatterns(): void {
         if (this._delaying) {
             this._originalPattern = this._originalPatternPending;
+            this._originalPatternPending = 0;
             this._updatePattern();
         }
     }

@@ -102,6 +102,7 @@ export default class Ball {
     shuffleStatus(): void {
         if (this._delaying) {
             this._enabled = this._enabledPending;
+            this._enabledPending = false;
         }
     }
 
