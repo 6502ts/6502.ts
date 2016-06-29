@@ -21,17 +21,16 @@ export default class Player {
         this._rendering = false;
         this._renderCounter = Count.renderCounterOffset;
         this._decodes = decodes[0];
-        this._originalPattern = 0;
+        this._patternNew = 0;
+        this._patternOld = 0;
         this._pattern = 0;
         this._reflected = false;
         this._delaying = false;
     }
 
     grp(pattern: number) {
-        if (this._delaying) {
-            this._originalPatternPending = pattern;
-        } else {
-            this._originalPattern = pattern;
+        this._patternNew = pattern;
+        if (!this._delaying) {
             this._updatePattern();
         }
 
@@ -81,14 +80,12 @@ export default class Player {
     }
 
     vdelp(value: number): void {
-        if ((value & 0x01) > 0) {
-            this._delaying = true;
-        } else {
-            if (this._delaying) {
-                this.shufflePatterns();
-            }
+        const oldDelaying = this._delaying;
 
-            this._delaying = false;
+        this._delaying = (value & 0x01) > 0;
+
+        if (this._delaying !== oldDelaying) {
+            this._updatePattern();
         }
     }
 
@@ -119,7 +116,9 @@ export default class Player {
     }
 
     tick(): void {
-        if (this._decodes[this._counter]) {
+        let counter = this._width > 8 ? this._counter - 1 : this._counter;
+
+        if (this._decodes[counter]) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
         } else if (this._rendering && this._renderCounter++ >= this._width) {
@@ -136,9 +135,11 @@ export default class Player {
     }
 
     shufflePatterns(): void {
-        if (this._delaying) {
-            this._originalPattern = this._originalPatternPending;
-            this._originalPatternPending = 0;
+        const oldPatternOld = this._patternOld;
+
+        this._patternOld = this._patternNew;
+
+        if (this._delaying && oldPatternOld !== this._patternOld) {
             this._updatePattern();
         }
     }
@@ -160,68 +161,70 @@ export default class Player {
     }
 
     private _updatePattern(): void {
+        const pattern = this._delaying ? this._patternOld : this._patternNew;
+
         switch (this._width) {
             case 8:
                 if (this._reflected) {
                     this._pattern =
-                        ((this._originalPattern & 0x01) << 7)  |
-                        ((this._originalPattern & 0x02) << 5)  |
-                        ((this._originalPattern & 0x04) << 3)  |
-                        ((this._originalPattern & 0x08) << 1)  |
-                        ((this._originalPattern & 0x10) >>> 1) |
-                        ((this._originalPattern & 0x20) >>> 3) |
-                        ((this._originalPattern & 0x40) >>> 5) |
-                        ((this._originalPattern & 0x80) >>> 7);
+                        ((pattern & 0x01) << 7)  |
+                        ((pattern & 0x02) << 5)  |
+                        ((pattern & 0x04) << 3)  |
+                        ((pattern & 0x08) << 1)  |
+                        ((pattern & 0x10) >>> 1) |
+                        ((pattern & 0x20) >>> 3) |
+                        ((pattern & 0x40) >>> 5) |
+                        ((pattern & 0x80) >>> 7);
                 } else {
-                    this._pattern = this._originalPattern;
+                    this._pattern = pattern;
                 }
                 break;
 
             case 16:
                 if (this._reflected) {
                     this._pattern =
-                        ((3 * (this._originalPattern & 0x01)) << 14) |
-                        ((3 * (this._originalPattern & 0x02)) << 11) |
-                        ((3 * (this._originalPattern & 0x04)) << 8)  |
-                        ((3 * (this._originalPattern & 0x08)) << 5)  |
-                        ((3 * (this._originalPattern & 0x10)) << 2)  |
-                        ((3 * (this._originalPattern & 0x20)) >>> 1) |
-                        ((3 * (this._originalPattern & 0x40)) >>> 4) |
-                        ((3 * (this._originalPattern & 0x80)) >>> 7);
+                        ((3 * (pattern & 0x01)) << 14) |
+                        ((3 * (pattern & 0x02)) << 11) |
+                        ((3 * (pattern & 0x04)) << 8)  |
+                        ((3 * (pattern & 0x08)) << 5)  |
+                        ((3 * (pattern & 0x10)) << 2)  |
+                        ((3 * (pattern & 0x20)) >>> 1) |
+                        ((3 * (pattern & 0x40)) >>> 4) |
+                        ((3 * (pattern & 0x80)) >>> 7);
                 } else {
                     this._pattern =
-                        ((3 * (this._originalPattern & 0x01)))       |
-                        ((3 * (this._originalPattern & 0x02)) << 1)  |
-                        ((3 * (this._originalPattern & 0x04)) << 2)  |
-                        ((3 * (this._originalPattern & 0x08)) << 3)  |
-                        ((3 * (this._originalPattern & 0x10)) << 4)  |
-                        ((3 * (this._originalPattern & 0x20)) << 5)  |
-                        ((3 * (this._originalPattern & 0x40)) << 6)  |
-                        ((3 * (this._originalPattern & 0x80)) << 7);
+                        ((3 * (pattern & 0x01)))       |
+                        ((3 * (pattern & 0x02)) << 1)  |
+                        ((3 * (pattern & 0x04)) << 2)  |
+                        ((3 * (pattern & 0x08)) << 3)  |
+                        ((3 * (pattern & 0x10)) << 4)  |
+                        ((3 * (pattern & 0x20)) << 5)  |
+                        ((3 * (pattern & 0x40)) << 6)  |
+                        ((3 * (pattern & 0x80)) << 7);
                 }
                 break;
 
             case 32:
                 if (this._reflected) {
                     this._pattern =
-                        ((0xF * (this._originalPattern & 0x01)) << 28) |
-                        ((0xF * (this._originalPattern & 0x02)) << 23) |
-                        ((0xF * (this._originalPattern & 0x04)) << 18) |
-                        ((0xF * (this._originalPattern & 0x08)) << 13) |
-                        ((0xF * (this._originalPattern & 0x10)) << 8)  |
-                        ((0xF * (this._originalPattern & 0x20)) << 3)  |
-                        ((0xF * (this._originalPattern & 0x40)) >>> 2) |
-                        ((0xF * (this._originalPattern & 0x80)) >>> 7);
+                        ((0xF * (pattern & 0x01)) << 28) |
+                        ((0xF * (pattern & 0x02)) << 23) |
+                        ((0xF * (pattern & 0x04)) << 18) |
+                        ((0xF * (pattern & 0x08)) << 13) |
+                        ((0xF * (pattern & 0x10)) << 8)  |
+                        ((0xF * (pattern & 0x20)) << 3)  |
+                        ((0xF * (pattern & 0x40)) >>> 2) |
+                        ((0xF * (pattern & 0x80)) >>> 7);
                 } else {
                     this._pattern =
-                        ((0xF * (this._originalPattern & 0x01)))       |
-                        ((0xF * (this._originalPattern & 0x02)) << 3)  |
-                        ((0xF * (this._originalPattern & 0x04)) << 6)  |
-                        ((0xF * (this._originalPattern & 0x08)) << 9)  |
-                        ((0xF * (this._originalPattern & 0x10)) << 12)  |
-                        ((0xF * (this._originalPattern & 0x20)) << 15)  |
-                        ((0xF * (this._originalPattern & 0x40)) << 18)  |
-                        ((0xF * (this._originalPattern & 0x80)) << 21);
+                        ((0xF * (pattern & 0x01)))       |
+                        ((0xF * (pattern & 0x02)) << 3)  |
+                        ((0xF * (pattern & 0x04)) << 6)  |
+                        ((0xF * (pattern & 0x08)) << 9)  |
+                        ((0xF * (pattern & 0x10)) << 12)  |
+                        ((0xF * (pattern & 0x20)) << 15)  |
+                        ((0xF * (pattern & 0x40)) << 18)  |
+                        ((0xF * (pattern & 0x80)) << 21);
                 }
                 break;
         }
@@ -241,8 +244,9 @@ export default class Player {
 
     private _decodes: Uint8Array;
 
-    private _originalPattern = 0;
-    private _originalPatternPending = 0;
+    private _patternNew = 0;
+    private _patternOld = 0;
+
     private _pattern = 0;
     private _reflected = false;
     private _delaying = false;

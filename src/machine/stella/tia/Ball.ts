@@ -12,6 +12,8 @@ export default class Ball {
         this.color = 0xFFFFFFFF;
         this.collision = 0;
         this._width = 1;
+        this._enabledOld = false;
+        this._enabledNew = false;
         this._enabled = false;
         this._counter = 0;
         this._rendering = false;
@@ -23,11 +25,8 @@ export default class Ball {
     }
 
     enabl(value: number): void {
-        if (this._delaying) {
-            this._enabledPending = (value & 2) > 0;
-        } else {
-            this._enabled = (value & 2) > 0;
-        }
+        this._enabledNew = (value & 2) > 0;
+        this._updateEnabled();
     }
 
     hmbl(value: number): void {
@@ -49,15 +48,8 @@ export default class Ball {
     }
 
     vdelbl(value: number) {
-        if ((value & 0x01) > 0) {
-            this._delaying = true;
-        } else {
-            if (this._delaying) {
-                this.shuffleStatus();
-            }
-
-            this._delaying = false;
-        }
+        this._delaying = (value & 0x01) > 0;
+        this._updateEnabled();
     }
 
     startMovement(): void {
@@ -100,16 +92,21 @@ export default class Ball {
     }
 
     shuffleStatus(): void {
-        if (this._delaying) {
-            this._enabled = this._enabledPending;
-            this._enabledPending = false;
-        }
+        this._enabledOld = this._enabledOld;
+        this._updateEnabled();
+    }
+
+    private _updateEnabled(): void {
+        this._enabled = this._delaying ? this._enabledOld : this._enabledNew;
     }
 
     color = 0xFFFFFFFF;
     collision = 0;
 
+    private _enabledOld = false;
+    private _enabledNew = false;
     private _enabled = false;
+
     private _enabledPending = false;
 
     private _hmmClocks = 0;
