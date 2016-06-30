@@ -75,23 +75,41 @@ export default class Audio implements AudioOutputInterface {
     }
 
     reset(): void {
-        this._volume = 0;
-        this._tone = 0;
-        this._frequency = 0;
+        this._volume = -1;
+        this._tone = -1;
+        this._frequency = -1;
     }
 
     audc(value: number): void {
-        this._tone = (value & 0x0F);
+        value &= 0x0F;
+
+        if (value === this._tone) {
+            return;
+        }
+
+        this._tone = value;
         this._dispatchBufferChanged();
     }
 
     audf(value: number): void {
-        this._frequency = (value & 0x1F);
+        value &= 0x1F;
+
+        if (value === this._frequency) {
+            return;
+        }
+
+        this._frequency = value;
         this._dispatchBufferChanged();
     }
 
     audv(value: number): void {
-        this._volume = (value & 0x0F);
+        value &= 0x0F;
+
+        if (value === this._volume) {
+            return;
+        }
+
+        this._volume = value;
         this._dispatchBufferChanged();
     }
 
@@ -167,9 +185,9 @@ export default class Audio implements AudioOutputInterface {
     bufferChanged = new Event<number>();
     stop = new Event<void>();
 
-    private _volume = 0;
-    private _tone = 0;
-    private _frequency = 0;
+    private _volume = -1;
+    private _tone = -1;
+    private _frequency = -1;
     private _active = false;
 
 }
