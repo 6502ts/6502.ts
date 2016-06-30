@@ -92,7 +92,7 @@ export default class Ball {
     }
 
     shuffleStatus(): void {
-        this._enabledOld = this._enabledOld;
+        this._enabledOld = this._enabledNew;
         this._updateEnabled();
     }
 
