@@ -4,9 +4,10 @@ const
     decodes2 = new Uint8Array(160),
     decodes3 = new Uint8Array(160),
     decodes4 = new Uint8Array(160),
-    decodes6 = new Uint8Array(160);
+    decodes6 = new Uint8Array(160),
+    decodesWide = new Uint8Array(160);
 
-export const decodes: Array<Uint8Array> = [
+export const decodesMissile: Array<Uint8Array> = [
     decodes0,
     decodes1,
     decodes2,
@@ -16,6 +17,18 @@ export const decodes: Array<Uint8Array> = [
     decodes6,
     decodes0
 ];
+
+export const decodesPlayer: Array<Uint8Array> = [
+    decodes0,
+    decodes1,
+    decodes2,
+    decodes3,
+    decodes4,
+    decodesWide,
+    decodes6,
+    decodesWide
+];
+
 
 module init {
     [
@@ -32,6 +45,11 @@ module init {
 
         decodes[156] = 1;
     });
+
+    for (let i = 0; i < 160; i++) {
+        decodesWide[i] = 0;
+    }
+    decodesWide[157] = 1;
 
     decodes1[12] = 1;
     decodes2[28] = 1;

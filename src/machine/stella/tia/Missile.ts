@@ -1,4 +1,4 @@
-import {decodes} from './drawCounterDecodes';
+import {decodesMissile} from './drawCounterDecodes';
 
 import Player from './Player';
 
@@ -21,7 +21,7 @@ class Missile {
         this._renderCounter = Count.renderCounterOffset;
         this._moving = false;
         this._hmmClocks = 0;
-        this._decodes = decodes[0];
+        this._decodes = decodesMissile[0];
         this._resmp = false;
         this._enam = false;
     }
@@ -53,7 +53,7 @@ class Missile {
 
     nusiz(value: number): void {
         this._width = this._widths[(value & 0x30) >>> 4];
-        this._decodes = decodes[value & 0x07];
+        this._decodes = decodesMissile[value & 0x07];
 
         if (this._rendering && this._renderCounter >= this._width) {
             this._rendering = false;

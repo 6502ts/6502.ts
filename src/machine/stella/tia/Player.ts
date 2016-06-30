@@ -1,5 +1,5 @@
 import Event from '../../../tools/event/Event';
-import {decodes} from './drawCounterDecodes';
+import {decodesPlayer} from './drawCounterDecodes';
 
 const enum Count {
     renderCounterOffset = -5
@@ -20,7 +20,7 @@ export default class Player {
         this._width = 8;
         this._rendering = false;
         this._renderCounter = Count.renderCounterOffset;
-        this._decodes = decodes[0];
+        this._decodes = decodesPlayer[0];
         this._patternNew = 0;
         this._patternOld = 0;
         this._pattern = 0;
@@ -49,7 +49,7 @@ export default class Player {
             this._width = 8;
         }
 
-        this._decodes = decodes[value & 0x07];
+        this._decodes = decodesPlayer[masked];
 
         if (this._rendering && this._renderCounter >= this._width) {
             this._rendering = false;
@@ -116,9 +116,7 @@ export default class Player {
     }
 
     tick(): void {
-        let counter = this._width > 8 ? this._counter - 1 : this._counter;
-
-        if (this._decodes[counter]) {
+        if (this._decodes[this._counter]) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
         } else if (this._rendering && this._renderCounter++ >= this._width) {
