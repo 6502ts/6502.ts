@@ -26,6 +26,7 @@ export default class Player {
         this._pattern = 0;
         this._reflected = false;
         this._delaying = false;
+        this._shufflePending = false;
     }
 
     grp(pattern: number) {
@@ -115,6 +116,13 @@ export default class Player {
         ) ? this._collisionMask : 0;
     }
 
+    cpuClockTick() {
+        if (this._shufflePending) {
+            this._doShufflePatterns();
+            this._shufflePending = false;
+        }
+    }
+
     tick(): void {
         if (this._decodes[this._counter]) {
             this._rendering = true;
@@ -133,13 +141,7 @@ export default class Player {
     }
 
     shufflePatterns(): void {
-        const oldPatternOld = this._patternOld;
-
-        this._patternOld = this._patternNew;
-
-        if (this._delaying && oldPatternOld !== this._patternOld) {
-            this._updatePattern();
-        }
+        this._shufflePending = true;
     }
 
     getRespClock(): number {
@@ -155,6 +157,16 @@ export default class Player {
 
             default:
                 throw new Error(`cannot happen: invalid width ${this._width}`);
+        }
+    }
+
+    private _doShufflePatterns(): void {
+        const oldPatternOld = this._patternOld;
+
+        this._patternOld = this._patternNew;
+
+        if (this._delaying && oldPatternOld !== this._patternOld) {
+            this._updatePattern();
         }
     }
 
@@ -244,6 +256,7 @@ export default class Player {
 
     private _patternNew = 0;
     private _patternOld = 0;
+    private _shufflePending = false;
 
     private _pattern = 0;
     private _reflected = false;

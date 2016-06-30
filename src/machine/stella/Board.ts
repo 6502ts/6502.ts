@@ -208,6 +208,7 @@ class Board implements BoardInterface {
 
         if (this._subClock++ >= 2) {
             this._pia.cycle();
+            this._tia.cpuClockCycle();
             this._cpu.cycle();
             this._subClock = 0;
         }

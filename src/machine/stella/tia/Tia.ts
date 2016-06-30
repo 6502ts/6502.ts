@@ -145,11 +145,16 @@ class Tia implements VideoOutputInterface {
         this._audio1.setActive(state && this._config.enableAudio);
     }
 
+    cpuClockCycle(): void {
+        this._playfield.cpuClockTick();
+        this._player0.cpuClockTick();
+        this._player1.cpuClockTick();
+    }
+
     cycle(): void {
         this._collisionUpdateRequired = false;
 
         this._tickMovement();
-        this._playfield.clockTick();
 
         if (this._hstate === HState.blank) {
             this._tickHblank();
@@ -714,12 +719,12 @@ class Tia implements VideoOutputInterface {
                 color = this._missile0.getPixel(color);
                 color = this._player0.getPixel(color);
             } else {
-                color = this._ball.getPixel(color);
                 color = this._missile1.getPixel(color);
                 color = this._player1.getPixel(color);
                 color = this._missile0.getPixel(color);
                 color = this._player0.getPixel(color);
                 color = this._playfield.getPixel(color);
+                color = this._ball.getPixel(color);
             }
 
             this._surfaceBuffer[y * 160 + x] = this._vblank ? 0xFF000000 : color;
