@@ -109,8 +109,8 @@ export default class Audio implements AudioOutputInterface {
             return;
         }
 
-        this._volume = value;
-        this._dispatchBufferChanged();
+        this._volume = value / 15;
+        this.volumeChanged.dispatch(this._volume);
     }
 
     setActive(active: boolean): void {
@@ -123,9 +123,12 @@ export default class Audio implements AudioOutputInterface {
         }
     }
 
+    getVolume(): number {
+        return this._volume >= 0 ? this._volume : 0;
+    }
+
     getBuffer(key: number): AudioOutputBuffer {
-        const tone = (key >>> 9) & 0x0F,
-            volume = (key >>> 5) & 0x0F,
+        const tone = (key >>> 5) & 0x0F,
             frequency = key & 0x1F;
 
         const poly = POLYS[tone];
@@ -166,14 +169,14 @@ export default class Audio implements AudioOutputInterface {
                 state = !(offset & 0x01);
             }
 
-            content[i] = (state ? 1 : -1) * (volume / 15);
+            content[i] = (state ? 1 : -1);
         }
 
         return new AudioOutputBuffer(content, sampleRate);
     }
 
     protected _getKey(): number {
-        return (this._tone << 9) | (this._volume << 5) | this._frequency;
+        return (this._tone << 5) | this._frequency;
     }
 
     protected _dispatchBufferChanged() {
@@ -183,6 +186,7 @@ export default class Audio implements AudioOutputInterface {
     }
 
     bufferChanged = new Event<number>();
+    volumeChanged = new Event<number>();
     stop = new Event<void>();
 
     private _volume = -1;

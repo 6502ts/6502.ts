@@ -5,9 +5,13 @@ interface AudioOutputInterface {
 
     bufferChanged: EventInterface<number>;
 
+    volumeChanged: EventInterface<number>;
+
     stop: EventInterface<void>;
 
     getBuffer(key: number): AudioOutputBuffer;
+
+    getVolume(): number;
 
 }
 

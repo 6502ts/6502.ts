@@ -188,6 +188,23 @@ function setupAudio(context: AudioContext, audio: Board.Audio) {
     const merger = context.createChannelMerger(2);
     merger.connect(context.destination);
 
+    const gain0 = context.createGain(),
+        gain1 = context.createGain();
+
+    gain0.connect(merger);
+    gain0.gain.value = audio.channel0.getVolume();
+
+    audio.channel0.volumeChanged.addHandler(
+        volume => gain0.gain.value = volume
+    );
+
+    gain1.connect(merger);
+    gain1.gain.value = audio.channel1.getVolume();
+
+    audio.channel1.volumeChanged.addHandler(
+        volume => gain1.gain.value = volume
+    );
+
     audio.channel0.bufferChanged.addHandler((key: number) => {
         const buffer = getBuffer(key, audio.channel0);
 
@@ -198,7 +215,7 @@ function setupAudio(context: AudioContext, audio: Board.Audio) {
         source0 = context.createBufferSource();
         source0.loop = true;
         source0.buffer = buffer;
-        source0.connect(merger);
+        source0.connect(gain0);
         source0.start();
     });
 
@@ -219,7 +236,7 @@ function setupAudio(context: AudioContext, audio: Board.Audio) {
         source1 = context.createBufferSource();
         source1.loop = true;
         source1.buffer = buffer;
-        source1.connect(merger);
+        source1.connect(gain1);
         source1.start();
     });
 
