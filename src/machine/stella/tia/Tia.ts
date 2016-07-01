@@ -145,16 +145,13 @@ class Tia implements VideoOutputInterface {
         this._audio1.setActive(state && this._config.enableAudio);
     }
 
-    cpuClockCycle(): void {
-        this._playfield.cpuClockTick();
-        this._player0.cpuClockTick();
-        this._player1.cpuClockTick();
-    }
-
     cycle(): void {
         this._collisionUpdateRequired = false;
 
         this._tickMovement();
+        this._playfield.clockTick();
+        this._player0.clockTick();
+        this._player1.clockTick();
 
         if (this._hstate === HState.blank) {
             this._tickHblank();

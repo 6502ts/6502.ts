@@ -2,7 +2,8 @@ import Event from '../../../tools/event/Event';
 import {decodesPlayer} from './drawCounterDecodes';
 
 const enum Count {
-    renderCounterOffset = -5
+    renderCounterOffset = -5,
+    shuffleDelay = 2
 }
 
 export default class Player {
@@ -24,9 +25,9 @@ export default class Player {
         this._patternNew = 0;
         this._patternOld = 0;
         this._pattern = 0;
+        this._shuffleCounter = 0;
         this._reflected = false;
         this._delaying = false;
-        this._shufflePending = false;
     }
 
     grp(pattern: number) {
@@ -116,10 +117,9 @@ export default class Player {
         ) ? this._collisionMask : 0;
     }
 
-    cpuClockTick() {
-        if (this._shufflePending) {
+    clockTick() {
+        if (this._shuffleCounter > 0 && --this._shuffleCounter === 0) {
             this._doShufflePatterns();
-            this._shufflePending = false;
         }
     }
 
@@ -141,7 +141,17 @@ export default class Player {
     }
 
     shufflePatterns(): void {
-        this._shufflePending = true;
+        this._shuffleCounter = Count.shuffleDelay;
+    }
+
+    private _doShufflePatterns(): void {
+        const oldPatternOld = this._patternOld;
+
+        this._patternOld = this._patternNew;
+
+        if (this._delaying && oldPatternOld !== this._patternOld) {
+            this._updatePattern();
+        }
     }
 
     getRespClock(): number {
@@ -157,16 +167,6 @@ export default class Player {
 
             default:
                 throw new Error(`cannot happen: invalid width ${this._width}`);
-        }
-    }
-
-    private _doShufflePatterns(): void {
-        const oldPatternOld = this._patternOld;
-
-        this._patternOld = this._patternNew;
-
-        if (this._delaying && oldPatternOld !== this._patternOld) {
-            this._updatePattern();
         }
     }
 
@@ -248,6 +248,7 @@ export default class Player {
     private _counter = 0;
     private _moving = false;
     private _width = 8;
+    private _shuffleCounter = 0;
 
     private _rendering = false;
     private _renderCounter = Count.renderCounterOffset;
@@ -256,7 +257,6 @@ export default class Player {
 
     private _patternNew = 0;
     private _patternOld = 0;
-    private _shufflePending = false;
 
     private _pattern = 0;
     private _reflected = false;
