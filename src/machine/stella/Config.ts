@@ -1,7 +1,7 @@
 class Config {
     constructor(
         public tvMode: Config.TvMode = Config.TvMode.ntsc,
-        public enableAudio = false
+        public enableAudio = true
     ) {}
 }
 
