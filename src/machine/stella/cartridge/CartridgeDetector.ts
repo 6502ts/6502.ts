@@ -1,5 +1,6 @@
 import CartridgeInfo from './CartridgeInfo';
 import CartridgeE0 from './CartridgeE0';
+import Cartridge3F from './Cartridge3F';
 import * as cartridgeUtil from './util';
 
 class CartridgeDetector {
@@ -26,9 +27,13 @@ class CartridgeDetector {
     private _detect8k(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
         if (CartridgeE0.matchesBuffer(buffer)) {
             return CartridgeInfo.CartridgeType.bankswitch_8k_E0;
-        } else {
-            return CartridgeInfo.CartridgeType.bankswitch_8k_F8;
         }
+
+        if (Cartridge3F.matchesBuffer(buffer)) {
+            return CartridgeInfo.CartridgeType.bankswitch_8k_3F;
+        }
+
+        return CartridgeInfo.CartridgeType.bankswitch_8k_F8;
     }
 
 }

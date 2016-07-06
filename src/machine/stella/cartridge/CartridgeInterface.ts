@@ -7,6 +7,8 @@ interface CartridgeInterface {
 
     write(address: number, value: number): void;
 
+    tiaWrite(address: number, value: number): void;
+
     getType(): CartridgeInfo.CartridgeType;
 
     trap: EventInterface<CartridgeInterface.TrapPayload>;

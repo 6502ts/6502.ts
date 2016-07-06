@@ -10,6 +10,7 @@ module CartridgeInfo {
 
         bankswitch_8k_F8,
         bankswitch_8k_E0,
+        bankswitch_8k_3F,
 
         bankswitch_16k_F6,
 
@@ -29,6 +30,9 @@ module CartridgeInfo {
 
             case CartridgeType.bankswitch_8k_E0:
                 return 'bankswitched 8k, E0 (Parker Bros.) scheme';
+
+            case CartridgeType.bankswitch_8k_3F:
+                return 'bankswitched 8k, 3F (Tigervision) scheme';
 
             case CartridgeType.bankswitch_16k_F6:
                 return 'bankswitched 16k, F6 (Atari) scheme';

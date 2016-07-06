@@ -62,6 +62,7 @@
         "src/machine/stella/Bus.ts",
         "src/machine/stella/cartridge/AbstractCartridge.ts",
         "src/machine/stella/cartridge/Cartridge2k.ts",
+        "src/machine/stella/cartridge/Cartridge3F.ts",
         "src/machine/stella/cartridge/Cartridge4k.ts",
         "src/machine/stella/cartridge/CartridgeDetector.ts",
         "src/machine/stella/cartridge/CartridgeE0.ts",
