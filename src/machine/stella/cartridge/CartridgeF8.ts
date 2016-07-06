@@ -1,4 +1,5 @@
 import AbstractCartridge from './AbstractCartridge';
+import CartridgeInfo from './CartridgeInfo';
 
 class CartridgeF8 extends AbstractCartridge {
 
@@ -47,6 +48,10 @@ class CartridgeF8 extends AbstractCartridge {
             default:
                 return super.write(address, value);
         }
+    }
+
+    getType(): CartridgeInfo.CartridgeType {
+        return CartridgeInfo.CartridgeType.bankswitch_8k_F8;
     }
 
     protected _bank: Uint8Array = null;

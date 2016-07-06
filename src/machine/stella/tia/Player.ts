@@ -3,7 +3,8 @@ import {decodesPlayer} from './drawCounterDecodes';
 
 const enum Count {
     renderCounterOffset = -5,
-    shuffleDelay = 2
+    shuffleDelay = 2,
+    grpDelay = 2
 }
 
 export default class Player {
@@ -25,16 +26,16 @@ export default class Player {
         this._patternNew = 0;
         this._patternOld = 0;
         this._pattern = 0;
+        this._patternPending = 0;
+        this._grpCounter = 0;
         this._shuffleCounter = 0;
         this._reflected = false;
         this._delaying = false;
     }
 
     grp(pattern: number) {
-        this._patternNew = pattern;
-        if (!this._delaying) {
-            this._updatePattern();
-        }
+        this._patternPending = pattern;
+        this._grpCounter = Count.grpDelay;
 
         this.patternChange.dispatch(undefined);
     }
@@ -121,6 +122,10 @@ export default class Player {
         if (this._shuffleCounter > 0 && --this._shuffleCounter === 0) {
             this._doShufflePatterns();
         }
+
+        if (this._grpCounter > 0 && --this._grpCounter === 0) {
+            this._doGrp(this._patternPending);
+        }
     }
 
     tick(): void {
@@ -150,6 +155,13 @@ export default class Player {
         this._patternOld = this._patternNew;
 
         if (this._delaying && oldPatternOld !== this._patternOld) {
+            this._updatePattern();
+        }
+    }
+
+    private _doGrp(pattern: number) {
+        this._patternNew = pattern;
+        if (!this._delaying) {
             this._updatePattern();
         }
     }
@@ -249,6 +261,7 @@ export default class Player {
     private _moving = false;
     private _width = 8;
     private _shuffleCounter = 0;
+    private _grpCounter = 0;
 
     private _rendering = false;
     private _renderCounter = Count.renderCounterOffset;
@@ -257,6 +270,7 @@ export default class Player {
 
     private _patternNew = 0;
     private _patternOld = 0;
+    private _patternPending = 0;
 
     private _pattern = 0;
     private _reflected = false;

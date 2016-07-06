@@ -4,9 +4,11 @@ import AbstractCLI from '../AbstractCLI';
 
 import BoardInterface from '../../machine/board/BoardInterface';
 import Board from '../../machine/stella/Board';
-import CartridgeInterface from '../../machine/stella/CartridgeInterface';
 import StellaConfig from '../../machine/stella/Config';
-import CartridgeFactory from '../../machine/stella/CartridgeFactory';
+
+import CartridgeInterface from '../../machine/stella/cartridge/CartridgeInterface';
+import CartridgeFactory from '../../machine/stella/cartridge/CartridgeFactory';
+import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 
 import CommandInterpreter from '../CommandInterpreter';
 import ImmedateScheduler from '../../tools/scheduler/ImmedateScheduler';
@@ -102,6 +104,7 @@ class StellaCLI extends DebuggerCLI {
             this._cartridgeFile = name;
 
             this._outputLine(`successfully loaded ${name}`);
+            this._outputLine(`format: ${CartridgeInfo.describeCartridgeType(this._cartridge.getType())}`);
         } catch (e) {
             this._outputLine(e.message);
         }
@@ -139,7 +142,7 @@ class StellaCLI extends DebuggerCLI {
             return e.message;
         }
 
-        return `succesfully loaded ${file}`;
+        return `succesfully loaded ${file}\nformat: ${CartridgeInfo.describeCartridgeType(this._cartridge.getType())}`;
     }
 
     protected _loadCartridge(file: string): void {

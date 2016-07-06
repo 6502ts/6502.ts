@@ -1,4 +1,5 @@
 import AbstractCartridge from './AbstractCartridge';
+import CartridgeInfo from './CartridgeInfo';
 
 class Cartridge2k extends AbstractCartridge {
 
@@ -16,6 +17,10 @@ class Cartridge2k extends AbstractCartridge {
     read(address: number): number {
         // Mask out A11 - A15
         return this._rom[address & 0x07FF];
+    }
+
+    getType(): CartridgeInfo.CartridgeType {
+        return CartridgeInfo.CartridgeType.vanilla_2k;
     }
 
     // A11 - A15 masked out -> 0x0800 bytes of ROM

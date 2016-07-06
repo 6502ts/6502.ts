@@ -1,10 +1,13 @@
-import EventInterface from '../../tools/event/EventInterface';
+import EventInterface from '../../../tools/event/EventInterface';
+import CartridgeInfo from './CartridgeInfo';
 
 interface CartridgeInterface {
 
     read(address: number): number;
 
     write(address: number, value: number): void;
+
+    getType(): CartridgeInfo.CartridgeType;
 
     trap: EventInterface<CartridgeInterface.TrapPayload>;
 

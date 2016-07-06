@@ -1,5 +1,7 @@
 import Event from '../../../tools/event/Event';
-import CartridgeInterface from '../CartridgeInterface';
+import CartridgeInterface from './CartridgeInterface';
+import CartridgeInfo from './CartridgeInfo';
+
 
 class AbstractCartridge implements CartridgeInterface {
 
@@ -8,6 +10,10 @@ class AbstractCartridge implements CartridgeInterface {
     }
 
     write(address: number, value: number) {
+    }
+
+    getType(): CartridgeInfo.CartridgeType {
+        return CartridgeInfo.CartridgeType.unknown;
     }
 
     trap = new Event<CartridgeInterface.TrapPayload>();
