@@ -69,7 +69,7 @@ export default class Player {
     }
 
     resp(hblank: boolean): void {
-        this._counter = hblank ? 159 : 157;
+        this._counter = hblank ? (this._width > 8 ? 159 : 158) : 157;
     }
 
     refp(value: number): void {
