@@ -48,6 +48,7 @@ class Bus implements BusInterface {
         }
 
         // All chip selects low -> TIA
+        this._cartridge.tiaRead(address);
         return this._tia.read(address);
     }
 

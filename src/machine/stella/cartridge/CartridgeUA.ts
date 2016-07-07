@@ -2,7 +2,7 @@ import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 import * as cartridgeUtil from './util';
 
-class CartridgeF8 extends AbstractCartridge {
+class CartridgeUA extends AbstractCartridge {
 
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
@@ -20,47 +20,54 @@ class CartridgeF8 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
-
-        switch (address) {
-            case 0x0FF8:
-                this._bank = this._bank0;
-                break;
-
-            case 0x0FF9:
-                this._bank = this._bank1;
-                break;
-        }
-
-        return this._bank[address];
+        return this._bank[address & 0x0FFF];
     }
 
     write(address: number, value: number): void {
-        switch (address & 0x0FFF) {
-            case 0x0FF8:
-                this._bank = this._bank0;
-                return;
+        super.write(address, value);
+    }
 
-            case 0x0FF9:
-                this._bank = this._bank1;
-                return;
+    tiaWrite(address: number, value: number): void {
+        this._tiaAccess(address);
+    }
 
-            default:
-                return super.write(address, value);
-        }
+    tiaRead(address: number): void {
+        this._tiaAccess(address);
     }
 
     getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_8k_F8;
+        return CartridgeInfo.CartridgeType.bankswitch_8k_UA;
     }
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
         // Signatures shamelessly stolen from stella
         const signatureCounts = cartridgeUtil.searchForSignatures(buffer,
-            [[0x8D, 0xF9, 0x1F]]  // STA $1FF9
+            [
+                [0x8D, 0x40, 0x02],  // STA $240
+                [0xAD, 0x40, 0x02],  // LDA $240
+                [0xBD, 0x1F, 0x02]   // LDA $21F,X
+            ]
         );
 
-        return signatureCounts[0] >= 2;
+        for (let i = 0; i < signatureCounts.length; i++) {
+            if (signatureCounts[i] > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private _tiaAccess(address: number): void {
+        switch (address) {
+            case 0x0220:
+                this._bank = this._bank0;
+                break;
+
+            case 0x0240:
+                this._bank = this._bank1;
+                break;
+        }
     }
 
     protected _bank: Uint8Array = null;
@@ -69,4 +76,4 @@ class CartridgeF8 extends AbstractCartridge {
 
 }
 
-export default CartridgeF8;
+export default CartridgeUA;

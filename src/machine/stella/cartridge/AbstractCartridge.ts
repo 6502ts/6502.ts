@@ -17,6 +17,9 @@ class AbstractCartridge implements CartridgeInterface {
     tiaWrite(address: number, value: number) {
     }
 
+    tiaRead(address: number) {
+    }
+
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.unknown;
     }
@@ -29,7 +32,8 @@ class AbstractCartridge implements CartridgeInterface {
         return this;
     }
 
-    notifyCpuCycleComplete(): void {}
+    notifyCpuCycleComplete(): void {
+    }
 
     trap = new Event<CartridgeInterface.TrapPayload>();
 

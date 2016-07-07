@@ -3,6 +3,7 @@ import CartridgeF8 from './CartridgeF8';
 import CartridgeE0 from './CartridgeE0';
 import Cartridge3F from './Cartridge3F';
 import CartridgeFE from './CartridgeFE';
+import CartridgeUA from './CartridgeUA';
 import * as cartridgeUtil from './util';
 
 class CartridgeDetector {
@@ -35,6 +36,10 @@ class CartridgeDetector {
 
         if (Cartridge3F.matchesBuffer(buffer)) {
             return CartridgeInfo.CartridgeType.bankswitch_8k_3F;
+        }
+
+        if (CartridgeUA.matchesBuffer(buffer)) {
+            return CartridgeInfo.CartridgeType.bankswitch_8k_UA;
         }
 
         if (!f8Matches && CartridgeFE.matchesBuffer(buffer)) {
