@@ -69,6 +69,7 @@
         "src/machine/stella/cartridge/CartridgeF6.ts",
         "src/machine/stella/cartridge/CartridgeF8.ts",
         "src/machine/stella/cartridge/CartridgeFactory.ts",
+        "src/machine/stella/cartridge/CartridgeFE.ts",
         "src/machine/stella/cartridge/CartridgeInfo.ts",
         "src/machine/stella/cartridge/CartridgeInterface.ts",
         "src/machine/stella/cartridge/util.ts",

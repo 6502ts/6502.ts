@@ -47,6 +47,10 @@ class Board implements BoardInterface {
             .setPia(pia)
             .setCartridge(cartridge);
 
+        cartridge
+            .setCpu(cpu)
+            .setBus(bus);
+
         this._bus = bus;
         this._cpu = cpu;
         this._tia = tia;
@@ -229,17 +233,19 @@ class Board implements BoardInterface {
                 cpuCycles++;
             }
 
-            if (this._clockMode === BoardInterface.ClockMode.instruction &&
-                lastExecutionState !== this._cpu.executionState
-            ) {
+            if (lastExecutionState !== this._cpu.executionState) {
                 lastExecutionState = this._cpu.executionState;
 
-                if (lastExecutionState === CpuInterface.ExecutionState.fetch &&
-                    cpuCycles > 0 &&
-                    this.cpuClock.hasHandlers
-                ) {
-                    this.cpuClock.dispatch(cpuCycles);
-                    cpuCycles = 0;
+                if (this._cpu.executionState === CpuInterface.ExecutionState.fetch) {
+                    this._cartridge.notifyCpuCycleComplete();
+
+                    if (this._clockMode === BoardInterface.ClockMode.instruction &&
+                        cpuCycles > 0 &&
+                        this.cpuClock.hasHandlers
+                    ) {
+                        this.cpuClock.dispatch(cpuCycles);
+                        cpuCycles = 0;
+                    }
                 }
             }
         }

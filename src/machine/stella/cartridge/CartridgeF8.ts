@@ -1,9 +1,10 @@
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
+import * as cartridgeUtil from './util';
 
 class CartridgeF8 extends AbstractCartridge {
 
-    constructor(buffer: {[i: number]: number, length: number}) {
+    constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
         if (buffer.length !== 0x2000) {
@@ -52,6 +53,15 @@ class CartridgeF8 extends AbstractCartridge {
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.bankswitch_8k_F8;
+    }
+
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        // Signatures shamelessly stolen from stella
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer,
+            [[0x8D, 0xF9, 0x1F]]  // STA $1FF9
+        );
+
+        return signatureCounts[0] >= 2;
     }
 
     protected _bank: Uint8Array = null;

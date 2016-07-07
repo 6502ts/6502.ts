@@ -1,5 +1,7 @@
 import EventInterface from '../../../tools/event/EventInterface';
 import CartridgeInfo from './CartridgeInfo';
+import Cpuinterface from '../../cpu/CpuInterface';
+import BusInterface from '../../bus/BusInterface';
 
 interface CartridgeInterface {
 
@@ -10,6 +12,12 @@ interface CartridgeInterface {
     tiaWrite(address: number, value: number): void;
 
     getType(): CartridgeInfo.CartridgeType;
+
+    setCpu(cpu: Cpuinterface): this;
+
+    setBus(bus: BusInterface): this;
+
+    notifyCpuCycleComplete(): void;
 
     trap: EventInterface<CartridgeInterface.TrapPayload>;
 

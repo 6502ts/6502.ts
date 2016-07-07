@@ -37,7 +37,7 @@ class Missile {
     }
 
     resm(hblank: boolean): void {
-        this._counter = hblank ? 158 : 157;
+        this._counter = hblank ? 159 : 157;
     }
 
     resmp(value: number, player: Player) {

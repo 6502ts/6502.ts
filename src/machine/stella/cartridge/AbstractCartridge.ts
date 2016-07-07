@@ -1,6 +1,8 @@
 import Event from '../../../tools/event/Event';
 import CartridgeInterface from './CartridgeInterface';
 import CartridgeInfo from './CartridgeInfo';
+import CpuInterface from '../../cpu/CpuInterface';
+import BusInterface from '../../bus/BusInterface';
 
 
 class AbstractCartridge implements CartridgeInterface {
@@ -18,6 +20,16 @@ class AbstractCartridge implements CartridgeInterface {
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.unknown;
     }
+
+    setCpu(cpu: CpuInterface): this {
+        return this;
+    }
+
+    setBus(bus: BusInterface): this {
+        return this;
+    }
+
+    notifyCpuCycleComplete(): void {}
 
     trap = new Event<CartridgeInterface.TrapPayload>();
 
