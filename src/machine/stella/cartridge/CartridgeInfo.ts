@@ -14,6 +14,8 @@ module CartridgeInfo {
         bankswitch_8k_FE,
         bankswitch_8k_UA,
 
+        bankswitch_12k_FA,
+
         bankswitch_16k_F6,
 
         unknown
@@ -41,6 +43,9 @@ module CartridgeInfo {
 
             case CartridgeType.bankswitch_8k_UA:
                 return 'bankswitched 8k, UA (Pleiades) scheme';
+
+            case CartridgeType.bankswitch_12k_FA:
+                return 'bankswitched 12k, FA (CBS) scheme';
 
             case CartridgeType.bankswitch_16k_F6:
                 return 'bankswitched 16k, F6 (Atari) scheme';
