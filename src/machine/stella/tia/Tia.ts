@@ -22,7 +22,7 @@ const VISIBLE_LINES_NTSC = 192,
     OVERSCAN = 15;
 
 const enum Count {
-    hmoveDelay = 6
+    hmoveDelay = 5
 }
 
 // Each bit in the collision mask identifies a single collision pair
