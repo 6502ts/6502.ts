@@ -51,7 +51,7 @@ class Playfield {
 
     ctrlpf(value: number): void {
         this._reflected = (value & 0x01) > 0;
-        this._colorMode = (value & 0x06) === 0x04 ? ColorMode.score : ColorMode.normal;
+        this._colorMode = (value & 0x06) === 0x02 ? ColorMode.score : ColorMode.normal;
         this._applyColors();
     }
 
