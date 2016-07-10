@@ -9,9 +9,8 @@ of affairs:
    The compiled binary was taken from this nice stack overflow
    [code challenge](http://codegolf.stackexchange.com/questions/12844/emulate-a-mos-6502-cpu)
    and is included
- * Emulation for the Atari 2600 is a work in progress. Parts of PIA and TIA are
-   implemented, and the example code in `aux/2600` works. Just don't expect
-   to play any games just yet.
+ * Emulation for the Atari 2600 is almost complete and most original games play
+   flawlessly, including audio.
  * There's a debug shell with supports disassbling, memory and hardware state inspection,
    breakpoints and execution tracing
  * Frontends exist both for node and the browser (you won't get any graphics on node though ;) )
@@ -297,7 +296,7 @@ enter will toggle fullscreen mode (unfortunately, Firefox will not honour aspect
    Not a demo, but an original homebrew pong-like game with flaps :) Some things work,
    but not playable on 6502.ts just yet.
 
-# License
+# License and credits
 
 You are free to use, modify and redistribute this code under the conditions
 of the MIT license --- see `LICENSE` for details.
@@ -318,4 +317,5 @@ mostly were written by folks other than me. Specifically:
    [here](http://alienbill.com/2600/flapping/).
 
 The 2600 cartridge type detection code was modelled after the excellent
-[stella](http://stella.sourceforge.net/) emulator.
+[stella](http://stella.sourceforge.net/) emulator. Initial 2600 audio code was
+contributed by Martin Schröder.
