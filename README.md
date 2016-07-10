@@ -248,6 +248,7 @@ issues fall into these categories:
  * Minor horizontal positioning issues in a handful of games
  * Undocumented opcodes --- none are implemented yet
  * Homebrew bankswitching schemes are not implemented yet.
+ * Vsync issues. Frame detection still has a lot of room for improvement, and some games that handle vblank / vsync poorly will flicker or have their screen shifted vertically.
 
 #### Running
 
