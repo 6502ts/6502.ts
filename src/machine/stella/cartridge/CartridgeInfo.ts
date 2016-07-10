@@ -19,6 +19,8 @@ module CartridgeInfo {
         bankswitch_16k_F6,
         bankswitch_16k_E7,
 
+        bankswitch_64k_F0,
+
         unknown
     }
 
@@ -53,6 +55,9 @@ module CartridgeInfo {
 
             case CartridgeType.bankswitch_16k_E7:
                 return 'bankswitched 16k, E7 (M-Network) scheme';
+
+            case CartridgeType.bankswitch_64k_F0:
+                return 'bankswitched 64k, F0 (Megaboy) scheme';
 
             case CartridgeType.unknown:
                 return 'unkown';
