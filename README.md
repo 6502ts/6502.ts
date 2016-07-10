@@ -293,8 +293,7 @@ enter will toggle fullscreen mode (unfortunately, Firefox will not honour aspect
    excercises on [AtariAge](http://atariage.com/forums/topic/28219-session-15-playfield-continued/).
  * `2600/playfield_4/image.bin`: Another playfield test that features a moving missile.
  * `2600/flapping/flapping.bin`: [FlapPing](http://localhost:6502/web/) by Kirk Isreal.
-   Not a demo, but an original homebrew pong-like game with flaps :) Some things work,
-   but not playable on 6502.ts just yet.
+   Not a demo, but an original homebrew pong-joust crossover :)
 
 # License and credits
 
