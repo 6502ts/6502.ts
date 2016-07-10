@@ -22,13 +22,13 @@ class Missile {
         this._moving = false;
         this._hmmClocks = 0;
         this._decodes = decodesMissile[0];
-        this._resmp = false;
+        this._resmp = -1;
         this._enam = false;
     }
 
     enam(value: number): void {
         this._enam = (value & 2) > 0;
-        this._enabled = this._enam && !this._resmp;
+        this._enabled = this._enam && (this._resmp === 0);
     }
 
     hmm(value: number): void {
@@ -41,11 +41,17 @@ class Missile {
     }
 
     resmp(value: number, player: Player) {
-        if (value & 0x02) {
-            this._resmp = true;
+        const resmp = value & 0x02;
+
+        if (resmp === this._resmp) {
+            return;
+        }
+
+        this._resmp = resmp;
+
+        if (resmp > 0) {
             this._enabled = false;
         } else {
-            this._resmp = false;
             this._enabled = this._enam;
             this._counter = player.getRespClock();
         }
@@ -104,7 +110,7 @@ class Missile {
 
     private _enabled = false;
     private _enam = false;
-    private _resmp = false;
+    private _resmp = -1;
 
     private _hmmClocks = 0;
     private _counter = 0;

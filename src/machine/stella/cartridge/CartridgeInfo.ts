@@ -17,6 +17,7 @@ module CartridgeInfo {
         bankswitch_12k_FA,
 
         bankswitch_16k_F6,
+        bankswitch_16k_E7,
 
         unknown
     }
@@ -49,6 +50,9 @@ module CartridgeInfo {
 
             case CartridgeType.bankswitch_16k_F6:
                 return 'bankswitched 16k, F6 (Atari) scheme';
+
+            case CartridgeType.bankswitch_16k_E7:
+                return 'bankswitched 16k, E7 (M-Network) scheme';
 
             case CartridgeType.unknown:
                 return 'unkown';
