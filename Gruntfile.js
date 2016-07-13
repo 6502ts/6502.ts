@@ -96,6 +96,10 @@ module.exports = function(grunt) {
             stellaWorker: {
                 dest: 'web/js/compiled/stellaWorker.js',
                 src: ['worker/src/main.js']
+            },
+            stellerator: {
+                dest: 'web/js/compiled/stellerator.js',
+                src: ['src/web/stella/stellerator/main.js']
             }
         },
 

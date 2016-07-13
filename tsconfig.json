@@ -6,13 +6,15 @@
         "noImplicitAny": true,
         "target": "es5",
         "preserveConstEnums": true,
-        "sourceMap": false
+        "sourceMap": false,
+        "jsx": "react"
     },
     "filesGlob": [
         "bin/*.ts",
         "src/**/*.ts",
         "tests/**/*.ts",
-        "typings/index.d.ts"
+        "typings/index.d.ts",
+        "src/web/stella/stellerator/**/*.tsx"
     ],
     "files": [
         "bin/debuggerCLI.ts",
@@ -115,6 +117,9 @@
         "src/tools/surface/RGBASurfaceInterface.ts",
         "src/web/debuggerCLI.ts",
         "src/web/ehBasicCLI.ts",
+        "src/web/stella/stellerator/state/Cartridge.ts",
+        "src/web/stella/stellerator/state/GuiState.ts",
+        "src/web/stella/stellerator/state/State.ts",
         "src/web/stellaCLI.ts",
         "src/web/testCLI.ts",
         "tests/ts/completer.ts",
@@ -122,7 +127,10 @@
         "tests/ts/interface/mocha.d.ts",
         "tests/ts/pool.ts",
         "tests/ts/scheduler.ts",
-        "typings/index.d.ts"
+        "typings/index.d.ts",
+        "src/web/stella/stellerator/components/App.tsx",
+        "src/web/stella/stellerator/components/Navbar.tsx",
+        "src/web/stella/stellerator/main.tsx"
     ],
     "atom": {
         "rewriteTsconfig": true
