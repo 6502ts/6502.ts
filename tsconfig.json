@@ -117,6 +117,7 @@
         "src/tools/surface/RGBASurfaceInterface.ts",
         "src/web/debuggerCLI.ts",
         "src/web/ehBasicCLI.ts",
+        "src/web/stella/stellerator/containers/CartridgeList.ts",
         "src/web/stella/stellerator/state/Cartridge.ts",
         "src/web/stella/stellerator/state/GuiState.ts",
         "src/web/stella/stellerator/state/State.ts",
@@ -128,8 +129,9 @@
         "tests/ts/pool.ts",
         "tests/ts/scheduler.ts",
         "typings/index.d.ts",
-        "src/web/stella/stellerator/components/App.tsx",
+        "src/web/stella/stellerator/components/CartridgeList.tsx",
         "src/web/stella/stellerator/components/Navbar.tsx",
+        "src/web/stella/stellerator/containers/App.tsx",
         "src/web/stella/stellerator/main.tsx"
     ],
     "atom": {

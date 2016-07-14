@@ -4,12 +4,11 @@ import * as React from 'react';
 import {
     Col,
     Grid,
-    Nav,
-    NavItem,
     Row
 } from 'react-bootstrap';
 
-import Navbar from './Navbar';
+import Navbar from '../components/Navbar';
+import CartridgeList from './CartridgeList';
 
 export default function App() {
     return <div>
@@ -17,11 +16,8 @@ export default function App() {
 
         <Grid fluid>
             <Row>
-                <Col md={6}>
-                    <Nav stacked>
-                        <NavItem href="#">Foo</NavItem>
-                        <NavItem href="#">Bar</NavItem>
-                    </Nav>
+                <Col md={5}>
+                    <CartridgeList/>
                 </Col>
             </Row>
         </Grid>

@@ -5,7 +5,7 @@ import {render} from 'react-dom';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';
 
-import App from './components/App';
+import App from './containers/App';
 import State from './state/State';
 
 const store = createStore<State>((x: State, action: any) => x, new State());
