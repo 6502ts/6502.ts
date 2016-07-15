@@ -140,7 +140,7 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
         );
 
     canvas.width = width;
-    canvas.height = height + 5;
+    canvas.height = height;
 
     context.fillStyle = 'solid black';
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -157,7 +157,7 @@ function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
     video.newFrame.addHandler((surface: Surface) => {
         const poolMember = poolMembers.get(surface);
 
-        context.putImageData(surface.getImageData(), 0, 5);
+        context.putImageData(surface.getImageData(), 0, 0);
 
         if (poolMember) {
             poolMember.release();

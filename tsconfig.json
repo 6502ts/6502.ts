@@ -84,6 +84,7 @@
         "src/machine/stella/tia/Audio.ts",
         "src/machine/stella/tia/Ball.ts",
         "src/machine/stella/tia/drawCounterDecodes.ts",
+        "src/machine/stella/tia/FrameManager.ts",
         "src/machine/stella/tia/LatchedInput.ts",
         "src/machine/stella/tia/Missile.ts",
         "src/machine/stella/tia/PaddleReader.ts",

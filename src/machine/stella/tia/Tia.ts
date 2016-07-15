@@ -3,23 +3,25 @@ import AudioOutputInterface from '../../io/AudioOutputInterface';
 import DigitalJoystickInterface from '../../io/DigitalJoystickInterface';
 import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
 import Event from '../../../tools/event/Event';
+import EventInterface from '../../../tools/event/EventInterface';
 import Config from '../Config';
 import CpuInterface from '../../cpu/CpuInterface';
+import Audio from './Audio';
+import Paddle from '../../io/Paddle';
+
 import Missile from './Missile';
 import Playfield from './Playfield';
 import Player from './Player';
 import Ball from './Ball';
 import LatchedInput from './LatchedInput';
 import PaddleReader from './PaddleReader';
-import Audio from './Audio';
-import Paddle from '../../io/Paddle';
+import FrameManager from './FrameManager';
 import * as palette from './palette';
 
-const VISIBLE_LINES_NTSC = 192,
-    VISIBLE_LINES_PAL = 228,
-    FRAME_LINES_NTSC = 262,
-    FRAME_LINES_PAL = 312,
-    OVERSCAN = 15;
+const enum Metrics {
+    frameLinesPAL        = 312,
+    frameLinesNTSC       = 262
+}
 
 const enum Count {
     hmoveDelay = 5
@@ -46,7 +48,9 @@ class Tia implements VideoOutputInterface {
         joystick1: DigitalJoystickInterface,
         paddles: Array<Paddle>
     ) {
-        this._visibleLines = this._getVisibleLines(this._config);
+        this._frameManager = new FrameManager(this._config);
+        this.newFrame = this._frameManager.newFrame;
+
         this._palette = this._getPalette(this._config);
         this._input0 = new LatchedInput(joystick0.getFire());
         this._input1 = new LatchedInput(joystick1.getFire());
@@ -72,21 +76,19 @@ class Tia implements VideoOutputInterface {
     reset(): void {
         this._hblankCtr = 0;
         this._hctr = 0;
-        this._line = 0;
         this._movementInProgress = false;
         this._extendedHblank = false;
         this._movementCtr = 0;
-        this._vsync = false;
-        this._frameInProgress = false;
         this._priority = Priority.normal;
         this._hstate = HState.blank;
         this._freshLine = true;
         this._collisionMask = 0;
-        this._vblank = false;
         this._colorBk = 0xFF000000;
         this._linesSinceChange = 0;
         this._collisionUpdateRequired = false;
         this._clock = 0.;
+
+        this._frameManager.reset();
 
         this._missile0.reset();
         this._missile1.reset();
@@ -108,8 +110,6 @@ class Tia implements VideoOutputInterface {
         if (this._cpu) {
             this._cpu.resume();
         }
-
-        this._finalizeFrame();
     }
 
     setCpu(cpu: CpuInterface): Tia {
@@ -123,11 +123,11 @@ class Tia implements VideoOutputInterface {
     }
 
     getHeight(): number {
-        return this._visibleLines;
+        return this._frameManager.getHeight();
     }
 
     setSurfaceFactory(factory: VideoOutputInterface.SurfaceFactoryInterface): Tia {
-        this._surfaceFactory = factory;
+        this._frameManager.setSurfaceFactory(factory);
 
         return this;
     }
@@ -240,7 +240,9 @@ class Tia implements VideoOutputInterface {
         this._tickSprites();
 
         // render pixel data
-        this._renderPixel(x, this._line, lineNotCached);
+        if (this._frameManager.isRendering()) {
+            this._renderPixel(x, this._frameManager.getCurrentLine(), lineNotCached);
+        }
 
         if (++this._hctr >= 228) {
             this._nextLine();
@@ -268,22 +270,11 @@ class Tia implements VideoOutputInterface {
         this._hctr = 0;
         this._linesSinceChange++;
 
-        if (this._rendering) {
-            this._line++;
-        }
-
-        if (this._frameInProgress) {
-            this._rendering = !!this._surface;
-
-            // Overscan reached? -> pump out frame
-            if (this._line >= this._visibleLines){
-                this._finalizeFrame();
-            }
-        }
-
         this._hstate = HState.blank;
         this._freshLine = true;
         this._extendedHblank = false;
+
+        this._frameManager.nextLine();
     }
 
     read(address: number): number {
@@ -367,7 +358,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.vsync:
-                this._vsync = (value & 0x02) > 0;
+                this._frameManager.setVsync((value & 0x02) > 0);
                 break;
 
             case Tia.Registers.vblank:
@@ -380,11 +371,7 @@ class Tia implements VideoOutputInterface {
                     this._paddles[i].vblank(value);
                 }
 
-                if ((value & 0x02) === 0 && this._vblank) {
-                    this._startFrame();
-                }
-
-                this._vblank = (value & 0x02) > 0;
+                this._frameManager.setVblank((value & 0x02) > 0);
                 break;
 
             case Tia.Registers.enam0:
@@ -608,7 +595,8 @@ class Tia implements VideoOutputInterface {
 
     getDebugState(): string {
         return '' +
-            `hclock: ${this._hctr}   line: ${this._line}    vsync: ${this._vsync ? 1 : 0}    frame pending: ${this._frameInProgress ? "yes" : "no"}`;
+            `hclock: ${this._hctr}   line: ${this._frameManager.getCurrentLine()}\n` +
+            this._frameManager.getDebugState();
     }
 
     trap = new Event<Tia.TrapPayload>();
@@ -634,20 +622,6 @@ class Tia implements VideoOutputInterface {
         this._ball.startMovement();
     }
 
-    private _getVisibleLines(config: Config): number {
-        switch (this._config.tvMode) {
-            case Config.TvMode.secam:
-            case Config.TvMode.pal:
-                return VISIBLE_LINES_PAL + OVERSCAN;
-
-            case Config.TvMode.ntsc:
-                return VISIBLE_LINES_NTSC + OVERSCAN;
-
-            default:
-                throw new Error('invalid TV mode');
-        }
-    }
-
     private _getPalette(config: Config) {
         switch (config.tvMode) {
             case Config.TvMode.ntsc:
@@ -666,46 +640,12 @@ class Tia implements VideoOutputInterface {
 
     private _getClockFreq(config: Config) {
         return (config.tvMode === Config.TvMode.ntsc) ?
-            60 * 228 * FRAME_LINES_NTSC :
-            50 * 228 * FRAME_LINES_PAL;
-    }
-
-    private _finalizeFrame(): void {
-        if (!this._frameInProgress) {
-            return;
-        }
-
-        if (this._surface) {
-            this.newFrame.dispatch(this._surface);
-            this._surface = null;
-            this._surfaceBuffer = null;
-            this._rendering = false;
-        }
-
-        this._frameInProgress = false;
-    }
-
-    private _startFrame(): void {
-        if (this._frameInProgress) {
-            this._finalizeFrame();
-        }
-
-        if (this._surfaceFactory) {
-            this._surface = this._surfaceFactory();
-            this._surfaceBuffer = this._surface.getBuffer();
-        }
-
-        this._frameInProgress = true;
-        this._rendering = (!!this._surface && this._hctr === 0);
-        this._line = 0;
+            60 * 228 * Metrics.frameLinesNTSC :
+            50 * 228 * Metrics.frameLinesPAL;
     }
 
     private _renderPixel(x: number, y: number, lineNotCached: boolean): void {
-        if (!this._rendering) {
-            return;
-        }
-
-        if (lineNotCached || this._line === 0) {
+        if (lineNotCached || y === 0) {
             let color = this._colorBk;
 
             if (this._priority === Priority.normal) {
@@ -724,9 +664,9 @@ class Tia implements VideoOutputInterface {
                 color = this._ball.getPixel(color);
             }
 
-            this._surfaceBuffer[y * 160 + x] = this._vblank ? 0xFF000000 : color;
+            this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.vblank ? 0xFF000000 :color;
         } else {
-            this._surfaceBuffer[y * 160 + x] = this._surfaceBuffer[(y-1) * 160 + x];
+            this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.surfaceBuffer[(y-1) * 160 + x];
         }
     }
 
@@ -751,21 +691,18 @@ class Tia implements VideoOutputInterface {
     }
 
     private _clearHmoveComb(): void {
-        if (this._surface && this._frameInProgress && this._hstate === HState.blank) {
-            const buffer = this._surface.getBuffer(),
-                offset = this._line * 160;
+        if (this._frameManager.isRendering() && this._hstate === HState.blank) {
+            const offset = this._frameManager.getCurrentLine() * 160;
 
             for (let i = 0; i < 8; i++) {
-                buffer[offset + i] = 0xFF000000;
+                this._frameManager.surfaceBuffer[offset + i] = 0xFF000000;
             }
         }
     }
 
-    private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface;
-    private _surface: RGBASurfaceInterface = null;
-    private _surfaceBuffer: RGBASurfaceInterface.BufferInterface;
-
     private _cpu: CpuInterface;
+
+    private _frameManager: FrameManager;
 
     private _palette: Uint32Array;
 
@@ -777,12 +714,6 @@ class Tia implements VideoOutputInterface {
 
     // hclock counter
     private _hctr = 0;
-    // frame line counter
-    private _line = 0;
-    // visible lines; dynamically chosen depending on TV mode
-    private _visibleLines = 0;
-    // true if we are rendering a frame and have a surface
-    private _rendering = false;
     // collision latch update required?
     private _collisionUpdateRequired = false;
 
@@ -794,10 +725,6 @@ class Tia implements VideoOutputInterface {
     private _extendedHblank = false;
     private _hmoveDelay = -1;
 
-    // has frame rendering been triggerd by vblank?
-    private _frameInProgress = false;
-    private _vsync = false;
-    private _vblank = false;
     private _clock = 0.;
 
     // Lines since the last cache-invalidating change. If this is > 1 we can safely use the linecache
@@ -815,6 +742,7 @@ class Tia implements VideoOutputInterface {
     private _playfield = new Playfield(CollisionMask.playfield);
     private _ball =      new Ball(CollisionMask.ball);
 
+
     private _audio0: Audio;
     private _audio1: Audio;
 
@@ -823,7 +751,7 @@ class Tia implements VideoOutputInterface {
 
     private _paddles: Array<PaddleReader>;
 
-    newFrame = new Event<RGBASurfaceInterface>();
+    newFrame: EventInterface<RGBASurfaceInterface>;
 }
 
 module Tia {
