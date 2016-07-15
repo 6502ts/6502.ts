@@ -11,8 +11,10 @@ class CartridgeList extends React.Component<CartridgeList.Props, {}>{
 
     render() {
         return  <Nav stacked className="cartridge-list border-box">
-            {this.props.cartridges.map(
-                (cartridge: Cartridge) => <NavItem href='javascript:void(0)'>{cartridge.name}</NavItem>
+            {Object.keys(this.props.cartridges).map(
+                key => <NavItem href='javascript:void(0)'>
+                    {this.props.cartridges[key].name}
+                </NavItem>
             )}
         </Nav>;
     }
@@ -22,7 +24,7 @@ class CartridgeList extends React.Component<CartridgeList.Props, {}>{
 module CartridgeList {
 
     export interface Props {
-        cartridges: Array<Cartridge>;
+        cartridges: {[key: string]: Cartridge};
     }
 
 }
