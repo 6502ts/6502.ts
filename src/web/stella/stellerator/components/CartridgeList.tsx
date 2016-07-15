@@ -1,30 +1,40 @@
 import * as React from 'react';
 
-import {
-    Nav,
-    NavItem
-} from 'react-bootstrap';
-
 import Cartridge from '../state/Cartridge';
 
 class CartridgeList extends React.Component<CartridgeList.Props, {}>{
 
     render() {
-        return  <Nav stacked className="cartridge-list border-box">
-            {Object.keys(this.props.cartridges).map(
-                key => <NavItem href='javascript:void(0)'>
-                    {this.props.cartridges[key].name}
-                </NavItem>
-            )}
-        </Nav>;
+        return  <div className="cartridge-list border-box">
+            <ul>
+                {Object.keys(this.props.cartridges).map(
+                    key =>
+                    <li
+                        onClick={() => this.props.onClick(key)}
+                        className={this.props.selectedKey === key ? 'selected' : ''}
+                    >
+                        {this.props.cartridges[key].name}
+                    </li>
+                )}
+            </ul>
+        </div>;
     }
+
+    static defaultProps: CartridgeList.Props = {
+        cartridges: {},
+        selectedKey: '',
+        onClick: () => undefined
+    };
 
 }
 
 module CartridgeList {
 
     export interface Props {
-        cartridges: {[key: string]: Cartridge};
+        cartridges?: {[key: string]: Cartridge};
+        selectedKey?: string;
+
+        onClick?: (key: string) => void;
     }
 
 }

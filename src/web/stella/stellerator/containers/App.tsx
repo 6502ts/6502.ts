@@ -9,6 +9,7 @@ import {
 
 import Navbar from '../components/Navbar';
 import CartridgeList from './CartridgeList';
+import CartridgeControls from './CartridgeControls';
 
 export default function App() {
     return <div>
@@ -18,6 +19,11 @@ export default function App() {
             <Row>
                 <Col md={5}>
                     <CartridgeList/>
+                </Col>
+            </Row>
+            <Row>
+                <Col sm={5}>
+                    <CartridgeControls/>
                 </Col>
             </Row>
         </Grid>

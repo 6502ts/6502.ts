@@ -20,12 +20,40 @@
 
             .cartridge-list {
                 min-height: 10rem;
+                margin-bottom: 1.5rem;
+                padding: 0.5rem;
+            }
+
+            .cartridge-list ul {
+                padding: 0;
+            }
+
+            .cartridge-list li {
+                list-style-type: none;
+                cursor: pointer;
+            }
+
+            .cartridge-list li.selected {
+                color: black;
+                background: #bbb;
             }
 
             .border-box {
                 border: 2px solid;
                 background: #555;
                 box-shadow: 0 0 0 5px #555;
+            }
+
+            .cartridge-controls button:not(:last-child) {
+                margin-right: 2ex;
+            }
+
+            .cartridge-controls button[disabled] {
+                color: #777;
+            }
+
+            button::first-letter {
+                color: inherit!important;
             }
         </style>
 

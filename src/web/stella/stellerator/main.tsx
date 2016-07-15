@@ -7,8 +7,9 @@ import {Provider} from 'react-redux';
 
 import App from './containers/App';
 import State from './state/State';
+import reducer from './reducers/reducer';
 
-const store = createStore<State>((x: State, action: any) => x, new State());
+const store = createStore<State>(reducer, new State());
 
 render(
     <Provider store={store}>

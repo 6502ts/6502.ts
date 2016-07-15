@@ -12,7 +12,6 @@ module GuiState {
         cartridgeList
     }
 
-
 }
 
 
