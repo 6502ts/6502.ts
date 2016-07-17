@@ -9,9 +9,9 @@ class CartridgeControls extends React.Component<CartridgeControls.Props, {}> {
     static defaultProps: CartridgeControls.Props = {
         active: false,
         changes: false,
-        onDelete: () => undefined,
-        onSave: () => undefined,
-        onRun: () => undefined
+        onDelete: (): void => undefined,
+        onSave: (): void => undefined,
+        onRun: (): void => undefined
     };
 
     render() {

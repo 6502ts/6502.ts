@@ -1,31 +1,16 @@
 // tslint:disable-next-line
 import * as React from 'react';
 
-import {
-    Col,
-    Grid,
-    Row
-} from 'react-bootstrap';
+import Navbar from './Navbar';
 
-import Navbar from '../components/Navbar';
-import CartridgeList from './CartridgeList';
-import CartridgeControls from './CartridgeControls';
+interface Props {
+    children: Array<React.ReactNode>;
+}
 
-export default function App() {
+export default function App(props: Props) {
     return <div>
         <Navbar/>
 
-        <Grid fluid>
-            <Row>
-                <Col md={5}>
-                    <CartridgeList/>
-                </Col>
-            </Row>
-            <Row>
-                <Col sm={5}>
-                    <CartridgeControls/>
-                </Col>
-            </Row>
-        </Grid>
+        {props.children}
     </div>;
 }

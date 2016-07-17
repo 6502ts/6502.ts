@@ -9,7 +9,8 @@ class GuiState {
 module GuiState {
 
     export enum GuiMode {
-        cartridgeList
+        cartridgeList,
+        run
     }
 
 }

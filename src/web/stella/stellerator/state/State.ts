@@ -13,4 +13,6 @@ export default class State {
         public guiState = new GuiState()
     ) {}
 
+    public routing: any;
+
 }

@@ -1,7 +1,7 @@
 import {connect} from 'react-redux';
 
 import CartridgeListComponent from '../components/CartridgeList';
-import {selectCartridge} from '../actions/selectCartridge';
+import {selectCartridge} from '../actions/root';
 import State from '../state/State';
 
 function mapStateToProps(state: State): CartridgeListComponent.Props {
