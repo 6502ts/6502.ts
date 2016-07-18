@@ -3,7 +3,7 @@ import {Action} from 'redux';
 import GuiState from '../state/GuiState';
 
 export const Type = {
-    setMode: 'GUI-STATE/SET-MODE'
+    setMode: 'gui-state/set-mode'
 };
 Object.freeze(Type);
 

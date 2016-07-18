@@ -1,7 +1,11 @@
 import {connect} from 'react-redux';
 import {push} from 'react-router-redux';
 
-import {deleteCurrentCartridge} from '../actions/root';
+import {
+    batch,
+    deleteCurrentCartridge,
+    saveCurrentCartride
+} from '../actions/root';
 import {setMode} from '../actions/guiState';
 
 import CartridgeControlsComponent from '../components/CartridgeControls';
@@ -10,7 +14,9 @@ import GuiState from '../state/GuiState';
 
 function mapStateToProps(state: State): CartridgeControlsComponent.Props {
     return {
-        active: !!state.currentCartridge
+        active: !!state.currentCartridge,
+        changes: state.currentCartridge &&
+            !state.currentCartridge.equals(state.cartridges[state.currentCartridge.hash])
     };
 }
 
@@ -22,11 +28,16 @@ const CartridgeControlsContainer = connect<Props, Props, Props>(
         onDelete: (): void => void(dispatch(deleteCurrentCartridge())),
         onRun: (): void => {
             // Batching will not work because push is NOT processed by the reducer but
-            // intercepted by the middleware instead. Order may be ill defined, but this
-            // is of no consequence here.
-            dispatch(setMode(GuiState.GuiMode.run));
+            // intercepted by the middleware instead.
+            dispatch(
+                batch(
+                    saveCurrentCartride(),
+                    setMode(GuiState.GuiMode.run)
+                )
+            );
             dispatch(push('/emulation'));
-        }
+        },
+        onSave: (): void => void(dispatch(saveCurrentCartride()))
     })
 )(CartridgeControlsComponent);
 

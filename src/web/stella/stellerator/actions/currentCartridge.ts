@@ -1,7 +1,7 @@
 import {Action} from 'redux';
 
 export const Type = {
-    changeName: 'CURRENT-CARTRIDGE/CHANGE-NAME'
+    changeName: 'current-cartridge/change-name'
 };
 Object.freeze(Type);
 

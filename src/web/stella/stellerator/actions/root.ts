@@ -1,9 +1,10 @@
 import {Action} from 'redux';
 
 export const Type = {
-    selectCartridge             : 'SELECT-CARTRIDGE',
-    deleteCurrentCartridge      : 'DELETE-CURRENT-CARTRIDGE',
-    batch                       : 'BATCH'
+    batch                       : 'batch',
+    deleteCurrentCartridge      : 'delete-current-cartridge',
+    selectCartridge             : 'select-cartridge',
+    saveCurrentCartridge        : 'save-current-cartridge'
 };
 Object.freeze(Type);
 
@@ -36,5 +37,13 @@ export function batch(...items: Array<Action>): BatchAction {
     return {
         type: Type.batch,
         items
+    };
+}
+
+export interface SaveCurrentCartridgeAction extends Action {}
+
+export function saveCurrentCartride(): SaveCurrentCartridgeAction {
+    return {
+        type: Type.saveCurrentCartridge
     };
 }

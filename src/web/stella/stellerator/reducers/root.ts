@@ -3,7 +3,6 @@ import {routerReducer} from 'react-router-redux';
 
 import {
     BatchAction,
-    DeleteCurrentCartridgeAction,
     SelectCartridgeAction,
     Type as ActionType
 } from '../actions/root';
@@ -31,10 +30,13 @@ export default function rootReducer(state: State = new State(), a: Action): Stat
 function reduce(state: State, a: Action): State {
     switch (a.type) {
         case ActionType.deleteCurrentCartridge:
-            return deleteCurrentCartridge(state, a as DeleteCurrentCartridgeAction);
+            return deleteCurrentCartridge(state);
 
         case ActionType.selectCartridge:
             return selectCartridge(state, a as SelectCartridgeAction);
+
+        case ActionType.saveCurrentCartridge:
+            return saveCurrentCartride(state);
 
         default:
             return new State(state.cartridges, state.currentCartridge, state.guiState);
@@ -45,7 +47,7 @@ function batch(state: State, a: BatchAction): State {
     return a.items.reduce((s: State, action: Action) => rootReducer(s, action), state);
 }
 
-function deleteCurrentCartridge(state: State, a: DeleteCurrentCartridgeAction): State {
+function deleteCurrentCartridge(state: State): State {
     const cartridges: {[key: string]: Cartridge} = {};
 
     Object.keys(state.cartridges).forEach(
@@ -69,6 +71,22 @@ function selectCartridge(state: State, a: SelectCartridgeAction): State {
     return new State(
         state.cartridges,
         cartridge,
+        state.guiState
+    );
+}
+
+function saveCurrentCartride(state: State): State {
+    const cartridges: {[key: string]: Cartridge} = {};
+
+    Object.keys(state.cartridges).forEach(
+        key => cartridges[key] = state.cartridges[key]
+    );
+
+    cartridges[state.currentCartridge.hash] = state.currentCartridge;
+
+    return new State(
+        cartridges,
+        state.currentCartridge,
         state.guiState
     );
 }
