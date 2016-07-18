@@ -10,6 +10,7 @@ import {
 import CartridgeList from './CartridgeList';
 import CartridgeControls from './CartridgeControls';
 import CartridgeSettings from './CartridgeSettings';
+import DiscardChangesModal from './DiscardChangesModal';
 
 export default function CartridgeManager() {
     return <Grid fluid>
@@ -26,5 +27,6 @@ export default function CartridgeManager() {
                 <CartridgeControls/>
             </Col>
         </Row>
+        <DiscardChangesModal/>
     </Grid>;
 }

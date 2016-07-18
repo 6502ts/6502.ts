@@ -62,7 +62,7 @@ function deleteCurrentCartridge(state: State): State {
 }
 
 function selectCartridge(state: State, a: SelectCartridgeAction): State {
-    const cartridge = state.cartridges[a.hash];
+    const cartridge = state.cartridges[a.hash || state.guiState.pendingSelectHash];
 
     if (!cartridge) {
         throw new Error(`no cartridge with hash ${a.hash}`);

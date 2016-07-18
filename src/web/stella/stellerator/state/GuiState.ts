@@ -1,7 +1,9 @@
 class GuiState {
 
     constructor(
-        public mode = GuiState.GuiMode.cartridgeList
+        public mode = GuiState.GuiMode.cartridgeList,
+        public showDiscardChangesModel: boolean = false,
+        public pendingSelectHash: string = ''
     ) {}
 
 }

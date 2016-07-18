@@ -15,7 +15,7 @@ import GuiState from '../state/GuiState';
 function mapStateToProps(state: State): CartridgeControlsComponent.Props {
     return {
         active: !!state.currentCartridge,
-        changes: state.currentCartridge &&
+        changes: !!state.currentCartridge &&
             !state.currentCartridge.equals(state.cartridges[state.currentCartridge.hash])
     };
 }

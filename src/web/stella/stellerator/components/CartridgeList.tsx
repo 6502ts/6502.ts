@@ -10,7 +10,7 @@ class CartridgeList extends React.Component<CartridgeList.Props, {}>{
                 {Object.keys(this.props.cartridges).map(
                     key =>
                     <li
-                        onClick={() => this.props.onClick(key)}
+                        onClick={() => this.props.onClick(key, this.props.pendingChanges)}
                         className={this.props.selectedKey === key ? 'selected' : ''}
                     >
                         {this.props.cartridges[key].name}
@@ -23,6 +23,7 @@ class CartridgeList extends React.Component<CartridgeList.Props, {}>{
     static defaultProps: CartridgeList.Props = {
         cartridges: {},
         selectedKey: '',
+        pendingChanges: false,
         onClick: () => undefined
     };
 
@@ -32,9 +33,10 @@ module CartridgeList {
 
     export interface Props {
         cartridges?: {[key: string]: Cartridge};
+        pendingChanges: boolean;
         selectedKey?: string;
 
-        onClick?: (key: string) => void;
+        onClick?: (key: string, pendingChanges: boolean) => void;
     }
 
 }

@@ -21,7 +21,7 @@ export interface SelectCartridgeAction extends Action {
     hash: string;
 }
 
-export function selectCartridge(hash: string): SelectCartridgeAction {
+export function selectCartridge(hash: string = ''): SelectCartridgeAction {
     return {
         hash: hash,
 
