@@ -1,8 +1,9 @@
 import {Action} from 'redux';
 
-export enum Type {
-    changeName
-}
+export const Type = {
+    changeName: 'CURRENT-CARTRIDGE/CHANGE-NAME'
+};
+Object.freeze(Type);
 
 export interface ChangeNameAction extends Action {
     name: string;

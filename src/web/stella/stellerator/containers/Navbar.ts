@@ -10,6 +10,6 @@ function mapStateToProps(state: State): NavbarComponent.Props {
     };
 }
 
-const NavbarContainer = connect(mapStateToProps, {})(NavbarComponent);
+const NavbarContainer = connect(mapStateToProps, {}, null, {pure: false})(NavbarComponent);
 
 export default NavbarContainer;

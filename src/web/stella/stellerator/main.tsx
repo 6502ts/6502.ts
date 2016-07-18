@@ -1,3 +1,7 @@
+declare module window {
+    export const devToolsExtension: any;
+}
+
 // tslint:disable-next-line
 import * as React from 'react';
 import {render} from 'react-dom';
@@ -11,6 +15,7 @@ import {
 
 import {
     applyMiddleware,
+    compose,
     createStore
 } from 'redux';
 
@@ -30,7 +35,10 @@ import reducer from './reducers/root';
 const store = createStore<State>(
         reducer,
         new State(),
-        applyMiddleware(routerMiddleware(hashHistory))
+        compose(
+            applyMiddleware(routerMiddleware(hashHistory)),
+            (window.devToolsExtension ? window.devToolsExtension() : (x: any) => x)
+        ) as any
     ),
     history = syncHistoryWithStore(hashHistory, store);
 

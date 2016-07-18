@@ -2,9 +2,10 @@ import {Action} from 'redux';
 
 import GuiState from '../state/GuiState';
 
-export enum Type {
-    setMode
-}
+export const Type = {
+    setMode: 'GUI-STATE/SET-MODE'
+};
+Object.freeze(Type);
 
 export interface SetModeAction extends Action {
     guiMode: GuiState.GuiMode;
