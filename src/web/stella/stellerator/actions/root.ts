@@ -4,7 +4,8 @@ export enum Type {
     selectCartridge,
     deleteCurrentCartridge,
     batch,
-    guiState
+    guiState,
+    currentCartridge
 }
 
 export interface DeleteCurrentCartridgeAction extends Action {
@@ -53,3 +54,14 @@ export function guiState(action: Action): GuiStateAction {
         action
     };
 };
+
+export interface CurrentCartridgeAction extends Action {
+    action: Action;
+}
+
+export function currentCartridge(action: Action) {
+    return {
+        type: Type.currentCartridge,
+        action
+    };
+}

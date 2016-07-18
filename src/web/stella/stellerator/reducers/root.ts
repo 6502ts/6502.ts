@@ -3,6 +3,7 @@ import {routerReducer} from 'react-router-redux';
 
 import {
     BatchAction,
+    CurrentCartridgeAction,
     DeleteCurrentCartridgeAction,
     GuiStateAction,
     SelectCartridgeAction,
@@ -10,6 +11,7 @@ import {
 } from '../actions/root';
 
 import reduceGuiState from './guiState';
+import reduceCurrentCartridge from './currentCartridge';
 
 import State from '../state/State';
 import Cartridge from '../state/Cartridge';
@@ -36,6 +38,9 @@ function reduce(state: State, a: Action): State {
 
         case ActionType.selectCartridge:
             return selectCartridge(state, a as SelectCartridgeAction);
+
+        case ActionType.currentCartridge:
+            return currentCartridge(state, a as CurrentCartridgeAction);
 
         default:
             return state;
@@ -74,6 +79,14 @@ function selectCartridge(state: State, a: SelectCartridgeAction): State {
     return new State(
         state.cartridges,
         cartridge,
+        state.guiState
+    );
+}
+
+function currentCartridge(state: State, a: CurrentCartridgeAction): State {
+    return new State(
+        state.cartridges,
+        reduceCurrentCartridge(state.currentCartridge, a.action),
         state.guiState
     );
 }

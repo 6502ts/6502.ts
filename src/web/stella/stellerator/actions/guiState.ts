@@ -4,7 +4,7 @@ import GuiState from '../state/GuiState';
 
 export enum Type {
     setMode
-};
+}
 
 export interface SetModeAction extends Action {
     guiMode: GuiState.GuiMode;
