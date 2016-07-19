@@ -1,3 +1,4 @@
+// tslint:disable-next-line
 import * as React from 'react';
 
 import {
@@ -5,25 +6,15 @@ import {
     FormControl
 } from 'react-bootstrap';
 
-class CartridgeSettings extends React.Component<CartridgeSettings.Props, {}> {
-
-    static defaultProps: CartridgeSettings.Props = {
-        name : '',
-        onNameChange: () => undefined,
-        visible: false
-    };
-
-    render() {
-        return <div className={this.props.visible ? '' : 'hidden'}>
-            <ControlLabel>Name:</ControlLabel>
-            <FormControl
-                type="text"
-                value={this.props.name}
-                onChange={(e: Event) => this.props.onNameChange((e.target as HTMLInputElement).value)}
-            />
-        </div>;
-    }
-
+function CartridgeSettings(props: CartridgeSettings.Props) {
+    return <div className={props.visible ? '' : 'hidden'}>
+        <ControlLabel>Name:</ControlLabel>
+        <FormControl
+            type="text"
+            value={props.name}
+            onChange={(e: Event) => props.onNameChange((e.target as HTMLInputElement).value)}
+        />
+    </div>;
 }
 
 module CartridgeSettings {
@@ -33,6 +24,12 @@ module CartridgeSettings {
         visible?: boolean;
         onNameChange?: (value: string) => void;
     }
+
+    export const defaultProps: Props = {
+        name : '',
+        onNameChange: () => undefined,
+        visible: false
+    };
 
 }
 
