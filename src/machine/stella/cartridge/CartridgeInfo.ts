@@ -24,6 +24,23 @@ module CartridgeInfo {
         unknown
     }
 
+    export function getAllTypes(): Array<CartridgeType> {
+        return [
+            CartridgeType.vanilla_2k,
+            CartridgeType.vanilla_4k,
+            CartridgeType.bankswitch_8k_F8,
+            CartridgeType.bankswitch_8k_E0,
+            CartridgeType.bankswitch_8k_3F,
+            CartridgeType.bankswitch_8k_FE,
+            CartridgeType.bankswitch_8k_UA,
+            CartridgeType.bankswitch_12k_FA,
+            CartridgeType.bankswitch_16k_F6,
+            CartridgeType.bankswitch_16k_E7,
+            CartridgeType.bankswitch_64k_F0,
+            CartridgeType.unknown
+        ];
+    }
+
     export function describeCartridgeType(cartridgeType: CartridgeType): string {
         switch (cartridgeType) {
             case CartridgeType.vanilla_2k:

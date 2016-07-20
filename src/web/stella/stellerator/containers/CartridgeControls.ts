@@ -51,7 +51,7 @@ const CartridgeControlsContainer = connect<Props, Props, Props>(
                 reader.addEventListener('load', () => {
                     dispatch(changes ?
                         loadOpenPendingChangesModal(reader.result, file.name) :
-                        registerNewCartridge(file.name, reader.result)
+                        registerNewCartridge(file.name, new Uint8Array(reader.result))
                     );
                 });
 

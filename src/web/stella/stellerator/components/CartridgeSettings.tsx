@@ -5,6 +5,7 @@ import {ControlLabel} from 'react-bootstrap';
 
 import CartridgeNameInput from './CartridgeNameInput';
 import TvModeSelect from './TvModeSelect';
+import CartridgeTypeSelect from './CartridgeTypeSelect';
 
 function CartridgeSettings(props: CartridgeSettings.Props) {
     return <div className={props.visible ? '' : 'hidden'}>
@@ -13,12 +14,19 @@ function CartridgeSettings(props: CartridgeSettings.Props) {
 
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>TV mode:</ControlLabel>
         <TvModeSelect {...props}/>
+
+        <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Cartridge Type:</ControlLabel>
+        <CartridgeTypeSelect {...props}/>
     </div>;
 }
 
 module CartridgeSettings {
 
-    export interface Props extends CartridgeNameInput.Props, TvModeSelect.Props {
+    export interface Props extends
+        CartridgeNameInput.Props,
+        TvModeSelect.Props,
+        CartridgeTypeSelect.Props
+    {
         visible?: boolean;
     }
 
@@ -27,7 +35,8 @@ module CartridgeSettings {
             visible: false
         },
         CartridgeNameInput.defaultProps,
-        TvModeSelect.defaultProps
+        TvModeSelect.defaultProps,
+        CartridgeTypeSelect.defaultProps
     );
 
 }

@@ -2,6 +2,7 @@ import {Action} from 'redux';
 
 import {
     Type as ActionType,
+    ChangeCartridgeTypeAction,
     ChangeNameAction,
     ChangeTvModeAction
 } from '../actions/currentCartridge';
@@ -10,6 +11,9 @@ import Cartridge from '../state/Cartridge';
 
 export default function reduce(state: Cartridge, action: Action): Cartridge {
     switch (action.type) {
+        case ActionType.changeCartridgeType:
+            return changeCartridgeType(state, action as ChangeCartridgeTypeAction);
+
         case ActionType.changeName:
             return changeName(state, action as ChangeNameAction);
 
@@ -32,5 +36,12 @@ function changeTvMode(state: Cartridge, action: ChangeTvModeAction): Cartridge {
     return new Cartridge(state.name, state.buffer, state.hash, {
         tvMode: action.tvMode,
         cartridgeType: state.cartridgeType
+    });
+}
+
+function changeCartridgeType(state: Cartridge, action: ChangeCartridgeTypeAction): Cartridge {
+    return new Cartridge(state.name, state.buffer, state.hash, {
+        tvMode: state.tvMode,
+        cartridgeType: action.cartridgeType
     });
 }
