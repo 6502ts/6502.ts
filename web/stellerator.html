@@ -19,17 +19,25 @@
             }
 
             .cartridge-list {
-                min-height: 10rem;
+                height: 10rem;
+                overflow-y: auto;
                 margin-bottom: 1.5rem;
-                padding: 0.5rem;
             }
 
             .cartridge-list ul {
-                padding: 0 0 0 1rem;
+                list-style: none;
+                padding: 0;
             }
 
             .cartridge-list li {
                 cursor: pointer;
+                list-style: none;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            .cartridge-list li:nth-child(odd) {
+                background-color: #444;
             }
 
             .cartridge-list li.selected {

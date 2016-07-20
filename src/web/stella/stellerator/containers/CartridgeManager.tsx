@@ -7,10 +7,14 @@ import {
     Row
 } from 'react-bootstrap';
 
+import {
+    LoadPendingChangesModal,
+    SelectPendingChangesModal
+} from './pendingChangesModal';
+
 import CartridgeList from './CartridgeList';
 import CartridgeControls from './CartridgeControls';
 import CartridgeSettings from './CartridgeSettings';
-import DiscardChangesModal from './DiscardChangesModal';
 
 export default function CartridgeManager() {
     return <Grid fluid>
@@ -27,6 +31,23 @@ export default function CartridgeManager() {
                 <CartridgeControls/>
             </Col>
         </Row>
-        <DiscardChangesModal/>
+        <SelectPendingChangesModal>
+            <p>
+                There are unsaved changes in the currently selected cartridge.
+                Selecting another cartridge will discard these changes.
+            </p>
+            <p>
+                Do you want to continue?
+            </p>
+        </SelectPendingChangesModal>
+        <LoadPendingChangesModal>
+            <p>
+                There are unsaved changes in the currently selected cartridge.
+                Loading a cartridge will discard these changes.
+            </p>
+            <p>
+                Do you want to continue?
+            </p>
+        </LoadPendingChangesModal>
     </Grid>;
 }

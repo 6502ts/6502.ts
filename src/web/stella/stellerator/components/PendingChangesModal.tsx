@@ -6,19 +6,13 @@ import {
     Modal
 } from 'react-bootstrap';
 
-function DiscardChangesModal(props: DiscardChangesModal.Props) {
+function PendingChangesModal(props: PendingChangesModal.Props) {
     return <Modal show={props.show} onHide={props.onHide}>
         <Modal.Header closeButton>
             <Modal.Title>Unsaved changes</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            <p>
-                There are unsaved changes in the currently selected cartridge.
-                Selecting another cartridge will discard these changes.
-            </p>
-            <p>
-                Do you want to continue?
-            </p>
+            {props.children}
         </Modal.Body>
         <Modal.Footer>
             <Button onClick={props.onHide}>Cancel</Button>
@@ -28,22 +22,23 @@ function DiscardChangesModal(props: DiscardChangesModal.Props) {
     </Modal>;
 }
 
-module DiscardChangesModal {
+module PendingChangesModal {
 
     export interface Props {
         show?: boolean;
         onHide?: () => void;
         onContinueAndDiscard?: () => void;
         onContinueAndSave?: () => void;
+        children?: React.ReactNode;
     }
 
     export const defaultProps: Props = {
         show: false,
         onHide: () => undefined,
         onContinueAndDiscard: () => undefined,
-
+        onContinueAndSave: () => undefined
     };
 
 }
 
-export default DiscardChangesModal;
+export default PendingChangesModal;

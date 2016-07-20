@@ -10,7 +10,9 @@ import FileUploadButton from './FileUploadButton';
 function CartridgeControls(props: CartridgeControls.Props) {
     return <div className="cartridge-controls">
         <FileUploadButton
-            onFilesSelected={files => files.length === 1 ? props.onCartridgeUploaded(files[0]) : undefined}
+            onFilesSelected={
+                files => files.length === 1 ? props.onCartridgeUploaded(files[0], props.changes) : undefined
+            }
         >Load</FileUploadButton>
         <Button
             disabled={!props.active}
@@ -39,7 +41,7 @@ module CartridgeControls {
         onDelete?: () => void;
         onSave?: () => void;
         onRun?: () => void;
-        onCartridgeUploaded?: (file: File) => void;
+        onCartridgeUploaded?: (file: File, changes: boolean) => void;
 
     }
 

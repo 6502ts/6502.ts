@@ -2,19 +2,26 @@ import {Action} from 'redux';
 
 import {
     SetModeAction,
-    OpenPendingChangesModalAction,
-    Type as ActionType
+    SelectOpenPendingChangesModalAction,
+    Type as ActionType,
+    LoadOpenPendingChangesModalAction,
 } from '../actions/guiState';
 
 import GuiState from '../state/GuiState';
 
 export default function reduce(state: GuiState, action: Action): GuiState {
     switch (action.type) {
-        case ActionType.closePendingChangesModal:
-            return closePendingChangesModal(state);
+        case ActionType.loadOpenPendingChangesModal:
+            return loadOpenPendingChangesModal(state, action as LoadOpenPendingChangesModalAction);
 
-        case ActionType.openPendingChangesModal:
-            return openPendingChangesModal(state, action as OpenPendingChangesModalAction);
+        case ActionType.loadClosePendingChangesModal:
+            return loadClosePendingChangesModal(state);
+
+        case ActionType.selectClosePendingChangesModal:
+            return selectClosePendingChangesModal(state);
+
+        case ActionType.selectOpenPendingChangesModal:
+            return selectOpenPendingChangesModal(state, action as SelectOpenPendingChangesModalAction);
 
         case ActionType.setMode:
             return setMode(state, action as SetModeAction);
@@ -25,21 +32,35 @@ export default function reduce(state: GuiState, action: Action): GuiState {
 }
 
 function setMode(state: GuiState, action: SetModeAction): GuiState {
-    return new GuiState(action.guiMode);
+    return new GuiState({mode: action.guiMode}, state);
 }
 
-function openPendingChangesModal(state: GuiState, action: OpenPendingChangesModalAction): GuiState {
-    return new GuiState(
-        state.mode,
-        true,
-        action.pendingSelectHash
-    );
+function selectOpenPendingChangesModal(state: GuiState, action: SelectOpenPendingChangesModalAction): GuiState {
+    return new GuiState({
+        showSelectPendingChangesModal: true,
+        pendingSelectHash: action.pendingSelectHash
+    }, state);
 }
 
-function closePendingChangesModal(state: GuiState): GuiState {
-    return new GuiState(
-        state.mode,
-        false,
-        ''
-    );
+function selectClosePendingChangesModal(state: GuiState): GuiState {
+    return new GuiState({
+        showSelectPendingChangesModal: false,
+        pendingSelectHash: ''
+    }, state);
+}
+
+function loadOpenPendingChangesModal(state: GuiState, action: LoadOpenPendingChangesModalAction): GuiState {
+    return new GuiState({
+        showLoadPendingChangesModal: true,
+        pendingLoad: action.pendingLoad,
+        pendingLoadName: action.pendingLoadName
+    }, state);
+}
+
+function loadClosePendingChangesModal(state: GuiState): GuiState {
+    return new GuiState({
+        showLoadPendingChangesModal: false,
+        pendingLoad: null,
+        pendingLoadName: ''
+    }, state);
 }

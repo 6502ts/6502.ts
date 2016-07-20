@@ -4,10 +4,12 @@ import GuiState from '../state/GuiState';
 
 export const Type = {
     setMode: 'gui-state/set-mode',
-    openPendingChangesModal: 'gui-state/open-pending-changes-modal',
-    closePendingChangesModal: 'gui-state/close-pending-changes-modal',
-    applyPendingChanges: 'gui-state/apply-pending-changes'
-
+    selectOpenPendingChangesModal: 'gui-state/select-open-pending-changes-modal',
+    selectClosePendingChangesModal: 'gui-state/select-close-pending-changes-modal',
+    applyPendingChanges: 'gui-state/apply-pending-changes',
+    loadOpenPendingChangesModal: 'gui-state/upload-open-pending-changes-modal',
+    loadClosePendingChangesModal: 'gui-state/upload-close-pending-changes-modal',
+    finishPendingUpload: 'gui-state/finish-pending-upload'
 };
 Object.freeze(Type);
 
@@ -22,21 +24,42 @@ export function setMode(guiMode: GuiState.GuiMode) {
     };
 }
 
-export interface OpenPendingChangesModalAction extends Action {
+export interface SelectOpenPendingChangesModalAction extends Action {
     pendingSelectHash: string;
 }
 
-export function openPendingChangesModal(pendingSelectHash: string): OpenPendingChangesModalAction {
+export function selectOpenPendingChangesModal(pendingSelectHash: string): SelectOpenPendingChangesModalAction {
     return {
-        type: Type.openPendingChangesModal,
+        type: Type.selectOpenPendingChangesModal,
         pendingSelectHash
     };
 }
 
-export interface ClosePendingChangesModalAction extends Action {};
+export interface SelectClosePendingChangesModalAction extends Action {};
 
-export function closePendingChangesModal(): ClosePendingChangesModalAction {
+export function selectClosePendingChangesModal(): SelectClosePendingChangesModalAction {
     return {
-        type: Type.closePendingChangesModal
+        type: Type.selectClosePendingChangesModal
+    };
+}
+
+export interface LoadOpenPendingChangesModalAction extends Action {
+    pendingLoad: Uint8Array;
+    pendingLoadName: string;
+}
+
+export function loadOpenPendingChangesModal(pendingLoad: Uint8Array, pendingLoadName: string): LoadOpenPendingChangesModalAction {
+    return {
+        type: Type.loadOpenPendingChangesModal,
+        pendingLoad,
+        pendingLoadName
+    };
+}
+
+export interface LoadClosePendingChangesModalAction extends Action {}
+
+export function loadClosePendingChangesModal(): LoadClosePendingChangesModalAction {
+    return {
+        type: Type.loadClosePendingChangesModal
     };
 }

@@ -2,7 +2,7 @@ import {connect} from 'react-redux';
 
 import CartridgeListComponent from '../components/CartridgeList';
 import {selectCartridge} from '../actions/root';
-import {openPendingChangesModal} from '../actions/guiState';
+import {selectOpenPendingChangesModal} from '../actions/guiState';
 import State from '../state/State';
 
 function mapStateToProps(state: State): CartridgeListComponent.Props {
@@ -18,7 +18,7 @@ const CartridgeListContainer = connect(
     mapStateToProps,
     {
         onClick: (hash: string, pendingChanges: boolean) =>
-            pendingChanges ? openPendingChangesModal(hash) : selectCartridge(hash)
+            pendingChanges ? selectOpenPendingChangesModal(hash) : selectCartridge(hash)
     }
 )(CartridgeListComponent);
 

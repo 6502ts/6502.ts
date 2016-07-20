@@ -57,7 +57,7 @@ export interface RegisterNewCartridgeAction extends Action {
     name: string;
 }
 
-export function registerNewCartridge(name: string, buffer: Uint8Array) {
+export function registerNewCartridge(name?: string, buffer?: Uint8Array) {
     return {
         type: Type.registerNewCartridge,
         name,

@@ -75,16 +75,18 @@ function deleteCurrentCartridge(state: State): State {
 }
 
 function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): State {
-    const hash = md5sum(a.buffer),
+    const buffer = typeof(a.buffer) === 'undefined' ? state.guiState.pendingLoad : a.buffer,
+        name = typeof(a.name) === 'undefined' ? state.guiState.pendingLoadName : a.name,
+        hash = md5sum(buffer),
         detector = new CartridgeDetector(),
-        cartridgeType = detector.detectCartridgeType(a.buffer);
+        cartridgeType = detector.detectCartridgeType(buffer);
 
     let tvMode: StellaConfig.TvMode;
 
-    if (a.name.match(/\Wpal\W/i)) {
+    if (name.match(/\Wpal\W/i)) {
         tvMode = StellaConfig.TvMode.pal;
     }
-    else if (a.name.match(/\Wsecam\W/i)) {
+    else if (name.match(/\Wsecam\W/i)) {
         tvMode = StellaConfig.TvMode.secam;
     }
     else {
@@ -92,8 +94,8 @@ function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): Stat
     }
 
     const newCartridge = new Cartridge(
-        a.name,
-        a.buffer,
+        name,
+        buffer,
         hash, {
             tvMode,
             cartridgeType

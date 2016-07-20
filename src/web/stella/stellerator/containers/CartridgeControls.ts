@@ -8,7 +8,11 @@ import {
     registerNewCartridge,
     saveCurrentCartride
 } from '../actions/root';
-import {setMode} from '../actions/guiState';
+
+import {
+    loadOpenPendingChangesModal,
+    setMode,
+} from '../actions/guiState';
 
 import CartridgeControlsComponent from '../components/CartridgeControls';
 import State from '../state/State';
@@ -40,12 +44,15 @@ const CartridgeControlsContainer = connect<Props, Props, Props>(
             dispatch(push('/emulation'));
         },
         onSave: (): void => void(dispatch(saveCurrentCartride())),
-        onCartridgeUploaded: file => dispatch(
+        onCartridgeUploaded: (file, changes) => dispatch(
             (dispatch: (a: Action) => void) => {
                 const reader = new FileReader();
 
                 reader.addEventListener('load', () => {
-                    dispatch(registerNewCartridge(file.name, reader.result));
+                    dispatch(changes ?
+                        loadOpenPendingChangesModal(reader.result, file.name) :
+                        registerNewCartridge(file.name, reader.result)
+                    );
                 });
 
                 reader.readAsArrayBuffer(file);
