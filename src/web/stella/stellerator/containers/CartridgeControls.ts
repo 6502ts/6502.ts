@@ -1,9 +1,11 @@
 import {connect} from 'react-redux';
 import {push} from 'react-router-redux';
+import {Action} from 'redux';
 
 import {
     batch,
     deleteCurrentCartridge,
+    registerNewCartridge,
     saveCurrentCartride
 } from '../actions/root';
 import {setMode} from '../actions/guiState';
@@ -37,7 +39,18 @@ const CartridgeControlsContainer = connect<Props, Props, Props>(
             );
             dispatch(push('/emulation'));
         },
-        onSave: (): void => void(dispatch(saveCurrentCartride()))
+        onSave: (): void => void(dispatch(saveCurrentCartride())),
+        onCartridgeUploaded: file => dispatch(
+            (dispatch: (a: Action) => void) => {
+                const reader = new FileReader();
+
+                reader.addEventListener('load', () => {
+                    dispatch(registerNewCartridge(file.name, reader.result));
+                });
+
+                reader.readAsArrayBuffer(file);
+            }
+        )
     })
 )(CartridgeControlsComponent);
 

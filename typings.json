@@ -1,6 +1,7 @@
 {
   "globalDependencies": {
     "jquery": "registry:dt/jquery#1.10.0+20160417213236",
+    "md5": "registry:dt/md5#2.1.0+20160521153251",
     "node": "registry:dt/node#6.0.0+20160608110640",
     "react": "registry:dt/react#0.14.0+20160630100702",
     "react-bootstrap": "registry:dt/react-bootstrap#0.0.0+20160711142924",
@@ -10,6 +11,7 @@
     "react-router-bootstrap": "registry:dt/react-router-bootstrap#0.0.0+20160316155526",
     "react-router-redux": "registry:dt/react-router-redux#4.0.0+20160703120921",
     "react-router/history": "registry:dt/react-router/history#2.0.0+20160608102730",
-    "redux": "registry:dt/redux#3.5.2+20160703092728"
+    "redux": "registry:dt/redux#3.5.2+20160703092728",
+    "redux-thunk": "registry:dt/redux-thunk#2.1.0+20160703120921"
   }
 }

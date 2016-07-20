@@ -5,9 +5,13 @@ import {
     Button
 } from 'react-bootstrap';
 
+import FileUploadButton from './FileUploadButton';
+
 function CartridgeControls(props: CartridgeControls.Props) {
     return <div className="cartridge-controls">
-        <Button>Upload</Button>
+        <FileUploadButton
+            onFilesSelected={files => files.length === 1 ? props.onCartridgeUploaded(files[0]) : undefined}
+        >Load</FileUploadButton>
         <Button
             disabled={!props.active}
             onClick={props.onDelete}
@@ -35,6 +39,7 @@ module CartridgeControls {
         onDelete?: () => void;
         onSave?: () => void;
         onRun?: () => void;
+        onCartridgeUploaded?: (file: File) => void;
 
     }
 
@@ -43,7 +48,8 @@ module CartridgeControls {
         changes: false,
         onDelete: (): void => undefined,
         onSave: (): void => undefined,
-        onRun: (): void => undefined
+        onRun: (): void => undefined,
+        onCartridgeUploaded: (): void => undefined
     };
 
 }

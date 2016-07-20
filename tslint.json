@@ -18,7 +18,7 @@
         "no-trailing-whitespace": true,
         "no-var-keyword": true,
         "no-invalid-this": true,
-        "no-require-imports": true,
+        "no-require-imports": false,
         "no-unused-variable": true,
         "no-unused-expression": true,
         "no-use-before-declare": true,

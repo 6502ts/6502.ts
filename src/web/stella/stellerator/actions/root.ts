@@ -1,8 +1,12 @@
 import {Action} from 'redux';
 
+import Cartridge from '../state/Cartridge';
+
 export const Type = {
     batch                       : 'batch',
     deleteCurrentCartridge      : 'delete-current-cartridge',
+    initCartridges              : 'init-cartridges',
+    registerNewCartridge        : 'register-new-cartridge',
     selectCartridge             : 'select-cartridge',
     saveCurrentCartridge        : 'save-current-cartridge'
 };
@@ -45,5 +49,29 @@ export interface SaveCurrentCartridgeAction extends Action {}
 export function saveCurrentCartride(): SaveCurrentCartridgeAction {
     return {
         type: Type.saveCurrentCartridge
+    };
+}
+
+export interface RegisterNewCartridgeAction extends Action {
+    buffer: Uint8Array;
+    name: string;
+}
+
+export function registerNewCartridge(name: string, buffer: Uint8Array) {
+    return {
+        type: Type.registerNewCartridge,
+        name,
+        buffer
+    };
+}
+
+export interface InitCartridgesAction extends Action {
+    cartridges: Array<Cartridge>;
+}
+
+export function initCartridges(cartridges: Array<Cartridge>): InitCartridgesAction {
+    return {
+        type: Type.initCartridges,
+        cartridges
     };
 }

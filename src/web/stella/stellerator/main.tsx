@@ -20,6 +20,7 @@ import {
 } from 'redux';
 
 import {Provider} from 'react-redux';
+import thunk from 'redux-thunk';
 
 import {
     routerMiddleware,
@@ -31,16 +32,28 @@ import CartridgeManager from './containers/CartridgeManager';
 import Emulation from './containers/Emulation';
 import State from './state/State';
 import reducer from './reducers/root';
+import PersistenceManager from './persistence/Manager';
+import {create as createPersistenceMiddleware} from './persistence/middleware';
+import {initCartridges} from './actions/root';
 
-const store = createStore<State>(
+const persistenceManager = new PersistenceManager(),
+    store = createStore<State>(
         reducer,
         new State(),
         compose(
-            applyMiddleware(routerMiddleware(hashHistory)),
+            applyMiddleware(
+                createPersistenceMiddleware(persistenceManager),
+                thunk,
+                routerMiddleware(hashHistory)
+            ),
             (window.devToolsExtension ? window.devToolsExtension() : (x: any) => x)
         ) as any
     ),
     history = syncHistoryWithStore(hashHistory, store);
+
+persistenceManager
+    .getAllCartridges()
+    .then(cartridges => store.dispatch(initCartridges(cartridges)));
 
 render(
     <Provider store={store}>
