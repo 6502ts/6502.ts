@@ -1,38 +1,34 @@
 // tslint:disable-next-line
 import * as React from 'react';
 
-import {
-    ControlLabel,
-    FormControl
-} from 'react-bootstrap';
+import {ControlLabel} from 'react-bootstrap';
+
+import CartridgeNameInput from './CartridgeNameInput';
+import TvModeSelect from './TvModeSelect';
 
 function CartridgeSettings(props: CartridgeSettings.Props) {
     return <div className={props.visible ? '' : 'hidden'}>
         <ControlLabel>Name:</ControlLabel>
-        <FormControl
-            type="text"
-            value={props.name}
-            onChange={(e: Event) => props.onNameChange((e.target as HTMLInputElement).value)}
-            onKeyDown={(e: KeyboardEvent) => e.keyCode === 13 ? props.onKeyEnter() : undefined}
-        />
+        <CartridgeNameInput {...props}/>
+
+        <ControlLabel style={{display: 'block', marginTop: '1rem'}}>TV mode:</ControlLabel>
+        <TvModeSelect {...props}/>
     </div>;
 }
 
 module CartridgeSettings {
 
-    export interface Props {
-        name?: string;
+    export interface Props extends CartridgeNameInput.Props, TvModeSelect.Props {
         visible?: boolean;
-        onNameChange?: (value: string) => void;
-        onKeyEnter?: () => void;
     }
 
-    export const defaultProps: Props = {
-        name : '',
-        onNameChange: () => undefined,
-        onKeyEnter: () => undefined,
-        visible: false
-    };
+    export const defaultProps: Props = Object.assign(
+        {
+            visible: false
+        },
+        CartridgeNameInput.defaultProps,
+        TvModeSelect.defaultProps
+    );
 
 }
 

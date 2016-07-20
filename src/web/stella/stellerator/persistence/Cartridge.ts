@@ -58,11 +58,11 @@ export function toState(cartridge: Type): CartridgeState {
             break;
 
         case 'pal':
-            tvMode = StellaConfig.TvMode.secam;
+            tvMode = StellaConfig.TvMode.pal;
             break;
 
-        case 'ntsc':
-            tvMode = StellaConfig.TvMode.ntsc;
+        case 'secam':
+            tvMode = StellaConfig.TvMode.secam;
             break;
 
         default:
