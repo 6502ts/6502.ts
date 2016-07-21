@@ -35,21 +35,29 @@ import reducer from './reducers/root';
 import PersistenceManager from './persistence/Manager';
 import {create as createPersistenceMiddleware} from './persistence/middleware';
 import {initCartridges} from './actions/root';
+import {create as createEmulationMiddleware} from './emulation/middleware';
 
-const persistenceManager = new PersistenceManager(),
-    store = createStore<State>(
+import EmulationService from '../service/vanilla/EmulationService';
+
+const emulationService = new EmulationService();
+
+const persistenceManager = new PersistenceManager();
+
+const store = createStore<State>(
         reducer,
         new State(),
         compose(
             applyMiddleware(
                 createPersistenceMiddleware(persistenceManager),
+                createEmulationMiddleware(emulationService),
                 thunk,
                 routerMiddleware(hashHistory)
             ),
             (window.devToolsExtension ? window.devToolsExtension() : (x: any) => x)
         ) as any
-    ),
-    history = syncHistoryWithStore(hashHistory, store);
+    );
+
+const history = syncHistoryWithStore(hashHistory, store);
 
 persistenceManager
     .getAllCartridges()
@@ -59,7 +67,7 @@ render(
     <Provider store={store}>
         <Router history={history}>
             <Redirect from="/" to="/cartridge-manager"/>
-            <Route path="/" component={App}>
+            <Route path="/" component={App(emulationService)}>
                 <Route path="cartridge-manager" component={CartridgeManager}/>
                 <Route path="emulation" component={Emulation}/>
             </Route>

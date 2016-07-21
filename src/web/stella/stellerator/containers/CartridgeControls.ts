@@ -10,6 +10,10 @@ import {
 } from '../actions/root';
 
 import {
+    start as startEmulation
+} from '../actions/emulation';
+
+import {
     loadOpenPendingChangesModal,
     setMode,
 } from '../actions/guiState';
@@ -33,14 +37,10 @@ const CartridgeControlsContainer = connect<Props, Props, Props>(
     dispatch => ({
         onDelete: (): void => void(dispatch(deleteCurrentCartridge())),
         onRun: (): void => {
-            // Batching will not work because push is NOT processed by the reducer but
-            // intercepted by the middleware instead.
-            dispatch(
-                batch(
-                    saveCurrentCartride(),
-                    setMode(GuiState.GuiMode.run)
-                )
-            );
+            // Batching will not work because push and startEmulation are processed by middleware
+            dispatch(saveCurrentCartride());
+            dispatch(setMode(GuiState.GuiMode.run));
+            dispatch(startEmulation());
             dispatch(push('/emulation'));
         },
         onSave: (): void => void(dispatch(saveCurrentCartride())),
