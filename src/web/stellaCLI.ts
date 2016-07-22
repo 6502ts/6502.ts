@@ -2,10 +2,7 @@ import StellaCLI from '../cli/stella/StellaCLI';
 import Board from '../machine/stella/Board';
 import JqtermCLIRunner from '../cli/JqtermCLIRunner';
 import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
-import ObjectPool from '../tools/pool/Pool';
-import ObjectPoolMember from '../tools/pool/PoolMemberInterface';
-import Surface from '../tools/surface/CanvasImageDataSurface';
-import VideoOutputInterface from '../machine/io/VideoOutputInterface';
+import SimpleCanvasVideoDriver from './driver/SimpleCanvasVideo';
 import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
 import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
 import SwitchInterface from '../machine/io/SwitchInterface';
@@ -59,7 +56,7 @@ export function run({
     cli.hardwareInitialized.addHandler(() => {
         const board = cli.getBoard();
 
-        setupVideo(canvas.get(0) as HTMLCanvasElement, board.getVideoOutput());
+        setupVideo(canvas.get(0) as HTMLCanvasElement, board);
         setupAudio(audioContext, board.getAudioOutput());
         setupKeyboardControls(
             canvas,
@@ -130,39 +127,10 @@ function setupCartridgeReader(
     });
 }
 
-function setupVideo(canvas: HTMLCanvasElement, video: VideoOutputInterface) {
-    const width = video.getWidth(),
-        height = video.getHeight(),
-        context = canvas.getContext('2d'),
-        poolMembers = new WeakMap<Surface, ObjectPoolMember<Surface>>(),
-        surfacePool = new ObjectPool<Surface>(
-            () => new Surface(width, height, context)
-        );
-
-    canvas.width = width;
-    canvas.height = height;
-
-    context.fillStyle = 'solid black';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    video.setSurfaceFactory((): Surface => {
-        const member = surfacePool.get(),
-            surface = member.get();
-
-        poolMembers.set(surface, member);
-
-        return surface;
-    });
-
-    video.newFrame.addHandler((surface: Surface) => {
-        const poolMember = poolMembers.get(surface);
-
-        context.putImageData(surface.getImageData(), 0, 0);
-
-        if (poolMember) {
-            poolMember.release();
-        }
-    });
+function setupVideo(canvas: HTMLCanvasElement, board: Board) {
+    const driver = new SimpleCanvasVideoDriver(canvas);
+    driver.init();
+    driver.bind(board.getVideoOutput());
 }
 
 function setupAudio(context: AudioContext, audio: Board.Audio) {

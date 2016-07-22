@@ -3,7 +3,6 @@ import {push} from 'react-router-redux';
 import {Action} from 'redux';
 
 import {
-    batch,
     deleteCurrentCartridge,
     registerNewCartridge,
     saveCurrentCartride
