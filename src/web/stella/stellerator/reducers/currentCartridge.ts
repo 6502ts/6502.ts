@@ -25,23 +25,14 @@ export default function reduce(state: Cartridge, action: Action): Cartridge {
     }
 }
 
-function changeName(state: Cartridge, action: ChangeNameAction): Cartridge {
-    return new Cartridge(action.name, state.buffer, state.hash, {
-        tvMode: state.tvMode,
-        cartridgeType: state.cartridgeType
-    });
+function changeName(state: Cartridge = new Cartridge(), action: ChangeNameAction): Cartridge {
+    return new Cartridge({name: action.name}, state);
 }
 
-function changeTvMode(state: Cartridge, action: ChangeTvModeAction): Cartridge {
-    return new Cartridge(state.name, state.buffer, state.hash, {
-        tvMode: action.tvMode,
-        cartridgeType: state.cartridgeType
-    });
+function changeTvMode(state: Cartridge = new Cartridge(), action: ChangeTvModeAction): Cartridge {
+    return new Cartridge({tvMode: action.tvMode}, state);
 }
 
-function changeCartridgeType(state: Cartridge, action: ChangeCartridgeTypeAction): Cartridge {
-    return new Cartridge(state.name, state.buffer, state.hash, {
-        tvMode: state.tvMode,
-        cartridgeType: action.cartridgeType
-    });
+function changeCartridgeType(state: Cartridge = new Cartridge(), action: ChangeCartridgeTypeAction): Cartridge {
+    return new Cartridge({cartridgeType: action.cartridgeType}, state);
 }

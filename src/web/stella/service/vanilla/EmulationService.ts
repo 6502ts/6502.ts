@@ -1,6 +1,7 @@
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
 import Board from '../../../../machine/stella/Board';
+import BoardInterface from '../../../../machine/board/BoardInterface';
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeFactory from '../../../../machine/stella/cartridge/CartridgeFactory';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
@@ -31,7 +32,7 @@ export default class EmulationService implements EmulationServiceInterface {
                     board = new Board(config, cartridge);
 
                 this._board = board;
-                this._board.trap.addHandler(trap => this._setError(new Error(`TRAP: ${trap.message}`)));
+                this._board.trap.addHandler(EmulationService._trapHandler, this);
                 this._context = new EmulationContext(board);
                 this._board.getTimer().start(this._scheduler);
 
@@ -118,7 +119,9 @@ export default class EmulationService implements EmulationServiceInterface {
         try {
             if (this._state === EmulationServiceInterface.State.running) {
                 this._board.getTimer().stop();
+                this._board.trap.removeHandler(EmulationService._trapHandler, this);
             }
+            this._board = null;
 
             this._context = null;
             this._setState(EmulationServiceInterface.State.stopped);
@@ -141,6 +144,10 @@ export default class EmulationService implements EmulationServiceInterface {
         }
 
         return this._state;
+    }
+
+    private static _trapHandler(trap: BoardInterface.TrapPayload, self: EmulationService) {
+        self._setError(new Error(`TRAP: ${trap.message}`));
     }
 
     stateChanged = new Event<EmulationServiceInterface.State>();

@@ -1,24 +1,17 @@
-class GuiState {
+class GuiState implements Changeset {
 
-    constructor(changes?: {
-        mode?: GuiState.GuiMode;
-        showSelectPendingChangesModal?: boolean;
-        pendingSelectHash?: string;
-        showLoadPendingChangesModal?: boolean,
-        pendingLoad?: Uint8Array,
-        pendingLoadName?: string
-    }, old?: GuiState) {
+    constructor(changes?: Changeset, old?: GuiState) {
         Object.assign(this, old, changes);
     }
 
-    public mode = GuiState.GuiMode.cartridgeList;
+    mode = GuiState.GuiMode.cartridgeList;
 
-    public showSelectPendingChangesModal = false;
-    public pendingSelectHash = '';
+    showSelectPendingChangesModal = false;
+    pendingSelectHash = '';
 
-    public showLoadPendingChangesModal = false;
-    public pendingLoad: Uint8Array;
-    public pendingLoadName: string;
+    showLoadPendingChangesModal = false;
+    pendingLoad: Uint8Array;
+    pendingLoadName: string;
 
 }
 
@@ -31,5 +24,13 @@ module GuiState {
 
 }
 
+interface Changeset {
+    mode?: GuiState.GuiMode;
+    showSelectPendingChangesModal?: boolean;
+    pendingSelectHash?: string;
+    showLoadPendingChangesModal?: boolean;
+    pendingLoad?: Uint8Array;
+    pendingLoadName?: string;
+}
 
 export default GuiState;

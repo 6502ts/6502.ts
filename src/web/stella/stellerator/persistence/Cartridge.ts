@@ -69,14 +69,13 @@ export function toState(cartridge: Type): CartridgeState {
             throw new Error(`invalid tv mode ${cartridge.tvMode}`);
     }
 
-    return new CartridgeState(
-        cartridge.name,
-        cartridge.buffer,
-        cartridge.hash, {
-            tvMode: tvMode,
-            cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridge.cartridgeType]
-        }
-    );
+    return new CartridgeState({
+        name: cartridge.name,
+        buffer: cartridge.buffer,
+        hash: cartridge.hash,
+        tvMode,
+        cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridge.cartridgeType]
+    });
 }
 
 export type indexType = number;

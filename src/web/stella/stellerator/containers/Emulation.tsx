@@ -15,7 +15,8 @@ import EmulationComponent from '../components/Emulation';
 
 function mapStateToProps(state: State): EmulationComponent.Props {
     return {
-        enabled: state.guiState.mode === GuiState.GuiMode.run
+        enabled: state.guiState.mode === GuiState.GuiMode.run,
+        emulationState: state.emulationState.emulationState
     };
 }
 

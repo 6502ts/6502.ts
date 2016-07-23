@@ -3,6 +3,7 @@ import {push} from 'react-router-redux';
 import {Action} from 'redux';
 
 import {
+    batch,
     deleteCurrentCartridge,
     registerNewCartridge,
     saveCurrentCartride
@@ -33,17 +34,16 @@ function mapStateToProps(state: State): CartridgeControlsComponent.Props {
 type Props = CartridgeControlsComponent.Props;
 const CartridgeControlsContainer = connect<Props, Props, Props>(
     mapStateToProps,
-    dispatch => ({
-        onDelete: (): void => void(dispatch(deleteCurrentCartridge())),
-        onRun: (): void => {
-            // Batching will not work because push and startEmulation are processed by middleware
-            dispatch(saveCurrentCartride());
-            dispatch(setMode(GuiState.GuiMode.run));
-            dispatch(startEmulation());
-            dispatch(push('/emulation'));
-        },
-        onSave: (): void => void(dispatch(saveCurrentCartride())),
-        onCartridgeUploaded: (file, changes) => dispatch(
+    {
+        onDelete: deleteCurrentCartridge,
+        onRun: () => batch(
+            saveCurrentCartride(),
+            setMode(GuiState.GuiMode.run),
+            startEmulation(),
+            push('/emulation')
+        ),
+        onSave: saveCurrentCartride,
+        onCartridgeUploaded: (file, changes) =>
             (dispatch: (a: Action) => void) => {
                 const reader = new FileReader();
 
@@ -56,8 +56,7 @@ const CartridgeControlsContainer = connect<Props, Props, Props>(
 
                 reader.readAsArrayBuffer(file);
             }
-        )
-    })
+    }
 )(CartridgeControlsComponent);
 
 export default CartridgeControlsContainer;

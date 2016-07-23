@@ -34,10 +34,10 @@ export function selectCartridge(hash: string = ''): SelectCartridgeAction {
 }
 
 export interface BatchAction extends Action {
-    items: Array<Action>;
+    items: Array<Action|Function>;
 }
 
-export function batch(...items: Array<Action>): BatchAction {
+export function batch(...items: Array<Action|Function>): BatchAction {
     return {
         type: Type.batch,
         items

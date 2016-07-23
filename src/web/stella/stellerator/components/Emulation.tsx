@@ -45,8 +45,13 @@ class Emulation extends React.Component<Emulation.Props, {}> {
         return<Grid fluid>
             <Row>
                 <Col md={6} mdPush={3}>
+                    <div
+                        className={`emulation-viewport error-display ${this._emulationError() ? '' : 'hidden'}`}
+                    >
+                        {this._errorMessage()}
+                    </div>
                     <canvas
-                        className="emulation-viewport"
+                        className={`emulation-viewport ${this._emulationError() ? 'hidden' : ''}`}
                         width={this.props.initialViewportWidth}
                         height={this.props.initialViewportHeight}
                         ref={(elt) => this._canvasElt = elt as HTMLCanvasElement}
@@ -64,6 +69,8 @@ class Emulation extends React.Component<Emulation.Props, {}> {
         enabled: false,
         initialViewportWidth: 160,
         initialViewportHeight: 192,
+        emulationState: EmulationServiceInterface.State.stopped,
+
         navigateAway: (): void => undefined,
         pauseEmulation: (): void => undefined,
         resumeEmulation: (): void => undefined
@@ -72,6 +79,16 @@ class Emulation extends React.Component<Emulation.Props, {}> {
     static contextTypes: React.ValidationMap<any> = {
         emulationService: React.PropTypes.object
     };
+
+    private _emulationError(): boolean {
+        return this.context.emulationService.getState() === EmulationServiceInterface.State.error;
+    }
+
+    private _errorMessage(): string {
+        const error = this.context.emulationService.getLastError();
+
+        return error && error.message ? error.message : '[unknown]';
+    }
 
     private _driverManager = new DriverManager();
     private _canvasElt: HTMLCanvasElement = null;
@@ -83,6 +100,7 @@ module Emulation {
         enabled?: boolean;
         initialViewportWidth?: number;
         initialViewportHeight?: number;
+        emulationState?: EmulationServiceInterface.State;
 
         navigateAway?: () => void;
         pauseEmulation?: () => void;

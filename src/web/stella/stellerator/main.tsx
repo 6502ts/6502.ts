@@ -36,6 +36,8 @@ import PersistenceManager from './persistence/Manager';
 import {create as createPersistenceMiddleware} from './persistence/middleware';
 import {initCartridges} from './actions/root';
 import {create as createEmulationMiddleware} from './emulation/middleware';
+import EmulationDispatcher from './emulation/Dispatcher';
+import {batchMiddleware} from './middleware';
 
 import EmulationService from '../service/vanilla/EmulationService';
 
@@ -48,14 +50,18 @@ const store = createStore<State>(
         new State(),
         compose(
             applyMiddleware(
+                thunk,
+                batchMiddleware,
                 createPersistenceMiddleware(persistenceManager),
                 createEmulationMiddleware(emulationService),
-                thunk,
                 routerMiddleware(hashHistory)
             ),
             (window.devToolsExtension ? window.devToolsExtension() : (x: any) => x)
         ) as any
     );
+
+const emulationDispatcher = new EmulationDispatcher(store);
+emulationDispatcher.bind(emulationService);
 
 const history = syncHistoryWithStore(hashHistory, store);
 

@@ -7,7 +7,8 @@ import Cartridge from '../state/Cartridge';
 import StellaConfig from '../../../../machine/stella/Config';
 
 import {
-    Type
+    Type,
+    StartAction
 } from '../actions/emulation';
 
 function createStellaConfig(cartridge: Cartridge): StellaConfig {
@@ -17,16 +18,23 @@ function createStellaConfig(cartridge: Cartridge): StellaConfig {
 export function create(emulationService: EmulationServiceInterface): redux.Middleware {
 
     return ((api: redux.MiddlewareAPI<State>) => (next: (a: any) => void) => (a: redux.Action): any => {
+        if (!a) {
+            next(a);
+        }
+
         const state = api.getState();
 
         switch (a.type) {
             case Type.start:
                 if (state.currentCartridge) {
+                    (a as StartAction).hash = state.currentCartridge.hash;
+
                     return emulationService.start(
                         state.currentCartridge.buffer,
-                        createStellaConfig(state.currentCartridge)
+                        createStellaConfig(state.currentCartridge),
+                        state.currentCartridge.cartridgeType
                     )
-                    .then(() => (next(a), next(push('/emulation'))));
+                    .then(() => (api.dispatch(push('/emulation')), next(a)));
                 }
 
                 break;

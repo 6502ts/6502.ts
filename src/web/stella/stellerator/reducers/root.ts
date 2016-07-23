@@ -2,7 +2,6 @@ import {Action} from 'redux';
 import {routerReducer} from 'react-router-redux';
 
 import {
-    BatchAction,
     InitCartridgesAction,
     SelectCartridgeAction,
     RegisterNewCartridgeAction,
@@ -13,6 +12,7 @@ import {calculateFromUint8Array as md5sum} from '../../../../tools/hash/md5';
 
 import reduceGuiState from './guiState';
 import reduceCurrentCartridge from './currentCartridge';
+import reduceEmulationState from './emulation';
 
 import State from '../state/State';
 import Cartridge from '../state/Cartridge';
@@ -21,15 +21,12 @@ import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeDetector from '../../../../machine/stella/cartridge/CartridgeDetector';
 
 export default function rootReducer(state: State = new State(), a: Action): State {
-    if (a.type === ActionType.batch) {
-        return batch(state, a as BatchAction);
-    }
-
     const newState = reduce(state, a);
 
     newState.routing = routerReducer(state.routing, a);
     newState.currentCartridge = reduceCurrentCartridge(newState.currentCartridge, a);
     newState.guiState = reduceGuiState(newState.guiState, a);
+    newState.emulationState = reduceEmulationState(newState.emulationState, a);
 
     return newState;
 }
@@ -52,12 +49,8 @@ function reduce(state: State, a: Action): State {
             return saveCurrentCartride(state);
 
         default:
-            return new State(state.cartridges, state.currentCartridge, state.guiState);
+            return new State(undefined, state);
     }
-}
-
-function batch(state: State, a: BatchAction): State {
-    return a.items.reduce((s: State, action: Action) => rootReducer(s, action), state);
 }
 
 function deleteCurrentCartridge(state: State): State {
@@ -67,11 +60,10 @@ function deleteCurrentCartridge(state: State): State {
         hash => hash !== state.currentCartridge.hash && (cartridges[hash] = state.cartridges[hash])
     );
 
-    return new State(
+    return new State({
         cartridges,
-        null,
-        state.guiState
-    );
+        currentCartridge: null
+    }, state);
 }
 
 function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): State {
@@ -93,23 +85,24 @@ function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): Stat
         tvMode = StellaConfig.TvMode.ntsc;
     }
 
-    const newCartridge = new Cartridge(
+    const newCartridge = new Cartridge({
         name,
         buffer,
-        hash, {
-            tvMode,
-            cartridgeType
-        }
-    );
+        hash,
+        tvMode,
+        cartridgeType
+    });
 
-    return new State(state.cartridges, newCartridge, state.guiState);
+    return new State({
+        currentCartridge: newCartridge
+    }, state);
 }
 
 function initCartridges(state: State, a: InitCartridgesAction): State {
     const cartridges: {[key: string]: Cartridge} = {};
     a.cartridges.forEach(cartridge => cartridges[cartridge.hash] = cartridge);
 
-    return new State(cartridges, undefined, state.guiState);
+    return new State({cartridges}, state);
 }
 
 function selectCartridge(state: State, a: SelectCartridgeAction): State {
@@ -119,11 +112,7 @@ function selectCartridge(state: State, a: SelectCartridgeAction): State {
         throw new Error(`no cartridge with hash ${a.hash}`);
     }
 
-    return new State(
-        state.cartridges,
-        cartridge,
-        state.guiState
-    );
+    return new State({currentCartridge: cartridge}, state);
 }
 
 function saveCurrentCartride(state: State): State {
@@ -135,9 +124,5 @@ function saveCurrentCartride(state: State): State {
 
     cartridges[state.currentCartridge.hash] = state.currentCartridge;
 
-    return new State(
-        cartridges,
-        state.currentCartridge,
-        state.guiState
-    );
+    return new State({cartridges}, state);
 }

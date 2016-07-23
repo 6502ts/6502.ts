@@ -1,14 +1,23 @@
 import Cartridge from './Cartridge';
 import GuiState from './GuiState';
+import EmulationState from './Emulation';
 
-export default class State {
+export default class State implements Changeset {
 
-    constructor(
-        public cartridges: {[hash: string]: Cartridge} = {},
-        public currentCartridge: Cartridge = null,
-        public guiState = new GuiState()
-    ) {}
+    constructor(changes?: Changeset, old?: State) {
+        Object.assign(this, old, changes);
+    }
 
-    public routing: any;
+    routing: any;
+    cartridges: {[hash: string]: Cartridge} = {};
+    currentCartridge: Cartridge = null;
+    guiState: GuiState;
+    emulationState: EmulationState;
+}
 
+interface Changeset {
+    cartridges?: {[hash: string]: Cartridge};
+    currentCartridge?: Cartridge;
+    guiState?: GuiState;
+    emulationState?: EmulationState;
 }

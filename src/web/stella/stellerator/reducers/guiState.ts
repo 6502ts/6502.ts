@@ -9,7 +9,7 @@ import {
 
 import GuiState from '../state/GuiState';
 
-export default function reduce(state: GuiState, action: Action): GuiState {
+export default function reduce(state: GuiState = new GuiState(), action: Action): GuiState {
     switch (action.type) {
         case ActionType.loadOpenPendingChangesModal:
             return loadOpenPendingChangesModal(state, action as LoadOpenPendingChangesModalAction);
