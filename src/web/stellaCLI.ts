@@ -3,9 +3,7 @@ import Board from '../machine/stella/Board';
 import JqtermCLIRunner from '../cli/JqtermCLIRunner';
 import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 import SimpleCanvasVideoDriver from './driver/SimpleCanvasVideo';
-import ControlPanelInterface from '../machine/stella/ControlPanelInterface';
-import DigitalJoystickInterface from '../machine/io/DigitalJoystickInterface';
-import SwitchInterface from '../machine/io/SwitchInterface';
+import KeyboardIO from './stella/driver/KeyboardIO';
 import AudioOutputInterface from '../machine/io/AudioOutputInterface';
 import PaddleInterface from '../machine/io/PaddleInterface';
 
@@ -60,9 +58,7 @@ export function run({
         setupAudio(audioContext, board.getAudioOutput());
         setupKeyboardControls(
             canvas,
-            board.getControlPanel(),
-            board.getJoystick0(),
-            board.getJoystick1()
+            board
         );
         setupPaddles(board.getPaddle(0));
 
@@ -218,54 +214,16 @@ function setupAudio(context: AudioContext, audio: Board.Audio) {
 
 function setupKeyboardControls(
     element: JQuery,
-    controlPanel: ControlPanelInterface,
-    joystick0: DigitalJoystickInterface,
-    joystick1: DigitalJoystickInterface
+    board: Board
 ) {
-    const mappings: {[key: string]: SwitchInterface} = {
-        17: controlPanel.getSelectSwitch(),     // l-alt
-        18: controlPanel.getResetButton(),      // l-ctrl
-        65: joystick0.getLeft(),                // w
-        37: joystick0.getLeft(),                // left
-        68: joystick0.getRight(),               // d
-        39: joystick0.getRight(),               // right
-        83: joystick0.getDown(),                // s
-        40: joystick0.getDown(),                // down
-        87: joystick0.getUp(),                  // w
-        38: joystick0.getUp(),                  // up
-        86: joystick0.getFire(),                // v
-        32: joystick0.getFire(),                // space
-        74: joystick1.getLeft(),                // j,
-        76: joystick1.getRight(),               // l,
-        73: joystick1.getUp(),                  // i,
-        75: joystick1.getDown(),                // k
-        66: joystick1.getFire(),                // b
-    };
+    const ioDriver = new KeyboardIO(element.get(0));
+    ioDriver.bind(board);
 
-    element.keydown((e: JQueryKeyEventObject) => {
-        if (mappings[e.which]) {
-            mappings[e.which].toggle(true);
-            e.preventDefault();
-
-            return;
-        }
-
-        switch (e.which) {
-            case 13: // enter
-                if (fullscreenActive()) {
-                    exitFullscreen();
-                } else {
-                    enterFullscreen(element);
-
-                }
-                return;
-        }
-    });
-
-    element.keyup((e: JQueryKeyEventObject) => {
-        if (mappings[e.which]) {
-            mappings[e.which].toggle(false);
-            e.preventDefault();
+    ioDriver.toggleFullscreen.addHandler(() => {
+        if (fullscreenActive()) {
+            exitFullscreen();
+        } else {
+            enterFullscreen(element);
         }
     });
 }

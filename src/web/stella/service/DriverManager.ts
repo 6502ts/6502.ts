@@ -69,7 +69,10 @@ class DriverManager {
                         driverContext.driver
                     )
                 );
-                return;
+                break;
+
+            case EmulationServiceInterface.State.paused:
+                break;
 
             default:
                 self._drivers.forEach(

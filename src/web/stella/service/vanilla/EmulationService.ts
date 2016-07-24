@@ -35,6 +35,7 @@ export default class EmulationService implements EmulationServiceInterface {
                 this._board.trap.addHandler(EmulationService._trapHandler, this);
                 this._context = new EmulationContext(board);
                 this._board.getTimer().start(this._scheduler);
+                this._board.resume();
 
                 this._setState(EmulationServiceInterface.State.running);
             } catch (e) {
@@ -54,6 +55,7 @@ export default class EmulationService implements EmulationServiceInterface {
             try {
                 if (this._state === EmulationServiceInterface.State.running) {
                     this._board.getTimer().stop();
+                    this._board.suspend();
                     this._setState(EmulationServiceInterface.State.paused);
                 }
             } catch (e) {
@@ -69,6 +71,7 @@ export default class EmulationService implements EmulationServiceInterface {
             try {
                 if (this._state === EmulationServiceInterface.State.paused) {
                     this._board.getTimer().start(this._scheduler);
+                    this._board.resume();
                     this._setState(EmulationServiceInterface.State.running);
                 }
             } catch (e) {
@@ -119,6 +122,7 @@ export default class EmulationService implements EmulationServiceInterface {
         try {
             if (this._state === EmulationServiceInterface.State.running) {
                 this._board.getTimer().stop();
+                this._board.suspend();
                 this._board.trap.removeHandler(EmulationService._trapHandler, this);
             }
             this._board = null;

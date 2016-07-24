@@ -12,4 +12,8 @@ export default class EmulationContext implements EmulationContextInterface {
         return this._board.getVideoOutput();
     }
 
+    getBoard(): Board {
+        return this._board;
+    }
+
 }

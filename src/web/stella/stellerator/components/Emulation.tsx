@@ -11,6 +11,7 @@ import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 import EmulationContextInterface from '../../service/EmulationContextInterface';
 import DriverManager from '../../service/DriverManager';
 import SimpleCanvasVideoDriver from '../../../driver/SimpleCanvasVideo';
+import KeyboardIoDriver from '../../driver/KeyboardIO';
 
 class Emulation extends React.Component<Emulation.Props, {}> {
 
@@ -35,9 +36,15 @@ class Emulation extends React.Component<Emulation.Props, {}> {
 
     componentDidMount(): void {
         this._driverManager.bind(this.context.emulationService);
+
         this._driverManager.addDriver(
             new SimpleCanvasVideoDriver(this._canvasElt),
             (context: EmulationContextInterface, driver: SimpleCanvasVideoDriver) => driver.bind(context.getVideo())
+        );
+
+        this._driverManager.addDriver(
+            new KeyboardIoDriver(document),
+            (context: EmulationContextInterface, driver: KeyboardIoDriver) => driver.bind(context.getBoard())
         );
     }
 
