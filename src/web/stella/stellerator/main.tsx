@@ -40,8 +40,26 @@ import EmulationDispatcher from './emulation/Dispatcher';
 import {batchMiddleware} from './middleware';
 
 import EmulationService from '../service/vanilla/EmulationService';
+import EmulationContextInterface from '../service/EmulationContextInterface';
+import DriverManager from '../service/DriverManager';
+import WebAudioDriver from '../driver/WebAudio';
 
-const emulationService = new EmulationService();
+const emulationService = new EmulationService(),
+    driverManager = new DriverManager(),
+    audioDriver = new WebAudioDriver();
+
+try {
+    audioDriver.init();
+} catch (e) {
+    console.log(`audio not available: ${e.message}`);
+}
+
+driverManager
+    .bind(emulationService)
+    .addDriver(
+        audioDriver,
+        (context: EmulationContextInterface, driver: WebAudioDriver) => driver.bind(context.getBoard())
+    );
 
 const persistenceManager = new PersistenceManager();
 

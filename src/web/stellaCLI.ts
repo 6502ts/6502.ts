@@ -3,8 +3,8 @@ import Board from '../machine/stella/Board';
 import JqtermCLIRunner from '../cli/JqtermCLIRunner';
 import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 import SimpleCanvasVideoDriver from './driver/SimpleCanvasVideo';
-import KeyboardIO from './stella/driver/KeyboardIO';
-import AudioOutputInterface from '../machine/io/AudioOutputInterface';
+import KeyboardIoDriver from './stella/driver/KeyboardIO';
+import WebAudioDriver from './stella/driver/WebAudio';
 import PaddleInterface from '../machine/io/PaddleInterface';
 
 interface PageConfig {
@@ -43,19 +43,16 @@ export function run({
     cli.allowQuit(false);
 
     const canvasElt = canvas.get(0) as HTMLCanvasElement,
-        context = canvasElt.getContext('2d'),
-        audioContext = new AudioContext();
+        context = canvasElt.getContext('2d');
 
     context.fillStyle = 'solid black';
     context.fillRect(0, 0, canvasElt.width, canvasElt.height);
-
-    audioContext.destination.channelCount = 1;
 
     cli.hardwareInitialized.addHandler(() => {
         const board = cli.getBoard();
 
         setupVideo(canvas.get(0) as HTMLCanvasElement, board);
-        setupAudio(audioContext, board.getAudioOutput());
+        setupAudio(board);
         setupKeyboardControls(
             canvas,
             board
@@ -129,94 +126,23 @@ function setupVideo(canvas: HTMLCanvasElement, board: Board) {
     driver.bind(board.getVideoOutput());
 }
 
-function setupAudio(context: AudioContext, audio: Board.Audio) {
+function setupAudio(board: Board) {
+    const driver = new WebAudioDriver();
 
-    let bufferCache: {[key: number]: AudioBuffer} = {};
-
-    function getBuffer(key: number, audio: AudioOutputInterface) {
-        if (!bufferCache[key]) {
-            const buffer = audio.getBuffer(key),
-                audioBuffer = context.createBuffer(1, buffer.getLength(), buffer.getSampleRate());
-
-            audioBuffer.getChannelData(0).set(buffer.getContent());
-
-            bufferCache[key] = audioBuffer;
-        }
-
-        return bufferCache[key];
+    try {
+        driver.init();
+    } catch (e) {
+        console.log(`audio unavailable: ${e.message}`);
     }
 
-    let source0: AudioBufferSourceNode;
-    let source1: AudioBufferSourceNode;
-
-    const merger = context.createChannelMerger(2);
-    merger.connect(context.destination);
-
-    const gain0 = context.createGain(),
-        gain1 = context.createGain();
-
-    gain0.connect(merger);
-    gain0.gain.value = audio.channel0.getVolume();
-
-    audio.channel0.volumeChanged.addHandler(
-        volume => gain0.gain.value = volume
-    );
-
-    gain1.connect(merger);
-    gain1.gain.value = audio.channel1.getVolume();
-
-    audio.channel1.volumeChanged.addHandler(
-        volume => gain1.gain.value = volume
-    );
-
-    audio.channel0.bufferChanged.addHandler((key: number) => {
-        const buffer = getBuffer(key, audio.channel0);
-
-        if (source0) {
-            source0.stop();
-        }
-
-        source0 = context.createBufferSource();
-        source0.loop = true;
-        source0.buffer = buffer;
-        source0.connect(gain0);
-        source0.start();
-    });
-
-    audio.channel0.stop.addHandler(() => {
-        if (source0) {
-            source0.stop();
-            source0 = null;
-        }
-    });
-
-    audio.channel1.bufferChanged.addHandler((key: number) => {
-        const buffer = getBuffer(key, audio.channel1);
-
-        if (source1) {
-            source1.stop();
-        }
-
-        source1 = context.createBufferSource();
-        source1.loop = true;
-        source1.buffer = buffer;
-        source1.connect(gain1);
-        source1.start();
-    });
-
-    audio.channel1.stop.addHandler(() => {
-        if (source1) {
-            source1.stop();
-            source1 = null;
-        }
-    });
+    driver.bind(board);
 }
 
 function setupKeyboardControls(
     element: JQuery,
     board: Board
 ) {
-    const ioDriver = new KeyboardIO(element.get(0));
+    const ioDriver = new KeyboardIoDriver(element.get(0));
     ioDriver.bind(board);
 
     ioDriver.toggleFullscreen.addHandler(() => {
