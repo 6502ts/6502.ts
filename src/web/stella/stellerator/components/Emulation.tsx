@@ -13,6 +13,7 @@ import DriverManager from '../../service/DriverManager';
 import SimpleCanvasVideoDriver from '../../../driver/SimpleCanvasVideo';
 import KeyboardIoDriver from '../../driver/KeyboardIO';
 import FullscreenVideoDriver from '../../../driver/FullscreenVideo';
+import MouseAsPaddleDriver from '../../../driver/MouseAsPaddle';
 
 class Emulation extends React.Component<Emulation.Props, {}> {
 
@@ -40,25 +41,39 @@ class Emulation extends React.Component<Emulation.Props, {}> {
     componentDidMount(): void {
         this._driverManager.bind(this.context.emulationService);
 
+        const keyboardDriver = new KeyboardIoDriver(document);
         this._fullscreenDriver = new FullscreenVideoDriver(this._canvasElt);
 
-        this._driverManager.addDriver(
-            new SimpleCanvasVideoDriver(this._canvasElt),
-            (context: EmulationContextInterface, driver: SimpleCanvasVideoDriver) => driver.bind(context.getVideo())
-        );
-
-        const keyboardDriver = new KeyboardIoDriver(document);
-        this._driverManager.addDriver(
-            keyboardDriver,
-            (context: EmulationContextInterface, driver: KeyboardIoDriver) => driver.bind(context.getBoard())
-        );
+        this._driverManager
+            .addDriver(
+                new SimpleCanvasVideoDriver(this._canvasElt),
+                (context: EmulationContextInterface, driver: SimpleCanvasVideoDriver) =>
+                    driver.bind(context.getVideo())
+            )
+            .addDriver(
+                new MouseAsPaddleDriver(),
+                (context: EmulationContextInterface, driver: MouseAsPaddleDriver) =>
+                    driver.bind(context.getPaddle(0))
+            )
+            .addDriver(
+                keyboardDriver,
+                (context: EmulationContextInterface, driver: KeyboardIoDriver) =>
+                    driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+            );
 
         keyboardDriver.toggleFullscreen.addHandler(() => this._fullscreenDriver.toggle());
     }
 
     render() {
-        return<Grid fluid>
+        return <Grid fluid>
             <Row>
+                <Col md={11}>
+                    wasd / arrows + v/space = left joystick , ijkl + b = right joystick
+                    <br/>
+                    left ctrl = select, alt = reset, enter = toggle fullscreen
+                </Col>
+            </Row>
+            <Row style={{marginTop: '1rem'}}>
                 <Col md={6} mdPush={3}>
                     <div
                         className={`emulation-viewport error-display ${this._emulationError() ? '' : 'hidden'}`}

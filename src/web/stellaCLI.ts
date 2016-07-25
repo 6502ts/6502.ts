@@ -7,6 +7,7 @@ import KeyboardIoDriver from './stella/driver/KeyboardIO';
 import WebAudioDriver from './stella/driver/WebAudio';
 import FullscreenVideoDriver from './driver/FullscreenVideo';
 import PaddleInterface from '../machine/io/PaddleInterface';
+import MouseAsPaddleDriver from './driver/MouseAsPaddle';
 
 interface PageConfig {
     cartridge?: string;
@@ -136,7 +137,7 @@ function setupAudio(board: Board) {
         console.log(`audio unavailable: ${e.message}`);
     }
 
-    driver.bind(board);
+    driver.bind(board.getAudioOutput());
 }
 
 function setupKeyboardControls(
@@ -145,26 +146,12 @@ function setupKeyboardControls(
     fullscreenDriver: FullscreenVideoDriver
 ) {
     const ioDriver = new KeyboardIoDriver(element.get(0));
-    ioDriver.bind(board);
+    ioDriver.bind(board.getJoystick0(), board.getJoystick1(), board.getControlPanel());
 
     ioDriver.toggleFullscreen.addHandler(() => fullscreenDriver.toggle());
 }
 
 function setupPaddles(paddle0: PaddleInterface): void {
-    let x = -1;
-
-    document.addEventListener('mousemove', (e: MouseEvent) => {
-        if (x >= 0) {
-            const dx = e.screenX - x;
-            let value = paddle0.getValue();
-
-            value += -dx / window.innerWidth / 0.9;
-            if (value < 0) value = 0;
-            if (value > 1) value = 1;
-
-            paddle0.setValue(value);
-        }
-
-        x = e.screenX;
-    });
+    const paddleDriver = new MouseAsPaddleDriver();
+    paddleDriver.bind(paddle0);
 }

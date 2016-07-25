@@ -58,7 +58,7 @@ driverManager
     .bind(emulationService)
     .addDriver(
         audioDriver,
-        (context: EmulationContextInterface, driver: WebAudioDriver) => driver.bind(context.getBoard())
+        (context: EmulationContextInterface, driver: WebAudioDriver) => driver.bind(context.getAudio())
     );
 
 const persistenceManager = new PersistenceManager();

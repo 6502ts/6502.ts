@@ -28,18 +28,13 @@ export default class FullscreenVideoDriver {
             return;
         }
 
-        this._resizeListener = this._adjustSizeForFullscreen.bind(this);
-
         window.addEventListener('resize', this._resizeListener);
     }
 
     private _adjustSizeForFullscreen() {
         if (!this.isEngaged()) {
-            if (this._resizeListener) {
-                window.removeEventListener('resize', this._resizeListener);
-            }
+            window.removeEventListener('resize', this._resizeListener);
 
-            this._resizeListener = null;
             this._element.style.width = '';
             this._element.style.height = '';
             return;
@@ -62,6 +57,6 @@ export default class FullscreenVideoDriver {
         this._element.style.height = correctedHeight + 'px';
     }
 
-    private _resizeListener: () => void = null;
+    private _resizeListener: () => void = this._adjustSizeForFullscreen.bind(this);
 
 }

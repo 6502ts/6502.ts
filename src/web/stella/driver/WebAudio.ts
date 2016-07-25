@@ -7,29 +7,25 @@ export default class WebAudioDriver {
         this._driver.init();
     }
 
-    bind(board: Board): void {
-        if (this._board) {
+    bind(audio: Board.Audio): void {
+        if (this._audio) {
             return;
         }
-        this._board = board;
+        this._audio = audio;
 
-        const audio = this._board.getAudioOutput();
-
-        this._driver.bind(audio.channel0, audio.channel1);
-        this._board.setAudioEnabled(true);
+        this._driver.bind(this._audio.channel0, this._audio.channel1);
     }
 
     unbind(): void {
-        if (!this._board) {
+        if (!this._audio) {
             return;
         }
 
         this._driver.unbind();
-        this._board.setAudioEnabled(false);
 
-        this._board = null;
+        this._audio = null;
     }
 
     private _driver = new VanillaDriver(2);
-    private _board: Board = null;
+    private _audio: Board.Audio = null;
 }
