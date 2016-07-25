@@ -5,6 +5,7 @@ import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 import SimpleCanvasVideoDriver from './driver/SimpleCanvasVideo';
 import KeyboardIoDriver from './stella/driver/KeyboardIO';
 import WebAudioDriver from './stella/driver/WebAudio';
+import FullscreenVideoDriver from './driver/FullscreenVideo';
 import PaddleInterface from '../machine/io/PaddleInterface';
 
 interface PageConfig {
@@ -49,13 +50,15 @@ export function run({
     context.fillRect(0, 0, canvasElt.width, canvasElt.height);
 
     cli.hardwareInitialized.addHandler(() => {
-        const board = cli.getBoard();
+        const board = cli.getBoard(),
+            fullscreenDriver = new FullscreenVideoDriver(canvas.get(0));
 
         setupVideo(canvas.get(0) as HTMLCanvasElement, board);
         setupAudio(board);
         setupKeyboardControls(
             canvas,
-            board
+            board,
+            fullscreenDriver
         );
         setupPaddles(board.getPaddle(0));
 
@@ -81,8 +84,6 @@ export function run({
             cli.pushInput(`load-cartridge ${pageConfig.cartridge}\n`);
         }
     }
-
-    window.addEventListener('resize', () => resizeForFullscreenIfApplicable(canvas));
 }
 
 function setupCartridgeReader(
@@ -140,18 +141,13 @@ function setupAudio(board: Board) {
 
 function setupKeyboardControls(
     element: JQuery,
-    board: Board
+    board: Board,
+    fullscreenDriver: FullscreenVideoDriver
 ) {
     const ioDriver = new KeyboardIoDriver(element.get(0));
     ioDriver.bind(board);
 
-    ioDriver.toggleFullscreen.addHandler(() => {
-        if (fullscreenActive()) {
-            exitFullscreen();
-        } else {
-            enterFullscreen(element);
-        }
-    });
+    ioDriver.toggleFullscreen.addHandler(() => fullscreenDriver.toggle());
 }
 
 function setupPaddles(paddle0: PaddleInterface): void {
@@ -170,73 +166,5 @@ function setupPaddles(paddle0: PaddleInterface): void {
         }
 
         x = e.screenX;
-    });
-}
-
-function enterFullscreen(elt: JQuery) {
-    const unwrapped: any = elt.get(0),
-        requestFullscreen: () => void =
-            unwrapped.requestFullscreen ||
-            unwrapped.webkitRequestFullScreen ||
-            unwrapped.webkitRequestFullscreen ||
-            unwrapped.mozRequestFullscreen ||
-            unwrapped.mozRequestFullScreen ||
-            unwrapped.msRequestFullscreen ||
-            unwrapped.msRequestFullScreen;
-
-    if (requestFullscreen) {
-        requestFullscreen.apply(unwrapped);
-    }
-}
-
-function exitFullscreen() {
-    const doc: any = document,
-        exitFullscreen =
-            doc.exitFullscreen ||
-            doc.webkitExitFullScreen ||
-            doc.webkitExitFullscreen ||
-            doc.mozExitFullscreen ||
-            doc.mozExitFullScreen ||
-            doc.msRequestFullscreen ||
-            doc.msRequestFullScreen;
-
-    if (exitFullscreen) {
-        exitFullscreen.apply(doc);
-    }
-}
-
-function fullscreenActive() {
-    const doc = document as any;
-
-    return  doc.fullscreen ||
-            doc.webkitIsFullScreen ||
-            doc.webkitIsFullscreen ||
-            doc.mozFullscreen ||
-            doc.mozFullScreen ||
-            !!doc.msFullsceenElement;
-}
-
-function resizeForFullscreenIfApplicable(canvas: JQuery) {
-    if (!fullscreenActive()) {
-        canvas.removeAttr('style');
-        return;
-    }
-
-    const actualWidth = window.innerWidth,
-        actualHeight = window.innerHeight;
-
-    let correctedWidth: number, correctedHeight: number;
-
-    if (actualWidth > actualHeight) {
-        correctedHeight = actualHeight;
-        correctedWidth = actualHeight / 3 * 4;
-    } else {
-        correctedWidth = actualWidth;
-        correctedHeight = actualHeight / 4 * 3;
-    }
-
-    canvas.css({
-        width: correctedWidth,
-        height: correctedHeight
     });
 }

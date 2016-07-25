@@ -12,6 +12,7 @@ import EmulationContextInterface from '../../service/EmulationContextInterface';
 import DriverManager from '../../service/DriverManager';
 import SimpleCanvasVideoDriver from '../../../driver/SimpleCanvasVideo';
 import KeyboardIoDriver from '../../driver/KeyboardIO';
+import FullscreenVideoDriver from '../../../driver/FullscreenVideo';
 
 class Emulation extends React.Component<Emulation.Props, {}> {
 
@@ -32,20 +33,27 @@ class Emulation extends React.Component<Emulation.Props, {}> {
 
         this._driverManager.unbind();
         this._driverManager = null;
+
+        this._fullscreenDriver.disengage();
     }
 
     componentDidMount(): void {
         this._driverManager.bind(this.context.emulationService);
+
+        this._fullscreenDriver = new FullscreenVideoDriver(this._canvasElt);
 
         this._driverManager.addDriver(
             new SimpleCanvasVideoDriver(this._canvasElt),
             (context: EmulationContextInterface, driver: SimpleCanvasVideoDriver) => driver.bind(context.getVideo())
         );
 
+        const keyboardDriver = new KeyboardIoDriver(document);
         this._driverManager.addDriver(
-            new KeyboardIoDriver(document),
+            keyboardDriver,
             (context: EmulationContextInterface, driver: KeyboardIoDriver) => driver.bind(context.getBoard())
         );
+
+        keyboardDriver.toggleFullscreen.addHandler(() => this._fullscreenDriver.toggle());
     }
 
     render() {
@@ -98,6 +106,7 @@ class Emulation extends React.Component<Emulation.Props, {}> {
     }
 
     private _driverManager = new DriverManager();
+    private _fullscreenDriver: FullscreenVideoDriver = null;
     private _canvasElt: HTMLCanvasElement = null;
 }
 

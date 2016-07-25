@@ -24,6 +24,7 @@
     "react-router-bootstrap": "~0.23.0",
     "react-router-redux": "~4.0.5",
     "redux": "~3.5.2",
+    "screenfull": "~3.0.0",
     "tslint": "~3.10.2",
     "typescript": "~1.8.10"
   }
