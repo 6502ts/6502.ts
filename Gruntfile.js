@@ -29,7 +29,8 @@ module.exports = function(grunt) {
                 'tests/fixtures/fs_provider/blob.json'
             ],
             mrproper: [
-                'web/bower'
+                'web/bower',
+                'typings'
             ],
             worker: [
                 'worker/src/**/**.js'
