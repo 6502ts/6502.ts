@@ -7,11 +7,11 @@
 
     <style>
         body {
-            padding-top: 50px;
+            padding-top: 2rem;
         }
 
         .cs-terminal {
-            height: 370px;
+            height: 390px;
             margin-top: 5px;
             margin-bottom: 5px;
         }
@@ -27,8 +27,22 @@
             display: none;
         }
 
-        #control-buttons .control-button :first-child {
-            width: 90%;
+        #cartridge-file-input-label {
+            display: inline-block;
+        }
+
+        #control-buttons {
+            margin-top: 1rem;
+        }
+
+        #control-buttons .btn {
+            width: 10rem;
+            margin-right: 1rem;
+            display: inline-block;
+        }
+
+        .keybindings {
+            margin-bottom: 1rem;
         }
 
         .row .cs-terminal, .row .cmd {
@@ -38,48 +52,43 @@
     </style>
 
     <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
+    <link href="css/fixes.css" rel="stylesheet">
     <link href="bower/jquery.terminal/css/jquery.terminal.css" rel="stylesheet" media="screen">
 
     <script>_386 = {fastLoad: true}</script>
   </head>
   <body>
 
-  <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          </button>
-          <a class="brand" href="#">6502.ts/Stella</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <span class="navbar-brand">6502.ts Stella CLI</span>
+            </div>
         </div>
-      </div>
     </div>
 
     <div class="container-fluid">
-        <h1>An Atari 2600 emulator written in Typescript</h1>
-        <br/>
-        wasd / arrows + v/space = left joystick , ijkl + b = right joystick
-        <br/>
-        left ctrl = select, alt = reset, enter = toggle fullscreen
+        <div class="row keybindings">
+            <div class="col-md-10">
+                wasd / arrows + v/space = left joystick , ijkl + b = right joystick
+                <br/>
+                left ctrl = select, alt = reset, enter = toggle fullscreen
+            </div>
+        </div>
         <div class="row">
-            <div id="term" class="cs-terminal span6"></div>
-            <div class="span6">
+            <div class="col-md-5">
+                <div id="term" class="cs-terminal"></div>
+            </div>
+            <div class="col-md-5">
                 <canvas id="viewport" width="160" height="192" tabindex="1"></canvas>
             </div>
         </div>
-        <br/>
         <div class="row" id="control-buttons">
-            <div class="span2 control-button"><button id="interrupt-btn" class="btn">Interrupt</button></div>
-            <div class="span2 control-button"><button id="clear-btn" class="btn">Clear</button></div>
-            <div class="span2 control-button">
-                <label for="cartridge-file-input" class="btn" id="cartridge-file-input-label">Load ROM</label>
+            <div class="col-md-12 control-button">
+                <button id="interrupt-btn" class="btn btn-default">Interrupt</button>
+                <button id="clear-btn" class="btn btn-default">Clear</button>
+                <label for="cartridge-file-input" class="btn btn-default" id="cartridge-file-input-label">Load ROM</label>
                 <input type="file" id="cartridge-file-input"/>
             </div>
         </div>
@@ -132,5 +141,6 @@
             });
         });
     </script>
+
   </body>
 </html>
