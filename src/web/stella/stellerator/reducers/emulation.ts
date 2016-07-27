@@ -8,6 +8,7 @@ import {
     ChangeTvModeAction,
     StartAction,
     StateChangeAction,
+    UpdateFrequencyAction
 } from '../actions/emulation';
 
 export default function reducer(state: EmulationState = new EmulationState(), action: Action): EmulationState {
@@ -23,17 +24,12 @@ export default function reducer(state: EmulationState = new EmulationState(), ac
 
         case Type.stateChange:
             return stateChange(state, action as StateChangeAction);
+
+        case Type.updateFrequency:
+            return updateFrequency(state, action as UpdateFrequencyAction);
     }
 
     return state;
-}
-
-function start(state: EmulationState, action: StartAction): EmulationState {
-    return new EmulationState({cartridgeHash: action.hash || state.cartridgeHash}, state);
-}
-
-function stateChange(state: EmulationState, action: StateChangeAction): EmulationState {
-    return new EmulationState({emulationState: action.newState}, state);
 }
 
 function changeDifficulty(state: EmulationState, action: ChangeDifficultyAction): EmulationState {
@@ -51,4 +47,16 @@ function changeDifficulty(state: EmulationState, action: ChangeDifficultyAction)
 
 function changeTvMode(state: EmulationState, action: ChangeTvModeAction): EmulationState {
     return new EmulationState({tvMode: action.state}, state);
+}
+
+function start(state: EmulationState, action: StartAction): EmulationState {
+    return new EmulationState({cartridgeHash: action.hash || state.cartridgeHash}, state);
+}
+
+function stateChange(state: EmulationState, action: StateChangeAction): EmulationState {
+    return new EmulationState({emulationState: action.newState}, state);
+}
+
+function updateFrequency(state: EmulationState, action: UpdateFrequencyAction): EmulationState {
+    return new EmulationState({frequency: action.value}, state);
 }

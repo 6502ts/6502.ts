@@ -6,7 +6,9 @@ import GuiState from '../state/GuiState';
 
 function mapStateToProps(state: State): NavbarComponent.Props {
     return {
-        linkEmulation: state.guiState.mode === GuiState.GuiMode.run
+        linkEmulation: state.guiState.mode === GuiState.GuiMode.run,
+        frequency: state.emulationState.frequency,
+        emulationState: state.emulationState.emulationState
     };
 }
 

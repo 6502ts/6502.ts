@@ -12,6 +12,8 @@ export default class EmulationState implements Changeset {
     difficultyPlayer0 = true;
     difficultyPlayer1 = true;
     tvMode = false;
+
+    frequency = 0;
 }
 
 interface Changeset {
@@ -21,4 +23,6 @@ interface Changeset {
     difficultyPlayer0?: boolean;
     difficultyPlayer1?: boolean;
     tvMode?: boolean;
+
+    frequency?: number;
 }

@@ -25,7 +25,11 @@ interface EmulationServiceInterface {
 
     getEmulationContext(): EmulationContextInterface;
 
+    getFrequency(): number;
+
     stateChanged: EventInterface<EmulationServiceInterface.State>;
+
+    frequencyUpdate: EventInterface<number>;
 
 }
 

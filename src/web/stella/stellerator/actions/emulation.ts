@@ -8,7 +8,8 @@ export const Type = {
     resume: 'emulation/resume',
     stateChange: 'emulation/stateChange',
     changeDifficulty: 'emulation/changeDifficulty',
-    changeTvMode: 'emulation/ChangeTvMode'
+    changeTvMode: 'emulation/changeTvMode',
+    updateFrequency: 'emulation/updateFrequency'
 };
 Object.freeze(Type);
 
@@ -71,5 +72,16 @@ export function changeTvMode(state: boolean): ChangeTvModeAction {
     return {
         type: Type.changeTvMode,
         state
+    };
+}
+
+export interface UpdateFrequencyAction extends Action {
+    value: number;
+}
+
+export function updateFrequency(value: number): UpdateFrequencyAction {
+    return {
+        type: Type.updateFrequency,
+        value
     };
 }

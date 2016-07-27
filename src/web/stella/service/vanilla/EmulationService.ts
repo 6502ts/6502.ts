@@ -7,10 +7,19 @@ import CartridgeFactory from '../../../../machine/stella/cartridge/CartridgeFact
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 import LimitingScheduler from '../../../../tools/scheduler/LimitingImmediateScheduler';
 import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
+import ClockProbe from '../../../../tools/ClockProbe';
+import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
 import Mutex from '../../../../tools/Mutex';
 import Event from '../../../../tools/event/Event';
+import EventInterface from '../../../../tools/event/Event';
+
+const CLOCK_UPDATE_INTERVAL = 2000;
 
 export default class EmulationService implements EmulationServiceInterface {
+
+    constructor() {
+        this.frequencyUpdate = this._clockProbe.frequencyUpdate;
+    }
 
     start(
         buffer: {[i: number]: number, length: number},
@@ -37,6 +46,10 @@ export default class EmulationService implements EmulationServiceInterface {
                 this._board.getTimer().start(this._scheduler);
                 this._board.resume();
 
+                this._clockProbe
+                    .attach(this._board.clock)
+                    .start();
+
                 this._setState(EmulationServiceInterface.State.running);
             } catch (e) {
                 this._setError(e);
@@ -57,6 +70,8 @@ export default class EmulationService implements EmulationServiceInterface {
                     this._board.getTimer().stop();
                     this._board.suspend();
                     this._setState(EmulationServiceInterface.State.paused);
+
+                    this._clockProbe.stop();
                 }
             } catch (e) {
                 this._setError(e);
@@ -73,6 +88,8 @@ export default class EmulationService implements EmulationServiceInterface {
                     this._board.getTimer().start(this._scheduler);
                     this._board.resume();
                     this._setState(EmulationServiceInterface.State.running);
+
+                    this._clockProbe.start();
                 }
             } catch (e) {
                 this._setError(e);
@@ -118,12 +135,20 @@ export default class EmulationService implements EmulationServiceInterface {
         return this._lastError;
     }
 
+    getFrequency(): number {
+        return this._clockProbe.getFrequency();
+    }
+
     private _stop(): EmulationServiceInterface.State {
         try {
             if (this._state === EmulationServiceInterface.State.running) {
                 this._board.getTimer().stop();
                 this._board.suspend();
                 this._board.trap.removeHandler(EmulationService._trapHandler, this);
+
+                this._clockProbe
+                    .stop()
+                    .detach();
             }
             this._board = null;
 
@@ -155,12 +180,14 @@ export default class EmulationService implements EmulationServiceInterface {
     }
 
     stateChanged = new Event<EmulationServiceInterface.State>();
+    frequencyUpdate: EventInterface<number>;
 
     private _state = EmulationServiceInterface.State.stopped;
     private _lastError: Error = null;
     private _board: Board;
     private _context: EmulationContext;
     private _scheduler: SchedulerInterface = new LimitingScheduler();
+    private _clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_UPDATE_INTERVAL));
     private _mutex = new Mutex();
 
 }
