@@ -6,7 +6,9 @@ export const Type = {
     start: 'emulation/start',
     pause: 'emulation/pause',
     resume: 'emulation/resume',
-    stateChange: 'emulation/stateChange'
+    stateChange: 'emulation/stateChange',
+    changeDifficulty: 'emulation/changeDifficulty',
+    changeTvMode: 'emulation/ChangeTvMode'
 };
 Object.freeze(Type);
 
@@ -45,5 +47,29 @@ export function stateChange(newState: EmulationServiceInterface.State): StateCha
     return {
         type: Type.stateChange,
         newState
+    };
+}
+
+export interface ChangeDifficultyAction extends Action {
+    player: number;
+    state: boolean;
+}
+
+export function changeDifficulty(player: number, state: boolean): ChangeDifficultyAction {
+    return {
+        type: Type.changeDifficulty,
+        player,
+        state
+    };
+}
+
+export interface ChangeTvModeAction extends Action {
+    state: boolean;
+}
+
+export function changeTvMode(state: boolean): ChangeTvModeAction {
+    return {
+        type: Type.changeTvMode,
+        state
     };
 }

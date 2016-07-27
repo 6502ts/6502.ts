@@ -7,6 +7,8 @@ import {
     Col
 } from 'react-bootstrap';
 
+import ControlPanel from './ControlPanel';
+
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 import EmulationContextInterface from '../../service/EmulationContextInterface';
 import DriverManager from '../../service/DriverManager';
@@ -74,7 +76,7 @@ class Emulation extends React.Component<Emulation.Props, {}> {
                 </Col>
             </Row>
             <Row style={{marginTop: '1rem'}}>
-                <Col md={6} mdPush={3}>
+                <Col md={6}>
                     <div
                         className={`emulation-viewport error-display ${this._emulationError() ? '' : 'hidden'}`}
                     >
@@ -87,6 +89,9 @@ class Emulation extends React.Component<Emulation.Props, {}> {
                         ref={(elt) => this._canvasElt = elt as HTMLCanvasElement}
                     ></canvas>
                 </Col>
+                <Col md={5}>
+                    <ControlPanel {...this.props}></ControlPanel>
+                </Col>
             </Row>
         </Grid>;
     }
@@ -95,7 +100,7 @@ class Emulation extends React.Component<Emulation.Props, {}> {
         emulationService: EmulationServiceInterface
     };
 
-    static defaultProps: Emulation.Props = {
+    static defaultProps: Emulation.Props = Object.assign({
         enabled: false,
         initialViewportWidth: 160,
         initialViewportHeight: 192,
@@ -104,7 +109,7 @@ class Emulation extends React.Component<Emulation.Props, {}> {
         navigateAway: (): void => undefined,
         pauseEmulation: (): void => undefined,
         resumeEmulation: (): void => undefined
-    };
+    }, ControlPanel.defaultProps);
 
     static contextTypes: React.ValidationMap<any> = {
         emulationService: React.PropTypes.object
@@ -127,7 +132,7 @@ class Emulation extends React.Component<Emulation.Props, {}> {
 
 module Emulation {
 
-    export interface Props {
+    export interface Props extends ControlPanel.Props {
         enabled?: boolean;
         initialViewportWidth?: number;
         initialViewportHeight?: number;

@@ -2,6 +2,7 @@ import * as redux from 'redux';
 import {push} from 'react-router-redux';
 
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
+import EmulationState from '../state/Emulation';
 import State from '../state/State';
 import Cartridge from '../state/Cartridge';
 import StellaConfig from '../../../../machine/stella/Config';
@@ -22,19 +23,23 @@ export function create(emulationService: EmulationServiceInterface): redux.Middl
             next(a);
         }
 
-        const state = api.getState();
+        const initialState = api.getState();
 
         switch (a.type) {
             case Type.start:
-                if (state.currentCartridge) {
-                    (a as StartAction).hash = state.currentCartridge.hash;
+                if (initialState.currentCartridge) {
+                    (a as StartAction).hash = initialState.currentCartridge.hash;
 
                     return emulationService.start(
-                        state.currentCartridge.buffer,
-                        createStellaConfig(state.currentCartridge),
-                        state.currentCartridge.cartridgeType
+                        initialState.currentCartridge.buffer,
+                        createStellaConfig(initialState.currentCartridge),
+                        initialState.currentCartridge.cartridgeType
                     )
-                    .then(() => (api.dispatch(push('/emulation')), next(a)));
+                    .then(() => {
+                        updateControlPanelState(initialState.emulationState, emulationService);
+                        api.dispatch(push('/emulation'));
+                        next(a);
+                    });
                 }
 
                 break;
@@ -44,10 +49,29 @@ export function create(emulationService: EmulationServiceInterface): redux.Middl
 
             case Type.resume:
                 return emulationService.resume().then(() => next(a));
+
+            case Type.changeDifficulty:
+            case Type.changeTvMode:
+                Promise.resolve(next(a))
+                    .then(() => updateControlPanelState(api.getState().emulationState, emulationService));
         }
 
         return next(a);
 
     }) as any;
 
+}
+
+function updateControlPanelState(state: EmulationState, emulationService: EmulationServiceInterface): void {
+    const context = emulationService.getEmulationContext();
+
+    if (!context) {
+        return;
+    }
+
+    const controlPanel = context.getControlPanel();
+
+    controlPanel.getDifficultySwitchP0().toggle(state.difficultyPlayer0);
+    controlPanel.getDifficultySwitchP1().toggle(state.difficultyPlayer1);
+    controlPanel.getColorSwitch().toggle(state.tvMode);
 }

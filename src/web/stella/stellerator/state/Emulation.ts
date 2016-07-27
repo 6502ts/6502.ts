@@ -8,9 +8,17 @@ export default class EmulationState implements Changeset {
 
     cartridgeHash = '';
     emulationState = EmulationServiceInterface.State.stopped;
+
+    difficultyPlayer0 = true;
+    difficultyPlayer1 = true;
+    tvMode = false;
 }
 
 interface Changeset {
     cartridgeHash?: string;
     emulationState?: EmulationServiceInterface.State;
+
+    difficultyPlayer0?: boolean;
+    difficultyPlayer1?: boolean;
+    tvMode?: boolean;
 }
