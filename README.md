@@ -51,6 +51,10 @@ In addition, there is currently no implementation of undocumented instructions,
 and the behavior of ADC and SBC in BCD mode differs from the original for
 inputs that are not valid BCD numbers. Oh, and of course there might be bugs :)
 
+The CPU emulation passes Klaus Dormann's
+[6502 testsuite](https://github.com/Klaus2m5/6502_65C02_functional_tests). You can
+find the binary and the source configured to run in the EhBasic monitor in `aux/6502_suite`.
+
 ## Hardware
 
 ### Minimal serial IO / EhBasic
@@ -58,6 +62,8 @@ inputs that are not valid BCD numbers. Oh, and of course there might be bugs :)
 The emulator implements the minimal hardware interface support required for
 running the EhBasic interpreter --- writes to 0xFF01 print to stdout, and input
 is read from 0xFF04. The interpreter runs and is fully functional.
+
+In addition, the EhBasic monitor runs the 6502 testsuite (see above).
 
 ### Atari 2600
 
@@ -306,6 +312,9 @@ mostly were written by folks other than me. Specifically:
 
  * `ehBasic` was taken from Jeff Tranters repository
    [here](https://github.com/jefftranter/6502/tree/master/asm/ehbasic)
+ * Klaus Dormann's 6502 testsuite (found in `aux/6502_suite`) was taken from his
+   repository on github [here](https://github.com/Klaus2m5/6502_65C02_functional_tests)
+   and is licensed under the GPL.
  * The `red_line` sample was taken from Kirk Israel's 2600 programming tutorial on
    [AtariAge](http://www.atariage.com/2600/programming/2600_101/03first.html). The
    `line_test` is a modified version of this code.

@@ -12,7 +12,7 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
 
     readWord(address: number): number {
         if ((address & 0xFFF0) === 0xF000) {
-            return this.read(address) + this.read((address+1) & 0xFFFF) << 8;
+            return this.read(address) + (this.read((address+1) & 0xFFFF) << 8);
         }
 
         return this._data[address] + (this._data[(address+1) & 0xFFFF] << 8);

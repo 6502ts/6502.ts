@@ -317,8 +317,8 @@ function opRts(state: CpuInterface.State, bus: BusInterface): void {
 
 function opSbc(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     if (state.flags & CpuInterface.Flags.d) {
-        const d0 = ((state.a & 0x0F) - (operand & 0x0F) - (~state.flags & CpuInterface.Flags.c)) % 10,
-            d1 = ((state.a >>> 4) - (operand >>> 4) - (d0 < 0 ? 1 : 0)) % 10;
+        const d0 = ((state.a & 0x0F) - (operand & 0x0F) - (~state.flags & CpuInterface.Flags.c)),
+            d1 = ((state.a >>> 4) - (operand >>> 4) - (d0 < 0 ? 1 : 0));
 
         state.a = (d0 < 0 ? 10 + d0 : d0) | ((d1 < 0 ? 10 + d1 : d1) << 4);
 
@@ -452,7 +452,7 @@ class Cpu {
         this.state.y = 0;
         this.state.s = 0;
         this.state.p = 0;
-        this.state.flags = 0 | CpuInterface.Flags.i | CpuInterface.Flags.e;
+        this.state.flags = 0 | CpuInterface.Flags.i | CpuInterface.Flags.e | CpuInterface.Flags.b;
 
         this.executionState = CpuInterface.ExecutionState.boot;
         this._opCycles = 7;
