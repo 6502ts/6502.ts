@@ -9,7 +9,8 @@ export const Type = {
     stateChange: 'emulation/stateChange',
     changeDifficulty: 'emulation/changeDifficulty',
     changeTvMode: 'emulation/changeTvMode',
-    updateFrequency: 'emulation/updateFrequency'
+    updateFrequency: 'emulation/updateFrequency',
+    updateGamepadCount: 'emuation/updateGamepadCount'
 };
 Object.freeze(Type);
 
@@ -82,6 +83,17 @@ export interface UpdateFrequencyAction extends Action {
 export function updateFrequency(value: number): UpdateFrequencyAction {
     return {
         type: Type.updateFrequency,
+        value
+    };
+}
+
+export interface UpdateGamepadCountAction extends Action {
+    value: number;
+};
+
+export function updateGamepadCount(value: number): UpdateGamepadCountAction {
+    return {
+        type: Type.updateGamepadCount,
         value
     };
 }

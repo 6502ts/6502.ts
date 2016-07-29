@@ -140,6 +140,7 @@
         "src/web/stella/stellerator/containers/CartridgeSettings.ts",
         "src/web/stella/stellerator/containers/Navbar.ts",
         "src/web/stella/stellerator/containers/pendingChangesModal.ts",
+        "src/web/stella/stellerator/dispatchers.ts",
         "src/web/stella/stellerator/emulation/Dispatcher.ts",
         "src/web/stella/stellerator/emulation/middleware.ts",
         "src/web/stella/stellerator/middleware.ts",

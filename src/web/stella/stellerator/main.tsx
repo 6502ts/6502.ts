@@ -38,6 +38,7 @@ import {initCartridges} from './actions/root';
 import {create as createEmulationMiddleware} from './emulation/middleware';
 import EmulationDispatcher from './emulation/Dispatcher';
 import {batchMiddleware} from './middleware';
+import {dispatchGamepadDriver} from './dispatchers';
 
 import EmulationService from '../service/vanilla/EmulationService';
 import EmulationContextInterface from '../service/EmulationContextInterface';
@@ -96,6 +97,7 @@ const store = createStore<State>(
 
 const emulationDispatcher = new EmulationDispatcher(store);
 emulationDispatcher.bind(emulationService);
+dispatchGamepadDriver(gamepadDriver, store);
 
 const history = syncHistoryWithStore(hashHistory, store);
 

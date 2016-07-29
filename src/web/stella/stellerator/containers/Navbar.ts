@@ -8,7 +8,8 @@ function mapStateToProps(state: State): NavbarComponent.Props {
     return {
         linkEmulation: state.guiState.mode === GuiState.GuiMode.run,
         frequency: state.emulationState.frequency,
-        emulationState: state.emulationState.emulationState
+        emulationState: state.emulationState.emulationState,
+        gamepadCount: state.emulationState.gamepadCount
     };
 }
 

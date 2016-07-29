@@ -45,7 +45,12 @@ function Navbar(props: Navbar.Props) {
             </LinkContainer>
         </Nav>
         <div style={{float: 'right'}}>
-            {describeState(props.emulationState, props.frequency)}
+            <span className={props.gamepadCount > 0 ? '' : 'hidden'}>
+                Gamepads: {props.gamepadCount < 2 ? 'A |' : 'AB |'}
+            </span>
+            <span style={{marginLeft: '1rem'}}>
+                {describeState(props.emulationState, props.frequency)}
+            </span>
         </div>
     </BootstrapNavbar>;
 }
@@ -56,12 +61,14 @@ module Navbar {
         linkEmulation?: boolean;
         frequency?: number;
         emulationState?: EmulationServiceInterface.State;
+        gamepadCount?: number;
     }
 
     export const defaultProps: Props = {
         linkEmulation: false,
         frequency: 0,
-        emulationState: EmulationServiceInterface.State.stopped
+        emulationState: EmulationServiceInterface.State.stopped,
+        gamepadCount: 0
     };
 
 }

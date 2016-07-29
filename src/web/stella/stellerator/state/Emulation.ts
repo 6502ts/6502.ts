@@ -14,6 +14,7 @@ export default class EmulationState implements Changeset {
     tvMode = false;
 
     frequency = 0;
+    gamepadCount = 0;
 }
 
 interface Changeset {
@@ -25,4 +26,5 @@ interface Changeset {
     tvMode?: boolean;
 
     frequency?: number;
+    gamepadCount?: number;
 }

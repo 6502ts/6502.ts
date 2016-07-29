@@ -8,7 +8,8 @@ import {
     ChangeTvModeAction,
     StartAction,
     StateChangeAction,
-    UpdateFrequencyAction
+    UpdateFrequencyAction,
+    UpdateGamepadCountAction
 } from '../actions/emulation';
 
 export default function reducer(state: EmulationState = new EmulationState(), action: Action): EmulationState {
@@ -27,6 +28,9 @@ export default function reducer(state: EmulationState = new EmulationState(), ac
 
         case Type.updateFrequency:
             return updateFrequency(state, action as UpdateFrequencyAction);
+
+        case Type.updateGamepadCount:
+            return updateGamepadCount(state, action as UpdateGamepadCountAction);
     }
 
     return state;
@@ -59,4 +63,8 @@ function stateChange(state: EmulationState, action: StateChangeAction): Emulatio
 
 function updateFrequency(state: EmulationState, action: UpdateFrequencyAction): EmulationState {
     return new EmulationState({frequency: action.value}, state);
+}
+
+function updateGamepadCount(state: EmulationState, action: UpdateGamepadCountAction): EmulationState {
+    return new EmulationState({gamepadCount: action.value}, state);
 }

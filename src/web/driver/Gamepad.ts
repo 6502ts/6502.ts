@@ -1,5 +1,6 @@
 import DigitalJoystickInterface from '../../machine/io/DigitalJoystickInterface';
 import SwitchInterface from '../../machine/io/SwitchInterface';
+import Event from '../../tools/event/Event';
 
 const enum MappingButton {
     left    = 1,
@@ -27,6 +28,17 @@ export default class GamepadDriver {
         if (!navigator.getGamepads) {
             throw new Error(`gamepad API not available`);
         }
+
+        this._probeGamepads();
+        window.addEventListener('gamepadconnected', this._onGamepadConnect);
+        window.addEventListener('gamepaddisconnected', this._onGamepadDisconnect);
+    }
+
+    deinit(): void {
+        this.unbind();
+
+        window.removeEventListener('gamepadconnected', this._onGamepadConnect);
+        window.removeEventListener('gamepaddisconnected', this._onGamepadDisconnect);
     }
 
     bind({joysticks = null, start = null, select = null}: {
@@ -97,7 +109,15 @@ export default class GamepadDriver {
         this._bound = false;
     }
 
+    getGamepadCount(): number {
+        return this._gamepadCount;
+    }
+
     private static _onBeforeSwitchRead(swtch: SwitchInterface, self: GamepadDriver) {
+        if (self._gamepadCount === 0) {
+            return;
+        }
+
         let gamepadCount = 0,
             joystickIndex = 0,
             start = false,
@@ -219,7 +239,27 @@ export default class GamepadDriver {
         }
     }
 
+    private _probeGamepads(): void {
+        let cnt = 0;
+
+        const gamepads = navigator.getGamepads();
+
+        for (let i = 0; i < gamepads.length; i++) {
+            if (gamepads[i] && gamepads[i].mapping === 'standard') {
+                cnt++;
+            }
+        }
+
+        if (cnt !== this._gamepadCount) {
+            this._gamepadCount = cnt;
+            this.gamepadCountChanged.dispatch(this._gamepadCount);
+        }
+    }
+
+    gamepadCountChanged = new Event<number>();
+
     private _bound = false;
+    private _gamepadCount = 0;
 
     private _joysticks: Array<DigitalJoystickInterface> = null;
     private _start: SwitchInterface = null;
@@ -229,6 +269,8 @@ export default class GamepadDriver {
     private _startShadow: ShadowSwitch = null;
     private _selectShadow: ShadowSwitch = null;
 
+    private _onGamepadConnect = () => this._probeGamepads();
+    private _onGamepadDisconnect = () => this._probeGamepads();
 }
 
 class ShadowSwitch {
