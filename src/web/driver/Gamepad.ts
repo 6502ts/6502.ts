@@ -12,13 +12,13 @@ const enum MappingButton {
 };
 
 const standardMappings: {[button: number]: Array<number>} = {
-    [MappingButton.up]: [12],
-    [MappingButton.down]: [13],
-    [MappingButton.left]: [14],
-    [MappingButton.right]: [15],
-    [MappingButton.fire]: [0, 1, 2, 3],
+    [MappingButton.up]:     [12],
+    [MappingButton.down]:   [13],
+    [MappingButton.left]:   [14],
+    [MappingButton.right]:  [15],
+    [MappingButton.fire]:   [0, 1, 2, 3, 10, 11],
     [MappingButton.select]: [8],
-    [MappingButton.start]: [9]
+    [MappingButton.start]:  [9]
 };
 
 export default class GamepadDriver {
@@ -145,6 +145,22 @@ export default class GamepadDriver {
             }
 
             this._updateJoystickButtonState(joystick, i, state);
+        }
+
+        if (gamepad.axes[0] < -0.5 || gamepad.axes[1] < -0.5) {
+            joystick.getLeft().toggle(true);
+        }
+
+        if (gamepad.axes[0] > 0.5 || gamepad.axes[1] > 0.5) {
+            joystick.getRight().toggle(true);
+        }
+
+        if (gamepad.axes[2] < -0.5 || gamepad.axes[3] < -0.5) {
+            joystick.getUp().toggle(true);
+        }
+
+        if (gamepad.axes[2] > 0.5 || gamepad.axes[3] > 0.5) {
+            joystick.getDown().toggle(true);
         }
     }
 
