@@ -43,23 +43,35 @@ import EmulationService from '../service/vanilla/EmulationService';
 import EmulationContextInterface from '../service/EmulationContextInterface';
 import DriverManager from '../service/DriverManager';
 import WebAudioDriver from '../driver/WebAudio';
+import GamepadDriver from '../../driver/Gamepad';
 
 const emulationService = new EmulationService(),
     driverManager = new DriverManager(),
-    audioDriver = new WebAudioDriver();
+    audioDriver = new WebAudioDriver(),
+    gamepadDriver = new GamepadDriver();
+
+driverManager.bind(emulationService);
 
 try {
     audioDriver.init();
+    driverManager.addDriver(
+        audioDriver,
+        (context: EmulationContextInterface, driver: WebAudioDriver) => driver.bind(context.getAudio())
+    );
 } catch (e) {
     console.log(`audio not available: ${e.message}`);
 }
 
-driverManager
-    .bind(emulationService)
-    .addDriver(
-        audioDriver,
-        (context: EmulationContextInterface, driver: WebAudioDriver) => driver.bind(context.getAudio())
+try {
+    gamepadDriver.init();
+    driverManager.addDriver(
+        gamepadDriver,
+        (context: EmulationContextInterface, driver: GamepadDriver) =>
+            driver.bind(context.getJoystick(0), context.getJoystick(1))
     );
+} catch (e) {
+    console.log(`audio not available: ${e.message}`);
+}
 
 const persistenceManager = new PersistenceManager();
 

@@ -5,6 +5,7 @@ interface SwitchInterface {
     read(): boolean;
 
     stateChanged: EventInterface<boolean>;
+    beforeRead: EventInterface<SwitchInterface>;
 }
 
 export default SwitchInterface;

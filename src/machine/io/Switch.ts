@@ -6,6 +6,7 @@ export default class Switch implements SwitchInterface {
     constructor(private _state: boolean = false) {}
 
     read(): boolean {
+        this.beforeRead.dispatch(this);
         return this._state;
     }
 
@@ -19,4 +20,5 @@ export default class Switch implements SwitchInterface {
     }
 
     stateChanged = new Event<boolean>();
+    beforeRead = new Event<this>();
 }

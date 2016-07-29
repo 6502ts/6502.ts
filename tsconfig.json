@@ -119,6 +119,7 @@
         "src/tools/surface/RGBASurfaceInterface.ts",
         "src/web/debuggerCLI.ts",
         "src/web/driver/FullscreenVideo.ts",
+        "src/web/driver/Gamepad.ts",
         "src/web/driver/MouseAsPaddle.ts",
         "src/web/driver/SimpleCanvasVideo.ts",
         "src/web/driver/WebAudio.ts",
