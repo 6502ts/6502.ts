@@ -2,6 +2,8 @@ import DigitalJoystickInterface from '../../machine/io/DigitalJoystickInterface'
 import SwitchInterface from '../../machine/io/SwitchInterface';
 import Event from '../../tools/event/Event';
 
+const MIN_POLL_INTERVAL = 50;
+
 const enum MappingButton {
     left    = 1,
     right   = 2,
@@ -114,9 +116,13 @@ export default class GamepadDriver {
     }
 
     private static _onBeforeSwitchRead(swtch: SwitchInterface, self: GamepadDriver) {
-        if (self._gamepadCount === 0) {
+        const now = Date.now();
+
+        if (self._gamepadCount === 0 || now - self._lastPoll < MIN_POLL_INTERVAL) {
             return;
         }
+
+        self._lastPoll = now;
 
         let gamepadCount = 0,
             joystickIndex = 0,
@@ -260,6 +266,7 @@ export default class GamepadDriver {
 
     private _bound = false;
     private _gamepadCount = 0;
+    private _lastPoll = 0;
 
     private _joysticks: Array<DigitalJoystickInterface> = null;
     private _start: SwitchInterface = null;
