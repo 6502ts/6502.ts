@@ -10,7 +10,8 @@ export const Type = {
     changeDifficulty: 'emulation/changeDifficulty',
     changeTvMode: 'emulation/changeTvMode',
     updateFrequency: 'emulation/updateFrequency',
-    updateGamepadCount: 'emuation/updateGamepadCount'
+    updateGamepadCount: 'emuation/updateGamepadCount',
+    setEnforceRateLimit: 'emulation/setEnforceRateLimit'
 };
 Object.freeze(Type);
 
@@ -95,5 +96,16 @@ export function updateGamepadCount(value: number): UpdateGamepadCountAction {
     return {
         type: Type.updateGamepadCount,
         value
+    };
+}
+
+export interface SetEnforceRateLimitAction extends Action {
+    enforce: boolean;
+}
+
+export function enforceRateLimit(enforce: boolean): SetEnforceRateLimitAction {
+    return {
+        type: Type.setEnforceRateLimit,
+        enforce
     };
 }

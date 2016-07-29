@@ -19,6 +19,10 @@ interface EmulationServiceInterface {
 
     reset(): Promise<EmulationServiceInterface.State>;
 
+    setRateLimit(enforce: boolean): Promise<void>;
+
+    getRateLimit(): boolean;
+
     getState(): EmulationServiceInterface.State;
 
     getLastError(): Error;

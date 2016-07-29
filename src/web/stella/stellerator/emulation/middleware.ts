@@ -9,7 +9,8 @@ import StellaConfig from '../../../../machine/stella/Config';
 
 import {
     Type,
-    StartAction
+    StartAction,
+    SetEnforceRateLimitAction
 } from '../actions/emulation';
 
 function createStellaConfig(cartridge: Cartridge): StellaConfig {
@@ -52,8 +53,12 @@ export function create(emulationService: EmulationServiceInterface): redux.Middl
 
             case Type.changeDifficulty:
             case Type.changeTvMode:
-                Promise.resolve(next(a))
+                return Promise.resolve(next(a))
                     .then(() => updateControlPanelState(api.getState().emulationState, emulationService));
+
+            case Type.setEnforceRateLimit:
+                return emulationService.setRateLimit((a as SetEnforceRateLimitAction).enforce)
+                    .then(() => next(a));
         }
 
         return next(a);

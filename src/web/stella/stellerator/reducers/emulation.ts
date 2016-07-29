@@ -9,7 +9,8 @@ import {
     StartAction,
     StateChangeAction,
     UpdateFrequencyAction,
-    UpdateGamepadCountAction
+    UpdateGamepadCountAction,
+    SetEnforceRateLimitAction
 } from '../actions/emulation';
 
 export default function reducer(state: EmulationState = new EmulationState(), action: Action): EmulationState {
@@ -31,6 +32,9 @@ export default function reducer(state: EmulationState = new EmulationState(), ac
 
         case Type.updateGamepadCount:
             return updateGamepadCount(state, action as UpdateGamepadCountAction);
+
+        case Type.setEnforceRateLimit:
+            return setEnforceRateLimit(state, action as SetEnforceRateLimitAction);
     }
 
     return state;
@@ -67,4 +71,8 @@ function updateFrequency(state: EmulationState, action: UpdateFrequencyAction): 
 
 function updateGamepadCount(state: EmulationState, action: UpdateGamepadCountAction): EmulationState {
     return new EmulationState({gamepadCount: action.value}, state);
+}
+
+function setEnforceRateLimit(state: EmulationState, action: SetEnforceRateLimitAction): EmulationState {
+    return new EmulationState({enforceRateLimit: action.enforce}, state);
 }

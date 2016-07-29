@@ -5,6 +5,7 @@ import BoardInterface from '../../../../machine/board/BoardInterface';
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeFactory from '../../../../machine/stella/cartridge/CartridgeFactory';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
+import ImmediateScheduler from '../../../../tools/scheduler/ImmedateScheduler';
 import LimitingScheduler from '../../../../tools/scheduler/LimitingImmediateScheduler';
 import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
 import ClockProbe from '../../../../tools/ClockProbe';
@@ -19,6 +20,7 @@ export default class EmulationService implements EmulationServiceInterface {
 
     constructor() {
         this.frequencyUpdate = this._clockProbe.frequencyUpdate;
+        this._updateScheduler();
     }
 
     start(
@@ -139,6 +141,29 @@ export default class EmulationService implements EmulationServiceInterface {
         return this._clockProbe.getFrequency();
     }
 
+    getRateLimit(): boolean {
+        return this._enforceRateLimit;
+    }
+
+    setRateLimit(enforce: boolean): Promise<void> {
+        if (this._enforceRateLimit === enforce) {
+            return Promise.resolve(undefined);
+        }
+
+        return this._mutex.runExclusive(() => {
+            if (this._state === EmulationServiceInterface.State.running) {
+                this._board.getTimer().stop();
+            }
+
+            this._enforceRateLimit = enforce;
+            this._updateScheduler();
+
+            if (this._state === EmulationServiceInterface.State.running) {
+                this._board.getTimer().start(this._scheduler);
+            }
+        });
+    }
+
     private _stop(): EmulationServiceInterface.State {
         try {
             if (this._state === EmulationServiceInterface.State.running) {
@@ -179,14 +204,19 @@ export default class EmulationService implements EmulationServiceInterface {
         self._setError(new Error(`TRAP: ${trap.message}`));
     }
 
+    private _updateScheduler(): void {
+        this._scheduler = this._enforceRateLimit ? new LimitingScheduler() : new ImmediateScheduler();
+    }
+
     stateChanged = new Event<EmulationServiceInterface.State>();
     frequencyUpdate: EventInterface<number>;
 
+    private _enforceRateLimit = true;
     private _state = EmulationServiceInterface.State.stopped;
     private _lastError: Error = null;
     private _board: Board;
     private _context: EmulationContext;
-    private _scheduler: SchedulerInterface = new LimitingScheduler();
+    private _scheduler: SchedulerInterface = null;
     private _clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_UPDATE_INTERVAL));
     private _mutex = new Mutex();
 
