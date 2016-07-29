@@ -67,7 +67,11 @@ try {
     driverManager.addDriver(
         gamepadDriver,
         (context: EmulationContextInterface, driver: GamepadDriver) =>
-            driver.bind(context.getJoystick(0), context.getJoystick(1))
+            driver.bind({
+                joysticks: [context.getJoystick(0), context.getJoystick(1)],
+                start: context.getControlPanel().getResetButton(),
+                select: context.getControlPanel().getSelectSwitch()
+            })
     );
 } catch (e) {
     console.log(`audio not available: ${e.message}`);

@@ -10,6 +10,10 @@ export default class Switch implements SwitchInterface {
         return this._state;
     }
 
+    peek(): boolean {
+        return this._state;
+    }
+
     toggle(state: boolean): void {
         if (this._state === state) {
             return;

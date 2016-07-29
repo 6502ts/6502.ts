@@ -1,20 +1,24 @@
 import DigitalJoystickInterface from '../../machine/io/DigitalJoystickInterface';
 import SwitchInterface from '../../machine/io/SwitchInterface';
 
-const enum JoystickButton {
+const enum MappingButton {
     left    = 1,
     right   = 2,
     up      = 3,
     down    = 4,
-    fire    = 5
+    fire    = 5,
+    start   = 6,
+    select  = 7
 };
 
 const standardMappings: {[button: number]: Array<number>} = {
-    [JoystickButton.up]: [12],
-    [JoystickButton.down]: [13],
-    [JoystickButton.left]: [14],
-    [JoystickButton.right]: [15],
-    [JoystickButton.fire]: [0, 1, 2, 3]
+    [MappingButton.up]: [12],
+    [MappingButton.down]: [13],
+    [MappingButton.left]: [14],
+    [MappingButton.right]: [15],
+    [MappingButton.fire]: [0, 1, 2, 3],
+    [MappingButton.select]: [8],
+    [MappingButton.start]: [9]
 };
 
 export default class GamepadDriver {
@@ -25,36 +29,108 @@ export default class GamepadDriver {
         }
     }
 
-    bind(...joysticks: Array<DigitalJoystickInterface>): void {
-        if (this._joysticks) {
+    bind({joysticks = null, start = null, select = null}: {
+        joysticks?: Array<DigitalJoystickInterface>,
+        start?: SwitchInterface,
+        select?: SwitchInterface
+    }): void {
+        if (this._bound) {
             return;
         }
 
         this._joysticks = joysticks;
+        this._start = start;
+        this._select = select;
+        this._bound = true;
 
-        for (let i = 0; i < this._joysticks.length; i++) {
-            const joystick = this._joysticks[i];
+        if (this._joysticks) {
+            for (let i = 0; i < this._joysticks.length; i++) {
+                const joystick = this._joysticks[i];
 
-            joystick.getLeft().beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
+                joystick.getLeft().beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
+            }
+        }
+
+        if (this._select) {
+            this._select.beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
+        }
+
+        if (this._start) {
+            this._start.beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
         }
     }
 
     unbind(): void {
-        if (!this._joysticks) {
+        if (!this._bound) {
             return;
         }
 
-        for (let i = 0; i < this._joysticks.length; i++) {
-            const joystick = this._joysticks[i];
+        if (this._joysticks) {
+            for (let i = 0; i < this._joysticks.length; i++) {
+                const joystick = this._joysticks[i];
 
-            joystick.getLeft().beforeRead.removeHandler(GamepadDriver._onBeforeSwitchRead, this);
+                joystick.getLeft().beforeRead.removeHandler(GamepadDriver._onBeforeSwitchRead, this);
+            }
         }
 
-        this._joysticks = null;
+        if (this._select) {
+            this._select.beforeRead.removeHandler(GamepadDriver._onBeforeSwitchRead, this);
+        }
+
+        if (this._start) {
+            this._start.beforeRead.removeHandler(GamepadDriver._onBeforeSwitchRead, this);
+        }
+
+        this._joysticks = this._start = this._select = null;
+        this._bound = false;
     }
 
-    private _updateState(gamepad: Gamepad, joystickIndex: number): void {
-        if (joystickIndex >= this._joysticks.length) {
+    private static _onBeforeSwitchRead(swtch: SwitchInterface, self: GamepadDriver) {
+        let gamepadCount = 0,
+            joystickIndex = 0,
+            start = false,
+            select = false;
+
+        const gamepads = navigator.getGamepads();
+
+        for (let i = 0; i < gamepads.length; i++) {
+            const gamepad = gamepads[i];
+
+            if (!gamepad || gamepad.mapping !== 'standard') {
+                continue;
+            }
+
+            gamepadCount++;
+
+            self._updateJoystickState(gamepad, joystickIndex++);
+
+            start = start || self._readState(standardMappings[MappingButton.start], gamepad);
+            select = select || self._readState(standardMappings[MappingButton.select], gamepad);
+        }
+
+        if (gamepadCount > 0) {
+            if (self._start) {
+                self._start.toggle(start);
+            }
+
+            if (self._select) {
+                self._select.toggle(select);
+            }
+        }
+    }
+
+    private _readState(mapping: Array<number>, gamepad: Gamepad): boolean {
+        let state = false;
+
+        for (let i = 0; i < mapping.length; i++) {
+            state = state || gamepad.buttons[mapping[i]].pressed;
+        }
+
+        return state;
+    }
+
+    private _updateJoystickState(gamepad: Gamepad, joystickIndex: number): void {
+        if (!this._joysticks || joystickIndex >= this._joysticks.length) {
             return;
         }
 
@@ -68,47 +144,36 @@ export default class GamepadDriver {
                 state = state || gamepad.buttons[mapping[j]].pressed;
             }
 
-            this._updateButtonState(joystick, i, state);
+            this._updateJoystickButtonState(joystick, i, state);
         }
     }
 
-    private _updateButtonState(
+    private _updateJoystickButtonState(
         joystick: DigitalJoystickInterface,
-        button: JoystickButton,
+        button: MappingButton,
         value: boolean
     ): void {
         switch (button) {
-            case JoystickButton.left:
+            case MappingButton.left:
                 return joystick.getLeft().toggle(value);
 
-            case JoystickButton.right:
+            case MappingButton.right:
                 return joystick.getRight().toggle(value);
 
-            case JoystickButton.up:
+            case MappingButton.up:
                 return joystick.getUp().toggle(value);
 
-            case JoystickButton.down:
+            case MappingButton.down:
                 return joystick.getDown().toggle(value);
 
-            case JoystickButton.fire:
+            case MappingButton.fire:
                 return joystick.getFire().toggle(value);
         }
     }
 
-    private static _onBeforeSwitchRead(swtch: SwitchInterface, self: GamepadDriver) {
-        let joystickIndex = 0;
-
-        const gamepads = navigator.getGamepads();
-
-        for (let i = 0; i < gamepads.length; i++) {
-            const gamepad = gamepads[i];
-
-            if (gamepad) {
-                self._updateState(gamepad, joystickIndex++);
-            }
-        }
-    }
-
+    private _bound = false;
     private _joysticks: Array<DigitalJoystickInterface> = null;
+    private _start: SwitchInterface = null;
+    private _select: SwitchInterface = null;
 
 }
