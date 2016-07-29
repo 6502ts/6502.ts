@@ -43,21 +43,33 @@ export default class GamepadDriver {
         this._select = select;
         this._bound = true;
 
+        this._joysticksShadow = null;
+        this._startShadow = null;
+        this._selectShadow = null;
+
         if (this._joysticks) {
+            this._joysticksShadow = new Array<ShadowJoystick>(this._joysticks.length);
+
             for (let i = 0; i < this._joysticks.length; i++) {
                 const joystick = this._joysticks[i];
 
                 joystick.getLeft().beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
+
+                this._joysticksShadow[i] = createShadowJoystick();
             }
         }
 
         if (this._select) {
             this._select.beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
+            this._selectShadow = new ShadowSwitch();
         }
 
         if (this._start) {
             this._start.beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
+            this._startShadow = new ShadowSwitch();
         }
+
+        this._initShadows();
     }
 
     unbind(): void {
@@ -110,13 +122,15 @@ export default class GamepadDriver {
 
         if (gamepadCount > 0) {
             if (self._start) {
-                self._start.toggle(start);
+                self._startShadow.toggle(start);
             }
 
             if (self._select) {
-                self._select.toggle(select);
+                self._selectShadow.toggle(select);
             }
         }
+
+        self._syncShadows();
     }
 
     private _readState(mapping: Array<number>, gamepad: Gamepad): boolean {
@@ -134,62 +148,126 @@ export default class GamepadDriver {
             return;
         }
 
-        const joystick = this._joysticks[joystickIndex];
+        const joystick = this._joysticksShadow[joystickIndex];
 
-        for (let i = 1; i <= 5; i++) {
-            const mapping = standardMappings[i];
-            let state = false;
+        for (let button = 1; button <= 5; button++) {
+            const mapping = standardMappings[button];
 
-            for (let j = 0; j < standardMappings[i].length; j++) {
-                state = state || gamepad.buttons[mapping[j]].pressed;
-            }
-
-            this._updateJoystickButtonState(joystick, i, state);
+            joystick[button].toggle(this._readState(mapping, gamepad));
         }
 
         if (gamepad.axes[0] < -0.5 || gamepad.axes[1] < -0.5) {
-            joystick.getLeft().toggle(true);
+            joystick[MappingButton.left].toggle(true);
         }
 
         if (gamepad.axes[0] > 0.5 || gamepad.axes[1] > 0.5) {
-            joystick.getRight().toggle(true);
+            joystick[MappingButton.right].toggle(true);
         }
 
         if (gamepad.axes[2] < -0.5 || gamepad.axes[3] < -0.5) {
-            joystick.getUp().toggle(true);
+            joystick[MappingButton.up].toggle(true);
         }
 
         if (gamepad.axes[2] > 0.5 || gamepad.axes[3] > 0.5) {
-            joystick.getDown().toggle(true);
+            joystick[MappingButton.down].toggle(true);
         }
     }
 
-    private _updateJoystickButtonState(
-        joystick: DigitalJoystickInterface,
-        button: MappingButton,
-        value: boolean
-    ): void {
-        switch (button) {
-            case MappingButton.left:
-                return joystick.getLeft().toggle(value);
+    private _initShadows(): void {
+        if (this._joysticks) {
+            for (let i = 0; i < this._joysticks.length; i++) {
+                const original = this._joysticks[i],
+                    shadow = this._joysticksShadow[i];
 
-            case MappingButton.right:
-                return joystick.getRight().toggle(value);
+                shadow[MappingButton.left].setState(original.getLeft().peek());
+                shadow[MappingButton.right].setState(original.getRight().peek());
+                shadow[MappingButton.up].setState(original.getUp().peek());
+                shadow[MappingButton.down].setState(original.getDown().peek());
+                shadow[MappingButton.fire].setState(original.getFire().peek());
+            }
+        }
 
-            case MappingButton.up:
-                return joystick.getUp().toggle(value);
+        if (this._start) {
+            this._startShadow.setState(this._start.peek());
+        }
 
-            case MappingButton.down:
-                return joystick.getDown().toggle(value);
+        if (this._select) {
+            this._selectShadow.setState(this._select.peek());
+        }
+    }
 
-            case MappingButton.fire:
-                return joystick.getFire().toggle(value);
+    private _syncShadows(): void {
+        if (this._joysticks) {
+            for (let i = 0; i < this._joysticks.length; i++) {
+                const original = this._joysticks[i],
+                    shadow = this._joysticksShadow[i];
+
+                shadow[MappingButton.left].sync(original.getLeft());
+                shadow[MappingButton.right].sync(original.getRight());
+                shadow[MappingButton.up].sync(original.getUp());
+                shadow[MappingButton.down].sync(original.getDown());
+                shadow[MappingButton.fire].sync(original.getFire());
+            }
+        }
+
+        if (this._start) {
+            this._startShadow.sync(this._start);
+        }
+
+        if (this._select) {
+            this._selectShadow.sync(this._select);
         }
     }
 
     private _bound = false;
+
     private _joysticks: Array<DigitalJoystickInterface> = null;
     private _start: SwitchInterface = null;
     private _select: SwitchInterface = null;
 
+    private _joysticksShadow: Array<ShadowJoystick> = null;
+    private _startShadow: ShadowSwitch = null;
+    private _selectShadow: ShadowSwitch = null;
+
+}
+
+class ShadowSwitch {
+
+    toggle(state: boolean): void {
+        if (state === this._state) {
+            return;
+        }
+
+        this._state = state;
+        this._dirty = true;
+    }
+
+    setState(state: boolean): void {
+        this._state = state;
+        this._dirty = false;
+    }
+
+    sync(swtch: SwitchInterface): void {
+        if (this._dirty) {
+            swtch.toggle(this._state);
+            this._dirty = false;
+        }
+    }
+
+    private _state = false;
+    private _dirty = false;
+}
+
+interface ShadowJoystick {
+    [button: number]: ShadowSwitch;
+}
+
+function createShadowJoystick(): ShadowJoystick {
+    return {
+        [MappingButton.left]: new ShadowSwitch(),
+        [MappingButton.right]: new ShadowSwitch(),
+        [MappingButton.up]: new ShadowSwitch(),
+        [MappingButton.down]: new ShadowSwitch(),
+        [MappingButton.fire]: new ShadowSwitch()
+    };
 }
