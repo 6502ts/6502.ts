@@ -40,6 +40,9 @@ function Navbar(props: Navbar.Props) {
             <LinkContainer to="/cartridge-manager">
                 <NavItem>Cartridges</NavItem>
             </LinkContainer>
+            <LinkContainer to="/settings">
+                <NavItem>Settings</NavItem>
+            </LinkContainer>
             <LinkContainer to="/emulation" className={props.linkEmulation ? '' : 'hidden'}>
                 <NavItem>Emulation</NavItem>
             </LinkContainer>

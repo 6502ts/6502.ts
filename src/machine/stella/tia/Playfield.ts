@@ -13,6 +13,7 @@ class Playfield {
     reset() {
         this._pattern = 0;
         this._reflected = false;
+        this._refp = false;
 
         this._delay0 = -1;
         this._delay1 = -1;
@@ -92,6 +93,10 @@ class Playfield {
     }
 
     tick(x: number) {
+        if (x === 80 || x === 0) {
+            this._refp = this._reflected;
+        }
+
         if ((x & 0x03) !== 0) {
             return;
         }
@@ -103,7 +108,7 @@ class Playfield {
         } else if (x < 80) {
             currentPixel = this._pattern & (1 << (x >>> 2));
             this._currentColor = this._colorLeft;
-        } else if (this._reflected) {
+        } else if (this._refp) {
             currentPixel = this._pattern & (1 << (39 - (x >>> 2)));
             this._currentColor = this._colorRight;
         } else {
@@ -162,6 +167,7 @@ class Playfield {
 
     private _currentColor = 0;
     private _pattern = 0;
+    private _refp = false;
     private _reflected = false;
 
     private _delay0 = -1;

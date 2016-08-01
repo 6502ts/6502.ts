@@ -30,11 +30,16 @@ import {
 import App from './containers/App';
 import CartridgeManager from './containers/CartridgeManager';
 import Emulation from './containers/Emulation';
-import State from './state/State';
-import reducer from './reducers/root';
+import Settings from './containers/Settings';
+
 import PersistenceManager from './persistence/Manager';
 import {create as createPersistenceMiddleware} from './persistence/middleware';
+
 import {initCartridges} from './actions/root';
+import {initSettings} from './actions/settings';
+
+import State from './state/State';
+import reducer from './reducers/root';
 import {create as createEmulationMiddleware} from './emulation/middleware';
 import EmulationDispatcher from './emulation/Dispatcher';
 import {batchMiddleware} from './middleware';
@@ -101,19 +106,25 @@ dispatchGamepadDriver(gamepadDriver, store);
 
 const history = syncHistoryWithStore(hashHistory, store);
 
-persistenceManager
-    .getAllCartridges()
-    .then(cartridges => store.dispatch(initCartridges(cartridges)));
-
-render(
-    <Provider store={store}>
-        <Router history={history}>
-            <Redirect from="/" to="/cartridge-manager"/>
-            <Route path="/" component={App(emulationService)}>
-                <Route path="cartridge-manager" component={CartridgeManager}/>
-                <Route path="emulation" component={Emulation}/>
-            </Route>
-        </Router>
-    </Provider>,
-    document.getElementById('react-root')
-);
+Promise
+    .all([
+        persistenceManager
+            .getAllCartridges()
+            .then(cartridges => store.dispatch(initCartridges(cartridges))),
+        persistenceManager
+            .getSettings()
+            .then(settings => store.dispatch(initSettings(settings)))
+    ])
+    .then(() => render(
+        <Provider store={store}>
+            <Router history={history}>
+                <Redirect from="/" to="/cartridge-manager"/>
+                <Route path="/" component={App(emulationService)}>
+                    <Route path="cartridge-manager" component={CartridgeManager}/>
+                    <Route path="emulation" component={Emulation}/>
+                    <Route path="settings" component={Settings}/>
+                </Route>
+            </Router>
+        </Provider>,
+        document.getElementById('react-root')
+    ));

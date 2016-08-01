@@ -4,6 +4,10 @@ import {
     Type as ActionType
 } from '../actions/root';
 
+import {
+    isSettingsChange
+} from '../actions/settings';
+
 import Manager from './Manager';
 import State from '../state/State';
 
@@ -11,6 +15,12 @@ export function create(manager: Manager): redux.Middleware {
     return ((api: redux.MiddlewareAPI<State>) => (next: (a: any) => void) => (a: redux.Action): any => {
         if (!a) {
             return next(a);
+        }
+
+        if (isSettingsChange(a)) {
+            return Promise
+                .resolve(next(a))
+                .then(() => manager.saveSettings(api.getState().settings));
         }
 
         switch (a.type) {

@@ -13,6 +13,7 @@ import {calculateFromUint8Array as md5sum} from '../../../../tools/hash/md5';
 import reduceGuiState from './guiState';
 import reduceCurrentCartridge from './currentCartridge';
 import reduceEmulationState from './emulation';
+import reduceSettings from './settings';
 
 import State from '../state/State';
 import Cartridge from '../state/Cartridge';
@@ -27,6 +28,7 @@ export default function rootReducer(state: State = new State(), a: Action): Stat
     newState.currentCartridge = reduceCurrentCartridge(newState.currentCartridge, a);
     newState.guiState = reduceGuiState(newState.guiState, a);
     newState.emulationState = reduceEmulationState(newState.emulationState, a);
+    newState.settings = reduceSettings(newState.settings, a);
 
     return newState;
 }

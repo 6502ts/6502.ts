@@ -1,5 +1,3 @@
-// tslint:disable-next-line
-import * as React from 'react';
 import {connect} from 'react-redux';
 import {push} from 'react-router-redux';
 
@@ -23,7 +21,8 @@ function mapStateToProps(state: State): EmulationComponent.Props {
         difficultyPlayer0: state.emulationState.difficultyPlayer0,
         difficultyPlayer1: state.emulationState.difficultyPlayer1,
         tvModeSwitch: state.emulationState.tvMode,
-        enforceRateLimit: state.emulationState.enforceRateLimit
+        enforceRateLimit: state.emulationState.enforceRateLimit,
+        smoothScaling: state.settings.smoothScaling
     };
 }
 

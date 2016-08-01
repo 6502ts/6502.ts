@@ -86,6 +86,7 @@ class Emulation extends React.Component<Emulation.Props, {}> {
                         className={`emulation-viewport ${this._emulationError() ? 'hidden' : ''}`}
                         width={this.props.initialViewportWidth}
                         height={this.props.initialViewportHeight}
+                        style={{imageRendering: this.props.smoothScaling ? 'auto' : 'pixelated'}}
                         ref={(elt) => this._canvasElt = elt as HTMLCanvasElement}
                     ></canvas>
                 </Col>
@@ -104,6 +105,7 @@ class Emulation extends React.Component<Emulation.Props, {}> {
         enabled: false,
         initialViewportWidth: 160,
         initialViewportHeight: 192,
+        smoothScaling: true,
         emulationState: EmulationServiceInterface.State.stopped,
 
         navigateAway: (): void => undefined,
@@ -137,6 +139,7 @@ module Emulation {
         initialViewportWidth?: number;
         initialViewportHeight?: number;
         emulationState?: EmulationServiceInterface.State;
+        smoothScaling?: boolean;
 
         navigateAway?: () => void;
         pauseEmulation?: () => void;
