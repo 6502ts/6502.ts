@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "A 6502 emulator written in typescript",
   "dependencies": {
+    "brfs": "^1.4.3",
     "dexie": "~1.4.1",
     "grunt": "~0.4.5",
     "grunt-bower-install-simple": "~1.2.1",

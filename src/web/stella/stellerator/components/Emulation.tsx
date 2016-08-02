@@ -13,6 +13,7 @@ import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 import EmulationContextInterface from '../../service/EmulationContextInterface';
 import DriverManager from '../../service/DriverManager';
 import SimpleCanvasVideoDriver from '../../../driver/SimpleCanvasVideo';
+import WebglVideoDriver from '../../../driver/webgl/WebglVideo';
 import KeyboardIoDriver from '../../driver/KeyboardIO';
 import FullscreenVideoDriver from '../../../driver/FullscreenVideo';
 import MouseAsPaddleDriver from '../../../driver/MouseAsPaddle';
@@ -43,15 +44,29 @@ class Emulation extends React.Component<Emulation.Props, {}> {
     componentDidMount(): void {
         this._driverManager.bind(this.context.emulationService);
 
+        let videoDriver: SimpleCanvasVideoDriver|WebglVideoDriver;
+
+        try {
+            if (this.props.webGlRendering) {
+                videoDriver = new WebglVideoDriver(this._canvasElt, this.props.gamma);
+                videoDriver.init();
+            } else {
+                videoDriver = new SimpleCanvasVideoDriver(this._canvasElt);
+            }
+
+            this._driverManager.addDriver(
+                videoDriver,
+                (context: EmulationContextInterface, driver: WebglVideoDriver) =>
+                    driver.bind(context.getVideo())
+            );
+        } catch (e) {
+            console.log(e);
+        }
+
         const keyboardDriver = new KeyboardIoDriver(document);
         this._fullscreenDriver = new FullscreenVideoDriver(this._canvasElt);
 
         this._driverManager
-            .addDriver(
-                new SimpleCanvasVideoDriver(this._canvasElt),
-                (context: EmulationContextInterface, driver: SimpleCanvasVideoDriver) =>
-                    driver.bind(context.getVideo())
-            )
             .addDriver(
                 new MouseAsPaddleDriver(),
                 (context: EmulationContextInterface, driver: MouseAsPaddleDriver) =>
@@ -106,6 +121,8 @@ class Emulation extends React.Component<Emulation.Props, {}> {
         initialViewportWidth: 160,
         initialViewportHeight: 192,
         smoothScaling: true,
+        webGlRendering: true,
+        gamma: 1,
         emulationState: EmulationServiceInterface.State.stopped,
 
         navigateAway: (): void => undefined,
@@ -140,6 +157,8 @@ module Emulation {
         initialViewportHeight?: number;
         emulationState?: EmulationServiceInterface.State;
         smoothScaling?: boolean;
+        webGlRendering?: boolean;
+        gamma?: number;
 
         navigateAway?: () => void;
         pauseEmulation?: () => void;

@@ -54,6 +54,7 @@ module.exports = function(grunt) {
 
         browserify: {
             options: {
+                transform: ['brfs'],
                 browserifyOptions: {
                     debug: true
                 }

@@ -1,38 +1,15 @@
 import RGBASurfaceInterface from './RGBASurfaceInterface';
+import AbstractImageDataSurface from './AbstractImageDataSurface';
 
-class CanvasImageDataSurface implements RGBASurfaceInterface {
+class CanvasImageDataSurface extends AbstractImageDataSurface implements RGBASurfaceInterface {
 
     constructor(
-        private _width: number,
-        private _height: number,
+        width: number,
+        height: number,
         context: CanvasRenderingContext2D
     ) {
-        this._imageData = context.createImageData(this._width, this._height);
-        this._buffer = new Uint32Array(this._imageData.data.buffer);
+        super(width, height, context.createImageData(width, height));
     }
-
-    getWidth(): number {
-        return this._width;
-    }
-
-    getHeight(): number {
-        return this._height;
-    }
-
-    getBuffer(): Uint32Array {
-        return this._buffer;
-    }
-
-    getByteOrder(): RGBASurfaceInterface.ByteOrder {
-        return RGBASurfaceInterface.ByteOrder.rgba;
-    }
-
-    getImageData(): ImageData {
-        return this._imageData;
-    }
-
-    private _imageData: ImageData;
-    private _buffer: Uint32Array;
 }
 
 export default CanvasImageDataSurface;

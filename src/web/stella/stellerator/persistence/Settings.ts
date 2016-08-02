@@ -8,13 +8,18 @@ export interface Type {
 
     id: number;
     smoothScaling: boolean;
+    webGlRendering: boolean;
+    gamma: number;
 
 }
 
 export function fromState(state: SettingsState): Type {
     return {
         id: UNIQUE_ID,
-        smoothScaling: state.smoothScaling
+        smoothScaling: state.smoothScaling,
+        webGlRendering: state.webGlRendering,
+        gamma: state.gamma
+
     };
 }
 

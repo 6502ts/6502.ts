@@ -22,7 +22,9 @@ function mapStateToProps(state: State): EmulationComponent.Props {
         difficultyPlayer1: state.emulationState.difficultyPlayer1,
         tvModeSwitch: state.emulationState.tvMode,
         enforceRateLimit: state.emulationState.enforceRateLimit,
-        smoothScaling: state.settings.smoothScaling
+        smoothScaling: state.settings.smoothScaling,
+        webGlRendering: state.settings.webGlRendering,
+        gamma: state.settings.gamma
     };
 }
 
