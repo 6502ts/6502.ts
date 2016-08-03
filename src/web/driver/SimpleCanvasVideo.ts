@@ -1,7 +1,5 @@
-import ObjectPool from '../../tools/pool/Pool';
-import ObjectPoolMember from '../../tools/pool/PoolMemberInterface';
-import Surface from '../../tools/surface/CanvasImageDataSurface';
-import VideoOutputInterface from '../../machine/io/VideoOutputInterface';
+import VideoEndpointInterface from './VideoEndpointInterface';
+import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 
 export default class SimpleCanvasVideo {
 
@@ -15,32 +13,16 @@ export default class SimpleCanvasVideo {
         this._clearCanvas();
     }
 
-    bind(video: VideoOutputInterface): void {
+    bind(video: VideoEndpointInterface): void {
         if (this._video) {
             return;
         }
 
         this._video = video;
 
-        this._width = this._video.getWidth();
-        this._height = this._video.getHeight();
-
-        this._surfacePool = new ObjectPool<Surface>(
-            () => new Surface(this._width, this._height, this._context)
-        );
-
-        this._canvas.width = this._width;
-        this._canvas.height = this._height;
+        this._canvas.width = this._video.getWidth();
+        this._canvas.height = this._video.getHeight();
         this._clearCanvas();
-
-        this._video.setSurfaceFactory((): Surface => {
-            const member  = this._surfacePool.get(),
-                surface = member.get();
-
-            this._poolMembers.set(surface, member);
-
-            return surface;
-        });
 
         this._video.newFrame.addHandler(SimpleCanvasVideo._frameHandler, this);
     }
@@ -50,23 +32,16 @@ export default class SimpleCanvasVideo {
             return;
         }
 
-        this._video.setSurfaceFactory(null);
         this._video.newFrame.removeHandler(SimpleCanvasVideo._frameHandler, this);
-
-        this._surfacePool = null;
         this._video = null;
 
         this._clearCanvas();
     }
 
-    private static _frameHandler(surface: Surface, self: SimpleCanvasVideo): void {
-        const poolMember = self._poolMembers.get(surface);
+    private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: SimpleCanvasVideo): void {
+        self._context.putImageData(imageDataPoolMember.get(), 0, 0);
 
-        self._context.putImageData(surface.getImageData(), 0, 0);
-
-        if (poolMember) {
-            poolMember.release();
-        }
+        imageDataPoolMember.release();
     }
 
     private _clearCanvas(): void {
@@ -75,9 +50,5 @@ export default class SimpleCanvasVideo {
     }
 
     private _context: CanvasRenderingContext2D;
-    private _poolMembers  = new WeakMap<Surface, ObjectPoolMember<Surface>>();
-    private _surfacePool: ObjectPool<Surface>;
-    private _width = 0;
-    private _height = 0;
-    private _video: VideoOutputInterface = null;
+    private _video: VideoEndpointInterface = null;
 }

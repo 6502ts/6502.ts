@@ -2,17 +2,20 @@ import EmulationContextInterface from '../EmulationContextInterface';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';
 import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
-import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
 import Board from '../../../../machine/stella/Board';
+import VideoEndpoint from '../../../driver/VideoEndpoint';
+import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 
 export default class EmulationContext implements EmulationContextInterface {
 
     constructor(
         private _board: Board
-    ) {}
+    ) {
+        this._videoEndpoint = new VideoEndpoint(this._board.getVideoOutput());
+    }
 
-    getVideo(): VideoOutputInterface {
-        return this._board.getVideoOutput();
+    getVideo(): VideoEndpointInterface {
+        return this._videoEndpoint;
     }
 
     getJoystick(i: number): JoystickInterface {
@@ -43,5 +46,7 @@ export default class EmulationContext implements EmulationContextInterface {
     getAudio(): Board.Audio {
         return this._board.getAudioOutput();
     }
+
+    private _videoEndpoint: VideoEndpoint;
 
 }

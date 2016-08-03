@@ -8,6 +8,7 @@ import WebAudioDriver from './stella/driver/WebAudio';
 import FullscreenVideoDriver from './driver/FullscreenVideo';
 import PaddleInterface from '../machine/io/PaddleInterface';
 import MouseAsPaddleDriver from './driver/MouseAsPaddle';
+import VideoEndpoint from './driver/VideoEndpoint';
 
 interface PageConfig {
     cartridge?: string;
@@ -125,7 +126,7 @@ function setupCartridgeReader(
 function setupVideo(canvas: HTMLCanvasElement, board: Board) {
     const driver = new SimpleCanvasVideoDriver(canvas);
     driver.init();
-    driver.bind(board.getVideoOutput());
+    driver.bind(new VideoEndpoint(board.getVideoOutput()));
 }
 
 function setupAudio(board: Board) {

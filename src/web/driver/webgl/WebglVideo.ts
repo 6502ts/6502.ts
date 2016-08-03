@@ -1,9 +1,7 @@
 import * as fs from 'fs';
 
-import ObjectPool from '../../../tools/pool/Pool';
-import ObjectPoolMember from '../../../tools/pool/PoolMemberInterface';
-import Surface from '../../../tools/surface/ImageDataSurface';
-import VideoOutputInterface from '../../../machine/io/VideoOutputInterface';
+import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
+import VideoEndpointInterface from '../VideoEndpointInterface';
 
 const fragmentShaderSource = fs.readFileSync(__dirname + '/shader/render.fsh', 'utf-8');
 const vertexShaderSource = fs.readFileSync(__dirname + '/shader/render.vsh', 'utf-8');
@@ -28,32 +26,16 @@ export default class WebglVideoDriver {
         this._setupAttribs();
     }
 
-    bind(video: VideoOutputInterface): void {
+    bind(video: VideoEndpointInterface): void {
         if (this._video) {
             return;
         }
 
         this._video = video;
 
-        this._width = this._video.getWidth();
-        this._height = this._video.getHeight();
-
-        this._surfacePool = new ObjectPool<Surface>(
-            () => new Surface(this._width, this._height)
-        );
-
-        this._canvas.width = this._width;
-        this._canvas.height = this._height;
-        this._gl.viewport(0, 0, this._width, this._height);
-
-        this._video.setSurfaceFactory((): Surface => {
-            const member  = this._surfacePool.get(),
-                surface = member.get();
-
-            this._poolMembers.set(surface, member);
-
-            return surface;
-        });
+        this._canvas.width = this._video.getWidth();
+        this._canvas.height = this._video.getHeight();
+        this._gl.viewport(0, 0, this._canvas.width, this._canvas.height);
 
         this._video.newFrame.addHandler(WebglVideoDriver._frameHandler, this);
     }
@@ -63,18 +45,15 @@ export default class WebglVideoDriver {
             return;
         }
 
-        this._video.setSurfaceFactory(null);
         this._video.newFrame.removeHandler(WebglVideoDriver._frameHandler, this);
-
-        this._surfacePool = null;
         this._video = null;
     }
 
-    private static _frameHandler(surface: Surface, self: WebglVideoDriver): void {
+    private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: WebglVideoDriver): void {
         const gl = self._gl,
-            oldSurface = self._surfaces[self._currentFrameIndex];
+            oldImageData = self._imageData[self._currentFrameIndex];
 
-        self._surfaces[self._currentFrameIndex] = surface;
+        self._imageData[self._currentFrameIndex] = imageDataPoolMember;
 
         gl.activeTexture((gl as any)[`TEXTURE${self._currentFrameIndex}`]);
         gl.bindTexture(gl.TEXTURE_2D, self._textures[self._currentFrameIndex]);
@@ -84,7 +63,7 @@ export default class WebglVideoDriver {
             gl.RGBA,
             gl.RGBA,
             gl.UNSIGNED_BYTE,
-            surface.getImageData()
+            imageDataPoolMember.get()
         );
 
         if (self._frameCount < FRAME_COMPOSITING_COUNT) {
@@ -106,11 +85,7 @@ export default class WebglVideoDriver {
 
         self._currentFrameIndex = (self._currentFrameIndex + 1) % FRAME_COMPOSITING_COUNT;
 
-        const poolMember = self._poolMembers.get(oldSurface);
-
-        if (poolMember) {
-            poolMember.release();
-        }
+        oldImageData.release();
     }
 
     private _createProgram(): void {
@@ -242,14 +217,10 @@ export default class WebglVideoDriver {
     private _textureCoordinateBuffer: WebGLBuffer = null;
 
     private _textures = new Array<WebGLTexture>(FRAME_COMPOSITING_COUNT);
-    private _surfaces = new Array<Surface>(FRAME_COMPOSITING_COUNT);
+    private _imageData = new Array<PoolMemberInterface<ImageData>>(FRAME_COMPOSITING_COUNT);
     private _currentFrameIndex = 0;
     private _frameCount = 0;
 
-    private _poolMembers  = new WeakMap<Surface, ObjectPoolMember<Surface>>();
-    private _surfacePool: ObjectPool<Surface>;
-    private _width = 0;
-    private _height = 0;
-    private _video: VideoOutputInterface = null;
+    private _video: VideoEndpointInterface = null;
 
 }

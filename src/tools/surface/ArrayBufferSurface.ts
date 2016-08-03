@@ -1,13 +1,17 @@
 import RGBASurfaceInterface from './RGBASurfaceInterface';
 
-abstract class AbstractImageDataSurface implements RGBASurfaceInterface {
+class ArrayBufferSurface implements RGBASurfaceInterface {
 
     constructor(
         private _width: number,
         private _height: number,
-        private _imageData: ImageData
+        private _underlyingBuffer: ArrayBuffer
     ) {
-        this._buffer = new Uint32Array(this._imageData.data.buffer);
+        if (this._underlyingBuffer.byteLength !== this._width * this._height * 4) {
+            throw new Error('invalid underlying buffer: size mismatch');
+        }
+
+        this._buffer = new Uint32Array(this._underlyingBuffer);
     }
 
     getWidth(): number {
@@ -26,11 +30,7 @@ abstract class AbstractImageDataSurface implements RGBASurfaceInterface {
         return RGBASurfaceInterface.ByteOrder.rgba;
     }
 
-    getImageData(): ImageData {
-        return this._imageData;
-    }
-
     private _buffer: Uint32Array;
 }
 
-export default AbstractImageDataSurface;
+export default ArrayBufferSurface;
