@@ -15,10 +15,12 @@ export default class Settings implements Changeset {
     smoothScaling = true;
     webGlRendering = true;
     gamma = 1;
+    useWorker = false;
 }
 
 interface Changeset {
     smoothScaling?: boolean;
     webGlRendering?: boolean;
     gamma?: number;
+    useWorker?: boolean;
 }

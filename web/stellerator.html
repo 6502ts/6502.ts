@@ -81,7 +81,12 @@
             }
         </style>
 
-        <script>_386 = {fastLoad: true}</script>
+        <script>
+            _386 = {fastLoad: true};
+            _stelleratorSettings = {
+                workerUrl: 'js/compiled/stellaWorker.js'
+            };
+        </script>
     </head>
 
     <body>
@@ -89,7 +94,6 @@
 
         <script src="bower/jquery/dist/jquery.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
-        <script src="bower/setimmediate2/dist/setImmediate.js"></script>
         <script src="js/compiled/stellerator.js"></script>
     </body>
 </html>

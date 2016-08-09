@@ -10,6 +10,7 @@ export interface Type {
     smoothScaling: boolean;
     webGlRendering: boolean;
     gamma: number;
+    useWorker: boolean;
 
 }
 
@@ -18,8 +19,8 @@ export function fromState(state: SettingsState): Type {
         id: UNIQUE_ID,
         smoothScaling: state.smoothScaling,
         webGlRendering: state.webGlRendering,
-        gamma: state.gamma
-
+        gamma: state.gamma,
+        useWorker: state.useWorker
     };
 }
 

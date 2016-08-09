@@ -6,6 +6,7 @@ export const Types = {
     setSmoothScaling: 'settings/setSmoothScaling',
     setWebGlRendering: 'settings/setWebGlRendering',
     setGamma: 'settings/setGamma',
+    setUseWorker: 'settings/setUseWorker',
     init: 'settings/init'
 };
 
@@ -49,6 +50,17 @@ export interface SetGammaAction extends Action {
 export function setGamma(value: number): SetGammaAction {
     return {
         type: Types.setGamma,
+        value
+    };
+}
+
+export interface SetUseWorkerAction extends Action {
+    value: boolean;
+}
+
+export function setUseWorker(value: boolean): SetUseWorkerAction {
+    return {
+        type: Types.setUseWorker,
         value
     };
 }

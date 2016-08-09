@@ -14,6 +14,24 @@ function Settings(props: Settings.Props) {
     return <Grid fluid className="settings-grid">
         <Row>
             <Col md={12}>
+                <h1>General Settings</h1>
+            </Col>
+        </Row>
+        <Row>
+            <Col sm={4}>
+                <ControlLabel>Use worker (requires reload):</ControlLabel>
+            </Col>
+            <Col sm={8}>
+                <Switch
+                    labelTrue="Yes"
+                    labelFalse="No"
+                    state={props.useWorker}
+                    onSwitch={props.onToggleUseWorker}
+                />
+            </Col>
+        </Row>
+        <Row style={{marginTop: '1rem'}}>
+            <Col md={12}>
                 <h1>Display Settings</h1>
             </Col>
         </Row>
@@ -70,20 +88,24 @@ module Settings {
         smoothScaling?: boolean;
         webGlRendering?: boolean;
         gamma?: number;
+        useWorker?: boolean;
 
         onToggleSmoothScaling?: (value: boolean) => void;
         onToggleWebGlRendering?: (value: boolean) => void;
         onChangeGamma?: (value: number) => void;
+        onToggleUseWorker?: (value: boolean) => void;
     }
 
     export const defaultProps: Props = {
         smoothScaling: true,
         webGlRendering: true,
         gamma: 1,
+        useWorker: false,
 
         onToggleSmoothScaling: () => undefined,
         onToggleWebGlRendering: () => undefined,
-        onChangeGamma: () => undefined
+        onChangeGamma: () => undefined,
+        onToggleUseWorker: () => undefined
     };
 
 }

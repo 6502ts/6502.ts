@@ -1,3 +1,5 @@
+import * as polyfill from 'setimmediate2';
+
 import SchedulerInterface from './SchedulerInterface';
 import TaskInterface from './TaskInterface';
 
@@ -10,10 +12,10 @@ class ImmediateScheduler implements SchedulerInterface {
             if (terminate) return;
 
             worker(context);
-            setImmediate(handler);
+            polyfill.setImmediate(handler);
         }
 
-        setImmediate(handler);
+        polyfill.setImmediate(handler);
 
         return {
             stop: () => terminate = true

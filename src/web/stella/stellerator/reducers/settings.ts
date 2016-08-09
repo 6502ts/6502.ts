@@ -7,7 +7,8 @@ import {
     InitSettingsAction,
     SetSmoothScalingAction,
     SetWebGlRenderingAction,
-    SetGammaAction
+    SetGammaAction,
+    SetUseWorkerAction
 } from '../actions/settings';
 
 export default function reducer(state: Settings = new Settings(), action: Action): Settings {
@@ -20,6 +21,9 @@ export default function reducer(state: Settings = new Settings(), action: Action
 
         case Types.setGamma:
             return setGamma(state, action as SetGammaAction);
+
+        case Types.setUseWorker:
+            return setUseWorker(state, action as SetUseWorkerAction);
 
         case Types.init:
             return init(state, action as InitSettingsAction);
@@ -42,4 +46,8 @@ function setWebGlRendering(state: Settings, action: SetWebGlRenderingAction): Se
 
 function setGamma(state: Settings, action: SetGammaAction): Settings {
     return new Settings({gamma: action.value}, state);
+}
+
+function setUseWorker(state: Settings, action: SetUseWorkerAction): Settings {
+    return new Settings({useWorker: action.value}, state);
 }

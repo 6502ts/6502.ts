@@ -9,7 +9,6 @@
   "dependencies": {
     "jquery": "~2.1.4",
     "jquery-mousewheel": "~3.1.12",
-    "setimmediate2": "~2.0.1",
     "jquery.terminal": "^0.10.8"
   }
 }

@@ -23,6 +23,10 @@ export default class EmulationService implements EmulationServiceInterface {
         this._updateScheduler();
     }
 
+    init(): Promise<void> {
+        return Promise.resolve();
+    }
+
     start(
         buffer: {[i: number]: number, length: number},
         config: StellaConfig,
@@ -202,6 +206,7 @@ export default class EmulationService implements EmulationServiceInterface {
 
     private static _trapHandler(trap: BoardInterface.TrapPayload, self: EmulationService) {
         self._setError(new Error(`TRAP: ${trap.message}`));
+        self.emulationError.dispatch(self._lastError);
     }
 
     private _updateScheduler(): void {
@@ -209,6 +214,7 @@ export default class EmulationService implements EmulationServiceInterface {
     }
 
     stateChanged = new Event<EmulationServiceInterface.State>();
+    emulationError = new Event<Error>();
     frequencyUpdate: EventInterface<number>;
 
     private _enforceRateLimit = true;

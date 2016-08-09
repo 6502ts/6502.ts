@@ -11,10 +11,14 @@
     },
     "filesGlob": [
         "src/**/*.ts",
+        "../src/interface/**/*.ts",
         "../node_modules/typescript/lib/lib.webworker.d.ts"
     ],
     "files": [
         "src/main.ts",
+        "../src/interface/es6-bits.d.ts",
+        "../src/interface/jquery.terminal.d.ts",
+        "../src/interface/screenfull.d.ts",
         "../node_modules/typescript/lib/lib.webworker.d.ts"
     ],
     "atom": {

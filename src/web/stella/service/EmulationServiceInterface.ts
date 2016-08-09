@@ -5,6 +5,8 @@ import EmulationContextInterface from './EmulationContextInterface';
 
 interface EmulationServiceInterface {
 
+    init(): Promise<void>;
+
     start(
         buffer: {[i: number]: number, length: number},
         config: StellaConfig,

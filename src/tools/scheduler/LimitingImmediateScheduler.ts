@@ -1,3 +1,5 @@
+import * as polyfill from 'setimmediate2';
+
 import LimitingSchedulerInterface from './LimitingSchedulerInterface';
 import TaskInterface from './TaskInterface';
 
@@ -16,11 +18,11 @@ class LimitingImmediateScheduler implements LimitingSchedulerInterface {
             if (delay > 0) {
                 setTimeout(handler, delay);
             } else {
-                setImmediate(handler);
+                polyfill.setImmediate(handler);
             }
         }
 
-        setImmediate(handler);
+        polyfill.setImmediate(handler);
 
         return {
             stop: () => terminate = true

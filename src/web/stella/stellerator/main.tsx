@@ -1,3 +1,7 @@
+declare module _stelleratorSettings {
+    export const workerUrl: string;
+}
+
 declare module window {
     export const devToolsExtension: any;
 }
@@ -40,50 +44,13 @@ import {initSettings} from './actions/settings';
 
 import State from './state/State';
 import reducer from './reducers/root';
-import {create as createEmulationMiddleware} from './emulation/middleware';
+import EmulationMiddleware from './emulation/Middleware';
 import EmulationDispatcher from './emulation/Dispatcher';
 import {batchMiddleware} from './middleware';
-import {dispatchGamepadDriver} from './dispatchers';
+import {init as initEmulation} from './emulation';
 
-import EmulationService from '../service/vanilla/EmulationService';
-import EmulationContextInterface from '../service/EmulationContextInterface';
-import DriverManager from '../service/DriverManager';
-import WebAudioDriver from '../driver/WebAudio';
-import GamepadDriver from '../../driver/Gamepad';
-
-const emulationService = new EmulationService(),
-    driverManager = new DriverManager(),
-    audioDriver = new WebAudioDriver(),
-    gamepadDriver = new GamepadDriver();
-
-driverManager.bind(emulationService);
-
-try {
-    audioDriver.init();
-    driverManager.addDriver(
-        audioDriver,
-        (context: EmulationContextInterface, driver: WebAudioDriver) => driver.bind(context.getAudio())
-    );
-} catch (e) {
-    console.log(`audio not available: ${e.message}`);
-}
-
-try {
-    gamepadDriver.init();
-    driverManager.addDriver(
-        gamepadDriver,
-        (context: EmulationContextInterface, driver: GamepadDriver) =>
-            driver.bind({
-                joysticks: [context.getJoystick(0), context.getJoystick(1)],
-                start: context.getControlPanel().getResetButton(),
-                select: context.getControlPanel().getSelectSwitch()
-            })
-    );
-} catch (e) {
-    console.log(`audio not available: ${e.message}`);
-}
-
-const persistenceManager = new PersistenceManager();
+const persistenceManager = new PersistenceManager(),
+    emulationMiddleware = new EmulationMiddleware();
 
 const store = createStore<State>(
         reducer,
@@ -93,16 +60,12 @@ const store = createStore<State>(
                 thunk,
                 batchMiddleware,
                 createPersistenceMiddleware(persistenceManager),
-                createEmulationMiddleware(emulationService),
+                emulationMiddleware.getMiddleware(),
                 routerMiddleware(hashHistory)
             ),
             (window.devToolsExtension ? window.devToolsExtension() : (x: any) => x)
         ) as any
     );
-
-const emulationDispatcher = new EmulationDispatcher(store);
-emulationDispatcher.bind(emulationService);
-dispatchGamepadDriver(gamepadDriver, store);
 
 const history = syncHistoryWithStore(hashHistory, store);
 
@@ -115,7 +78,16 @@ Promise
             .getSettings()
             .then(settings => store.dispatch(initSettings(settings)))
     ])
-    .then(() => render(
+    .then(() => initEmulation(store, _stelleratorSettings.workerUrl))
+    .then(emulationService => {
+        emulationMiddleware.setEmulationService(emulationService);
+
+        const emulationDispatcher = new EmulationDispatcher(store);
+        emulationDispatcher.bind(emulationService);
+
+        return emulationService;
+    })
+    .then(emulationService => render(
         <Provider store={store}>
             <Router history={history}>
                 <Redirect from="/" to="/cartridge-manager"/>
