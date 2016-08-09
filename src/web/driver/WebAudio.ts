@@ -1,4 +1,9 @@
-declare const webkitAudioContext: any;
+type AudioContextType = typeof AudioContext;
+
+declare module window {
+    const webkitAudioContext: AudioContextType;
+    const AudioContext: AudioContextType;
+}
 
 import AudioOutputInterface from '../../machine/io/AudioOutputInterface';
 
@@ -13,14 +18,19 @@ export default class WebAudioDriver {
     }
 
     init(): void {
-        const ctor: (typeof AudioContext) = AudioContext || webkitAudioContext;
+        const ctor = window.AudioContext || window.webkitAudioContext;
 
         if (!ctor) {
             throw new Error(`web audio is not supported by runtime`);
         }
 
         this._context = new ctor();
-        this._context.destination.channelCount = 1;
+
+        try {
+            this._context.destination.channelCount = 1;
+        } catch (e) {
+            console.warn('audio driver: failed to set channel count');
+        }
 
         this._merger = this._context.createChannelMerger(this._channels.length);
         this._merger.connect(this._context.destination);
