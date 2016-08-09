@@ -15,6 +15,7 @@ function CartridgeList(props: CartridgeList.Props) {
                     <li
                         onClick={() => props.onClick(cartridge.hash, props.pendingChanges)}
                         className={props.selectedKey === cartridge.hash ? 'selected' : ''}
+                        key={cartridge.hash}
                     >
                         {cartridge.name}
                     </li>

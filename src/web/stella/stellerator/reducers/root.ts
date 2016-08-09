@@ -22,15 +22,19 @@ import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeDetector from '../../../../machine/stella/cartridge/CartridgeDetector';
 
 export default function rootReducer(state: State = new State(), a: Action): State {
-    const newState = reduce(state, a);
+    const reducedState = reduce(state, a);
 
-    newState.routing = routerReducer(state.routing, a);
-    newState.currentCartridge = reduceCurrentCartridge(newState.currentCartridge, a);
-    newState.guiState = reduceGuiState(newState.guiState, a);
-    newState.emulationState = reduceEmulationState(newState.emulationState, a);
-    newState.settings = reduceSettings(newState.settings, a);
+    return new State(
+        {
+            routing: routerReducer(state.routing, a),
+            currentCartridge: reduceCurrentCartridge(reducedState.currentCartridge, a),
+            guiState: reduceGuiState(reducedState.guiState, a),
+            emulationState: reduceEmulationState(reducedState.emulationState, a),
+            settings: reduceSettings(reducedState.settings, a)
 
-    return newState;
+        },
+        reducedState
+    );
 }
 
 function reduce(state: State, a: Action): State {
@@ -51,7 +55,7 @@ function reduce(state: State, a: Action): State {
             return saveCurrentCartride(state);
 
         default:
-            return new State(undefined, state);
+            return state;
     }
 }
 

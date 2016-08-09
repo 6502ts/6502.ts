@@ -17,11 +17,11 @@ export default class Cartridge implements Changeset {
         );
     }
 
-    name = '';
-    buffer: Uint8Array = null;
-    hash = '';
-    tvMode = StellaConfig.TvMode.ntsc;;
-    cartridgeType = CartridgeInfo.CartridgeType.unknown;
+    readonly name = '';
+    readonly buffer: Uint8Array = null;
+    readonly hash = '';
+    readonly tvMode = StellaConfig.TvMode.ntsc;;
+    readonly cartridgeType = CartridgeInfo.CartridgeType.unknown;
 
 }
 

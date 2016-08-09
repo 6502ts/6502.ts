@@ -15,7 +15,17 @@ module.exports = function(grunt) {
     grunt.initConfig({
         ts: {
             main: {
-                tsconfig: true
+                tsconfig: {
+                    tsconfig: '.',
+                    passThrough: true
+                }
+            },
+            worker: {
+                tsconfig: {
+                    tsconfig: './worker',
+                    passThrough: true,
+                    updateFiles: true
+                }
             }
         },
 
@@ -44,6 +54,7 @@ module.exports = function(grunt) {
             files: [
                 "bin/*.ts",
                 "src/**/*.ts",
+                "worker/**/src/*.ts",
                 "tests/ts/**/*.ts",
             ]
         },

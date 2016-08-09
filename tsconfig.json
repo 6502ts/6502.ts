@@ -7,7 +7,13 @@
         "target": "es5",
         "preserveConstEnums": true,
         "sourceMap": false,
-        "jsx": "react"
+        "jsx": "react",
+        "lib": [
+            "dom",
+            "es5",
+            "es6"
+        ],
+        "noImplicitThis": true
     },
     "filesGlob": [
         "bin/*.ts",
@@ -16,6 +22,9 @@
         "typings/index.d.ts",
         "src/web/stella/stellerator/**/*.tsx"
     ],
+    "atom": {
+        "rewriteTsconfig": true
+    },
     "files": [
         "bin/debuggerCLI.ts",
         "bin/detectStellaCartridgeType.ts",
@@ -37,10 +46,9 @@
         "src/fs/FilesystemProviderInterface.ts",
         "src/fs/NodeFilesystemProvider.ts",
         "src/fs/PrepackagedFilesystemProvider.ts",
-        "src/interface/es6-bits.d.ts",
         "src/interface/jquery.terminal.d.ts",
         "src/interface/screenfull.d.ts",
-        "src/interface/setimmediate2.ts",
+        "src/interface/setimmediate2.d.ts",
         "src/machine/board/BoardInterface.ts",
         "src/machine/board/TimerInterface.ts",
         "src/machine/bus/BusInterface.ts",
@@ -196,8 +204,5 @@
         "src/web/stella/stellerator/containers/CartridgeManager.tsx",
         "src/web/stella/stellerator/containers/Emulation.tsx",
         "src/web/stella/stellerator/main.tsx"
-    ],
-    "atom": {
-        "rewriteTsconfig": true
-    }
+    ]
 }

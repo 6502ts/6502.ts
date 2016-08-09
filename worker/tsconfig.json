@@ -7,21 +7,15 @@
         "target": "es5",
         "preserveConstEnums": true,
         "sourceMap": false,
-        "noLib": true
+        "lib": [
+            "es5",
+            "es6",
+            "webworker"
+        ],
+        "noImplicitThis": true
     },
-    "filesGlob": [
-        "src/**/*.ts",
-        "../src/interface/**/*.ts",
-        "../node_modules/typescript/lib/lib.webworker.d.ts"
-    ],
     "files": [
         "src/main.ts",
-        "../src/interface/es6-bits.d.ts",
-        "../src/interface/jquery.terminal.d.ts",
-        "../src/interface/screenfull.d.ts",
-        "../node_modules/typescript/lib/lib.webworker.d.ts"
-    ],
-    "atom": {
-        "rewriteTsconfig": true
-    }
+        "../src/interface/setimmediate2.d.ts"
+    ]
 }

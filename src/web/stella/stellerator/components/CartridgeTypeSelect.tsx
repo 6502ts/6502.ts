@@ -17,7 +17,11 @@ class CartridgeTypeSelect extends React.Component<CartridgeTypeSelect.Props, Car
             onSelect={this.props.onCartridgeTypeChange}
         >
             {CartridgeInfo.getAllTypes().map(cartridgeType =>
-                <MenuItem eventKey={cartridgeType} active={cartridgeType === this.props.cartridgeType}>
+                <MenuItem
+                    eventKey={cartridgeType}
+                    active={cartridgeType === this.props.cartridgeType}
+                    key={cartridgeType}
+                >
                     {CartridgeInfo.describeCartridgeType(cartridgeType)}
                 </MenuItem>
             )}

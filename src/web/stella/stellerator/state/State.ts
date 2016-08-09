@@ -9,15 +9,17 @@ export default class State implements Changeset {
         Object.assign(this, old, changes);
     }
 
-    routing: any;
-    cartridges: {[hash: string]: Cartridge} = {};
-    currentCartridge: Cartridge = null;
-    guiState: GuiState;
-    emulationState: EmulationState;
-    settings: Settings;
+    readonly routing: any;
+    readonly cartridges: {[hash: string]: Cartridge} = {};
+    readonly currentCartridge: Cartridge = null;
+
+    readonly guiState: GuiState;
+    readonly emulationState: EmulationState;
+    readonly settings: Settings;
 }
 
 interface Changeset {
+    routing?: any;
     cartridges?: {[hash: string]: Cartridge};
     currentCartridge?: Cartridge;
     guiState?: GuiState;

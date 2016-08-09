@@ -66,7 +66,7 @@ export function toState(cartridge: Type): CartridgeState {
             break;
 
         default:
-            throw new Error(`invalid tv mode ${cartridge.tvMode}`);
+            throw new Error(`invalid tv mode`);
     }
 
     return new CartridgeState({
