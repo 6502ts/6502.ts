@@ -39,16 +39,17 @@ class EmulationMiddleware {
                 if (initialState.currentCartridge) {
                     (a as StartAction).hash = initialState.currentCartridge.hash;
 
-                    return this._emulationService.start(
-                        initialState.currentCartridge.buffer,
-                        this._createStellaConfig(initialState.currentCartridge),
-                        initialState.currentCartridge.cartridgeType
-                    )
-                    .then(() => {
-                        this._updateControlPanelState(initialState.emulationState);
-                        api.dispatch(push('/emulation'));
-                        next(a);
-                    });
+                    return this._emulationService
+                        .start(
+                            initialState.currentCartridge.buffer,
+                            this._createStellaConfig(initialState.currentCartridge),
+                            initialState.currentCartridge.cartridgeType
+                        )
+                        .then(() => {
+                            this._updateControlPanelState(initialState.emulationState);
+                            api.dispatch(push('/emulation'));
+                            next(a);
+                        });
                 }
 
                 break;

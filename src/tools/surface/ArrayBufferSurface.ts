@@ -14,6 +14,10 @@ class ArrayBufferSurface implements RGBASurfaceInterface {
         this._buffer = new Uint32Array(this._underlyingBuffer);
     }
 
+    getUnderlyingBuffer(): ArrayBuffer {
+        return this._underlyingBuffer;
+    }
+
     getWidth(): number {
         return this._width;
     }

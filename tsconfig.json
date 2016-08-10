@@ -149,6 +149,8 @@
         "src/web/stella/service/worker/EmulationContext.ts",
         "src/web/stella/service/worker/EmulationService.ts",
         "src/web/stella/service/worker/messages.ts",
+        "src/web/stella/service/worker/VideoDriver.ts",
+        "src/web/stella/service/worker/VideoProxy.ts",
         "src/web/stella/stellerator/actions/currentCartridge.ts",
         "src/web/stella/stellerator/actions/emulation.ts",
         "src/web/stella/stellerator/actions/guiState.ts",

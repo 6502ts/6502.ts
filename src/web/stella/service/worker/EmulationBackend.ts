@@ -1,11 +1,15 @@
 import EmulationService from '../vanilla/EmulationService';
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import RpcProviderInterface from '../../../../tools/worker/RpcProviderInterface';
+import DriverManager from '../DriverManager';
+import VideoDriver from './VideoDriver';
+import EmulationContext from '../vanilla/EmulationContext';
 
 import {
     RPC_TYPE,
     SIGNAL_TYPE,
-    EmulationStartMessage
+    EmulationStartMessage,
+    EmulationParametersResponse
 } from './messages';
 
 class EmulationBackend {
@@ -19,6 +23,7 @@ class EmulationBackend {
     startup(): void {
         this._rpc
             .registerRpcHandler(RPC_TYPE.emulationFetchLastError, this._onFetchLastError.bind(this))
+            .registerRpcHandler(RPC_TYPE.emulationGetParameters, this._onEmulationGetParameters.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationPause, this._onEmulationPause.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationReset, this._onEmulationReset.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationResume, this._onEmulationResume.bind(this))
@@ -28,6 +33,18 @@ class EmulationBackend {
 
         this._service.frequencyUpdate.addHandler(EmulationBackend._onFrequencyUpdate, this);
         this._service.emulationError.addHandler(EmulationBackend._onEmulationError, this);
+
+        const driverManager = new DriverManager(),
+            videoDriver = new VideoDriver(this._rpc);
+
+        videoDriver.init();
+
+        driverManager
+            .addDriver(
+                videoDriver,
+                (context: EmulationContext, driver: VideoDriver) => driver.bind(context.getRawVideo())
+            )
+            .bind(this._service);
     }
 
     private _onFetchLastError(): string {
@@ -58,6 +75,16 @@ class EmulationBackend {
 
     private _onEmulationSetRateLimit(message: boolean): Promise<void> {
         return this._service.setRateLimit(message);
+    }
+
+    private _onEmulationGetParameters(): Promise<EmulationParametersResponse> {
+        const context = this._service.getEmulationContext(),
+            video = context && context.getRawVideo();
+
+        return Promise.resolve({
+            width: video ? video.getWidth() : 0,
+            height: video ? video.getHeight() : 0
+        });
     }
 
     private static _onFrequencyUpdate(frequency: number, self: EmulationBackend): void {

@@ -8,6 +8,10 @@ class PoolMember<T> implements PoolMemberInterface<T> {
         private _disposeCB: (victim: PoolMember<T>) => void
     ) {}
 
+    adopt(target: T): void {
+        this._value = target;
+    }
+
     get(): T {
         return this._value;
     }

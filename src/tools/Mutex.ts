@@ -13,15 +13,26 @@ class Mutex {
     runExclusive<T>(callback: Mutex.Worker<T>): Promise<T> {
         return this
             .acquire()
-            .then(release =>
-                Promise.resolve(callback())
-                .then(
-                    (x: T) => (release(), x),
-                    e => {
+            .then(release => {
+                    let result: T|Promise<T>;
+
+                    try {
+                        result = callback();
+                    } catch (e) {
                         release();
-                        throw e;
+                        throw(e);
                     }
-                )
+
+                    return Promise
+                        .resolve(result)
+                        .then(
+                            (x: T) => (release(), x),
+                            e => {
+                                release();
+                                throw e;
+                            }
+                        );
+                }
             );
     }
 

@@ -49,14 +49,11 @@ export default class EmulationService implements EmulationServiceInterface {
                 this._board = board;
                 this._board.trap.addHandler(EmulationService._trapHandler, this);
                 this._context = new EmulationContext(board);
-                this._board.getTimer().start(this._scheduler);
-                this._board.resume();
 
                 this._clockProbe
-                    .attach(this._board.clock)
-                    .start();
+                    .attach(this._board.clock);
 
-                this._setState(EmulationServiceInterface.State.running);
+                this._setState(EmulationServiceInterface.State.paused);
             } catch (e) {
                 this._setError(e);
             }

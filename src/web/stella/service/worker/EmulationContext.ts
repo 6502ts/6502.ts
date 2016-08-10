@@ -10,18 +10,14 @@ import AudioOutputBuffer from '../../../../tools/AudioOutputBuffer';
 import Board from '../../../../machine/stella/Board';
 
 import EmulationContextInterface from '../EmulationContextInterface';
-import PoolMemberInterface from '../../../../tools/pool/PoolMemberInterface';
 import Event from '../../../../tools/event/Event';
+import VideoProxy from './VideoProxy';
 
 class EmulationContext implements EmulationContextInterface {
 
-    constructor() {
-        this._videoEndpointStub = {
-            getWidth: () => 160,
-            getHeight: () => 228,
-            newFrame: new Event<PoolMemberInterface<ImageData>>()
-        };
-
+    constructor(
+        private _videoProxy: VideoProxy
+    ) {
         const audioBufferStub = new AudioOutputBuffer(new Float32Array([0]), 44100);
 
         this._audioOutputStub = {
@@ -42,7 +38,7 @@ class EmulationContext implements EmulationContextInterface {
     }
 
     getVideo(): VideoEndpointInterface {
-        return this._videoEndpointStub;
+        return this._videoProxy;
     }
 
     getJoystick(i: number): JoystickInterface {
@@ -72,7 +68,10 @@ class EmulationContext implements EmulationContextInterface {
         };
     }
 
-    private _videoEndpointStub: VideoEndpointInterface;
+    getVideoProxy(): VideoProxy {
+        return this._videoProxy;
+    }
+
     private _audioOutputStub: AudioOutputInterface;
 
     private _joysticks = new Array<Joystick>(2);

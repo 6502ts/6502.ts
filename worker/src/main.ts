@@ -8,5 +8,7 @@ const rpcProvider = new RpcProvider(
     ),
     emulationBackend = new EmulationBackend(rpcProvider);
 
+rpcProvider.error.addHandler(e => console.log(e ? e.message : 'unknown rpc error'));
+
 onmessage = messageEvent => rpcProvider.dispatch(messageEvent.data);
 emulationBackend.startup();

@@ -1,7 +1,6 @@
 import PoolMember from './PoolMember';
 import Event from '../event/Event';
 import PoolInterface from './PoolInterface';
-import PoolMemberInterface from './PoolMemberInterface';
 
 class Pool<T> implements PoolInterface<T> {
 
@@ -9,12 +8,14 @@ class Pool<T> implements PoolInterface<T> {
         private _factory: Pool.FactoryInterface<T>
     ) {}
 
-    get(): PoolMemberInterface<T> {
+    get(): PoolMember<T> {
         let member: PoolMember<T>;
 
         if (this._poolSize === 0) {
-            member = new PoolMember<T>(
-                this._factory(),
+            const newItem = this._factory();
+
+            member = newItem && new PoolMember<T>(
+                newItem,
                 (victim: PoolMember<T>) => this._releaseMember(victim),
                 (victim: PoolMember<T>) => this._disposeMember(victim)
             );

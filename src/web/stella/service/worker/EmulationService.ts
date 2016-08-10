@@ -2,6 +2,7 @@ import RpcProvider from '../../../../tools/worker/RpcProvider';
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
 import EmulationContextInterface from '../EmulationContextInterface';
+import VideoProxy from './VideoProxy';
 
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
@@ -12,7 +13,8 @@ import Mutex from '../../../../tools/Mutex';
 import {
     RPC_TYPE,
     SIGNAL_TYPE,
-    EmulationStartMessage
+    EmulationStartMessage,
+    EmulationParametersResponse
 } from './messages';
 
 class EmulationService implements EmulationServiceInterface {
@@ -27,10 +29,15 @@ class EmulationService implements EmulationServiceInterface {
             (message, transfer?) => this._worker.postMessage(message, transfer)
         );
 
+        const videoProxy = new VideoProxy(this._rpc);
+        videoProxy.init();
+        this._emulationContext = new EmulationContext(videoProxy);
+
         this._worker.onmessage = messageEvent => this._rpc.dispatch(messageEvent.data);
 
         this._rpc
-            .registerSignalHandler<number>(SIGNAL_TYPE.emulationFrequencyUpdate, this._onFrequencyUpdate.bind(this));
+            .registerSignalHandler<number>(SIGNAL_TYPE.emulationFrequencyUpdate, this._onFrequencyUpdate.bind(this))
+            .registerSignalHandler<string>(SIGNAL_TYPE.emulationError, this._onEmulationError.bind(this));
 
         return this.setRateLimit(this._rateLimitEnforced);
     }
@@ -41,12 +48,27 @@ class EmulationService implements EmulationServiceInterface {
         cartridgeType?: CartridgeInfo.CartridgeType
     ): Promise<EmulationServiceInterface.State>
     {
+        let state: EmulationServiceInterface.State;
+
         return this._mutex.runExclusive(() => this._rpc
             .rpc<EmulationStartMessage, EmulationServiceInterface.State>(
                 RPC_TYPE.emulationStart,
                 {buffer, config, cartridgeType}
             )
-            .then(state => this._applyState(state))
+            .then(_state => {
+                state = _state;
+
+                return this._rpc.rpc<void, EmulationParametersResponse>(
+                    RPC_TYPE.emulationGetParameters
+                );
+            })
+            .then(
+                emulationParameters => this._startProxies(emulationParameters),
+                e => this._rpc
+                    .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationStop)
+                    .then(() => Promise.reject(e), () => Promise.reject(e))
+            )
+            .then(() => this._applyState(state))
         );
     }
 
@@ -60,7 +82,10 @@ class EmulationService implements EmulationServiceInterface {
     stop(): Promise<EmulationServiceInterface.State> {
         return this._mutex.runExclusive(() => this._rpc
             .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationStop)
-            .then(state => this._applyState(state))
+            .then(state => {
+                this._stopProxies();
+                this._applyState(state);
+            })
         );
     }
 
@@ -86,6 +111,29 @@ class EmulationService implements EmulationServiceInterface {
 
     getFrequency(): number {
         return this._frequency;
+    }
+
+    getRateLimit(): boolean {
+        return this._rateLimitEnforced;
+    }
+
+    getState(): EmulationServiceInterface.State {
+        return this._state;
+    }
+
+    getLastError(): Error {
+        return this._lastError;
+    }
+
+    getEmulationContext(): EmulationContextInterface {
+        switch (this._state) {
+            case EmulationServiceInterface.State.running:
+            case EmulationServiceInterface.State.paused:
+                return this._emulationContext;
+
+            default:
+                return null;
+        }
     }
 
     private _fetchLastError(): Promise<Error> {
@@ -115,25 +163,25 @@ class EmulationService implements EmulationServiceInterface {
         }
     }
 
-    getRateLimit(): boolean {
-        return this._rateLimitEnforced;
-    }
-
-    getState(): EmulationServiceInterface.State {
-        return this._state;
-    }
-
-    getLastError(): Error {
-        return this._lastError;
-    }
-
-    getEmulationContext(): EmulationContextInterface {
-        return this._emulationContext;
-    }
-
     private _onFrequencyUpdate(message: number): void {
         this._frequency = message;
         this.frequencyUpdate.dispatch(this._frequency);
+    }
+
+    private _onEmulationError(message: string): void {
+        this._lastError = new Error(message || '');
+
+        this._stopProxies();
+        this._state = EmulationServiceInterface.State.error;
+        this.stateChanged.dispatch(this._state);
+    }
+
+    private _startProxies(parameters: EmulationParametersResponse): void {
+        this._emulationContext.getVideoProxy().enable(parameters.width, parameters.height);
+    }
+
+    private _stopProxies(): void {
+        this._emulationContext.getVideoProxy().disable();
     }
 
     stateChanged = new Event<EmulationServiceInterface.State>();
@@ -148,7 +196,7 @@ class EmulationService implements EmulationServiceInterface {
     private _state = EmulationServiceInterface.State.stopped;
     private _lastError: Error = null;
 
-    private _emulationContext = new EmulationContext();
+    private _emulationContext: EmulationContext = null;
     private _frequency = 0;
 
 }

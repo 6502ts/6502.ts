@@ -5,16 +5,19 @@ import PaddleInterface from '../../../../machine/io/PaddleInterface';
 import Board from '../../../../machine/stella/Board';
 import VideoEndpoint from '../../../driver/VideoEndpoint';
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
+import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
 
 export default class EmulationContext implements EmulationContextInterface {
 
     constructor(
         private _board: Board
-    ) {
-        this._videoEndpoint = new VideoEndpoint(this._board.getVideoOutput());
-    }
+    ) {}
 
     getVideo(): VideoEndpointInterface {
+        if (!this._videoEndpoint) {
+            this._videoEndpoint = new VideoEndpoint(this._board.getVideoOutput());
+        }
+
         return this._videoEndpoint;
     }
 
@@ -47,6 +50,14 @@ export default class EmulationContext implements EmulationContextInterface {
         return this._board.getAudioOutput();
     }
 
-    private _videoEndpoint: VideoEndpoint;
+    getRawVideo(): VideoOutputInterface {
+        if (this._videoEndpoint) {
+            throw new Error(`video endpoint already initialized; raw video unavailable`);
+        }
+
+        return this._board.getVideoOutput();
+    }
+
+    private _videoEndpoint: VideoEndpoint = null;
 
 }
