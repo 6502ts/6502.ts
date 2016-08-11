@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-typings');
@@ -65,7 +67,9 @@ module.exports = function(grunt) {
 
         browserify: {
             options: {
-                transform: ['brfs'],
+                configure: b => b
+                    .plugin('tsify', {project: __dirname})
+                    .transform('brfs'),
                 browserifyOptions: {
                     debug: true
                 }
@@ -75,7 +79,7 @@ module.exports = function(grunt) {
                 src: [],
                 options: {
                     alias: {
-                        ehBasicCLI: './src/web/ehBasicCLI'
+                        ehBasicCLI: './src/web/ehBasicCLI.ts'
                     }
                 }
             },
@@ -84,7 +88,7 @@ module.exports = function(grunt) {
                 src: [],
                 options: {
                     alias: {
-                        debuggerCLI: './src/web/debuggerCLI'
+                        debuggerCLI: './src/web/debuggerCLI.ts'
                     }
                 }
             },
@@ -93,17 +97,22 @@ module.exports = function(grunt) {
                 src: [],
                 options: {
                     alias: {
-                        stellaCLI: './src/web/stellaCLI'
+                        stellaCLI: './src/web/stellaCLI.ts'
                     }
                 }
             },
             stellaWorker: {
+                options: {
+                    configure: b => b
+                        .plugin('tsify', {project: path.join(__dirname, 'worker')})
+                        .transform('brfs'),
+                },
                 dest: 'web/js/compiled/stellaWorker.js',
-                src: ['worker/src/main.js']
+                src: ['worker/src/main.ts']
             },
             stellerator: {
                 dest: 'web/js/compiled/stellerator.js',
-                src: ['src/web/stella/stellerator/main.js']
+                src: ['src/web/stella/stellerator/main.tsx']
             }
         },
 
@@ -182,6 +191,7 @@ module.exports = function(grunt) {
     grunt.registerTask('build', ['tslint', 'ts', 'browserify', 'blobify:default']);
     grunt.registerTask('test', ['ts', 'tslint', 'blobify:tests', 'mochaTest:test']);
     grunt.registerTask('test:debug', ['ts', 'tslint', 'blobify:tests', 'mochaTest:debug']);
+    grunt.registerTask('stellerator', ['browserify:stellerator', 'browserify:stellaWorker']);
 
     grunt.registerTask('cleanup', ['clean:base', 'clean:worker']);
     grunt.registerTask('mrproper', ['clean']);

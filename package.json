@@ -30,6 +30,7 @@
     "redux-thunk": "~2.1.0",
     "screenfull": "~3.0.0",
     "setimmediate2": "~2.0.1",
+    "tsify": "~1.0.3",
     "tslint": "~3.14.0",
     "typescript": "~2.0.0"
   }
