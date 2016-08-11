@@ -10,8 +10,6 @@ import {
     VideoReturnSurfaceMessage
 } from './messages';
 
-const ACTIVE_BUFFER_LIMIT = 10;
-
 class VideoDriver {
 
     constructor (
@@ -31,10 +29,9 @@ class VideoDriver {
         this._video = video;
         this._width = video.getWidth();
         this._height = video.getHeight();
-        this._activeBuffers = 0;
 
         this._pool = new ObjectPool<ArrayBuffer>(
-            () => this._activeBuffers <= ACTIVE_BUFFER_LIMIT ? new ArrayBuffer(4 * this._width * this._height) : null
+            () => new ArrayBuffer(4 * this._width * this._height)
         );
 
         this._members = {};
@@ -94,7 +91,6 @@ class VideoDriver {
         member.adopt(message.buffer);
         member.release();
 
-        this._activeBuffers--;
         this._ids.set(message.buffer, message.id);
     }
 
@@ -117,8 +113,6 @@ class VideoDriver {
             },
             buffer
         );
-
-        self._activeBuffers++;
     }
 
     private _active = false;
@@ -132,7 +126,6 @@ class VideoDriver {
     private _height = 0;
 
     private _nextId = 0;
-    private _activeBuffers = 0;
 }
 
 export default VideoDriver;
