@@ -17,7 +17,8 @@ export const SIGNAL_TYPE = {
     emulationError: 'emulation/error',
     emulationFrequencyUpdate: 'emulation/frequencyUpdate',
     videoNewFrame: 'video/newFrame',
-    videoReturnSurface: 'video/returnSurface'
+    videoReturnSurface: 'video/returnSurface',
+    controlStateUpdate: 'control/stateUpdate'
 };
 Object.freeze(SIGNAL_TYPE);
 

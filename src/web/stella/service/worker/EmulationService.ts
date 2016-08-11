@@ -3,6 +3,7 @@ import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
 import EmulationContextInterface from '../EmulationContextInterface';
 import VideoProxy from './VideoProxy';
+import ControlProxy from './ControlProxy';
 
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
@@ -29,9 +30,15 @@ class EmulationService implements EmulationServiceInterface {
             (message, transfer?) => this._worker.postMessage(message, transfer)
         );
 
-        const videoProxy = new VideoProxy(this._rpc);
+        const videoProxy = new VideoProxy(this._rpc),
+            controlProxy = new ControlProxy(this._rpc);
+
         videoProxy.init();
-        this._emulationContext = new EmulationContext(videoProxy);
+
+        this._emulationContext = new EmulationContext(
+            videoProxy,
+            controlProxy
+        );
 
         this._worker.onmessage = messageEvent => this._rpc.dispatch(messageEvent.data);
 

@@ -1,10 +1,7 @@
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
-import Joystick from '../../../../machine/io/DigitalJoystick';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';
-import ControlPanel from '../../../../machine/stella/ControlPanel';
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
-import Paddle from '../../../../machine/io/Paddle';
 import AudioOutputInterface from '../../../../machine/io/AudioOutputInterface';
 import AudioOutputBuffer from '../../../../tools/AudioOutputBuffer';
 import Board from '../../../../machine/stella/Board';
@@ -12,11 +9,13 @@ import Board from '../../../../machine/stella/Board';
 import EmulationContextInterface from '../EmulationContextInterface';
 import Event from '../../../../tools/event/Event';
 import VideoProxy from './VideoProxy';
+import ControlProxy from './ControlProxy';
 
 class EmulationContext implements EmulationContextInterface {
 
     constructor(
-        private _videoProxy: VideoProxy
+        private _videoProxy: VideoProxy,
+        private _controlProxy: ControlProxy
     ) {
         const audioBufferStub = new AudioOutputBuffer(new Float32Array([0]), 44100);
 
@@ -28,13 +27,7 @@ class EmulationContext implements EmulationContextInterface {
             getVolume: () => 0
         };
 
-        for (let i = 0; i < 2; i++) {
-            this._joysticks[i] = new Joystick();
-        }
-
-        for (let i = 0; i < 4; i++) {
-            this._paddles[i] = new Paddle();
-        }
+        this._videoProxy.newFrame.addHandler(() => this._controlProxy.sendUpdate());
     }
 
     getVideo(): VideoEndpointInterface {
@@ -42,23 +35,15 @@ class EmulationContext implements EmulationContextInterface {
     }
 
     getJoystick(i: number): JoystickInterface {
-        if (i < 0 || i > 1) {
-            throw new Error(`invalid joystick index ${i}`);
-        }
-
-        return this._joysticks[i];
+        return this._controlProxy.getJoystick(i);
     }
 
     getControlPanel(): ControlPanelInterface {
-        return this._controlPanel;
+        return this._controlProxy.getControlPanel();
     }
 
     getPaddle(i: number): PaddleInterface {
-        if (i < 0 || i > 3) {
-            throw new Error(`invalid paddle index ${i}`);
-        }
-
-        return this._paddles[i];
+        return this._controlProxy.getPaddle(i);
     }
 
     getAudio(): Board.Audio {
@@ -73,10 +58,6 @@ class EmulationContext implements EmulationContextInterface {
     }
 
     private _audioOutputStub: AudioOutputInterface;
-
-    private _joysticks = new Array<Joystick>(2);
-    private _controlPanel = new ControlPanel();
-    private _paddles = new Array<Paddle>(4);
 }
 
 export default EmulationContext;

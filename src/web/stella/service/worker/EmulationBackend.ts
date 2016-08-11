@@ -3,6 +3,7 @@ import EmulationServiceInterface from '../EmulationServiceInterface';
 import RpcProviderInterface from '../../../../tools/worker/RpcProviderInterface';
 import DriverManager from '../DriverManager';
 import VideoDriver from './VideoDriver';
+import ControlDriver from './ControlDriver';
 import EmulationContext from '../vanilla/EmulationContext';
 
 import {
@@ -35,14 +36,20 @@ class EmulationBackend {
         this._service.emulationError.addHandler(EmulationBackend._onEmulationError, this);
 
         const driverManager = new DriverManager(),
-            videoDriver = new VideoDriver(this._rpc);
+            videoDriver = new VideoDriver(this._rpc),
+            controlDriver = new ControlDriver(this._rpc);
 
         videoDriver.init();
+        controlDriver.init();
 
         driverManager
             .addDriver(
                 videoDriver,
                 (context: EmulationContext, driver: VideoDriver) => driver.bind(context.getRawVideo())
+            )
+            .addDriver(
+                controlDriver,
+                (context: EmulationContext, driver: ControlDriver) => driver.bind(context)
             )
             .bind(this._service);
     }
