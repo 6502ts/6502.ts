@@ -89,11 +89,11 @@ class RpcProvider implements RpcProviderInterface {
     };
 
     registerSignalHandler <T>(id: string, handler: RpcProviderInterface.SignalHandler<T>): this {
-        if (this._signalHandlers[id]) {
-            throw new Error(`signal handler for ${id} already registered`);
+        if (!this._signalHandlers[id]) {
+            this._signalHandlers[id] = [];
         }
 
-        this._signalHandlers[id] = handler;
+        this._signalHandlers[id].push(handler);
 
         return this;
     }
@@ -113,7 +113,7 @@ class RpcProvider implements RpcProviderInterface {
             return this._raiseError(`invalid signal ${message.id}`);
         }
 
-        this._signalHandlers[message.id](message.payload, message.transfer);
+        this._signalHandlers[message.id].forEach(handler => handler(message.payload, message.transfer));
     }
 
     private _handeRpc(message: Message): void {
@@ -173,7 +173,7 @@ class RpcProvider implements RpcProviderInterface {
     error = new Event<Error>();
 
     private _rpcHandlers: {[id: string]: RpcProviderInterface.RpcHandler<any, any>} = {};
-    private _signalHandlers: {[id: string]: RpcProviderInterface.SignalHandler<any>} = {};
+    private _signalHandlers: {[id: string]: Array<RpcProviderInterface.SignalHandler<any>>} = {};
     private _pendingTransactions: {[id: number]: Transaction} = {};
 
     private _nextTransactionId = 0;

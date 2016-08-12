@@ -4,6 +4,7 @@ import RpcProviderInterface from '../../../../tools/worker/RpcProviderInterface'
 import DriverManager from '../DriverManager';
 import VideoDriver from './VideoDriver';
 import ControlDriver from './ControlDriver';
+import AudioDriver from './AudioDriver';
 import EmulationContext from '../vanilla/EmulationContext';
 
 import {
@@ -37,7 +38,8 @@ class EmulationBackend {
 
         const driverManager = new DriverManager(),
             videoDriver = new VideoDriver(this._rpc),
-            controlDriver = new ControlDriver(this._rpc);
+            controlDriver = new ControlDriver(this._rpc),
+            audioDrivers = [new AudioDriver(0, this._rpc), new AudioDriver(1, this._rpc)];
 
         videoDriver.init();
         controlDriver.init();
@@ -52,6 +54,14 @@ class EmulationBackend {
                 (context: EmulationContext, driver: ControlDriver) => driver.bind(context)
             )
             .bind(this._service);
+
+        for (let i = 0; i < 2; i++) {
+            driverManager.addDriver(
+                audioDrivers[i],
+                (context: EmulationContext, driver: AudioDriver) =>
+                    driver.bind(i === 0 ? context.getAudio().channel0 : context.getAudio().channel1)
+            );
+        }
     }
 
     private _onFetchLastError(): string {
@@ -86,11 +96,16 @@ class EmulationBackend {
 
     private _onEmulationGetParameters(): Promise<EmulationParametersResponse> {
         const context = this._service.getEmulationContext(),
+            audio = context.getAudio(),
             video = context && context.getRawVideo();
 
         return Promise.resolve({
             width: video ? video.getWidth() : 0,
-            height: video ? video.getHeight() : 0
+            height: video ? video.getHeight() : 0,
+            volume: [
+                audio.channel0.getVolume(),
+                audio.channel1.getVolume()
+            ]
         });
     }
 

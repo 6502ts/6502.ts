@@ -3,28 +3,27 @@ import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
 import AudioOutputInterface from '../../../../machine/io/AudioOutputInterface';
-import AudioOutputBuffer from '../../../../tools/AudioOutputBuffer';
 import Board from '../../../../machine/stella/Board';
 
 import EmulationContextInterface from '../EmulationContextInterface';
-import Event from '../../../../tools/event/Event';
 import VideoProxy from './VideoProxy';
 import ControlProxy from './ControlProxy';
+import AudioProxy from './AudioProxy';
 
 class EmulationContext implements EmulationContextInterface {
 
     constructor(
         private _videoProxy: VideoProxy,
-        private _controlProxy: ControlProxy
+        private _controlProxy: ControlProxy,
+        audioChannels: Array<AudioProxy>
     ) {
-        const audioBufferStub = new AudioOutputBuffer(new Float32Array([0]), 44100);
+        if (audioChannels.length !== 2) {
+            throw new Error(`invalid channel count ${audioChannels.length}`);
+        }
 
-        this._audioOutputStub = {
-            bufferChanged: new Event<number>(),
-            volumeChanged: new Event<number>(),
-            stop: new Event<void>(),
-            getBuffer: () => audioBufferStub,
-            getVolume: () => 0
+        this._audioChannels = {
+            channel0: audioChannels[0],
+            channel1: audioChannels[1]
         };
 
         this._videoProxy.newFrame.addHandler(() => this._controlProxy.sendUpdate());
@@ -47,17 +46,17 @@ class EmulationContext implements EmulationContextInterface {
     }
 
     getAudio(): Board.Audio {
-        return {
-            channel0: this._audioOutputStub,
-            channel1: this._audioOutputStub
-        };
+        return this._audioChannels;
     }
 
     getVideoProxy(): VideoProxy {
         return this._videoProxy;
     }
 
-    private _audioOutputStub: AudioOutputInterface;
+    private _audioChannels: {
+        channel0: AudioOutputInterface;
+        channel1: AudioOutputInterface;
+    }
 }
 
 export default EmulationContext;

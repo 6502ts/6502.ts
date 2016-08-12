@@ -4,6 +4,7 @@ import EmulationContext from './EmulationContext';
 import EmulationContextInterface from '../EmulationContextInterface';
 import VideoProxy from './VideoProxy';
 import ControlProxy from './ControlProxy';
+import AudioProxy from './AudioProxy';
 
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
@@ -30,6 +31,11 @@ class EmulationService implements EmulationServiceInterface {
             (message, transfer?) => this._worker.postMessage(message, transfer)
         );
 
+        this._audioChannels = [
+            new AudioProxy(0, this._rpc).init(),
+            new AudioProxy(1, this._rpc).init()
+        ];
+
         const videoProxy = new VideoProxy(this._rpc),
             controlProxy = new ControlProxy(this._rpc);
 
@@ -37,7 +43,8 @@ class EmulationService implements EmulationServiceInterface {
 
         this._emulationContext = new EmulationContext(
             videoProxy,
-            controlProxy
+            controlProxy,
+            this._audioChannels
         );
 
         this._worker.onmessage = messageEvent => this._rpc.dispatch(messageEvent.data);
@@ -70,7 +77,7 @@ class EmulationService implements EmulationServiceInterface {
                 );
             })
             .then(
-                emulationParameters => this._startProxies(emulationParameters),
+                emulationParameters => this._startProxies(emulationParameters, config),
                 e => this._rpc
                     .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationStop)
                     .then(() => Promise.reject(e), () => Promise.reject(e))
@@ -183,8 +190,13 @@ class EmulationService implements EmulationServiceInterface {
         this.stateChanged.dispatch(this._state);
     }
 
-    private _startProxies(parameters: EmulationParametersResponse): void {
+    private _startProxies(parameters: EmulationParametersResponse, config: StellaConfig): void {
         this._emulationContext.getVideoProxy().enable(parameters.width, parameters.height);
+
+        for (let i = 0; i < this._audioChannels.length; i++) {
+            this._audioChannels[i].setConfig(config);
+            this._audioChannels[i].setVolume(parameters.volume[i]);
+        }
     }
 
     private _stopProxies(): void {
@@ -205,6 +217,8 @@ class EmulationService implements EmulationServiceInterface {
 
     private _emulationContext: EmulationContext = null;
     private _frequency = 0;
+
+    private _audioChannels: Array<AudioProxy>;
 
 }
 
