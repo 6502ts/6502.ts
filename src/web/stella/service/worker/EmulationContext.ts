@@ -56,7 +56,7 @@ class EmulationContext implements EmulationContextInterface {
     private _audioChannels: {
         channel0: AudioOutputInterface;
         channel1: AudioOutputInterface;
-    }
+    };
 }
 
 export default EmulationContext;

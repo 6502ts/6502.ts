@@ -191,7 +191,7 @@ module.exports = function(grunt) {
     grunt.registerTask('build', ['tslint', 'ts', 'browserify', 'blobify:default']);
     grunt.registerTask('test', ['ts', 'tslint', 'blobify:tests', 'mochaTest:test']);
     grunt.registerTask('test:debug', ['ts', 'tslint', 'blobify:tests', 'mochaTest:debug']);
-    grunt.registerTask('stellerator', ['browserify:stellerator', 'browserify:stellaWorker']);
+    grunt.registerTask('stellerator', ['tslint', 'browserify:stellerator', 'browserify:stellaWorker']);
 
     grunt.registerTask('cleanup', ['clean:base', 'clean:worker']);
     grunt.registerTask('mrproper', ['clean']);
