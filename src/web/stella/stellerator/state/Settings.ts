@@ -15,7 +15,7 @@ export default class Settings implements Changeset {
     readonly smoothScaling = true;
     readonly webGlRendering = true;
     readonly gamma = 1;
-    readonly useWorker = false;
+    readonly useWorker = true;
 }
 
 interface Changeset {
