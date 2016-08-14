@@ -19,6 +19,8 @@ import {
     EmulationParametersResponse
 } from './messages';
 
+const CONTROL_PROXY_UPDATE_INTERVAL = 25;
+
 class EmulationService implements EmulationServiceInterface {
 
     constructor(
@@ -52,6 +54,8 @@ class EmulationService implements EmulationServiceInterface {
         this._rpc
             .registerSignalHandler<number>(SIGNAL_TYPE.emulationFrequencyUpdate, this._onFrequencyUpdate.bind(this))
             .registerSignalHandler<string>(SIGNAL_TYPE.emulationError, this._onEmulationError.bind(this));
+
+        this._controlProxy = controlProxy;
 
         return this.setRateLimit(this._rateLimitEnforced);
     }
@@ -197,10 +201,22 @@ class EmulationService implements EmulationServiceInterface {
             this._audioChannels[i].setConfig(config);
             this._audioChannels[i].setVolume(parameters.volume[i]);
         }
+
+        if (this._controlProxyUpdateHandle === null) {
+            this._controlProxyUpdateHandle = setInterval(
+                () => this._controlProxy.sendUpdate(),
+                CONTROL_PROXY_UPDATE_INTERVAL
+            );
+        }
     }
 
     private _stopProxies(): void {
         this._emulationContext.getVideoProxy().disable();
+
+        if (this._controlProxyUpdateHandle !== null) {
+            clearInterval(this._controlProxyUpdateHandle);
+            this._controlProxyUpdateHandle = null;
+        }
     }
 
     stateChanged = new Event<EmulationServiceInterface.State>();
@@ -219,6 +235,9 @@ class EmulationService implements EmulationServiceInterface {
     private _frequency = 0;
 
     private _audioChannels: Array<AudioProxy>;
+
+    private _controlProxy: ControlProxy = null;
+    private _controlProxyUpdateHandle: any = null;
 
 }
 

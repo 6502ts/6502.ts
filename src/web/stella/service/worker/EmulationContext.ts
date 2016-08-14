@@ -25,8 +25,6 @@ class EmulationContext implements EmulationContextInterface {
             channel0: audioChannels[0],
             channel1: audioChannels[1]
         };
-
-        this._videoProxy.newFrame.addHandler(() => this._controlProxy.sendUpdate());
     }
 
     getVideo(): VideoEndpointInterface {
