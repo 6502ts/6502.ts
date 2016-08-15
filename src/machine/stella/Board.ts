@@ -22,7 +22,11 @@ import Paddle from '../io/Paddle';
 
 class Board implements BoardInterface {
 
-    constructor(config: Config, cartridge: CartridgeInterface, cpuFactory?: (bus: BusInterface) => CpuInterface) {
+    constructor(
+        config: Config,
+        cartridge: CartridgeInterface,
+        cpuFactory?: (bus: BusInterface) => CpuInterface
+    ) {
         const bus = new Bus();
 
         if (typeof(cpuFactory) === 'undefined') cpuFactory = bus => new Cpu(bus);
@@ -64,6 +68,9 @@ class Board implements BoardInterface {
         this._bus.trap.addHandler(
             (payload: Bus.TrapPayload) => this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
         );
+
+        this._clockMhz = Config.getClockMhz(config);
+        this._sliceSize = 228 * (config.tvMode === Config.TvMode.ntsc ? 262 : 312);
 
         this.reset();
     }
@@ -261,16 +268,14 @@ class Board implements BoardInterface {
         return cycles;
     }
 
-    private _start(scheduler: SchedulerInterface, sliceHint = 50000) {
+    private _start(scheduler: SchedulerInterface) {
         if (this._runTask) return;
 
-        this._sliceHint = sliceHint;
-
-        this._runTask = scheduler.start(this._executeSlice, this);
+        this._runTask = scheduler.start(Board._executeSlice, this);
     }
 
-    private _executeSlice(board: Board) {
-        return board._tick(board._sliceHint) * (16686 / 262 / 228) / 1000;
+    private static _executeSlice(board: Board) {
+        return board._tick(board._sliceSize) / board._clockMhz  / 1000;
     }
 
     private _stop() {
@@ -295,7 +300,6 @@ class Board implements BoardInterface {
     private _joystick1: DigitalJoystick;
     private _paddles: Array<Paddle>;
 
-    private _sliceHint = 50000;
     private _runTask: TaskInterface;
     private _clockMode = BoardInterface.ClockMode.lazy;
     private _trap = false;
@@ -305,9 +309,12 @@ class Board implements BoardInterface {
 
     private _subClock = 0;
 
+    private _clockMhz = 0;
+    private _sliceSize = 0;
+
     private _timer = {
         tick: (clocks: number): number => this._tick(clocks),
-        start: (scheduler: SchedulerInterface, sliceHint?: number): void => this._start(scheduler, sliceHint),
+        start: (scheduler: SchedulerInterface): void => this._start(scheduler),
         stop: (): void => this._stop(),
         isRunning: (): boolean => !!this._runTask
     };

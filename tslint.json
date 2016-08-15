@@ -17,7 +17,7 @@
         "no-internal-module": false,
         "no-trailing-whitespace": true,
         "no-var-keyword": true,
-        "no-invalid-this": true,
+        "no-invalid-this": false,
         "no-require-imports": false,
         "no-unused-variable": true,
         "no-unused-expression": true,

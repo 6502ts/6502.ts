@@ -96,7 +96,7 @@ class ToneGenerator {
         const content = new Float32Array(length);
 
         // TODO rate depending on PAL/NTSC?
-        const sampleRate = this._config.tvMode === Config.TvMode.ntsc ? 31400 : 31113;
+        const sampleRate = Config.getClockMhz(this._config) * 1000000 / 114;
 
         let f = 0;
         let count = 0;
