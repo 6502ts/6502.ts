@@ -93,7 +93,10 @@ class EmulationService implements EmulationServiceInterface {
     pause(): Promise<EmulationServiceInterface.State> {
         return this._mutex.runExclusive(() => this._rpc
             .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationPause)
-            .then(state => this._applyState(state))
+            .then(state => {
+                this._pauseProxies();
+                this._applyState(state);
+            })
         );
     }
 
@@ -117,7 +120,10 @@ class EmulationService implements EmulationServiceInterface {
     resume(): Promise<EmulationServiceInterface.State> {
         return this._mutex.runExclusive(() => this._rpc
             .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationResume)
-            .then(state => this._applyState(state))
+            .then(state => {
+                this._resumeProxies();
+                this._applyState(state);
+            })
         );
     }
 
@@ -202,6 +208,24 @@ class EmulationService implements EmulationServiceInterface {
             this._audioChannels[i].setVolume(parameters.volume[i]);
         }
 
+        this._startControlUpdates();
+    }
+
+    private _stopProxies(): void {
+        this._emulationContext.getVideoProxy().disable();
+
+        this._stopControlUpdates();
+    }
+
+    private _pauseProxies(): void {
+        this._stopControlUpdates();
+    }
+
+    private _resumeProxies(): void {
+        this._startControlUpdates();
+    }
+
+    private _startControlUpdates(): void {
         if (this._controlProxyUpdateHandle === null) {
             this._controlProxyUpdateHandle = setInterval(
                 () => this._controlProxy.sendUpdate(),
@@ -210,9 +234,7 @@ class EmulationService implements EmulationServiceInterface {
         }
     }
 
-    private _stopProxies(): void {
-        this._emulationContext.getVideoProxy().disable();
-
+    private _stopControlUpdates(): void {
         if (this._controlProxyUpdateHandle !== null) {
             clearInterval(this._controlProxyUpdateHandle);
             this._controlProxyUpdateHandle = null;
