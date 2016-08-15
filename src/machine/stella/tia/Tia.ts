@@ -475,6 +475,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.pf2:
+                this._linesSinceChange = 0;
                 this._playfield.pf2(value);
                 break;
 
