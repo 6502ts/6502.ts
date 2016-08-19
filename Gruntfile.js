@@ -189,8 +189,8 @@ module.exports = function(grunt) {
 
     grunt.registerTask('bower', ['bower-install-simple']);
     grunt.registerTask('build', ['tslint', 'ts', 'browserify', 'blobify:default']);
-    grunt.registerTask('test', ['ts', 'tslint', 'blobify:tests', 'mochaTest:test']);
-    grunt.registerTask('test:debug', ['ts', 'tslint', 'blobify:tests', 'mochaTest:debug']);
+    grunt.registerTask('test', ['tslint', 'ts:main', 'blobify:tests', 'mochaTest:test']);
+    grunt.registerTask('test:debug', ['tslint', 'ts:main', 'blobify:tests', 'mochaTest:debug']);
     grunt.registerTask('stellerator', ['tslint', 'browserify:stellerator', 'browserify:stellaWorker']);
 
     grunt.registerTask('cleanup', ['clean:base', 'clean:worker']);

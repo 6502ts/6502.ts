@@ -1,5 +1,3 @@
-///<reference path="./interface/mocha.d.ts"/>
-
 import Event from '../../src/tools/event/Event';
 import * as assert from 'assert';
 

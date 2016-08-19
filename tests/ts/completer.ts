@@ -1,5 +1,3 @@
-///<reference path="./interface/mocha.d.ts"/>
-
 import * as pathlib from 'path';
 import * as assert from 'assert';
 import * as util from 'util';

@@ -29,6 +29,7 @@
     "redux": "~3.5.2",
     "redux-thunk": "~2.1.0",
     "screenfull": "~3.0.0",
+    "seedrandom": "~2.4.2",
     "setimmediate2": "~2.0.1",
     "tsify": "~1.0.3",
     "tslint": "~3.14.0",

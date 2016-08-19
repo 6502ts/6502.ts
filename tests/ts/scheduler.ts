@@ -1,5 +1,3 @@
-///<reference path="./interface/mocha.d.ts"/>
-
 import * as assert from 'assert';
 import * as util from 'util';
 import PeriodicScheduler from '../../src/tools/scheduler/PeriodicScheduler';
