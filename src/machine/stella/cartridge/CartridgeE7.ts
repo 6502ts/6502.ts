@@ -2,9 +2,13 @@ import AbstractCartridge from './AbstractCartridge';
 import * as cartridgeUtil from './util';
 import CartridgeInfo from './CartridgeInfo';
 
+import RngInterface from '../../../tools/rng/GeneratorInterface';
+
 class CartrdigeE7 extends AbstractCartridge {
 
-    constructor(buffer: cartridgeUtil.BufferInterface) {
+    constructor(
+        buffer: cartridgeUtil.BufferInterface
+    ) {
         super();
 
         if (buffer.length !== 0x4000) {
@@ -99,6 +103,18 @@ class CartrdigeE7 extends AbstractCartridge {
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.bankswitch_16k_E7;
+    }
+
+    randomize(rng: RngInterface): void {
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < this._ram1Banks[i].length; j++) {
+                this._ram1Banks[i][j] = rng.int(0xFF);
+            }
+        }
+
+        for (let i = 0; 0 < this._ram0.length; i++) {
+            this._ram0[i] = rng.int(0xFF);
+        }
     }
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {

@@ -1,11 +1,14 @@
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 
+import RngInterface from '../../../tools/rng/GeneratorInterface';
+
 class CartridgeF6 extends AbstractCartridge {
 
     constructor(
         buffer: {[i: number]: number, length: number},
-        protected _supportSC: boolean = true
+        private _supportSC: boolean = true
+
     ) {
         super();
 
@@ -87,14 +90,20 @@ class CartridgeF6 extends AbstractCartridge {
         return CartridgeInfo.CartridgeType.bankswitch_16k_F6;
     }
 
-    protected _bank: Uint8Array = null;
-    protected _bank0 = new Uint8Array(0x1000);
-    protected _bank1 = new Uint8Array(0x1000);
-    protected _bank2 = new Uint8Array(0x1000);
-    protected _bank3 = new Uint8Array(0x1000);
+    randomize(rng: RngInterface): void {
+        for (let i = 0; i < this._saraRAM.length; i++) {
+            this._saraRAM[i] = rng.int(0xFF);
+        }
+    }
 
-    protected _hasSC = false;
-    protected _saraRAM = new Uint8Array(0x80);
+    private _bank: Uint8Array = null;
+    private _bank0 = new Uint8Array(0x1000);
+    private _bank1 = new Uint8Array(0x1000);
+    private _bank2 = new Uint8Array(0x1000);
+    private _bank3 = new Uint8Array(0x1000);
+
+    private _hasSC = false;
+    private _saraRAM = new Uint8Array(0x80);
 }
 
 export default CartridgeF6;

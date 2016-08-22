@@ -1,7 +1,8 @@
 class Config {
     constructor(
         public tvMode: Config.TvMode = Config.TvMode.ntsc,
-        public enableAudio = true
+        public enableAudio = true,
+        public randomSeed = -1
     ) {}
 
     public static getClockMhz(config: Config): number {

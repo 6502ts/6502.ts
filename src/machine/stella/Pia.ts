@@ -2,18 +2,21 @@ import Event from '../../tools/event/Event';
 import ControlPanelInterface from './ControlPanelInterface';
 import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
 
+import RngInterface from '../../tools/rng/GeneratorInterface';
+
 class Pia {
 
     constructor(
         private _controlPanel: ControlPanelInterface,
         private _joystick0 : DigitalJoystickInterface,
-        private _joystick1 : DigitalJoystickInterface
+        private _joystick1 : DigitalJoystickInterface,
+        private _rng?: RngInterface
     ) {
         this.reset();
     }
 
     reset(): void {
-        for (let i = 0; i < 128; i++) this.ram[i] = 0;
+        for (let i = 0; i < 128; i++) this.ram[i] = this._rng ? this._rng.int(0xFF) : 0;
         this._interruptFlag = 0;
         this._flagSetDuringThisCycle = false;
 
@@ -22,7 +25,7 @@ class Pia {
         // first time. This looks like a bug in these games to me, unless there is some
         // magic going on that I don't understand.
         this._timerBase = 1024;
-        this._timerValue = 255;
+        this._timerValue = 20 + (this._rng ? this._rng.int(0xFF - 20) : 0);
         this._timerSub = 0;
     }
 
@@ -116,7 +119,7 @@ class Pia {
                 );
         }
 
-        return 0;
+        return this._rng ? this._rng.int(0xFF) : 0;
     }
 
     private _readTimer(address: number): number {

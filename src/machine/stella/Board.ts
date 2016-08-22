@@ -3,14 +3,11 @@ import CpuInterface from '../cpu/CpuInterface';
 import Cpu from '../cpu/Cpu';
 import Bus from './Bus';
 import BusInterface from '../bus/BusInterface';
-import TimerInterface from '../board/TimerInterface';
-import Event from '../../tools/event/Event';
-import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
-import TaskInterface from '../../tools/scheduler/TaskInterface';
 import Pia from './Pia';
 import Tia from './tia/Tia';
 import CartridgeInterface from './cartridge/CartridgeInterface';
 import Config from './Config';
+
 import VideoOutputInterface from '../io/VideoOutputInterface';
 import AudioOutputInterface from '../io/AudioOutputInterface';
 import ControlPanel from './ControlPanel';
@@ -20,16 +17,26 @@ import DigitalJoystick from '../io/DigitalJoystick';
 import PaddleInterface from '../io/PaddleInterface';
 import Paddle from '../io/Paddle';
 
+import TimerInterface from '../board/TimerInterface';
+import Event from '../../tools/event/Event';
+import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
+import TaskInterface from '../../tools/scheduler/TaskInterface';
+import RngInterface from '../../tools/rng/GeneratorInterface';
+import {createRng} from '../../tools/rng/factory';
+
 class Board implements BoardInterface {
 
     constructor(
         config: Config,
         cartridge: CartridgeInterface,
-        cpuFactory?: (bus: BusInterface) => CpuInterface
+        cpuFactory?: (bus: BusInterface, rng?: RngInterface) => CpuInterface
     ) {
+        this._rng = createRng(config.randomSeed < 0 ? Math.random() : config.randomSeed);
+        cartridge.randomize(this._rng);
+
         const bus = new Bus();
 
-        if (typeof(cpuFactory) === 'undefined') cpuFactory = bus => new Cpu(bus);
+        if (typeof(cpuFactory) === 'undefined') cpuFactory = (bus, rng) => new Cpu(bus, rng);
 
         const controlPanel = new ControlPanel(),
             joystick0 = new DigitalJoystick(),
@@ -40,9 +47,9 @@ class Board implements BoardInterface {
             paddles[i] = new Paddle();
         }
 
-        const cpu = cpuFactory(bus);
-        const pia = new Pia(controlPanel, joystick0, joystick1);
-        const tia = new Tia(config, joystick0, joystick1, paddles);
+        const cpu = cpuFactory(bus, this._rng);
+        const pia = new Pia(controlPanel, joystick0, joystick1, this._rng);
+        const tia = new Tia(config, joystick0, joystick1, paddles, this._rng);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
         tia.setCpu(cpu);
@@ -318,6 +325,8 @@ class Board implements BoardInterface {
         stop: (): void => this._stop(),
         isRunning: (): boolean => !!this._runTask
     };
+
+    private _rng: RngInterface;
 }
 
 module Board {

@@ -18,6 +18,8 @@ import PaddleReader from './PaddleReader';
 import FrameManager from './FrameManager';
 import * as palette from './palette';
 
+import RngInterface from '../../../tools/rng/GeneratorInterface';
+
 const enum Metrics {
     frameLinesPAL        = 312,
     frameLinesNTSC       = 262
@@ -46,7 +48,8 @@ class Tia implements VideoOutputInterface {
         private _config: Config,
         joystick0: DigitalJoystickInterface,
         joystick1: DigitalJoystickInterface,
-        paddles: Array<Paddle>
+        paddles: Array<Paddle>,
+        private _rng?: RngInterface
     ) {
         this._frameManager = new FrameManager(this._config);
         this.newFrame = this._frameManager.newFrame;
@@ -345,7 +348,7 @@ class Tia implements VideoOutputInterface {
 
         }
 
-        return 0;
+        return this._rng ? this._rng.int(0xFF) : 0;
     }
 
     write(address: number, value: number): void {

@@ -4,6 +4,7 @@ import CartridgeInfo from './CartridgeInfo';
 import CpuInterface from '../../cpu/CpuInterface';
 import BusInterface from '../../bus/BusInterface';
 
+import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class AbstractCartridge implements CartridgeInterface {
 
@@ -33,6 +34,9 @@ class AbstractCartridge implements CartridgeInterface {
     }
 
     notifyCpuCycleComplete(): void {
+    }
+
+    randomize(rng: RngInterface): void {
     }
 
     trap = new Event<CartridgeInterface.TrapPayload>();

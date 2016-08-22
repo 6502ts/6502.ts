@@ -3,6 +3,8 @@ import CartridgeInfo from './CartridgeInfo';
 import Cpuinterface from '../../cpu/CpuInterface';
 import BusInterface from '../../bus/BusInterface';
 
+import RngInterface from '../../../tools/rng/GeneratorInterface';
+
 interface CartridgeInterface {
 
     read(address: number): number;
@@ -20,6 +22,8 @@ interface CartridgeInterface {
     setBus(bus: BusInterface): this;
 
     notifyCpuCycleComplete(): void;
+
+    randomize(rng: RngInterface): void;
 
     trap: EventInterface<CartridgeInterface.TrapPayload>;
 

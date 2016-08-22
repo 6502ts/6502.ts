@@ -16,6 +16,7 @@
     },
     "files": [
         "src/main.ts",
-        "../src/interface/setimmediate2.d.ts"
+        "../src/interface/setimmediate2.d.ts",
+        "../typings/globals/seedrandom/index.d.ts"
     ]
 }

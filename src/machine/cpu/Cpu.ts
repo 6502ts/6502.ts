@@ -2,6 +2,8 @@ import Instruction from './Instruction';
 import BusInterface from '../bus/BusInterface';
 import CpuInterface from './CpuInterface';
 
+import RngInterface from '../../tools/rng/GeneratorInterface';
+
 function setFlagsNZ(state: CpuInterface.State, operand: number): void {
     state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)) |
         (operand & 0x80) |
@@ -396,7 +398,10 @@ function opTya(state: CpuInterface.State): void {
 }
 
 class Cpu {
-    constructor(private _bus: BusInterface) {
+    constructor(
+        private _bus: BusInterface,
+        private _rng?: RngInterface
+    ) {
         this.reset();
     }
 
@@ -447,12 +452,13 @@ class Cpu {
     }
 
     reset(): Cpu {
-        this.state.a = 0;
-        this.state.x = 0;
-        this.state.y = 0;
-        this.state.s = 0;
-        this.state.p = 0;
-        this.state.flags = 0 | CpuInterface.Flags.i | CpuInterface.Flags.e | CpuInterface.Flags.b;
+        this.state.a = this._rng ? this._rng.int(0xFF) : 0;
+        this.state.x = this._rng ? this._rng.int(0xFF) : 0;
+        this.state.y = this._rng ? this._rng.int(0xFF) : 0;
+        this.state.s = this._rng ? this._rng.int(0xFF) : 0;
+        this.state.p = this._rng ? this._rng.int(0xFFFF) : 0;
+        this.state.flags = (this._rng ? this._rng.int(0xFF) : 0) |
+            CpuInterface.Flags.i | CpuInterface.Flags.e | CpuInterface.Flags.b;
 
         this.executionState = CpuInterface.ExecutionState.boot;
         this._opCycles = 7;
