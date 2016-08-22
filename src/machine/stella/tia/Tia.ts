@@ -281,74 +281,9 @@ class Tia implements VideoOutputInterface {
     }
 
     read(address: number): number {
-        // Only keep the lowest four bits
-        switch (address & 0x0F) {
-            case Tia.Registers.inpt0:
-                return this._paddles[0].inpt();
-
-            case Tia.Registers.inpt1:
-                return this._paddles[1].inpt();
-
-            case Tia.Registers.inpt2:
-                return this._paddles[2].inpt();
-
-            case Tia.Registers.inpt3:
-                return this._paddles[3].inpt();
-
-            case Tia.Registers.inpt4:
-                return this._input0.inpt();
-
-            case Tia.Registers.inpt5:
-                return this._input1.inpt();
-
-            case Tia.Registers.cxm0p:
-                return (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player0) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player1) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxm1p:
-                return (
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player1) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player0) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxp0fb:
-                return (
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxp1fb:
-                return (
-                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxm0fb:
-                return (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxm1fb:
-                return (
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxppmm:
-                return (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.missile1) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.player1) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxblpf:
-                return (this._collisionMask & CollisionMask.ball & CollisionMask.playfield) > 0 ? 0x80 : 0;
-
-        }
-
-        return this._rng ? this._rng.int(0xFF) : 0;
+        // Only keep the highest two bytes, fill in the rest with the last byte on the data bus
+        // (see http://atariage.com/forums/topic/89240-tia-memory-map-beyond-0x2c/?p=1083873)
+        return (this._read(address) & 0xC0) | (this._lastDataBusValueRef() & 0x3F);
     }
 
     write(address: number, value: number): void {
@@ -603,7 +538,82 @@ class Tia implements VideoOutputInterface {
             this._frameManager.getDebugState();
     }
 
+    setLastDataBusValueRef(ref: () => number): void {
+        this._lastDataBusValueRef = ref;
+    }
+
     trap = new Event<Tia.TrapPayload>();
+
+    private _read(address: number): number {
+        // Only keep the lowest four bits
+        switch (address & 0x0F) {
+            case Tia.Registers.inpt0:
+                return this._paddles[0].inpt();
+
+            case Tia.Registers.inpt1:
+                return this._paddles[1].inpt();
+
+            case Tia.Registers.inpt2:
+                return this._paddles[2].inpt();
+
+            case Tia.Registers.inpt3:
+                return this._paddles[3].inpt();
+
+            case Tia.Registers.inpt4:
+                return this._input0.inpt();
+
+            case Tia.Registers.inpt5:
+                return this._input1.inpt();
+
+            case Tia.Registers.cxm0p:
+                return (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player0) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player1) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxm1p:
+                return (
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player1) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player0) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxp0fb:
+                return (
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxp1fb:
+                return (
+                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxm0fb:
+                return (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxm1fb:
+                return (
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxppmm:
+                return (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.missile1) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.player1) > 0 ? 0x80 : 0)
+                );
+
+            case Tia.Registers.cxblpf:
+                return (this._collisionMask & CollisionMask.ball & CollisionMask.playfield) > 0 ? 0x80 : 0;
+
+        }
+
+        return this._lastDataBusValueRef();
+    }
 
     private _hmove(): void {
         this._linesSinceChange = 0;
@@ -754,6 +764,8 @@ class Tia implements VideoOutputInterface {
     private _input1: LatchedInput;
 
     private _paddles: Array<PaddleReader>;
+
+    private _lastDataBusValueRef: () => number = () => 0;
 
     newFrame: EventInterface<RGBASurfaceInterface>;
 }

@@ -10,6 +10,8 @@ class Bus implements BusInterface {
         tia.trap.addHandler((payload: Tia.TrapPayload) =>
                 this.triggerTrap(Bus.TrapReason.tia, 'TIA: ' + (payload.message || '')));
 
+        tia.setLastDataBusValueRef(() => this._lastDataBusValue);
+
         this._tia = tia;
 
         return this;
@@ -18,6 +20,8 @@ class Bus implements BusInterface {
     setPia(pia: Pia): Bus {
         pia.trap.addHandler((payload: Pia.TrapPayload) =>
                 this.triggerTrap(Bus.TrapReason.pia, 'PIA: ' + (payload.message || '')));
+
+        pia.setLastDataBusValueRef(() => this._lastDataBusValue);
 
         this._pia = pia;
 
@@ -33,30 +37,19 @@ class Bus implements BusInterface {
         return this;
     }
 
-    read(address: number): number {
-        // Mask out bits 13-15
-        address &= 0x1FFF;
-
-        // Chip select A12 -> cartridge
-        if (address & 0x1000) {
-            return this._cartridge.read(address);
-        }
-
-        // Chip select A7 -> PIA
-        if (address & 0x80) {
-            return this._pia.read(address);
-        }
-
-        // All chip selects low -> TIA
-        this._cartridge.tiaRead(address);
-        return this._tia.read(address);
-    }
-
     readWord(address: number): number {
         return this.read(address) | ((this.read((address + 1) & 0xFFFF)) << 8);
     }
 
+    read(address: number): number {
+        const value = this._read(address);
+        this._lastDataBusValue = value;
+        return value;
+    }
+
     write(address: number, value: number): void {
+        this._lastDataBusValue = value;
+
         // Mask out bits 12-15
         address &= 0x1FFF;
 
@@ -92,9 +85,29 @@ class Bus implements BusInterface {
         }
     }
 
+    private _read(address: number): number {
+        // Mask out bits 13-15
+        address &= 0x1FFF;
+
+        // Chip select A12 -> cartridge
+        if (address & 0x1000) {
+            return this._cartridge.read(address);
+        }
+
+        // Chip select A7 -> PIA
+        if (address & 0x80) {
+            return this._pia.read(address);
+        }
+
+        // All chip selects low -> TIA
+        this._cartridge.tiaRead(address);
+        return this._tia.read(address);
+    }
+
     private _tia: Tia;
     private _pia: Pia;
     private _cartridge: CartridgeInterface;
+    private _lastDataBusValue = 0;
 }
 
 module Bus {

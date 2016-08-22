@@ -65,6 +65,10 @@ class Pia {
         return `timer base: ${this._timerBase}   timer sub: ${this._timerSub}   timer value: ${this._timerValue}`;
     }
 
+    setLastDataBusValueRef(ref: () => number): void {
+        this._lastDataBusValueRef = ref;
+    }
+
     trap = new Event<Pia.TrapPayload>();
 
     ram = new Uint8Array(128);
@@ -119,7 +123,7 @@ class Pia {
                 );
         }
 
-        return this._rng ? this._rng.int(0xFF) : 0;
+        return this._lastDataBusValueRef();
     }
 
     private _readTimer(address: number): number {
@@ -163,6 +167,8 @@ class Pia {
     private _timerBase = 1024;
     private _interruptFlag = 0;
     private _flagSetDuringThisCycle = false;
+
+    private _lastDataBusValueRef: () => number = () => 0;
 }
 
 module Pia {
