@@ -112,7 +112,7 @@ class CartrdigeE7 extends AbstractCartridge {
             }
         }
 
-        for (let i = 0; 0 < this._ram0.length; i++) {
+        for (let i = 0; i < this._ram0.length; i++) {
             this._ram0[i] = rng.int(0xFF);
         }
     }

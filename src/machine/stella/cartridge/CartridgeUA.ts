@@ -1,6 +1,7 @@
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 import * as cartridgeUtil from './util';
+import Bus from '../Bus';
 
 class CartridgeUA extends AbstractCartridge {
 
@@ -23,16 +24,13 @@ class CartridgeUA extends AbstractCartridge {
         return this._bank[address & 0x0FFF];
     }
 
-    write(address: number, value: number): void {
-        super.write(address, value);
-    }
+    setBus(bus: Bus): this {
+        this._bus = bus;
 
-    tiaWrite(address: number, value: number): void {
-        this._tiaAccess(address);
-    }
+        bus.event.read.addHandler(CartridgeUA._onBusAccess, this);
+        bus.event.write.addHandler(CartridgeUA._onBusAccess, this);
 
-    tiaRead(address: number): void {
-        this._tiaAccess(address);
+        return this;
     }
 
     getType(): CartridgeInfo.CartridgeType {
@@ -58,21 +56,23 @@ class CartridgeUA extends AbstractCartridge {
         return false;
     }
 
-    private _tiaAccess(address: number): void {
-        switch (address) {
+    private static _onBusAccess(accessType: Bus.AccessType, self: CartridgeUA): void {
+        switch (self._bus.getLastAddresBusValue()) {
             case 0x0220:
-                this._bank = this._bank0;
+                self._bank = self._bank0;
                 break;
 
             case 0x0240:
-                this._bank = this._bank1;
+                self._bank = self._bank1;
                 break;
         }
     }
 
-    protected _bank: Uint8Array = null;
-    protected _bank0 = new Uint8Array(0x1000);
-    protected _bank1 = new Uint8Array(0x1000);
+    private _bus: Bus = null;
+
+    private _bank: Uint8Array = null;
+    private _bank0 = new Uint8Array(0x1000);
+    private _bank1 = new Uint8Array(0x1000);
 
 }
 

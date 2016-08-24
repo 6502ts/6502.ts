@@ -8,6 +8,7 @@ import Config from '../Config';
 import CpuInterface from '../../cpu/CpuInterface';
 import Audio from './Audio';
 import Paddle from '../../io/Paddle';
+import Bus from '../Bus';
 
 import Missile from './Missile';
 import Playfield from './Playfield';
@@ -281,9 +282,95 @@ class Tia implements VideoOutputInterface {
     }
 
     read(address: number): number {
-        // Only keep the highest two bytes, fill in the rest with the last byte on the data bus
-        // (see http://atariage.com/forums/topic/89240-tia-memory-map-beyond-0x2c/?p=1083873)
-        return (this._read(address) & 0xC0) | (this._lastDataBusValueRef() & 0x3F);
+        const lastDataBusValue = this._bus.getLastDataBusValue();
+
+        let result: number;
+
+        // Only keep the lowest four bits
+        switch (address & 0x0F) {
+            case Tia.Registers.inpt0:
+                result = this._paddles[0].inpt();
+                break;
+
+            case Tia.Registers.inpt1:
+                result = this._paddles[1].inpt();
+                break;
+
+            case Tia.Registers.inpt2:
+                result = this._paddles[2].inpt();
+                break;
+
+            case Tia.Registers.inpt3:
+                result = this._paddles[3].inpt();
+                break;
+
+            case Tia.Registers.inpt4:
+                result = this._input0.inpt();
+                break;
+
+            case Tia.Registers.inpt5:
+                result = this._input1.inpt();
+                break;
+
+            case Tia.Registers.cxm0p:
+                result = (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player0) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player1) > 0 ? 0x80 : 0)
+                );
+                break;
+
+            case Tia.Registers.cxm1p:
+                result = (
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player1) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player0) > 0 ? 0x80 : 0)
+                );
+                break;
+
+            case Tia.Registers.cxp0fb:
+                result = (
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+                break;
+
+            case Tia.Registers.cxp1fb:
+                result = (
+                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+                break;
+
+            case Tia.Registers.cxm0fb:
+                result = (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+                break;
+
+            case Tia.Registers.cxm1fb:
+                result = (
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                );
+                break;
+
+            case Tia.Registers.cxppmm:
+                result = (
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.missile1) > 0 ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.player1) > 0 ? 0x80 : 0)
+                );
+                break;
+
+            case Tia.Registers.cxblpf:
+                result = (this._collisionMask & CollisionMask.ball & CollisionMask.playfield) > 0 ? 0x80 : 0;
+                break;
+
+            default:
+                result = lastDataBusValue;
+                break;
+        }
+
+        return (result & 0xC0) | (lastDataBusValue & 0x3F);
     }
 
     write(address: number, value: number): void {
@@ -538,82 +625,13 @@ class Tia implements VideoOutputInterface {
             this._frameManager.getDebugState();
     }
 
-    setLastDataBusValueRef(ref: () => number): void {
-        this._lastDataBusValueRef = ref;
+    setBus(bus: Bus): this {
+        this._bus = bus;
+
+        return this;
     }
 
     trap = new Event<Tia.TrapPayload>();
-
-    private _read(address: number): number {
-        // Only keep the lowest four bits
-        switch (address & 0x0F) {
-            case Tia.Registers.inpt0:
-                return this._paddles[0].inpt();
-
-            case Tia.Registers.inpt1:
-                return this._paddles[1].inpt();
-
-            case Tia.Registers.inpt2:
-                return this._paddles[2].inpt();
-
-            case Tia.Registers.inpt3:
-                return this._paddles[3].inpt();
-
-            case Tia.Registers.inpt4:
-                return this._input0.inpt();
-
-            case Tia.Registers.inpt5:
-                return this._input1.inpt();
-
-            case Tia.Registers.cxm0p:
-                return (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player0) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player1) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxm1p:
-                return (
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player1) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player0) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxp0fb:
-                return (
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxp1fb:
-                return (
-                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxm0fb:
-                return (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxm1fb:
-                return (
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxppmm:
-                return (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.missile1) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.player1) > 0 ? 0x80 : 0)
-                );
-
-            case Tia.Registers.cxblpf:
-                return (this._collisionMask & CollisionMask.ball & CollisionMask.playfield) > 0 ? 0x80 : 0;
-
-        }
-
-        return this._lastDataBusValueRef();
-    }
 
     private _hmove(): void {
         this._linesSinceChange = 0;
@@ -714,7 +732,8 @@ class Tia implements VideoOutputInterface {
         }
     }
 
-    private _cpu: CpuInterface;
+    private _cpu: CpuInterface = null;
+    private _bus: Bus = null;
 
     private _frameManager: FrameManager;
 
@@ -764,8 +783,6 @@ class Tia implements VideoOutputInterface {
     private _input1: LatchedInput;
 
     private _paddles: Array<PaddleReader>;
-
-    private _lastDataBusValueRef: () => number = () => 0;
 
     newFrame: EventInterface<RGBASurfaceInterface>;
 }

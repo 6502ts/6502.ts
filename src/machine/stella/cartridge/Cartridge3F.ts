@@ -1,6 +1,7 @@
 import AbstractCartridge from './AbstractCartridge';
 import * as cartridgeUtil from './util';
 import CartridgeInfo from './CartridgeInfo';
+import Bus from '../Bus';
 
 class Cartridge3F extends AbstractCartridge {
 
@@ -24,16 +25,19 @@ class Cartridge3F extends AbstractCartridge {
         }
     }
 
+    setBus(bus: Bus): this {
+        this._bus = bus;
+
+        this._bus.event.read.addHandler(Cartridge3F._onBusAccess, this);
+        this._bus.event.write.addHandler(Cartridge3F._onBusAccess, this);
+
+        return this;
+    }
+
     read(address: number): number {
         address &= 0x0FFF;
 
         return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07FF];
-    }
-
-    tiaWrite(address: number, value: number): void {
-        if (address <= 0x003F) {
-            this._bank0 = this._banks[value & 0x03];
-        }
     }
 
     getType(): CartridgeInfo.CartridgeType {
@@ -50,9 +54,16 @@ class Cartridge3F extends AbstractCartridge {
         return signatureCounts[0] >= 2;
     }
 
+    private static _onBusAccess(accessType: Bus.AccessType, self: Cartridge3F): void {
+        if (self._bus.getLastAddresBusValue() <= 0x003F) {
+            self._bank0 = self._banks[self._bus.getLastDataBusValue() & 0x03];
+        }
+    }
+
     private _banks = new Array<Uint8Array>(4);
     private _bank0: Uint8Array;
     private _bank1: Uint8Array;
+    private _bus: Bus = null;
 
 }
 

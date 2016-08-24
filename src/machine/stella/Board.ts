@@ -52,15 +52,21 @@ class Board implements BoardInterface {
         const tia = new Tia(config, joystick0, joystick1, paddles, this._rng);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
-        tia.setCpu(cpu);
-        bus
-            .setTia(tia)
-            .setPia(pia)
-            .setCartridge(cartridge);
+
+        tia
+            .setCpu(cpu)
+            .setBus(bus);
 
         cartridge
             .setCpu(cpu)
             .setBus(bus);
+
+        pia.setBus(bus);
+
+        bus
+            .setTia(tia)
+            .setPia(pia)
+            .setCartridge(cartridge);
 
         this._bus = bus;
         this._cpu = cpu;
@@ -72,7 +78,7 @@ class Board implements BoardInterface {
         this._joystick1 = joystick1;
         this._paddles = paddles;
 
-        this._bus.trap.addHandler(
+        this._bus.event.trap.addHandler(
             (payload: Bus.TrapPayload) => this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
         );
 

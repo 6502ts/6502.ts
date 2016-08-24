@@ -886,7 +886,8 @@ class Cpu {
 
         this.state.p = (this.state.p + 1) & 0xFFFF;
 
-        let value: number;
+        let value: number,
+            base : number;
 
         switch (addressingMode) {
             case Instruction.AddressingMode.immediate:
@@ -934,12 +935,20 @@ class Cpu {
             case Instruction.AddressingMode.absoluteX:
                 value = this._bus.readWord(this.state.p);
                 this._operand = (value + this.state.x) & 0xFFFF;
+
+                if ((this._operand & 0xFF00) !== (value & 0xFF00)) {
+                    this._bus.read((value & 0xFF00) | (this._operand & 0xFF));
+                }
+
                 this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value & 0xFF00)) ? 3 : 2);
                 this.state.p = (this.state.p + 2) & 0xFFFF;
                 break;
 
             case Instruction.AddressingMode.zeroPageY:
-                this._operand = (this._bus.read(this.state.p) + this.state.y) & 0xFF;
+                base = this._bus.read(this.state.p);
+                this._bus.read(base);
+
+                this._operand = (base + this.state.y) & 0xFF;
                 this.state.p = (this.state.p + 1) & 0xFFFF;
                 this._opCycles += 2;
                 break;
@@ -947,16 +956,26 @@ class Cpu {
             case Instruction.AddressingMode.absoluteY:
                 value = this._bus.readWord(this.state.p);
                 this._operand = (value + this.state.y) & 0xFFFF;
+
+                if ((this._operand & 0xFF00) !== (value & 0xFF00)) {
+                    this._bus.read((value & 0xFF00) | (this._operand & 0xFF));
+                }
+
                 this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value & 0xFF00)) ? 3 : 2);
                 this.state.p = (this.state.p + 2) & 0xFFFF;
                 break;
 
             case Instruction.AddressingMode.indexedIndirectX:
-                value = (this._bus.read(this.state.p) + this.state.x) & 0xFF;
+                base = this._bus.read(this.state.p);
+                this._bus.read(base);
 
-                if (value === 0xFF)
+                value = (base + this.state.x) & 0xFF;
+
+                if (value === 0xFF) {
                     this._operand = this._bus.read(0xFF) + (this._bus.read(0x00) << 8);
-                else this._operand = this._bus.readWord(value);
+                } else {
+                    this._operand = this._bus.readWord(value);
+                }
 
                 this._opCycles += 4;
                 this.state.p = (this.state.p + 1) & 0xFFFF;
@@ -965,11 +984,17 @@ class Cpu {
             case Instruction.AddressingMode.indirectIndexedY:
                 value = this._bus.read(this.state.p);
 
-                if (value === 0xFF)
+                if (value === 0xFF) {
                     value = this._bus.read(0xFF) + (this._bus.read(0x00) << 8);
-                else value = this._bus.readWord(value);
+                } else {
+                    value = this._bus.readWord(value);
+                }
 
                 this._operand = (value + this.state.y) & 0xFFFF;
+
+                if ((this._operand & 0xFF00) !== (value & 0xFF00)) {
+                    this._bus.read((value & 0xFF00) | (this._operand & 0xFF));
+                }
 
                 this._opCycles += ((slowIndexedAccess || (value & 0xFF00) !== (this._operand & 0xFF00)) ? 4 : 3);
                 this.state.p = (this.state.p + 1) & 0xFFFF;

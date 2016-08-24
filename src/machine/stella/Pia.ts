@@ -1,6 +1,7 @@
 import Event from '../../tools/event/Event';
 import ControlPanelInterface from './ControlPanelInterface';
 import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
+import Bus from './Bus';
 
 import RngInterface from '../../tools/rng/GeneratorInterface';
 
@@ -65,8 +66,10 @@ class Pia {
         return `timer base: ${this._timerBase}   timer sub: ${this._timerSub}   timer value: ${this._timerValue}`;
     }
 
-    setLastDataBusValueRef(ref: () => number): void {
-        this._lastDataBusValueRef = ref;
+    setBus(bus: Bus): this {
+        this._bus = bus;
+
+        return this;
     }
 
     trap = new Event<Pia.TrapPayload>();
@@ -123,7 +126,7 @@ class Pia {
                 );
         }
 
-        return this._lastDataBusValueRef();
+        return this._bus.getLastDataBusValue();
     }
 
     private _readTimer(address: number): number {
@@ -162,13 +165,13 @@ class Pia {
         }
     }
 
+    private _bus: Bus = null;
+
     private _timerValue = 255;
     private _timerSub = 0;
     private _timerBase = 1024;
     private _interruptFlag = 0;
     private _flagSetDuringThisCycle = false;
-
-    private _lastDataBusValueRef: () => number = () => 0;
 }
 
 module Pia {

@@ -15,12 +15,6 @@ class AbstractCartridge implements CartridgeInterface {
     write(address: number, value: number) {
     }
 
-    tiaWrite(address: number, value: number) {
-    }
-
-    tiaRead(address: number) {
-    }
-
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.unknown;
     }

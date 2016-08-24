@@ -11,10 +11,6 @@ interface CartridgeInterface {
 
     write(address: number, value: number): void;
 
-    tiaWrite(address: number, value: number): void;
-
-    tiaRead(address: number): void;
-
     getType(): CartridgeInfo.CartridgeType;
 
     setCpu(cpu: Cpuinterface): this;
