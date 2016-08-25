@@ -123,7 +123,7 @@ module.exports = function(grunt) {
                     ui: 'tdd',
                     bail: false
                 },
-                src: ['tests/js/*.js', 'tests/ts/*.js']
+                src: ['tests/js/**/*.js', 'tests/ts/**/*.js']
             },
             debug: {
                 options: {
@@ -131,7 +131,7 @@ module.exports = function(grunt) {
                     ui: 'tdd',
                     bail: true
                 },
-                src: ['tests/js/*.js', 'tests/ts/*.js']
+                src: ['tests/js/**/*.js', 'tests/ts/**/*.js']
             }
         },
 
