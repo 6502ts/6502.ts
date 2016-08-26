@@ -1,4 +1,4 @@
-import Event from '../../src/tools/event/Event';
+import Event from '../../../src/tools/event/Event';
 import * as assert from 'assert';
 
 suite('Event handling', function() {

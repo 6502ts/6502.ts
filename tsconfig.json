@@ -5,7 +5,6 @@
         "moduleResolution": "node",
         "noImplicitAny": true,
         "target": "es5",
-        "preserveConstEnums": true,
         "sourceMap": false,
         "jsx": "react",
         "lib": [

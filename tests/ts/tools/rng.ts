@@ -3,9 +3,9 @@ import * as assert from 'assert';
 import {
     createRng,
     restoreRng
-} from '../../src/tools/rng/factory';
+} from '../../../src/tools/rng/factory';
 
-import GeneratorInterface from '../../src/tools/rng/GeneratorInterface';
+import GeneratorInterface from '../../../src/tools/rng/GeneratorInterface';
 
 function sequence(length: number, generator: GeneratorInterface): Array<number> {
     const result = new Array<number>(length);

@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as util from 'util';
-import PeriodicScheduler from '../../src/tools/scheduler/PeriodicScheduler';
+import PeriodicScheduler from '../../../src/tools/scheduler/PeriodicScheduler';
 
 suite('Periodic Scheduler', function() {
 

@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as util from 'util';
 
-import Pool from '../../src/tools/pool/Pool';
+import Pool from '../../../src/tools/pool/Pool';
 
 let releaseCtr = 0,
     disposeCtr = 0;

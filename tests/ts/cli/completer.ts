@@ -1,8 +1,8 @@
 import * as pathlib from 'path';
 import * as assert from 'assert';
 import * as util from 'util';
-import Completer from '../../src/cli/Completer';
-import NodeFilesystemProvider from '../../src/fs/NodeFilesystemProvider';
+import Completer from '../../../src/cli/Completer';
+import NodeFilesystemProvider from '../../../src/fs/NodeFilesystemProvider';
 
 suite('CLI Completer', function() {
 
@@ -22,7 +22,7 @@ suite('CLI Completer', function() {
 
     setup(function() {
         const fsProvider = new NodeFilesystemProvider();
-        fsProvider.chdir(pathlib.join(__dirname, '../fixtures/completer'));
+        fsProvider.chdir(pathlib.join(__dirname, '../../fixtures/completer'));
 
         completer = new Completer(
             ['soup', 'soop', 'something', 'else'],

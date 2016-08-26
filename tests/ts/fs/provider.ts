@@ -1,48 +1,51 @@
-var _ = require('lodash'),
-    assert = require('assert'),
-    path = require('path'),
-    util = require('util');
+import * as _ from 'lodash';
+import * as assert from 'assert';
+import * as path from 'path';
+import * as util from 'util';
 
-var NodeFilesystemProvider = require('../../src/fs/NodeFilesystemProvider').default,
-    PrepackagedFilesystemProvider = require('../../src/fs/PrepackagedFilesystemProvider').default,
-    FilesystemProviderInterface = require('../../src/fs/FilesystemProviderInterface').default;
+import NodeFilesystemProvider from '../../../src/fs/NodeFilesystemProvider';
+import PrepackagedFilesystemProvider from '../../../src/fs/PrepackagedFilesystemProvider';
+import FilesystemProviderInterface from '../../../src/fs/FilesystemProviderInterface';
 
-var fixtures = {
+const fixtures = {
         foo: 'Балканская черепаха',
         baz: 'foobar',
         treeDir: ['bar', 'foo']
     };
 
-var blob;
+interface BufferInterface {
+    length: number;
+    [index: number]: number;
+}
 
-function assertBufferIdentity(b1, b2) {
+function assertBufferIdentity(b1: BufferInterface, b2: BufferInterface): void {
     assert.strictEqual(b1.length, b2.length, util.format('buffers differ in length, %s vs. %s',
         b1.length, b2.length));
 
-    for (var i = 0; i < b1.length; i++) {
+    for (let i = 0; i < b1.length; i++) {
         assert.strictEqual(b1[i], b2[i], util.format('buffers differ at byte %s, %s vs. %s',
             i, b1[i], b2[i]));
     }
 }
 
-function runProviderTests(factory) {
-    var provider;
+function runProviderTests(factory: () => FilesystemProviderInterface): void {
+    let provider: FilesystemProviderInterface;
 
     setup(function() {
         provider = factory();
     });
 
-    function testFileIdentity(path, key) {
+    function testFileIdentity(path: string, key: string) {
         test(util.format('%s as UTF-8, sync', path), function() {
-            assert.strictEqual(provider.readTextFileSync(path), fixtures[key]);
+            assert.strictEqual(provider.readTextFileSync(path), (fixtures as any)[key]);
         });
 
         test(util.format('%s as binary, sync', path), function() {
-            assertBufferIdentity(provider.readBinaryFileSync(path), new Buffer(fixtures[key]));
+            assertBufferIdentity(provider.readBinaryFileSync(path), new Buffer((fixtures as any)[key]));
         });
     }
 
-    function testDirectoryListing(path, content) {
+    function testDirectoryListing(path:string, content: Array<string>) {
         test(util.format('directory listing %s, sync', path), function() {
             assert.deepEqual(provider.readDirSync(path).sort(), content.sort());
         });
@@ -121,7 +124,7 @@ function runProviderTests(factory) {
     });
 
     test('root dir listing', function() {
-        var listing = provider.readDirSync('');
+        const listing = provider.readDirSync('');
 
         assert(listing.indexOf('tree') >= 0);
     });
@@ -131,10 +134,10 @@ suite('FS Providers', function()  {
 
     suite('NodeFileSystemProvider', function() {
 
-        function factory() {
-            var provider = new NodeFilesystemProvider();
+        function factory(): FilesystemProviderInterface {
+            const provider = new NodeFilesystemProvider();
 
-            provider.chdir(path.join(__dirname, '../fixtures/fs_provider'));
+            provider.chdir(path.join(__dirname, '../../fixtures/fs_provider'));
 
             return provider;
         }
@@ -145,12 +148,14 @@ suite('FS Providers', function()  {
 
     suite('PrepackagedFileSystemProvider', function() {
 
+        let blob: PrepackagedFilesystemProvider.BlobInterface;
+
         function factory() {
             return new PrepackagedFilesystemProvider(_.cloneDeep(blob));
         }
 
         test('Loading the prepackaged blob', function() {
-            blob = require('../fixtures/fs_provider/blob.json');
+            blob = require('../../fixtures/fs_provider/blob.json');
         });
 
         runProviderTests(factory);

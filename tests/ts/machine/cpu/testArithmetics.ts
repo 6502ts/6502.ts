@@ -1,6 +1,6 @@
 import Runner from './Runner';
-import CpuInterface from '../../../src/machine/cpu/CpuInterface';
-import * as hex from '../../../src/tools/hex';
+import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
+import * as hex from '../../../../src/tools/hex';
 import * as util from './util';
 
 function testAdc(

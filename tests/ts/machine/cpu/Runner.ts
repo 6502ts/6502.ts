@@ -1,9 +1,9 @@
-import Cpu from '../../../src/machine/cpu/Cpu';
-import CpuInterface from '../../../src/machine/cpu/CpuInterface';
-import VanillaMemory from '../../../src/machine/vanilla/Memory';
-import BusInterface from '../../../src/machine/bus/BusInterface';
-import * as hex from '../../../src/tools/hex.js';
-import * as binary from '../../../src/tools/binary';
+import Cpu from '../../../../src/machine/cpu/Cpu';
+import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
+import VanillaMemory from '../../../../src/machine/vanilla/Memory';
+import BusInterface from '../../../../src/machine/bus/BusInterface';
+import * as hex from '../../../../src/tools/hex.js';
+import * as binary from '../../../../src/tools/binary';
 
 class Runner {
 

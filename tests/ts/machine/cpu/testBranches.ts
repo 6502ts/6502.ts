@@ -1,5 +1,5 @@
 import Runner from './Runner';
-import CpuInterface from '../../../src/machine/cpu/CpuInterface';
+import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
 
 function branchSuite(
     mnemonic: string,
