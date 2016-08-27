@@ -927,7 +927,10 @@ class Cpu {
                 break;
 
             case Instruction.AddressingMode.zeroPageX:
-                this._operand = (this._bus.read(this.state.p) + this.state.x) & 0xFF;
+                base = this._bus.read(this.state.p);
+                this._bus.read(base);
+
+                this._operand = (base + this.state.x) & 0xFF;
                 this.state.p = (this.state.p + 1) & 0xFFFF;
                 this._opCycles += 2;
                 break;

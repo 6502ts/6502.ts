@@ -1,25 +1,24 @@
 import Cpu from '../../../../src/machine/cpu/Cpu';
 import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
-import VanillaMemory from '../../../../src/machine/vanilla/Memory';
-import BusInterface from '../../../../src/machine/bus/BusInterface';
+import InstrumentedBus from './InstrumentedBus';
+import AccessLog from './AccessLog';
 import * as hex from '../../../../src/tools/hex.js';
 import * as binary from '../../../../src/tools/binary';
-
 class Runner {
 
     constructor(
         private _code: {length: number, [address: number]: number},
         private _base = 0xE000
     ) {
-        this._memory = new VanillaMemory();
-        this._cpu = new Cpu(this._memory);
+        this._bus = new InstrumentedBus();
+        this._cpu = new Cpu(this._bus);
 
         for (let i = 0; i < this._code.length; i++) {
-            this._memory.write(this._base + i, this._code[i]);
+            this._bus.write(this._base + i, this._code[i]);
         }
 
-        this._memory.write(0xFFFC, this._base & 0xFF);
-        this._memory.write(0xFFFD, this._base >> 8);
+        this._bus.write(0xFFFC, this._base & 0xFF);
+        this._bus.write(0xFFFD, this._base >> 8);
 
         this._cpu.reset();
 
@@ -36,7 +35,7 @@ class Runner {
 
     poke(pokes: {[address: string]: number}): this {
         Object.keys(pokes).forEach(address => {
-            this._memory.write(hex.decode(address), pokes[address]);
+            this._bus.write(hex.decode(address), pokes[address]);
         });
 
         return this;
@@ -51,6 +50,8 @@ class Runner {
         this._cpu.setInvalidInstructionCallback(() => {
             throw new Error('invalid instruction!');
         });
+
+        this._bus.getLog().clear();
 
         while (pBeforeExecute !== codeEnd && this._cycles <= maxCycles) {
             do {
@@ -112,7 +113,7 @@ class Runner {
     assertMemory(checks: {[address: string]: number}): this {
         Object.keys(checks).forEach(address => {
 
-            const actual = this._memory.read(hex.decode(address));
+            const actual = this._bus.read(hex.decode(address));
 
             if (checks[address] !== actual) {
                 throw new Error(
@@ -125,11 +126,17 @@ class Runner {
         return this;
     }
 
+    assertAccessLog(log: AccessLog): this {
+        this._bus.getLog().assertEqual(log);
+
+        return this;
+    }
+
     getCpu(): CpuInterface {
         return this._cpu;
     }
 
-    private _memory: BusInterface;
+    private _bus: InstrumentedBus;
     private _cpu: CpuInterface;
     private _cycles = 0;
     private _originalState: CpuInterface.State = null;

@@ -2,15 +2,22 @@ import {run as testBranches} from './testBranches';
 import {run as testFlagToggles} from './testFlagToggles';
 import {run as testArithmetics} from './testArithmetics';
 import {run as testOtherOpcodes} from './testOtherOpcodes';
+import {run as testAccessPatterns} from './testAccessPatterns';
 
 suite('CPU', function() {
 
-    testBranches();
+    suite('opcodes', function() {
+        testBranches();
 
-    testFlagToggles();
+        testFlagToggles();
 
-    testArithmetics();
+        testArithmetics();
 
-    testOtherOpcodes();
+        testOtherOpcodes();
+    });
+
+    suite('memory access patterns', function() {
+        testAccessPatterns();
+    });
 
 });
