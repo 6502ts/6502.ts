@@ -9,23 +9,23 @@ declare function teardown(implementation: Mocha.TeardownImplementation): void;
 declare module Mocha {
 
     export interface ReadyCallback {
-        (e?: any): void;
+        (e?: any): any;
     }
 
     export interface SuiteImplementation {
-        (): void;
+        (): any;
     }
 
     export interface TestImplementation {
-        (cb: ReadyCallback): void;
+        (cb: ReadyCallback): any;
     }
 
     export interface SetupImplementation {
-        (cb: ReadyCallback): void;
+        (cb: ReadyCallback): any;
     }
 
     export interface TeardownImplementation {
-        (cb: ReadyCallback): void;
+        (cb: ReadyCallback): any;
     }
 
 }
