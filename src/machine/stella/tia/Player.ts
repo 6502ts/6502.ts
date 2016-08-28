@@ -69,7 +69,7 @@ export default class Player {
     }
 
     resp(hblank: boolean): void {
-        this._counter = hblank ? (this._width > 8 ? 159 : 158) : 157;
+        this._counter = hblank ? 159 : 157;
     }
 
     refp(value: number): void {
@@ -114,7 +114,7 @@ export default class Player {
         this.collision = (
             this._rendering &&
             this._renderCounter >= 0 &&
-            (this._pattern & (1 << (this._width - this._renderCounter - 1))) > 0
+            (this._pattern & (1 << (this._width - this._renderCounter - 1))) !== 0
         ) ? this._collisionMask : 0;
     }
 
@@ -132,7 +132,7 @@ export default class Player {
         if (this._decodes[this._counter]) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
-        } else if (this._rendering && this._renderCounter++ >= this._width) {
+        } else if (this._rendering && ++this._renderCounter >= this._width) {
             this._rendering = false;
         }
 
