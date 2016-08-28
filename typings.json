@@ -1,6 +1,7 @@
 {
   "globalDependencies": {
     "jquery": "registry:dt/jquery#1.10.0+20160704162008",
+    "lodash": "registry:dt/lodash#4.14.0+20160817155621",
     "md5": "registry:dt/md5#2.1.0+20160521153251",
     "node": "registry:dt/node#6.0.0+20160817204926",
     "react": "registry:dt/react#0.14.0+20160817201227",
