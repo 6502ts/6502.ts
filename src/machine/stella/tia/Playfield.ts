@@ -93,6 +93,8 @@ class Playfield {
     }
 
     tick(x: number) {
+        this._x = 0;
+
         if (x === 80 || x === 0) {
             this._refp = this._reflected;
         }
@@ -107,20 +109,21 @@ class Playfield {
             currentPixel = 0;
         } else if (x < 80) {
             currentPixel = this._pattern & (1 << (x >>> 2));
-            this._currentColor = this._colorLeft;
         } else if (this._refp) {
             currentPixel = this._pattern & (1 << (39 - (x >>> 2)));
-            this._currentColor = this._colorRight;
         } else {
             currentPixel = this._pattern & (1 << ((x >>> 2) - 20));
-            this._currentColor = this._colorRight;
         }
 
         this.collision = currentPixel > 0 ? this._collisionMask : 0;
     }
 
     getPixel(colorIn: number): number {
-        return this.collision > 0 ? this._currentColor : colorIn;
+        if (this.collision > 0) {
+            return this._x < 80 ? this._colorLeft : this._colorRight;
+        }
+
+        return colorIn;
     }
 
     private _applyColors(): void {
@@ -165,7 +168,6 @@ class Playfield {
     private _colorP1 = 0;
     private _colorMode = ColorMode.normal;
 
-    private _currentColor = 0;
     private _pattern = 0;
     private _refp = false;
     private _reflected = false;
@@ -177,6 +179,8 @@ class Playfield {
     private _pf0 = 0;
     private _pf1 = 0;
     private _pf2 = 0;
+
+    private _x = 0;
 
     private _pending = false;
 }
