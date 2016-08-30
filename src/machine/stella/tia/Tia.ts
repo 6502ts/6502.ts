@@ -27,7 +27,7 @@ const enum Metrics {
 }
 
 const enum Count {
-    hmoveDelay = 5
+    hmoveDelay = 6
 }
 
 // Each bit in the collision mask identifies a single collision pair

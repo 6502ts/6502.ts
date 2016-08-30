@@ -4,7 +4,8 @@ import {decodesPlayer} from './drawCounterDecodes';
 const enum Count {
     renderCounterOffset = -5,
     shuffleDelay = 2,
-    grpDelay = 2
+    grpDelay = 2,
+    hmpDelay = 1
 }
 
 export default class Player {
@@ -31,6 +32,7 @@ export default class Player {
         this._shuffleCounter = 0;
         this._reflected = false;
         this._delaying = false;
+        this._hmpCounter = -1;
     }
 
     grp(pattern: number) {
@@ -38,6 +40,11 @@ export default class Player {
         this._grpCounter = Count.grpDelay;
 
         this.patternChange.dispatch(undefined);
+    }
+
+    hmp(value: number): void {
+        this._hmpPending = value;
+        this._hmpCounter = Count.hmpDelay;
     }
 
     nusiz(value: number): void {
@@ -61,11 +68,6 @@ export default class Player {
         if (oldWidth !== this._width) {
             this._updatePattern();
         }
-    }
-
-    hmp(value: number): void {
-        // Shift and flip the highest bit --- this gives us the necessary movement to the right
-        this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
     resp(hblank: boolean): void {
@@ -126,6 +128,10 @@ export default class Player {
         if (this._grpCounter > 0 && --this._grpCounter === 0) {
             this._doGrp(this._patternPending);
         }
+
+        if (this._hmpCounter > 0 && --this._hmpCounter === 0) {
+            this._doHmp();
+        }
     }
 
     tick(): void {
@@ -164,6 +170,11 @@ export default class Player {
         if (!this._delaying) {
             this._updatePattern();
         }
+    }
+
+    private _doHmp(): void {
+        // Shift and flip the highest bit --- this gives us the necessary movement to the right
+        this._hmmClocks = (this._hmpPending >>> 4) ^ 0x8;
     }
 
     getRespClock(): number {
@@ -275,4 +286,7 @@ export default class Player {
     private _pattern = 0;
     private _reflected = false;
     private _delaying = false;
+
+    private _hmpPending = -1;
+    private _hmpCounter = -1;
 }
