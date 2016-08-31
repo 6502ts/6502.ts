@@ -17,6 +17,7 @@ import Ball from './Ball';
 import LatchedInput from './LatchedInput';
 import PaddleReader from './PaddleReader';
 import FrameManager from './FrameManager';
+import DelayQueue from './DelayQueue';
 import * as palette from './palette';
 
 import RngInterface from '../../../tools/rng/GeneratorInterface';
@@ -26,8 +27,12 @@ const enum Metrics {
     frameLinesNTSC       = 262
 }
 
-const enum Count {
-    hmoveDelay = 6
+const enum Delay {
+    hmove = 6,
+    pf = 2,
+    grp = 1,
+    shufflePlayer = 1,
+    hmp = 1
 }
 
 // Each bit in the collision mask identifies a single collision pair
@@ -60,12 +65,6 @@ class Tia implements VideoOutputInterface {
         this._input1 = new LatchedInput(joystick1.getFire());
         this._audio0 = new Audio(this._config);
         this._audio1 = new Audio(this._config);
-
-        this._player0.patternChange.addHandler(() => this._player1.shufflePatterns());
-        this._player1.patternChange.addHandler(() => {
-            this._player0.shufflePatterns();
-            this._ball.shuffleStatus();
-        });
 
         const clockFreq = this._getClockFreq(this._config);
 
@@ -150,12 +149,11 @@ class Tia implements VideoOutputInterface {
     }
 
     cycle(): void {
+        this._delayQueue.execute(Tia._delayedWrite, this);
+
         this._collisionUpdateRequired = false;
 
         this._tickMovement();
-        this._playfield.clockTick();
-        this._player0.clockTick();
-        this._player1.clockTick();
 
         if (this._hstate === HState.blank) {
             this._tickHblank();
@@ -171,10 +169,6 @@ class Tia implements VideoOutputInterface {
     }
 
     private _tickMovement(): void {
-        if (this._hmoveDelay >= 0 && this._hmoveDelay-- === 0) {
-            this._hmove();
-        }
-
         if (!this._movementInProgress) {
             return;
         }
@@ -461,7 +455,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.hmove:
-                this._hmoveDelay = Count.hmoveDelay;
+                this._delayQueue.push(Tia.Registers.hmove, value, Delay.hmove);
                 break;
 
             case Tia.Registers.colubk:
@@ -490,18 +484,15 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.pf0:
-                this._linesSinceChange = 0;
-                this._playfield.pf0(value);
+                this._delayQueue.push(Tia.Registers.pf0, value, Delay.pf);
                 break;
 
             case Tia.Registers.pf1:
-                this._linesSinceChange = 0;
-                this._playfield.pf1(value);
+                this._delayQueue.push(Tia.Registers.pf1, value, Delay.pf);
                 break;
 
             case Tia.Registers.pf2:
-                this._linesSinceChange = 0;
-                this._playfield.pf2(value);
+                this._delayQueue.push(Tia.Registers.pf2, value, Delay.pf);
                 break;
 
             case Tia.Registers.ctrlpf:
@@ -519,13 +510,20 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.grp0:
-                this._linesSinceChange = 0;
-                this._player0.grp(value);
+                this._delayQueue
+                    .push(Tia.Registers.grp0, value, Delay.grp)
+                    .push(Tia.Registers._shuffleP1, 0, Delay.shufflePlayer);
+
                 break;
 
             case Tia.Registers.grp1:
+                this._delayQueue
+                    .push(Tia.Registers.grp1, value, Delay.grp)
+                    .push(Tia.Registers._shuffleP0, 0, Delay.shufflePlayer);
+
                 this._linesSinceChange = 0;
-                this._player1.grp(value);
+                this._ball.shuffleStatus();
+
                 break;
 
             case Tia.Registers.resp0:
@@ -549,13 +547,11 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.hmp0:
-                this._linesSinceChange = 0;
-                this._player0.hmp(value);
+                this._delayQueue.push(Tia.Registers.hmp0, value, Delay.hmp);
                 break;
 
             case Tia.Registers.hmp1:
-                this._linesSinceChange = 0;
-                this._player1.hmp(value);
+                this._delayQueue.push(Tia.Registers.hmp1, value, Delay.hmp);
                 break;
 
             case Tia.Registers.vdelp0:
@@ -633,25 +629,75 @@ class Tia implements VideoOutputInterface {
 
     trap = new Event<Tia.TrapPayload>();
 
-    private _hmove(): void {
-        this._linesSinceChange = 0;
+    private static _delayedWrite(address: number, value: number, self: Tia): void {
+        switch (address) {
+            case Tia.Registers.hmove:
+                self._linesSinceChange = 0;
 
-        // Start the timer and increase hblank
-        this._movementCtr = 0;
-        this._movementInProgress = true;
+                // Start the timer and increase hblank
+                self._movementCtr = 0;
+                self._movementInProgress = true;
 
-        if (!this._extendedHblank) {
-            this._hblankCtr -= 8;
-            this._clearHmoveComb();
-            this._extendedHblank = true;
+                if (!self._extendedHblank) {
+                    self._hblankCtr -= 8;
+                    self._clearHmoveComb();
+                    self._extendedHblank = true;
+                }
+
+                // Start sprite movement
+                self._missile0.startMovement();
+                self._missile1.startMovement();
+                self._player0.startMovement();
+                self._player1.startMovement();
+                self._ball.startMovement();
+
+                break;
+
+            case Tia.Registers.pf0:
+                self._linesSinceChange = 0;
+                self._playfield.pf0(value);
+                break;
+
+            case Tia.Registers.pf1:
+                self._linesSinceChange = 0;
+                self._playfield.pf1(value);
+                break;
+
+            case Tia.Registers.pf2:
+                self._linesSinceChange = 0;
+                self._playfield.pf2(value);
+               break;
+
+            case Tia.Registers.grp0:
+                self._linesSinceChange = 0;
+                self._player0.grp(value);
+                break;
+
+            case Tia.Registers.grp1:
+                self._linesSinceChange = 0;
+                self._player1.grp(value);
+                break;
+
+            case Tia.Registers._shuffleP0:
+                self._linesSinceChange = 0;
+                self._player0.shufflePatterns();
+                break;
+
+            case Tia.Registers._shuffleP1:
+                self._linesSinceChange = 0;
+                self._player1.shufflePatterns();
+                break;
+
+            case Tia.Registers.hmp0:
+                self._linesSinceChange = 0;
+                self._player0.hmp(value);
+                break;
+
+            case Tia.Registers.hmp1:
+                self._linesSinceChange = 0;
+                self._player1.hmp(value);
+                break;
         }
-
-        // Start sprite movement
-        this._missile0.startMovement();
-        this._missile1.startMovement();
-        this._player0.startMovement();
-        this._player1.startMovement();
-        this._ball.startMovement();
     }
 
     private _getPalette(config: Config) {
@@ -736,6 +782,7 @@ class Tia implements VideoOutputInterface {
     private _bus: Bus = null;
 
     private _frameManager: FrameManager;
+    private _delayQueue = new DelayQueue(10, 20);
 
     private _palette: Uint32Array;
 
@@ -756,7 +803,6 @@ class Tia implements VideoOutputInterface {
     private _movementInProgress = false;
     // do we have an extended hblank triggered by hmove?
     private _extendedHblank = false;
-    private _hmoveDelay = -1;
 
     private _clock = 0.;
 
@@ -848,7 +894,12 @@ module Tia {
         inpt2   = 0x0A,
         inpt3   = 0x0B,
         inpt4   = 0x0C,
-        inpt5   = 0x0D
+        inpt5   = 0x0D,
+
+        // These "registers" are not exposed to the system and only used in delaying
+        // internal processes.
+        _shuffleP0      = 0xF0,
+        _shuffleP1      = 0xF1
     }
 
     export const enum TrapReason {invalidRead, invalidWrite}

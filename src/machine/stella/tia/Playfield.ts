@@ -1,9 +1,5 @@
 const enum ColorMode {normal, score};
 
-const enum Count {
-    delay = 2
-}
-
 class Playfield {
 
     constructor(private _collisionMask: number) {
@@ -15,10 +11,6 @@ class Playfield {
         this._reflected = false;
         this._refp = false;
 
-        this._delay0 = -1;
-        this._delay1 = -1;
-        this._delay2 = -1;
-
         this._pf0 = 0;
         this._pf1 = 0;
         this._pf2 = 0;
@@ -28,26 +20,26 @@ class Playfield {
         this._colorP1 = 0;
         this._colorMode = ColorMode.normal;
         this._applyColors();
-
-        this._pending = false;
     }
 
     pf0(value: number) {
-        this._pf0 = value;
-        this._delay0 = Count.delay;
-        this._pending = true;
+        this._pattern = (this._pattern & 0x000FFFF0) | ((value & 0xF0) >>> 4);
     }
 
     pf1(value: number) {
-        this._pf1 = value;
-        this._delay1 = Count.delay;
-        this._pending = true;
+        this._pattern = (this._pattern & 0x000FF00F)
+            | ((value & 0x80) >>> 3)
+            | ((value & 0x40) >>> 1)
+            | ((value & 0x20) <<  1)
+            | ((value & 0x10) <<  3)
+            | ((value & 0x08) <<  5)
+            | ((value & 0x04) <<  7)
+            | ((value & 0x02) <<  9)
+            | ((value & 0x01) <<  11);
     }
 
     pf2(value: number) {
-        this._pf2 = value;
-        this._delay2 = Count.delay;
-        this._pending = true;
+        this._pattern = (this._pattern & 0x00000FFF) | ((value & 0xFF) << 12);
     }
 
     ctrlpf(value: number): void {
@@ -71,26 +63,6 @@ class Playfield {
         this._applyColors();
     }
 
-    clockTick(): void {
-        if (!this._pending) {
-            return;
-        }
-
-        if (this._delay0 >= 0 && this._delay0-- === 0) {
-            this._applyPf0(this._pf0);
-            this._pending = this._delay1 >= 0 || this._delay2 >= 0;
-        }
-
-        if (this._delay1 >= 0 && this._delay1-- === 0) {
-            this._applyPf1(this._pf1);
-            this._pending = this._delay0 >= 0 || this._delay2 >= 0;
-        }
-
-        if (this._delay2 >= 0 && this._delay2-- === 0) {
-            this._applyPf2(this._pf2);
-            this._pending = this._delay0 >= 0 || this._delay1 >= 0;
-        }
-    }
 
     tick(x: number) {
         this._x = 0;
@@ -139,26 +111,6 @@ class Playfield {
         }
     }
 
-    private _applyPf0(value: number): void {
-        this._pattern = (this._pattern & 0x000FFFF0) | ((value & 0xF0) >>> 4);
-    }
-
-    private _applyPf1(value: number): void {
-        this._pattern = (this._pattern & 0x000FF00F)
-            | ((value & 0x80) >>> 3)
-            | ((value & 0x40) >>> 1)
-            | ((value & 0x20) <<  1)
-            | ((value & 0x10) <<  3)
-            | ((value & 0x08) <<  5)
-            | ((value & 0x04) <<  7)
-            | ((value & 0x02) <<  9)
-            | ((value & 0x01) <<  11);
-    }
-
-    private _applyPf2(value: number): void {
-        this._pattern = (this._pattern & 0x00000FFF) | ((value & 0xFF) << 12);
-    }
-
     collision = 0;
 
     private _colorLeft = 0;
@@ -172,17 +124,12 @@ class Playfield {
     private _refp = false;
     private _reflected = false;
 
-    private _delay0 = -1;
-    private _delay1 = -1;
-    private _delay2 = -1;
 
     private _pf0 = 0;
     private _pf1 = 0;
     private _pf2 = 0;
 
     private _x = 0;
-
-    private _pending = false;
 }
 
 export default Playfield;
