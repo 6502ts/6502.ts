@@ -9,14 +9,14 @@ class DelayQueue {
     }
 
     push(address: number, value: number, delay: number): this {
+        if (delay >= this._length) {
+            throw new Error('delay exceeds queue length');
+        }
+
         const currentIndex = this._indices[address];
 
         if (currentIndex < this._length) {
             this._queue[currentIndex].remove(address);
-        }
-
-        if (delay >= this._length) {
-            throw new Error('delay exceeds queue length');
         }
 
         const index = (this._nextIndex + delay) % this._length;
@@ -27,7 +27,7 @@ class DelayQueue {
         return this;
     }
 
-    execute<T>(handler: (address: number, value: number, scope: T) => void, scope: T): void {
+    execute<T>(handler: (address: number, value: number, scope: T) => void, scope?: T): void {
         const entry = this._queue[this._nextIndex];
         this._nextIndex = (this._nextIndex + 1) % this._length;
 

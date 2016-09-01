@@ -2,7 +2,7 @@ import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import AudioOutputInterface from '../../io/AudioOutputInterface';
 import Event from '../../../tools/event/Event';
 import Config from '../Config';
-import ToneGenerator from './ToneGenerator.ts';
+import ToneGenerator from './ToneGenerator';
 
 export default class Audio implements AudioOutputInterface {
 

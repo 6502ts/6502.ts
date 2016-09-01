@@ -68,7 +68,7 @@ function Settings(props: Settings.Props) {
             <Col sm={4}>
                 <input
                     type="range"
-                    value={props.gamma}
+                    value={props.gamma + ''}
                     min="0.1"
                     max="5"
                     step="0.1"

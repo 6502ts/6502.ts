@@ -14,7 +14,7 @@ class CartridgeTypeSelect extends React.Component<CartridgeTypeSelect.Props, Car
         return <DropdownButton
             id={this.state.id}
             title={CartridgeInfo.describeCartridgeType(this.props.cartridgeType)}
-            onSelect={this.props.onCartridgeTypeChange}
+            onSelect={this.props.onCartridgeTypeChange as any}
         >
             {CartridgeInfo.getAllTypes().map(cartridgeType =>
                 <MenuItem

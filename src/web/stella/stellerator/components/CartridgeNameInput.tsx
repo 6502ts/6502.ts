@@ -6,8 +6,8 @@ function CartridgeNameInput(props: CartridgeNameInput.Props) {
     return <FormControl
         type="text"
         value={props.name}
-        onChange={(e: Event) => props.onNameChange((e.target as HTMLInputElement).value)}
-        onKeyDown={(e: KeyboardEvent) => e.keyCode === 13 ? props.onKeyEnter() : undefined}
+        onChange={(e: React.FormEvent) => props.onNameChange((e.target as HTMLInputElement).value)}
+        onKeyDown={(e: React.KeyboardEvent) => e.keyCode === 13 ? props.onKeyEnter() : undefined}
     />;
 }
 

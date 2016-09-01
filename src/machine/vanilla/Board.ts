@@ -49,7 +49,7 @@ class Board implements BoardInterface {
         if (this._cpu.executionState !== CpuInterface.ExecutionState.boot)
             throw new Error("Already booted!");
 
-        while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch) {
+        while (this._cpu.executionState as CpuInterface.ExecutionState !== CpuInterface.ExecutionState.fetch) {
             this._cpu.cycle();
             clock++;
         }
