@@ -1,4 +1,5 @@
-const path = require('path');
+const path = require('path'),
+    envify = require('envify/custom');
 
 module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-ts');
@@ -11,6 +12,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-bower-install-simple');
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-tslint');
+    grunt.loadNpmTasks('grunt-template');
+    grunt.loadNpmTasks('grunt-exorcise');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-postcss');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     grunt.loadTasks('./grunt');
 
@@ -38,7 +44,9 @@ module.exports = function(grunt) {
                 'src/**/*.js',
                 'bin/**/*.js',
                 'tests/ts/**/*.js',
-                'tests/fixtures/fs_provider/blob.json'
+                'tests/fixtures/fs_provider/blob.json',
+                'web/stellerator.html',
+                'build'
             ],
             mrproper: [
                 'web/bower',
@@ -101,18 +109,88 @@ module.exports = function(grunt) {
                     }
                 }
             },
-            stellaWorker: {
+            stella_worker: {
                 options: {
                     configure: b => b
                         .plugin('tsify', {project: path.join(__dirname, 'worker')})
                         .transform('brfs'),
                 },
-                dest: 'web/js/compiled/stellaWorker.js',
+                dest: 'web/js/compiled/stella_worker.js',
                 src: ['worker/src/main.ts']
             },
-            stellerator: {
+            stellerator_dev: {
                 dest: 'web/js/compiled/stellerator.js',
                 src: ['src/web/stella/stellerator/main.tsx']
+            },
+            stellerator_prod: {
+                dest: 'web/js/compiled/stellerator.prod.js',
+                src: ['src/web/stella/stellerator/main.tsx'],
+                options: {
+                    configure: b => b
+                        .plugin('tsify', {project: __dirname})
+                        .transform(envify({
+                            NODE_ENV: 'production'
+                        }), {global: true})
+                        .transform('brfs'),
+                    browserifyOptions: {
+                        debug: true
+                    }
+                }
+            }
+        },
+
+        exorcise: {
+            stellerator: {
+                src: 'web/js/compiled/stellerator.js',
+                dest: 'web/js/compiled/stellerator.js.map'
+            },
+            stella_worker: {
+                src: 'web/js/compiled/stella_worker.js',
+                dest: 'web/js/compiled/stella_worker.js.map'
+            },
+            ehBasicCLI: {
+                src: 'web/js/compiled/ehBasicCLI.js',
+                dest: 'web/js/compiled/ehBasicCLI.js.map'
+            },
+            debuggerCLI: {
+                src: 'web/js/compiled/debuggerCLI.js',
+                dest: 'web/js/compiled/debuggerCLI.js.map'
+            },
+            stellaCLI: {
+                src: 'web/js/compiled/stellaCLI.js',
+                dest: 'web/js/compiled/stellaCLI.js.map'
+            }
+        },
+
+        uglify: {
+            options: {
+                sourceMap: false
+            },
+            stellerator: {
+                dest: 'build/stellerator/js/app.js',
+                src: [
+                    'web/bower/jquery/dist/jquery.min.js',
+                    'web/js/bootstrap.min.js',
+                    'web/js/compiled/stellerator.prod.js'
+                ]
+            },
+            stella_worker: {
+                dest: 'build/stellerator/js/worker.js',
+                src: 'web/js/compiled/stella_worker.js'
+            }
+        },
+
+        postcss: {
+            options: {
+                map: false,
+                processors: [
+                    require('postcss-import')(),
+                    require('cssnano')()
+                ]
+            },
+            stellerator: {
+                dest: 'build/stellerator/css/app.css',
+                src: 'web/css/stellerator.css'
             }
         },
 
@@ -140,6 +218,15 @@ module.exports = function(grunt) {
                 root: 'web',
                 port: 6502,
                 host: '127.0.0.1',
+                autoIndex: true,
+                ext: 'html',
+                cache: -1,
+                runInBackground: true
+            },
+            build: {
+                root: 'build',
+                port: 2600,
+                hosts: '127.0.0.1',
                 autoIndex: true,
                 ext: 'html',
                 cache: -1
@@ -172,6 +259,44 @@ module.exports = function(grunt) {
             }
         },
 
+        template: {
+            stellerator_dev: {
+                src: 'web/template/stellerator.html',
+                dest: 'web/stellerator.html',
+                options: {
+                    data: {
+                        stylesheets: ['css/stellerator.css'],
+                        scripts: [
+                            'bower/jquery/dist/jquery.min.js',
+                            'js/bootstrap.min.js',
+                            'js/compiled/stellerator.js'
+                        ],
+                        workerUrl: 'js/compiled/stella_worker.js'
+                    }
+                }
+            },
+            stellerator_build: {
+                src: 'web/template/stellerator.html',
+                dest: 'build/stellerator/index.html',
+                options: {
+                    data: {
+                        stylesheets: ['css/app.css'],
+                        scripts: ['js/app.js'],
+                        workerUrl: ['js/worker.js']
+                    }
+                }
+            }
+        },
+
+        copy: {
+            stellerator: {
+                expand: true,
+                cwd: 'web',
+                src: ['css/fonts/**/*'],
+                dest: 'build/stellerator'
+            }
+        },
+
         watch: {
             build: {
                 files: ['src/**/*.ts', 'aux/**'],
@@ -188,18 +313,49 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('bower', ['bower-install-simple']);
-    grunt.registerTask('build', ['tslint', 'ts', 'browserify', 'blobify:default']);
+
+    grunt.registerTask('browserify_dev', [
+        'browserify:debuggerCLI',
+        'browserify:ehBasicCLI',
+        'browserify:stellaCLI',
+        'browserify:stellerator_dev',
+        'browserify:stella_worker',
+        'exorcise'
+    ]);
+    grunt.registerTask('browserify_prod', ['browserify:stellerator_prod']);
+
+    grunt.registerTask('template_dev', ['template:stellerator_dev']);
+
+    grunt.registerTask('stellerator:dev', [
+        'tslint',
+        'browserify:stellerator_dev',
+        'browserify:stella_worker',
+        'template:stellerator_dev'
+    ]);
+
+    grunt.registerTask('stellerator:build', [
+        'tslint',
+        'browserify:stellerator_prod',
+        'browserify:stella_worker',
+        'uglify:stellerator',
+        'uglify:stella_worker',
+        'postcss:stellerator',
+        'copy:stellerator',
+        'template:stellerator_build'
+    ]);
+
+    grunt.registerTask('dev', ['tslint', 'browserify_dev', 'template_dev', 'blobify:default']);
+    grunt.registerTask('build', ['stellerator:build']);
     grunt.registerTask('test', ['tslint', 'ts:main', 'blobify:tests', 'mochaTest:test']);
     grunt.registerTask('test:debug', ['tslint', 'ts:main', 'blobify:tests', 'mochaTest:debug']);
-    grunt.registerTask('stellerator', ['tslint', 'browserify:stellerator', 'browserify:stellaWorker']);
+    grunt.registerTask('initial', ['clean', 'typings', 'bower', 'test']);
 
     grunt.registerTask('cleanup', ['clean:base', 'clean:worker']);
     grunt.registerTask('mrproper', ['clean']);
 
-    grunt.registerTask('initial', ['clean', 'typings', 'bower', 'build', 'test']);
-    grunt.registerTask('serve', ['http-server']);
+    grunt.registerTask('serve', ['http-server:dev', 'http-server:build']);
 
-    grunt.registerTask('default', ['build']);
+    grunt.registerTask('default', ['dev']);
 
     grunt.task.run('notify_hooks');
 };

@@ -1,0 +1,68 @@
+@import 'bootstrap.min.css';
+@import 'bootstrap-theme.min.css';
+@import 'fixes.css';
+
+body {
+    padding-top: 2.5rem;
+}
+
+.cartridge-list {
+    height: 15rem;
+    overflow-y: auto;
+    margin-bottom: 1.5rem;
+}
+
+.cartridge-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.cartridge-list li {
+    cursor: pointer;
+    list-style: none;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+}
+
+.cartridge-list li:nth-child(odd) {
+    background-color: #444;
+}
+
+.cartridge-list li.selected {
+    color: black;
+    background: #bbb;
+}
+
+.border-box {
+    border: 2px solid;
+    background: #555;
+    box-shadow: 0 0 0 5px #555;
+}
+
+.cartridge-controls .btn:not(:last-child) {
+    margin-right: 2ex;
+}
+
+.cartridge-controls button[disabled] {
+    color: #777;
+}
+
+.emulation-viewport {
+    height: 360px;
+    width: 480px;
+    vertical-align: top;
+}
+
+.emulation-viewport.error-display {
+    background: #700;
+    padding: 1rem;
+    text-align: center;
+}
+
+.settings-grid .row {
+    padding-bottom: 0.5rem;
+}
+
+.hidden {
+    display: none;
+}

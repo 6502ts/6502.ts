@@ -7,14 +7,16 @@
 
         <title>Stellerator</title>
 
-        
-        <link href="css/stellerator.css" rel="stylesheet"/>
-        
+        <%
+            stylesheets.forEach(stylesheet => print(`
+        <link href="${stylesheet}" rel="stylesheet"/>
+        `));
+        %>
 
         <script>
             _386 = {fastLoad: true};
             _stelleratorSettings = {
-                workerUrl: 'js/compiled/stella_worker.js'
+                workerUrl: '<%= workerUrl %>'
             };
         </script>
     </head>
@@ -22,13 +24,11 @@
     <body>
         <div id="react-root"></div>
 
-        
-        <script src="bower/jquery/dist/jquery.min.js"></script>
-        
-        <script src="js/bootstrap.min.js"></script>
-        
-        <script src="js/compiled/stellerator.js"></script>
-        
+        <%
+            scripts.forEach(script => print(`
+        <script src="${script}"></script>
+        `))
+        %>
 
     </body>
 </html>
