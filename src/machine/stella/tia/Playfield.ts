@@ -71,7 +71,7 @@ class Playfield {
             this._refp = this._reflected;
         }
 
-        if ((x & 0x03) !== 0) {
+        if (x & 0x03) {
             return;
         }
 
@@ -87,11 +87,11 @@ class Playfield {
             currentPixel = this._pattern & (1 << ((x >>> 2) - 20));
         }
 
-        this.collision = currentPixel > 0 ? this._collisionMask : 0;
+        this.collision = currentPixel ? 0 : this._collisionMask;
     }
 
     getPixel(colorIn: number): number {
-        if (this.collision > 0) {
+        if (!this.collision) {
             return this._x < 80 ? this._colorLeft : this._colorRight;
         }
 

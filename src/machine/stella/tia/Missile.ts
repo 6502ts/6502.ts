@@ -49,7 +49,7 @@ class Missile {
 
         this._resmp = resmp;
 
-        if (resmp > 0) {
+        if (resmp) {
             this._enabled = false;
         } else {
             this._enabled = this._enam;
@@ -85,7 +85,7 @@ class Missile {
     }
 
     render(): void {
-        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? this._collisionMask : 0;
+        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
     }
 
     tick(): void {
@@ -102,7 +102,7 @@ class Missile {
     }
 
     getPixel(colorIn: number): number {
-        return this.collision > 0 ? this.color : colorIn;
+        return this.collision ? colorIn : this.color;
     }
 
     color = 0xFFFFFFFF;

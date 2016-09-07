@@ -12,7 +12,7 @@ export default class LatchedInput {
     }
 
     vblank(value: number): void {
-        if ((value & 0x40) > 0) {
+        if (value & 0x40) {
             this._modeLatched = true;
         } else {
             this._modeLatched = false;

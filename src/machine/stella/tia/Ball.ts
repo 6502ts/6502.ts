@@ -71,7 +71,7 @@ export default class Ball {
     }
 
     render(): void {
-        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? this._collisionMask : 0;
+        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
     }
 
     tick(): void {
@@ -88,7 +88,7 @@ export default class Ball {
     }
 
     getPixel(colorIn: number): number {
-        return this.collision > 0 ? this.color : colorIn;
+        return this.collision ? colorIn : this.color;
     }
 
     shuffleStatus(): void {

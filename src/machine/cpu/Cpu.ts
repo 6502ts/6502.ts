@@ -1016,13 +1016,13 @@ class Cpu {
     state: CpuInterface.State = new CpuInterface.State();
 
     private _opCycles: number = 0;
-    private _instructionCallback: InstructionCallbackInterface;
-    private _invalidInstructionCallback : CpuInterface.InvalidInstructionCallbackInterface;
+    private _instructionCallback: InstructionCallbackInterface = null;
+    private _invalidInstructionCallback : CpuInterface.InvalidInstructionCallbackInterface = null;
     private _interruptPending: boolean = false;
     private _nmiPending: boolean = false;
     private _halted: boolean = false;
-    private _operand: number;
-    private _lastInstructionPointer: number;
+    private _operand: number = 0;
+    private _lastInstructionPointer: number = 0;
 }
 
 interface InstructionCallbackInterface {

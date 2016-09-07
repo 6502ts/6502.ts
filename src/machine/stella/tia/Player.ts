@@ -111,8 +111,8 @@ export default class Player {
         this.collision = (
             this._rendering &&
             this._renderCounter >= 0 &&
-            (this._pattern & (1 << (this._width - this._renderCounter - 1))) !== 0
-        ) ? this._collisionMask : 0;
+            (this._pattern & (1 << (this._width - this._renderCounter - 1)))
+        ) ? 0 : this._collisionMask;
     }
 
     tick(): void {
@@ -129,7 +129,7 @@ export default class Player {
     }
 
     getPixel(colorIn: number): number {
-        return this.collision ? this.color : colorIn;
+        return this.collision ? colorIn : this.color;
     }
 
     shufflePatterns(): void {

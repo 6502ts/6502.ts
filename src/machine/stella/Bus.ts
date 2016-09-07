@@ -113,9 +113,9 @@ class Bus implements BusInterface {
     };
 
 
-    private _tia: Tia;
-    private _pia: Pia;
-    private _cartridge: CartridgeInterface;
+    private _tia: Tia = null;
+    private _pia: Pia = null;
+    private _cartridge: CartridgeInterface = null;
 
     private _lastDataBusValue = 0;
     private _lastAddressBusValue = 0;

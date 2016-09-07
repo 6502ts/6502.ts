@@ -308,55 +308,55 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.cxm0p:
                 result = (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player0) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player1) > 0 ? 0x80 : 0)
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player0) ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player1) ? 0x80 : 0)
                 );
                 break;
 
             case Tia.Registers.cxm1p:
                 result = (
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player1) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player0) > 0 ? 0x80 : 0)
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player1) ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player0) ? 0x80 : 0)
                 );
                 break;
 
             case Tia.Registers.cxp0fb:
                 result = (
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.ball) ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.playfield) ? 0x80 : 0)
                 );
                 break;
 
             case Tia.Registers.cxp1fb:
                 result = (
-                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.ball) ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.playfield) ? 0x80 : 0)
                 );
                 break;
 
             case Tia.Registers.cxm0fb:
                 result = (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.ball) ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield) ? 0x80 : 0)
                 );
                 break;
 
             case Tia.Registers.cxm1fb:
                 result = (
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.ball) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield) > 0 ? 0x80 : 0)
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.ball) ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield) ? 0x80 : 0)
                 );
                 break;
 
             case Tia.Registers.cxppmm:
                 result = (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.missile1) > 0 ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.player1) > 0 ? 0x80 : 0)
+                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.missile1) ? 0x40 : 0) |
+                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.player1) ? 0x80 : 0)
                 );
                 break;
 
             case Tia.Registers.cxblpf:
-                result = (this._collisionMask & CollisionMask.ball & CollisionMask.playfield) > 0 ? 0x80 : 0;
+                result = (this._collisionMask & CollisionMask.ball & CollisionMask.playfield) ? 0x80 : 0;
                 break;
 
             default:
@@ -750,21 +750,12 @@ class Tia implements VideoOutputInterface {
 
     private _updateCollision() {
         this._collisionMask |= (
-            (this._player0.collision & this._player1.collision)     |
-            (this._player0.collision & this._missile0.collision)    |
-            (this._player0.collision & this._missile1.collision)    |
-            (this._player0.collision & this._ball.collision)        |
-            (this._player0.collision & this._playfield.collision)   |
-            (this._player1.collision & this._missile0.collision)    |
-            (this._player1.collision & this._missile1.collision)    |
-            (this._player1.collision & this._ball.collision)        |
-            (this._player1.collision & this._playfield.collision)   |
-            (this._missile0.collision & this._missile1.collision)   |
-            (this._missile0.collision & this._ball.collision)       |
-            (this._missile0.collision & this._playfield.collision)  |
-            (this._missile1.collision & this._ball.collision)       |
-            (this._missile1.collision & this._playfield.collision)  |
-            (this._ball.collision & this._playfield.collision)
+            ~this._player0.collision &
+            ~this._player1.collision &
+            ~this._missile0.collision &
+            ~this._missile1.collision &
+            ~this._ball.collision &
+            ~this._playfield.collision
         );
     }
 
