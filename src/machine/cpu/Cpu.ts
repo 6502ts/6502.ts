@@ -397,6 +397,43 @@ function opTya(state: CpuInterface.State): void {
     setFlagsNZ(state, state.a);
 }
 
+function opAlr(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    const old = state.a;
+    state.a = (state.a & operand) >>> 1;
+
+    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (state.a & 0x80) |
+        (state.a ? 0 : CpuInterface.Flags.z) |
+        (old & CpuInterface.Flags.c);
+}
+
+function opAxs(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    state.x = ((state.a & state.x) + (~operand + 1)) & 0xFF;
+
+    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (state.x & 0x80) |
+        ((state.x & 0xFF) ? 0 : CpuInterface.Flags.z) |
+        (state.x >>> 8);
+}
+
+function opDcp(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    const value = (bus.read(operand) + 0xFF) & 0xFF;
+    bus.write(operand, value);
+
+    const diff = state.a + (~value & 0xFF) + 1;
+
+    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (diff & 0x80) |
+        ((diff & 0xFF) ? 0 : CpuInterface.Flags.z) |
+        (diff >>> 8);
+}
+
+function opLax(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    state.a = operand;
+    state.x = operand;
+    setFlagsNZ(state, operand);
+}
+
 class Cpu {
     constructor(
         private _bus: BusInterface,
@@ -748,7 +785,13 @@ class Cpu {
                 break;
 
             case Instruction.Operation.nop:
-                this._opCycles = 1;
+            case Instruction.Operation.dop:
+            case Instruction.Operation.top:
+                if (addressingMode === Instruction.AddressingMode.immediate) {
+                    this._opCycles = 0;
+                } else {
+                    this._opCycles = 1;
+                }
                 this._instructionCallback = opNop;
                 break;
 
@@ -877,6 +920,27 @@ class Cpu {
             case Instruction.Operation.tya:
                 this._opCycles = 1;
                 this._instructionCallback = opTya;
+                break;
+
+            case Instruction.Operation.alr:
+                this._opCycles = 0;
+                this._instructionCallback = opAlr;
+                break;
+
+            case Instruction.Operation.axs:
+                this._opCycles = 0;
+                this._instructionCallback = opAxs;
+                break;
+
+            case Instruction.Operation.dcp:
+                this._opCycles = 3;
+                this._instructionCallback = opDcp;
+                break;
+
+            case Instruction.Operation.lax:
+                this._opCycles = 0;
+                this._instructionCallback = opLax;
+                dereference = true;
                 break;
 
             default:

@@ -33,6 +33,7 @@ module Instruction {
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
         rts, sbc, sec, sed, sei, sta, stx, sty, tax, tay, tsx, txa, txs, tya,
+        dop, top, alr, axs, dcp, lax, // undocumented operations
         invalid
     };
 
@@ -41,6 +42,7 @@ module Instruction {
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
         rts, sbc, sec, sed, sei, sta, stx, sty, tax, tay, tsx, txa, txs, tya,
+        dop, top, alr, axs, dcp, lax, // undocumented operations
         invalid
     };
 
@@ -106,6 +108,10 @@ module Instruction {
         }
 
         function set(opcode: number, operation: Operation, addressingMode: AddressingMode): void {
+            if (opcodes[opcode].operation !== Operation.invalid) {
+                throw new Error("entry for opcode " + opcode + " already exists");
+            }
+
             opcodes[opcode].operation = operation;
             opcodes[opcode].addressingMode = addressingMode;
         }
@@ -213,5 +219,47 @@ module Instruction {
         set(0xBA, Operation.tsx, AddressingMode.implied);
         set(0xCA, Operation.dex, AddressingMode.implied);
         set(0xEA, Operation.nop, AddressingMode.implied);
+
+        // instructions for undocumented opcodes
+        set(0x1A, Operation.nop, AddressingMode.implied);
+        set(0x3A, Operation.nop, AddressingMode.implied);
+        set(0x5A, Operation.nop, AddressingMode.implied);
+        set(0x7A, Operation.nop, AddressingMode.implied);
+        set(0xDA, Operation.nop, AddressingMode.implied);
+        set(0xFA, Operation.nop, AddressingMode.implied);
+
+        set(0x04, Operation.dop, AddressingMode.zeroPage);
+        set(0x14, Operation.dop, AddressingMode.zeroPageX);
+        set(0x34, Operation.dop, AddressingMode.zeroPageX);
+        set(0x44, Operation.dop, AddressingMode.zeroPage);
+        set(0x54, Operation.dop, AddressingMode.zeroPageX);
+        set(0x64, Operation.dop, AddressingMode.zeroPage);
+        set(0x74, Operation.dop, AddressingMode.zeroPageX);
+        set(0x80, Operation.dop, AddressingMode.immediate);
+        set(0x82, Operation.dop, AddressingMode.immediate);
+        set(0x89, Operation.dop, AddressingMode.immediate);
+        set(0xC2, Operation.dop, AddressingMode.immediate);
+        set(0xD4, Operation.dop, AddressingMode.zeroPageX);
+        set(0xE2, Operation.dop, AddressingMode.immediate);
+        set(0xF4, Operation.dop, AddressingMode.zeroPageX);
+
+        set(0x0C, Operation.top, AddressingMode.absolute);
+        set(0x1C, Operation.top, AddressingMode.absoluteX);
+        set(0x3C, Operation.top, AddressingMode.absoluteX);
+        set(0x5C, Operation.top, AddressingMode.absoluteX);
+        set(0x7C, Operation.top, AddressingMode.absoluteX);
+        set(0xDC, Operation.top, AddressingMode.absoluteX);
+        set(0xFC, Operation.top, AddressingMode.absoluteX);
+
+        set(0xEB, Operation.sbc, AddressingMode.immediate);
+
+        set(0x4B, Operation.alr, AddressingMode.immediate);
+
+        set(0xCB, Operation.axs, AddressingMode.immediate);
+
+        set(0xC7, Operation.dcp, AddressingMode.zeroPage);
+
+        set(0xA7, Operation.lax, AddressingMode.zeroPage);
+        set(0xB3, Operation.lax, AddressingMode.indirectIndexedY);
     })();
 };
