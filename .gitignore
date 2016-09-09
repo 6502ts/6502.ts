@@ -12,3 +12,4 @@ worker/src/**/*.js
 web/stellerator.html
 build
 .vscode
+.idea

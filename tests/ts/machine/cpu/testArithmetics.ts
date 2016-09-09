@@ -105,6 +105,7 @@ function testAdcBcd(
 
 
 function testSbc(
+    opcode: number,
     in1: number,
     in2: number,
     out: number,
@@ -118,7 +119,7 @@ function testSbc(
 
     function () {
             const runner = Runner
-                .create([0xE9, in2])
+                .create([opcode, in2])
                 .setState({
                     a: in1,
                     flags: CpuInterface.Flags.e | (borrow ? 0 : CpuInterface.Flags.c)
@@ -137,6 +138,7 @@ function testSbc(
 }
 
 function testSbcBcd(
+    opcode: number,
     in1: number,
     in2: number,
     out: number,
@@ -150,7 +152,7 @@ function testSbcBcd(
 
         function() {
             const runner = Runner
-                .create([0xE9, in2])
+                .create([opcode, in2])
                 .setState({
                     a: in1,
                     flags: CpuInterface.Flags.d | (borrow ? 0 : CpuInterface.Flags.c)
@@ -194,16 +196,16 @@ export function run(): void {
     });
 
     suite('SBC', function() {
-        testSbc(0x45, 0x01, 0x44, CpuInterface.Flags.c, 0);
-        testSbc(0x45, 0x36, 0x0F, CpuInterface.Flags.c, 0);
-        testSbc(0x45, 0x36, 0x0F, CpuInterface.Flags.c, 0);
-        testSbc(0x45, 0x50, 0xF5, CpuInterface.Flags.n, 0);
-        testSbc(0xFF, 0xFE, 0x00, CpuInterface.Flags.z | CpuInterface.Flags.c, 0, true);
-        testSbcBcd(0x34, 0x12, 0x22, CpuInterface.Flags.c, 0);
-        testSbcBcd(0x34, 0x17, 0x17, CpuInterface.Flags.c, 0);
-        testSbcBcd(0x78, 0x80, 0x98, 0, CpuInterface.Flags.n);
-        testSbcBcd(0x56, 0x56, 0x00, CpuInterface.Flags.c | CpuInterface.Flags.z, 0);
-        testSbcBcd(0x56, 0x56, 0x99, CpuInterface.Flags.n, 0, true);
+        testSbc(0xE9, 0x45, 0x01, 0x44, CpuInterface.Flags.c, 0);
+        testSbc(0xE9, 0x45, 0x36, 0x0F, CpuInterface.Flags.c, 0);
+        testSbc(0xE9, 0x45, 0x36, 0x0F, CpuInterface.Flags.c, 0);
+        testSbc(0xE9, 0x45, 0x50, 0xF5, CpuInterface.Flags.n, 0);
+        testSbc(0xE9, 0xFF, 0xFE, 0x00, CpuInterface.Flags.z | CpuInterface.Flags.c, 0, true);
+        testSbcBcd(0xE9, 0x34, 0x12, 0x22, CpuInterface.Flags.c, 0);
+        testSbcBcd(0xE9, 0x34, 0x17, 0x17, CpuInterface.Flags.c, 0);
+        testSbcBcd(0xE9, 0x78, 0x80, 0x98, 0, CpuInterface.Flags.n);
+        testSbcBcd(0xE9, 0x56, 0x56, 0x00, CpuInterface.Flags.c | CpuInterface.Flags.z, 0);
+        testSbcBcd(0xE9, 0x56, 0x56, 0x99, CpuInterface.Flags.n, 0, true);
 
         util.testDereferencingZeropage(0xE5, 0xFF, 3, {a: 0x10}, {a: 0x10});
         util.testDereferencingZeropageX(0xF5, 0xFF, 4, {a: 0x10}, {a: 0x10});
@@ -212,5 +214,18 @@ export function run(): void {
         util.testDereferencingAbsoluteY(0xF9, 0xFF, 4, 5, {a: 0x10}, {a: 0x10});
         util.testDereferencingIndirectX(0xE1, 0xFF, 6, {a: 0x10}, {a: 0x10});
         util.testDereferencingIndirectY(0xF1, 0xFF, 5, 6, {a: 0x10}, {a: 0x10});
+    });
+
+    suite('UNDOC-SBC', function() {
+        testSbc(0xEB, 0x45, 0x01, 0x44, CpuInterface.Flags.c, 0);
+        testSbc(0xEB, 0x45, 0x36, 0x0F, CpuInterface.Flags.c, 0);
+        testSbc(0xEB, 0x45, 0x36, 0x0F, CpuInterface.Flags.c, 0);
+        testSbc(0xEB, 0x45, 0x50, 0xF5, CpuInterface.Flags.n, 0);
+        testSbc(0xEB, 0xFF, 0xFE, 0x00, CpuInterface.Flags.z | CpuInterface.Flags.c, 0, true);
+        testSbcBcd(0xEB, 0x34, 0x12, 0x22, CpuInterface.Flags.c, 0);
+        testSbcBcd(0xEB, 0x34, 0x17, 0x17, CpuInterface.Flags.c, 0);
+        testSbcBcd(0xEB, 0x78, 0x80, 0x98, 0, CpuInterface.Flags.n);
+        testSbcBcd(0xEB, 0x56, 0x56, 0x00, CpuInterface.Flags.c | CpuInterface.Flags.z, 0);
+        testSbcBcd(0xEB, 0x56, 0x56, 0x99, CpuInterface.Flags.n, 0, true);
     });
 }
