@@ -26,6 +26,10 @@ class CartridgeDetector {
             case 0x4000:
                 return this._detect16k(buffer);
 
+            case 0x7000:
+            case 0x7400:
+                return CartridgeInfo.CartridgeType.bankswitch_FA2;
+
             case 0x8000:
                 return CartridgeInfo.CartridgeType.bankswitch_32k_F4;
 

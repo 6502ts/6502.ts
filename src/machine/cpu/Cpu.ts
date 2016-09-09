@@ -787,11 +787,9 @@ class Cpu {
             case Instruction.Operation.nop:
             case Instruction.Operation.dop:
             case Instruction.Operation.top:
-                if (addressingMode === Instruction.AddressingMode.immediate) {
-                    this._opCycles = 0;
-                } else {
-                    this._opCycles = 1;
-                }
+                this._opCycles = 0;
+                dereference = true;
+
                 this._instructionCallback = opNop;
                 break;
 
