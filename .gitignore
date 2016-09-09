@@ -11,3 +11,4 @@ tests/ts/**/*.js
 worker/src/**/*.js
 web/stellerator.html
 build
+.vscode
