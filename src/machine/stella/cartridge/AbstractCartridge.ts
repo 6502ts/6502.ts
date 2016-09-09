@@ -2,7 +2,7 @@ import Event from '../../../tools/event/Event';
 import CartridgeInterface from './CartridgeInterface';
 import CartridgeInfo from './CartridgeInfo';
 import CpuInterface from '../../cpu/CpuInterface';
-import BusInterface from '../../bus/BusInterface';
+import Bus from '../Bus';
 
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
@@ -23,7 +23,7 @@ class AbstractCartridge implements CartridgeInterface {
         return this;
     }
 
-    setBus(bus: BusInterface): this {
+    setBus(bus: Bus): this {
         return this;
     }
 

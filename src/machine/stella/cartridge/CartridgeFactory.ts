@@ -9,6 +9,7 @@ import CartridgeUA from './CartridgeUA';
 import CartridgeFA from './CartridgeFA';
 import CartridgeE7 from './CartridgeE7';
 import CartridgeF0 from './CartridgeF0';
+import CartridgeF4 from './CartridgeF4';
 
 import CartridgeInfo from './CartridgeInfo';
 import CartridgeDetector from './CartridgeDetector';
@@ -58,6 +59,9 @@ export default class CartridgeFactory {
 
             case CartridgeInfo.CartridgeType.bankswitch_16k_E7:
                 return new CartridgeE7(buffer);
+
+            case CartridgeInfo.CartridgeType.bankswitch_32k_F4:
+                return new CartridgeF4(buffer);
 
             case CartridgeInfo.CartridgeType.bankswitch_64k_F0:
                 return new CartridgeF0(buffer);

@@ -43,6 +43,4 @@ Currently not implemented
  * *Stella* EFSC (Homestar Runner)
  * *Stella* FA2
  * *Stella* SB (Superbanking)
-
-
  * Anything ARM :)

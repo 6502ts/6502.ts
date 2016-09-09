@@ -44,14 +44,14 @@ module CpuInterface {
     }
 
     export const enum Flags {
-        c = 0x01,
-        z = 0x02,
-        i = 0x04,
-        d = 0x08,
-        b = 0x10,
-        e = 0x20,
-        v = 0x40,
-        n = 0x80
+        c = 0x01,   // carry
+        z = 0x02,   // zero
+        i = 0x04,   // interrupt
+        d = 0x08,   // decimal mode
+        b = 0x10,   // break
+        e = 0x20,   // reserved
+        v = 0x40,   // overflow
+        n = 0x80    // sign
     }
 
     export interface InvalidInstructionCallbackInterface {
