@@ -80,7 +80,10 @@ class Pia {
     }
 
     private _writeTimer(address: number, value: number): void {
-        switch (address & 0x029F) {
+        this._interruptFlag = 0;
+
+        // clear bit 3 <-> interrupt enable/disable
+        switch (address & 0x0297) {
             case Pia.Registers.t1024t:
                 return this._setTimer(1024, value);
 
@@ -99,7 +102,6 @@ class Pia {
         this._timerBase = base;
         this._timerSub = 0;
         this._timerValue = value;
-        this._interruptFlag = 0;
     }
 
     private _readIo(address: number): number {
@@ -137,7 +139,7 @@ class Pia {
                 this._interruptFlag = 0;
             }
 
-            return flag;
+            return flag & 0x80;
         } else {
             if (!this._flagSetDuringThisCycle) {
                 this._interruptFlag = 0;
