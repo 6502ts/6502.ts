@@ -1,5 +1,6 @@
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
+import RngInterface from '../../../tools/rng/GeneratorInterface';
 import * as cartridgeUtil from './util';
 
 class CartridgeFA extends AbstractCartridge {
@@ -18,6 +19,12 @@ class CartridgeFA extends AbstractCartridge {
         }
 
         this._bank = this._bank0;
+    }
+
+    randomize(rng: RngInterface): void {
+        for (let i = 0; i < this._ram.length; i++) {
+            this._ram[i] = rng.int(0xFF);
+        }
     }
 
     read(address: number): number {
