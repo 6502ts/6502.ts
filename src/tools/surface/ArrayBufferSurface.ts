@@ -34,6 +34,14 @@ class ArrayBufferSurface implements RGBASurfaceInterface {
         return RGBASurfaceInterface.ByteOrder.rgba;
     }
 
+    fill(value: number): this {
+        for (let i = 0; i < this._buffer.length; i++) {
+            this._buffer[i] = value;
+        }
+
+        return this;
+    }
+
     private _buffer: Uint32Array;
 }
 

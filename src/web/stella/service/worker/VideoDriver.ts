@@ -53,7 +53,9 @@ class VideoDriver {
                     this._members[id] = member;
                 }
 
-                return new ArrayBufferSurface(this._width, this._height, buffer);
+                const newSurface = new ArrayBufferSurface(this._width, this._height, buffer);
+
+                return newSurface.fill(0xFF000000);
             }
         );
 

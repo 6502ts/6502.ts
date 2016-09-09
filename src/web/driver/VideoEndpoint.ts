@@ -21,9 +21,11 @@ class VideoEndpoint implements VideoEndpointInterface {
                     imageData = poolMember.get();
 
                 if (!this._surfaces.has(imageData)) {
+                    const newSurface = new ArrayBufferSurface(imageData.width, imageData.height, imageData.data.buffer);
+
                     this._surfaces.set(
                         imageData,
-                        new ArrayBufferSurface(imageData.width, imageData.height, imageData.data.buffer)
+                        newSurface.fill(0xFF000000)
                     );
                 }
 
