@@ -181,7 +181,8 @@ class Tia implements VideoOutputInterface {
             // The tick is only propagated to the sprite counters if we are in blank
             // mode --- in frame mode, it overlaps with the sprite clock and is gobbled.
             // The second condition is a magic hack that fixes the bang! demo and that _might_
-            // be justified by the interplay of different clock sources.
+            // possibly be justified by the interplay of different clock sources --- or it might
+            // be just a hack ;)
             const apply = (this._hstate === HState.blank) || (this._hctr >= 225 && this._movementCtr <= 64),
                 clock = this._movementCtr >>> 2;
 
