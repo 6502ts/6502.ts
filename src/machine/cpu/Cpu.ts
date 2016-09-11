@@ -984,8 +984,8 @@ class Cpu {
                 value = this._bus.read(this.state.p);
                 value = (value & 0x80) ? -(~(value - 1) & 0xFF) : value;
                 this._operand = (this.state.p + value + 0x10001) & 0xFFFF;
-                this._opCycles += (((this._operand & 0xFF00) !== (this.state.p & 0xFF00)) ? 3 : 2);
                 this.state.p = (this.state.p + 1) & 0xFFFF;
+                this._opCycles += (((this._operand & 0xFF00) !== (this.state.p & 0xFF00)) ? 3 : 2);
                 break;
 
             case Instruction.AddressingMode.zeroPageX:

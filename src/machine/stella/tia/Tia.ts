@@ -32,10 +32,7 @@ const enum Delay {
     pf = 2,
     grp = 1,
     shufflePlayer = 1,
-    hmp = 2,
-    hmm = 2,
-    hmbl = 2,
-    hmclr = 2
+    hmp = 1
 }
 
 // Each bit in the collision mask identifies a single collision pair
@@ -84,7 +81,7 @@ class Tia implements VideoOutputInterface {
         this._hctr = 0;
         this._movementInProgress = false;
         this._extendedHblank = false;
-        this._movementClock = 0;
+        this._movementCtr = 0;
         this._priority = Priority.normal;
         this._hstate = HState.blank;
         this._freshLine = true;
@@ -176,32 +173,35 @@ class Tia implements VideoOutputInterface {
             return;
         }
 
-        // color clock mod 4
-        if ((this._hctr & 0x3) === 0) {
-            // the movement counter dirties the line cache
-            this._linesSinceChange = 0;
+        // the movement counter dirties the line cache
+        this._linesSinceChange = 0;
 
+        // The actual clock supplied to the sprites is mod 4
+        if ((this._movementCtr & 0x3) === 0) {
             // The tick is only propagated to the sprite counters if we are in blank
             // mode --- in frame mode, it overlaps with the sprite clock and is gobbled.
-            const apply = this._hstate === HState.blank;
+            // The second condition is a magic hack that fixes the bang! demo and that _might_
+            // be justified by the interplay of different clock sources.
+            const apply = (this._hstate === HState.blank) || (this._hctr >= 225 && this._movementCtr <= 64),
+                clock = this._movementCtr >>> 2;
 
             // did any sprite receive the clock?
             let m = false;
 
-            m = this._missile0.movementTick(this._movementClock, apply) || m;
-            m = this._missile1.movementTick(this._movementClock, apply) || m;
-            m = this._player0.movementTick(this._movementClock, apply) || m;
-            m = this._player1.movementTick(this._movementClock, apply) || m;
-            m = this._ball.movementTick(this._movementClock, apply) || m;
+            m = this._missile0.movementTick(clock, apply) || m;
+            m = this._missile1.movementTick(clock, apply) || m;
+            m = this._player0.movementTick(clock, apply) || m;
+            m = this._player1.movementTick(clock, apply) || m;
+            m = this._ball.movementTick(clock, apply) || m;
 
             // stop collision counter if all latches were cleared
             this._movementInProgress = m;
 
             // the collision latches must be updated if any sprite received a tick
             this._collisionUpdateRequired = m;
-
-            this._movementClock++;
         }
+
+        this._movementCtr++;
     }
 
     private _tickHblank() {
@@ -406,11 +406,13 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.hmm0:
-                this._delayQueue.push(Tia.Registers.hmm0, value, Delay.hmm);
+                this._linesSinceChange = 0;
+                this._missile0.hmm(value);
                 break;
 
             case Tia.Registers.hmm1:
-                this._delayQueue.push(Tia.Registers.hmm1, value, Delay.hmm);
+                this._linesSinceChange = 0;
+                this._missile1.hmm(value);
                 break;
 
             case Tia.Registers.resm0:
@@ -434,7 +436,12 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.hmclr:
-                this._delayQueue.push(Tia.Registers.hmclr, value, Delay.hmclr);
+                this._linesSinceChange = 0;
+                this._missile0.hmm(0);
+                this._missile1.hmm(0);
+                this._player0.hmp(0);
+                this._player1.hmp(0);
+                this._ball.hmbl(0);
                 break;
 
             case Tia.Registers.nusiz0:
@@ -565,7 +572,8 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.hmbl:
-                this._delayQueue.push(Tia.Registers.hmbl, value, Delay.hmbl);
+                this._linesSinceChange = 0;
+                this._ball.hmbl(value);
                 break;
 
             case Tia.Registers.resbl:
@@ -629,7 +637,7 @@ class Tia implements VideoOutputInterface {
                 self._linesSinceChange = 0;
 
                 // Start the timer and increase hblank
-                self._movementClock = 0;
+                self._movementCtr = 0;
                 self._movementInProgress = true;
 
                 if (!self._extendedHblank) {
@@ -690,30 +698,6 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.hmp1:
                 self._linesSinceChange = 0;
                 self._player1.hmp(value);
-                break;
-
-            case Tia.Registers.hmm0:
-                self._linesSinceChange = 0;
-                self._missile0.hmm(value);
-                break;
-
-            case Tia.Registers.hmm1:
-                self._linesSinceChange = 0;
-                self._missile1.hmm(value);
-                break;
-
-            case Tia.Registers.hmbl:
-                self._linesSinceChange = 0;
-                self._ball.hmbl(value);
-                break;
-
-            case Tia.Registers.hmclr:
-                self._linesSinceChange = 0;
-                self._missile0.hmm(0);
-                self._missile1.hmm(0);
-                self._player0.hmp(0);
-                self._player1.hmp(0);
-                self._ball.hmbl(0);
                 break;
         }
     }
@@ -807,7 +791,7 @@ class Tia implements VideoOutputInterface {
     private _collisionUpdateRequired = false;
 
     // Count the extra clocks triggered by move
-    private _movementClock = 0;
+    private _movementCtr = 0;
     // Is the movement clock active and shoud pulse?
     private _movementInProgress = false;
     // do we have an extended hblank triggered by hmove?

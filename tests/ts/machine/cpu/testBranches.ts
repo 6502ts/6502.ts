@@ -44,6 +44,30 @@ function branchSuite(
             })
         );
 
+        test('immediate, backward branch, page crossing @ 0xFE', () => Runner
+            .create([opcode, (~0x0A & 0xFF) + 1], 0xE0FE)
+            .setState({
+                flags: jumpCondition
+            })
+            .run()
+            .assertCycles(4)
+            .assertState({
+                p: 0xE0FE + 2 - 0x0A
+            })
+        );
+
+        test('immediate, backward branch, page crossing @ 0xFF', () => Runner
+            .create([opcode, (~0x0A & 0xFF) + 1], 0xE0FF)
+            .setState({
+                flags: jumpCondition
+            })
+            .run()
+            .assertCycles(4)
+            .assertState({
+                p: 0xE0FF + 2 - 0x0A
+            })
+        );
+
     });
 }
 
