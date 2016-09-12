@@ -220,7 +220,8 @@ class Tia implements VideoOutputInterface {
     }
 
     private _tickHframe() {
-        const lineNotCached = this._linesSinceChange < 2,
+        const y = this._frameManager.getCurrentLine(),
+            lineNotCached = this._linesSinceChange < 2 || y === 0,
             x = this._hctr - 68;
 
         // collision latches must be updated if we cannot use cached line daa
@@ -241,7 +242,7 @@ class Tia implements VideoOutputInterface {
 
         // render pixel data
         if (this._frameManager.isRendering()) {
-            this._renderPixel(x, this._frameManager.getCurrentLine(), lineNotCached);
+            this._renderPixel(x, y, lineNotCached);
         }
 
         if (++this._hctr >= 228) {
@@ -725,7 +726,7 @@ class Tia implements VideoOutputInterface {
     }
 
     private _renderPixel(x: number, y: number, lineNotCached: boolean): void {
-        if (lineNotCached || y === 0) {
+        if (lineNotCached) {
             let color = this._colorBk;
 
             if (this._priority === Priority.normal) {
