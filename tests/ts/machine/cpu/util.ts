@@ -75,6 +75,28 @@ export function testDereferencingZeropageX(
     );
 }
 
+export function testDereferencingZeropageY(
+    opcode: number,
+    operand: number,
+    cycles: number,
+    stateBefore: Runner.State,
+    stateAfter: Runner.State,
+    extra = ''
+): void {
+    stateBefore.y = 0x12;
+
+    test(`zeropage,Y ${extra}`, () => Runner
+        .create([opcode, 0x34])
+        .setState(stateBefore)
+        .poke({
+            '0x0046': operand
+        })
+        .run()
+        .assertCycles(cycles)
+        .assertState(stateAfter)
+    );
+}
+
 export function testDereferencingAbsolute(
     opcode: number,
     operand: number,
@@ -336,6 +358,120 @@ export function testMutatingAbsoluteX(
         .assertState(stateAfter)
         .assertMemory({
             '0x5600': after
+        })
+    );
+}
+
+export function testMutatingAbsoluteY(
+    opcode: number,
+    before: number,
+    after: number,
+    cycles: number,
+    cyclesCross: number,
+    stateBefore: Runner.State,
+    stateAfter: Runner.State,
+    extra = ''
+): void {
+    stateBefore.y = 0x12;
+
+    test(`absolute,Y ${extra}`, () => Runner
+        .create([opcode, 0x34, 0x55])
+        .setState(stateBefore)
+        .poke({
+            '0x5546': before
+        })
+        .run()
+        .assertCycles(cycles)
+        .assertState(stateAfter)
+        .assertMemory({
+            '0x5546': after
+        })
+    );
+
+    test(`absolute,Y (page crossing) ${extra}`, () => Runner
+        .create([opcode, 0xEE, 0x55])
+        .setState(stateBefore)
+        .poke({
+            '0x5600': before
+        })
+        .run()
+        .assertCycles(cyclesCross)
+        .assertState(stateAfter)
+        .assertMemory({
+            '0x5600': after
+        })
+    );
+}
+
+export function testMutatingIndirectX(
+    opcode: number,
+    operand: number,
+    after: number,
+    cycles: number,
+    stateBefore: Runner.State,
+    stateAfter: Runner.State,
+    extra = ''
+): void {
+    stateBefore.x = 0x12;
+
+    test(`indirect,X ${extra}`, () => Runner
+        .create([opcode, 0x34])
+        .setState(stateBefore)
+        .poke({
+            '0x0046': 0x87,
+            '0x0047': 0x6E,
+            '0x6E87': operand
+        })
+        .run()
+        .assertCycles(cycles)
+        .assertState(stateAfter)
+        .assertMemory({
+            '0x6E87': after
+        })
+    );
+}
+
+export function testMutatingIndirectY(
+    opcode: number,
+    operand: number,
+    after: number,
+    cycles: number,
+    cyclesCross: number,
+    stateBefore: Runner.State,
+    stateAfter: Runner.State,
+    extra = ''
+): void {
+    stateBefore.y = 0x12;
+
+    test(`indirect,Y ${extra}`, () => Runner
+        .create([opcode, 0x34])
+        .setState(stateBefore)
+        .poke({
+            '0x0034': 0x87,
+            '0x0035': 0x6E,
+            '0x6E99': operand
+        })
+        .run()
+        .assertCycles(cycles)
+        .assertState(stateAfter)
+        .assertMemory({
+            '0x6E99': after
+        })
+    );
+
+    test(`indirect,Y (page crossing) ${extra}`, () => Runner
+        .create([opcode, 0x34])
+        .setState(stateBefore)
+        .poke({
+            '0x0034': 0xFF,
+            '0x0035': 0x6E,
+            '0x6F11': operand
+        })
+        .run()
+        .assertCycles(cyclesCross)
+        .assertState(stateAfter)
+        .assertMemory({
+            '0x6F11': after
         })
     );
 }

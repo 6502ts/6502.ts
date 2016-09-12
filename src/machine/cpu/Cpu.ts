@@ -933,6 +933,7 @@ class Cpu {
             case Instruction.Operation.dcp:
                 this._opCycles = 3;
                 this._instructionCallback = opDcp;
+                slowIndexedAccess = true;
                 break;
 
             case Instruction.Operation.lax:

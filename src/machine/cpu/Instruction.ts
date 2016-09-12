@@ -258,8 +258,18 @@ module Instruction {
         set(0xCB, Operation.axs, AddressingMode.immediate);
 
         set(0xC7, Operation.dcp, AddressingMode.zeroPage);
+        set(0xD7, Operation.dcp, AddressingMode.zeroPageX);
+        set(0xCF, Operation.dcp, AddressingMode.absolute);
+        set(0xDF, Operation.dcp, AddressingMode.absoluteX);
+        set(0xDB, Operation.dcp, AddressingMode.absoluteY);
+        set(0xC3, Operation.dcp, AddressingMode.indexedIndirectX);
+        set(0xD3, Operation.dcp, AddressingMode.indirectIndexedY);
 
         set(0xA7, Operation.lax, AddressingMode.zeroPage);
+        set(0xB7, Operation.lax, AddressingMode.zeroPageY);
+        set(0xAF, Operation.lax, AddressingMode.absolute);
+        set(0xBF, Operation.lax, AddressingMode.absoluteY);
+        set(0xA3, Operation.lax, AddressingMode.indexedIndirectX);
         set(0xB3, Operation.lax, AddressingMode.indirectIndexedY);
     })();
 };
