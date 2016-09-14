@@ -408,12 +408,14 @@ function opAlr(state: CpuInterface.State, bus: BusInterface, operand: number): v
 }
 
 function opAxs(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    state.x = ((state.a & state.x) + (~operand + 1)) & 0xFF;
+    const value = (state.a & state.x) + (~operand & 0xFF) + 1;
+
+    state.x = value & 0xFF;
 
     state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (state.x & 0x80) |
         ((state.x & 0xFF) ? 0 : CpuInterface.Flags.z) |
-        (state.x >>> 8);
+        (value >>> 8);
 }
 
 function opDcp(state: CpuInterface.State, bus: BusInterface, operand: number): void {

@@ -156,7 +156,7 @@ export function run() {
             .assertCycles(2)
             .assertState({
                 x: 0xAE,
-                flags: 0xFF & ~CpuInterface.Flags.z & ~CpuInterface.Flags.c
+                flags: 0xFF & ~CpuInterface.Flags.z
             })
         );
     });
