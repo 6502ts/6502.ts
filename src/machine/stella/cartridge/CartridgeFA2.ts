@@ -4,6 +4,11 @@ import RngInterface from '../../../tools/rng/GeneratorInterface';
 import Bus from '../Bus';
 import * as cartridgeUtil from './util';
 
+const enum IODelay {
+    load = 10,
+    sace = 100
+};
+
 class CartridgeFA2 extends AbstractCartridge {
 
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -52,7 +57,11 @@ class CartridgeFA2 extends AbstractCartridge {
         if (address >= 0x0100 && address < 0x0200) {
             return this._ram[address - 0x0100];
         } else if (address === 0x0FF4) {
-            return this._bank[address] | 0x40;
+            return this._accessCounter >= this._accessCounterLimit ?
+                // bit 6 zero: operation complete
+                (this._bank[address] & ~0x40) :
+                // bit 6 one: operation pending
+                (this._bank[address] | 0x40);
         } else {
             return this._bank[address];
         }
@@ -61,14 +70,15 @@ class CartridgeFA2 extends AbstractCartridge {
     write(address: number, value: number): void {
         address &= 0x0FFF;
 
+        this._accessCounter++;
+
         if (address < 0x0100) {
             this._ram[address] = value;
             return;
         }
 
         if (address === 0x0FF4) {
-            this._ram[0xFF] = 0;
-            return;
+            return this._handleIo();
         }
 
         if (address >= 0x0FF5 && address <= 0x0FFB) {
@@ -76,9 +86,40 @@ class CartridgeFA2 extends AbstractCartridge {
         }
     }
 
+    private _handleIo(): void {
+        if (this._accessCounter < this._accessCounterLimit) {
+            return;
+        }
+
+        if (this._ram[0xFF] === 1) {
+            for (let i = 0; i < 0x100; i++) {
+                this._ram[i] = this._savedRam[i];
+            }
+
+            this._accessCounterLimit = IODelay.load;
+        }
+        else if (this._ram[0xFF] === 2) {
+            for (let i = 0; i < 0x100; i++) {
+                this._savedRam[i] = this._ram[i];
+            }
+
+            this._accessCounterLimit = IODelay.sace;
+        }
+        else {
+            return;
+        }
+
+        this._accessCounter = 0;
+        this._ram[0xFF] = 0;
+    }
+
     private _bank: Uint8Array;
     private _banks = new Array<Uint8Array>(7);
     private _ram = new Uint8Array(0x100);
+
+    private _savedRam = new Uint8Array(0x100);
+    private _accessCounter = 0;
+    private _accessCounterLimit = 0;
 
     private _bus: Bus;
 }
