@@ -61,7 +61,6 @@ export default class FrameManager {
         this._state = State.waitForVsyncStart;
         this._vsync = false;
         this._lineInState = 0;
-        this._surfaceFactory = null;
         this._surface = null;
     }
 
