@@ -1,5 +1,7 @@
 # What is it?
 
+**DOCUMENTATION is being rewritten, the old docs are availabe [here](README.old.md)**
+
 6502.ts strives to be a collection of emulators for 6502 based systems written in Typescript.
 It currently provides
 
@@ -20,7 +22,7 @@ of course).
 You can find recent builds of the various applications on the project's github.io page.
 
  * [vanilla debugger](https://6502ts.github.io/dev/debugger.html)
- * [hardware monitor frontend / debugger](https://6502ts.github.io/dev/debugger.html)
+ * [hardware monitor frontend / debugger](https://6502ts.github.io/dev/)
  * [Atari 2600 debugger frontend](https://6502ts.github.io/dev/stella.html)
  * [Atari 2600 stellerator, development build](https://6502ts.github.io/dev/stellerator.html)
  * [Atari 2600 stellerator, production build](https://6502ts.github.io/stellerator)
@@ -34,7 +36,8 @@ After checking out the repos, doing
 
 will initialize the development environment. You can then do a development build of all
 apps with a simple `grunt`. Production versions can be build with `grunt build` (currently
-only stellerator). `grunt test` will run the testsuite.
+only stellerator). `grunt test` will run the testsuite. A web server can be fired up with
+`grunt serve`.
 
 After building, additional NodeJS applications for commandline debugging can be found in
 `bin`.

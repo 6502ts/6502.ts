@@ -18,11 +18,14 @@ Supported:
  * E7 (M-Net 16k)
  * F0 (Megaboy)
  * UA (UA 8k)
+ * F4 (Atari 32k)
+ * *Stella* FA2
+
+
 
 Currently not implemented
 
  * CV (Commavid)
- * F4 (Atari 32k)
  * F8 with SARA
  * DPC (Pitfall 2)
  * Supercharger
@@ -41,6 +44,5 @@ Currently not implemented
  * *Stella* DFSC (Homestar Runner)
  * *Stella* EF (Homestar Runner)
  * *Stella* EFSC (Homestar Runner)
- * *Stella* FA2
  * *Stella* SB (Superbanking)
  * Anything ARM :)

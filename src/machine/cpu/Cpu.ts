@@ -510,6 +510,10 @@ class Cpu {
     }
 
     cycle(): Cpu {
+        if (this._halted) {
+            return;
+        }
+
         switch (this.executionState) {
             case CpuInterface.ExecutionState.boot:
             case CpuInterface.ExecutionState.execute:
@@ -521,8 +525,6 @@ class Cpu {
                 break;
 
             case CpuInterface.ExecutionState.fetch:
-                if (this._halted) break;
-
                 // TODO: interrupt handling
 
                 this._fetch();
