@@ -14,6 +14,7 @@ interface PageConfig {
     cartridge?: string;
     tvMode?: string;
     audio?: string;
+    paddles?: string;
 }
 
 export function run({
@@ -84,6 +85,10 @@ export function run({
 
         if (pageConfig.cartridge) {
             cli.pushInput(`load-cartridge ${pageConfig.cartridge}\n`);
+        }
+
+        if (pageConfig.paddles) {
+            cli.pushInput(`paddles ${pageConfig.paddles}\n`);
         }
     }
 }

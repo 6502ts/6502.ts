@@ -36,12 +36,18 @@ export default class SystemConfigSetupProvider {
 
     protected _setupAudio(args?: Array<string>) {
         if (args && args.length !== 0) {
-            const arg = args[0].toLowerCase();
-
-            this._config.enableAudio = (arg === 'yes' || arg === 'true' || arg === '1');
+            this._config.enableAudio = this._isArgTruthy(args[0]);
         }
 
         return `audio ${this._config.enableAudio ? 'enabled' : 'disabled'}`;
+    }
+
+    protected _setupPaddles(args?: Array<string>) {
+        if (args && args.length !== 0) {
+            this._config.emulatePaddles = (this._isArgTruthy(args[0]));
+        }
+
+        return `paddle emulation: ${this._config.emulatePaddles ? 'enabled' : 'disabled'}`;
     }
 
     protected _humanReadableTvMode(mode: Config.TvMode) {
@@ -60,9 +66,16 @@ export default class SystemConfigSetupProvider {
         }
     }
 
+    protected _isArgTruthy(arg: string): boolean {
+        const normalizedArg = arg.toLocaleLowerCase();
+
+        return normalizedArg === 'yes' || normalizedArg === 'true' || normalizedArg === '1';
+    }
+
     _commands: CommandInterpreter.CommandTableInterface = {
         'tv-mode': this._setupVideo.bind(this),
-        'audio': this._setupAudio.bind(this)
+        'audio': this._setupAudio.bind(this),
+        'paddles': this._setupPaddles.bind(this)
     };
 
 }

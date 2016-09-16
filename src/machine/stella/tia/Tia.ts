@@ -286,19 +286,19 @@ class Tia implements VideoOutputInterface {
         // Only keep the lowest four bits
         switch (address & 0x0F) {
             case Tia.Registers.inpt0:
-                result = this._paddles[0].inpt();
+                result = this._config.emulatePaddles ? this._paddles[0].inpt() : 0;
                 break;
 
             case Tia.Registers.inpt1:
-                result = this._paddles[1].inpt();
+                result = this._config.emulatePaddles ? this._paddles[1].inpt() : 0;
                 break;
 
             case Tia.Registers.inpt2:
-                result = this._paddles[2].inpt();
+                result = this._config.emulatePaddles ? this._paddles[2].inpt() : 0;
                 break;
 
             case Tia.Registers.inpt3:
-                result = this._paddles[3].inpt();
+                result = this._config.emulatePaddles ? this._paddles[3].inpt() : 0;
                 break;
 
             case Tia.Registers.inpt4:
