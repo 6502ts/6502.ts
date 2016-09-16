@@ -26,5 +26,5 @@ find the binary and source configured to run in the EhBasic monitor in `aux/6502
 
 ## Performance
 
-Simple CPU emulation without any complicated hardware achieves speeds up to 80MHz in V8on
+Simple CPU emulation without any nontrivial hardware achieves speeds up to 80MHz in V8 on
 modern hardware.

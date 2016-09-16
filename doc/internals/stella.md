@@ -21,8 +21,6 @@ Supported:
  * F4 (Atari 32k)
  * *Stella* FA2
 
-
-
 Currently not implemented
 
  * CV (Commavid)
