@@ -50,6 +50,14 @@ export default class SystemConfigSetupProvider {
         return `paddle emulation: ${this._config.emulatePaddles ? 'enabled' : 'disabled'}`;
     }
 
+    protected _setRandomSeed(args?: Array<string>) {
+        if (args && args.length !== 0) {
+            this._config.randomSeed = parseInt(args[0], 10);
+        }
+
+        return `random seed: ${this._config.randomSeed}`;
+    }
+
     protected _humanReadableTvMode(mode: Config.TvMode) {
         switch (mode) {
             case Config.TvMode.ntsc:
@@ -75,7 +83,8 @@ export default class SystemConfigSetupProvider {
     _commands: CommandInterpreter.CommandTableInterface = {
         'tv-mode': this._setupVideo.bind(this),
         'audio': this._setupAudio.bind(this),
-        'paddles': this._setupPaddles.bind(this)
+        'paddles': this._setupPaddles.bind(this),
+        'seed': this._setRandomSeed.bind(this)
     };
 
 }

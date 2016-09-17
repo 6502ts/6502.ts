@@ -15,6 +15,7 @@ interface PageConfig {
     tvMode?: string;
     audio?: string;
     paddles?: string;
+    seed?: string;
 }
 
 export function run({
@@ -89,6 +90,10 @@ export function run({
 
         if (pageConfig.paddles) {
             cli.pushInput(`paddles ${pageConfig.paddles}\n`);
+        }
+
+        if (pageConfig.seed) {
+            cli.pushInput(`seed ${pageConfig.seed}\n`);
         }
     }
 }
