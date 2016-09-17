@@ -11,6 +11,7 @@ export interface Type {
     buffer: Uint8Array;
     tvMode: 'pal'|'secam'|'ntsc';
     cartridgeType: string;
+    emulatePaddles: boolean;
 
 }
 
@@ -38,6 +39,7 @@ export function fromState(state: CartridgeState, id?: number): Type {
         name: state.name,
         buffer: state.buffer,
         hash: state.hash,
+        emulatePaddles: state.emulatePaddles,
         tvMode,
         cartridgeType: CartridgeInfo.CartridgeType[state.cartridgeType]
     };
@@ -73,6 +75,7 @@ export function toState(cartridge: Type): CartridgeState {
         name: cartridge.name,
         buffer: cartridge.buffer,
         hash: cartridge.hash,
+        emulatePaddles: cartridge.emulatePaddles,
         tvMode,
         cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridge.cartridgeType]
     });

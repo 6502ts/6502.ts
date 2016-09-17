@@ -4,7 +4,8 @@ import {
     Type as ActionType,
     ChangeCartridgeTypeAction,
     ChangeNameAction,
-    ChangeTvModeAction
+    ChangeTvModeAction,
+    ChangePaddleEmulationAction
 } from '../actions/currentCartridge';
 
 import Cartridge from '../state/Cartridge';
@@ -19,6 +20,9 @@ export default function reduce(state: Cartridge, action: Action): Cartridge {
 
         case ActionType.changeTvMode:
             return changeTvMode(state, action as ChangeTvModeAction);
+
+        case ActionType.changePaddleEmulation:
+            return changePaddleEmulation(state, action as ChangePaddleEmulationAction);
 
         default:
             return state;
@@ -35,4 +39,8 @@ function changeTvMode(state: Cartridge = new Cartridge(), action: ChangeTvModeAc
 
 function changeCartridgeType(state: Cartridge = new Cartridge(), action: ChangeCartridgeTypeAction): Cartridge {
     return new Cartridge({cartridgeType: action.cartridgeType}, state);
+}
+
+function changePaddleEmulation(state: Cartridge = new Cartridge(), action: ChangePaddleEmulationAction): Cartridge {
+    return new Cartridge({emulatePaddles: action.emulatePaddles}, state);
 }

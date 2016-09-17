@@ -63,7 +63,11 @@ const store = createStore<State>(
                 emulationMiddleware.getMiddleware(),
                 routerMiddleware(hashHistory)
             ),
-            (window.devToolsExtension ? window.devToolsExtension() : (x: any) => x)
+            (
+                (process.env.NODE_ENV !== 'production' && window.devToolsExtension) ?
+                    window.devToolsExtension() :
+                    (x: any) => x
+            )
         ) as any
     );
 

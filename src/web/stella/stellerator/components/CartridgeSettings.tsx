@@ -6,6 +6,7 @@ import {ControlLabel} from 'react-bootstrap';
 import CartridgeNameInput from './CartridgeNameInput';
 import TvModeSelect from './TvModeSelect';
 import CartridgeTypeSelect from './CartridgeTypeSelect';
+import Switch from './Switch';
 
 function CartridgeSettings(props: CartridgeSettings.Props) {
     return <div className={props.visible ? '' : 'hidden'}>
@@ -17,6 +18,14 @@ function CartridgeSettings(props: CartridgeSettings.Props) {
 
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Cartridge Type:</ControlLabel>
         <CartridgeTypeSelect {...props}/>
+
+        <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Emulate Paddles:</ControlLabel>
+        <Switch
+            state={props.emulatePaddles}
+            labelTrue="yes"
+            labelFalse="no"
+            onSwitch={props.onTogglePaddleEmulation}
+        />
     </div>;
 }
 
@@ -28,11 +37,17 @@ module CartridgeSettings {
         CartridgeTypeSelect.Props
     {
         visible?: boolean;
+        emulatePaddles?: boolean;
+
+        onTogglePaddleEmulation?: (state: boolean) => void;
     }
 
     export const defaultProps: Props = Object.assign(
         {
-            visible: false
+            visible: false,
+            emulatePaddles: true,
+
+            onTogglePaddleEmulation: () => undefined
         },
         CartridgeNameInput.defaultProps,
         TvModeSelect.defaultProps,

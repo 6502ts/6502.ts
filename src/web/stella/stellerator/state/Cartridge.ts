@@ -13,15 +13,17 @@ export default class Cartridge implements Changeset {
             this.name === other.name &&
             this.hash === other.hash &&
             this.tvMode === other.tvMode &&
-            this.cartridgeType === other.cartridgeType
+            this.cartridgeType === other.cartridgeType &&
+            this.emulatePaddles === other.emulatePaddles
         );
     }
 
     readonly name = '';
     readonly buffer: Uint8Array = null;
     readonly hash = '';
-    readonly tvMode = StellaConfig.TvMode.ntsc;;
+    readonly tvMode = StellaConfig.TvMode.ntsc;
     readonly cartridgeType = CartridgeInfo.CartridgeType.unknown;
+    readonly emulatePaddles = true;
 
 }
 
@@ -31,4 +33,5 @@ interface Changeset {
     hash?: string;
     tvMode?: StellaConfig.TvMode;
     cartridgeType?: CartridgeInfo.CartridgeType;
+    emulatePaddles?: boolean;
 }

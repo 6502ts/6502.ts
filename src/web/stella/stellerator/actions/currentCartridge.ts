@@ -6,7 +6,8 @@ import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 export const Type = {
     changeCartridgeType: 'current-cartridge/change-cartridge-type',
     changeName: 'current-cartridge/change-name',
-    changeTvMode: 'current-cartridge/change-tv-mode'
+    changeTvMode: 'current-cartridge/change-tv-mode',
+    changePaddleEmulation: 'current-cartridge/change-paddle-emulation'
 };
 Object.freeze(Type);
 
@@ -40,5 +41,16 @@ export function changeCartridgeType(cartridgeType: CartridgeInfo.CartridgeType):
     return {
         type: Type.changeCartridgeType,
         cartridgeType
+    };
+}
+
+export interface ChangePaddleEmulationAction extends Action {
+    emulatePaddles: boolean;
+}
+
+export function changePaddleEmulation(emulatePaddles: boolean): ChangePaddleEmulationAction {
+    return {
+        type: Type.changePaddleEmulation,
+        emulatePaddles
     };
 }

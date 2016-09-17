@@ -16,6 +16,11 @@ export default class Database extends Dexie {
             cartridge: '++id, name, &hash, buffer, tvMode, cartridgeType',
             settings: 'id'
         });
+
+        this.version(3).stores({
+            cartridge: '++id, name, &hash, buffer, tvMode, cartridgeType, emulatePaddles',
+            settings: 'id'
+        });
     }
 
     cartridge: Dexie.Table<Cartridge.Type, Cartridge.indexType>;
