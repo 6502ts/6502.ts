@@ -6,7 +6,8 @@ import {
     changeName,
     changeTvMode,
     changeRngSeedStrategy,
-    changeRngSeed
+    changeRngSeed,
+    toggleAudioEnabled
 } from '../actions/currentCartridge';
 
 import {saveCurrentCartride} from '../actions/root';
@@ -24,7 +25,8 @@ function mapStateToProps(state: State): CartridgeSettingsComponent.Props {
         emulatePaddles: state.currentCartridge ? state.currentCartridge.emulatePaddles : true,
         visible: !!state.currentCartridge,
         rngSeedAuto: state.currentCartridge ? state.currentCartridge.rngSeedAuto : true,
-        rngSeedValue: state.currentCartridge ? state.currentCartridge.rngSeed : 0
+        rngSeedValue: state.currentCartridge ? state.currentCartridge.rngSeed : 0,
+        audioEnabled: state.currentCartridge ? state.currentCartridge.audioEnabled : true
     };
 }
 
@@ -36,7 +38,8 @@ const CartridgeSettingsContainer = connect(
         onCartridgeTypeChange: changeCartridgeType,
         onTogglePaddleEmulation: changePaddleEmulation,
         onChangeSeedStrategy: changeRngSeedStrategy,
-        onChangeSeedValue: changeRngSeed
+        onChangeSeedValue: changeRngSeed,
+        onToggleAudioEnabled: toggleAudioEnabled
     }
 )(CartridgeSettingsComponent);
 export default CartridgeSettingsContainer;

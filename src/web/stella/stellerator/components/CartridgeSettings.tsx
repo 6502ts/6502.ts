@@ -30,6 +30,14 @@ function CartridgeSettings(props: CartridgeSettings.Props) {
 
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>RNG seed:</ControlLabel>
         <RandomSeedEdit {...props}/>
+
+        <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Audio:</ControlLabel>
+        <Switch
+            state={props.audioEnabled}
+            labelTrue="enabled"
+            labelFalse="disabled"
+            onSwitch={props.onToggleAudioEnabled}
+        />
     </div>;
 }
 
@@ -43,16 +51,20 @@ module CartridgeSettings {
     {
         visible?: boolean;
         emulatePaddles?: boolean;
+        audioEnabled?: boolean;
 
         onTogglePaddleEmulation?: (state: boolean) => void;
+        onToggleAudioEnabled?: (state: boolean) => void;
     }
 
     export const defaultProps: Props = Object.assign(
         {
             visible: false,
             emulatePaddles: true,
+            audioEnabled: true,
 
-            onTogglePaddleEmulation: (): void => undefined
+            onTogglePaddleEmulation: (): void => undefined,
+            onToggleAudioEnabled: (): void => undefined
         },
         CartridgeNameInput.defaultProps,
         TvModeSelect.defaultProps,

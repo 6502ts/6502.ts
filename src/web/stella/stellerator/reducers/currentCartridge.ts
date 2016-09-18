@@ -7,7 +7,8 @@ import {
     ChangeTvModeAction,
     ChangePaddleEmulationAction,
     ChangeRngSeedStrategyAction,
-    ChangeRngSeedAction
+    ChangeRngSeedAction,
+    ToggleAudioEnabledAction
 } from '../actions/currentCartridge';
 
 import Cartridge from '../state/Cartridge';
@@ -31,6 +32,9 @@ export default function reduce(state: Cartridge, action: Action): Cartridge {
 
         case ActionType.changeRngSeed:
             return changeRngSeed(state, action as ChangeRngSeedAction);
+
+        case ActionType.toggleAudioEnabled:
+            return toggleAudioEnabled(state, action as ToggleAudioEnabledAction);
 
         default:
             return state;
@@ -59,4 +63,8 @@ function changeRngSeedStrategy(state: Cartridge = new Cartridge(), action: Chang
 
 function changeRngSeed(state: Cartridge = new Cartridge(), action: ChangeRngSeedAction): Cartridge {
     return new Cartridge({rngSeed: action.seed}, state);
+}
+
+function toggleAudioEnabled(state: Cartridge = new Cartridge(), action: ToggleAudioEnabledAction): Cartridge {
+    return new Cartridge({audioEnabled: action.audioEnabled}, state);
 }

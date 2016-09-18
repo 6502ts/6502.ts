@@ -14,6 +14,7 @@ export interface Type {
     emulatePaddles: boolean;
     rngSeedAuto: boolean;
     rngSeed: number;
+    audioEnabled: boolean;
 
 }
 
@@ -45,7 +46,8 @@ export function fromState(state: CartridgeState, id?: number): Type {
         tvMode,
         cartridgeType: CartridgeInfo.CartridgeType[state.cartridgeType],
         rngSeedAuto: state.rngSeedAuto,
-        rngSeed: state.rngSeed
+        rngSeed: state.rngSeed,
+        audioEnabled: state.audioEnabled
     };
 
     if (typeof(id) !== 'undefined') {
@@ -83,7 +85,8 @@ export function toState(cartridge: Type): CartridgeState {
         tvMode,
         cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridge.cartridgeType],
         rngSeedAuto: cartridge.rngSeedAuto,
-        rngSeed: cartridge.rngSeed
+        rngSeed: cartridge.rngSeed,
+        audioEnabled: cartridge.audioEnabled
     });
 }
 

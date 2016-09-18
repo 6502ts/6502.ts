@@ -16,7 +16,8 @@ export default class Cartridge implements Changeset {
             this.cartridgeType === other.cartridgeType &&
             this.emulatePaddles === other.emulatePaddles &&
             this.rngSeed === other.rngSeed &&
-            this.rngSeedAuto === other.rngSeedAuto
+            this.rngSeedAuto === other.rngSeedAuto &&
+            this.audioEnabled === other.audioEnabled
         );
     }
 
@@ -28,6 +29,7 @@ export default class Cartridge implements Changeset {
     readonly emulatePaddles = true;
     readonly rngSeedAuto = true;
     readonly rngSeed = 0;
+    readonly audioEnabled = true;
 
 }
 
@@ -40,4 +42,5 @@ interface Changeset {
     emulatePaddles?: boolean;
     rngSeedAuto?: boolean;
     rngSeed?: number;
+    audioEnabled?: boolean;
 }

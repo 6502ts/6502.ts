@@ -95,7 +95,7 @@ class EmulationMiddleware {
     private _createStellaConfig(cartridge: Cartridge): StellaConfig {
         return new StellaConfig(
             cartridge.tvMode,
-            undefined,
+            cartridge.audioEnabled,
             cartridge.rngSeedAuto ? -1 : cartridge.rngSeed,
             cartridge.emulatePaddles
         );
