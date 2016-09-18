@@ -40,6 +40,7 @@ module CartridgeInfo {
             CartridgeType.bankswitch_12k_FA,
             CartridgeType.bankswitch_16k_F6,
             CartridgeType.bankswitch_16k_E7,
+            CartridgeType.bankswitch_FA2,
             CartridgeType.bankswitch_32k_F4,
             CartridgeType.bankswitch_64k_F0,
             CartridgeType.unknown
