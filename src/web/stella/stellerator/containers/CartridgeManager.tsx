@@ -12,9 +12,9 @@ import {
     SelectPendingChangesModal
 } from './pendingChangesModal';
 
-import CartridgeList from './CartridgeList';
-import CartridgeControls from './CartridgeControls';
-import CartridgeSettings from './CartridgeSettings';
+import CartridgeList from './cartridge_manager/CartridgeList';
+import CartridgeControls from './cartridge_manager/CartridgeControls';
+import CartridgeSettings from './cartridge_manager/CartridgeSettings';
 
 export default function CartridgeManager() {
     return <Grid fluid>

@@ -1,9 +1,9 @@
 import {connect} from 'react-redux';
 
-import CartridgeListComponent from '../components/CartridgeList';
-import {selectCartridge} from '../actions/root';
-import {selectOpenPendingChangesModal} from '../actions/guiState';
-import State from '../state/State';
+import CartridgeListComponent from '../../components/cartridge_manager/CartridgeList';
+import {selectCartridge} from '../../actions/root';
+import {selectOpenPendingChangesModal} from '../../actions/guiState';
+import State from '../../state/State';
 
 function mapStateToProps(state: State): CartridgeListComponent.Props {
     return {

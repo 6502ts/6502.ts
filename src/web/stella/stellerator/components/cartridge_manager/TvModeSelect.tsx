@@ -6,7 +6,7 @@ import {
     ButtonGroup
 } from 'react-bootstrap';
 
-import StellaConfig from '../../../../machine/stella/Config';
+import StellaConfig from '../../../../../machine/stella/Config';
 
 function TvModeSelect(props: TvModeSelect.Props) {
     return <ButtonGroup>

@@ -1,7 +1,7 @@
 // tslint:disable-next-line
 import * as React from 'react';
 
-import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
+import CartridgeInfo from '../../../../../machine/stella/cartridge/CartridgeInfo';
 
 import {
     DropdownButton,

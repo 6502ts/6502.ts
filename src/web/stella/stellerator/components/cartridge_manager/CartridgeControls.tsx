@@ -5,7 +5,7 @@ import {
     Button
 } from 'react-bootstrap';
 
-import FileUploadButton from './FileUploadButton';
+import FileUploadButton from '../FileUploadButton';
 
 function CartridgeControls(props: CartridgeControls.Props) {
     return <div className="cartridge-controls">

@@ -8,14 +8,14 @@ import {
     changeRngSeedStrategy,
     changeRngSeed,
     toggleAudioEnabled
-} from '../actions/currentCartridge';
+} from '../../actions/currentCartridge';
 
-import {saveCurrentCartride} from '../actions/root';
-import CartridgeSettingsComponent from '../components/CartridgeSettings';
-import State from '../state/State';
+import {saveCurrentCartride} from '../../actions/root';
+import CartridgeSettingsComponent from '../../components/cartridge_manager/CartridgeSettings';
+import State from '../../state/State';
 
-import StellaConfig from '../../../../machine/stella/Config';
-import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
+import StellaConfig from '../../../../../machine/stella/Config';
+import CartridgeInfo from '../../../../../machine/stella/cartridge/CartridgeInfo';
 
 function mapStateToProps(state: State): CartridgeSettingsComponent.Props {
     return {

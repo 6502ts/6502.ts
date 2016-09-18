@@ -7,7 +7,7 @@ import {
     Col
 } from 'react-bootstrap';
 
-import ControlPanel from './ControlPanel';
+import ControlPanel from './emulation/ControlPanel';
 
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 import EmulationContextInterface from '../../service/EmulationContextInterface';

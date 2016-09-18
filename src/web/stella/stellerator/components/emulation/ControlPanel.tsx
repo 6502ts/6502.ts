@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import {ControlLabel} from 'react-bootstrap';
 
-import Switch from './Switch';
+import Switch from '../Switch';
 
 function ControlPanel(props: ControlPanel.Props) {
     return <div style={props.style} className="emulation-control-panel">

@@ -1,7 +1,7 @@
 // tslint:disable-next-line
 import * as React from 'react';
 
-import Cartridge from '../state/Cartridge';
+import Cartridge from '../../state/Cartridge';
 
 function CartridgeList(props: CartridgeList.Props) {
     return  <div className="cartridge-list border-box">

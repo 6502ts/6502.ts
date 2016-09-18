@@ -7,20 +7,20 @@ import {
     deleteCurrentCartridge,
     registerNewCartridge,
     saveCurrentCartride
-} from '../actions/root';
+} from '../../actions/root';
 
 import {
     start as startEmulation
-} from '../actions/emulation';
+} from '../../actions/emulation';
 
 import {
     loadOpenPendingChangesModal,
     setMode,
-} from '../actions/guiState';
+} from '../../actions/guiState';
 
-import CartridgeControlsComponent from '../components/CartridgeControls';
-import State from '../state/State';
-import GuiState from '../state/GuiState';
+import CartridgeControlsComponent from '../../components/cartridge_manager/CartridgeControls';
+import State from '../../state/State';
+import GuiState from '../../state/GuiState';
 
 function mapStateToProps(state: State): CartridgeControlsComponent.Props {
     return {

@@ -6,7 +6,7 @@ import {ControlLabel} from 'react-bootstrap';
 import CartridgeNameInput from './CartridgeNameInput';
 import TvModeSelect from './TvModeSelect';
 import CartridgeTypeSelect from './CartridgeTypeSelect';
-import Switch from './Switch';
+import Switch from '../Switch';
 import RandomSeedEdit from './RandomSeedEdit';
 
 function CartridgeSettings(props: CartridgeSettings.Props) {
