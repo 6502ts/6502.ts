@@ -93,7 +93,12 @@ class EmulationMiddleware {
     }
 
     private _createStellaConfig(cartridge: Cartridge): StellaConfig {
-        return new StellaConfig(cartridge.tvMode, undefined, undefined, cartridge.emulatePaddles);
+        return new StellaConfig(
+            cartridge.tvMode,
+            undefined,
+            cartridge.rngSeedAuto ? -1 : cartridge.rngSeed,
+            cartridge.emulatePaddles
+        );
     }
 
     private _emulationService: EmulationServiceInterface = null;

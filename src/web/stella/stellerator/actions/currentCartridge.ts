@@ -7,7 +7,9 @@ export const Type = {
     changeCartridgeType: 'current-cartridge/change-cartridge-type',
     changeName: 'current-cartridge/change-name',
     changeTvMode: 'current-cartridge/change-tv-mode',
-    changePaddleEmulation: 'current-cartridge/change-paddle-emulation'
+    changePaddleEmulation: 'current-cartridge/change-paddle-emulation',
+    changeRngSeedStrategy: 'current-cartridge/change-rng-seed-strateg',
+    changeRngSeed: 'current-cartridge/change-rng-seed'
 };
 Object.freeze(Type);
 
@@ -52,5 +54,27 @@ export function changePaddleEmulation(emulatePaddles: boolean): ChangePaddleEmul
     return {
         type: Type.changePaddleEmulation,
         emulatePaddles
+    };
+}
+
+export interface ChangeRngSeedStrategyAction extends Action {
+    auto: boolean;
+}
+
+export function changeRngSeedStrategy(auto: boolean): ChangeRngSeedStrategyAction {
+    return {
+        type: Type.changeRngSeedStrategy,
+        auto
+    };
+}
+
+export interface ChangeRngSeedAction extends Action {
+    seed: number;
+}
+
+export function changeRngSeed(seed: number): ChangeRngSeedAction {
+    return {
+        type: Type.changeRngSeed,
+        seed
     };
 }

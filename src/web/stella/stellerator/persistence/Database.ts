@@ -18,7 +18,7 @@ export default class Database extends Dexie {
         });
 
         this.version(3).stores({
-            cartridge: '++id, name, &hash, buffer, tvMode, cartridgeType, emulatePaddles',
+            cartridge: '++id, name, &hash, buffer, tvMode, cartridgeType, emulatePaddles, rngSeedAuto, rngSeed',
             settings: 'id'
         });
     }

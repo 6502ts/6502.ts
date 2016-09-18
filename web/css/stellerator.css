@@ -66,3 +66,7 @@ body {
 .hidden {
     display: none;
 }
+
+input[type='text'].invalid {
+    background-color: #A00;
+}

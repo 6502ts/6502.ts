@@ -12,6 +12,8 @@ export interface Type {
     tvMode: 'pal'|'secam'|'ntsc';
     cartridgeType: string;
     emulatePaddles: boolean;
+    rngSeedAuto: boolean;
+    rngSeed: number;
 
 }
 
@@ -41,7 +43,9 @@ export function fromState(state: CartridgeState, id?: number): Type {
         hash: state.hash,
         emulatePaddles: state.emulatePaddles,
         tvMode,
-        cartridgeType: CartridgeInfo.CartridgeType[state.cartridgeType]
+        cartridgeType: CartridgeInfo.CartridgeType[state.cartridgeType],
+        rngSeedAuto: state.rngSeedAuto,
+        rngSeed: state.rngSeed
     };
 
     if (typeof(id) !== 'undefined') {
@@ -77,7 +81,9 @@ export function toState(cartridge: Type): CartridgeState {
         hash: cartridge.hash,
         emulatePaddles: cartridge.emulatePaddles,
         tvMode,
-        cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridge.cartridgeType]
+        cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridge.cartridgeType],
+        rngSeedAuto: cartridge.rngSeedAuto,
+        rngSeed: cartridge.rngSeed
     });
 }
 

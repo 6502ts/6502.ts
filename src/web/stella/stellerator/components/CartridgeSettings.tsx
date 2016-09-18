@@ -7,6 +7,7 @@ import CartridgeNameInput from './CartridgeNameInput';
 import TvModeSelect from './TvModeSelect';
 import CartridgeTypeSelect from './CartridgeTypeSelect';
 import Switch from './Switch';
+import RandomSeedEdit from './RandomSeedEdit';
 
 function CartridgeSettings(props: CartridgeSettings.Props) {
     return <div className={props.visible ? '' : 'hidden'}>
@@ -26,6 +27,9 @@ function CartridgeSettings(props: CartridgeSettings.Props) {
             labelFalse="no"
             onSwitch={props.onTogglePaddleEmulation}
         />
+
+        <ControlLabel style={{display: 'block', marginTop: '1rem'}}>RNG seed:</ControlLabel>
+        <RandomSeedEdit {...props}/>
     </div>;
 }
 
@@ -34,7 +38,8 @@ module CartridgeSettings {
     export interface Props extends
         CartridgeNameInput.Props,
         TvModeSelect.Props,
-        CartridgeTypeSelect.Props
+        CartridgeTypeSelect.Props,
+        RandomSeedEdit.Props
     {
         visible?: boolean;
         emulatePaddles?: boolean;
@@ -47,11 +52,12 @@ module CartridgeSettings {
             visible: false,
             emulatePaddles: true,
 
-            onTogglePaddleEmulation: () => undefined
+            onTogglePaddleEmulation: (): void => undefined
         },
         CartridgeNameInput.defaultProps,
         TvModeSelect.defaultProps,
-        CartridgeTypeSelect.defaultProps
+        CartridgeTypeSelect.defaultProps,
+        RandomSeedEdit.defaultProps
     );
 
 }

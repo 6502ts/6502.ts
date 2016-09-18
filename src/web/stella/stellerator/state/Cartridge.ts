@@ -14,7 +14,9 @@ export default class Cartridge implements Changeset {
             this.hash === other.hash &&
             this.tvMode === other.tvMode &&
             this.cartridgeType === other.cartridgeType &&
-            this.emulatePaddles === other.emulatePaddles
+            this.emulatePaddles === other.emulatePaddles &&
+            this.rngSeed === other.rngSeed &&
+            this.rngSeedAuto === other.rngSeedAuto
         );
     }
 
@@ -24,6 +26,8 @@ export default class Cartridge implements Changeset {
     readonly tvMode = StellaConfig.TvMode.ntsc;
     readonly cartridgeType = CartridgeInfo.CartridgeType.unknown;
     readonly emulatePaddles = true;
+    readonly rngSeedAuto = true;
+    readonly rngSeed = 0;
 
 }
 
@@ -34,4 +38,6 @@ interface Changeset {
     tvMode?: StellaConfig.TvMode;
     cartridgeType?: CartridgeInfo.CartridgeType;
     emulatePaddles?: boolean;
+    rngSeedAuto?: boolean;
+    rngSeed?: number;
 }
