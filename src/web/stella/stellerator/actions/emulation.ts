@@ -5,7 +5,9 @@ import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 export const Type = {
     start: 'emulation/start',
     pause: 'emulation/pause',
+    userPause: 'emulation/user-pause',
     resume: 'emulation/resume',
+    reset: 'emulation/reset',
     stateChange: 'emulation/stateChange',
     changeDifficulty: 'emulation/changeDifficulty',
     changeTvMode: 'emulation/changeTvMode',
@@ -20,6 +22,14 @@ export interface PauseAction extends Action {}
 export function pause(): PauseAction {
     return {
         type: Type.pause
+    };
+}
+
+export interface UserPauseAction extends Action {}
+
+export function userPause(): UserPauseAction {
+    return {
+        type: Type.userPause
     };
 }
 
@@ -39,6 +49,14 @@ export interface ResumeAction extends Action {}
 export function resume(): ResumeAction {
     return {
         type: Type.resume
+    };
+}
+
+export interface ResetAction extends Action {}
+
+export function reset(): ResetAction {
+    return {
+        type: Type.reset
     };
 }
 

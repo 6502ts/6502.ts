@@ -1,5 +1,4 @@
 import * as redux from 'redux';
-import {push} from 'react-router-redux';
 
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 import EmulationState from '../state/Emulation';
@@ -47,7 +46,6 @@ class EmulationMiddleware {
                         )
                         .then(() => {
                             this._updateControlPanelState(initialState.emulationState);
-                            api.dispatch(push('/emulation'));
                             next(a);
                         });
                 }
@@ -55,10 +53,14 @@ class EmulationMiddleware {
                 break;
 
             case Type.pause:
+            case Type.userPause:
                 return this._emulationService.pause().then(() => next(a));
 
             case Type.resume:
                 return this._emulationService.resume().then(() => next(a));
+
+            case Type.reset:
+                return this._emulationService.reset().then(() => next(a));
 
             case Type.changeDifficulty:
             case Type.changeTvMode:

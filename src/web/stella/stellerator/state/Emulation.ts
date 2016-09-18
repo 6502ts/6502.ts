@@ -17,6 +17,8 @@ export default class EmulationState implements Changeset {
 
     readonly frequency = 0;
     readonly gamepadCount = 0;
+
+    readonly pausedByUser = false;
 }
 
 interface Changeset {
@@ -31,4 +33,6 @@ interface Changeset {
 
     frequency?: number;
     gamepadCount?: number;
+
+    pausedByUser?: boolean;
 }

@@ -25,7 +25,10 @@ class Emulation extends React.Component<Emulation.Props, {}> {
             return this.props.navigateAway();
         }
 
-        if (this.context.emulationService.getState() === EmulationServiceInterface.State.paused) {
+        if (
+            this.context.emulationService.getState() === EmulationServiceInterface.State.paused &&
+            !this.props.pausedByUser
+        ) {
             this.props.resumeEmulation();
         }
     }
@@ -106,7 +109,12 @@ class Emulation extends React.Component<Emulation.Props, {}> {
                     ></canvas>
                 </Col>
                 <Col md={5}>
-                    <ControlPanel {...this.props}></ControlPanel>
+                    <ControlPanel
+                        {...this.props}
+                        onReset={this.props.resetEmulation}
+                        onPause={this.props.userPauseEmulation}
+                        onResume={this.props.resumeEmulation}
+                    ></ControlPanel>
                 </Col>
             </Row>
         </Grid>;
@@ -124,10 +132,13 @@ class Emulation extends React.Component<Emulation.Props, {}> {
         webGlRendering: true,
         gamma: 1,
         emulationState: EmulationServiceInterface.State.stopped,
+        pausedByUser: false,
 
         navigateAway: (): void => undefined,
         pauseEmulation: (): void => undefined,
-        resumeEmulation: (): void => undefined
+        userPauseEmulation: (): void => undefined,
+        resumeEmulation: (): void => undefined,
+        resetEmulation: (): void => undefined
     }, ControlPanel.defaultProps);
 
     static contextTypes: React.ValidationMap<any> = {
@@ -159,10 +170,13 @@ module Emulation {
         smoothScaling?: boolean;
         webGlRendering?: boolean;
         gamma?: number;
+        pausedByUser?: boolean;
 
         navigateAway?: () => void;
         pauseEmulation?: () => void;
+        userPauseEmulation?: () => void;
         resumeEmulation?: () => void;
+        resetEmulation?: () => void;
     }
 
 }

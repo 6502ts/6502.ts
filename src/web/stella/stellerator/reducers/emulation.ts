@@ -10,8 +10,10 @@ import {
     StateChangeAction,
     UpdateFrequencyAction,
     UpdateGamepadCountAction,
-    SetEnforceRateLimitAction
+    SetEnforceRateLimitAction,
 } from '../actions/emulation';
+
+import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 
 export default function reducer(state: EmulationState = new EmulationState(), action: Action): EmulationState {
     switch (action.type) {
@@ -35,6 +37,9 @@ export default function reducer(state: EmulationState = new EmulationState(), ac
 
         case Type.setEnforceRateLimit:
             return setEnforceRateLimit(state, action as SetEnforceRateLimitAction);
+
+        case Type.userPause:
+            return userPause(state);
     }
 
     return state;
@@ -58,11 +63,23 @@ function changeTvMode(state: EmulationState, action: ChangeTvModeAction): Emulat
 }
 
 function start(state: EmulationState, action: StartAction): EmulationState {
-    return new EmulationState({cartridgeHash: action.hash || state.cartridgeHash}, state);
+    return new EmulationState({
+        cartridgeHash: action.hash || state.cartridgeHash,
+        pausedByUser: false,
+    }, state);
 }
 
 function stateChange(state: EmulationState, action: StateChangeAction): EmulationState {
-    return new EmulationState({emulationState: action.newState}, state);
+    let pausedByUser = state.pausedByUser;
+
+    if (action.newState === EmulationServiceInterface.State.running) {
+        pausedByUser = false;
+    }
+
+    return new EmulationState({
+        emulationState: action.newState,
+        pausedByUser
+    }, state);
 }
 
 function updateFrequency(state: EmulationState, action: UpdateFrequencyAction): EmulationState {
@@ -75,4 +92,8 @@ function updateGamepadCount(state: EmulationState, action: UpdateGamepadCountAct
 
 function setEnforceRateLimit(state: EmulationState, action: SetEnforceRateLimitAction): EmulationState {
     return new EmulationState({enforceRateLimit: action.enforce}, state);
+}
+
+function userPause(state: EmulationState): EmulationState {
+    return new EmulationState({pausedByUser: true}, state);
 }

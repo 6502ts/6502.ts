@@ -6,7 +6,9 @@ import GuiState from '../state/GuiState';
 
 import {
     pause as pauseEmulation,
+    userPause as userPauseEmulation,
     resume as resumeEmulation,
+    reset as resetEmulation,
     changeDifficulty,
     changeTvMode,
     enforceRateLimit
@@ -24,7 +26,8 @@ function mapStateToProps(state: State): EmulationComponent.Props {
         enforceRateLimit: state.emulationState.enforceRateLimit,
         smoothScaling: state.settings.smoothScaling,
         webGlRendering: state.settings.webGlRendering,
-        gamma: state.settings.gamma
+        gamma: state.settings.gamma,
+        pausedByUser: state.emulationState.pausedByUser
     };
 }
 
@@ -32,6 +35,8 @@ const EmulationContainer = connect(mapStateToProps, {
     navigateAway: () => push('/cartridge-manager'),
     pauseEmulation,
     resumeEmulation,
+    resetEmulation,
+    userPauseEmulation,
 
     onSwitchDifficultyPlayer0: (state: boolean) => changeDifficulty(0, state),
     onSwitchDifficultyPlayer1: (state: boolean) => changeDifficulty(1, state),
