@@ -82,6 +82,17 @@ class Emulation extends React.Component<Emulation.Props, {}> {
             );
 
         keyboardDriver.toggleFullscreen.addHandler(() => this._fullscreenDriver.toggle());
+
+        keyboardDriver.hardReset.addHandler(() => this.props.resetEmulation());
+
+        keyboardDriver.togglePause.addHandler(() => {
+            if (this.props.emulationState === EmulationServiceInterface.State.running) {
+                this.props.userPauseEmulation();
+            }
+            else if (this.props.emulationState === EmulationServiceInterface.State.paused) {
+                this.props.resumeEmulation();
+            }
+        })
     }
 
     render() {
@@ -90,7 +101,9 @@ class Emulation extends React.Component<Emulation.Props, {}> {
                 <Col md={11}>
                     wasd / arrows + v/space = left joystick , ijkl + b = right joystick
                     <br/>
-                    left ctrl = select, alt = reset, enter = toggle fullscreen
+                    shift-enter = select, shift-space = reset, enter = toggle fullscreen
+                    <br/>
+                    shift-r = hard reset, p = pause
                 </Col>
             </Row>
             <Row style={{marginTop: '1rem'}}>

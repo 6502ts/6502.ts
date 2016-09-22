@@ -4,19 +4,14 @@ import EmulationContextInterface from './EmulationContextInterface';
 class DriverManager {
 
     bind(emulationService: EmulationServiceInterface): this {
-        if (this._emulationService) {
+        if (this._driversBound) {
             return this;
         }
 
         this._emulationService = emulationService;
 
-        if (this._emulationService.getState() === EmulationServiceInterface.State.running) {
-            this._drivers.forEach(
-                driverContext => driverContext.binder(
-                    this._emulationService.getEmulationContext(),
-                    driverContext.driver
-                )
-            );
+        if (this._shouldBindDrivers()) {
+            this._bindDrivers();
         }
 
         this._emulationService.stateChanged.addHandler(DriverManager._onEmuStateChange, this);
@@ -29,11 +24,11 @@ class DriverManager {
             return this;
         }
 
-        this._drivers.forEach(
-            driverContext => driverContext.driver.unbind()
-        );
+        this._unbindDrivers();
 
         this._emulationService.stateChanged.removeHandler(DriverManager._onEmuStateChange, this);
+
+        this._emulationService = null;
 
         return this;
     }
@@ -41,7 +36,7 @@ class DriverManager {
     addDriver(driver: DriverManager.Driver, binder: DriverManager.Binder): this {
         this._drivers.set(driver, new DriverManager.DriverContext(driver, binder));
 
-        if (this._emulationService && this._emulationService.getState() === EmulationServiceInterface.State.running) {
+        if (this._driversBound) {
             binder(this._emulationService.getEmulationContext(), driver);
         }
 
@@ -61,29 +56,52 @@ class DriverManager {
     }
 
     private static _onEmuStateChange(newState: EmulationServiceInterface.State, self: DriverManager): void {
-        switch (newState) {
-            case EmulationServiceInterface.State.running:
-                self._drivers.forEach(
-                    driverContext => driverContext.binder(
-                        self._emulationService.getEmulationContext(),
-                        driverContext.driver
-                    )
-                );
-                break;
-
-            case EmulationServiceInterface.State.paused:
-                break;
-
-            default:
-                self._drivers.forEach(
-                    driverContext => driverContext.driver.unbind()
-                );
-                break;
+        if (self._shouldBindDrivers(newState)) {
+            self._bindDrivers();
+        } else {
+            self._unbindDrivers();
         }
+    }
+
+    private _shouldBindDrivers(
+        state = this._emulationService ? this._emulationService.getState() : undefined
+    ): boolean {
+        return this._emulationService && (
+            state === EmulationServiceInterface.State.running ||
+            state === EmulationServiceInterface.State.paused
+        );
+    }
+
+    private _bindDrivers(): void {
+        if (this._driversBound) {
+            return;
+        }
+
+        this._drivers.forEach(
+            driverContext => driverContext.binder(
+                this._emulationService.getEmulationContext(),
+                driverContext.driver
+            )
+        );
+
+        this._driversBound = true;
+    }
+
+    private _unbindDrivers(): void {
+        if (!this._driversBound) {
+            return;
+        }
+
+        this._drivers.forEach(
+            driverContext => driverContext.driver.unbind()
+        );
+
+        this._driversBound = false;
     }
 
     private _emulationService: EmulationServiceInterface;
     private _drivers = new Map<DriverManager.Driver, DriverManager.DriverContext>();
+    private _driversBound = false;
 }
 
 module DriverManager {
