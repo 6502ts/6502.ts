@@ -122,7 +122,7 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
                 <Col md={11}>
                     wasd / arrows + v/space = left joystick , ijkl + b = right joystick
                     <br/>
-                    shift-enter = select, shift-space = reset, enter = toggle fullscreen
+                    shift-enter = reset, shift-space = select, enter = toggle fullscreen
                     <br/>
                     shift-r = hard reset, p = pause
                 </Col>
