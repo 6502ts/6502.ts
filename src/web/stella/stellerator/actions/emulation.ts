@@ -8,12 +8,12 @@ export const Type = {
     userPause: 'emulation/user-pause',
     resume: 'emulation/resume',
     reset: 'emulation/reset',
-    stateChange: 'emulation/stateChange',
-    changeDifficulty: 'emulation/changeDifficulty',
-    changeTvMode: 'emulation/changeTvMode',
-    updateFrequency: 'emulation/updateFrequency',
-    updateGamepadCount: 'emuation/updateGamepadCount',
-    setEnforceRateLimit: 'emulation/setEnforceRateLimit'
+    stateChange: 'emulation/state-change',
+    changeDifficulty: 'emulation/change-difficulty',
+    changeTvMode: 'emulation/change-tv-mode',
+    updateFrequency: 'emulation/update-frequency',
+    updateGamepadCount: 'emuation/update-gamepad-count',
+    setEnforceRateLimit: 'emulation/set-enforce-rate_lLimit'
 };
 Object.freeze(Type);
 

@@ -104,6 +104,7 @@ class KeyboardIO {
         this._actionTable[KeyboardIO.Action.right1]         = this._joystick1.getRight();
         this._actionTable[KeyboardIO.Action.up1]            = this._joystick1.getUp();
         this._actionTable[KeyboardIO.Action.down1]          = this._joystick1.getDown();
+        this._actionTable[KeyboardIO.Action.fire1]          = this._joystick1.getFire();
     }
 
     private _compileMappings(mappings: Array<KeyboardIO.Mapping>): void {
@@ -253,7 +254,7 @@ module KeyboardIO {
             action: Action.down1,
             spec: 75 // k
         }, {
-            action: Action.fire0,
+            action: Action.fire1,
             spec: 66 // b
         }, {
             action: Action.fullscreen,
