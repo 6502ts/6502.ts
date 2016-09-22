@@ -18,7 +18,28 @@ import KeyboardIoDriver from '../../driver/KeyboardIO';
 import FullscreenVideoDriver from '../../../driver/FullscreenVideo';
 import MouseAsPaddleDriver from '../../../driver/MouseAsPaddle';
 
-class Emulation extends React.Component<Emulation.Props, {}> {
+class Emulation extends React.Component<Emulation.Props, Emulation.State> {
+
+    constructor() {
+        super();
+
+        this.state = {
+            initialPause: true
+        };
+    }
+
+    componentWillReceiveProps(nextProps: Emulation.Props): void {
+        const initialPause =
+                this.state.initialPause &&
+                nextProps.pausedByUser &&
+                nextProps.emulationState === EmulationServiceInterface.State.paused;
+
+        if (initialPause !== this.state.initialPause) {
+            this.setState({
+                initialPause
+            });
+        }
+    }
 
     componentWillMount(): void {
         if (!this.props.enabled) {
@@ -26,7 +47,7 @@ class Emulation extends React.Component<Emulation.Props, {}> {
         }
 
         if (
-            this.context.emulationService.getState() === EmulationServiceInterface.State.paused &&
+            this.props.emulationState === EmulationServiceInterface.State.paused &&
             !this.props.pausedByUser
         ) {
             this.props.resumeEmulation();
@@ -34,7 +55,7 @@ class Emulation extends React.Component<Emulation.Props, {}> {
     }
 
     componentWillUnmount(): void {
-        if (this.context.emulationService.getState() === EmulationServiceInterface.State.running) {
+        if (this.props.emulationState === EmulationServiceInterface.State.running) {
             this.props.pauseEmulation();
         }
 
@@ -109,12 +130,17 @@ class Emulation extends React.Component<Emulation.Props, {}> {
             <Row style={{marginTop: '1rem'}}>
                 <Col md={6}>
                     <div
-                        className={`emulation-viewport error-display ${this._emulationError() ? '' : 'hidden'}`}
+                        className={`emulation-viewport error-display ${this._showErrorMessage() ? '' : 'hidden'}`}
                     >
                         {this._errorMessage()}
                     </div>
+                    <div
+                        className={`emulation-viewport placeholder ${this._showPlaceholder() ? '' : 'hidden'}`}
+                    >
+                        paused
+                    </div>
                     <canvas
-                        className={`emulation-viewport ${this._emulationError() ? 'hidden' : ''}`}
+                        className={`emulation-viewport ${this._showCanvas() ? '' : 'hidden'}`}
                         width={this.props.initialViewportWidth}
                         height={this.props.initialViewportHeight}
                         style={{imageRendering: this.props.smoothScaling ? 'auto' : 'pixelated'}}
@@ -158,8 +184,16 @@ class Emulation extends React.Component<Emulation.Props, {}> {
         emulationService: React.PropTypes.object
     };
 
-    private _emulationError(): boolean {
-        return this.context.emulationService.getState() === EmulationServiceInterface.State.error;
+    private _showErrorMessage(): boolean {
+        return this.props.emulationState === EmulationServiceInterface.State.error;
+    }
+
+    private _showPlaceholder(): boolean {
+        return this.props.emulationState === EmulationServiceInterface.State.paused && this.state.initialPause;
+    }
+
+    private _showCanvas(): boolean {
+        return !(this._showErrorMessage() || this._showPlaceholder());
     }
 
     private _errorMessage(): string {
@@ -190,6 +224,10 @@ module Emulation {
         userPauseEmulation?: () => void;
         resumeEmulation?: () => void;
         resetEmulation?: () => void;
+    }
+
+    export interface State {
+        initialPause: boolean;
     }
 
 }

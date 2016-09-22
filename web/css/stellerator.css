@@ -59,6 +59,12 @@ body {
     text-align: center;
 }
 
+.emulation-viewport.placeholder {
+    background: #070;
+    padding-top: 9rem;
+    text-align: center;
+}
+
 .settings-grid .row {
     padding-bottom: 0.5rem;
 }
