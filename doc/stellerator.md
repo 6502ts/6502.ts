@@ -117,9 +117,9 @@ Chrome / V8 tends to be faster than Firefox.
    opcodes will die with an "invalid instruction" trap.
  * Only the first paddle can be controlled.
  * Some of the more exotic cartridge formats are currently unsupported, including
-   supercharger and DPC+ (Pitfall II).
+   supercharger and DPC (Pitfall II).
  * Audio register writes have a timing resolution of approximately one frame.
    This is more than enough for run-of-the-mill game audio, but code that
    attempts to do PCM audio by banging the audio registers
-   will produce silence. Apart from audio demos, this would mainly affect DPC+ music
-   --- if DPC+ cartridges were supported in the first place ;)
+   will produce silence. Apart from audio demos, this would mainly affect DPC music
+   --- if DPC cartridges were supported in the first place ;)
