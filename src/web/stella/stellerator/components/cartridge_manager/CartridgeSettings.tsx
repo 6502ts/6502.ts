@@ -17,10 +17,10 @@ function CartridgeSettings(props: CartridgeSettings.Props) {
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>TV mode:</ControlLabel>
         <TvModeSelect {...props}/>
 
-        <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Cartridge Type:</ControlLabel>
+        <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Cartridge type:</ControlLabel>
         <CartridgeTypeSelect {...props}/>
 
-        <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Emulate Paddles:</ControlLabel>
+        <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Emulate paddles:</ControlLabel>
         <Switch
             state={props.emulatePaddles}
             labelTrue="yes"

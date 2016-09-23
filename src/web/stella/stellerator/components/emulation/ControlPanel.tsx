@@ -12,7 +12,7 @@ import EmulationServiceInterface from '../../../service/EmulationServiceInterfac
 function ControlPanel(props: ControlPanel.Props) {
     return <div style={props.style} className="emulation-control-panel">
         <ControlLabel style={{display: 'block'}}
-        >Difficulty Left</ControlLabel>
+        >Difficulty left</ControlLabel>
         <Switch
             labelTrue="Amateur / B"
             labelFalse="Pro / A"
@@ -20,7 +20,7 @@ function ControlPanel(props: ControlPanel.Props) {
             onSwitch={props.onSwitchDifficultyPlayer0}
         ></Switch>
         <ControlLabel style={{display: 'block', paddingTop: '1rem'}}
-        >Difficulty Right</ControlLabel>
+        >Difficulty right</ControlLabel>
         <Switch
             labelTrue="Amateur / B"
             labelFalse="Pro / A"
@@ -28,7 +28,7 @@ function ControlPanel(props: ControlPanel.Props) {
             onSwitch={props.onSwitchDifficultyPlayer1}
         ></Switch>
         <ControlLabel style={{display: 'block', paddingTop: '1rem'}}
-        >TV Mode</ControlLabel>
+        >TV mode</ControlLabel>
         <Switch
             labelTrue="B/W"
             labelFalse="Color"
@@ -36,7 +36,7 @@ function ControlPanel(props: ControlPanel.Props) {
             onSwitch={props.onSwitchTvMode}
         ></Switch>
         <ControlLabel style={{display: 'block', paddingTop: '1rem'}}
-        >Limit frame rate</ControlLabel>
+        >Limit framerate</ControlLabel>
         <Switch
             labelTrue="yes"
             labelFalse="no"
@@ -59,7 +59,7 @@ function ControlPanel(props: ControlPanel.Props) {
                 }}
                 onClick={props.emulationState === EmulationServiceInterface.State.running ? props.onPause : props.onResume}
             >
-                {props.emulationState === EmulationServiceInterface.State.running ? 'pause' : 'resume'}
+                {props.emulationState === EmulationServiceInterface.State.running ? 'Pause' : 'Resume'}
             </Button>
         </div>
     </div>;

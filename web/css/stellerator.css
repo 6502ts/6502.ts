@@ -88,3 +88,7 @@ input[type='text'].invalid {
 .helppage strong {
     color: #fff;
 }
+
+.helppage a {
+    color: #090;
+}

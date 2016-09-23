@@ -37,7 +37,7 @@ function Settings(props: Settings.Props) {
         </Row>
         <Row>
             <Col sm={4}>
-                <ControlLabel>Smooth Scaling:</ControlLabel>
+                <ControlLabel>Smooth scaling:</ControlLabel>
             </Col>
             <Col sm={8}>
                 <Switch
@@ -50,7 +50,7 @@ function Settings(props: Settings.Props) {
         </Row>
         <Row>
             <Col sm={4}>
-                <ControlLabel>WebGL Rendering:</ControlLabel>
+                <ControlLabel>WebGL rendering:</ControlLabel>
             </Col>
             <Col sm={8}>
                 <Switch
@@ -63,7 +63,7 @@ function Settings(props: Settings.Props) {
         </Row>
         <Row>
             <Col sm={4}>
-                <ControlLabel>Gamma Correction (WebGL only):</ControlLabel>
+                <ControlLabel>Gamma correction (WebGL only):</ControlLabel>
             </Col>
             <Col sm={4}>
                 <input
