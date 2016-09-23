@@ -13,7 +13,7 @@ function Help(props: Help.Props) {
     return <Grid fluid>
         <Row>
             <Col md={12}>
-                <Markdown url={props.helppageUrl}/>
+                <Markdown url={props.helppageUrl} className="helppage"/>
             </Col>
         </Row>
     </Grid>;

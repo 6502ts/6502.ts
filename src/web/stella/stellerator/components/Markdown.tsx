@@ -25,7 +25,10 @@ class Markdown extends React.Component<Markdown.Props, Markdown.State> {
     }
 
     render() {
-        return <div dangerouslySetInnerHTML={{__html: this.state.content}}/>;
+        return <div
+            dangerouslySetInnerHTML={{__html: this.state.content}}
+            className={this.props.className}
+        />;
     }
 
     private _loadSource(): Promise<string> {

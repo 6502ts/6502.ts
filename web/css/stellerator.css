@@ -76,3 +76,15 @@ body {
 input[type='text'].invalid {
     background-color: #A00;
 }
+
+.helppage h1 {
+    color: #fff;
+}
+
+.helppage h2 {
+    color: #fff;
+}
+
+.helppage strong {
+    color: #fff;
+}
