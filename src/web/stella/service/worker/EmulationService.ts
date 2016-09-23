@@ -21,6 +21,12 @@ import {
 
 const CONTROL_PROXY_UPDATE_INTERVAL = 25;
 
+const enum ProxyState {
+    stopped,
+    running,
+    paused
+}
+
 class EmulationService implements EmulationServiceInterface {
 
     constructor(
@@ -81,10 +87,20 @@ class EmulationService implements EmulationServiceInterface {
                 );
             })
             .then(
-                emulationParameters => this._startProxies(emulationParameters, config),
-                e => this._rpc
-                    .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationStop)
-                    .then(() => Promise.reject(e), () => Promise.reject(e))
+                emulationParameters => {
+                    this._saveConfig = config;
+                    this._savedParameters = emulationParameters;
+
+                    return this._startProxies(emulationParameters, config);
+                },
+                e => {
+                    this._saveConfig = null;
+                    this._savedParameters = null;
+
+                    return this._rpc
+                        .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationStop)
+                        .then(() => Promise.reject(e), () => Promise.reject(e));
+                }
             )
             .then(() => this._applyState(state))
         );
@@ -113,7 +129,20 @@ class EmulationService implements EmulationServiceInterface {
     reset(): Promise<EmulationServiceInterface.State> {
         return this._mutex.runExclusive(() => this._rpc
             .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationReset)
-            .then(state => this._applyState(state))
+            .then(state => {
+                // Try to restart the proxies if the reset recovered from an an error
+                if (this._state === EmulationServiceInterface.State.error && (
+                        state === EmulationServiceInterface.State.running ||
+                        state === EmulationServiceInterface.State.paused
+                    ) &&
+                    this._saveConfig &&
+                    this._savedParameters
+                ) {
+                    this._startProxies(this._savedParameters, this._saveConfig);
+                }
+
+                return this._applyState(state);
+            })
         );
     }
 
@@ -175,6 +204,9 @@ class EmulationService implements EmulationServiceInterface {
                 .then(error => {
                     this._state = state;
                     this._lastError = error = error;
+
+                    this._stopProxies();
+
                     this.stateChanged.dispatch(state);
 
                     return state;
@@ -212,17 +244,35 @@ class EmulationService implements EmulationServiceInterface {
     }
 
     private _stopProxies(): void {
+        if (this._proxyState === ProxyState.stopped) {
+            return;
+        }
+
         this._emulationContext.getVideoProxy().disable();
 
         this._stopControlUpdates();
+
+        this._proxyState = ProxyState.stopped;
     }
 
     private _pauseProxies(): void {
+        if (this._proxyState !== ProxyState.running) {
+            return;
+        }
+
         this._stopControlUpdates();
+
+        this._proxyState = ProxyState.paused;
     }
 
     private _resumeProxies(): void {
+        if (this._proxyState !== ProxyState.paused) {
+            return;
+        }
+
         this._startControlUpdates();
+
+        this._proxyState = ProxyState.running;
     }
 
     private _startControlUpdates(): void {
@@ -260,7 +310,10 @@ class EmulationService implements EmulationServiceInterface {
 
     private _controlProxy: ControlProxy = null;
     private _controlProxyUpdateHandle: any = null;
+    private _proxyState = ProxyState.stopped;
 
+    private _savedParameters: EmulationParametersResponse = null;
+    private _saveConfig: StellaConfig = null;
 }
 
 export default EmulationService;

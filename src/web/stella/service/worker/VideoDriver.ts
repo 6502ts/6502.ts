@@ -78,12 +78,12 @@ class VideoDriver {
     }
 
     private _onReturnSurface(message: VideoReturnSurfaceMessage): void {
-        const member = this._members[message.id];
-
         if (!this._active) {
             console.warn('surface returned to inactive driver');
             return;
         }
+
+        const member = this._members[message.id];
 
         if (!member) {
             console.warn(`invalid member ID ${message.id}`);

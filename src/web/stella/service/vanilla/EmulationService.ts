@@ -86,16 +86,14 @@ export default class EmulationService implements EmulationServiceInterface {
 
     resume(): Promise<EmulationServiceInterface.State> {
         return this._mutex.runExclusive(() => {
-            try {
-                if (this._state === EmulationServiceInterface.State.paused) {
-                    this._board.getTimer().start(this._scheduler);
-                    this._board.resume();
-                    this._setState(EmulationServiceInterface.State.running);
-
-                    this._clockProbe.start();
+            if (this._state === EmulationServiceInterface.State.paused) {
+                try {
+                    this._tryToResume();
                 }
-            } catch (e) {
-                this._setError(e);
+                catch (e) {
+                    this._setError(e);
+                }
+
             }
 
             return this._state;
@@ -109,9 +107,17 @@ export default class EmulationService implements EmulationServiceInterface {
                     case EmulationServiceInterface.State.running:
                     case EmulationServiceInterface.State.paused:
                         this._board.reset();
+
+                        break;
+
+                    case EmulationServiceInterface.State.error:
+                        this._board.reset();
+                        this._tryToResume();
+
                         break;
                 }
-            } catch (e) {
+            }
+            catch (e) {
                 this._setError(e);
             }
 
@@ -185,6 +191,18 @@ export default class EmulationService implements EmulationServiceInterface {
         }
 
         return this._state;
+    }
+
+    private _tryToResume(): void {
+            if (this._state === EmulationServiceInterface.State.running) {
+                return;
+            }
+
+            this._board.getTimer().start(this._scheduler);
+            this._board.resume();
+            this._setState(EmulationServiceInterface.State.running);
+
+            this._clockProbe.start();
     }
 
     private _setError(e: Error): void {
