@@ -4,6 +4,7 @@
   "description": "A 6502 emulator written in typescript",
   "dependencies": {
     "brfs": "~1.4.3",
+    "commonmark": "~0.26.0",
     "cssnano": "~3.7.4",
     "dexie": "~1.4.1",
     "envify": "~3.4.1",

@@ -1,5 +1,6 @@
 declare module _stelleratorSettings {
     export const workerUrl: string;
+    export const helppageUrl: string;
 }
 
 declare module window {
@@ -35,12 +36,14 @@ import App from './containers/App';
 import CartridgeManager from './containers/CartridgeManager';
 import Emulation from './containers/Emulation';
 import Settings from './containers/Settings';
+import Help from './containers/Help';
 
 import PersistenceManager from './persistence/Manager';
 import {create as createPersistenceMiddleware} from './persistence/middleware';
 
 import {initCartridges} from './actions/root';
 import {initSettings} from './actions/settings';
+import {initialize as initializeEnvironment} from './actions/environment';
 
 import State from './state/State';
 import reducer from './reducers/root';
@@ -71,6 +74,8 @@ const store = createStore<State>(
         ) as any
     );
 
+store.dispatch(initializeEnvironment(_stelleratorSettings.helppageUrl));
+
 const history = syncHistoryWithStore(hashHistory, store);
 
 Promise
@@ -99,6 +104,7 @@ Promise
                     <Route path="cartridge-manager" component={CartridgeManager}/>
                     <Route path="emulation" component={Emulation}/>
                     <Route path="settings" component={Settings}/>
+                    <Route path="help" component={Help}/>
                 </Route>
             </Router>
         </Provider>,

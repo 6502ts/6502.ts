@@ -46,6 +46,9 @@ function Navbar(props: Navbar.Props) {
             <LinkContainer to="/emulation" className={props.linkEmulation ? '' : 'hidden'}>
                 <NavItem>Emulation</NavItem>
             </LinkContainer>
+            <LinkContainer to="/help">
+                <NavItem>Help</NavItem>
+            </LinkContainer>
         </Nav>
         <div style={{float: 'right'}}>
             <span className={props.gamepadCount > 0 ? '' : 'hidden'}>

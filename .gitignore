@@ -10,6 +10,7 @@ tests/fixtures/fs_provider/blob.json
 tests/ts/**/*.js
 worker/src/**/*.js
 web/stellerator.html
+web/doc
 build
 .vscode
 .idea

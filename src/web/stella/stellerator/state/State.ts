@@ -2,6 +2,7 @@ import Cartridge from './Cartridge';
 import GuiState from './GuiState';
 import EmulationState from './Emulation';
 import Settings from './Settings';
+import Environment from './Environment';
 
 export default class State implements Changeset {
 
@@ -16,6 +17,7 @@ export default class State implements Changeset {
     readonly guiState: GuiState;
     readonly emulationState: EmulationState;
     readonly settings: Settings;
+    readonly environment: Environment;
 }
 
 interface Changeset {
@@ -25,4 +27,5 @@ interface Changeset {
     guiState?: GuiState;
     emulationState?: EmulationState;
     settings?: Settings;
+    environment?: Environment;
 }

@@ -20,8 +20,8 @@ import MouseAsPaddleDriver from '../../../driver/MouseAsPaddle';
 
 class Emulation extends React.Component<Emulation.Props, Emulation.State> {
 
-    constructor() {
-        super();
+    constructor(props?: Emulation.Props, context?: any) {
+        super(props, context);
 
         this.state = {
             initialPause: true

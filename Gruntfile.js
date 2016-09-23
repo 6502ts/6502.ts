@@ -289,11 +289,28 @@ module.exports = function(grunt) {
         },
 
         copy: {
-            stellerator: {
-                expand: true,
-                cwd: 'web',
-                src: ['css/fonts/**/*'],
-                dest: 'build/stellerator'
+            stellerator_prod: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'web',
+                        src: ['css/fonts/**/*'],
+                        dest: 'build/stellerator'
+                    }, {
+                        expand: true,
+                        src: ['doc/**/*'],
+                        dest: 'build/stellerator'
+                    }
+                ]
+            },
+            stellerator_dev: {
+                files: [
+                    {
+                        expand: true,
+                        src: ['doc/**/*'],
+                        dest: 'web'
+                    }
+                ]
             }
         },
 
@@ -330,7 +347,8 @@ module.exports = function(grunt) {
         'tslint',
         'browserify:stellerator_dev',
         'browserify:stella_worker',
-        'template:stellerator_dev'
+        'template:stellerator_dev',
+        'copy:stellerator_dev'
     ]);
 
     grunt.registerTask('stellerator:build', [
@@ -340,7 +358,7 @@ module.exports = function(grunt) {
         'uglify:stellerator',
         'uglify:stella_worker',
         'postcss:stellerator',
-        'copy:stellerator',
+        'copy:stellerator_prod',
         'template:stellerator_build'
     ]);
 

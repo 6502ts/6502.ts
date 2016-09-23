@@ -4,8 +4,8 @@ import {FormControl} from 'react-bootstrap';
 
 class ValidatingInput extends React.Component<ValidatingInput.Props, ValidatingInput.State> {
 
-    constructor(props: ValidatingInput.Props) {
-        super(props);
+    constructor(props?: ValidatingInput.Props, context?: any) {
+        super(props, context);
 
         this.state = {
             rawValue: props.value

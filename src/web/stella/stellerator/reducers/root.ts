@@ -14,6 +14,7 @@ import reduceGuiState from './guiState';
 import reduceCurrentCartridge from './currentCartridge';
 import reduceEmulationState from './emulation';
 import reduceSettings from './settings';
+import reduceEnvironment from './environment';
 
 import State from '../state/State';
 import Cartridge from '../state/Cartridge';
@@ -30,8 +31,8 @@ export default function rootReducer(state: State = new State(), a: Action): Stat
             currentCartridge: reduceCurrentCartridge(reducedState.currentCartridge, a),
             guiState: reduceGuiState(reducedState.guiState, a),
             emulationState: reduceEmulationState(reducedState.emulationState, a),
-            settings: reduceSettings(reducedState.settings, a)
-
+            settings: reduceSettings(reducedState.settings, a),
+            environment: reduceEnvironment(state.environment, a)
         },
         reducedState
     );

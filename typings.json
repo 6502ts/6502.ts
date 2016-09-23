@@ -1,5 +1,6 @@
 {
   "globalDependencies": {
+    "commonmark": "registry:dt/commonmark#0.22.1+20160316171810",
     "jquery": "registry:dt/jquery#1.10.0+20160704162008",
     "lodash": "registry:dt/lodash#4.14.0+20160830145422",
     "md5": "registry:dt/md5#2.1.0+20160521153251",
