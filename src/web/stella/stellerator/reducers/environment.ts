@@ -17,5 +17,8 @@ export default function reducer(state: Environment = new Environment(), action: 
 }
 
 function initialize(state: Environment, action: InitializeAction): Environment {
-    return new Environment({helppageUrl: action.helppageUrl}, state);
+    return new Environment({
+        helppageUrl: action.helppageUrl,
+        buildId: action.buildId
+    }, state);
 }

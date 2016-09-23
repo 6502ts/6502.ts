@@ -96,7 +96,11 @@ aspect ratio and stretches the video to full display with.
 
 # Browser support and emulation speed
 
-Stellerator currently fully supports current versions of Chrome and Firefox.
+Stellerator aggressively uses many modern web technologies, some of which are
+part of the ES6 standard. Therefore, a recent browser is required to run the
+emulator.
+
+Current versions of Chrome and Firefox is fully supported.
 Safari works but is known to have serious issues with IndexedDB that affect
 cartridge load and save. Microsoft Edge might work but is untested.
 
@@ -104,7 +108,7 @@ The emulator runs at full speed (approximately 3.5 MHz / 60 FPS in NTSC mode)
 on any modern x86-based machine. On ARM based devices, speed varies greatly,
 and only high-end devices achieve full speed. During emulation, the current
 clock of the emulated system is displayed in the upper right corner.
-Chrome tends to be faster than Firefox.
+Chrome / V8 tends to be faster than Firefox.
 
 # Current limitations
 

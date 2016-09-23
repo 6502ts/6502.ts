@@ -1,6 +1,7 @@
 declare module _stelleratorSettings {
     export const workerUrl: string;
     export const helppageUrl: string;
+    export const buildId: string;
 }
 
 declare module window {
@@ -74,7 +75,10 @@ const store = createStore<State>(
         ) as any
     );
 
-store.dispatch(initializeEnvironment(_stelleratorSettings.helppageUrl));
+store.dispatch(initializeEnvironment({
+    helppageUrl: _stelleratorSettings.helppageUrl,
+    buildId: _stelleratorSettings.buildId
+}));
 
 const history = syncHistoryWithStore(hashHistory, store);
 

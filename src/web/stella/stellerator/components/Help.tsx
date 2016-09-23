@@ -16,17 +16,23 @@ function Help(props: Help.Props) {
                 <Markdown url={props.helppageUrl} className="helppage"/>
             </Col>
         </Row>
+        <div className="build-id" >
+            <br/>
+            === build: {props.buildId} ===
+        </div>
     </Grid>;
 }
 
 module Help {
 
     export interface Props {
-        helppageUrl: string;
+        helppageUrl?: string;
+        buildId?: string;
     }
 
     export const defaultProps: Props = {
-        helppageUrl: ''
+        helppageUrl: '',
+        buildId: ''
     };
 
 }

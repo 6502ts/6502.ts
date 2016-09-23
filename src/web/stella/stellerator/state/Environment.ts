@@ -5,8 +5,10 @@ export default class Environment implements Changeset {
     }
 
     readonly helppageUrl = '';
+    readonly buildId = '';
 }
 
 interface Changeset {
     helppageUrl?: string;
+    buildId?: string;
 }

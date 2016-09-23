@@ -1,7 +1,10 @@
 const path = require('path'),
-    envify = require('envify/custom');
+    envify = require('envify/custom'),
+    cp = require('child_process');
 
 module.exports = function(grunt) {
+    'use strict';
+
     grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-typings');
     grunt.loadNpmTasks('grunt-contrib-clean');
@@ -19,6 +22,20 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
 
     grunt.loadTasks('./grunt');
+
+    let buildId;
+    try {
+        buildId = cp.execFileSync(
+            'git',
+            ['rev-parse', '--short=6', 'HEAD'],
+            {
+                encoding: 'utf-8'
+            }
+        ).replace(/\s/, '');
+    }
+    catch (e) {
+        buildId = '[unknown]';
+    }
 
     grunt.initConfig({
         ts: {
@@ -271,7 +288,8 @@ module.exports = function(grunt) {
                             'js/bootstrap.min.js',
                             'js/compiled/stellerator.js'
                         ],
-                        workerUrl: 'js/compiled/stella_worker.js'
+                        workerUrl: 'js/compiled/stella_worker.js',
+                        buildId
                     }
                 }
             },
@@ -282,7 +300,8 @@ module.exports = function(grunt) {
                     data: {
                         stylesheets: ['css/app.css'],
                         scripts: ['js/app.js'],
-                        workerUrl: ['js/worker.js']
+                        workerUrl: ['js/worker.js'],
+                        buildId
                     }
                 }
             }

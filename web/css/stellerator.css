@@ -92,3 +92,8 @@ input[type='text'].invalid {
 .helppage a {
     color: #090;
 }
+
+.build-id {
+    color: #fff;
+    margin-bottom: 1rem;
+}

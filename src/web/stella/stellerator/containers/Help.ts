@@ -5,7 +5,8 @@ import State from '../state/State';
 
 function mapStateToProps(state: State): HelpComponent.Props {
     return {
-        helppageUrl: state.environment.helppageUrl
+        helppageUrl: state.environment.helppageUrl,
+        buildId: state.environment.buildId
     };
 }
 
