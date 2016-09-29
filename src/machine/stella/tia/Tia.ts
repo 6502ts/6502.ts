@@ -35,7 +35,10 @@ const enum Delay {
     hmp = 2,
     hmm = 2,
     hmbl = 2,
-    hmclr = 2
+    hmclr = 2,
+    resp = 2,
+    resm = 2,
+    resbl = 2
 }
 
 // Each bit in the collision mask identifies a single collision pair
@@ -415,13 +418,11 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.resm0:
-                this._linesSinceChange = 0;
-                this._missile0.resm(this._hstate === HState.blank);
+                this._delayQueue.push(Tia.Registers.resm0, value, Delay.resm);
                 break;
 
             case Tia.Registers.resm1:
-                this._linesSinceChange = 0;
-                this._missile1.resm(this._hstate === HState.blank);
+                this._delayQueue.push(Tia.Registers.resm1, value, Delay.resm);
                 break;
 
             case Tia.Registers.resmp0:
@@ -523,13 +524,11 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.resp0:
-                this._linesSinceChange = 0;
-                this._player0.resp(this._hstate === HState.blank);
+                this._delayQueue.push(Tia.Registers.resp0, value, Delay.resp);
                 break;
 
             case Tia.Registers.resp1:
-                this._linesSinceChange = 0;
-                this._player1.resp(this._hstate === HState.blank);
+                this._delayQueue.push(Tia.Registers.resp1, value, Delay.resp);
                 break;
 
             case Tia.Registers.refp0:
@@ -570,8 +569,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.resbl:
-                this._linesSinceChange = 0;
-                this._ball.resbl(this._hstate === HState.blank);
+                this._delayQueue.push(Tia.Registers.resbl, value, Delay.resbl);
                 break;
 
             case Tia.Registers.vdelbl:
@@ -715,6 +713,31 @@ class Tia implements VideoOutputInterface {
                 self._player0.hmp(0);
                 self._player1.hmp(0);
                 self._ball.hmbl(0);
+                break;
+
+            case Tia.Registers.resm0:
+                self._linesSinceChange = 0;
+                self._missile0.resm();
+                break;
+
+            case Tia.Registers.resm1:
+                self._linesSinceChange = 0;
+                self._missile1.resm();
+                break;
+
+            case Tia.Registers.resp0:
+                self._linesSinceChange = 0;
+                self._player0.resp();
+                break;
+
+            case Tia.Registers.resp1:
+                self._linesSinceChange = 0;
+                self._player1.resp();
+                break;
+
+            case Tia.Registers.resbl:
+                self._linesSinceChange = 0;
+                self._ball.resbl(self._hstate === HState.blank);
                 break;
         }
     }
