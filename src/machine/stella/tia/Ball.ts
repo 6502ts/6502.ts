@@ -35,7 +35,7 @@ export default class Ball {
     }
 
     resbl(hblank: boolean): void {
-        this._counter = 159;
+        this._counter = hblank ? 159 : 157;
 
         if (!hblank) {
             this._rendering = true;
