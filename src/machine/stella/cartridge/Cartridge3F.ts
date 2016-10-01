@@ -25,6 +25,10 @@ class Cartridge3F extends AbstractCartridge {
         }
     }
 
+    reset(): void {
+        this._bank0 = this._banks[3];
+    }
+
     setBus(bus: Bus): this {
         this._bus = bus;
 

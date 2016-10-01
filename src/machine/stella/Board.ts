@@ -115,6 +115,7 @@ class Board implements BoardInterface {
         this._cpu.reset();
         this._tia.reset();
         this._pia.reset();
+        this._cartridge.reset();
 
         this._controlPanel.getResetButton().toggle(false);
         this._controlPanel.getSelectSwitch().toggle(false);

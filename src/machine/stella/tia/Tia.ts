@@ -370,6 +370,10 @@ class Tia implements VideoOutputInterface {
         return (result & 0xC0) | (lastDataBusValue & 0x3F);
     }
 
+    peek(address: number): number {
+        return this.read(address);
+    }
+
     write(address: number, value: number): void {
         let v = 0;
 

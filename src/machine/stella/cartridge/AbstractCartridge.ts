@@ -8,8 +8,14 @@ import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class AbstractCartridge implements CartridgeInterface {
 
+    reset(): void {}
+
     read(address: number): number {
         return 0;
+    }
+
+    peek(address: number): number {
+        return this.read(address);
     }
 
     write(address: number, value: number) {

@@ -18,6 +18,10 @@ class CartridgeFE extends AbstractCartridge {
             this._bank1[i] = buffer[0x1000 + i];
         }
 
+        this.reset();
+    }
+
+    reset(): void {
         this._bank = this._bank0;
     }
 
@@ -42,7 +46,7 @@ class CartridgeFE extends AbstractCartridge {
     }
 
     notifyCpuCycleComplete(): void {
-        const lastInstruction = this._bus.read(this._cpu.getLastInstructionPointer());
+        const lastInstruction = this._bus.peek(this._cpu.getLastInstructionPointer());
 
         if (
             lastInstruction === 0x20 || // JSR

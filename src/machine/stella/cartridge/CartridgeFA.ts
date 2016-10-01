@@ -18,6 +18,10 @@ class CartridgeFA extends AbstractCartridge {
             this._bank2[i] = buffer[0x2000 + i];
         }
 
+        this.reset();
+    }
+
+    reset(): void {
         this._bank = this._bank0;
     }
 
@@ -28,9 +32,13 @@ class CartridgeFA extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
+        this._handleBankswitch(address & 0x0FFF);
 
-        this._handleBankswitch(address);
+        return this.peek(address);
+    }
+
+    peek(address: number): number {
+        address &= 0x0FFF;
 
         if (address >= 0x0100 && address < 0x0200) {
             return this._ram[address & 0xFF];

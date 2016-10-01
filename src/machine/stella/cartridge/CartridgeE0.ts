@@ -15,14 +15,18 @@ class CartridgeE0 extends AbstractCartridge {
             this._banks[i] = new Uint8Array(0x0400);
         }
 
-        for (let i = 0; i < 4; i++) {
-            this._activeBanks[i] = this._banks[7];
-        }
-
         for (let i = 0; i < 0x0400; i++) {
             for (let j = 0; j < 8; j++) {
                 this._banks[j][i] = buffer[j * 0x0400 + i];
             }
+        }
+
+        this.reset();
+    }
+
+    reset(): void {
+        for (let i = 0; i < 4; i++) {
+            this._activeBanks[i] = this._banks[7];
         }
     }
 
@@ -32,6 +36,12 @@ class CartridgeE0 extends AbstractCartridge {
         if (address >= 0x0FE0 && address < 0x0FF8) {
             this._handleBankswitch(address);
         }
+
+        return this._activeBanks[(address >> 10)][address & 0x03FF];
+    }
+
+    peek(address: number): number {
+        address &= 0x0FFF;
 
         return this._activeBanks[(address >> 10)][address & 0x03FF];
     }

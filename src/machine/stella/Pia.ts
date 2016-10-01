@@ -44,6 +44,20 @@ class Pia {
         }
     }
 
+    peek(address: number): number {
+        // RAM select = A9 low?
+        if (address & 0x0200) {
+            if (address & 0x0004) {
+                return this._peekTimer(address);
+            } else {
+                return this._readIo(address);
+            }
+        } else {
+            // Mask out A7 - A15
+            return this.ram[address & 0x7F];
+        }
+    }
+
     write(address: number, value: number) {
         // RAM select = A9 low?
         if (address & 0x0200) {
@@ -147,6 +161,10 @@ class Pia {
 
             return this._timerValue;
         }
+    }
+
+    private _peekTimer(address: number): number {
+        return (address & 0x01) ? (this._interruptFlag & 0x80) : this._timerValue;
     }
 
     private _cycleTimer(): void {

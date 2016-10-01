@@ -15,13 +15,18 @@ class CartridgeF0 extends AbstractCartridge {
             this._banks[i] = new Uint8Array(0x1000);
         }
 
-        this._currentBank = this._banks[this._bankIdx];
-
         for (let i = 0; i < 0x1000; i++) {
             for (let j = 0; j < 16; j++) {
                 this._banks[j][i] = buffer[j * 0x1000 + i];
             }
         }
+
+        this.reset();
+    }
+
+    reset(): void {
+        this._bankIdx = 0;
+        this._currentBank = this._banks[this._bankIdx];
     }
 
     read(address: number): number {
@@ -30,6 +35,10 @@ class CartridgeF0 extends AbstractCartridge {
         this._handleBankswitch(address);
 
         return this._currentBank[address];
+    }
+
+    peek(address: number): number {
+        return this._currentBank[address & 0x0FFF];
     }
 
     write(address: number, value: number) {

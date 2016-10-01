@@ -16,38 +16,27 @@ class CartridgeF8 extends AbstractCartridge {
             this._bank1[i] = buffer[0x1000 + i];
         }
 
+        this.reset();
+    }
+
+    reset(): void {
         this._bank = this._bank0;
     }
 
     read(address: number): number {
         address &= 0x0FFF;
 
-        switch (address) {
-            case 0x0FF8:
-                this._bank = this._bank0;
-                break;
-
-            case 0x0FF9:
-                this._bank = this._bank1;
-                break;
-        }
+        this._handleBankswitch(address);
 
         return this._bank[address];
     }
 
+    peek(address: number): number {
+        return this._bank[address & 0x0FFF];
+    }
+
     write(address: number, value: number): void {
-        switch (address & 0x0FFF) {
-            case 0x0FF8:
-                this._bank = this._bank0;
-                return;
-
-            case 0x0FF9:
-                this._bank = this._bank1;
-                return;
-
-            default:
-                return super.write(address, value);
-        }
+        this._handleBankswitch(address & 0x0FFF);
     }
 
     getType(): CartridgeInfo.CartridgeType {
@@ -61,6 +50,18 @@ class CartridgeF8 extends AbstractCartridge {
         );
 
         return signatureCounts[0] >= 2;
+    }
+
+    private _handleBankswitch(address: number): void {
+        switch (address) {
+            case 0x0FF8:
+                this._bank = this._bank0;
+                break;
+
+            case 0x0FF9:
+                this._bank = this._bank1;
+                break;
+        }
     }
 
     protected _bank: Uint8Array = null;

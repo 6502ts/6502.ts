@@ -19,25 +19,33 @@ class CartrdigeE7 extends AbstractCartridge {
             this._banks[i] = new Uint8Array(0x0800);
         }
 
-        this._bank0 = this._banks[0];
-
         for (let i = 0; i < 4; i++) {
             this._ram1Banks[i] = new Uint8Array(0x100);
         }
-
-        this._ram1 = this._ram1Banks[0];
 
         for (let i = 0; i < 0x0800; i++) {
             for (let j = 0; j < 8; j++) {
                 this._banks[j][i] = buffer[j * 0x0800 + i];
             }
         }
+
+        this.reset();
+    }
+
+    reset(): void {
+        this._bank0 = this._banks[0];
+        this._ram1 = this._ram1Banks[0];
+        this._ram0Enabled = false;
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
+        this._handleBankswitch(address & 0x0FFF);
 
-        this._handleBankswitch(address);
+        return this.peek(address);
+    }
+
+    peek(address: number): number {
+        address &= 0x0FFF;
 
         // 0 -> 0x07FF: bank 0 - 6 or RAM
         if (address < 0x0800) {

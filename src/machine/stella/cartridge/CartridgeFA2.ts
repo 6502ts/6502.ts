@@ -30,6 +30,12 @@ class CartridgeFA2 extends AbstractCartridge {
             }
         }
 
+        this.reset();
+    }
+
+    reset(): void {
+        this._accessCounter = 0;
+        this._accessCounterLimit = 0;
         this._bank = this._banks[0];
     }
 
@@ -50,9 +56,13 @@ class CartridgeFA2 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
+        this.write(address & 0x0FFF, this._bus.getLastDataBusValue());
 
-        this.write(address, this._bus.getLastDataBusValue());
+        return this.peek(address);
+    }
+
+    peek(address: number): number {
+        address &= 0x0FFF;
 
         if (address >= 0x0100 && address < 0x0200) {
             return this._ram[address - 0x0100];

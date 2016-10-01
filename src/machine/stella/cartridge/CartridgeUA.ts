@@ -17,6 +17,10 @@ class CartridgeUA extends AbstractCartridge {
             this._bank1[i] = buffer[0x1000 + i];
         }
 
+        this.reset();
+    }
+
+    reset(): void {
         this._bank = this._bank0;
     }
 

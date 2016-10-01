@@ -84,7 +84,19 @@ class Bus implements BusInterface {
     }
 
     peek(address: number): number {
-        return this.read(address);
+        address &= 0x1FFF;
+
+        // Chip select A12 -> cartridge
+        if (address & 0x1000) {
+            return this._cartridge.peek(address);
+        }
+        // Chip select A7 -> PIA
+        else if (address & 0x80) {
+            return this._pia.peek(address);
+        }
+        else {
+            return this._tia.peek(address);
+        }
     }
 
     // Stub

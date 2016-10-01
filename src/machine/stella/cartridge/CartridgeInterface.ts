@@ -7,7 +7,11 @@ import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 interface CartridgeInterface {
 
+    reset(): void;
+
     read(address: number): number;
+
+    peek(address: number): number;
 
     write(address: number, value: number): void;
 

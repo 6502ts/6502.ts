@@ -27,6 +27,10 @@ class CartridgeF4 extends AbstractCartridge {
             }
         }
 
+        this.reset();
+    }
+
+    reset(): void {
         this._bank = this._banks[0];
     }
 
@@ -47,9 +51,13 @@ class CartridgeF4 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
+        this._access(address & 0x0FFF, this._bus.getLastDataBusValue());
 
-        this._access(address, this._bus.getLastDataBusValue());
+        return this.peek(address);
+    }
+
+    peek(address: number): number {
+        address &= 0x0FFF;
 
         if (this._hasSC && address >= 0x0080 && address < 0x0100) {
             return this._ram[address - 0x80];
