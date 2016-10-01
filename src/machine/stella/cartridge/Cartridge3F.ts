@@ -16,7 +16,8 @@ class Cartridge3F extends AbstractCartridge {
             this._banks[i] = new Uint8Array(0x0800);
         }
 
-        this._bank0 = this._bank1 = this._banks[3];
+        this._bank1 = this._banks[3];
+        this._bank0 = this._banks[0];
 
         for (let i = 0; i < 0x0800; i++) {
             for (let j = 0; j < 4; j++) {
@@ -26,13 +27,16 @@ class Cartridge3F extends AbstractCartridge {
     }
 
     reset(): void {
-        this._bank0 = this._banks[3];
+        this._bank0 = this._banks[0];
     }
 
     setBus(bus: Bus): this {
         this._bus = bus;
 
-        this._bus.event.read.addHandler(Cartridge3F._onBusAccess, this);
+        // Bankswitch on read breaks actual cartridges badly -> maybe the hardware actively
+        // watches out for STA on the bus? Disable for now, more research would be in order.
+        //
+        //this._bus.event.read.addHandler(Cartridge3F._onBusAccess, this);
         this._bus.event.write.addHandler(Cartridge3F._onBusAccess, this);
 
         return this;
