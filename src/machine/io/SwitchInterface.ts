@@ -1,4 +1,4 @@
-import EventInterface from '../../tools/event/EventInterface';
+import {EventInterface} from 'microevent.ts';
 
 interface SwitchInterface {
     toggle(state: boolean): void;

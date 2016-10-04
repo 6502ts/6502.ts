@@ -1,5 +1,6 @@
+import {EventInterface} from 'microevent.ts';
+
 import RGBASurfaceInterface from '../../tools/surface/RGBASurfaceInterface';
-import EventInterface from '../../tools/event/EventInterface';
 
 interface VideoOutputInterface {
 

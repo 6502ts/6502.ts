@@ -26,6 +26,7 @@
     "grunt-typings": "~0.1.5",
     "lodash": "~4.14.2",
     "md5": "~2.1.0",
+    "microevent.ts": "^0.1.0",
     "mocha": "~3.0.2",
     "postcss-import": "~8.1.2",
     "react": "~15.3.0",
@@ -42,6 +43,6 @@
     "setimmediate2": "~2.0.1",
     "tsify": "~1.0.3",
     "tslint": "~3.14.0",
-    "typescript": "~2.0.0"
+    "typescript": "~2.0.3"
   }
 }

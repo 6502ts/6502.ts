@@ -1,6 +1,7 @@
+import {Event} from 'microevent.ts';
+
 import Switch from './Switch';
 import PaddleInterface from './PaddleInterface';
-import Event from '../../tools/event/Event';
 
 export default class Paddle implements PaddleInterface {
 

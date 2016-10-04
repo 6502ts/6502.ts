@@ -1,6 +1,7 @@
+import {Event} from 'microevent.ts';
+
 import SwitchInterface from '../../../machine/io/SwitchInterface';
 import Switch from '../../../machine/io/Switch';
-import Event from '../../../tools/event/Event';
 import JoystickInterface from '../../../machine/io/DigitalJoystickInterface';
 import ControlPanelInterface from '../../../machine/stella/ControlPanelInterface';
 

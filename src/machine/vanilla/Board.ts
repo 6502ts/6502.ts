@@ -1,10 +1,11 @@
+import {Event} from 'microevent.ts';
+
 import BoardInterface from '../board/BoardInterface';
 import CpuInterface from '../cpu/CpuInterface';
 import Cpu from '../cpu/Cpu';
 import Memory from './Memory';
 import BusInterface from '../bus/BusInterface';
 import TimerInterface from '../board/TimerInterface';
-import Event from '../../tools/event/Event';
 import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 import TaskInterface from '../../tools/scheduler/TaskInterface';
 

@@ -1,7 +1,8 @@
+import {Event} from 'microevent.ts';
+
 import VideoOutputInterface from '../..//machine/io/VideoOutputInterface';
 import ObjectPool from '../../tools/pool/Pool';
 import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
-import Event from '../../tools/event/Event';
 import ArrayBufferSurface from '../../tools/surface/ArrayBufferSurface';
 import RGBASurfaceInterface from '../../tools/surface/RGBASurfaceInterface';
 import VideoEndpointInterface from '../driver/VideoEndpointInterface';

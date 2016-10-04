@@ -1,5 +1,6 @@
+import {EventInterface} from 'microevent.ts';
+
 import PoolMemberInterface from './PoolMemberInterface';
-import EventInterface from '../event/EventInterface';
 
 interface PoolInterface<T> {
 

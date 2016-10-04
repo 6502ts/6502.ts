@@ -1,4 +1,4 @@
-import EventInterface from '../event/EventInterface';
+import {EventInterface} from 'microevent.ts';
 
 interface RpcProviderInterface {
 

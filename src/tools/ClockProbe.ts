@@ -1,5 +1,5 @@
-import EventInterface from './event/EventInterface';
-import Event from './event/Event';
+import {Event, EventInterface} from 'microevent.ts';
+
 import SchedulerInterface from './scheduler/SchedulerInterface';
 import TaskInterface from './scheduler/TaskInterface';
 

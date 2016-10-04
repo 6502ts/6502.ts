@@ -1,5 +1,6 @@
+import {EventInterface} from 'microevent.ts';
+
 import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
-import EventInterface from '../../tools/event/EventInterface';
 
 interface VideoEndpointInterface {
 

@@ -1,3 +1,5 @@
+import {Event, EventInterface} from 'microevent.ts';
+
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
 import Board from '../../../../machine/stella/Board';
@@ -11,8 +13,6 @@ import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
 import Mutex from '../../../../tools/Mutex';
-import Event from '../../../../tools/event/Event';
-import EventInterface from '../../../../tools/event/Event';
 
 const CLOCK_UPDATE_INTERVAL = 2000;
 

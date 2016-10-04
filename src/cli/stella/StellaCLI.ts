@@ -1,3 +1,5 @@
+import {Event} from 'microevent.ts';
+
 import FilesystemProviderInterface from '../../fs/FilesystemProviderInterface';
 import DebuggerCLI from '../DebuggerCLI';
 import AbstractCLI from '../AbstractCLI';
@@ -15,7 +17,6 @@ import ImmedateScheduler from '../../tools/scheduler/ImmedateScheduler';
 import LimitedScheduler from '../../tools/scheduler/LimitingImmediateScheduler';
 import PeriodicScheduler from '../../tools/scheduler/PeriodicScheduler';
 import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
-import Event from '../../tools/event/Event';
 import ClockProbe from '../../tools/ClockProbe';
 
 import SystemConfigSetupProvider from './SystemConfigSetupProvider';

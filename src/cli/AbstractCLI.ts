@@ -1,4 +1,4 @@
-import Event from '../tools/event/Event';
+import {Event} from 'microevent.ts';
 
 abstract class AbstractCLI {
 

@@ -1,4 +1,5 @@
-import Event from '../../tools/event/Event';
+import {Event} from 'microevent.ts';
+
 import ControlPanelInterface from './ControlPanelInterface';
 import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
 import Bus from './Bus';

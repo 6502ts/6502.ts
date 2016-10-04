@@ -1,3 +1,5 @@
+import {Event} from 'microevent.ts';
+
 import RpcProvider from '../../../../tools/worker/RpcProvider';
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
@@ -9,7 +11,6 @@ import AudioProxy from './AudioProxy';
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
-import Event from '../../../../tools/event/Event';
 import Mutex from '../../../../tools/Mutex';
 
 import {

@@ -1,9 +1,9 @@
+import {Event, EventInterface} from 'microevent.ts';
+
 import VideoOutputInterface from '../../io/VideoOutputInterface';
 import AudioOutputInterface from '../../io/AudioOutputInterface';
 import DigitalJoystickInterface from '../../io/DigitalJoystickInterface';
 import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
-import Event from '../../../tools/event/Event';
-import EventInterface from '../../../tools/event/EventInterface';
 import Config from '../Config';
 import CpuInterface from '../../cpu/CpuInterface';
 import Audio from './Audio';

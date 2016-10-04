@@ -1,5 +1,6 @@
+import {Event} from 'microevent.ts';
+
 import SwitchInterface from './SwitchInterface';
-import Event from '../../tools/event/Event';
 
 export default class Switch implements SwitchInterface {
 

@@ -1,5 +1,6 @@
+import {Event} from 'microevent.ts';
+
 import RpcProviderInterface from './RpcProviderInterface';
-import Event from '../event/Event';{}
 
 const MSG_RESOLVE_TRANSACTION = "resolve_transaction",
     MSG_REJECT_TRANSACTION = "reject_transaction",

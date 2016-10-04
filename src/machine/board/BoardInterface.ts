@@ -1,7 +1,8 @@
+import {EventInterface} from 'microevent.ts';
+
 import BusInterface from '../bus/BusInterface';
 import CpuInterface from '../cpu/CpuInterface';
 import TimerInterface from './TimerInterface';
-import EventInterface from '../../tools/event/EventInterface';
 
 interface BoardInterface {
 

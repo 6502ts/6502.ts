@@ -1,4 +1,5 @@
-import Event from '../../../tools/event/Event';
+import {Event} from 'microevent.ts';
+
 import CartridgeInterface from './CartridgeInterface';
 import CartridgeInfo from './CartridgeInfo';
 import CpuInterface from '../../cpu/CpuInterface';

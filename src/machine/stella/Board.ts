@@ -1,3 +1,5 @@
+import {Event} from 'microevent.ts';
+
 import BoardInterface from '../board/BoardInterface';
 import CpuInterface from '../cpu/CpuInterface';
 import Cpu from '../cpu/Cpu';
@@ -18,7 +20,6 @@ import PaddleInterface from '../io/PaddleInterface';
 import Paddle from '../io/Paddle';
 
 import TimerInterface from '../board/TimerInterface';
-import Event from '../../tools/event/Event';
 import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 import TaskInterface from '../../tools/scheduler/TaskInterface';
 import RngInterface from '../../tools/rng/GeneratorInterface';

@@ -1,5 +1,6 @@
+import {EventInterface} from 'microevent.ts';
+
 import AudioOutputBuffer from '../../tools/AudioOutputBuffer';
-import EventInterface from '../../tools/event/EventInterface';
 
 interface AudioOutputInterface {
 

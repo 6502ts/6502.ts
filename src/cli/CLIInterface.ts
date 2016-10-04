@@ -1,5 +1,6 @@
+import {EventInterface} from 'microevent.ts';
+
 import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
-import EventInterface from '../tools/event/EventInterface';
 
 interface CLIInterface {
     pushInput(input: string): void;

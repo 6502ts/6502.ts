@@ -1,6 +1,7 @@
+import {Event} from 'microevent.ts';
+
 import DigitalJoystickInterface from '../../machine/io/DigitalJoystickInterface';
 import SwitchInterface from '../../machine/io/SwitchInterface';
-import Event from '../../tools/event/Event';
 
 const MIN_POLL_INTERVAL = 50;
 

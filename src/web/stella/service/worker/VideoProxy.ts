@@ -1,6 +1,7 @@
+import {Event} from 'microevent.ts';
+
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import RpcProvider from '../../../../tools/worker/RpcProvider';
-import Event from '../../../../tools/event/Event';
 import PoolMemberInterface from '../../../../tools/pool/PoolMemberInterface';
 
 import {

@@ -1,5 +1,6 @@
+import {Event} from 'microevent.ts';
+
 import PoolMember from './PoolMember';
-import Event from '../event/Event';
 import PoolInterface from './PoolInterface';
 
 class Pool<T> implements PoolInterface<T> {

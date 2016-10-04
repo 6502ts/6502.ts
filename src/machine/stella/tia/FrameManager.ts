@@ -1,6 +1,7 @@
+import {Event} from 'microevent.ts';
+
 import VideoOutputInterface from '../../io/VideoOutputInterface';
 import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
-import Event from '../../../tools/event/Event';
 import Config from '../Config';
 
 const enum Metrics {
