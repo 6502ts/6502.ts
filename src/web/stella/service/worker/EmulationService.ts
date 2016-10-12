@@ -11,7 +11,7 @@ import AudioProxy from './AudioProxy';
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
-import Mutex from '../../../../tools/Mutex';
+import {Mutex} from 'async-mutex';
 
 import {
     RPC_TYPE,

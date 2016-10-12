@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "A 6502 emulator written in typescript",
   "dependencies": {
+    "async-mutex": "~0.1.0",
     "brfs": "~1.4.3",
     "commonmark": "~0.26.0",
     "cssnano": "~3.7.4",
@@ -26,7 +27,7 @@
     "grunt-typings": "~0.1.5",
     "lodash": "~4.14.2",
     "md5": "~2.1.0",
-    "microevent.ts": "^0.1.0",
+    "microevent.ts": "~0.1.0",
     "mocha": "~3.0.2",
     "postcss-import": "~8.1.2",
     "react": "~15.3.0",

@@ -12,7 +12,7 @@ import LimitingScheduler from '../../../../tools/scheduler/LimitingImmediateSche
 import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
-import Mutex from '../../../../tools/Mutex';
+import {Mutex} from 'async-mutex';
 
 const CLOCK_UPDATE_INTERVAL = 2000;
 
