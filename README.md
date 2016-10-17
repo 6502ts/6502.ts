@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/6502ts/6502.ts.svg?branch=master)](https://travis-ci.org/6502ts/6502.ts)
+
 # What is it?
 
 **DOCUMENTATION is being rewritten, the old docs are availabe [here](README.old.md)**
