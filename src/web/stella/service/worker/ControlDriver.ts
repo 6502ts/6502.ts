@@ -1,6 +1,6 @@
 import EmulationContextInterface from '../EmulationContextInterface';
 import ControlState from './ControlState';
-import RpcProviderInterface from '../../../../tools/worker/RpcProviderInterface';
+import {RpcProviderInterface} from 'worker-rpc';
 import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';

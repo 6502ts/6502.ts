@@ -1,6 +1,6 @@
 import {Event} from 'microevent.ts';
 
-import RpcProvider from '../../../../tools/worker/RpcProvider';
+import {RpcProvider} from 'worker-rpc';
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
 import EmulationContextInterface from '../EmulationContextInterface';

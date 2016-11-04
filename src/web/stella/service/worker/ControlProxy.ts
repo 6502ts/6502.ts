@@ -2,7 +2,7 @@ import Joystick from '../../../../machine/io/DigitalJoystick';
 import ControlPanel from '../../../../machine/stella/ControlPanel';
 import Paddle from '../../../../machine/io/Paddle';
 import ControlState from './ControlState';
-import RpcProviderInterface from '../../../../tools/worker/RpcProviderInterface';
+import {RpcProviderInterface} from 'worker-rpc';
 
 import {
     SIGNAL_TYPE

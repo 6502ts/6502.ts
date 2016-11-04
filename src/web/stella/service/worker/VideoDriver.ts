@@ -2,7 +2,7 @@ import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
 import ObjectPool from '../../../../tools/pool/Pool';
 import ObjectPoolMember from '../../../../tools/pool/PoolMember';
 import ArrayBufferSurface from '../../../../tools/surface/ArrayBufferSurface';
-import RpcProviderInterface from '../../../../tools/worker/RpcProviderInterface';
+import {RpcProviderInterface} from 'worker-rpc';
 
 import {
     SIGNAL_TYPE,
@@ -113,7 +113,7 @@ class VideoDriver {
                 height: self._height,
                 buffer
             },
-            buffer
+            [buffer]
         );
     }
 

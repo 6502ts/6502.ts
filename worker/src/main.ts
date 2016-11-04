@@ -1,6 +1,6 @@
 declare function postMessage(message: any, transfer?: any): void;
 
-import RpcProvider from '../../src/tools/worker/RpcProvider';
+import {RpcProvider} from 'worker-rpc';
 import EmulationBackend from '../../src/web/stella/service/worker/EmulationBackend';
 
 const rpcProvider = new RpcProvider(

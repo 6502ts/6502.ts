@@ -1,6 +1,6 @@
 import EmulationService from '../vanilla/EmulationService';
 import EmulationServiceInterface from '../EmulationServiceInterface';
-import RpcProviderInterface from '../../../../tools/worker/RpcProviderInterface';
+import {RpcProviderInterface} from 'worker-rpc';
 import DriverManager from '../DriverManager';
 import VideoDriver from './VideoDriver';
 import ControlDriver from './ControlDriver';

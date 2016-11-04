@@ -1,7 +1,7 @@
 import {Event} from 'microevent.ts';
 
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
-import RpcProvider from '../../../../tools/worker/RpcProvider';
+import {RpcProviderInterface} from 'worker-rpc';
 import PoolMemberInterface from '../../../../tools/pool/PoolMemberInterface';
 
 import {
@@ -13,7 +13,7 @@ import {
 class VideoProxy implements VideoEndpointInterface {
 
     constructor (
-        private _rpc: RpcProvider
+        private _rpc: RpcProviderInterface
     ) {}
 
     init(): void {
@@ -68,10 +68,14 @@ class VideoProxy implements VideoEndpointInterface {
 
             release: () => {
                 if (this._active && this._ids.has(message.id)) {
-                    this._rpc.signal<VideoReturnSurfaceMessage>(SIGNAL_TYPE.videoReturnSurface, {
-                        id: message.id,
-                        buffer: message.buffer
-                    });
+                    this._rpc.signal<VideoReturnSurfaceMessage>(
+                        SIGNAL_TYPE.videoReturnSurface,
+                        {
+                            id: message.id,
+                            buffer: message.buffer
+                        },
+                        [message.buffer]
+                    );
                 }
             },
 

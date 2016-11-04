@@ -44,6 +44,7 @@
     "setimmediate2": "~2.0.1",
     "tsify": "~1.0.3",
     "tslint": "~3.14.0",
-    "typescript": "~2.0.3"
+    "typescript": "~2.0.3",
+    "worker-rpc": "~0.1.0"
   }
 }

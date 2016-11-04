@@ -1,4 +1,4 @@
-import RpcProviderInterface from '../../../../tools/worker/RpcProviderInterface';
+import {RpcProviderInterface} from 'worker-rpc';
 import AudioOutputInterface from '../../../../machine/io/AudioOutputInterface';
 
 import {

@@ -1,6 +1,6 @@
 import {Event} from 'microevent.ts';
 
-import RpcProviderInterface from '../../../../tools/worker/RpcProviderInterface';
+import {RpcProviderInterface} from 'worker-rpc';
 import AudioOutputInterface from '../../../../machine/io/AudioOutputInterface';
 import ToneGenerator from '../../../../machine/stella/tia/ToneGenerator';
 import StellaConfig from '../../../../machine/stella/Config';
