@@ -83,27 +83,25 @@ class EmulationService implements EmulationServiceInterface {
             .then(_state => {
                 state = _state;
 
-                return this._rpc.rpc<void, EmulationParametersResponse>(
-                    RPC_TYPE.emulationGetParameters
-                );
+                return state === EmulationServiceInterface.State.paused ?
+                    this._rpc.rpc<void, EmulationParametersResponse>(
+                        RPC_TYPE.emulationGetParameters
+                    ) :
+                    undefined;
             })
-            .then(
-                emulationParameters => {
+            .then(emulationParameters => {
+                if (emulationParameters) {
                     this._saveConfig = config;
                     this._savedParameters = emulationParameters;
 
-                    return this._startProxies(emulationParameters, config);
-                },
-                e => {
+                    this._startProxies(emulationParameters, config);
+                } else {
                     this._saveConfig = null;
                     this._savedParameters = null;
-
-                    return this._rpc
-                        .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationStop)
-                        .then(() => Promise.reject(e), () => Promise.reject(e));
                 }
-            )
-            .then(() => this._applyState(state))
+
+                return this._applyState(state);
+            })
         );
     }
 
@@ -112,7 +110,7 @@ class EmulationService implements EmulationServiceInterface {
             .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationPause)
             .then(state => {
                 this._pauseProxies();
-                this._applyState(state);
+                return this._applyState(state);
             })
         );
     }
@@ -122,7 +120,7 @@ class EmulationService implements EmulationServiceInterface {
             .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationStop)
             .then(state => {
                 this._stopProxies();
-                this._applyState(state);
+                return this._applyState(state);
             })
         );
     }
@@ -152,7 +150,7 @@ class EmulationService implements EmulationServiceInterface {
             .rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationResume)
             .then(state => {
                 this._resumeProxies();
-                this._applyState(state);
+                return this._applyState(state);
             })
         );
     }
