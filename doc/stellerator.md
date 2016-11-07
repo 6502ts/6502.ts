@@ -8,7 +8,7 @@ Among other things, it supports hardware accelerated graphics with TV afterglow
 emulation and skip-free audio emulation. Cartridges are
 stored locally in the browser, no data is transferred over the web.
 
-The source is available under the MIT license on
+The source is available under the GNU General Public License (see below) on
 [github](https://github.com/6502ts/6502.ts). Feel free to fork, explore and contribute.
 
 # Loading and running cartridge images
@@ -123,3 +123,19 @@ Chrome / V8 tends to be faster than Firefox.
    attempts to do PCM audio by banging the audio registers
    will produce silence. Apart from audio demos, this would mainly affect DPC music
    --- if DPC cartridges were supported in the first place ;)
+
+## License
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.

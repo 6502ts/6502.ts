@@ -48,8 +48,23 @@ Please check the `Gruntfile.js` for more build targets.
 
 # License and credits
 
-You are free to use, modify and redistribute this code under the conditions
-of the MIT license --- see `LICENSE` for details.
+## GNU General Public License
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+## Third party code
 
 These license conditions do not apply to the contents of the `aux` directory which
 mostly were written by folks other than me. Specifically:
@@ -69,6 +84,6 @@ mostly were written by folks other than me. Specifically:
  * `flapping` is a homebrew game written by Kirk Israel available
    [here](http://alienbill.com/2600/flapping/).
 
-2600 cartridge type detection coe (and some of the more exotic cartridge types)
+2600 cartridge type detection code (and some of the more exotic cartridge types)
 were modelled after the excellent [stella](http://stella.sourceforge.net/) emulator.
 Initial 2600 audio code was contributed by Martin Schröder.

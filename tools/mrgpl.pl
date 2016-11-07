@@ -1,3 +1,8 @@
+#!/usr/bin/env perl
+
+use strict;
+
+my $license = <<EOI;
 /*
  *   This file is part of 6502.ts, an emulator for 6502 based systems built
  *   in Typescript.
@@ -19,34 +24,53 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-declare function suite(name: string, implementation: Mocha.SuiteImplementation): void;
+EOI
 
-declare function test(name:string, implementation: Mocha.TestImplementation): void;
+my $mode = "scan";
 
-declare function setup(implementation: Mocha.SetupImplementation): void;
+my $input = "";
+my $comment = "";
+my $licenseBlock = 0;
 
-declare function teardown(implementation: Mocha.TeardownImplementation): void;
+while (<>) {
+    if ($mode eq "scan") {
+        chomp;
+        $_ .= "\n";
 
-declare module Mocha {
+        next unless $_;
 
-    export interface ReadyCallback {
-        (e?: any): any;
+        if (m/^\s*\/\*\s*$/) {
+            $mode="comment";
+
+            $comment = $_;
+            $licenseBlock = 0;
+            next;
+        }
+
+        $input .= $_;
+        $mode = "code";
+        next;
     }
 
-    export interface SuiteImplementation {
-        (): any;
+    if ($mode eq "comment") {
+        $comment .= $_;
+        $licenseBlock = 1 if (index($_, "GNU General Public License") >= 0);
+
+        if (m/^\s*\*\/\s*$/) {
+            $input .= $comment unless $licenseBlock;
+            $mode = "scan";
+        }
+
+        next;
     }
 
-    export interface TestImplementation {
-        (cb: ReadyCallback): any;
+    if ($mode eq "code") {
+        $input .= $_;
+        next;
     }
-
-    export interface SetupImplementation {
-        (cb: ReadyCallback): any;
-    }
-
-    export interface TeardownImplementation {
-        (cb: ReadyCallback): any;
-    }
-
 }
+
+print $license;
+print;
+print $input;
+print;

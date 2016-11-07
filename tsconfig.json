@@ -12,7 +12,8 @@
             "es5",
             "es6"
         ],
-        "noImplicitThis": true
+        "noImplicitThis": true,
+        "removeComments": true
     },
     "include": [
         "bin/*.ts",
