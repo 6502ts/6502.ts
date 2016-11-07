@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import CartridgeInfo from './CartridgeInfo';
 import CartridgeF8 from './CartridgeF8';
 import CartridgeE0 from './CartridgeE0';

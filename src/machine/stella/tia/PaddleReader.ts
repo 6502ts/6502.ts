@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import Paddle from '../../io/Paddle';
 
 const C = 68e-9,            // capacitor

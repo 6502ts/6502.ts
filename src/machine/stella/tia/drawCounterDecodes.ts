@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 const
     decodes0 = new Uint8Array(160),
     decodes1 = new Uint8Array(160),

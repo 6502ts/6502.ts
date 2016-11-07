@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 class GuiState implements Changeset {
 
     constructor(changes?: Changeset, old?: GuiState) {

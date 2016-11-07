@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 declare function postMessage(message: any, transfer?: any): void;
 
 import {RpcProvider} from 'worker-rpc';

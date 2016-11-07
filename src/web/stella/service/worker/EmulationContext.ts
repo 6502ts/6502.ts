@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';

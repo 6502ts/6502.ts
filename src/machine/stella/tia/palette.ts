@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 export const NTSC = new Uint32Array([
     0xff000000 , // palette: 0, luminosity: 0
     0xff1a1a1a , // palette: 0, luminosity: 1

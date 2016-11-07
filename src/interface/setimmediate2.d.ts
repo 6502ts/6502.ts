@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 declare module 'setimmediate2' {
 
     export function setImmediate(callback: (...args: any[]) => void, ...args: any[]): any;

@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import EmulationContextInterface from '../EmulationContextInterface';
 import ControlState from './ControlState';
 import {RpcProviderInterface} from 'worker-rpc';

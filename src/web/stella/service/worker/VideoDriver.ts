@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
 import ObjectPool from '../../../../tools/pool/Pool';
 import ObjectPoolMember from '../../../../tools/pool/PoolMember';

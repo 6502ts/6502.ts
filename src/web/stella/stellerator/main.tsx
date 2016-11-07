@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 declare module _stelleratorSettings {
     export const workerUrl: string;
     export const helppageUrl: string;

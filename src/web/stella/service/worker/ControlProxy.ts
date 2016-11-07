@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import Joystick from '../../../../machine/io/DigitalJoystick';
 import ControlPanel from '../../../../machine/stella/ControlPanel';
 import Paddle from '../../../../machine/io/Paddle';

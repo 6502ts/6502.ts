@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 export function encode(value: number, width?: number): string {
     let result = Math.abs(value).toString(16).toUpperCase();
 

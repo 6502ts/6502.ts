@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import md5sum = require('md5');
 
 export function calculateFromUint8Array(buffer: Uint8Array): string {

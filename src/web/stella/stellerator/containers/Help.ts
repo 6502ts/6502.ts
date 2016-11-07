@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import {connect} from 'react-redux';
 
 import HelpComponent from '../components/Help';

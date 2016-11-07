@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import ControlPanelInterface from '../../machine/stella/ControlPanelInterface';
 import CommandInterpreter from '../CommandInterpreter';
 import SwitchInterface from '../../machine/io/SwitchInterface';

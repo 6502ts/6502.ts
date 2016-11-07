@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 export interface BufferInterface {
     [index: number]: number;
     length: number;

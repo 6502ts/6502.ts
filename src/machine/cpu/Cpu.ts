@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import Instruction from './Instruction';
 import BusInterface from '../bus/BusInterface';
 import CpuInterface from './CpuInterface';

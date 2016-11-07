@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import * as readline from 'readline';
 import CLIInterface from './CLIInterface';
 import Completer from './Completer';

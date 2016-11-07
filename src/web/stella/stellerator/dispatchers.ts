@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import {Store} from 'redux';
 
 import {updateGamepadCount} from './actions/emulation';

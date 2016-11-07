@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 export enum registerMapWrite {
     vsync   = 0x00,
     vblank  = 0x01,

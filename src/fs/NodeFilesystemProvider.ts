@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import * as fs from 'fs';
 import FilesystemProviderInterface from './FilesystemProviderInterface';
 import AbstractFileSystemProvider from './AbstractFileSystemProvider';

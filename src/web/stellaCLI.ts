@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import StellaCLI from '../cli/stella/StellaCLI';
 import Board from '../machine/stella/Board';
 import JqtermCLIRunner from '../cli/JqtermCLIRunner';

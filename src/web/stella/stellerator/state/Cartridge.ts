@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 

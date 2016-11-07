@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 type AudioContextType = typeof AudioContext;
 
 declare module window {

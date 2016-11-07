@@ -35,9 +35,10 @@ my $licenseBlock = 0;
 while (<>) {
     if ($mode eq "scan") {
         chomp;
-        $_ .= "\n";
 
         next unless $_;
+
+        $_ .= "\n";
 
         if (m/^\s*\/\*\s*$/) {
             $mode="comment";
