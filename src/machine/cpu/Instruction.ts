@@ -54,7 +54,7 @@ module Instruction {
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
         rts, sbc, sec, sed, sei, sta, stx, sty, tax, tay, tsx, txa, txs, tya,
-        dop, top, alr, axs, dcp, lax, // undocumented operations
+        dop, top, alr, axs, dcp, lax, arr, // undocumented operations
         invalid
     };
 
@@ -63,7 +63,7 @@ module Instruction {
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
         rts, sbc, sec, sed, sei, sta, stx, sty, tax, tay, tsx, txa, txs, tya,
-        dop, top, alr, axs, dcp, lax, // undocumented operations
+        dop, top, alr, axs, dcp, lax, arr, // undocumented operations
         invalid
     };
 
@@ -292,5 +292,7 @@ module Instruction {
         set(0xBF, Operation.lax, AddressingMode.absoluteY);
         set(0xA3, Operation.lax, AddressingMode.indexedIndirectX);
         set(0xB3, Operation.lax, AddressingMode.indirectIndexedY);
+
+        set(0x6B, Operation.arr, AddressingMode.immediate);
     })();
 };

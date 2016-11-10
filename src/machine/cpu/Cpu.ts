@@ -457,6 +457,17 @@ function opLax(state: CpuInterface.State, bus: BusInterface, operand: number): v
     setFlagsNZ(state, operand);
 }
 
+function opArr(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    state.a = ((state.a & operand) >>> 1) | ((state.flags & CpuInterface.Flags.c) ? 0x80 : 0);
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.c | CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.v)) |
+        ((state.a & 0x40) >>> 6) |
+        (state.a ? 0 : CpuInterface.Flags.z) |
+        (state.a & 0x80) |
+        ((state.a & 0x40) ^ ((state.a & 0x20) << 1));
+}
+
 class Cpu {
     constructor(
         private _bus: BusInterface,
@@ -943,6 +954,11 @@ class Cpu {
             case Instruction.Operation.tya:
                 this._opCycles = 1;
                 this._instructionCallback = opTya;
+                break;
+
+            case Instruction.Operation.arr:
+                this._opCycles = 0;
+                this._instructionCallback = opArr;
                 break;
 
             case Instruction.Operation.alr:

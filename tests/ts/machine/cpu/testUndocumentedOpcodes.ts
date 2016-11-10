@@ -25,6 +25,17 @@ import * as util from './util';
 
 export function run() {
 
+    suite('ARR', function() {
+        util.testImmediate(0x6B, 0x40, 2,
+        {
+            a: 0xC0,
+            flags: CpuInterface.Flags.e | CpuInterface.Flags.c
+        }, {
+            a: 0xA0,
+            flags: CpuInterface.Flags.e | CpuInterface.Flags.n | CpuInterface.Flags.v
+        });
+    });
+
     suite('NOP', function() {
         util.testImplied(0x1A, 2, {}, {});
         util.testImplied(0x3A, 2, {}, {});
