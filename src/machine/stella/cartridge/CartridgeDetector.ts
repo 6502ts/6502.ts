@@ -23,6 +23,7 @@ import CartridgeInfo from './CartridgeInfo';
 import CartridgeF8 from './CartridgeF8';
 import CartridgeE0 from './CartridgeE0';
 import Cartridge3F from './Cartridge3F';
+import Cartridge3E from './Cartridge3E';
 import CartridgeFE from './CartridgeFE';
 import CartridgeUA from './CartridgeUA';
 import CartridgeE7 from './CartridgeE7';
@@ -52,7 +53,7 @@ class CartridgeDetector {
                 return CartridgeInfo.CartridgeType.bankswitch_FA2;
 
             case 0x8000:
-                return CartridgeInfo.CartridgeType.bankswitch_32k_F4;
+                return this._detect32k(buffer);
 
             case 0x10000:
                 return CartridgeInfo.CartridgeType.bankswitch_64k_F0;
@@ -90,6 +91,14 @@ class CartridgeDetector {
         }
 
         return CartridgeInfo.CartridgeType.bankswitch_16k_F6;
+    }
+
+    private _detect32k(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
+        if (Cartridge3E.matchesBuffer(buffer)) {
+            return CartridgeInfo.CartridgeType.bankswitch_3E;
+        }
+
+        return CartridgeInfo.CartridgeType.bankswitch_32k_F4;
     }
 
 }

@@ -54,7 +54,7 @@ module Instruction {
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
         rts, sbc, sec, sed, sei, sta, stx, sty, tax, tay, tsx, txa, txs, tya,
-        dop, top, alr, axs, dcp, lax, arr, // undocumented operations
+        dop, top, alr, axs, dcp, lax, arr, slo, aax, // undocumented operations
         invalid
     };
 
@@ -63,7 +63,7 @@ module Instruction {
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
         rts, sbc, sec, sed, sei, sta, stx, sty, tax, tay, tsx, txa, txs, tya,
-        dop, top, alr, axs, dcp, lax, arr, // undocumented operations
+        dop, top, alr, axs, dcp, lax, arr, slo, aax, // undocumented operations
         invalid
     };
 
@@ -294,5 +294,18 @@ module Instruction {
         set(0xB3, Operation.lax, AddressingMode.indirectIndexedY);
 
         set(0x6B, Operation.arr, AddressingMode.immediate);
+
+        set(0x07, Operation.slo, AddressingMode.zeroPage);
+        set(0x17, Operation.slo, AddressingMode.zeroPageX);
+        set(0x0F, Operation.slo, AddressingMode.absolute);
+        set(0x1F, Operation.slo, AddressingMode.absoluteX);
+        set(0x1B, Operation.slo, AddressingMode.absoluteY);
+        set(0x03, Operation.slo, AddressingMode.indexedIndirectX);
+        set(0x13, Operation.slo, AddressingMode.indirectIndexedY);
+
+        set(0x87, Operation.aax, AddressingMode.zeroPage);
+        set(0x97, Operation.aax, AddressingMode.zeroPageY);
+        set(0x83, Operation.aax, AddressingMode.indexedIndirectX);
+        set(0x8F, Operation.aax, AddressingMode.absolute);
     })();
 };

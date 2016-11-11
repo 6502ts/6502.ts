@@ -26,6 +26,7 @@ import CartridgeF6 from './CartridgeF6';
 import CartridgeE0 from './CartridgeE0';
 import CartridgeFE from './CartridgeFE';
 import Cartridge3F from './Cartridge3F';
+import Cartridge3E from './Cartridge3E';
 import CartridgeUA from './CartridgeUA';
 import CartridgeFA from './CartridgeFA';
 import CartridgeE7 from './CartridgeE7';
@@ -90,6 +91,9 @@ export default class CartridgeFactory {
 
             case CartridgeInfo.CartridgeType.bankswitch_64k_F0:
                 return new CartridgeF0(buffer);
+
+            case CartridgeInfo.CartridgeType.bankswitch_3E:
+                return new Cartridge3E(buffer);
 
             default:
                 throw new Error(`invalid or unsupported cartridge image`);

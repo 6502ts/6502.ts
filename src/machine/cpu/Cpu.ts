@@ -468,6 +468,24 @@ function opArr(state: CpuInterface.State, bus: BusInterface, operand: number): v
         ((state.a & 0x40) ^ ((state.a & 0x20) << 1));
 }
 
+function opSlo(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    let value = bus.read(operand);
+    state.flags = state.flags & ~CpuInterface.Flags.c | value >>> 7;
+    value = value << 1;
+
+    bus.write(operand, value);
+
+    state.a = state.a | value;
+    setFlagsNZ(state, state.a);
+}
+
+function opAax(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    const value = state.x & state.a;
+    bus.write(operand, value);
+    setFlagsNZ(state, value);
+}
+
+
 class Cpu {
     constructor(
         private _bus: BusInterface,
@@ -981,6 +999,17 @@ class Cpu {
                 this._opCycles = 0;
                 this._instructionCallback = opLax;
                 dereference = true;
+                break;
+
+            case Instruction.Operation.slo:
+                this._opCycles = 2;
+                this._instructionCallback = opSlo;
+                slowIndexedAccess = true;
+                break;
+
+            case Instruction.Operation.aax:
+                this._opCycles = 0;
+                this._instructionCallback = opAax;
                 break;
 
             default:

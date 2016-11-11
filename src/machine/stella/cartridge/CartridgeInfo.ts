@@ -45,6 +45,7 @@ module CartridgeInfo {
         bankswitch_32k_F4,
 
         bankswitch_64k_F0,
+        bankswitch_3E,
 
         unknown
     }
@@ -63,6 +64,7 @@ module CartridgeInfo {
             CartridgeType.bankswitch_16k_E7,
             CartridgeType.bankswitch_FA2,
             CartridgeType.bankswitch_32k_F4,
+            CartridgeType.bankswitch_3E,
             CartridgeType.bankswitch_64k_F0,
             CartridgeType.unknown
         ];
@@ -105,6 +107,9 @@ module CartridgeInfo {
 
             case CartridgeType.bankswitch_32k_F4:
                 return 'bankswitched 32k, F4 (Atari) scheme';
+
+            case CartridgeType.bankswitch_3E:
+                return 'bankswitched 3E (Tigervision + RAM) scheme';
 
             case CartridgeType.bankswitch_64k_F0:
                 return 'bankswitched 64k, F0 (Megaboy) scheme';
