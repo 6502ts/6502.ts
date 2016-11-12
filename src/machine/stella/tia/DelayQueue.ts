@@ -29,6 +29,12 @@ class DelayQueue {
         }
     }
 
+    reset() {
+        for (let i = 0; i < this._length; i++) {
+            this._queue[i].nextIndex = 0;
+        }
+    }
+
     push(address: number, value: number, delay: number): this {
         if (delay >= this._length) {
             throw new Error('delay exceeds queue length');

@@ -115,6 +115,7 @@ class Tia implements VideoOutputInterface {
         this._collisionUpdateRequired = false;
         this._clock = 0.;
 
+        this._delayQueue.reset();
         this._frameManager.reset();
 
         this._missile0.reset();
