@@ -67,10 +67,8 @@ export default class FrameManager {
                 throw new Error(`invalid tv mode ${this._config.tvMode}`);
         }
 
-        this._frameLines = this._vblankLines + this._kernelLines + this._overscanLines * Metrics.vsync;
+        this._frameLines = this._vblankLines + this._kernelLines + this._overscanLines + Metrics.vsync;
         this._maxLinesWithoutVsync = this._frameLines * Metrics.maxFramesWithoutVsync;
-        this._visibleOverscan = Metrics.visibleOverscan;
-        this._maxUnderscan = Metrics.maxUnderscan;
 
         this.reset();
     }
@@ -105,7 +103,7 @@ export default class FrameManager {
             case State.waitForFrameStart:
                 if (this._waitForVsync) {
                     if (this._lineInState >=
-                        (this.vblank ? this._vblankLines : this._vblankLines - this._maxUnderscan)
+                        (this.vblank ? this._vblankLines : this._vblankLines - Metrics.maxUnderscan)
                     ) {
                         this._startFrame();
                     }
@@ -118,13 +116,13 @@ export default class FrameManager {
                 break;
 
             case State.frame:
-                if (this._lineInState >= this._kernelLines + this._visibleOverscan) {
+                if (this._lineInState >= this._kernelLines + Metrics.visibleOverscan) {
                     this._finalizeFrame();
                 }
                 break;
 
             case State.overscan:
-                if (this._lineInState >= this._overscanLines - this._visibleOverscan) {
+                if (this._lineInState >= this._overscanLines - Metrics.visibleOverscan) {
                     this._setState(this._waitForVsync ? State.waitForVsyncStart : State.waitForFrameStart);
                 }
                 break;
@@ -178,7 +176,7 @@ export default class FrameManager {
     }
 
     getHeight(): number {
-        return this._kernelLines + this._visibleOverscan;
+        return this._kernelLines + Metrics.visibleOverscan;
     }
 
     setSurfaceFactory(factory: VideoOutputInterface.SurfaceFactoryInterface): void {
@@ -242,8 +240,6 @@ export default class FrameManager {
     private _overscanLines = 0;
     private _frameLines = 0;
     private _maxLinesWithoutVsync = 0;
-    private _maxUnderscan = 0;
-    private _visibleOverscan = 0;
 
     private _waitForVsync = true;
     private _linesWithoutVsync = 0;
