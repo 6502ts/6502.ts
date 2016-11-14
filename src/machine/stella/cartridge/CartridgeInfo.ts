@@ -115,7 +115,7 @@ module CartridgeInfo {
                 return 'bankswitched 64k, F0 (Megaboy) scheme';
 
             case CartridgeType.unknown:
-                return 'unkown';
+                return 'unknown';
         }
     }
 
