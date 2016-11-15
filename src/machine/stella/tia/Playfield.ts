@@ -86,7 +86,7 @@ class Playfield {
 
 
     tick(x: number) {
-        this._x = 0;
+        this._x = x;
 
         if (x === 80 || x === 0) {
             this._refp = this._reflected;
@@ -144,7 +144,6 @@ class Playfield {
     private _pattern = 0;
     private _refp = false;
     private _reflected = false;
-
 
     private _pf0 = 0;
     private _pf1 = 0;
