@@ -22,10 +22,7 @@
 import {decodesPlayer} from './drawCounterDecodes';
 
 const enum Count {
-    renderCounterOffset = -5,
-    shuffleDelay = 2,
-    grpDelay = 2,
-    hmpDelay = 1
+    renderCounterOffset = -5
 }
 
 export default class Player {
