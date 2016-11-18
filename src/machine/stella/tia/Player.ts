@@ -125,7 +125,7 @@ export default class Player {
         return this._moving;
     }
 
-    render() {
+    render(): void {
         this.collision = (
             this._rendering &&
             this._renderCounter >= 0 &&
