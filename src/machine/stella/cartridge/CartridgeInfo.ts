@@ -41,7 +41,9 @@ module CartridgeInfo {
         bankswitch_32k_F4,
 
         bankswitch_64k_F0,
+
         bankswitch_3E,
+        bankswitch_supercharger,
 
         unknown
     }
@@ -62,6 +64,7 @@ module CartridgeInfo {
             CartridgeType.bankswitch_32k_F4,
             CartridgeType.bankswitch_3E,
             CartridgeType.bankswitch_64k_F0,
+            CartridgeType.bankswitch_supercharger,
             CartridgeType.unknown
         ];
     }
@@ -109,6 +112,9 @@ module CartridgeInfo {
 
             case CartridgeType.bankswitch_64k_F0:
                 return 'bankswitched 64k, F0 (Megaboy) scheme';
+
+            case CartridgeType.bankswitch_supercharger:
+                return 'bankswitched supercharger';
 
             case CartridgeType.unknown:
                 return 'unknown';

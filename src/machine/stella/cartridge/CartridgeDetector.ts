@@ -32,6 +32,10 @@ import * as cartridgeUtil from './util';
 class CartridgeDetector {
 
     detectCartridgeType(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
+        if (buffer.length % 8448 === 0) {
+            return CartridgeInfo.CartridgeType.bankswitch_supercharger;
+        }
+
         switch (buffer.length) {
             case 0x0800:
                 return CartridgeInfo.CartridgeType.vanilla_2k;
