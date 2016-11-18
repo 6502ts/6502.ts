@@ -23,6 +23,7 @@ import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 
+import Header from './supercharger/Header';
 import {bios} from './supercharger/blob';
 
 const enum BankType {
@@ -41,7 +42,28 @@ class CartridgeSupercharger extends AbstractCartridge {
             throw new Error(`not a supercharger image --- invalid size`);
         }
 
-        this._image = new Uint8Array(buffer);
+        this._loadCount = buffer.length / 8448;
+
+        this._loads = new Array<Uint8Array>(this._loadCount);
+        this._headers = new Array<Header>(this._loadCount);
+
+        for (let i = 0; i < this._loadCount; i++) {
+            this._loads[i] = new Uint8Array(8448);
+        }
+
+        for (let i = 0; i < 8448; i++) {
+            for (let j = 0; j < this._loadCount; j++) {
+                this._loads[j][i] = buffer[j * 8448 + i];
+            }
+        }
+
+        for (let i = 0; i < this._loadCount; i++) {
+            this._headers[i] = new Header(this._loads[i]);
+
+            if (!this._headers[i].verify()) {
+                console.log(`load ${i} has invalid checksum`);
+            }
+        }
 
         for (let i = 0; i < 3; i++) {
             this._ramBanks[i] = new Uint8Array(0x0800);
@@ -56,7 +78,7 @@ class CartridgeSupercharger extends AbstractCartridge {
         this._setBankswitchMode(0);
         this._transitionCount = 0;
         this._pendingWrite = false;
-        this._pendingWriteValue = 0;
+        this._pendingWriteData = 0;
         this._lastAddressBusValue = -1;
     }
 
@@ -72,11 +94,41 @@ class CartridgeSupercharger extends AbstractCartridge {
     read(address: number): number {
         address &= 0x0FFF;
 
+        this._access(address, this._bus.getLastDataBusValue());
+
         return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07FF];
+    }
+
+    write(address: number, value: number): void {
+        this._access(address, value);
     }
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.bankswitch_supercharger;
+    }
+
+    private _access(address: number, value: number): void {
+        address &= 0x0FFF;
+
+        if ((address & 0x0F00) === 0 && !this._pendingWrite) {
+            this._pendingWriteData = address & 0x00FF;
+            this._transitionCount = 0;
+            this._pendingWrite = true;
+
+            return;
+        }
+
+        if (this._pendingWrite && address === 0x0FF8) {
+            this._setBankswitchMode((this._pendingWriteData & 28) >>> 2);
+            this._pendingWrite = false;
+
+            return;
+        }
+
+        if (address === 0x0850 && this._bank1Type === BankType.rom) {
+            this._loadIntoRam(this._bus.peek(0x80));
+            return;
+        }
     }
 
     private _setBankswitchMode(mode: number): void {
@@ -127,6 +179,50 @@ class CartridgeSupercharger extends AbstractCartridge {
         this._rom[0x07FE] = this._rom[0x07FC] = 0x0A;
     }
 
+    private _loadIntoRam(loadId: number) {
+        let loadIndex: number;
+
+        for (loadIndex = 0; loadIndex < this._loadCount; loadIndex++) {
+            if (this._headers[loadIndex].multiloadId === loadId || this._loadCount === 1) {
+                break;
+            }
+        }
+
+        if (loadIndex >= this._loadCount) {
+            console.log(`no load with id ${loadId}`);
+        }
+
+        const header = this._headers[loadIndex],
+            load = this._loads[loadIndex];
+
+        for (let blockIdx = 0; blockIdx < header.blockCount; blockIdx++) {
+            const location = header.blockLocation[blockIdx];
+
+            let bank = location & 0x03;
+
+            if (bank > 2) {
+                bank = 0;
+                console.log(`invalid bank for block ${blockIdx}, load ${loadIndex}`);
+            }
+
+            const base = ((location & 28) >>> 2) * 256;
+            let checksum = location + header.blockChecksum[blockIdx];
+
+            for (let i = 0; i < 256; i++) {
+                checksum += load[256 * blockIdx + i];
+                this._ramBanks[bank][base + i] = load[256 * blockIdx + i];
+            }
+
+            if ((checksum & 0xFF) !== 0x55) {
+                console.log(`load ${loadIndex}, block ${blockIdx}: invalid checksum`);
+            }
+        }
+
+        this._bus.write(0xfe, header.startAddressLow);
+        this._bus.write(0xff, header.startAddressHigh);
+        this._bus.write(0x80, header.controlWord);
+    }
+
     private static _onBusAccess(type: Bus.AccessType, self: CartridgeSupercharger) {
         const address = self._bus.getLastAddresBusValue();
 
@@ -138,7 +234,9 @@ class CartridgeSupercharger extends AbstractCartridge {
 
     private _bus: Bus;
 
-    private _image: Uint8Array = null;
+    private _loadCount = 0;
+    private _loads: Array<Uint8Array> = null;
+    private _headers: Array<Header> = null;
 
     private _rom = new Uint8Array(0x0800);
     private _ramBanks = new Array<Uint8Array>(3);
@@ -148,7 +246,7 @@ class CartridgeSupercharger extends AbstractCartridge {
     private _bank1Type = BankType.rom;
 
     private _transitionCount = 0;
-    private _pendingWriteValue = 0;
+    private _pendingWriteData = 0;
     private _pendingWrite = false;
     private _lastAddressBusValue = -1;
 }
