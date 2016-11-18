@@ -839,6 +839,11 @@ class Cpu {
                 break;
 
             case Instruction.Operation.nop:
+                this._opCycles = 1;
+
+                this._instructionCallback = opNop;
+                break;
+
             case Instruction.Operation.dop:
             case Instruction.Operation.top:
                 this._opCycles = 0;
