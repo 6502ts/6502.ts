@@ -42,7 +42,6 @@ export default class Ball {
         this._moving = false;
         this._hmmClocks = 0;
         this._delaying = false;
-        this._enabledPending = false;
     }
 
     enabl(value: number): void {
@@ -64,11 +63,11 @@ export default class Ball {
         }
     }
 
-    ctrlpf(value: number) {
+    ctrlpf(value: number): void {
         this._width = this._widths[(value & 0x30) >>> 4];
     }
 
-    vdelbl(value: number) {
+    vdelbl(value: number): void {
         this._delaying = (value & 0x01) > 0;
         this._updateEnabled();
     }
@@ -127,8 +126,6 @@ export default class Ball {
     private _enabledOld = false;
     private _enabledNew = false;
     private _enabled = false;
-
-    private _enabledPending = false;
 
     private _hmmClocks = 0;
     private _counter = 0;

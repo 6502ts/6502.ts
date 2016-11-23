@@ -256,7 +256,7 @@ class Tia implements VideoOutputInterface {
 
         // sprites are only rendered if we cannot reuse line data
         if (lineNotCached) {
-            this._renderSprites(x);
+            this._renderSprites();
         }
 
         // spin sprite timers
@@ -272,7 +272,7 @@ class Tia implements VideoOutputInterface {
         }
     }
 
-    private _renderSprites(x: number) {
+    private _renderSprites() {
         this._player0.render();
         this._player1.render();
         this._missile0.render();
