@@ -40,9 +40,9 @@ function exp(x: number): number {
 export default class PaddleReader {
 
     constructor(
-        protected _clockFreq: number,
-        protected _timestampRef: () => number,
-        protected _paddle: Paddle
+        private _clockFreq: number,
+        private _timestampRef: () => number,
+        private _paddle: Paddle
     ) {
         this._uThresh = U * (1 - Math.exp(-LINES_FULL * 228 / this._clockFreq  / (RPOT + R0) / C));
 
@@ -82,7 +82,7 @@ export default class PaddleReader {
         return state ? 0x80 : 0;
     }
 
-    protected _updateValue(): void {
+    private _updateValue(): void {
         if (this._dumped) {
             return;
         }
@@ -96,10 +96,10 @@ export default class PaddleReader {
         this._timestamp = timestamp;
     }
 
-    protected _uThresh = 0;
-    protected _u = 0;
-    protected _dumped = false;
-    protected _value = 0.5;
-    protected _timestamp = 0;
+    private _uThresh = 0;
+    private _u = 0;
+    private _dumped = false;
+    private _value = 0.5;
+    private _timestamp = 0;
 
 }
