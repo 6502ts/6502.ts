@@ -57,10 +57,8 @@ export default class Ball {
     resbl(hblank: boolean): void {
         this._counter = hblank ? 159 : 157;
 
-        if (!hblank) {
-            this._rendering = true;
-            this._renderCounter = Count.renderCounterOffset;
-        }
+        this._rendering = true;
+        this._renderCounter = Count.renderCounterOffset;
     }
 
     ctrlpf(value: number): void {
