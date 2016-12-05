@@ -84,6 +84,10 @@ export default class Player {
 
     resp(hblank: boolean): void {
         this._counter = hblank ? 159 : 157;
+
+        if (this._rendering && this._renderCounter < -1) {
+            this._renderCounter = Count.renderCounterOffset;
+        }
     }
 
     refp(value: number): void {
