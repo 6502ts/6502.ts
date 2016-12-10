@@ -56,7 +56,8 @@ const enum Delay {
     hmp = 2,
     hmm = 2,
     hmbl = 2,
-    hmclr = 2
+    hmclr = 2,
+    refp = 1
 }
 
 // Each bit in the collision mask identifies a single collision pair
@@ -573,13 +574,11 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.refp0:
-                this._linesSinceChange = 0;
-                this._player0.refp(value);
+                this._delayQueue.push(Tia.Registers.refp0, value, Delay.refp);
                 break;
 
             case Tia.Registers.refp1:
-                this._linesSinceChange = 0;
-                this._player1.refp(value);
+                this._delayQueue.push(Tia.Registers.refp1, value, Delay.refp);
                 break;
 
             case Tia.Registers.hmp0:
@@ -765,6 +764,16 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.resp1:
                 self._linesSinceChange = 0;
                 self._player1.resp();
+                break;
+
+            case Tia.Registers.refp0:
+                self._linesSinceChange = 0;
+                self._player0.refp(value);
+                break;
+
+            case Tia.Registers.refp1:
+                self._linesSinceChange = 0;
+                self._player1.refp(value);
                 break;
         }
     }
