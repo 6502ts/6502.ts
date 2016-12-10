@@ -42,6 +42,8 @@ export default class Ball {
         this._moving = false;
         this._hmmClocks = 0;
         this._delaying = false;
+        this._effectiveWidth = 0;
+        this._lastMovementTick = 0;
     }
 
     enabl(value: number): void {
@@ -75,6 +77,8 @@ export default class Ball {
     }
 
     movementTick(clock: number, apply: boolean): boolean {
+        this._lastMovementTick = this._counter;
+
         // Stop movement only if the clock matches exactly --- this is crucial for cosmic ark type hacks
         if (clock === this._hmmClocks) {
             this._moving = false;
@@ -82,7 +86,7 @@ export default class Ball {
 
         if (this._moving && apply) {
             this.render();
-            this.tick();
+            this.tick(false);
         }
 
         return this._moving;
@@ -92,11 +96,33 @@ export default class Ball {
         this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
     }
 
-    tick(): void {
+    tick(isReceivingHclock: boolean): void {
+        const starfieldEffect = this._moving && isReceivingHclock;
+
         if (this._counter === 156) {
+            const starfieldDelta = (this._counter - this._lastMovementTick + 160) % 4;
+
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
-        } else if (this._rendering && ++this._renderCounter >= this._width) {
+
+            if (starfieldEffect && starfieldDelta === 3) {
+                this._renderCounter++;
+            }
+
+            switch (starfieldDelta) {
+                case 3:
+                    this._effectiveWidth = this._width === 1 ? 2 : this._width;
+                    break;
+
+                case 2:
+                    this._effectiveWidth = 0;
+                    break;
+
+                default:
+                    this._effectiveWidth = this._width;
+                    break;
+            }
+        } else if (this._rendering && ++this._renderCounter >= (starfieldEffect ? this._effectiveWidth : this._width)) {
             this._rendering = false;
         }
 
@@ -129,6 +155,8 @@ export default class Ball {
     private _counter = 0;
     private _moving = false;
     private _width = 1;
+    private _effectiveWidth = 0;
+    private _lastMovementTick = 0;
 
     private _rendering = false;
     private _renderCounter = Count.renderCounterOffset;

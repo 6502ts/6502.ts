@@ -281,11 +281,11 @@ class Tia implements VideoOutputInterface {
     }
 
     private _tickSprites() {
-        this._missile0.tick();
-        this._missile1.tick();
+        this._missile0.tick(true);
+        this._missile1.tick(true);
         this._player0.tick();
         this._player1.tick();
-        this._ball.tick();
+        this._ball.tick(true);
     }
 
     private _nextLine() {
