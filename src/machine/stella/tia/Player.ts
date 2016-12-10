@@ -175,10 +175,10 @@ export default class Player {
                 return (this._counter - 3 + 160)  % 160;
 
             case 16:
-                return (this._counter - 6 + 160) % 160;
+                return (this._counter - 9 + 160) % 160;
 
             case 32:
-                return (this._counter - 10 + 160) % 160;
+                return (this._counter - 13 + 160) % 160;
 
             default:
                 throw new Error(`cannot happen: invalid width ${this._width}`);
