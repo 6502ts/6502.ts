@@ -70,7 +70,7 @@ const enum CollisionMask {
 }
 
 const enum HState {blank, frame};
-const enum Priority {normal, inverted};
+const enum Priority {normal, pfp, score};
 
 class Tia implements VideoOutputInterface {
 
@@ -519,7 +519,8 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.ctrlpf:
                 this._linesSinceChange = 0;
-                this._priority = (value & 0x04) ? Priority.inverted : Priority.normal;
+                this._priority = (value & 0x04) ? Priority.pfp :
+                                ((value & 0x02) ? Priority.score : Priority.normal);
                 this._playfield.ctrlpf(value);
                 this._ball.ctrlpf(value);
                 break;
@@ -550,12 +551,25 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.resp0:
                 this._linesSinceChange = 0;
-                this._player0.resp(this._hstate === HState.blank);
+                this._player0.resetDecodeLogic();
+
+                if (this._hstate === HState.blank) {
+                    this._delayQueue.push(Tia.Registers.resp0, value, 3);
+                } else {
+                    this._delayQueue.push(Tia.Registers.resp0, value, 4);
+                }
+
                 break;
 
             case Tia.Registers.resp1:
                 this._linesSinceChange = 0;
-                this._player1.resp(this._hstate === HState.blank);
+                this._player1.resetDecodeLogic();
+
+                if (this._hstate === HState.blank) {
+                    this._delayQueue.push(Tia.Registers.resp1, value, 3);
+                } else {
+                    this._delayQueue.push(Tia.Registers.resp1, value, 4);
+                }
                 break;
 
             case Tia.Registers.refp0:
@@ -742,6 +756,16 @@ class Tia implements VideoOutputInterface {
                 self._player1.hmp(0);
                 self._ball.hmbl(0);
                 break;
+
+            case Tia.Registers.resp0:
+                self._linesSinceChange = 0;
+                self._player0.resp();
+                break;
+
+            case Tia.Registers.resp1:
+                self._linesSinceChange = 0;
+                self._player1.resp();
+                break;
         }
     }
 
@@ -771,20 +795,36 @@ class Tia implements VideoOutputInterface {
         if (lineNotCached) {
             let color = this._colorBk;
 
-            if (this._priority === Priority.normal) {
-                color = this._playfield.getPixel(color);
-                color = this._ball.getPixel(color);
-                color = this._missile1.getPixel(color);
-                color = this._player1.getPixel(color);
-                color = this._missile0.getPixel(color);
-                color = this._player0.getPixel(color);
-            } else {
-                color = this._missile1.getPixel(color);
-                color = this._player1.getPixel(color);
-                color = this._missile0.getPixel(color);
-                color = this._player0.getPixel(color);
-                color = this._playfield.getPixel(color);
-                color = this._ball.getPixel(color);
+            switch (this._priority) {
+                case Priority.normal:
+                    color = this._playfield.getPixel(color);
+                    color = this._ball.getPixel(color);
+                    color = this._missile1.getPixel(color);
+                    color = this._player1.getPixel(color);
+                    color = this._missile0.getPixel(color);
+                    color = this._player0.getPixel(color);
+                    break;
+
+                case Priority.pfp:
+                    color = this._missile1.getPixel(color);
+                    color = this._player1.getPixel(color);
+                    color = this._missile0.getPixel(color);
+                    color = this._player0.getPixel(color);
+                    color = this._playfield.getPixel(color);
+                    color = this._ball.getPixel(color);
+                    break;
+
+                case Priority.score:
+                    color = this._ball.getPixel(color);
+                    color = this._missile1.getPixel(color);
+                    color = this._player1.getPixel(color);
+                    color = this._playfield.getPixel(color);
+                    color = this._missile0.getPixel(color);
+                    color = this._player0.getPixel(color);
+                    break;
+
+                default:
+                    throw new Error('invalid priority');
             }
 
             this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.vblank ? 0xFF000000 :color;

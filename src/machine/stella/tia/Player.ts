@@ -82,10 +82,16 @@ export default class Player {
         }
     }
 
-    resp(hblank: boolean): void {
-        this._counter = hblank ? 159 : 157;
+    resp(): void {
+        this._counter = 1;
+    }
 
-        if (this._rendering && this._renderCounter < -1) {
+    respHblank(): void {
+        this._counter = 159;
+    }
+
+    resetDecodeLogic(): void {
+        if (this._rendering && this._renderCounter < 0) {
             this._renderCounter = Count.renderCounterOffset;
         }
     }
