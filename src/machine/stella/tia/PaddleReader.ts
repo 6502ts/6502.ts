@@ -27,16 +27,6 @@ const C = 68e-9,            // capacitor
     U = 5,                  // supply voltage
     LINES_FULL = 380;       // treshold voltage in terms of scanline count
 
-// We only use the fourth order approximation for the exponential; should give
-// the exact trip point up to a few percent.
-function exp(x: number): number {
-    const x2 = x * x / 2,
-        x3 = x2 * x / 3,
-        x4 = x3 * x / 4;
-
-    return 1 + x + x2 + x3 + x4;
-}
-
 export default class PaddleReader {
 
     constructor(
@@ -91,7 +81,7 @@ export default class PaddleReader {
 
         // Update the voltage with the integral between the two timestamps
         this._u = U * (1 - (1 - this._u / U) *
-            exp(-(timestamp - this._timestamp) / (this._value * RPOT + R0) / C / this._clockFreq));
+            Math.exp(-(timestamp - this._timestamp) / (this._value * RPOT + R0) / C / this._clockFreq));
 
         this._timestamp = timestamp;
     }
