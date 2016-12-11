@@ -57,7 +57,8 @@ const enum Delay {
     hmm = 2,
     hmbl = 2,
     hmclr = 2,
-    refp = 1
+    refp = 1,
+    vblank = 1
 }
 
 // Each bit in the collision mask identifies a single collision pair
@@ -411,8 +412,6 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.vblank:
-                this._linesSinceChange = 0;
-
                 this._input0.vblank(value);
                 this._input1.vblank(value);
 
@@ -420,7 +419,7 @@ class Tia implements VideoOutputInterface {
                     this._paddles[i].vblank(value);
                 }
 
-                this._frameManager.setVblank((value & 0x02) > 0);
+                this._delayQueue.push(Tia.Registers.vblank, value, Delay.vblank);
                 break;
 
             case Tia.Registers.enam0:
@@ -665,6 +664,11 @@ class Tia implements VideoOutputInterface {
 
     private static _delayedWrite(address: number, value: number, self: Tia): void {
         switch (address) {
+            case Tia.Registers.vblank:
+                self._linesSinceChange = 0;
+                self._frameManager.setVblank((value & 0x02) > 0);
+                break;
+
             case Tia.Registers.hmove:
                 self._linesSinceChange = 0;
 
