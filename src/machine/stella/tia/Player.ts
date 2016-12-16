@@ -82,8 +82,8 @@ export default class Player {
         }
     }
 
-    resp(hblank: boolean): void {
-        this._counter = hblank ? 159 : 157;
+    resp(hblank: boolean, extendedHblank: boolean): void {
+        this._counter = hblank ? (extendedHblank ? 158 : 159) : 157;
     }
 
     respHblank(): void {

@@ -56,8 +56,8 @@ export default class Ball {
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    resbl(hblank: boolean): void {
-        this._counter = hblank ? 159 : 157;
+    resbl(hblank: boolean, extendedHblank: boolean): void {
+        this._counter = hblank ? (extendedHblank ? 158 : 159) : 157;
 
         this._rendering = true;
         this._renderCounter = Count.renderCounterOffset;
