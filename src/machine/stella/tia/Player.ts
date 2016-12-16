@@ -22,7 +22,8 @@
 import {decodesPlayer} from './drawCounterDecodes';
 
 const enum Count {
-    renderCounterOffset = -5
+    renderCounterOffset = -5,
+    renderCounterOffsetWide = -6
 }
 
 export default class Player {
@@ -84,15 +85,11 @@ export default class Player {
 
     resp(hblank: boolean, extendedHblank: boolean): void {
         this._counter = hblank ? (extendedHblank ? 158 : 159) : 157;
-    }
 
-    respHblank(): void {
-        this._counter = 159;
-    }
+        const renderCounterOffset = this._width > 8 ? Count.renderCounterOffsetWide : Count.renderCounterOffset;
 
-    resetDecodeLogic(): void {
-        if (this._rendering && this._renderCounter < 0) {
-            this._renderCounter = Count.renderCounterOffset;
+        if (this._rendering && (this._renderCounter - renderCounterOffset) < 4) {
+            this._renderCounter = renderCounterOffset;
         }
     }
 
