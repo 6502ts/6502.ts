@@ -551,25 +551,12 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.resp0:
                 this._linesSinceChange = 0;
-                this._player0.resetDecodeLogic();
-
-                if (this._hstate === HState.blank) {
-                    this._delayQueue.push(Tia.Registers.resp0, value, 3);
-                } else {
-                    this._delayQueue.push(Tia.Registers.resp0, value, 4);
-                }
-
+                this._player0.resp(this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.resp1:
                 this._linesSinceChange = 0;
-                this._player1.resetDecodeLogic();
-
-                if (this._hstate === HState.blank) {
-                    this._delayQueue.push(Tia.Registers.resp1, value, 3);
-                } else {
-                    this._delayQueue.push(Tia.Registers.resp1, value, 4);
-                }
+                this._player1.resp(this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.refp0:
@@ -758,16 +745,6 @@ class Tia implements VideoOutputInterface {
                 self._player0.hmp(0);
                 self._player1.hmp(0);
                 self._ball.hmbl(0);
-                break;
-
-            case Tia.Registers.resp0:
-                self._linesSinceChange = 0;
-                self._player0.resp();
-                break;
-
-            case Tia.Registers.resp1:
-                self._linesSinceChange = 0;
-                self._player1.resp();
                 break;
 
             case Tia.Registers.refp0:
