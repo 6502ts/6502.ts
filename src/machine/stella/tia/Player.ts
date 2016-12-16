@@ -146,6 +146,9 @@ export default class Player {
         if (this._decodes[this._counter]) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
+            if (this._width > 8) {
+                this._renderCounter--;
+            }
         } else if (this._rendering && ++this._renderCounter >= this._width) {
             this._rendering = false;
         }
