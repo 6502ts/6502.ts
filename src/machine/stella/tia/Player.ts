@@ -172,7 +172,7 @@ export default class Player {
     getRespClock(): number {
         switch (this._width) {
             case 8:
-                return (this._counter - 3 + 160)  % 160;
+                return (this._counter - 5 + 160)  % 160;
 
             case 16:
                 return (this._counter - 9 + 160) % 160;
