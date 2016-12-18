@@ -212,11 +212,13 @@ class Tia implements VideoOutputInterface {
             // did any sprite receive the clock?
             let m = false;
 
-            m = this._missile0.movementTick(this._movementClock, apply) || m;
-            m = this._missile1.movementTick(this._movementClock, apply) || m;
-            m = this._player0.movementTick(this._movementClock, apply) || m;
-            m = this._player1.movementTick(this._movementClock, apply) || m;
-            m = this._ball.movementTick(this._movementClock, apply) || m;
+            const movementCounter = this._movementClock > 15 ? 0 : this._movementClock;
+
+            m = this._missile0.movementTick(movementCounter, apply) || m;
+            m = this._missile1.movementTick(movementCounter, apply) || m;
+            m = this._player0.movementTick(movementCounter, apply) || m;
+            m = this._player1.movementTick(movementCounter, apply) || m;
+            m = this._ball.movementTick(movementCounter, apply) || m;
 
             // stop collision counter if all latches were cleared
             this._movementInProgress = m;
