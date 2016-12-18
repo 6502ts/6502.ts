@@ -78,6 +78,10 @@ export default class Player {
             this._rendering = false;
         }
 
+        if (this._rendering && this._renderCounter < 0 && this._width > 8 && oldWidth === 8) {
+            this._renderCounter += (this._renderCounter < -2 ? -1 : 1);
+        }
+
         if (oldWidth !== this._width) {
             this._updatePattern();
         }
