@@ -53,12 +53,14 @@ const enum Delay {
     pf = 2,
     grp = 1,
     shufflePlayer = 1,
+    shuffleBall = 1,
     hmp = 2,
     hmm = 2,
     hmbl = 2,
     hmclr = 2,
     refp = 1,
-    vblank = 1
+    vblank = 1,
+    enabl = 1
 }
 
 // Each bit in the collision mask identifies a single collision pair
@@ -544,10 +546,8 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.grp1:
                 this._delayQueue
                     .push(Tia.Registers.grp1, value, Delay.grp)
-                    .push(Tia.Registers._shuffleP0, 0, Delay.shufflePlayer);
-
-                this._linesSinceChange = 0;
-                this._ball.shuffleStatus();
+                    .push(Tia.Registers._shuffleP0, 0, Delay.shufflePlayer)
+                    .push(Tia.Registers._shuffleBL, 0, Delay.shuffleBall);
 
                 break;
 
@@ -588,8 +588,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.enabl:
-                this._linesSinceChange = 0;
-                this._ball.enabl(value);
+                this._delayQueue.push(Tia.Registers.enabl, value, Delay.enabl);
                 break;
 
             case Tia.Registers.hmbl:
@@ -757,6 +756,16 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.refp1:
                 self._linesSinceChange = 0;
                 self._player1.refp(value);
+                break;
+
+            case Tia.Registers._shuffleBL:
+                self._linesSinceChange = 0;
+                self._ball.shuffleStatus();
+                break;
+
+            case Tia.Registers.enabl:
+                self._linesSinceChange = 0;
+                self._ball.enabl(value);
                 break;
         }
     }
@@ -967,7 +976,8 @@ module Tia {
         // These "registers" are not exposed to the system and only used in delaying
         // internal processes.
         _shuffleP0      = 0xF0,
-        _shuffleP1      = 0xF1
+        _shuffleP1      = 0xF1,
+        _shuffleBL      = 0xF2
     }
 
     export const enum TrapReason {invalidRead, invalidWrite}
