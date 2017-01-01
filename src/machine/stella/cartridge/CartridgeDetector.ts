@@ -36,10 +36,11 @@ class CartridgeDetector {
             return CartridgeInfo.CartridgeType.bankswitch_supercharger;
         }
 
-        switch (buffer.length) {
-            case 0x0800:
-                return CartridgeInfo.CartridgeType.vanilla_2k;
+        if (buffer.length <= 0x0800) {
+            return CartridgeInfo.CartridgeType.vanilla_2k;
+        }
 
+        switch (buffer.length) {
             case 0x1000:
                 return CartridgeInfo.CartridgeType.vanilla_4k;
 

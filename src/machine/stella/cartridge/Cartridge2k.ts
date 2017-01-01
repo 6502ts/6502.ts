@@ -27,7 +27,7 @@ class Cartridge2k extends AbstractCartridge {
     constructor (buffer: {[i: number]: number; length: number}) {
         super();
 
-        if (buffer.length !== 0x0800) {
+        if (buffer.length > 0x0800) {
             throw new Error(`buffer is not a 2k cartridge image: wrong length ${buffer.length}`);
         }
 
