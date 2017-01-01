@@ -56,11 +56,11 @@ export default class Ball {
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    resbl(hblank: boolean, extendedHblank: boolean): void {
-        this._counter = hblank ? (extendedHblank ? 158 : 159) : 157;
+    resbl(counter: number): void {
+        this._counter = counter;
 
         this._rendering = true;
-        this._renderCounter = Count.renderCounterOffset;
+        this._renderCounter = Count.renderCounterOffset + (counter - 157);
     }
 
     ctrlpf(value: number): void {

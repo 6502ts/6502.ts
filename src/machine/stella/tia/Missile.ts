@@ -59,8 +59,8 @@ class Missile {
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    resm(hblank: boolean, extendedHblank: boolean): void {
-        this._counter = hblank ? (extendedHblank ? 158 : 159) : 157;
+    resm(counter: number): void {
+        this._counter = counter;
     }
 
     resmp(value: number, player: Player) {

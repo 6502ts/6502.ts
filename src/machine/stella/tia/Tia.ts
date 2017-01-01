@@ -63,6 +63,16 @@ const enum Delay {
     enabl = 1
 }
 
+const enum ResxCounter {
+    hblank = 159,
+    lateHblank = 158,
+    frame = 157,
+    // This parameter still has room for tuning. If we go lower than 73, long005 will show
+    // a slight artifact (still have to crosscheck on real hardware), if we go lower than
+    // 70, the G.I. Joe will show an artifact (hole in roof).
+    lateHblankThreshold = 73
+}
+
 // Each bit in the collision mask identifies a single collision pair
 const enum CollisionMask {
     player0 =       0b0111110000000000,
@@ -446,12 +456,12 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.resm0:
                 this._linesSinceChange = 0;
-                this._missile0.resm(this._hstate === HState.blank, this._hctr >= 68);
+                this._missile0.resm(this._resxCounter());
                 break;
 
             case Tia.Registers.resm1:
                 this._linesSinceChange = 0;
-                this._missile1.resm(this._hstate === HState.blank, this._hctr >= 68);
+                this._missile1.resm(this._resxCounter());
                 break;
 
             case Tia.Registers.resmp0:
@@ -553,12 +563,12 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.resp0:
                 this._linesSinceChange = 0;
-                this._player0.resp(this._hstate === HState.blank, this._hctr >= 68);
+                this._player0.resp(this._resxCounter());
                 break;
 
             case Tia.Registers.resp1:
                 this._linesSinceChange = 0;
-                this._player1.resp(this._hstate === HState.blank, this._hctr >= 68);
+                this._player1.resp(this._resxCounter());
                 break;
 
             case Tia.Registers.refp0:
@@ -597,7 +607,7 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.resbl:
                 this._linesSinceChange = 0;
-                this._ball.resbl(this._hstate === HState.blank, this._hctr >= 68);
+                this._ball.resbl(this._resxCounter());
                 break;
 
             case Tia.Registers.vdelbl:
@@ -853,6 +863,12 @@ class Tia implements VideoOutputInterface {
                 this._frameManager.surfaceBuffer[offset + i] = 0xFF000000;
             }
         }
+    }
+
+    private _resxCounter(): number {
+        return this._hstate === HState.blank ?
+            (this._hctr >= ResxCounter.lateHblankThreshold ? ResxCounter.lateHblank : ResxCounter.hblank) :
+            ResxCounter.frame;
     }
 
     private _cpu: CpuInterface = null;

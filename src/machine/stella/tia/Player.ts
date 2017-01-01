@@ -87,8 +87,8 @@ export default class Player {
         }
     }
 
-    resp(hblank: boolean, extendedHblank: boolean): void {
-        this._counter = hblank ? (extendedHblank ? 158 : 159) : 157;
+    resp(counter: number): void {
+        this._counter = counter;
 
         const renderCounterOffset = this._width > 8 ? Count.renderCounterOffsetWide : Count.renderCounterOffset;
 
