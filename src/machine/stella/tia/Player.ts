@@ -78,8 +78,12 @@ export default class Player {
             this._rendering = false;
         }
 
-        if (this._rendering && this._renderCounter < 0 && this._width > 8 && oldWidth === 8) {
-            this._renderCounter += (this._renderCounter < -2 ? -1 : 1);
+        if (this._rendering && this._renderCounter < 0) {
+            if (this._width > 8 && oldWidth === 8) {
+                this._renderCounter += (this._renderCounter < -2 ? -1 : 1);
+            } else if (this._width === 8 && oldWidth > 8 && this._renderCounter < -3) {
+                this._renderCounter++;
+            }
         }
 
         if (oldWidth !== this._width) {

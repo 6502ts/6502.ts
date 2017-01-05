@@ -1,5 +1,6 @@
 	processor 6502
-	include ../vcs.h
+	INCLUDE ../vcs.h
+	INCLUDE ../macro.h
 
 	SEG.U VARS
 	ORG $80
@@ -7,34 +8,54 @@
 	SEG CODE
 	org $F000
 
+BALL_COLOR = $2A
+HRULE_COLOR = $78
+VRULE_COLOR = $04
+BURN_OVERSCAN_LINES = 111
+
     MAC DRAW
 
-.WAIT SET 2
+.WAIT SET 0
 
-    REPEAT 68
+    REPEAT 50
+
+	STY COLUBK
 
 .CYCLES SET .WAIT
 
-            IF .CYCLES & 1
-                BIT VSYNC
+	IF .CYCLES & 1
+
+	BIT VSYNC
+
 .CYCLES SET .CYCLES - 3
-            ENDIF
 
-            REPEAT .CYCLES / 2
-                NOP
-            REPEND
+	ENDIF
 
-        STA RESBL
-        STA RESP0
-        STA WSYNC
-        STA WSYNC
-        STA WSYNC
+	REPEAT .CYCLES / 2
+	NOP
+	REPEND
+
+	STA RESBL
+	JSR DrawStripes
 
 .WAIT SET .WAIT + 1
 
     REPEND
 
     ENDM
+
+DrawStripes SUBROUTINE
+	STA WSYNC
+	REPEAT 2
+	STA COLUBK
+	SLEEP 17
+	REPEAT 9
+	STX COLUBK
+	STA COLUBK
+	REPEND
+	NOP
+	REPEND
+	RTS
 
 Start
 	SEI
@@ -47,19 +68,15 @@ ClearMem
 	DEX
 	BNE ClearMem
 
-    LDA #$2A
-    STA COLUPF
-    LDA #$00
-    STA COLUBK
+	LDA #0
+	STA PF0
+	STA PF1
+	STA PF2
 
-    LDA #$78
-    STA COLUP0
-
-    LDA #$80
-    STA GRP0
-
-    LDA #$02
-    STA ENABL
+	LDA #BALL_COLOR
+	STA COLUPF
+	LDA #2
+	STA ENABL
 
 MainLoop
 
@@ -77,10 +94,12 @@ Vsync
 	STA WSYNC
 
 Vblank
-	LDA  #53
-	STA  TIM64T
+	LDA #56
+	STA TIM64T
 	LDA #0
-	STA  VSYNC
+	STA VSYNC
+	LDX #VRULE_COLOR
+	LDY #HRULE_COLOR
 
 BurnVblank
 	LDA INTIM
@@ -89,23 +108,18 @@ BurnVblank
     LDA #0
     STA VBLANK
 
-    LDA #2
+	STA WSYNC
 	STA WSYNC
 
 Kernal
 
     DRAW
 
-    LDX #30
-BurnKernal
-    STA WSYNC
-    DEX
-    BNE BurnKernal
-
-Overscan
+	LDA 0
+	LDA #2
 	STA VBLANK
+    LDX #BURN_OVERSCAN_LINES
 
-	LDX #1
 BurnOverscan
 	STA WSYNC
 	DEX
