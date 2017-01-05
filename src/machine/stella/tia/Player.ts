@@ -93,7 +93,7 @@ export default class Player {
         const renderCounterOffset = this._width > 8 ? Count.renderCounterOffsetWide : Count.renderCounterOffset;
 
         if (this._rendering && (this._renderCounter - renderCounterOffset) < 4) {
-            this._renderCounter = renderCounterOffset;
+            this._renderCounter = renderCounterOffset + (counter - 157);
         }
     }
 
