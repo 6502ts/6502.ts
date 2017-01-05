@@ -61,6 +61,10 @@ class Missile {
 
     resm(counter: number): void {
         this._counter = counter;
+
+        if (this._rendering && this._renderCounter < 0) {
+            this._renderCounter = Count.renderCounterOffset + (counter - 157);
+        }
     }
 
     resmp(value: number, player: Player) {
