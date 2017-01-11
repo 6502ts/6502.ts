@@ -27,19 +27,19 @@ export default class EmulationState implements Changeset {
         Object.assign(this, old, changes);
     }
 
-    readonly cartridgeHash = '';
-    readonly emulationState = EmulationServiceInterface.State.stopped;
+    cartridgeHash = '';
+    emulationState = EmulationServiceInterface.State.stopped;
 
-    readonly difficultyPlayer0 = true;
-    readonly difficultyPlayer1 = true;
-    readonly tvMode = false;
+    difficultyPlayer0 = true;
+    difficultyPlayer1 = true;
+    tvMode = false;
 
-    readonly enforceRateLimit = true;
+    enforceRateLimit = true;
 
-    readonly frequency = 0;
-    readonly gamepadCount = 0;
+    frequency = 0;
+    gamepadCount = 0;
 
-    readonly pausedByUser = false;
+    pausedByUser = false;
 }
 
 interface Changeset {

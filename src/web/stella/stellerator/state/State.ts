@@ -31,14 +31,14 @@ export default class State implements Changeset {
         Object.assign(this, old, changes);
     }
 
-    readonly routing: any;
-    readonly cartridges: {[hash: string]: Cartridge} = {};
-    readonly currentCartridge: Cartridge = null;
+    routing: any;
+    cartridges: {[hash: string]: Cartridge} = {};
+    currentCartridge: Cartridge = null;
 
-    readonly guiState: GuiState;
-    readonly emulationState: EmulationState;
-    readonly settings: Settings;
-    readonly environment: Environment;
+    guiState: GuiState;
+    emulationState: EmulationState;
+    settings: Settings;
+    environment: Environment;
 }
 
 interface Changeset {

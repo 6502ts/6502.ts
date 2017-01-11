@@ -42,15 +42,15 @@ export default class Cartridge implements Changeset {
         );
     }
 
-    readonly name = '';
-    readonly buffer: Uint8Array = null;
-    readonly hash = '';
-    readonly tvMode = StellaConfig.TvMode.ntsc;
-    readonly cartridgeType = CartridgeInfo.CartridgeType.unknown;
-    readonly emulatePaddles = true;
-    readonly rngSeedAuto = true;
-    readonly rngSeed = 0;
-    readonly audioEnabled = true;
+    name = '';
+    buffer: Uint8Array = null;
+    hash = '';
+    tvMode = StellaConfig.TvMode.ntsc;
+    cartridgeType = CartridgeInfo.CartridgeType.unknown;
+    emulatePaddles = true;
+    rngSeedAuto = true;
+    rngSeed = 0;
+    audioEnabled = true;
 
 }
 

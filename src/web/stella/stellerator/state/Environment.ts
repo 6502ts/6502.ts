@@ -25,8 +25,8 @@ export default class Environment implements Changeset {
         Object.assign(this, old, changes);
     }
 
-    readonly helppageUrl = '';
-    readonly buildId = '';
+    helppageUrl = '';
+    buildId = '';
 }
 
 interface Changeset {

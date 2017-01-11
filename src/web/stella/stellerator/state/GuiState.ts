@@ -25,14 +25,14 @@ class GuiState implements Changeset {
         Object.assign(this, old, changes);
     }
 
-    readonly mode = GuiState.GuiMode.cartridgeList;
+    mode = GuiState.GuiMode.cartridgeList;
 
-    readonly showSelectPendingChangesModal = false;
-    readonly pendingSelectHash = '';
+    showSelectPendingChangesModal = false;
+    pendingSelectHash = '';
 
-    readonly showLoadPendingChangesModal = false;
-    readonly pendingLoad: Uint8Array;
-    readonly pendingLoadName: string;
+    showLoadPendingChangesModal = false;
+    pendingLoad: Uint8Array;
+    pendingLoadName: string;
 
 }
 
