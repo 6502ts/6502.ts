@@ -75,7 +75,7 @@ module Instruction {
         invalid
     };
 
-    export var opcodes = new Array<Instruction>(256);
+    export const opcodes = new Array<Instruction>(256);
 };
 
 export default Instruction;

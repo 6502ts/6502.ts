@@ -2,8 +2,8 @@ language: node_js
 node_js:
     - node
 install:
-    - npm install
-    - npm install grunt
+    - yarn install
+    - yarn install grunt
 script:
     - ./node_modules/.bin/grunt initial
 before_deploy:
