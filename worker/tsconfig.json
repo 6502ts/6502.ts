@@ -12,6 +12,7 @@
             "es6",
             "webworker"
         ],
+        "types": [],
         "noImplicitThis": true,
         "removeComments": true
     },

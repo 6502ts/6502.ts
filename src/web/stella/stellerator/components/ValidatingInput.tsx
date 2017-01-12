@@ -38,8 +38,8 @@ class ValidatingInput extends React.Component<ValidatingInput.Props, ValidatingI
             type="text"
             className={this.props.validator(this.state.rawValue) ? 'valid' : 'invalid'}
             value={this.state.rawValue}
-            onChange={(e: React.FormEvent) => this._onChange((e.target as HTMLInputElement).value)}
-            onKeyDown={(e: React.KeyboardEvent) => e.keyCode === 13 ? this.props.onKeyEnter() : undefined}
+            onChange={(e: React.FormEvent<any>) => this._onChange((e.target as HTMLInputElement).value)}
+            onKeyDown={(e: React.KeyboardEvent<any>) => e.keyCode === 13 ? this.props.onKeyEnter() : undefined}
             readOnly={this.props.readOnly}
             style={this.props.style}
         />;

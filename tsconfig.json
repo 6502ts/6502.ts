@@ -19,7 +19,6 @@
         "bin/*.ts",
         "src/**/*.ts",
         "tests/**/*.ts",
-        "typings/index.d.ts",
         "src/web/stella/stellerator/**/*.tsx"
     ],
     "exclude": [

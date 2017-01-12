@@ -27,7 +27,6 @@ module.exports = function(grunt) {
     'use strict';
 
     grunt.loadNpmTasks('grunt-ts');
-    grunt.loadNpmTasks('grunt-typings');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-mocha-test');
@@ -87,8 +86,7 @@ module.exports = function(grunt) {
                 'build'
             ],
             mrproper: [
-                'web/bower',
-                'typings'
+                'web/bower'
             ],
             worker: [
                 'worker/src/**/**.js'
@@ -105,10 +103,6 @@ module.exports = function(grunt) {
                 "worker/**/src/*.ts",
                 "tests/ts/**/*.ts",
             ]
-        },
-
-        typings: {
-            install: {}
         },
 
         browserify: {
@@ -406,7 +400,7 @@ module.exports = function(grunt) {
     grunt.registerTask('build', ['stellerator:build']);
     grunt.registerTask('test', ['tslint', 'ts:main', 'blobify:tests', 'mochaTest:test']);
     grunt.registerTask('test:debug', ['tslint', 'ts:main', 'blobify:tests', 'mochaTest:debug']);
-    grunt.registerTask('initial', ['clean', 'typings', 'bower', 'test']);
+    grunt.registerTask('initial', ['clean', 'bower', 'test']);
 
     grunt.registerTask('cleanup', ['clean:base', 'clean:worker']);
     grunt.registerTask('mrproper', ['clean']);

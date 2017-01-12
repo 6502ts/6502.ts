@@ -1,5 +1,4 @@
 **.swp
-typings
 node_modules
 .tscache
 src/**/*.js
