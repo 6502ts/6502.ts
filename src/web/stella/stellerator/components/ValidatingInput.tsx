@@ -46,7 +46,7 @@ class ValidatingInput extends React.Component<ValidatingInput.Props, ValidatingI
     }
 
     componentWillReceiveProps(props: ValidatingInput.Props): void {
-        this.state.rawValue = props.value;
+        this.setState({rawValue: props.value});
     }
 
     private _onChange(newValue: string): void {
