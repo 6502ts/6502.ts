@@ -1,4 +1,4 @@
-SOURCE = enam_delay.asm
+SOURCE = enam_delay.asm enabl_delay.asm
 BINARIES = $(SOURCE:.asm=.bin)
 
 DASM = dasm
