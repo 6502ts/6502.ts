@@ -5,7 +5,7 @@ COLOR_P0 = $48
 COLOR_P1 = $0C
 DELAY = 2
 SEPARATION = 5
-BURN_LINES = 110
+BURN_LINES = 62
 
     INCLUDE vcs.h
     INCLUDE macro.h
@@ -43,11 +43,11 @@ Delay SUBROUTINE
 Test1 SUBROUTINE
 
     CLC
-    LDA #0
+    LDA #$A0
     LDX #0
     LDY #02
 
-    REPEAT 8
+    REPEAT 12
 
     STA HMM0
     STA HMM1
@@ -71,12 +71,15 @@ Test1 SUBROUTINE
     STY ENAM0
     STY ENAM1
     JSR Delay
+    NOP
     STY RESM0
 
     SLEEP 2
     STX ENAM0
     STX ENAM1
+    EOR #$80
     ADC #$10
+    EOR #$80
 
     REPEND
 
@@ -91,11 +94,11 @@ Test1 SUBROUTINE
 Test2 SUBROUTINE
 
     CLC
-    LDA #0
+    LDA #$A0
     LDX #0
     LDY #02
 
-    REPEAT 8
+    REPEAT 12
 
     STA HMM0
     STA HMM1
@@ -119,11 +122,14 @@ Test2 SUBROUTINE
     STY ENAM0
     STY ENAM0
     JSR Delay
+    NOP
     STY RESM0
 
     SLEEP 2
     STX ENAM0
+    EOR #$80
     ADC #$10
+    EOR #$80
 
     REPEND
 

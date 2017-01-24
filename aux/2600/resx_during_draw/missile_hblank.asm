@@ -5,7 +5,7 @@ COLOR_P0 = $48
 COLOR_P1 = $0C
 DELAY = 2
 SEPARATION = 5
-BURN_LINES = 78
+BURN_LINES = 14
 
     INCLUDE vcs.h
     INCLUDE macro.h
@@ -38,16 +38,18 @@ Delay SUBROUTINE
 
     TAX
     PLA
+
+Noop SUBROUTINE
     RTS
 
 Test1 SUBROUTINE
 
     CLC
-    LDA #0
+    LDA #$A0
     LDX #0
     LDY #02
 
-    REPEAT 8
+    REPEAT 12
 
     STA HMM0
     STA HMM1
@@ -56,17 +58,29 @@ Test1 SUBROUTINE
     STX ENAM0
     STX ENAM0
     STX ENAM1
-    SLEEP 64
+    REPEAT 5
+        JSR Noop
+    REPEND
+    NOP
     STX RESM0
+    NOP
 
     STX ENAM0
     STX ENAM0
     STX ENAM1
-    SLEEP 64
+    REPEAT 5
+        JSR Noop
+    REPEND
+    NOP
     STX RESM1
+    NOP
 
     STY HMOVE
-    SLEEP 64
+    REPEAT 5
+        JSR Noop
+    REPEND
+    NOP
+    NOP
     STY ENAM0
     STY ENAM1
     STY RESM0
@@ -74,7 +88,9 @@ Test1 SUBROUTINE
     SLEEP 30
     STX ENAM0
     STX ENAM1
+    EOR #$80
     ADC #$10
+    EOR #$80
 
     REPEND
 
@@ -89,11 +105,11 @@ Test1 SUBROUTINE
 Test2 SUBROUTINE
 
     CLC
-    LDA #0
+    LDA #$A0
     LDX #0
     LDY #02
 
-    REPEAT 8
+    REPEAT 12
 
     STA HMM0
     STA HMM1
@@ -102,17 +118,29 @@ Test2 SUBROUTINE
     STX ENAM0
     STX ENAM0
     STX ENAM1
-    SLEEP 64
+    REPEAT 5
+        JSR Noop
+    REPEND
+    NOP
     STX RESM0
+    NOP
 
     STX ENAM0
     STX ENAM0
     STX ENAM1
-    SLEEP 64
+    REPEAT 5
+        JSR Noop
+    REPEND
+    NOP
     STX RESM1
+    NOP
 
     STY HMOVE
-    SLEEP 64
+    REPEAT 5
+        JSR Noop
+    REPEND
+    NOP
+    NOP
     STY ENAM0
     STY ENAM0
     STY RESM0
@@ -120,7 +148,9 @@ Test2 SUBROUTINE
     SLEEP 30
     STX ENAM0
     STX ENAM1
+    EOR #$80
     ADC #$10
+    EOR #$80
 
     REPEND
 
