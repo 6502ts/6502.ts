@@ -76,17 +76,19 @@ Test1 SUBROUTINE
     NOP
 
     STY HMOVE
-    REPEAT 5
+    REPEAT 4
         JSR Noop
     REPEND
-    NOP
-    NOP
+    SLEEP 13
     STY ENAM0
     STY ENAM1
-    JSR Noop
+    STX HMM0
+    STX HMM1
+
+    STA HMOVE
+    SLEEP 19
     STY RESM0
 
-    SLEEP 30
     STX ENAM0
     STX ENAM1
     EOR #$80
@@ -137,17 +139,19 @@ Test2 SUBROUTINE
     NOP
 
     STY HMOVE
-    REPEAT 5
+    REPEAT 4
         JSR Noop
     REPEND
-    NOP
-    NOP
+    SLEEP 13
     STY ENAM0
-    STY ENAM0
-    JSR Noop
+    STX ENAM1
+    STX HMM0
+    STX HMM1
+
+    STA HMOVE
+    SLEEP 19
     STY RESM0
 
-    SLEEP 30
     STX ENAM0
     STX ENAM1
     EOR #$80
