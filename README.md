@@ -85,5 +85,5 @@ mostly were written by folks other than me. Specifically:
    [here](http://alienbill.com/2600/flapping/).
 
 2600 cartridge type detection code (and some of the more exotic cartridge types)
-were modelled after the excellent [stella](http://stella.sourceforge.net/) emulator.
+were modelled after the excellent [stella](https://stella-emu.github.io) emulator.
 Initial 2600 audio code was contributed by Martin Schröder.
