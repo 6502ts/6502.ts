@@ -79,16 +79,21 @@ Test1 SUBROUTINE
     REPEAT 4
         JSR Noop
     REPEND
-    SLEEP 13
-    STY ENAM0
-    STY ENAM1
+    SLEEP 9
+    LDX #$80
     STX HMM0
     STX HMM1
+    LDX #0
+    STY ENAM0
+    STY ENAM1
 
     STA HMOVE
     SLEEP 17
     STY RESM0
 
+    REPEAT 3
+        JSR Noop
+    REPEND
     STX ENAM0
     STX ENAM1
     EOR #$80
@@ -142,16 +147,21 @@ Test2 SUBROUTINE
     REPEAT 4
         JSR Noop
     REPEND
-    SLEEP 13
-    STY ENAM0
-    STX ENAM1
+    SLEEP 9
+    LDX #$80
     STX HMM0
     STX HMM1
+    LDX #0
+    STY ENAM0
+    STX ENAM1
 
     STA HMOVE
     SLEEP 17
     STY RESM0
 
+    REPEAT 3
+        JSR Noop
+    REPEND
     STX ENAM0
     STX ENAM1
     EOR #$80
