@@ -1,5 +1,5 @@
-BURN_LINES_PAL = 122
-SEPARATION = 5
+BURN_LINES_PAL = 86
+SEPARATION = 10
 
     INCLUDE main.inc
 
@@ -29,25 +29,42 @@ Test1 SUBROUTINE
     STX ENAM0
     STX ENAM0
     STX ENAM1
-    JSR Delay
+    REPEAT 5
+        JSR Noop
+    REPEND
+    NOP
     STX RESM0
+    NOP
 
-    STX WSYNC
     STX ENAM0
     STX ENAM0
     STX ENAM1
-    JSR Delay
+    REPEAT 5
+        JSR Noop
+    REPEND
+    NOP
     STX RESM1
+    NOP
 
-    STY WSYNC
     STY HMOVE
+    REPEAT 4
+        JSR Noop
+    REPEND
+    SLEEP 9
+    LDX #$80
+    STX HMM0
+    STX HMM1
+    LDX #0
     STY ENAM0
     STY ENAM1
-    JSR Delay
-    NOP
+
+    STA HMOVE
+    SLEEP DELAY_CYCLES
     STY RESM0
 
-    SLEEP 2
+    REPEAT 3
+        JSR Noop
+    REPEND
     STX ENAM0
     STX ENAM1
     EOR #$80
@@ -81,29 +98,46 @@ Test2 SUBROUTINE
 
     STX WSYNC
     STX ENAM0
-    STX ENAM1
-    STX ENAM0
-    JSR Delay
-    STX RESM0
-
-    STX WSYNC
     STX ENAM0
     STX ENAM1
-    STX ENAM0
-    JSR Delay
-    STX RESM1
-
-    STY WSYNC
-    STY HMOVE
-    STY ENAM0
-    STY ENAM0
-    JSR Delay
+    REPEAT 5
+        JSR Noop
+    REPEND
     NOP
+    STX RESM0
+    NOP
+
+    STX ENAM0
+    STX ENAM0
+    STX ENAM1
+    REPEAT 5
+        JSR Noop
+    REPEND
+    NOP
+    STX RESM1
+    NOP
+
+    STY HMOVE
+    REPEAT 4
+        JSR Noop
+    REPEND
+    SLEEP 9
+    LDX #$80
+    STX HMM0
+    STX HMM1
+    LDX #0
+    STY ENAM0
+    STX ENAM1
+
+    STA HMOVE
+    SLEEP DELAY_CYCLES
     STY RESM0
 
-    SLEEP 2
+    REPEAT 3
+        JSR Noop
+    REPEND
     STX ENAM0
-    STX ENAM0
+    STX ENAM1
     EOR #$80
     ADC #$10
     EOR #$80
