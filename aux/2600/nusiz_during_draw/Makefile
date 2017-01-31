@@ -1,8 +1,10 @@
 SOURCE = \
-	player32.asm
+	player32.asm \
+	player16.asm \
+	player8.asm
 BINARIES = $(SOURCE:.asm=.bin)
 
-INCLUDE =
+INCLUDE = main.inc
 
 DASM = dasm
 DASM_OPTS = -I.. -f3
