@@ -105,6 +105,8 @@ Start SUBROUTINE
 
     STA WSYNC
     STA HMOVE
+    JSR Noop
+    JSR Noop
     LDA #$02
     STA ENABL
     STA ENAM1
