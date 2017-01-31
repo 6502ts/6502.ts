@@ -2,8 +2,9 @@
 
 OVERSCAN_LINES = 36
 BURN_LINES = 90
-COLOR_P1 = $FE
+COLOR_P0 = $FE
 HRULE_COLOR = $06
+VRULE_COLOR = $64
 PLAYER_BITMAP_1 = %10101010
 PLAYER_BITMAP_2 = %01010101
 
@@ -12,7 +13,8 @@ PLAYER_BITMAP_2 = %01010101
 
     SEG.U VARS_MAIN
     ORG $80
-PlayerBitmap DS.B 1
+PlayerBitmap    DS.B 1
+TargetNusiz     DS.B 1
 
     SEG CODE_MAIN
     ORG $F000
@@ -32,8 +34,12 @@ Start SUBROUTINE
     DEX
     BNE .clearMem
 
-    LDA #COLOR_P1
+    LDA #COLOR_P0
     STA COLUP0
+
+    LDA #VRULE_COLOR
+    STA COLUPF
+    STA COLUP1
 
     LDA #%01010101
     STA GRP0
@@ -67,11 +73,51 @@ Start SUBROUTINE
     STA PlayerBitmap
 
 .afterSetupBitmap
+    LDA #$40
+    BIT SWCHB
+    BNE .setupNusiz16
+
+.setupNusiz8
+    LDA #0
+    STA TargetNusiz
+    JMP .afterSetupNusiz
+
+.setupNusiz16
+    LDA #$05
+    STA TargetNusiz
+
+.afterSetupNusiz
+    STA WSYNC
+    JSR Noop
+    JSR Noop
+    JSR Noop
+    STA RESBL
+
+    STA WSYNC
+    JSR Noop
+    JSR Noop
+    JSR Noop
+    STA RESM1
+    LDA #$40
+    STA HMBL
+    LDA #$F0
+    STA HMM1
+
+    STA WSYNC
+    STA HMOVE
+    LDA #$02
+    STA ENABL
+    STA ENAM1
+    LDA #$80
+    STA HMBL
+    STA HMM1
+
 .burnVblank
     LDA INTIM
     BNE .burnVblank
 
     LDA #0
+    STA COLUBK
     STA VBLANK
 
     STA WSYNC
@@ -87,27 +133,28 @@ Start SUBROUTINE
     STA GRP0
     LDA #$90
     STA HMP0
-    LDX #0
+    LDX TargetNusiz
     LDY #$07
-    STX NUSIZ0
     LDA #HRULE_COLOR
     STA WSYNC
 
     REPEAT 42
 
     STY NUSIZ0
+    LDA #HRULE_COLOR
     STA COLUBK
     JSR Noop
     JSR Noop
-    SLEEP 6
+    SLEEP 4
     STX NUSIZ0      ; 36
     STA WSYNC
 
     STY NUSIZ0
-    STX COLUBK
+    LDA #0
+    STA COLUBK
     JSR Noop
     JSR Noop
-    SLEEP 6
+    SLEEP 4
     STX NUSIZ0      ; 36
     STA WSYNC
 
@@ -131,7 +178,8 @@ Start SUBROUTINE
 
     REPEND
 
-    STX GRP0
+    LDA #0
+    STA GRP0
 
     LDX #BURN_LINES
 .burnLines
