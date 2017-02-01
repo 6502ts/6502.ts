@@ -1,8 +1,8 @@
     PROCESSOR 6502
 
 OVERSCAN_LINES = 36
-BURN_LINES = 90
-COLOR_P0 = $FE
+BURN_LINES_PAL = 90
+COLOR_P0 = $0E
 HRULE_COLOR = $06
 VRULE_COLOR = $64
 PLAYER_BITMAP_1 = %10101010
@@ -15,6 +15,7 @@ PLAYER_BITMAP_2 = %01010101
     ORG $80
 PlayerBitmap    DS.B 1
 NusizTo         DS.B 1
+BurnLines       DS.B 1
 
     SEG CODE_MAIN
     ORG $F000
@@ -59,6 +60,22 @@ Start SUBROUTINE
     STA VSYNC
     STA GRP0
 
+    LDA #$80
+    BIT SWCHB
+    BNE .setupTvModeNTSC
+
+.setupTvModePAL
+    LDA #BURN_LINES_PAL
+    STA BurnLines
+    JMP .afterSetupTvMode
+
+.setupTvModeNTSC
+    SEC
+    LDA #BURN_LINES_PAL
+    SBC #50
+    STA BurnLines
+
+.afterSetupTvMode
     LDA #$08
     BIT SWCHB
     BNE .setupBitmap2
@@ -183,7 +200,7 @@ Start SUBROUTINE
     LDA #0
     STA GRP0
 
-    LDX #BURN_LINES
+    LDX BurnLines
 .burnLines
     STA WSYNC
     DEX
