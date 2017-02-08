@@ -105,7 +105,7 @@ export default class Ball {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
 
-            if (starfieldEffect && starfieldDelta === 3) {
+            if (starfieldEffect && starfieldDelta === 3 && this._width < 4) {
                 this._renderCounter++;
             }
 
