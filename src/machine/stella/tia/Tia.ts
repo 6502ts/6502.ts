@@ -60,7 +60,8 @@ const enum Delay {
     hmclr = 2,
     refp = 1,
     vblank = 1,
-    enabl = 1
+    enabl = 1,
+    enam = 1
 }
 
 const enum ResxCounter {
@@ -437,13 +438,11 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.enam0:
-                this._linesSinceChange = 0;
-                this._missile0.enam(value);
+                this._delayQueue.push(Tia.Registers.enam0, value, Delay.enam);
                 break;
 
             case Tia.Registers.enam1:
-                this._linesSinceChange = 0;
-                this._missile1.enam(value);
+                this._delayQueue.push(Tia.Registers.enam1, value, Delay.enam);
                 break;
 
             case Tia.Registers.hmm0:
@@ -776,6 +775,16 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.enabl:
                 self._linesSinceChange = 0;
                 self._ball.enabl(value);
+                break;
+
+            case Tia.Registers.enam0:
+                self._linesSinceChange = 0;
+                self._missile0.enam(value);
+                break;
+
+            case Tia.Registers.enam1:
+                self._linesSinceChange = 0;
+                self._missile1.enam(value);
                 break;
         }
     }
