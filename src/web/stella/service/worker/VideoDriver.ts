@@ -67,7 +67,9 @@ class VideoDriver {
                     return null;
                 }
 
-                if (!this._ids.has(buffer)) {
+                const isNewBuffer = !this._ids.has(buffer);
+
+                if (isNewBuffer) {
                     const id = this._nextId++;
 
                     this._ids.set(buffer, id);
@@ -76,7 +78,11 @@ class VideoDriver {
 
                 const newSurface = new ArrayBufferSurface(this._width, this._height, buffer);
 
-                return newSurface.fill(0xFF000000);
+                if (isNewBuffer) {
+                    newSurface.fill(0xFF000000);
+                }
+
+                return newSurface;
             }
         );
 

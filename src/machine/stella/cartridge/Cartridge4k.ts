@@ -28,11 +28,13 @@ class Cartridge4k extends AbstractCartridge {
         super();
 
         if (buffer.length !== 0x1000) {
-            throw new Error(`buffer is not an 4k cartridge image: wrong length ${buffer.length}`);
+            console.warn(`buffer has invalid size for 4K image: ${buffer.length} bytes`);
         }
 
+        const len = Math.min(0x1000, buffer.length);
+
         for (let i = 0; i < 0x1000 && i < buffer.length; i++)
-            this._rom[0x0FFF - i] = buffer[buffer.length -1 - i];
+            this._rom[0x0FFF - i] = buffer[len - 1 - i];
     }
 
     read(address: number): number {

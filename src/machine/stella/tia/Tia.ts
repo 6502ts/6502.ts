@@ -97,7 +97,7 @@ class Tia implements VideoOutputInterface {
         private _rng?: RngInterface
     ) {
         this._frameManager = new FrameManager(this._config);
-        this.newFrame = this._frameManager.newFrame;
+        this._frameManager.newFrame.addHandler(Tia._onNewFrame, this);
 
         this._palette = this._getPalette(this._config);
         this._input0 = new LatchedInput(joystick0.getFire());
@@ -129,6 +129,7 @@ class Tia implements VideoOutputInterface {
         this._linesSinceChange = 0;
         this._collisionUpdateRequired = false;
         this._clock = 0.;
+        this._maxLinesTotal = 0;
 
         this._delayQueue.reset();
         this._frameManager.reset();
@@ -657,8 +658,6 @@ class Tia implements VideoOutputInterface {
         return this;
     }
 
-    trap = new Event<Tia.TrapPayload>();
-
     private static _delayedWrite(address: number, value: number, self: Tia): void {
         switch (address) {
             case Tia.Registers.vblank:
@@ -789,6 +788,26 @@ class Tia implements VideoOutputInterface {
         }
     }
 
+    private static _onNewFrame(surface: RGBASurfaceInterface, self: Tia): void {
+        const linesTotal = self._frameManager.getCurrentLine();
+
+        if (linesTotal > self._maxLinesTotal) {
+            self._maxLinesTotal = linesTotal;
+        }
+
+        if (linesTotal < self._maxLinesTotal) {
+            const buffer = surface.getBuffer(),
+                base = 160 * linesTotal,
+                boundary = self._maxLinesTotal * 160;
+
+            for (let i = base; i < boundary; i++) {
+                buffer[i] = 0xFF000000;
+            }
+        }
+
+        self.newFrame.dispatch(surface);
+    }
+
     private _getPalette(config: Config) {
         switch (config.tvMode) {
             case Config.TvMode.ntsc:
@@ -911,6 +930,9 @@ class Tia implements VideoOutputInterface {
     // Lines since the last cache-invalidating change. If this is > 1 we can safely use the linecache
     private _linesSinceChange = 0;
 
+    // Max total lines. Used to clear garbage lines.
+    private _maxLinesTotal = 0;
+
     private _colorBk = 0xFF000000;
     private _priority = Priority.normal;
     // bitfield with collision latches
@@ -923,7 +945,6 @@ class Tia implements VideoOutputInterface {
     private _playfield = new Playfield(CollisionMask.playfield);
     private _ball =      new Ball(CollisionMask.ball);
 
-
     private _audio0: Audio;
     private _audio1: Audio;
 
@@ -932,7 +953,9 @@ class Tia implements VideoOutputInterface {
 
     private _paddles: Array<PaddleReader>;
 
-    newFrame: EventInterface<RGBASurfaceInterface>;
+    newFrame = new Event<RGBASurfaceInterface>();
+
+    trap = new Event<Tia.TrapPayload>();
 }
 
 module Tia {
