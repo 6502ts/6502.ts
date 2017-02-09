@@ -772,6 +772,7 @@ class Tia implements VideoOutputInterface {
 
         this._linesSinceChange = 0;
         this._hctr = 225;
+        this._hstate = HState.frame;
     }
 
     private static _delayedWrite(address: number, value: number, self: Tia): void {
