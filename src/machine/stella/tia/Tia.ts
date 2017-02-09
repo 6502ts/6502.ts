@@ -130,6 +130,7 @@ class Tia implements VideoOutputInterface {
         this._collisionUpdateRequired = false;
         this._clock = 0.;
         this._maxLinesTotal = 0;
+        this._xDelta = 0;
 
         this._delayQueue.reset();
         this._frameManager.reset();
@@ -187,135 +188,6 @@ class Tia implements VideoOutputInterface {
     setAudioEnabled(state: boolean): void {
         this._audio0.setActive(state && this._config.enableAudio);
         this._audio1.setActive(state && this._config.enableAudio);
-    }
-
-    cycle(): void {
-        this._delayQueue.execute(Tia._delayedWrite, this);
-
-        this._collisionUpdateRequired = false;
-
-        this._tickMovement();
-
-        if (this._hstate === HState.blank) {
-            this._tickHblank();
-        } else {
-            this._tickHframe();
-        }
-
-        if (this._collisionUpdateRequired) {
-            this._updateCollision();
-        }
-
-        this._clock++;
-    }
-
-    private _tickMovement(): void {
-        if (!this._movementInProgress) {
-            return;
-        }
-
-        // color clock mod 4
-        if ((this._hctr & 0x3) === 0) {
-            // the movement counter dirties the line cache
-            this._linesSinceChange = 0;
-
-            // The tick is only propagated to the sprite counters if we are in blank
-            // mode --- in frame mode, it overlaps with the sprite clock and is gobbled.
-            const apply = this._hstate === HState.blank;
-
-            // did any sprite receive the clock?
-            let m = false;
-
-            const movementCounter = this._movementClock > 15 ? 0 : this._movementClock;
-
-            m = this._missile0.movementTick(movementCounter, apply) || m;
-            m = this._missile1.movementTick(movementCounter, apply) || m;
-            m = this._player0.movementTick(movementCounter, apply) || m;
-            m = this._player1.movementTick(movementCounter, apply) || m;
-            m = this._ball.movementTick(movementCounter, apply) || m;
-
-            // stop collision counter if all latches were cleared
-            this._movementInProgress = m;
-
-            // the collision latches must be updated if any sprite received a tick
-            this._collisionUpdateRequired = m;
-
-            this._movementClock++;
-        }
-    }
-
-    private _tickHblank() {
-        // we cannot use hblankctr === 0 here because it is not positive definite
-        if (this._freshLine) {
-            this._hblankCtr = 0;
-            this._cpu.resume();
-            this._freshLine = false;
-        }
-
-        if (++this._hblankCtr >= 68) {
-            this._hstate = HState.frame;
-        }
-
-        this._hctr++;
-    }
-
-    private _tickHframe() {
-        const y = this._frameManager.getCurrentLine(),
-            lineNotCached = this._linesSinceChange < 2 || y === 0,
-            x = this._hctr - 68;
-
-        // collision latches must be updated if we cannot use cached line daa
-        this._collisionUpdateRequired = lineNotCached;
-
-        // The playfield does not have its own counter and must be cycled before rendering the sprites.
-        // We can never cache this as the current pixel register must be up to date if
-        // we leave caching mode.
-        this._playfield.tick(x);
-
-        // sprites are only rendered if we cannot reuse line data
-        if (lineNotCached) {
-            this._renderSprites();
-        }
-
-        // spin sprite timers
-        this._tickSprites();
-
-        // render pixel data
-        if (this._frameManager.isRendering()) {
-            this._renderPixel(x, y, lineNotCached);
-        }
-
-        if (++this._hctr >= 228) {
-            this._nextLine();
-        }
-    }
-
-    private _renderSprites() {
-        this._player0.render();
-        this._player1.render();
-        this._missile0.render();
-        this._missile1.render();
-        this._ball.render();
-    }
-
-    private _tickSprites() {
-        this._missile0.tick(true);
-        this._missile1.tick(true);
-        this._player0.tick();
-        this._player1.tick();
-        this._ball.tick(true);
-    }
-
-    private _nextLine() {
-        // Reset the counters
-        this._hctr = 0;
-        this._linesSinceChange++;
-
-        this._hstate = HState.blank;
-        this._freshLine = true;
-        this._extendedHblank = false;
-
-        this._frameManager.nextLine();
     }
 
     read(address: number): number {
@@ -421,6 +293,10 @@ class Tia implements VideoOutputInterface {
         switch (address & 0x3F) {
             case Tia.Registers.wsync:
                 this._cpu.halt();
+                break;
+
+            case Tia.Registers.rsync:
+                this._rsync();
                 break;
 
             case Tia.Registers.vsync:
@@ -658,6 +534,246 @@ class Tia implements VideoOutputInterface {
         return this;
     }
 
+
+    cycle(): void {
+        this._delayQueue.execute(Tia._delayedWrite, this);
+
+        this._collisionUpdateRequired = false;
+
+        this._tickMovement();
+
+        if (this._hstate === HState.blank) {
+            this._tickHblank();
+        } else {
+            this._tickHframe();
+        }
+
+        if (this._collisionUpdateRequired) {
+            this._updateCollision();
+        }
+
+        this._clock++;
+    }
+
+    private _tickMovement(): void {
+        if (!this._movementInProgress) {
+            return;
+        }
+
+        // color clock mod 4
+        if ((this._hctr & 0x3) === 0) {
+            // the movement counter dirties the line cache
+            this._linesSinceChange = 0;
+
+            // The tick is only propagated to the sprite counters if we are in blank
+            // mode --- in frame mode, it overlaps with the sprite clock and is gobbled.
+            const apply = this._hstate === HState.blank;
+
+            // did any sprite receive the clock?
+            let m = false;
+
+            const movementCounter = this._movementClock > 15 ? 0 : this._movementClock;
+
+            m = this._missile0.movementTick(movementCounter, apply) || m;
+            m = this._missile1.movementTick(movementCounter, apply) || m;
+            m = this._player0.movementTick(movementCounter, apply) || m;
+            m = this._player1.movementTick(movementCounter, apply) || m;
+            m = this._ball.movementTick(movementCounter, apply) || m;
+
+            // stop collision counter if all latches were cleared
+            this._movementInProgress = m;
+
+            // the collision latches must be updated if any sprite received a tick
+            this._collisionUpdateRequired = m;
+
+            this._movementClock++;
+        }
+    }
+
+    private _tickHblank() {
+        // we cannot use hblankctr === 0 here because it is not positive definite
+        if (this._freshLine) {
+            this._hblankCtr = 0;
+            this._cpu.resume();
+            this._freshLine = false;
+        }
+
+        if (++this._hblankCtr >= 68) {
+            this._hstate = HState.frame;
+        }
+
+        this._hctr++;
+    }
+
+    private _tickHframe() {
+        const y = this._frameManager.getCurrentLine(),
+            lineNotCached = this._linesSinceChange < 2 || y === 0,
+            x = this._hctr - 68 + this._xDelta;
+
+        // collision latches must be updated if we cannot use cached line daa
+        this._collisionUpdateRequired = lineNotCached;
+
+        // The playfield does not have its own counter and must be cycled before rendering the sprites.
+        // We can never cache this as the current pixel register must be up to date if
+        // we leave caching mode.
+        this._playfield.tick(x);
+
+        // sprites are only rendered if we cannot reuse line data
+        if (lineNotCached) {
+            this._renderSprites();
+        }
+
+        // spin sprite timers
+        this._tickSprites();
+
+        // render pixel data
+        if (this._frameManager.isRendering()) {
+            this._renderPixel(x, y, lineNotCached);
+        }
+
+        if (++this._hctr >= 228) {
+            this._nextLine();
+        }
+    }
+
+    private _renderSprites() {
+        this._player0.render();
+        this._player1.render();
+        this._missile0.render();
+        this._missile1.render();
+        this._ball.render();
+    }
+
+    private _tickSprites() {
+        this._missile0.tick(true);
+        this._missile1.tick(true);
+        this._player0.tick();
+        this._player1.tick();
+        this._ball.tick(true);
+    }
+
+    private _nextLine() {
+        // Reset the counters
+        this._hctr = 0;
+        this._linesSinceChange++;
+
+        this._hstate = HState.blank;
+        this._freshLine = true;
+        this._extendedHblank = false;
+        this._xDelta = 0;
+
+        this._frameManager.nextLine();
+    }
+
+    private _getPalette(config: Config) {
+        switch (config.tvMode) {
+            case Config.TvMode.ntsc:
+                return palette.NTSC;
+
+            case Config.TvMode.pal:
+                return palette.PAL;
+
+            case Config.TvMode.secam:
+                return palette.SECAM;
+
+            default:
+                throw new Error('invalid TV mode');
+        }
+    }
+
+    private _getClockFreq(config: Config) {
+        return (config.tvMode === Config.TvMode.ntsc) ?
+            60 * 228 * Metrics.frameLinesNTSC :
+            50 * 228 * Metrics.frameLinesPAL;
+    }
+
+    private _renderPixel(x: number, y: number, lineNotCached: boolean): void {
+        if (lineNotCached) {
+            let color = this._colorBk;
+
+            switch (this._priority) {
+                case Priority.normal:
+                    color = this._playfield.getPixel(color);
+                    color = this._ball.getPixel(color);
+                    color = this._missile1.getPixel(color);
+                    color = this._player1.getPixel(color);
+                    color = this._missile0.getPixel(color);
+                    color = this._player0.getPixel(color);
+                    break;
+
+                case Priority.pfp:
+                    color = this._missile1.getPixel(color);
+                    color = this._player1.getPixel(color);
+                    color = this._missile0.getPixel(color);
+                    color = this._player0.getPixel(color);
+                    color = this._playfield.getPixel(color);
+                    color = this._ball.getPixel(color);
+                    break;
+
+                case Priority.score:
+                    color = this._ball.getPixel(color);
+                    color = this._missile1.getPixel(color);
+                    color = this._player1.getPixel(color);
+                    color = this._playfield.getPixel(color);
+                    color = this._missile0.getPixel(color);
+                    color = this._player0.getPixel(color);
+                    break;
+
+                default:
+                    throw new Error('invalid priority');
+            }
+
+            this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.vblank ? 0xFF000000 :color;
+        } else {
+            this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.surfaceBuffer[(y-1) * 160 + x];
+        }
+    }
+
+    private _updateCollision() {
+        this._collisionMask |= (
+            ~this._player0.collision &
+            ~this._player1.collision &
+            ~this._missile0.collision &
+            ~this._missile1.collision &
+            ~this._ball.collision &
+            ~this._playfield.collision
+        );
+    }
+
+    private _clearHmoveComb(): void {
+        if (this._frameManager.isRendering() && this._hstate === HState.blank) {
+            const offset = this._frameManager.getCurrentLine() * 160;
+
+            for (let i = 0; i < 8; i++) {
+                this._frameManager.surfaceBuffer[offset + i] = 0xFF000000;
+            }
+        }
+    }
+
+    private _resxCounter(): number {
+        return this._hstate === HState.blank ?
+            (this._hctr >= ResxCounter.lateHblankThreshold ? ResxCounter.lateHblank : ResxCounter.hblank) :
+            ResxCounter.frame;
+    }
+
+    private _rsync(): void {
+        if (this._frameManager.isRendering()) {
+            const x = this._hctr > 68 ? this._hctr - 68 : 0,
+                y = this._frameManager.getCurrentLine(),
+                base = y * 160 + x,
+                boundary = base + (y + 1) * 160;
+
+            this._xDelta = 157 - x;
+
+            for (let i = base; i < boundary; i++) {
+                this._frameManager.surfaceBuffer[i] = 0xFF000000;
+            }
+        }
+
+        this._linesSinceChange = 0;
+        this._hctr = 225;
+    }
+
     private static _delayedWrite(address: number, value: number, self: Tia): void {
         switch (address) {
             case Tia.Registers.vblank:
@@ -808,97 +924,6 @@ class Tia implements VideoOutputInterface {
         self.newFrame.dispatch(surface);
     }
 
-    private _getPalette(config: Config) {
-        switch (config.tvMode) {
-            case Config.TvMode.ntsc:
-                return palette.NTSC;
-
-            case Config.TvMode.pal:
-                return palette.PAL;
-
-            case Config.TvMode.secam:
-                return palette.SECAM;
-
-            default:
-                throw new Error('invalid TV mode');
-        }
-    }
-
-    private _getClockFreq(config: Config) {
-        return (config.tvMode === Config.TvMode.ntsc) ?
-            60 * 228 * Metrics.frameLinesNTSC :
-            50 * 228 * Metrics.frameLinesPAL;
-    }
-
-    private _renderPixel(x: number, y: number, lineNotCached: boolean): void {
-        if (lineNotCached) {
-            let color = this._colorBk;
-
-            switch (this._priority) {
-                case Priority.normal:
-                    color = this._playfield.getPixel(color);
-                    color = this._ball.getPixel(color);
-                    color = this._missile1.getPixel(color);
-                    color = this._player1.getPixel(color);
-                    color = this._missile0.getPixel(color);
-                    color = this._player0.getPixel(color);
-                    break;
-
-                case Priority.pfp:
-                    color = this._missile1.getPixel(color);
-                    color = this._player1.getPixel(color);
-                    color = this._missile0.getPixel(color);
-                    color = this._player0.getPixel(color);
-                    color = this._playfield.getPixel(color);
-                    color = this._ball.getPixel(color);
-                    break;
-
-                case Priority.score:
-                    color = this._ball.getPixel(color);
-                    color = this._missile1.getPixel(color);
-                    color = this._player1.getPixel(color);
-                    color = this._playfield.getPixel(color);
-                    color = this._missile0.getPixel(color);
-                    color = this._player0.getPixel(color);
-                    break;
-
-                default:
-                    throw new Error('invalid priority');
-            }
-
-            this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.vblank ? 0xFF000000 :color;
-        } else {
-            this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.surfaceBuffer[(y-1) * 160 + x];
-        }
-    }
-
-    private _updateCollision() {
-        this._collisionMask |= (
-            ~this._player0.collision &
-            ~this._player1.collision &
-            ~this._missile0.collision &
-            ~this._missile1.collision &
-            ~this._ball.collision &
-            ~this._playfield.collision
-        );
-    }
-
-    private _clearHmoveComb(): void {
-        if (this._frameManager.isRendering() && this._hstate === HState.blank) {
-            const offset = this._frameManager.getCurrentLine() * 160;
-
-            for (let i = 0; i < 8; i++) {
-                this._frameManager.surfaceBuffer[offset + i] = 0xFF000000;
-            }
-        }
-    }
-
-    private _resxCounter(): number {
-        return this._hstate === HState.blank ?
-            (this._hctr >= ResxCounter.lateHblankThreshold ? ResxCounter.lateHblank : ResxCounter.hblank) :
-            ResxCounter.frame;
-    }
-
     private _cpu: CpuInterface = null;
     private _bus: Bus = null;
 
@@ -912,18 +937,18 @@ class Tia implements VideoOutputInterface {
 
     // We need a separate counter for the blank period that will be decremented by hmove
     private _hblankCtr = 0;
-
     // hclock counter
     private _hctr = 0;
     // collision latch update required?
     private _collisionUpdateRequired = false;
-
     // Count the extra clocks triggered by move
     private _movementClock = 0;
     // Is the movement clock active and shoud pulse?
     private _movementInProgress = false;
     // do we have an extended hblank triggered by hmove?
     private _extendedHblank = false;
+    // Delta during x calculation. Can become temporarily nonzero aftern a rsync.
+    private _xDelta = 0;
 
     private _clock = 0.;
 

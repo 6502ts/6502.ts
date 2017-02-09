@@ -134,7 +134,7 @@ export default class FrameManager {
     }
 
     isRendering(): boolean {
-        return this._state === State.frame;
+        return this._state === State.frame && !!this._surface;
     }
 
     setVblank(vblank: boolean): void {
