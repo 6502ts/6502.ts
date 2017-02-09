@@ -1,15 +1,12 @@
 **.swp
 node_modules
 .tscache
-src/**/*.js
 web/bower
 web/js/compiled
-bin/**/*.js
 tests/fixtures/fs_provider/blob.json
-tests/ts/**/*.js
-worker/src/**/*.js
 web/stellerator.html
 web/doc
+compiled
 build
 .vscode
 .idea

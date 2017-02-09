@@ -64,13 +64,6 @@ module.exports = function(grunt) {
                     tsconfig: '.',
                     passThrough: true
                 }
-            },
-            worker: {
-                tsconfig: {
-                    tsconfig: './worker',
-                    passThrough: true,
-                    updateFiles: true
-                }
             }
         },
 
@@ -78,18 +71,13 @@ module.exports = function(grunt) {
             base: [
                 '.tscache',
                 'web/js/compiled',
-                'src/**/*.js',
-                'bin/**/*.js',
-                'tests/ts/**/*.js',
                 'tests/fixtures/fs_provider/blob.json',
                 'web/stellerator.html',
-                'build'
+                'build',
+                'compiled'
             ],
             mrproper: [
                 'web/bower'
-            ],
-            worker: [
-                'worker/src/**/**.js'
             ]
         },
 
@@ -147,8 +135,8 @@ module.exports = function(grunt) {
                         .plugin('tsify', {project: path.join(__dirname, 'worker')})
                         .transform('brfs'),
                 },
-                dest: 'web/js/compiled/stella_worker.js',
-                src: ['worker/src/main.ts']
+                dest: 'web/js/compiled/worker/stella.js',
+                src: ['worker/stella/main.ts']
             },
             stellerator_dev: {
                 dest: 'web/js/compiled/stellerator.js',
@@ -177,8 +165,8 @@ module.exports = function(grunt) {
                 dest: 'web/js/compiled/stellerator.js.map'
             },
             stella_worker: {
-                src: 'web/js/compiled/stella_worker.js',
-                dest: 'web/js/compiled/stella_worker.js.map'
+                src: 'web/js/compiled/worker/stella.js',
+                dest: 'web/js/compiled/worker/stella.js.map'
             },
             ehBasicCLI: {
                 src: 'web/js/compiled/ehBasicCLI.js',
@@ -207,8 +195,8 @@ module.exports = function(grunt) {
                 ]
             },
             stella_worker: {
-                dest: 'build/stellerator/js/worker.js',
-                src: 'web/js/compiled/stella_worker.js'
+                dest: 'build/stellerator/js/worker/stella.js',
+                src: 'web/js/compiled/worker/stella.js'
             }
         },
 
@@ -233,7 +221,7 @@ module.exports = function(grunt) {
                     ui: 'tdd',
                     bail: false
                 },
-                src: ['tests/js/**/*.js', 'tests/ts/**/*.js']
+                src: ['compiled/tests/ts/**/*.js']
             },
             debug: {
                 options: {
@@ -241,7 +229,7 @@ module.exports = function(grunt) {
                     ui: 'tdd',
                     bail: true
                 },
-                src: ['tests/js/**/*.js', 'tests/ts/**/*.js']
+                src: ['compiled/tests/ts/**/*.js']
             }
         },
 
@@ -252,7 +240,7 @@ module.exports = function(grunt) {
                 host: '127.0.0.1',
                 autoIndex: true,
                 ext: 'html',
-                cache: -1,
+                cache: 0,
                 runInBackground: true
             },
             build: {
@@ -261,7 +249,7 @@ module.exports = function(grunt) {
                 hosts: '127.0.0.1',
                 autoIndex: true,
                 ext: 'html',
-                cache: -1
+                cache: 0
             }
         },
 
@@ -287,7 +275,7 @@ module.exports = function(grunt) {
                     recurse: true
                 },
                 src: './tests/fixtures/fs_provider/tree',
-                dest: './tests/fixtures/fs_provider/blob.json'
+                dest: './compiled/tests/fixtures/fs_provider/blob.json'
             }
         },
 
@@ -303,7 +291,7 @@ module.exports = function(grunt) {
                             'js/bootstrap.min.js',
                             'js/compiled/stellerator.js'
                         ],
-                        workerUrl: 'js/compiled/stella_worker.js',
+                        workerUrl: 'js/compiled/worker/stella.js',
                         buildId
                     }
                 }
@@ -315,7 +303,7 @@ module.exports = function(grunt) {
                     data: {
                         stylesheets: ['css/app.css'],
                         scripts: ['js/app.js'],
-                        workerUrl: ['js/worker.js'],
+                        workerUrl: ['js/worker/stella.js'],
                         buildId
                     }
                 }
@@ -343,6 +331,16 @@ module.exports = function(grunt) {
                         expand: true,
                         src: ['doc/**/*'],
                         dest: 'web'
+                    }
+                ]
+            },
+            test_fixtures: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'tests',
+                        src: ['fixtures/**/*'],
+                        dest: 'compiled/tests'
                     }
                 ]
             }
@@ -398,8 +396,8 @@ module.exports = function(grunt) {
 
     grunt.registerTask('dev', ['tslint', 'browserify_dev', 'template_dev', 'blobify:default', 'copy:stellerator_dev']);
     grunt.registerTask('build', ['stellerator:build']);
-    grunt.registerTask('test', ['tslint', 'ts:main', 'blobify:tests', 'mochaTest:test']);
-    grunt.registerTask('test:debug', ['tslint', 'ts:main', 'blobify:tests', 'mochaTest:debug']);
+    grunt.registerTask('test', ['tslint', 'ts:main', 'copy:test_fixtures', 'blobify:tests', 'mochaTest:test']);
+    grunt.registerTask('test:debug', ['tslint', 'ts:main', 'copy:test_fixtures', 'blobify:tests', 'mochaTest:debug']);
     grunt.registerTask('initial', ['clean', 'bower', 'test']);
 
     grunt.registerTask('cleanup', ['clean:base', 'clean:worker']);

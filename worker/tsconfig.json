@@ -16,8 +16,8 @@
         "noImplicitThis": true,
         "removeComments": true
     },
-    "files": [
-        "src/main.ts",
+    "include": [
+        "stella/**/*.ts",
         "../src/interface/setimmediate2.d.ts",
         "../typings/globals/seedrandom/index.d.ts"
     ]
