@@ -16,6 +16,7 @@ export GIT_SSH="$SSH_WRAPPER"
 
 git clone git@github.com:6502ts/6502ts.github.io.git "$DEST"
 
+rm -fr "$DEST/dev" "$DEST/stellerator"
 cp -rv web/* "$DEST/dev"
 cp -rv build/stellerator "$DEST"
 
@@ -25,6 +26,7 @@ git config user.email "golem@nowhere.org"
 git config user.name "Travis Golem"
 git config --global push.default current
 
+git add dev stellerator
 git commit -a -m "bumped build to $REVISION, my master"
 git push
 
