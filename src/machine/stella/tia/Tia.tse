@@ -24,7 +24,7 @@ import {Event, EventInterface} from 'microevent.ts';
 import VideoOutputInterface from '../../io/VideoOutputInterface';
 import AudioOutputInterface from '../../io/AudioOutputInterface';
 import DigitalJoystickInterface from '../../io/DigitalJoystickInterface';
-import RGBASurfaceInterface from '../../../video/surface/RGBASurfaceInterface';
+import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
 import Config from '../Config';
 import CpuInterface from '../../cpu/CpuInterface';
 import Audio from './Audio';

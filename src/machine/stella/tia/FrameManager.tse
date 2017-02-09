@@ -22,7 +22,7 @@
 import {Event} from 'microevent.ts';
 
 import VideoOutputInterface from '../../io/VideoOutputInterface';
-import RGBASurfaceInterface from '../../../video/surface/RGBASurfaceInterface';
+import RGBASurfaceInterface from '../../../tools/surface/RGBASurfaceInterface';
 import Config from '../Config';
 
 const enum Metrics {
