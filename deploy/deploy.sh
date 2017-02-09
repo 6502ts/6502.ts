@@ -17,7 +17,7 @@ export GIT_SSH="$SSH_WRAPPER"
 git clone git@github.com:6502ts/6502ts.github.io.git "$DEST"
 
 rm -fr "$DEST/dev" "$DEST/stellerator"
-cp -rv web/* "$DEST/dev"
+cp -rv web "$DEST/dev"
 cp -rv build/stellerator "$DEST"
 
 pushd 6502ts.github.io
