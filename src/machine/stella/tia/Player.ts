@@ -23,7 +23,6 @@ import {decodesPlayer} from './drawCounterDecodes';
 
 const enum Count {
     renderCounterOffset = -5,
-    renderCounterOffsetWide = -6
 }
 
 export default class Player {
@@ -38,7 +37,6 @@ export default class Player {
         this._hmmClocks = 0;
         this._counter = 0;
         this._moving = false;
-        this._width = 8;
         this._rendering = false;
         this._renderCounter = Count.renderCounterOffset;
         this._decodes = decodesPlayer[0];
@@ -47,6 +45,11 @@ export default class Player {
         this._pattern = 0;
         this._reflected = false;
         this._delaying = false;
+        this._sampleCounter = 0;
+        this._dividerPending = 0;
+        this._dividerChangeCounter = -1;
+
+        this._setDivider(1);
     }
 
     grp(pattern: number) {
@@ -61,43 +64,87 @@ export default class Player {
     }
 
     nusiz(value: number): void {
-        const masked = value & 0x07,
-            oldWidth = this._width;
+        const masked = value & 0x07;
 
-        if (masked === 5) {
-            this._width = 16;
-        } else if (masked === 7) {
-            this._width = 32;
-        } else {
-            this._width = 8;
+        switch (masked) {
+            case 5:
+                this._dividerPending = 2;
+                break;
+
+            case 7:
+                this._dividerPending = 4;
+                break;
+
+            default:
+                this._dividerPending = 1;
         }
+
+        const oldDecodes = this._decodes;
 
         this._decodes = decodesPlayer[masked];
 
-        if (this._rendering && this._renderCounter >= this._width) {
+        if (
+            this._decodes !== oldDecodes &&
+            this._rendering &&
+            (this._renderCounter - Count.renderCounterOffset) < 2 &&
+            !this._decodes[(this._counter - this._renderCounter + Count.renderCounterOffset + 159) % 160]
+        ) {
             this._rendering = false;
         }
 
-        if (this._rendering && this._renderCounter < 0) {
-            if (this._width > 8 && oldWidth === 8) {
-                this._renderCounter += (this._renderCounter < -2 ? -1 : 1);
-            } else if (this._width === 8 && oldWidth > 8 && this._renderCounter < -3) {
-                this._renderCounter++;
-            }
+        if (this._dividerPending === this._divider) {
+            return;
         }
 
-        if (oldWidth !== this._width) {
-            this._updatePattern();
+        if (!this._rendering) {
+            this._setDivider(this._dividerPending);
+            return;
+        }
+
+        switch (this._divider << 4 | this._dividerPending) {
+            case 0x12:
+            case 0x14:
+                if ((this._renderCounter - Count.renderCounterOffset) < 3) {
+                    this._setDivider(this._dividerPending);
+                } else {
+                    this._dividerChangeCounter = 1;
+                }
+
+                break;
+
+            case 0x21:
+            case 0x41:
+                if ((this._renderCounter - Count.renderCounterOffset) < 3) {
+                    this._setDivider(this._dividerPending);
+                } else if ((this._renderCounter - Count.renderCounterOffset) < 5) {
+                    this._setDivider(this._dividerPending);
+                    this._renderCounter--;
+                } else {
+                    this._dividerChangeCounter = 1;
+                }
+
+                break;
+
+            case 0x42:
+            case 0x24:
+                if (this._renderCounter < 1) {
+                    this._setDivider(this._dividerPending);
+                } else {
+                    this._dividerChangeCounter = (this._divider - (this._renderCounter - 1) % this._divider);
+                }
+
+                break;
+
+            default:
+                throw new Error('cannot happen');
         }
     }
 
     resp(counter: number): void {
         this._counter = counter;
 
-        const renderCounterOffset = this._width > 8 ? Count.renderCounterOffsetWide : Count.renderCounterOffset;
-
-        if (this._rendering && (this._renderCounter - renderCounterOffset) < 4) {
-            this._renderCounter = renderCounterOffset + (counter - 157);
+        if (this._rendering && (this._renderCounter - Count.renderCounterOffset) < 4) {
+            this._renderCounter = Count.renderCounterOffset + (counter - 157);
         }
     }
 
@@ -142,8 +189,8 @@ export default class Player {
     render(): void {
         this.collision = (
             this._rendering &&
-            this._renderCounter >= 0 &&
-            (this._pattern & (1 << (this._width - this._renderCounter - 1)))
+            this._renderCounter >= this._renderCounterTripPoint &&
+            (this._pattern & (1 << this._sampleCounter))
         ) ? 0 : this._collisionMask;
     }
 
@@ -151,11 +198,45 @@ export default class Player {
         if (this._decodes[this._counter]) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
-            if (this._width > 8) {
-                this._renderCounter--;
+            this._sampleCounter = 0;
+        } else if (this._rendering) {
+            this._renderCounter++;
+
+            switch (this._divider) {
+                case 1:
+                    if (this._renderCounter > 0) {
+                        this._sampleCounter++;
+                    }
+
+                    if (
+                        this._renderCounter >= 0 &&
+                        this._dividerChangeCounter >= 0 &&
+                        this._dividerChangeCounter-- === 0
+                    ) {
+                        this._setDivider(this._dividerPending);
+                    }
+
+                    break;
+
+                default:
+                    if (this._renderCounter > 1 && ((this._renderCounter - 1) % this._divider) === 0) {
+                        this._sampleCounter++;
+                    }
+
+                    if (
+                        this._renderCounter > 0 &&
+                        this._dividerChangeCounter >= 0 &&
+                        this._dividerChangeCounter-- === 0
+                    ) {
+                        this._setDivider(this._dividerPending);
+                    }
+
+                    break;
             }
-        } else if (this._rendering && ++this._renderCounter >= this._width) {
-            this._rendering = false;
+
+            if (this._sampleCounter > 7) {
+                this._rendering = false;
+            }
         }
 
         if (++this._counter >= 160) {
@@ -178,89 +259,40 @@ export default class Player {
     }
 
     getRespClock(): number {
-        switch (this._width) {
-            case 8:
+        switch (this._divider) {
+            case 1:
                 return (this._counter - 5 + 160)  % 160;
 
-            case 16:
+            case 2:
                 return (this._counter - 9 + 160) % 160;
 
-            case 32:
+            case 4:
                 return (this._counter - 12 + 160) % 160;
 
             default:
-                throw new Error(`cannot happen: invalid width ${this._width}`);
+                throw new Error(`cannot happen: invalid divider ${this._divider}`);
         }
     }
 
     private _updatePattern(): void {
-        const pattern = this._delaying ? this._patternOld : this._patternNew;
+        this._pattern = this._delaying ? this._patternOld : this._patternNew;
 
-        switch (this._width) {
-            case 8:
-                if (this._reflected) {
-                    this._pattern =
-                        ((pattern & 0x01) << 7)  |
-                        ((pattern & 0x02) << 5)  |
-                        ((pattern & 0x04) << 3)  |
-                        ((pattern & 0x08) << 1)  |
-                        ((pattern & 0x10) >>> 1) |
-                        ((pattern & 0x20) >>> 3) |
-                        ((pattern & 0x40) >>> 5) |
-                        ((pattern & 0x80) >>> 7);
-                } else {
-                    this._pattern = pattern;
-                }
-                break;
-
-            case 16:
-                if (this._reflected) {
-                    this._pattern =
-                        ((3 * (pattern & 0x01)) << 14) |
-                        ((3 * (pattern & 0x02)) << 11) |
-                        ((3 * (pattern & 0x04)) << 8)  |
-                        ((3 * (pattern & 0x08)) << 5)  |
-                        ((3 * (pattern & 0x10)) << 2)  |
-                        ((3 * (pattern & 0x20)) >>> 1) |
-                        ((3 * (pattern & 0x40)) >>> 4) |
-                        ((3 * (pattern & 0x80)) >>> 7);
-                } else {
-                    this._pattern =
-                        ((3 * (pattern & 0x01)))       |
-                        ((3 * (pattern & 0x02)) << 1)  |
-                        ((3 * (pattern & 0x04)) << 2)  |
-                        ((3 * (pattern & 0x08)) << 3)  |
-                        ((3 * (pattern & 0x10)) << 4)  |
-                        ((3 * (pattern & 0x20)) << 5)  |
-                        ((3 * (pattern & 0x40)) << 6)  |
-                        ((3 * (pattern & 0x80)) << 7);
-                }
-                break;
-
-            case 32:
-                if (this._reflected) {
-                    this._pattern =
-                        ((0xF * (pattern & 0x01)) << 28) |
-                        ((0xF * (pattern & 0x02)) << 23) |
-                        ((0xF * (pattern & 0x04)) << 18) |
-                        ((0xF * (pattern & 0x08)) << 13) |
-                        ((0xF * (pattern & 0x10)) << 8)  |
-                        ((0xF * (pattern & 0x20)) << 3)  |
-                        ((0xF * (pattern & 0x40)) >>> 2) |
-                        ((0xF * (pattern & 0x80)) >>> 7);
-                } else {
-                    this._pattern =
-                        ((0xF * (pattern & 0x01)))       |
-                        ((0xF * (pattern & 0x02)) << 3)  |
-                        ((0xF * (pattern & 0x04)) << 6)  |
-                        ((0xF * (pattern & 0x08)) << 9)  |
-                        ((0xF * (pattern & 0x10)) << 12)  |
-                        ((0xF * (pattern & 0x20)) << 15)  |
-                        ((0xF * (pattern & 0x40)) << 18)  |
-                        ((0xF * (pattern & 0x80)) << 21);
-                }
-                break;
+        if (!this._reflected) {
+            this._pattern =
+                ((this._pattern & 0x01) << 7)  |
+                ((this._pattern & 0x02) << 5)  |
+                ((this._pattern & 0x04) << 3)  |
+                ((this._pattern & 0x08) << 1)  |
+                ((this._pattern & 0x10) >>> 1) |
+                ((this._pattern & 0x20) >>> 3) |
+                ((this._pattern & 0x40) >>> 5) |
+                ((this._pattern & 0x80) >>> 7);
         }
+    }
+
+    private _setDivider(divider: number): void {
+        this._divider = divider;
+        this._renderCounterTripPoint = divider === 1 ? 0 : 1;
     }
 
     color = 0xFFFFFFFF;
@@ -269,17 +301,21 @@ export default class Player {
     private _hmmClocks = 0;
     private _counter = 0;
     private _moving = false;
-    private _width = 8;
+    private _divider = 1;
+    private _dividerPending = 1;
+    private _dividerChangeCounter = -1;
+    private _sampleCounter = 0;
 
     private _rendering = false;
     private _renderCounter = Count.renderCounterOffset;
+    private _renderCounterTripPoint = 0;
 
     private _decodes: Uint8Array;
 
     private _patternNew = 0;
     private _patternOld = 0;
-
     private _pattern = 0;
+
     private _reflected = false;
     private _delaying = false;
 }
