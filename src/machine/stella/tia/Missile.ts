@@ -59,11 +59,40 @@ class Missile {
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    resm(counter: number): void {
+    resm(counter: number, hblank: boolean): void {
         this._counter = counter;
 
-        if (this._rendering && this._renderCounter < 0) {
-            this._renderCounter = Count.renderCounterOffset + (counter - 157);
+        if (this._rendering) {
+            if (this._renderCounter < 0) {
+                this._renderCounter = Count.renderCounterOffset + (counter - 157);
+
+            } else {
+                switch (this._width) {
+                    case 8:
+                        this._renderCounter = (counter - 157) + ((this._renderCounter >= 4) ? 4 : 0);
+                        break;
+
+                    case 4:
+                        this._renderCounter = counter - 157;
+                        break;
+
+                    case 2:
+                        if (hblank) {
+                            this._rendering = this._renderCounter > 1;
+                        } else if (this._renderCounter === 0) {
+                            this._renderCounter++;
+                        }
+
+                        break;
+
+                    default:
+                        if (hblank) {
+                            this._rendering = this._renderCounter > 0;
+                        }
+
+                        break;
+                }
+            }
         }
     }
 

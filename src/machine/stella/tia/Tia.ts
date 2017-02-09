@@ -332,12 +332,12 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.resm0:
                 this._linesSinceChange = 0;
-                this._missile0.resm(this._resxCounter());
+                this._missile0.resm(this._resxCounter(), this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.resm1:
                 this._linesSinceChange = 0;
-                this._missile1.resm(this._resxCounter());
+                this._missile1.resm(this._resxCounter(), this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.resmp0:
