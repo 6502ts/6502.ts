@@ -19,6 +19,20 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * The tone generator has been heavily influenced by the code found at
+ * http://www.biglist.com/lists/stella/archives/200311/msg00156.html with following licence:
+ *
+ * sound.c
+ * version 0.2
+ *
+ * Copyright (c) 2003 Adam Wozniak (adam@wozniakconsulting.com)
+ * All Rights Reserved
+ *
+ * Permission granted to freely copy and use for any purpose, provided
+ * this copyright header remains intact.
+ */
+
 import Config from '../Config';
 import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 
