@@ -41,8 +41,8 @@ export function init(store: Store<State>, workerUrl?: string): Promise<Emulation
         .then(() => {
             const driverManager = new DriverManager();
 
-            initAudio(emulationService, driverManager);
-            initGamepad(emulationService, driverManager, store);
+            initAudio(driverManager);
+            initGamepad(driverManager, store);
 
             driverManager.bind(emulationService);
 
@@ -50,7 +50,7 @@ export function init(store: Store<State>, workerUrl?: string): Promise<Emulation
         });
 }
 
-function initAudio(emulationService: EmulationServiceInterface, driverManager: DriverManager): void {
+function initAudio(driverManager: DriverManager): void {
     const audioDriver = new WebAudioDriver();
 
     try {
@@ -64,11 +64,7 @@ function initAudio(emulationService: EmulationServiceInterface, driverManager: D
     }
 }
 
-function initGamepad(
-    emulationService: EmulationServiceInterface,
-    driverManager: DriverManager,
-    store: Store<State>
-): void {
+function initGamepad(driverManager: DriverManager, store: Store<State>): void {
     const gamepadDriver = new GamepadDriver();
 
     try {
@@ -85,6 +81,6 @@ function initGamepad(
 
         startGamepadDriverDispatcher(gamepadDriver, store);
     } catch (e) {
-        console.log(`audio not available: ${e.message}`);
+        console.log(`gamepad not available: ${e.message}`);
     }
 }
