@@ -134,7 +134,7 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
             else if (this.props.emulationState === EmulationServiceInterface.State.paused) {
                 this.props.resumeEmulation();
             }
-        })
+        });
     }
 
     render() {

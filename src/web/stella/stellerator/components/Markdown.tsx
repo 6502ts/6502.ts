@@ -65,7 +65,7 @@ class Markdown extends React.Component<Markdown.Props, Markdown.State> {
         url: '',
         useCache: true,
         onMarkdownError: (e: Error): void => console.error(e.message)
-    }
+    };
 
     private static _cache: {[url: string]: string} = {};
 
@@ -74,8 +74,8 @@ class Markdown extends React.Component<Markdown.Props, Markdown.State> {
 module Markdown {
 
     export interface Props extends React.HTMLProps<any> {
-        url?: string,
-        useCache?: boolean,
+        url?: string;
+        useCache?: boolean;
 
         onMarkdownError?: (e: Error) => void;
     }
