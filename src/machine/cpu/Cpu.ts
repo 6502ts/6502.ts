@@ -544,7 +544,7 @@ class Cpu {
         this.state.a = this._rng ? this._rng.int(0xFF) : 0;
         this.state.x = this._rng ? this._rng.int(0xFF) : 0;
         this.state.y = this._rng ? this._rng.int(0xFF) : 0;
-        this.state.s = this._rng ? this._rng.int(0xFF) : 0;
+        this.state.s = 0xFD;
         this.state.p = this._rng ? this._rng.int(0xFFFF) : 0;
         this.state.flags = (this._rng ? this._rng.int(0xFF) : 0) |
             CpuInterface.Flags.i | CpuInterface.Flags.e | CpuInterface.Flags.b;
