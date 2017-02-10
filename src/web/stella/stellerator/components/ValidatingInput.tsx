@@ -82,7 +82,7 @@ module ValidatingInput {
         onChange: () => undefined,
         onKeyEnter: () => undefined,
         validator: () => true,
-    }
+    };
 
 }
 

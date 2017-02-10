@@ -23,7 +23,7 @@
 import * as React from 'react';
 
 import ValidatingInput from '../ValidatingInput';
-import Switch from '../Switch'
+import Switch from '../Switch';
 
 function RandomSeedEdit(props: RandomSeedEdit.Props) {
     return <div>
@@ -66,7 +66,7 @@ module RandomSeedEdit {
         onChangeSeedStrategy: () => undefined,
         onChangeSeedValue: () => undefined,
         onKeyEnter: () => undefined
-    }
+    };
 
 }
 
