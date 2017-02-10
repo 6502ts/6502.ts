@@ -65,7 +65,7 @@ class EmulationMiddleware {
                             initialState.currentCartridge.buffer,
                             this._createStellaConfig(initialState.currentCartridge),
                             initialState.currentCartridge.cartridgeType,
-                            [{type: VideoProcessorConfig.Type.merge}]
+                            initialState.settings.mergeFrames ? [{type: VideoProcessorConfig.Type.merge}] : undefined
                         )
                         .then(() => {
                             this._updateControlPanelState(initialState.emulationState);

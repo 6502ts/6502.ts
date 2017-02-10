@@ -32,6 +32,7 @@ export interface Type {
     webGlRendering: boolean;
     gamma: number;
     useWorker: boolean;
+    mergeFrames: boolean;
 
 }
 
@@ -41,7 +42,8 @@ export function fromState(state: SettingsState): Type {
         smoothScaling: state.smoothScaling,
         webGlRendering: state.webGlRendering,
         gamma: state.gamma,
-        useWorker: state.useWorker
+        useWorker: state.useWorker,
+        mergeFrames: state.mergeFrames
     };
 }
 

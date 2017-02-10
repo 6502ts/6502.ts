@@ -100,6 +100,19 @@ function Settings(props: Settings.Props) {
                 {props.gamma}
             </Col>
         </Row>
+        <Row>
+            <Col sm={4}>
+                <ControlLabel>Reduce framerate (requires cartridge restart):</ControlLabel>
+            </Col>
+            <Col sm={8}>
+                <Switch
+                    labelTrue="On"
+                    labelFalse="Off"
+                    state={props.mergeFrames}
+                    onSwitch={props.onToggleMergeFrames}
+                />
+            </Col>
+        </Row>
     </Grid>;
 }
 
@@ -110,11 +123,13 @@ module Settings {
         webGlRendering?: boolean;
         gamma?: number;
         useWorker?: boolean;
+        mergeFrames?: boolean;
 
         onToggleSmoothScaling?: (value: boolean) => void;
         onToggleWebGlRendering?: (value: boolean) => void;
         onChangeGamma?: (value: number) => void;
         onToggleUseWorker?: (value: boolean) => void;
+        onToggleMergeFrames?: (value: boolean) => void;
     }
 
     export const defaultProps: Props = {
@@ -122,11 +137,13 @@ module Settings {
         webGlRendering: true,
         gamma: 1,
         useWorker: false,
+        mergeFrames: false,
 
         onToggleSmoothScaling: () => undefined,
         onToggleWebGlRendering: () => undefined,
         onChangeGamma: () => undefined,
-        onToggleUseWorker: () => undefined
+        onToggleUseWorker: () => undefined,
+        onToggleMergeFrames: () => undefined
     };
 
 }

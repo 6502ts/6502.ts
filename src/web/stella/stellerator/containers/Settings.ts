@@ -28,7 +28,8 @@ import {
     setSmoothScaling,
     setWebGlRendering,
     setGamma,
-    setUseWorker
+    setUseWorker,
+    setMergeFrames
 } from '../actions/settings';
 
 function mapStateToProps(state: State): SettingsComponent.Props {
@@ -36,15 +37,17 @@ function mapStateToProps(state: State): SettingsComponent.Props {
         smoothScaling: state.settings.smoothScaling,
         webGlRendering: state.settings.webGlRendering,
         gamma: state.settings.gamma,
-        useWorker: state.settings.useWorker
+        useWorker: state.settings.useWorker,
+        mergeFrames: state.settings.mergeFrames
     };
 }
 
 const SettingsContainer = connect(mapStateToProps, {
-    onToggleSmoothScaling: (value: boolean) => setSmoothScaling(value),
-    onToggleWebGlRendering: (value: boolean) => setWebGlRendering(value),
-    onChangeGamma: (value: number) => setGamma(value),
-    onToggleUseWorker: (value: boolean) => setUseWorker(value)
+    onToggleSmoothScaling: setSmoothScaling,
+    onToggleWebGlRendering: setWebGlRendering,
+    onChangeGamma: setGamma,
+    onToggleUseWorker: setUseWorker,
+    onToggleMergeFrames: setMergeFrames
 })(SettingsComponent);
 
 export default SettingsContainer;

@@ -29,7 +29,8 @@ import {
     SetSmoothScalingAction,
     SetWebGlRenderingAction,
     SetGammaAction,
-    SetUseWorkerAction
+    SetUseWorkerAction,
+    SetMergeFramesAction
 } from '../actions/settings';
 
 export default function reducer(state: Settings = new Settings(), action: Action): Settings {
@@ -48,6 +49,9 @@ export default function reducer(state: Settings = new Settings(), action: Action
 
         case Types.init:
             return init(state, action as InitSettingsAction);
+
+        case Types.setMergeFrames:
+            return setMergeFrames(state, action as SetMergeFramesAction);
     }
 
     return state;
@@ -71,4 +75,8 @@ function setGamma(state: Settings, action: SetGammaAction): Settings {
 
 function setUseWorker(state: Settings, action: SetUseWorkerAction): Settings {
     return new Settings({useWorker: action.value}, state);
+}
+
+function setMergeFrames(state: Settings, action: SetMergeFramesAction): Settings {
+    return new Settings({mergeFrames: action.value}, state);
 }

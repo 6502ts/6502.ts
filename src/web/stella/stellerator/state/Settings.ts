@@ -37,6 +37,7 @@ export default class Settings implements Changeset {
     webGlRendering = true;
     gamma = 1;
     useWorker = true;
+    mergeFrames = false;
 }
 
 interface Changeset {
@@ -44,4 +45,5 @@ interface Changeset {
     webGlRendering?: boolean;
     gamma?: number;
     useWorker?: boolean;
+    mergeFrames?: boolean;
 }

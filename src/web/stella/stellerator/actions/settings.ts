@@ -28,6 +28,7 @@ export const Types = {
     setWebGlRendering: 'settings/setWebGlRendering',
     setGamma: 'settings/setGamma',
     setUseWorker: 'settings/setUseWorker',
+    setMergeFrames: 'settings/mergeFrames',
     init: 'settings/init'
 };
 
@@ -82,6 +83,17 @@ export interface SetUseWorkerAction extends Action {
 export function setUseWorker(value: boolean): SetUseWorkerAction {
     return {
         type: Types.setUseWorker,
+        value
+    };
+}
+
+export interface SetMergeFramesAction extends Action {
+    value: boolean;
+}
+
+export function setMergeFrames(value: boolean): SetMergeFramesAction {
+    return {
+        type: Types.setMergeFrames,
         value
     };
 }
