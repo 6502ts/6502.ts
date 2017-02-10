@@ -27,16 +27,24 @@ import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 import ArrayBufferSurface from '../../video/surface/ArrayBufferSurface';
 import RGBASurfaceInterface from '../../video/surface/RGBASurfaceInterface';
 import VideoEndpointInterface from '../driver/VideoEndpointInterface';
-import FrameMergeProcessor from '../../video/processing/FrameMergeProcessor';
 import InducedPool from '../../tools/pool/InducedPool';
+
+import VideoProcessorPipeline from '../../video/processing/ProcessorPipeline';
+import * as VideoProcessorConfig from '../../video/processing/ProcessorConfig';
+import VideoProcessorInterface from '../../video/processing/ProcessorInterface';
 
 class VideoEndpoint implements VideoEndpointInterface {
 
     constructor(
         private _video: VideoOutputInterface
     ) {
+        this._videoProcessor = new VideoProcessorPipeline([
+            {type: VideoProcessorConfig.Type.merge}
+        ]);
+        this._videoProcessor.init(this._video.getWidth(), this._video.getHeight());
+
         this._pool = new ObjectPool<ImageData>(
-            () => {console.log('hui'); return new ImageData(this._video.getWidth(), this._video.getHeight());}
+            () => new ImageData(this._video.getWidth(), this._video.getHeight())
         );
 
         this._video.setSurfaceFactory(
@@ -70,8 +78,6 @@ class VideoEndpoint implements VideoEndpointInterface {
         this._videoProcessor.emit.addHandler(
             wrappedSurface => this.newFrame.dispatch(this._poolMembers.get(wrappedSurface.get()))
         );
-
-        this._videoProcessor.init(this._video.getWidth(), this._video.getHeight());
     }
 
     getWidth(): number {
@@ -91,7 +97,7 @@ class VideoEndpoint implements VideoEndpointInterface {
         imageData => this._surfaces.get(imageData)
     );
 
-    private _videoProcessor = new FrameMergeProcessor();
+    private _videoProcessor: VideoProcessorInterface;
 }
 
 export default VideoEndpoint;

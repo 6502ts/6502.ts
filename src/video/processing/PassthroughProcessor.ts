@@ -19,27 +19,24 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import PoolMemberInterface from './PoolMemberInterface';
+import {Event} from 'microevent.ts';
 
-class InducedMember<T, U> implements PoolMemberInterface<U> {
+import RGBASurfaceInterface from '../surface/RGBASurfaceInterface';
+import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
+import ProcessorInterface from './ProcessorInterface';
 
-    constructor(
-        private _value: PoolMemberInterface<T>,
-        private _mapper: (value: T) => U
-    ) {}
+class PassthroughProcessor implements ProcessorInterface {
 
-    get(): U {
-        return this._mapper(this._value.get());
+    init(): void {}
+
+    flush(): void {}
+
+    processSurface(surface: PoolMemberInterface<RGBASurfaceInterface>): void {
+        this.emit.dispatch(surface);
     }
 
-    release(): void {
-        this._value.release();
-    }
-
-    dispose(): void {
-        this._value.dispose();
-    }
+    emit = new Event<PoolMemberInterface<RGBASurfaceInterface>>();
 
 }
 
-export default InducedMember;
+export default PassthroughProcessor;
