@@ -223,7 +223,7 @@ class EmulationService implements EmulationServiceInterface {
                 ._fetchLastError()
                 .then(error => {
                     this._state = state;
-                    this._lastError = error = error;
+                    this._lastError = error;
 
                     this._stopProxies();
 

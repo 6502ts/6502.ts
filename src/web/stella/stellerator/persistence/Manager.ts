@@ -83,6 +83,6 @@ export default class Manager {
         );
     }
 
-    private _database = new Database();;
+    private _database = new Database();
 
 }
