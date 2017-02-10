@@ -27,6 +27,8 @@ import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 import ArrayBufferSurface from '../../video/surface/ArrayBufferSurface';
 import RGBASurfaceInterface from '../../video/surface/RGBASurfaceInterface';
 import VideoEndpointInterface from '../driver/VideoEndpointInterface';
+import FrameMergeProcessor from '../../video/processing/FrameMergeProcessor';
+import InducedPool from '../../tools/pool/InducedPool';
 
 class VideoEndpoint implements VideoEndpointInterface {
 
@@ -34,7 +36,7 @@ class VideoEndpoint implements VideoEndpointInterface {
         private _video: VideoOutputInterface
     ) {
         this._pool = new ObjectPool<ImageData>(
-            () => new ImageData(this._video.getWidth(), this._video.getHeight())
+            () => {console.log('hui'); return new ImageData(this._video.getWidth(), this._video.getHeight());}
         );
 
         this._video.setSurfaceFactory(
@@ -60,8 +62,16 @@ class VideoEndpoint implements VideoEndpointInterface {
         );
 
         this._video.newFrame.addHandler(
-            surface => this.newFrame.dispatch(this._poolMembers.get(surface))
+            imageData => this._videoProcessor.processSurface(
+                this._surfacePool.get(this._poolMembers.get(imageData))
+            )
         );
+
+        this._videoProcessor.emit.addHandler(
+            wrappedSurface => this.newFrame.dispatch(this._poolMembers.get(wrappedSurface.get()))
+        );
+
+        this._videoProcessor.init(this._video.getWidth(), this._video.getHeight());
     }
 
     getWidth(): number {
@@ -77,6 +87,11 @@ class VideoEndpoint implements VideoEndpointInterface {
     private _pool: ObjectPool<ImageData>;
     private _poolMembers = new WeakMap<RGBASurfaceInterface, PoolMemberInterface<ImageData>>();
     private _surfaces = new WeakMap<ImageData, RGBASurfaceInterface>();
+    private _surfacePool = new InducedPool<ImageData, RGBASurfaceInterface>(
+        imageData => this._surfaces.get(imageData)
+    );
+
+    private _videoProcessor = new FrameMergeProcessor();
 }
 
 export default VideoEndpoint;

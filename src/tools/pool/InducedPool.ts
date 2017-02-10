@@ -19,21 +19,25 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {EventInterface} from 'microevent.ts';
+import InducedMember from './InducedMember';
+import PoolMemberInterface from './PoolMemberInterface';
 
-import RGBASurfaceInterface from '../surface/RGBASurfaceInterface';
-import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
+class InducedPool<T, U> {
 
-interface ProcessorInterface {
+    constructor(
+        private _mapper: (value: T) => U
+    ) {}
 
-    init(width: number, height: number): void;
+    get(original: PoolMemberInterface<T>): InducedMember<T, U> {
+        if (!this._map.has(original)) {
+            this._map.set(original, new InducedMember(original, this._mapper));
+        }
 
-    flush(): void;
+        return this._map.get(original);
+    }
 
-    processSurface(surface: PoolMemberInterface<RGBASurfaceInterface>): void;
-
-    emit: EventInterface<PoolMemberInterface<RGBASurfaceInterface>>;
+    private _map = new WeakMap<PoolMemberInterface<T>, InducedMember<T, U>>();
 
 }
 
-export default ProcessorInterface;
+export default InducedPool;
