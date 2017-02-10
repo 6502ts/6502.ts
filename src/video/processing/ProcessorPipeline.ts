@@ -8,7 +8,11 @@ import {ProcessorConfig, Type} from './ProcessorConfig';
 
 class ProcessorPipeline implements ProcessorInterface {
 
-    constructor(config: Array<ProcessorConfig> = [{type: Type.passthrough}]) {
+    constructor(config?: Array<ProcessorConfig>) {
+        if (!config || config.length === 0) {
+            config = [{type: Type.passthrough}];
+        }
+
         const factory = new ProcessorFactory();
 
         this._processors = config.map(cfg => factory.create(cfg));

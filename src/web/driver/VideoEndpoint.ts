@@ -36,11 +36,10 @@ import VideoProcessorInterface from '../../video/processing/ProcessorInterface';
 class VideoEndpoint implements VideoEndpointInterface {
 
     constructor(
-        private _video: VideoOutputInterface
+        private _video: VideoOutputInterface,
+        videoProcessing?: Array<VideoProcessorConfig.ProcessorConfig>
     ) {
-        this._videoProcessor = new VideoProcessorPipeline([
-            {type: VideoProcessorConfig.Type.merge}
-        ]);
+        this._videoProcessor = new VideoProcessorPipeline(videoProcessing);
         this._videoProcessor.init(this._video.getWidth(), this._video.getHeight());
 
         this._pool = new ObjectPool<ImageData>(

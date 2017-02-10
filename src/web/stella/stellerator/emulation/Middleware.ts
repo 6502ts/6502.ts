@@ -26,6 +26,7 @@ import EmulationState from '../state/Emulation';
 import State from '../state/State';
 import Cartridge from '../state/Cartridge';
 import StellaConfig from '../../../../machine/stella/Config';
+import * as VideoProcessorConfig from '../../../../video/processing/ProcessorConfig';
 
 import {
     Type,
@@ -63,7 +64,8 @@ class EmulationMiddleware {
                         .start(
                             initialState.currentCartridge.buffer,
                             this._createStellaConfig(initialState.currentCartridge),
-                            initialState.currentCartridge.cartridgeType
+                            initialState.currentCartridge.cartridgeType,
+                            [{type: VideoProcessorConfig.Type.merge}]
                         )
                         .then(() => {
                             this._updateControlPanelState(initialState.emulationState);

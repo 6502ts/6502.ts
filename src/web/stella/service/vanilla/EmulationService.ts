@@ -33,6 +33,7 @@ import LimitingScheduler from '../../../../tools/scheduler/LimitingImmediateSche
 import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
+import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/ProcessorConfig';
 import {Mutex} from 'async-mutex';
 
 const CLOCK_UPDATE_INTERVAL = 2000;
@@ -51,7 +52,8 @@ export default class EmulationService implements EmulationServiceInterface {
     start(
         buffer: {[i: number]: number, length: number},
         config: StellaConfig,
-        cartridgeType?: CartridgeInfo.CartridgeType
+        cartridgeType?: CartridgeInfo.CartridgeType,
+        videoProcessing?: Array<VideoProcessorConfig>
     ): Promise<EmulationServiceInterface.State>
     {
         const factory = new CartridgeFactory();
@@ -69,7 +71,7 @@ export default class EmulationService implements EmulationServiceInterface {
 
                 this._board = board;
                 this._board.trap.addHandler(EmulationService._trapHandler, this);
-                this._context = new EmulationContext(board);
+                this._context = new EmulationContext(board, videoProcessing);
 
                 this._clockProbe
                     .attach(this._board.clock);
