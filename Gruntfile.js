@@ -88,6 +88,7 @@ module.exports = function(grunt) {
             files: [
                 "bin/*.ts",
                 "src/**/*.ts",
+                "src/web/stella/stellerator/**/*.tsx",
                 "worker/**/src/*.ts",
                 "tests/ts/**/*.ts",
             ]
