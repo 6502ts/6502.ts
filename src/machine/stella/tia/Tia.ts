@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event, EventInterface} from 'microevent.ts';
+import {Event} from 'microevent.ts';
 
 import VideoOutputInterface from '../../io/VideoOutputInterface';
 import AudioOutputInterface from '../../io/AudioOutputInterface';
@@ -40,8 +40,6 @@ import PaddleReader from './PaddleReader';
 import FrameManager from './FrameManager';
 import DelayQueue from './DelayQueue';
 import * as palette from './palette';
-
-import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 const enum Metrics {
     frameLinesPAL        = 312,
@@ -93,8 +91,7 @@ class Tia implements VideoOutputInterface {
         private _config: Config,
         joystick0: DigitalJoystickInterface,
         joystick1: DigitalJoystickInterface,
-        paddles: Array<Paddle>,
-        private _rng?: RngInterface
+        paddles: Array<Paddle>
     ) {
         this._frameManager = new FrameManager(this._config);
         this._frameManager.newFrame.addHandler(Tia._onNewFrame, this);
