@@ -139,6 +139,15 @@ module.exports = function(grunt) {
                 dest: 'web/js/compiled/worker/stella.js',
                 src: ['worker/stella/main.ts']
             },
+            video_pipeline_worker: {
+                options: {
+                    configure: b => b
+                        .plugin('tsify', {project: path.join(__dirname, 'worker')})
+                        .transform('brfs'),
+                },
+                dest: 'web/js/compiled/worker/video-pipeline.js',
+                src: ['worker/video-pipeline/main.ts']
+            },
             stellerator_dev: {
                 dest: 'web/js/compiled/stellerator.js',
                 src: ['src/web/stella/stellerator/main.tsx']
@@ -169,6 +178,10 @@ module.exports = function(grunt) {
                 src: 'web/js/compiled/worker/stella.js',
                 dest: 'web/js/compiled/worker/stella.js.map'
             },
+            video_pipeline_worker: {
+                src: 'web/js/compiled/worker/video-pipeline.js',
+                dest: 'web/js/compiled/worker/video-pipeline.js.map'
+            },
             ehBasicCLI: {
                 src: 'web/js/compiled/ehBasicCLI.js',
                 dest: 'web/js/compiled/ehBasicCLI.js.map'
@@ -198,6 +211,10 @@ module.exports = function(grunt) {
             stella_worker: {
                 dest: 'build/stellerator/js/worker/stella.js',
                 src: 'web/js/compiled/worker/stella.js'
+            },
+            video_pipeline_worker: {
+                dest: 'build/stellerator/js/worker/video-pipeline.js',
+                src: 'web/js/compiled/worker/video-pipeline.js'
             }
         },
 
@@ -380,6 +397,10 @@ module.exports = function(grunt) {
         'tslint',
         'browserify:stellerator_dev',
         'browserify:stella_worker',
+        'browserify:video_pipeline_worker',
+        'exorcise:stellerator',
+        'exorcise:stella_worker',
+        'exorcise:video_pipeline_worker',
         'template:stellerator_dev',
         'copy:stellerator_dev'
     ]);
@@ -388,8 +409,13 @@ module.exports = function(grunt) {
         'tslint',
         'browserify:stellerator_prod',
         'browserify:stella_worker',
+        'browserify:video_pipeline_worker',
+        'exorcise:stellerator',
+        'exorcise:stella_worker',
+        'exorcise:video_pipeline_worker',
         'uglify:stellerator',
         'uglify:stella_worker',
+        'uglify:video_pipeline_worker',
         'postcss:stellerator',
         'copy:stellerator_prod',
         'template:stellerator_build'

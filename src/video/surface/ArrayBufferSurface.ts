@@ -23,20 +23,29 @@ import RGBASurfaceInterface from './RGBASurfaceInterface';
 
 class ArrayBufferSurface implements RGBASurfaceInterface {
 
-    constructor(
-        private _width: number,
-        private _height: number,
-        private _underlyingBuffer: ArrayBuffer
-    ) {
-        if (this._underlyingBuffer.byteLength !== this._width * this._height * 4) {
-            throw new Error('invalid underlying buffer: size mismatch');
+    replaceUnderlyingBuffer(width: number, height: number, buffer: ArrayBuffer): ArrayBufferSurface {
+        if (width * height * 4 !== buffer.byteLength) {
+            throw new Error('surface size mismatch');
         }
 
+        this._width = width;
+        this._height = height;
+        this._underlyingBuffer = buffer;
+
         this._buffer = new Uint32Array(this._underlyingBuffer);
+
+        return this;
     }
 
     getUnderlyingBuffer(): ArrayBuffer {
         return this._underlyingBuffer;
+    }
+
+    resetUnderlyingBuffer(): ArrayBufferSurface {
+        this._width = this._height = 0;
+        this._underlyingBuffer = this._buffer = null;
+
+        return this;
     }
 
     getWidth(): number {
@@ -63,7 +72,15 @@ class ArrayBufferSurface implements RGBASurfaceInterface {
         return this;
     }
 
-    private _buffer: Uint32Array;
+    static createFromArrayBuffer(width: number, height: number, buffer: ArrayBuffer): ArrayBufferSurface {
+        return (new ArrayBufferSurface()).replaceUnderlyingBuffer(width, height, buffer);
+    }
+
+    private _height = 0;
+    private _width = 0;
+    private _underlyingBuffer: ArrayBuffer;
+
+    private _buffer: Uint32Array = null;
 }
 
 export default ArrayBufferSurface;

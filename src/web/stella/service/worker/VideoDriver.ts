@@ -76,7 +76,7 @@ class VideoDriver {
                     this._members[id] = member;
                 }
 
-                const newSurface = new ArrayBufferSurface(this._width, this._height, buffer);
+                const newSurface = ArrayBufferSurface.createFromArrayBuffer(this._width, this._height, buffer);
 
                 if (isNewBuffer) {
                     newSurface.fill(0xFF000000);

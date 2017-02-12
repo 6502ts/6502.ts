@@ -7,6 +7,7 @@
         "target": "es5",
         "preserveConstEnums": true,
         "sourceMap": false,
+        "noUnusedLocals": true,
         "lib": [
             "es5",
             "es6",
@@ -18,6 +19,7 @@
     },
     "include": [
         "stella/**/*.ts",
+        "video-pipeline/**/*.ts",
         "../src/interface/setimmediate2.d.ts",
         "../typings/globals/seedrandom/index.d.ts"
     ]
