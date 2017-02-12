@@ -24,7 +24,7 @@ import {EventInterface} from 'microevent.ts';
 import StellaConfig from '../../../machine/stella/Config';
 import CartridgeInfo from '../../../machine/stella/cartridge/CartridgeInfo';
 import EmulationContextInterface from './EmulationContextInterface';
-import {ProcessorConfig as VideoProcessorConfig} from '../../../video/processing/ProcessorConfig';
+import {ProcessorConfig as VideoProcessorConfig} from '../../../video/processing/config';
 
 interface EmulationServiceInterface {
 

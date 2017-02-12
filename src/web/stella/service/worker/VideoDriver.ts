@@ -19,11 +19,15 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import {Mutex} from 'async-mutex';
+import {RpcProviderInterface, RpcProvider} from 'worker-rpc';
+
 import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
 import ObjectPool from '../../../../tools/pool/Pool';
 import ObjectPoolMember from '../../../../tools/pool/PoolMember';
 import ArrayBufferSurface from '../../../../video/surface/ArrayBufferSurface';
-import {RpcProviderInterface} from 'worker-rpc';
+import VideoPipelineClient from '../../../../video/processing/worker/PipelineClient';
+import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
 
 import {
     SIGNAL_TYPE,
@@ -37,8 +41,17 @@ class VideoDriver {
         private _rpc: RpcProviderInterface
     ) {}
 
-    init(): void {
+    init(videoPipelinePort: MessagePort): void {
         this._rpc.registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurface.bind(this));
+
+        const videoPipelineRpc = new RpcProvider((data: any, transfer?: any) => videoPipelinePort.postMessage(data, transfer));
+        videoPipelinePort.onmessage = (e: MessageEvent) => videoPipelineRpc.dispatch(e.data);
+
+        this._videoPipelineClient = new VideoPipelineClient(videoPipelineRpc);
+    }
+
+    setVideoProcessingConfig(config: Array<VideoProcessorConfig>): void {
+        this._videoProcessingConfig = config;
     }
 
     bind(video: VideoOutputInterface): void {
@@ -97,6 +110,10 @@ class VideoDriver {
         this._video.setSurfaceFactory(null);
         this._video.newFrame.removeHandler(VideoDriver._onNewFrame, this);
 
+        this._videoPipelineMutex.runExclusive(
+            () => this._videoPipelineClient.flush()
+        );
+
         this._active = false;
         this._video = null;
         this._pool = null;
@@ -147,6 +164,10 @@ class VideoDriver {
     private _active = false;
 
     private _video: VideoOutputInterface = null;
+
+    private _videoPipelineClient: VideoPipelineClient = null;
+    private _videoPipelineMutex = new Mutex();
+    private _videoProcessingConfig: Array<VideoProcessorConfig> = null;
 
     private _pool: ObjectPool<ArrayBuffer> = null;
     private _members: {[id: number]: ObjectPoolMember<ArrayBuffer>} = null;

@@ -4,7 +4,7 @@ import RGBASurfaceInterface from '../surface/RGBASurfaceInterface';
 import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 import ProcessorInterface from './ProcessorInterface';
 import ProcessorFactory from './ProcessorFactory';
-import {ProcessorConfig, Type} from './ProcessorConfig';
+import {ProcessorConfig, Type} from './config';
 
 class ProcessorPipeline implements ProcessorInterface {
 

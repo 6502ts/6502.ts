@@ -32,7 +32,8 @@ import {
     RPC_TYPE,
     SIGNAL_TYPE,
     EmulationStartMessage,
-    EmulationParametersResponse
+    EmulationParametersResponse,
+    SetupMessage
 } from './messages';
 
 class EmulationBackend {
@@ -45,6 +46,7 @@ class EmulationBackend {
 
     startup(): void {
         this._rpc
+            .registerRpcHandler(RPC_TYPE.setup, this._onSetup.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationFetchLastError, this._onFetchLastError.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationGetParameters, this._onEmulationGetParameters.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationPause, this._onEmulationPause.bind(this))
@@ -62,7 +64,7 @@ class EmulationBackend {
             controlDriver = new ControlDriver(this._rpc),
             audioDrivers = [new AudioDriver(0, this._rpc), new AudioDriver(1, this._rpc)];
 
-        videoDriver.init();
+        this._videoDriver = videoDriver;
         controlDriver.init();
 
         driverManager
@@ -83,6 +85,10 @@ class EmulationBackend {
                     driver.bind(i === 0 ? context.getAudio().channel0 : context.getAudio().channel1)
             );
         }
+    }
+
+    private _onSetup(msg: SetupMessage): void {
+        this._videoDriver.init(msg.videoProcessorPort);
     }
 
     private _onFetchLastError(): string {
@@ -139,6 +145,7 @@ class EmulationBackend {
     }
 
     private _service: EmulationService;
+    private _videoDriver: VideoDriver = null;
 
 }
 

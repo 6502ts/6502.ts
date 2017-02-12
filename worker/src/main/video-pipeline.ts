@@ -19,38 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {ProcessorConfig} from '../config';
+import {getRpc} from '../rpc';
+import PipelineHost from '../../../src/video/processing/worker/PipelineHost';
 
-export const messageIds = {
-    configure: 'pipeline/configure',
-    flush: 'pipeline/flush',
-    process: 'pipeline/process',
-    emit: 'pipeline/emit',
-    release: 'pipeline/release'
-};
-Object.freeze(messageIds);
-
-export interface ConfigureMessage {
-    width: number;
-    height: number;
-    config: Array<ProcessorConfig>;
-}
-
-export interface FlushMessage {}
-
-export interface ProcessMessage {
-    id: number;
-    buffer: ArrayBuffer;
-    width: number;
-    height: number;
-}
-
-export interface EmitMessage {
-    id: number;
-    buffer: ArrayBuffer;
-}
-
-export interface ReleaseMessage {
-    id: number;
-    buffer: ArrayBuffer;
-}
+export const pipelineHost = new PipelineHost(getRpc());

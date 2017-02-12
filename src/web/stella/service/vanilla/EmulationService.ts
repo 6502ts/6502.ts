@@ -33,7 +33,7 @@ import LimitingScheduler from '../../../../tools/scheduler/LimitingImmediateSche
 import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
-import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/ProcessorConfig';
+import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
 import {Mutex} from 'async-mutex';
 
 const CLOCK_UPDATE_INTERVAL = 2000;

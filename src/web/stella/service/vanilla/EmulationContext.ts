@@ -27,7 +27,7 @@ import Board from '../../../../machine/stella/Board';
 import VideoEndpoint from '../../../driver/VideoEndpoint';
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
-import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/ProcessorConfig';
+import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
 
 export default class EmulationContext implements EmulationContextInterface {
 

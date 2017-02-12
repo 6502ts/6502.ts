@@ -20,8 +20,8 @@
  */
 
 import {Event} from 'microevent.ts';
-
 import {RpcProvider} from 'worker-rpc';
+
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
 import EmulationContextInterface from '../EmulationContextInterface';
@@ -38,7 +38,8 @@ import {
     RPC_TYPE,
     SIGNAL_TYPE,
     EmulationStartMessage,
-    EmulationParametersResponse
+    EmulationParametersResponse,
+    SetupMessage
 } from './messages';
 
 const CONTROL_PROXY_UPDATE_INTERVAL = 25;
@@ -52,11 +53,11 @@ const enum ProxyState {
 class EmulationService implements EmulationServiceInterface {
 
     constructor(
-        private _url: string
+        private _workerUrl: string
     ) {}
 
     init(): Promise<void> {
-        this._worker = new Worker(this._url);
+        this._worker = new Worker(`${this._workerUrl}/stella.js`);
         this._rpc = new RpcProvider(
             (message, transfer?) => this._worker.postMessage(message, transfer)
         );
@@ -85,7 +86,9 @@ class EmulationService implements EmulationServiceInterface {
 
         this._controlProxy = controlProxy;
 
-        return this.setRateLimit(this._rateLimitEnforced);
+        return this
+            ._startVideoProcessingPipeline()
+            .then(() => this.setRateLimit(this._rateLimitEnforced));
     }
 
     start(
@@ -311,6 +314,22 @@ class EmulationService implements EmulationServiceInterface {
         }
     }
 
+    private _startVideoProcessingPipeline(): Promise<any> {
+        const channel = new MessageChannel(),
+            worker = new Worker(`${this._workerUrl}/video-pipeline.js`),
+            rpc = new RpcProvider((payload: any, transfer?: any) => worker.postMessage(payload, transfer));
+
+        worker.onmessage = (e: MessageEvent) => rpc.dispatch(e.data);
+
+        this._videoProcessingWorker = worker;
+
+        return rpc
+            .rpc('/use-port', channel.port1, [channel.port1])
+            .then(() => this._rpc.rpc<SetupMessage, any>(RPC_TYPE.setup, {
+                videoProcessorPort: channel.port2
+            }, [channel.port2]));
+    }
+
     stateChanged = new Event<EmulationServiceInterface.State>();
     frequencyUpdate = new Event<number>();
 
@@ -318,6 +337,7 @@ class EmulationService implements EmulationServiceInterface {
 
     private _mutex = new Mutex();
     private _worker: Worker = null;
+    private _videoProcessingWorker: Worker = null;
     private _rpc: RpcProvider = null;
 
     private _state = EmulationServiceInterface.State.stopped;

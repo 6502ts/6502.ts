@@ -30,7 +30,7 @@ import VideoEndpointInterface from '../driver/VideoEndpointInterface';
 import InducedPool from '../../tools/pool/InducedPool';
 
 import VideoProcessorPipeline from '../../video/processing/ProcessorPipeline';
-import * as VideoProcessorConfig from '../../video/processing/ProcessorConfig';
+import * as VideoProcessorConfig from '../../video/processing/config';
 import VideoProcessorInterface from '../../video/processing/ProcessorInterface';
 
 class VideoEndpoint implements VideoEndpointInterface {

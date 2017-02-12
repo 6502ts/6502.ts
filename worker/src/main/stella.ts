@@ -19,17 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-declare function postMessage(message: any, transfer?: any): void;
+import {getRpc} from '../rpc';
+import EmulationBackend from '../../../src/web/stella/service/worker/EmulationBackend';
 
-import {RpcProvider} from 'worker-rpc';
-import EmulationBackend from '../../src/web/stella/service/worker/EmulationBackend';
-
-const rpcProvider = new RpcProvider(
-        (message, transfer?) => postMessage(message, transfer)
-    ),
-    emulationBackend = new EmulationBackend(rpcProvider);
-
-rpcProvider.error.addHandler(e => console.log(e ? e.message : 'unknown rpc error'));
-
-onmessage = messageEvent => rpcProvider.dispatch(messageEvent.data);
+const emulationBackend = new EmulationBackend(getRpc());
 emulationBackend.startup();

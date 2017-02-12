@@ -25,7 +25,7 @@ import {Event} from 'microevent.ts';
 import * as messages from './messages';
 import ArrayBufferSurface from '../../surface/ArrayBufferSurface';
 import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
-import {ProcessorConfig} from '../ProcessorConfig';
+import {ProcessorConfig} from '../config';
 
 class PipelineClient {
 
@@ -80,10 +80,13 @@ class PipelineClient {
             throw `no surface with id ${msg.id}`;
         }
 
-        const surface = this._surfaces.get(msg.id);
-        this._surfaces.delete(msg.id);
+        const managedSurface = this._surfaces.get(msg.id),
+            surface = managedSurface.get();
 
-        this.emit.dispatch(surface);
+        this._surfaces.delete(msg.id);
+        surface.replaceUnderlyingBuffer(surface.getWidth(), surface.getHeight(), msg.buffer);
+
+        this.emit.dispatch(managedSurface);
     }
 
     private _onMessageRelease(msg: messages.ReleaseMessage): void {
@@ -91,10 +94,13 @@ class PipelineClient {
             throw `no surface with id ${msg.id}`;
         }
 
-        const surface = this._surfaces.get(msg.id);
-        this._surfaces.delete(msg.id);
+        const managedSurface = this._surfaces.get(msg.id),
+            surface = managedSurface.get();
 
-        surface.release();;
+        this._surfaces.delete(msg.id);
+        surface.replaceUnderlyingBuffer(surface.getWidth(), surface.getHeight(), msg.buffer);
+
+        managedSurface.release();;
     }
 
     emit = new Event<PoolMemberInterface<ArrayBufferSurface>>();

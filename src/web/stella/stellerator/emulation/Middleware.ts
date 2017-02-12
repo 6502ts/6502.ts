@@ -26,7 +26,7 @@ import EmulationState from '../state/Emulation';
 import State from '../state/State';
 import Cartridge from '../state/Cartridge';
 import StellaConfig from '../../../../machine/stella/Config';
-import * as VideoProcessorConfig from '../../../../video/processing/ProcessorConfig';
+import * as VideoProcessorConfig from '../../../../video/processing/config';
 
 import {
     Type,

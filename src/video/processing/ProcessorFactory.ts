@@ -1,5 +1,5 @@
 import ProcessorInterface from './ProcessorInterface';
-import * as Config from './ProcessorConfig';
+import * as Config from './config';
 
 import PassthroughProcessor from './PassthroughProcessor';
 import FrameMergeProcessor from './FrameMergeProcessor';

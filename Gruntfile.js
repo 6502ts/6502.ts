@@ -137,7 +137,7 @@ module.exports = function(grunt) {
                         .transform('brfs'),
                 },
                 dest: 'web/js/compiled/worker/stella.js',
-                src: ['worker/stella/main.ts']
+                src: ['worker/src/main/stella.ts']
             },
             video_pipeline_worker: {
                 options: {
@@ -146,7 +146,7 @@ module.exports = function(grunt) {
                         .transform('brfs'),
                 },
                 dest: 'web/js/compiled/worker/video-pipeline.js',
-                src: ['worker/video-pipeline/main.ts']
+                src: ['worker/src/main/video-pipeline.ts']
             },
             stellerator_dev: {
                 dest: 'web/js/compiled/stellerator.js',
@@ -309,7 +309,7 @@ module.exports = function(grunt) {
                             'js/bootstrap.min.js',
                             'js/compiled/stellerator.js'
                         ],
-                        workerUrl: 'js/compiled/worker/stella.js',
+                        workerUrl: 'js/compiled/worker/',
                         buildId
                     }
                 }
@@ -321,7 +321,7 @@ module.exports = function(grunt) {
                     data: {
                         stylesheets: ['css/app.css'],
                         scripts: ['js/app.js'],
-                        workerUrl: ['js/worker/stella.js'],
+                        workerUrl: ['js/worker/'],
                         buildId
                     }
                 }

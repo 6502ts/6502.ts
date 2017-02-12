@@ -21,16 +21,18 @@
 
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
+import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
 
 export const RPC_TYPE = {
     emulationPause: 'emulation/pause',
     emulationReset: 'emulation/reset',
-    emulationResume: 'emulationResume',
+    emulationResume: 'emulation/resume',
     emulationSetRateLimit: 'emulation/setRateLimit',
     emulationStart: 'emulation/start',
     emulationStop: 'emulation/stop',
     emulationGetParameters: 'emulation/getParameters',
-    emulationFetchLastError: 'emulation/fetchLastError'
+    emulationFetchLastError: 'emulation/fetchLastError',
+    setup: '/setup'
 };
 Object.freeze(RPC_TYPE);
 
@@ -46,10 +48,15 @@ export const SIGNAL_TYPE = {
 };
 Object.freeze(SIGNAL_TYPE);
 
+export interface SetupMessage {
+    videoProcessorPort: MessagePort;
+}
+
 export interface EmulationStartMessage {
     buffer: {[i: number]: number, length: number};
     config: StellaConfig;
     cartridgeType?: CartridgeInfo.CartridgeType;
+    videoProcessing?: Array<VideoProcessorConfig>;
 };
 
 export interface EmulationParametersResponse {
