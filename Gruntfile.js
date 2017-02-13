@@ -387,6 +387,7 @@ module.exports = function(grunt) {
         'browserify:stellaCLI',
         'browserify:stellerator_dev',
         'browserify:stella_worker',
+        'browserify:video_pipeline_worker',
         'exorcise'
     ]);
     grunt.registerTask('browserify_prod', ['browserify:stellerator_prod']);
