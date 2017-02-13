@@ -42,12 +42,14 @@ class VideoDriver {
     ) {}
 
     init(videoPipelinePort: MessagePort): void {
-        this._rpc.registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurface.bind(this));
+        this._rpc.registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurfaceFromHost.bind(this));
 
         const videoPipelineRpc = new RpcProvider((data: any, transfer?: any) => videoPipelinePort.postMessage(data, transfer));
         videoPipelinePort.onmessage = (e: MessageEvent) => videoPipelineRpc.dispatch(e.data);
 
         this._videoPipelineClient = new VideoPipelineClient(videoPipelineRpc);
+
+        this._videoPipelineClient.emit.addHandler(VideoDriver._onEmitFromPipeline, this);
     }
 
     setVideoProcessingConfig(config: Array<VideoProcessorConfig>): void {
@@ -55,99 +57,114 @@ class VideoDriver {
     }
 
     bind(video: VideoOutputInterface): void {
+        this._mutex.runExclusive(() => this._bind(video));
+    }
+
+    unbind(): void {
+        this._mutex.runExclusive(() => this._unbind());
+    }
+
+    private _bind(video: VideoOutputInterface): void|Promise<any> {
         if (this._active) {
             return;
         }
 
-        this._active = true;
-        this._video = video;
         this._width = video.getWidth();
         this._height = video.getHeight();
+        this._video = video;
 
-        this._pool = new ObjectPool<ArrayBuffer>(
-            () => new ArrayBuffer(4 * this._width * this._height)
+        this._surfacePool = new ObjectPool<ArrayBufferSurface>(
+            () => ArrayBufferSurface.createFromArrayBuffer(
+                this._width,
+                this._height,
+                new ArrayBuffer(4 * this._width * this._height)
+            )
         );
+        this._managedSurfacesById = new Map<number, ObjectPoolMember<ArrayBufferSurface>>();
+        this._managedSurfaces = new WeakMap<ArrayBufferSurface, ObjectPoolMember<ArrayBufferSurface>>();
+        this._ids = new WeakMap<ObjectPoolMember<ArrayBufferSurface>, number>();
 
-        this._members = {};
-        this._ids = new WeakMap<ArrayBuffer, number>();
+        return this
+            ._videoPipelineClient
+            . configure(this._width, this._height, this._videoProcessingConfig)
+            .then(() => {
+                this._video.setSurfaceFactory(
+                    (): ArrayBufferSurface => {
+                        const managedSurface = this._surfacePool.get(),
+                            surface = managedSurface.get();
 
-        this._video.setSurfaceFactory(
-            (): ArrayBufferSurface => {
-                const member = this._pool.get(),
-                    buffer = member.get();
+                        const isNewSurface = !this._ids.has(managedSurface);
 
-                if (!buffer) {
-                    return null;
-                }
+                        if (isNewSurface) {
+                            const id = this._nextId++;
 
-                const isNewBuffer = !this._ids.has(buffer);
+                            this._ids.set(managedSurface, id);
+                            this._managedSurfacesById.set(id, managedSurface);
+                            this._managedSurfaces.set(surface, managedSurface);
 
-                if (isNewBuffer) {
-                    const id = this._nextId++;
+                            surface.fill(0xFF000000);
+                        }
 
-                    this._ids.set(buffer, id);
-                    this._members[id] = member;
-                }
+                        return managedSurface.get();
+                    }
+                );
 
-                const newSurface = ArrayBufferSurface.createFromArrayBuffer(this._width, this._height, buffer);
+                this._video.newFrame.addHandler(VideoDriver._onNewFrame, this);
 
-                if (isNewBuffer) {
-                    newSurface.fill(0xFF000000);
-                }
-
-                return newSurface;
-            }
-        );
-
-        this._video.newFrame.addHandler(VideoDriver._onNewFrame, this);
+                this._bypassProcessingPipeline = !this._videoProcessingConfig  || this._videoProcessingConfig.length === 0;
+                this._active = true;
+            });
     }
 
-    unbind(): void {
+    private _unbind(): Promise<any> {
         if (!this._active) {
             return;
         }
+        this._active = false;
 
         this._video.setSurfaceFactory(null);
         this._video.newFrame.removeHandler(VideoDriver._onNewFrame, this);
 
-        this._videoPipelineMutex.runExclusive(
-            () => this._videoPipelineClient.flush()
-        );
-
-        this._active = false;
-        this._video = null;
-        this._pool = null;
-        this._members = null;
-        this._ids = null;
+        return this
+            ._videoPipelineClient.flush()
+            .then(() => {
+                this._video = null;
+                this._surfacePool = null;
+                this._managedSurfacesById = null;
+                this._ids = null;
+            });
     }
 
-    private _onReturnSurface(message: VideoReturnSurfaceMessage): void {
+    private _onReturnSurfaceFromHost(message: VideoReturnSurfaceMessage): void {
         if (!this._active) {
-            console.warn('surface returned to inactive driver');
+            console.warn('surface returned from host to inactive driver');
             return;
         }
 
-        const member = this._members[message.id];
+        const surface = this._managedSurfacesById.get(message.id);
 
-        if (!member) {
+        if (!surface) {
             console.warn(`invalid member ID ${message.id}`);
             return;
         }
 
-        member.adopt(message.buffer);
-        member.release();
-
-        this._ids.set(message.buffer, message.id);
+        surface.get().replaceUnderlyingBuffer(this._width, this._height, message.buffer);
+        surface.release();
     }
 
-    private static _onNewFrame(surface: ArrayBufferSurface, self: VideoDriver) {
-        const buffer = surface.getUnderlyingBuffer();
-
-        if (!self._ids.has(buffer)) {
-            throw new Error(`buffer not registered`);
+    private static _onEmitFromPipeline(surface: ObjectPoolMember<ArrayBufferSurface>, self: VideoDriver) {
+        if (!self._active) {
+            console.warn('surface emmited from pipeline to inactive driver');
+            return;
         }
 
-        const id = self._ids.get(buffer);
+        if (!self._ids.has(surface)) {
+            console.warn('surface not registered');
+            return;
+        }
+
+        const buffer = surface.get().getUnderlyingBuffer(),
+            id = self._ids.get(surface);
 
         self._rpc.signal<VideoNewFrameMessage>(
             SIGNAL_TYPE.videoNewFrame,
@@ -161,17 +178,37 @@ class VideoDriver {
         );
     }
 
+    private static _onNewFrame(surface: ArrayBufferSurface, self: VideoDriver): void {
+        if (!self._active) {
+            console.warn('new frame passed to inactive driver');
+            return;
+        }
+
+        if (!self._managedSurfaces.has(surface)) {
+            console.warn(`surface not registered`);
+            return;
+        }
+
+        if (self._bypassProcessingPipeline) {
+            VideoDriver._onEmitFromPipeline(self._managedSurfaces.get(surface), self);
+        } else {
+            self._videoPipelineClient.processSurface(self._managedSurfaces.get(surface));
+        }
+    }
+
     private _active = false;
 
     private _video: VideoOutputInterface = null;
 
     private _videoPipelineClient: VideoPipelineClient = null;
-    private _videoPipelineMutex = new Mutex();
+    private _mutex = new Mutex();
     private _videoProcessingConfig: Array<VideoProcessorConfig> = null;
+    private _bypassProcessingPipeline = true;
 
-    private _pool: ObjectPool<ArrayBuffer> = null;
-    private _members: {[id: number]: ObjectPoolMember<ArrayBuffer>} = null;
-    private _ids: WeakMap<ArrayBuffer, number> = null;
+    private _surfacePool: ObjectPool<ArrayBufferSurface> = null;
+    private _managedSurfacesById: Map<number, ObjectPoolMember<ArrayBufferSurface>> = null;
+    private _managedSurfaces: WeakMap<ArrayBufferSurface, ObjectPoolMember<ArrayBufferSurface>>;
+    private _ids: WeakMap<ObjectPoolMember<ArrayBufferSurface>, number> = null;
     private _width = 0;
     private _height = 0;
 

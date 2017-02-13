@@ -49,14 +49,14 @@ class PipelineClient {
         return this._rpc.rpc(messages.messageIds.flush);
     }
 
-    processSurface(managedSurface: PoolMemberInterface<ArrayBufferSurface>): Promise<any> {
+    processSurface(managedSurface: PoolMemberInterface<ArrayBufferSurface>): void {
         const id = this._nextId++,
             surface = managedSurface.get(),
             buffer = surface.getUnderlyingBuffer();
 
         this._surfaces.set(id, managedSurface);
 
-        return this._rpc.rpc(messages.messageIds.process, {
+        this._rpc.signal(messages.messageIds.process, {
             id,
             width: surface.getWidth(),
             height: surface.getHeight(),

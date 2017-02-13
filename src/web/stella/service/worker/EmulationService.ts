@@ -25,6 +25,7 @@ import {RpcProvider} from 'worker-rpc';
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
 import EmulationContextInterface from '../EmulationContextInterface';
+import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
 import VideoProxy from './VideoProxy';
 import ControlProxy from './ControlProxy';
 import AudioProxy from './AudioProxy';
@@ -94,7 +95,8 @@ class EmulationService implements EmulationServiceInterface {
     start(
         buffer: {[i: number]: number, length: number},
         config: StellaConfig,
-        cartridgeType?: CartridgeInfo.CartridgeType
+        cartridgeType?: CartridgeInfo.CartridgeType,
+        videoProcessing?: Array<VideoProcessorConfig>
     ): Promise<EmulationServiceInterface.State>
     {
         let state: EmulationServiceInterface.State;
@@ -102,7 +104,7 @@ class EmulationService implements EmulationServiceInterface {
         return this._mutex.runExclusive(() => this._rpc
             .rpc<EmulationStartMessage, EmulationServiceInterface.State>(
                 RPC_TYPE.emulationStart,
-                {buffer, config, cartridgeType}
+                {buffer, config, cartridgeType, videoProcessing}
             )
             .then(_state => {
                 state = _state;

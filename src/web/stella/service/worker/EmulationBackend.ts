@@ -110,6 +110,8 @@ class EmulationBackend {
     }
 
     private _onEmulationStart(message: EmulationStartMessage): Promise<EmulationServiceInterface.State> {
+        this._videoDriver.setVideoProcessingConfig(message.videoProcessing);
+
         return this._service.start(message.buffer, message.config, message.cartridgeType);
     }
 

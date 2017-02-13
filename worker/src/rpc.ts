@@ -43,7 +43,10 @@ function send(message: any, transfer?: any): void {
 }
 
 rpcProvider = new RpcProvider(send);
-rpcProvider.error.addHandler(e => console.log(e ? e.message : 'unknown rpc error'));
+rpcProvider.error.addHandler(e => {
+    debugger;
+    console.log(e ? e.message : 'unknown rpc error');
+});
 onmessage = (e: MessageEvent) => port || rpcProvider.dispatch(e.data);
 
 rpcProvider.registerRpcHandler('/use-port', (newPort: MessagePort) => {
