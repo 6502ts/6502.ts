@@ -19,18 +19,20 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 import TaskInterface from './TaskInterface';
 
 interface SchedulerInterface {
     start<T>(
         worker: SchedulerInterface.WorkerInterface<T>,
-        context?: T
+        context?: T,
+        timeSlice?: number
     ): TaskInterface;
 }
 
 module SchedulerInterface {
     export interface WorkerInterface<T> {
-        (context: T): void;
+        (context: T, timeSlice?: number): number|void;
     }
 }
 

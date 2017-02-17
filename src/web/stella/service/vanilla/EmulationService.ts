@@ -28,9 +28,8 @@ import BoardInterface from '../../../../machine/board/BoardInterface';
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeFactory from '../../../../machine/stella/cartridge/CartridgeFactory';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
-import ImmediateScheduler from '../../../../tools/scheduler/ImmedateScheduler';
-import LimitingScheduler from '../../../../tools/scheduler/LimitingImmediateScheduler';
 import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
+import SchedulerFactory from '../../../../tools/scheduler/Factory';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
 import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
@@ -248,7 +247,9 @@ export default class EmulationService implements EmulationServiceInterface {
     }
 
     private _updateScheduler(): void {
-        this._scheduler = this._enforceRateLimit ? new LimitingScheduler() : new ImmediateScheduler();
+        this._scheduler = this._enforceRateLimit ?
+            this._schedulerFactory.createLimitingScheduler() :
+            this._schedulerFactory.createImmediateScheduler();
     }
 
     stateChanged = new Event<EmulationServiceInterface.State>();
@@ -263,5 +264,6 @@ export default class EmulationService implements EmulationServiceInterface {
     private _scheduler: SchedulerInterface = null;
     private _clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_UPDATE_INTERVAL));
     private _mutex = new Mutex();
+    private _schedulerFactory = new SchedulerFactory();
 
 }

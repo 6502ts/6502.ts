@@ -49,11 +49,11 @@ import {createRng} from '../../tools/rng/factory';
 class Board implements BoardInterface {
 
     constructor(
-        config: Config,
+        private _config: Config,
         cartridge: CartridgeInterface,
         cpuFactory?: (bus: BusInterface, rng?: RngInterface) => CpuInterface
     ) {
-        this._rng = createRng(config.randomSeed < 0 ? Math.random() : config.randomSeed);
+        this._rng = createRng(_config.randomSeed < 0 ? Math.random() : _config.randomSeed);
         cartridge.randomize(this._rng);
 
         const bus = new Bus();
@@ -71,7 +71,7 @@ class Board implements BoardInterface {
 
         const cpu = cpuFactory(bus, this._rng);
         const pia = new Pia(controlPanel, joystick0, joystick1, this._rng);
-        const tia = new Tia(config, joystick0, joystick1, paddles);
+        const tia = new Tia(_config, joystick0, joystick1, paddles);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
 
@@ -104,8 +104,8 @@ class Board implements BoardInterface {
             (payload: Bus.TrapPayload) => this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
         );
 
-        this._clockMhz = Config.getClockMhz(config);
-        this._sliceSize = 228 * (config.tvMode === Config.TvMode.ntsc ? 262 : 312);
+        this._clockMhz = Config.getClockMhz(_config);
+        this._sliceSize = 228 * (_config.tvMode === Config.TvMode.ntsc ? 262 : 312) / 4;
 
         this.reset();
     }
@@ -307,11 +307,17 @@ class Board implements BoardInterface {
     private _start(scheduler: SchedulerInterface) {
         if (this._runTask) return;
 
-        this._runTask = scheduler.start(Board._executeSlice, this);
+        this._runTask = scheduler.start(
+            Board._executeSlice,
+            this,
+            1000 / (this._config.tvMode === Config.TvMode.ntsc ? 60 : 50)
+        );
     }
 
-    private static _executeSlice(board: Board) {
-        return board._tick(board._sliceSize) / board._clockMhz  / 1000;
+    private static _executeSlice(board: Board, _timeSlice?: number) {
+        const slice = _timeSlice ? Math.round(_timeSlice * board._clockMhz * 1000) : board._sliceSize;
+
+        return board._tick(slice) / board._clockMhz  / 1000;
     }
 
     private _stop() {

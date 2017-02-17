@@ -21,19 +21,16 @@
 
 import * as polyfill from 'setimmediate2';
 
-import LimitingSchedulerInterface from './LimitingSchedulerInterface';
-import TaskInterface from './TaskInterface';
+import SchedulerInterface from '../SchedulerInterface';
+import TaskInterface from '../TaskInterface';
+import getTimestamp from '../getTimestamp';
 
 const CORRECTION_THESHOLD = 3,
     MAX_ACCUMULATED_DELTA = 100;
 
-const getTimestamp = ((self as any).performance && (self as any).performance.now) ?
-    () => (self as any).performance.now() :
-    () => Date.now();
+class ConstantCyclesScheduler implements SchedulerInterface {
 
-class LimitingImmediateScheduler implements LimitingSchedulerInterface {
-
-    start<T>(worker: LimitingSchedulerInterface.WorkerInterface<T>, context?: T): TaskInterface {
+    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): TaskInterface {
         let terminate = false,
             targetSleepInterval = -1,
             lastYieldTimestamp = 0,
@@ -43,7 +40,7 @@ class LimitingImmediateScheduler implements LimitingSchedulerInterface {
             if (terminate) return;
 
             const timestamp0 = getTimestamp(),
-                targetDuration = worker(context),
+                targetDuration = worker(context) || 0,
                 timestamp1 = getTimestamp();
 
             let delay = targetDuration - timestamp1 + timestamp0;
@@ -86,4 +83,4 @@ class LimitingImmediateScheduler implements LimitingSchedulerInterface {
     }
 }
 
-export default LimitingImmediateScheduler;
+export default ConstantCyclesScheduler;

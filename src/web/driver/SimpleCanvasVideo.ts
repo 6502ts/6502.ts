@@ -34,6 +34,16 @@ export default class SimpleCanvasVideo {
         this._clearCanvas();
     }
 
+    setThrottle(throttle: boolean) {
+        if (throttle === this._throttle) {
+            return;
+        }
+
+        this._cancelPendingFrame();
+
+        this._throttle = throttle;
+    }
+
     bind(video: VideoEndpointInterface): void {
         if (this._video) {
             return;
@@ -56,19 +66,62 @@ export default class SimpleCanvasVideo {
         this._video.newFrame.removeHandler(SimpleCanvasVideo._frameHandler, this);
         this._video = null;
 
+        this._cancelPendingFrame();
+
         this._clearCanvas();
     }
 
     private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: SimpleCanvasVideo): void {
-        self._context.putImageData(imageDataPoolMember.get(), 0, 0);
+        if (self._pendingFrame) {
+            self._pendingFrame.release();
+        }
 
-        imageDataPoolMember.release();
+        self._pendingFrame = imageDataPoolMember;
+
+        if (self._throttle)  {
+            if (!self._animationFrameHandle) {
+                self._scheduleDraw();
+            }
+        } else {
+            self._draw();
+        }
     }
 
     private _clearCanvas(): void {
         this._context.fillStyle = 'solid black';
         this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
     }
+
+    private _draw(): void {
+        this._context.putImageData(this._pendingFrame.get(), 0, 0);
+        this._pendingFrame.release();
+        this._pendingFrame = null;
+    }
+
+    private _scheduleDraw(): void {
+        if (!this._animationFrameHandle) {
+            this._animationFrameHandle = requestAnimationFrame(() => {
+                this._draw();
+                this._animationFrameHandle = 0;
+            });
+        }
+    }
+
+    private _cancelPendingFrame(): void {
+        if (this._animationFrameHandle) {
+            cancelAnimationFrame(this._animationFrameHandle);
+            this._animationFrameHandle = 0;
+        }
+
+        if (this._pendingFrame) {
+            this._pendingFrame.release();
+            this._pendingFrame = null;
+        }
+    }
+
+    private _throttle = true;
+    private _animationFrameHandle = 0;
+    private _pendingFrame: PoolMemberInterface<ImageData> = null;
 
     private _context: CanvasRenderingContext2D;
     private _video: VideoEndpointInterface = null;

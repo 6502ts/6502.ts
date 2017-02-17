@@ -19,19 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import TaskInterface from './TaskInterface';
+const getTimestamp = ((self as any).performance && (self as any).performance.now) ?
+    () => (self as any).performance.now() :
+    () => Date.now();
 
-interface LimitingSchedulerInterface {
-    start<T>(
-        worker: LimitingSchedulerInterface.WorkerInterface<T>,
-        context?: T
-    ): TaskInterface;
-}
-
-module LimitingSchedulerInterface {
-    export interface WorkerInterface<T> {
-        (context: T): number;
-    }
-}
-
-export default LimitingSchedulerInterface;
+export default getTimestamp;

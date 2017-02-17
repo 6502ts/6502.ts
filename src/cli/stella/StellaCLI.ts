@@ -35,7 +35,7 @@ import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 
 import CommandInterpreter from '../CommandInterpreter';
 import ImmedateScheduler from '../../tools/scheduler/ImmedateScheduler';
-import LimitedScheduler from '../../tools/scheduler/LimitingImmediateScheduler';
+import LimitedScheduler from '../../tools/scheduler/limiting/ConstantCycles';
 import PeriodicScheduler from '../../tools/scheduler/PeriodicScheduler';
 import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 import ClockProbe from '../../tools/ClockProbe';
