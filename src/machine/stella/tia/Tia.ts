@@ -754,13 +754,14 @@ class Tia implements VideoOutputInterface {
     }
 
     private _rsync(): void {
+        const x = this._hctr > 68 ? this._hctr - 68 : 0;
+
+        this._xDelta = 157 - x;
+
         if (this._frameManager.isRendering()) {
-            const x = this._hctr > 68 ? this._hctr - 68 : 0,
-                y = this._frameManager.getCurrentLine(),
+            const y = this._frameManager.getCurrentLine(),
                 base = y * 160 + x,
                 boundary = base + (y + 1) * 160;
-
-            this._xDelta = 157 - x;
 
             for (let i = base; i < boundary; i++) {
                 this._frameManager.surfaceBuffer[i] = 0xFF000000;
@@ -769,7 +770,6 @@ class Tia implements VideoOutputInterface {
 
         this._linesSinceChange = 0;
         this._hctr = 225;
-        this._hstate = HState.frame;
     }
 
     private static _delayedWrite(address: number, value: number, self: Tia): void {
