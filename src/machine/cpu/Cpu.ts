@@ -1013,7 +1013,7 @@ class Cpu {
                 break;
 
             case Instruction.Operation.aax:
-                this._opCycles = 0;
+                this._opCycles = 1;
                 this._instructionCallback = opAax;
                 break;
 
