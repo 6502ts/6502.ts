@@ -549,6 +549,10 @@ class Tia implements VideoOutputInterface {
             this._updateCollision();
         }
 
+        if (++this._hctr >= 228) {
+            this._nextLine();
+        }
+
         this._clock++;
     }
 
@@ -598,8 +602,6 @@ class Tia implements VideoOutputInterface {
         if (++this._hblankCtr >= 68) {
             this._hstate = HState.frame;
         }
-
-        this._hctr++;
     }
 
     private _tickHframe() {
@@ -626,10 +628,6 @@ class Tia implements VideoOutputInterface {
         // render pixel data
         if (this._frameManager.isRendering()) {
             this._renderPixel(x, y, lineNotCached);
-        }
-
-        if (++this._hctr >= 228) {
-            this._nextLine();
         }
     }
 

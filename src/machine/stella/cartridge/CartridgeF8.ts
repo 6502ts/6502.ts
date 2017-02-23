@@ -41,7 +41,7 @@ class CartridgeF8 extends AbstractCartridge {
     }
 
     reset(): void {
-        this._bank = this._bank0;
+        this._bank = this._bank1;
     }
 
     read(address: number): number {

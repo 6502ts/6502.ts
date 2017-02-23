@@ -205,19 +205,19 @@ function opJsr(state: CpuInterface.State, bus: BusInterface, operand: number): v
     state.p = operand;
 }
 
-function opLda(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    state.a = operand;
-    setFlagsNZ(state, operand);
+function opLda(state: CpuInterface.State, bus: BusInterface, operand: number, addressingMode: Instruction.AddressingMode): void {
+    state.a = addressingMode === Instruction.AddressingMode.immediate ? operand : bus.read(operand);
+    setFlagsNZ(state, state.a);
 }
 
-function opLdx(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    state.x = operand;
-    setFlagsNZ(state, operand);
+function opLdx(state: CpuInterface.State, bus: BusInterface, operand: number, addressingMode: Instruction.AddressingMode): void {
+    state.x = addressingMode === Instruction.AddressingMode.immediate ? operand : bus.read(operand);
+    setFlagsNZ(state, state.x);
 }
 
-function opLdy(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    state.y = operand;
-    setFlagsNZ(state, operand);
+function opLdy(state: CpuInterface.State, bus: BusInterface, operand: number, addressingMode: Instruction.AddressingMode): void {
+    state.y = addressingMode === Instruction.AddressingMode.immediate ? operand : bus.read(operand);
+    setFlagsNZ(state, state.y);
 }
 
 function opLsrAcc(state: CpuInterface.State): void {
@@ -568,7 +568,7 @@ class Cpu {
             case CpuInterface.ExecutionState.boot:
             case CpuInterface.ExecutionState.execute:
                 if (--this._opCycles === 0) {
-                    this._instructionCallback(this.state, this._bus, this._operand);
+                    this._instructionCallback(this.state, this._bus, this._operand, this._currentAddressingMode);
                     this.executionState = CpuInterface.ExecutionState.fetch;
                 }
 
@@ -591,6 +591,7 @@ class Cpu {
             slowIndexedAccess = false;
 
         this._lastInstructionPointer = this.state.p;
+        this._currentAddressingMode = addressingMode;
 
         switch (instruction.operation) {
             case Instruction.Operation.adc:
@@ -810,21 +811,18 @@ class Cpu {
                 break;
 
             case Instruction.Operation.lda:
-                this._opCycles = 0;
+                this._opCycles = addressingMode === Instruction.AddressingMode.immediate ? 0 : 1;
                 this._instructionCallback = opLda;
-                dereference = true;
                 break;
 
             case Instruction.Operation.ldx:
-                this._opCycles = 0;
+                this._opCycles = addressingMode === Instruction.AddressingMode.immediate ? 0 : 1;
                 this._instructionCallback = opLdx;
-                dereference = true;
                 break;
 
             case Instruction.Operation.ldy:
-                this._opCycles = 0;
+                this._opCycles = addressingMode === Instruction.AddressingMode.immediate ? 0 : 1;
                 this._instructionCallback = opLdy;
-                dereference = true;
                 break;
 
             case Instruction.Operation.lsr:
@@ -1161,10 +1159,16 @@ class Cpu {
     private _halted: boolean = false;
     private _operand: number = 0;
     private _lastInstructionPointer: number = 0;
+    private _currentAddressingMode: Instruction.AddressingMode = Instruction.AddressingMode.invalid;
 }
 
 interface InstructionCallbackInterface {
-    (state?: CpuInterface.State, bus?: BusInterface, operand?: number): void;
+    (
+        state?: CpuInterface.State,
+        bus?: BusInterface,
+        operand?: number,
+        addressingMode?: Instruction.AddressingMode
+    ): void;
 }
 
 export default Cpu;
