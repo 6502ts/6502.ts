@@ -49,7 +49,6 @@ class Pia {
         // magic going on that I don't understand.
         this._timerShift = 10;
         this._timerValue = (20 + (this._rng ? this._rng.int(0xFF - 20) : 0)) << this._timerShift;
-        this._timerSub = 0;
         this._timerWrapped = false;
     }
 
@@ -100,7 +99,7 @@ class Pia {
     }
 
     getDebugState(): string {
-        return `timer base: ${1 << this._timerShift}   timer sub: ${this._timerSub}   timer value: ${this._timerValue}`;
+        return `timer base: ${1 << this._timerShift} raw timer: ${this._timerValue} INTIM: ${(this._timerValue >>> this._timerShift) & 0xFF}`;
     }
 
     setBus(bus: Bus): this {
@@ -182,20 +181,19 @@ class Pia {
                 this._interruptFlag = 0;
             }
 
-            return this._timerValue >>> this._timerShift;
+            return (this._timerValue >>> this._timerShift) & 0xFF;
         }
     }
 
     private _peekTimer(address: number): number {
-        return (address & 0x01) ? (this._interruptFlag & 0x80) : (this._timerValue >>> this._timerShift);
+        return (address & 0x01) ? (this._interruptFlag & 0x80) : ((this._timerValue >>> this._timerShift) & 0xFF);
     }
 
     private _cycleTimer(): void {
         this._flagSetDuringThisCycle = false;
+        this._timerValue--;
 
-        if (this._timerWrapped) {
-            this._timerValue = (this._timerValue + 0xFF) & 0xFF;
-        } else if (--this._timerValue < 0) {
+        if (!this._timerWrapped && this._timerValue < 0) {
             this._timerValue = 0xFF;
             this._flagSetDuringThisCycle = true;
             this._interruptFlag = 0xFF;
@@ -207,7 +205,6 @@ class Pia {
     private _bus: Bus = null;
 
     private _timerValue = 255;
-    private _timerSub = 0;
     private _timerShift = 10;
     private _interruptFlag = 0;
     private _timerWrapped = false;

@@ -31,7 +31,7 @@ import * as util from 'util';
 
 class Debugger {
 
-    constructor(private _traceSize: number = 1024, private _stepMaxCycles = 10000000) {}
+    constructor(private _traceSize: number = 2048, private _stepMaxCycles = 10000000) {}
 
     attach(board: BoardInterface): Debugger {
         this._board = board;
