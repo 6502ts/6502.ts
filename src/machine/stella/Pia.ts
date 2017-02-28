@@ -99,7 +99,7 @@ class Pia {
     }
 
     getDebugState(): string {
-        return `timer base: ${1 << this._timerShift} raw timer: ${this._timerValue} INTIM: ${(this._timerValue >>> this._timerShift) & 0xFF}`;
+        return `timer base: ${1 << this._timerShift} raw timer: ${this._timerValue} INTIM: ${this._timerValue >>> this._timerShift}`;
     }
 
     setBus(bus: Bus): this {
@@ -181,19 +181,20 @@ class Pia {
                 this._interruptFlag = 0;
             }
 
-            return (this._timerValue >>> this._timerShift) & 0xFF;
+            return this._timerValue >>> this._timerShift;
         }
     }
 
     private _peekTimer(address: number): number {
-        return (address & 0x01) ? (this._interruptFlag & 0x80) : ((this._timerValue >>> this._timerShift) & 0xFF);
+        return (address & 0x01) ? (this._interruptFlag & 0x80) : (this._timerValue >>> this._timerShift);
     }
 
     private _cycleTimer(): void {
         this._flagSetDuringThisCycle = false;
-        this._timerValue--;
 
-        if (!this._timerWrapped && this._timerValue < 0) {
+        if (this._timerWrapped) {
+            this._timerValue = (this._timerValue + 0xFF) & 0xFF;
+        } else if (--this._timerValue < 0) {
             this._timerValue = 0xFF;
             this._flagSetDuringThisCycle = true;
             this._interruptFlag = 0xFF;
