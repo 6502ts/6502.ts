@@ -53,6 +53,7 @@ class CartridgeF4 extends AbstractCartridge {
 
     reset(): void {
         this._bank = this._banks[0];
+        this._hasSC = false;
     }
 
     getType(): CartridgeInfo.CartridgeType {
