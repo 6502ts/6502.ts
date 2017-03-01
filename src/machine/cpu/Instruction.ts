@@ -54,7 +54,8 @@ module Instruction {
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
         rts, sbc, sec, sed, sei, sta, stx, sty, tax, tay, tsx, txa, txs, tya,
-        dop, top, alr, axs, dcp, lax, arr, slo, aax, lar, isc, // undocumented operations
+        // undocumented operations
+        dop, top, alr, axs, dcp, lax, arr, slo, aax, lar, isc, aac,
         invalid
     };
 
@@ -63,7 +64,8 @@ module Instruction {
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
         jsr, lda, ldx, ldy, lsr, nop, ora, pha, php, pla, plp, rol, ror, rti,
         rts, sbc, sec, sed, sei, sta, stx, sty, tax, tay, tsx, txa, txs, tya,
-        dop, top, alr, axs, dcp, lax, arr, slo, aax, lar, isc, // undocumented operations
+        // undocumented operations
+        dop, top, alr, axs, dcp, lax, arr, slo, aax, lar, isc, aac,
         invalid
     };
 
@@ -317,5 +319,8 @@ module Instruction {
         set(0xFB, Operation.isc, AddressingMode.absoluteY);
         set(0xE3, Operation.isc, AddressingMode.indexedIndirectX);
         set(0xF3, Operation.isc, AddressingMode.indirectIndexedY);
+
+        set(0x0B, Operation.aac, AddressingMode.immediate);
+        set(0x2B, Operation.aac, AddressingMode.immediate);
     })();
 };

@@ -497,6 +497,12 @@ function opIsc(state: CpuInterface.State, bus: BusInterface, operand: number): v
     opSbc(state, bus, value);
 }
 
+function opAac(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    state.a &= operand;
+    setFlagsNZ(state, state.a);
+    state.flags = (state.flags & (~CpuInterface.Flags.c)) | ((state.a & 0x80) >>> 7);
+}
+
 class Cpu {
     constructor(
         private _bus: BusInterface,
@@ -1035,6 +1041,11 @@ class Cpu {
             case Instruction.Operation.isc:
                 this._opCycles = 3;
                 this._instructionCallback = opIsc;
+                break;
+
+            case Instruction.Operation.aac:
+                this._opCycles = 0;
+                this._instructionCallback = opAac;
                 break;
 
             default:
