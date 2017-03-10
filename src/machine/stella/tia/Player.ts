@@ -63,7 +63,7 @@ export default class Player {
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    nusiz(value: number): void {
+    nusiz(value: number, hblank: boolean): void {
         const masked = value & 0x07;
 
         switch (masked) {
@@ -101,33 +101,43 @@ export default class Player {
             return;
         }
 
+        const delta = this._renderCounter - Count.renderCounterOffset;
+
         switch (this._divider << 4 | this._dividerPending) {
             case 0x12:
             case 0x14:
-                if ((this._renderCounter - Count.renderCounterOffset) < 3) {
-                    this._setDivider(this._dividerPending);
+                if (hblank) {
+                    if (delta < 4) {
+                        this._setDivider(this._dividerPending);
+                    } else {
+                        this._dividerChangeCounter = (delta < 5 ? 1 : 0);
+                    }
                 } else {
-                    this._dividerChangeCounter = 1;
+                    if (delta < 3) {
+                        this._setDivider(this._dividerPending);
+                    } else {
+                        this._dividerChangeCounter = 1;
+                    }
                 }
 
                 break;
 
             case 0x21:
             case 0x41:
-                if ((this._renderCounter - Count.renderCounterOffset) < 3) {
+                if (delta < (hblank ? 4 : 3)) {
                     this._setDivider(this._dividerPending);
-                } else if ((this._renderCounter - Count.renderCounterOffset) < 5) {
+                } else if (delta < (hblank ? 6 : 5)) {
                     this._setDivider(this._dividerPending);
                     this._renderCounter--;
                 } else {
-                    this._dividerChangeCounter = 1;
+                    this._dividerChangeCounter = (hblank ? 0 : 1);
                 }
 
                 break;
 
             case 0x42:
             case 0x24:
-                if (this._renderCounter < 1) {
+                if (this._renderCounter < 1 || (hblank && (this._renderCounter % this._divider === 1))) {
                     this._setDivider(this._dividerPending);
                 } else {
                     this._dividerChangeCounter = (this._divider - (this._renderCounter - 1) % this._divider);
