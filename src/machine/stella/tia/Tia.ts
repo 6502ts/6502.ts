@@ -354,13 +354,13 @@ class Tia implements VideoOutputInterface {
             case Tia.Registers.nusiz0:
                 this._linesSinceChange = 0;
                 this._missile0.nusiz(value);
-                this._player0.nusiz(value);
+                this._player0.nusiz(value, this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.nusiz1:
                 this._linesSinceChange = 0;
                 this._missile1.nusiz(value);
-                this._player1.nusiz(value);
+                this._player1.nusiz(value, this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.hmove:

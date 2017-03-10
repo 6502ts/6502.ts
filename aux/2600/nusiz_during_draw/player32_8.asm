@@ -1,0 +1,5 @@
+NUSIZ_FROM = $07
+NUSIZ_TO_1 = $01
+NUSIZ_TO_2 = $02
+
+    INCLUDE main.inc

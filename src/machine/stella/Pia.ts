@@ -47,7 +47,7 @@ class Pia {
         // to rely on a graceful buffer in terms of cycles before the timer wraps the
         // first time. This looks like a bug in these games to me, unless there is some
         // magic going on that I don't understand.
-        this._timerShift = 10;
+        this._timerShift = this._configuredTimerShift = 10;
         this._timerValue = (20 + (this._rng ? this._rng.int(0xFF - 20) : 0)) << this._timerShift;
         this._timerWrapped = false;
     }
@@ -135,7 +135,7 @@ class Pia {
     }
 
     private _setTimer(shift: number, value: number): void {
-        this._timerShift = shift;
+        this._timerShift = this._configuredTimerShift = shift;
         this._timerValue = value << shift;
         this._timerWrapped = false;
     }
@@ -181,7 +181,15 @@ class Pia {
                 this._interruptFlag = 0;
             }
 
-            return this._timerValue >>> this._timerShift;
+            let value = this._timerValue >>> this._timerShift;
+
+            if (this._timerWrapped) {
+                this._timerShift = this._configuredTimerShift;
+                this._timerWrapped = false;
+                this._timerValue = this._timerValue << this._timerShift;
+            }
+
+            return value;
         }
     }
 
@@ -207,6 +215,7 @@ class Pia {
 
     private _timerValue = 255;
     private _timerShift = 10;
+    private _configuredTimerShift = 10;
     private _interruptFlag = 0;
     private _timerWrapped = false;
     private _flagSetDuringThisCycle = false;
