@@ -47,8 +47,9 @@ class Pia {
         // to rely on a graceful buffer in terms of cycles before the timer wraps the
         // first time. This looks like a bug in these games to me, unless there is some
         // magic going on that I don't understand.
-        this._timerShift = this._configuredTimerShift = 10;
-        this._timerValue = (20 + (this._rng ? this._rng.int(0xFF - 20) : 0)) << this._timerShift;
+        this._timerDivide = 1024;
+        this._subTimer = 0;
+        this._timerValue = (20 + (this._rng ? this._rng.int(0xFF - 20) : 0));
         this._timerWrapped = false;
     }
 
@@ -99,7 +100,7 @@ class Pia {
     }
 
     getDebugState(): string {
-        return `timer base: ${1 << this._timerShift} raw timer: ${this._timerValue} INTIM: ${this._timerValue >>> this._timerShift}`;
+        return `divider: ${this._timerDivide} raw timer: INTIM: ${this._timerValue}`;
     }
 
     setBus(bus: Bus): this {
@@ -121,22 +122,23 @@ class Pia {
         // clear bit 3 <-> interrupt enable/disable
         switch (address & 0x0297) {
             case Pia.Registers.t1024t:
-                return this._setTimer(10, value);
+                return this._setTimer(1024, value);
 
             case Pia.Registers.tim64t:
-                return this._setTimer(6, value);
+                return this._setTimer(64, value);
 
             case Pia.Registers.tim8t:
-                return this._setTimer(3, value);
+                return this._setTimer(8, value);
 
             case Pia.Registers.tim1t:
-                return this._setTimer(0, value);
+                return this._setTimer(1, value);
         }
     }
 
-    private _setTimer(shift: number, value: number): void {
-        this._timerShift = this._configuredTimerShift = shift;
-        this._timerValue = value << shift;
+    private _setTimer(divide: number, value: number): void {
+        this._timerDivide = divide;
+        this._timerValue = value;
+        this._subTimer = 0;
         this._timerWrapped = false;
     }
 
@@ -179,22 +181,15 @@ class Pia {
         } else {
             if (!this._flagSetDuringThisCycle) {
                 this._interruptFlag = 0;
-            }
-
-            let value = this._timerValue >>> this._timerShift;
-
-            if (this._timerWrapped) {
-                this._timerShift = this._configuredTimerShift;
                 this._timerWrapped = false;
-                this._timerValue = this._timerValue << this._timerShift;
             }
 
-            return value;
+            return this._timerValue;
         }
     }
 
     private _peekTimer(address: number): number {
-        return (address & 0x01) ? (this._interruptFlag & 0x80) : (this._timerValue >>> this._timerShift);
+        return (address & 0x01) ? (this._interruptFlag & 0x80) : this._timerValue;
     }
 
     private _cycleTimer(): void {
@@ -202,20 +197,23 @@ class Pia {
 
         if (this._timerWrapped) {
             this._timerValue = (this._timerValue + 0xFF) & 0xFF;
-        } else if (--this._timerValue < 0) {
+        } else if (this._subTimer === 0 && --this._timerValue < 0) {
             this._timerValue = 0xFF;
             this._flagSetDuringThisCycle = true;
             this._interruptFlag = 0xFF;
             this._timerWrapped = true;
-            this._timerShift = 0;
+        }
+
+        if (++this._subTimer === this._timerDivide) {
+            this._subTimer = 0;
         }
     }
 
     private _bus: Bus = null;
 
     private _timerValue = 255;
-    private _timerShift = 10;
-    private _configuredTimerShift = 10;
+    private _subTimer = 0;
+    private _timerDivide = 1024;
     private _interruptFlag = 0;
     private _timerWrapped = false;
     private _flagSetDuringThisCycle = false;
