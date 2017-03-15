@@ -30,6 +30,7 @@ module CartridgeInfo {
         bankswitch_8k_3F,
         bankswitch_8k_FE,
         bankswitch_8k_UA,
+        bankswitch_8k_DPC,
 
         bankswitch_12k_FA,
 
@@ -58,6 +59,7 @@ module CartridgeInfo {
             CartridgeType.bankswitch_8k_FE,
             CartridgeType.bankswitch_8k_UA,
             CartridgeType.bankswitch_12k_FA,
+            CartridgeType.bankswitch_8k_DPC,
             CartridgeType.bankswitch_16k_F6,
             CartridgeType.bankswitch_16k_E7,
             CartridgeType.bankswitch_FA2,
@@ -94,6 +96,9 @@ module CartridgeInfo {
 
             case CartridgeType.bankswitch_12k_FA:
                 return 'bankswitched 12k, FA (CBS) scheme';
+
+            case CartridgeType.bankswitch_8k_DPC:
+                return 'bankswitched 8k + DPC';
 
             case CartridgeType.bankswitch_16k_F6:
                 return 'bankswitched 16k, F6 (Atari) scheme';
