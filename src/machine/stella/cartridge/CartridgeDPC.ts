@@ -29,7 +29,7 @@ class CartridgeDPC extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
-        if (buffer.length <= 0x2800) {
+        if (buffer.length < 0x2800) {
             throw new Error(`buffer is not a DPC image: too small ${buffer.length}`);
         }
 
@@ -230,15 +230,20 @@ class Fetcher {
 
     setEnd(end: number): void {
         this.end = end;
+
         this._updateMask();
     }
 
     setLow(value: number): void {
         this.pointer = (this.pointer & 0x0700) | value;
+
+        this._updateMask();
     }
 
     setHigh(value: number): void {
         this.pointer = (this.pointer & 0xFF) | ((value & 0x07) << 8);
+
+        this._updateMask();
     }
 
     setMusicMode(value: number): void {
