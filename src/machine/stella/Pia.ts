@@ -43,13 +43,10 @@ class Pia {
         this._interruptFlag = 0;
         this._flagSetDuringThisCycle = false;
 
-        // Several cartridges (at least winter / summer / california games) seem
-        // to rely on a graceful buffer in terms of cycles before the timer wraps the
-        // first time. This looks like a bug in these games to me, unless there is some
-        // magic going on that I don't understand.
         this._timerDivide = 1024;
         this._subTimer = 0;
-        this._timerValue = (20 + (this._rng ? this._rng.int(0xFF - 20) : 0));
+        this._rng.int(0xFF);
+        this._timerValue = 0;
         this._timerWrapped = false;
     }
 
