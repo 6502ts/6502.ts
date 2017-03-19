@@ -170,10 +170,6 @@ class Pia {
         if (address & 0x01) {
             const flag = this._interruptFlag;
 
-            if (!this._flagSetDuringThisCycle) {
-                this._interruptFlag = 0;
-            }
-
             return flag & 0x80;
         } else {
             if (!this._flagSetDuringThisCycle) {

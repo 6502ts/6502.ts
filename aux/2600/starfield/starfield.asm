@@ -79,9 +79,6 @@ Start SUBROUTINE
     STA COLUP0
     STA COLUP1
 
-    STA WSYNC;
-    STA RESM1
-
     STA WSYNC
     STA RESM0
 
