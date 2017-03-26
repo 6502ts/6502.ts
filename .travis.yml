@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-    - node
+    - 6.10
 install:
     - npm install yarn@0.21.3 grunt@1.0.1
     - ./node_modules/.bin/yarn install
