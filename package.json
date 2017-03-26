@@ -5,7 +5,7 @@
   "dependencies": {
     "@types/commonmark": "~0.22.29",
     "@types/jquery": "~2.0.39",
-    "@types/lodash": "~4.14.48",
+    "@types/lodash": "4.14.56",
     "@types/md5": "~2.1.31",
     "@types/node": "~7.0.0",
     "@types/react": "~15.0.0",
