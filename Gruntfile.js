@@ -411,7 +411,6 @@ module.exports = function(grunt) {
         'browserify:stellerator_prod',
         'browserify:stella_worker',
         'browserify:video_pipeline_worker',
-        'exorcise:stellerator',
         'exorcise:stella_worker',
         'exorcise:video_pipeline_worker',
         'uglify:stellerator',

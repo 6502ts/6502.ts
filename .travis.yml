@@ -12,6 +12,7 @@ script:
 before_deploy:
     - openssl aes-256-cbc -K $encrypted_6dbc9dbe3b2a_key -iv $encrypted_6dbc9dbe3b2a_iv -in deploy/key.enc -out deploy/key -d
     - grunt dev build
+    - grunt dev
 deploy:
     provider: script
     script: deploy/deploy.sh
