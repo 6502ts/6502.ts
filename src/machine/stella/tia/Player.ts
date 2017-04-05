@@ -27,7 +27,10 @@ const enum Count {
 
 export default class Player {
 
-    constructor(private _collisionMask: number) {
+    constructor(
+        private _collisionMask: number,
+        private _lineCacheViolated: () => void
+    ) {
         this.reset();
     }
 
@@ -53,8 +56,14 @@ export default class Player {
     }
 
     grp(pattern: number) {
-       this._patternNew = pattern;
+        if (pattern === this._patternNew) {
+            return;
+        }
+
+        this._patternNew = pattern;
+
         if (!this._delaying) {
+            this._lineCacheViolated();
             this._updatePattern();
         }
     }
@@ -164,6 +173,7 @@ export default class Player {
         this._reflected = (value & 0x08) > 0;
 
         if (this._reflected !== oldReflected) {
+            this._lineCacheViolated();
             this._updatePattern();
         }
     }
@@ -174,6 +184,7 @@ export default class Player {
         this._delaying = (value & 0x01) > 0;
 
         if (this._delaying !== oldDelaying) {
+            this._lineCacheViolated();
             this._updatePattern();
         }
     }
@@ -264,6 +275,7 @@ export default class Player {
         this._patternOld = this._patternNew;
 
         if (this._delaying && oldPatternOld !== this._patternOld) {
+            this._lineCacheViolated();
             this._updatePattern();
         }
     }
@@ -282,6 +294,14 @@ export default class Player {
             default:
                 throw new Error(`cannot happen: invalid divider ${this._divider}`);
         }
+    }
+
+    setColor(color: number): void {
+        if (color !== this.color && this._pattern) {
+            this._lineCacheViolated();
+        }
+
+        this.color = color;
     }
 
     private _updatePattern(): void {

@@ -338,12 +338,10 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.resmp0:
-                this._lineCacheViolated();
                 this._missile0.resmp(value, this._player0);
                 break;
 
             case Tia.Registers.resmp1:
-                this._lineCacheViolated();
                 this._missile1.resmp(value, this._player1);
                 break;
 
@@ -373,21 +371,17 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.colup0:
-                this._lineCacheViolated();
-
                 v = this._palette[(value & 0xFF) >>> 1];
-                this._missile0.color = v;
-                this._player0.color = v;
+                this._missile0.setColor(v);
+                this._player0.setColor(v);
                 this._playfield.setColorP0(v);
 
                 break;
 
             case Tia.Registers.colup1:
-                this._lineCacheViolated();
-
                 v = this._palette[(value & 0xFF) >>> 1];
-                this._missile1.color = v;
-                this._player1.color = v;
+                this._missile1.setColor(v);
+                this._player1.setColor(v);
                 this._playfield.setColorP1(v);
 
                 break;
@@ -405,9 +399,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.ctrlpf:
-                this._lineCacheViolated();
-                this._priority = (value & 0x04) ? Priority.pfp :
-                                ((value & 0x02) ? Priority.score : Priority.normal);
+                this._setPriority(value);
                 this._playfield.ctrlpf(value);
                 this._ball.ctrlpf(value);
                 break;
@@ -461,12 +453,10 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.vdelp0:
-                this._lineCacheViolated();
                 this._player0.vdelp(value);
                 break;
 
             case Tia.Registers.vdelp1:
-                this._lineCacheViolated();
                 this._player1.vdelp(value);
                 break;
 
@@ -484,7 +474,6 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.vdelbl:
-                this._lineCacheViolated();
                 this._ball.vdelbl(value);
                 break;
 
@@ -790,6 +779,16 @@ class Tia implements VideoOutputInterface {
         this._hctr = 225;
     }
 
+    private _setPriority(value: number): void {
+        const priority = (value & 0x04) ? Priority.pfp :
+                        ((value & 0x02) ? Priority.score : Priority.normal);
+
+        if (priority !== this._priority) {
+            this._lineCacheViolated();
+            this._priority = priority;
+        }
+    }
+
     private _lineCacheViolated(): void {
         const wasCaching = this._linesSinceChange >= 2;
 
@@ -799,14 +798,12 @@ class Tia implements VideoOutputInterface {
             const rewindCycles = this._hctr;
             this._hctr = 0;
 
-            for (let i = 0; i < rewindCycles; i++) {
+            for (this._hctr = 0; this._hctr < rewindCycles; this._hctr++) {
                 if (this._hstate === HState.blank) {
                     this._tickHblank();
                 } else {
                     this._tickHframe();
                 }
-
-                this._hctr++;
             }
         }
     }
@@ -814,7 +811,6 @@ class Tia implements VideoOutputInterface {
     private static _delayedWrite(address: number, value: number, self: Tia): void {
         switch (address) {
             case Tia.Registers.vblank:
-                self._lineCacheViolated();
                 self._frameManager.setVblank((value & 0x02) > 0);
                 break;
 
@@ -841,37 +837,30 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.pf0:
-                self._lineCacheViolated();
                 self._playfield.pf0(value);
                 break;
 
             case Tia.Registers.pf1:
-                self._lineCacheViolated();
                 self._playfield.pf1(value);
                 break;
 
             case Tia.Registers.pf2:
-                self._lineCacheViolated();
                 self._playfield.pf2(value);
                break;
 
             case Tia.Registers.grp0:
-                self._lineCacheViolated();
                 self._player0.grp(value);
                 break;
 
             case Tia.Registers.grp1:
-                self._lineCacheViolated();
                 self._player1.grp(value);
                 break;
 
             case Tia.Registers._shuffleP0:
-                self._lineCacheViolated();
                 self._player0.shufflePatterns();
                 break;
 
             case Tia.Registers._shuffleP1:
-                self._lineCacheViolated();
                 self._player1.shufflePatterns();
                 break;
 
@@ -904,32 +893,26 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.refp0:
-                self._lineCacheViolated();
                 self._player0.refp(value);
                 break;
 
             case Tia.Registers.refp1:
-                self._lineCacheViolated();
                 self._player1.refp(value);
                 break;
 
             case Tia.Registers._shuffleBL:
-                self._lineCacheViolated();
                 self._ball.shuffleStatus();
                 break;
 
             case Tia.Registers.enabl:
-                self._lineCacheViolated();
                 self._ball.enabl(value);
                 break;
 
             case Tia.Registers.enam0:
-                self._lineCacheViolated();
                 self._missile0.enam(value);
                 break;
 
             case Tia.Registers.enam1:
-                self._lineCacheViolated();
                 self._missile1.enam(value);
                 break;
         }
@@ -993,12 +976,12 @@ class Tia implements VideoOutputInterface {
     // bitfield with collision latches
     private _collisionMask = 0;
 
-    private _player0 =   new Player(CollisionMask.player0);
-    private _player1 =   new Player(CollisionMask.player1);
-    private _missile0 =  new Missile(CollisionMask.missile0);
-    private _missile1 =  new Missile(CollisionMask.missile1);
-    private _playfield = new Playfield(CollisionMask.playfield);
-    private _ball =      new Ball(CollisionMask.ball);
+    private _player0 =   new Player(CollisionMask.player0, () => this._lineCacheViolated());
+    private _player1 =   new Player(CollisionMask.player1, () => this._lineCacheViolated());
+    private _missile0 =  new Missile(CollisionMask.missile0, () => this._lineCacheViolated());
+    private _missile1 =  new Missile(CollisionMask.missile1, () => this._lineCacheViolated());
+    private _playfield = new Playfield(CollisionMask.playfield, () => this._lineCacheViolated());
+    private _ball =      new Ball(CollisionMask.ball, () => this._lineCacheViolated());
 
     private _audio0: Audio;
     private _audio1: Audio;

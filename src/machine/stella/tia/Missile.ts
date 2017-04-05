@@ -29,7 +29,10 @@ const enum Count {
 
 class Missile {
 
-    constructor(private _collisionMask: number) {
+    constructor(
+        private _collisionMask: number,
+        private _lineCacheViolated: () => void
+    ) {
         this.reset();
     }
 
@@ -50,8 +53,15 @@ class Missile {
     }
 
     enam(value: number): void {
-        this._enam = (value & 2) > 0;
-        this._enabled = this._enam && (this._resmp === 0);
+        const enam = (value & 2) > 0,
+            enabled = enam && (this._resmp === 0);
+
+        if (enam !== this._enam || enabled !== this._enabled) {
+            this._lineCacheViolated();
+        }
+
+        this._enam = enam;
+        this._enabled = enabled;
     }
 
     hmm(value: number): void {
@@ -102,6 +112,8 @@ class Missile {
         if (resmp === this._resmp) {
             return;
         }
+
+        this._lineCacheViolated();
 
         this._resmp = resmp;
 
@@ -183,6 +195,14 @@ class Missile {
 
     getPixel(colorIn: number): number {
         return this.collision ? colorIn : this.color;
+    }
+
+    setColor(color: number): void {
+        if (color !== this.color && this._enabled) {
+            this._lineCacheViolated();
+        }
+
+        this.color = color;
     }
 
     color = 0xFFFFFFFF;
