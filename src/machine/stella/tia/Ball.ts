@@ -106,18 +106,15 @@ export default class Ball {
         }
 
         if (this._moving && apply) {
-            this.render();
             this.tick(false);
         }
 
         return this._moving;
     }
 
-    render(): void {
-        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
-    }
-
     tick(isReceivingHclock: boolean): void {
+        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
+
         const starfieldEffect = this._moving && isReceivingHclock;
 
         if (this._counter === 156) {

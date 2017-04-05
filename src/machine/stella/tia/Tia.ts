@@ -608,9 +608,6 @@ class Tia implements VideoOutputInterface {
         // we leave caching mode.
         this._playfield.tick(x);
 
-        // sprites are only rendered if we cannot reuse line data
-        this._renderSprites();
-
         // spin sprite timers
         this._tickSprites();
 
@@ -618,14 +615,6 @@ class Tia implements VideoOutputInterface {
         if (this._frameManager.isRendering()) {
             this._renderPixel(x, y);
         }
-    }
-
-    private _renderSprites() {
-        this._player0.render();
-        this._player1.render();
-        this._missile0.render();
-        this._missile1.render();
-        this._ball.render();
     }
 
     private _tickSprites() {

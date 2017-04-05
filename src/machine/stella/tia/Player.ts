@@ -200,22 +200,19 @@ export default class Player {
         }
 
         if (this._moving && apply) {
-            this.render();
             this.tick();
         }
 
         return this._moving;
     }
 
-    render(): void {
+    tick(): void {
         this.collision = (
             this._rendering &&
             this._renderCounter >= this._renderCounterTripPoint &&
             (this._pattern & (1 << this._sampleCounter))
         ) ? 0 : this._collisionMask;
-    }
 
-    tick(): void {
         if (this._decodes[this._counter]) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
