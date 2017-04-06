@@ -38,6 +38,11 @@ export default class WebglVideoDriver {
         this._gl = this._canvas.getContext('webgl', {
             alpha: false
         }) as WebGLRenderingContext;
+
+        for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
+            this._imageDataGeneration[i] = 0;
+            this._textureGeneration[i] = -1;
+        }
     }
 
     init(): void {
@@ -62,6 +67,8 @@ export default class WebglVideoDriver {
     }
 
     unbind(): void {
+        this._cancelDraw();
+
         if (!this._video) {
             return;
         }
@@ -71,42 +78,75 @@ export default class WebglVideoDriver {
     }
 
     private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: WebglVideoDriver): void {
-        const gl = self._gl,
-            oldImageData = self._imageData[self._currentFrameIndex];
+        const oldImageData = self._imageData[self._currentFrameIndex];
 
         self._imageData[self._currentFrameIndex] = imageDataPoolMember;
-
-        gl.activeTexture((gl as any)[`TEXTURE${self._currentFrameIndex}`]);
-        gl.bindTexture(gl.TEXTURE_2D, self._textures[self._currentFrameIndex]);
-        gl.texImage2D(
-            gl.TEXTURE_2D,
-            0,
-            gl.RGBA,
-            gl.RGBA,
-            gl.UNSIGNED_BYTE,
-            imageDataPoolMember.get()
-        );
+        self._imageDataGeneration[self._currentFrameIndex]++;
+        self._currentFrameIndex = (self._currentFrameIndex + 1) % FRAME_COMPOSITING_COUNT;
 
         if (self._frameCount < FRAME_COMPOSITING_COUNT) {
-            self._currentFrameIndex = (self._currentFrameIndex + 1) % FRAME_COMPOSITING_COUNT;
             self._frameCount++;
+        } else {
+            self._scheduleDraw();
+            oldImageData.release();
+        }
+    }
+
+    private _scheduleDraw(): void {
+        if (this._animationFrameHandle) {
             return;
+        }
+
+        this._animationFrameHandle = requestAnimationFrame(
+            () => (this._draw(), this._animationFrameHandle = 0)
+        );
+    }
+
+    private _cancelDraw(): void {
+        if (this._animationFrameHandle === 0) {
+            return;
+        }
+
+        cancelAnimationFrame(this._animationFrameHandle);
+        this._animationFrameHandle = 0;
+    }
+
+    private _draw(): void {
+        if (this._frameCount < FRAME_COMPOSITING_COUNT) {
+            return;
+        }
+
+        const gl = this._gl;
+
+        for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
+            const frameIndex = (this._currentFrameIndex + i) % FRAME_COMPOSITING_COUNT;
+
+            if (this._textureGeneration[i] !== this._imageDataGeneration[i]) {
+                gl.activeTexture((gl as any)[`TEXTURE${frameIndex}`]);
+                gl.bindTexture(gl.TEXTURE_2D, this._textures[frameIndex]);
+                gl.texImage2D(
+                    gl.TEXTURE_2D,
+                    0,
+                    gl.RGBA,
+                    gl.RGBA,
+                    gl.UNSIGNED_BYTE,
+                    this._imageData[frameIndex].get()
+                );
+
+                this._textureGeneration[i] = this._imageDataGeneration[i];
+            }
         }
 
         for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
             gl.uniform1i(
-                self._getUniformLocation(`u_Sampler${i}`),
-                (self._currentFrameIndex + FRAME_COMPOSITING_COUNT - i) % FRAME_COMPOSITING_COUNT
+                this._getUniformLocation(`u_Sampler${i}`),
+                (this._currentFrameIndex + FRAME_COMPOSITING_COUNT - i) % FRAME_COMPOSITING_COUNT
             );
         }
 
-        gl.uniform1f(self._getUniformLocation('u_Gamma'), self._gamma);
+        gl.uniform1f(this._getUniformLocation('u_Gamma'), this._gamma);
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-        self._currentFrameIndex = (self._currentFrameIndex + 1) % FRAME_COMPOSITING_COUNT;
-
-        oldImageData.release();
     }
 
     private _createProgram(): void {
@@ -239,8 +279,12 @@ export default class WebglVideoDriver {
 
     private _textures = new Array<WebGLTexture>(FRAME_COMPOSITING_COUNT);
     private _imageData = new Array<PoolMemberInterface<ImageData>>(FRAME_COMPOSITING_COUNT);
+    private _imageDataGeneration = new Array<number>(FRAME_COMPOSITING_COUNT);
+    private _textureGeneration = new Array<number>(FRAME_COMPOSITING_COUNT);
     private _currentFrameIndex = 0;
     private _frameCount = 0;
+
+    private _animationFrameHandle = 0;
 
     private _video: VideoEndpointInterface = null;
 
