@@ -604,8 +604,6 @@ class Tia implements VideoOutputInterface {
         this._collisionUpdateRequired = true;
 
         // The playfield does not have its own counter and must be cycled before rendering the sprites.
-        // We can never cache this as the current pixel register must be up to date if
-        // we leave caching mode.
         this._playfield.tick(x);
 
         // spin sprite timers
