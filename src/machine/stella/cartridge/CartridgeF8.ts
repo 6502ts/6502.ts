@@ -21,11 +21,17 @@
 
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
+import Bus from '../Bus';
 import * as cartridgeUtil from './util';
+
+import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class CartridgeF8 extends AbstractCartridge {
 
-    constructor(buffer: cartridgeUtil.BufferInterface) {
+    constructor(
+        buffer: cartridgeUtil.BufferInterface,
+        private _supportSC = true
+    ) {
         super();
 
         if (buffer.length !== 0x2000) {
@@ -42,26 +48,49 @@ class CartridgeF8 extends AbstractCartridge {
 
     reset(): void {
         this._bank = this._bank1;
+        this._hasSC = false;
     }
 
     read(address: number): number {
+        this._access(address & 0x0FFF, this._bus.getLastDataBusValue());
+
+        return this.peek(address);
+    }
+
+    peek(address: number): number {
         address &= 0x0FFF;
 
-        this._handleBankswitch(address);
+        if (this._hasSC && address >= 0x0080 && address < 0x0100) {
+            return this._saraRAM[address - 0x80];
+        }
 
         return this._bank[address];
     }
 
-    peek(address: number): number {
-        return this._bank[address & 0x0FFF];
-    }
-
     write(address: number, value: number): void {
-        this._handleBankswitch(address & 0x0FFF);
+        address &= 0x0FFF;
+
+        if (address < 0x80 && this._supportSC) {
+            this._hasSC = true;
+        }
+
+        this._access(address, value);
     }
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.bankswitch_8k_F8;
+    }
+
+    randomize(rng: RngInterface): void {
+        for (let i = 0; i < this._saraRAM.length; i++) {
+            this._saraRAM[i] = rng.int(0xFF);
+        }
+    }
+
+    setBus(bus: Bus): this {
+        this._bus = bus;
+
+        return this;
     }
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
@@ -73,7 +102,12 @@ class CartridgeF8 extends AbstractCartridge {
         return signatureCounts[0] >= 2;
     }
 
-    private _handleBankswitch(address: number): void {
+    private _access(address: number, value: number): void {
+        if (address < 0x80 && this._hasSC) {
+            this._saraRAM[address] = value & 0xFF;
+            return;
+        }
+
         switch (address) {
             case 0x0FF8:
                 this._bank = this._bank0;
@@ -85,10 +119,14 @@ class CartridgeF8 extends AbstractCartridge {
         }
     }
 
-    protected _bank: Uint8Array = null;
-    protected _bank0 = new Uint8Array(0x1000);
-    protected _bank1 = new Uint8Array(0x1000);
+    private _bank: Uint8Array = null;
+    private _bank0 = new Uint8Array(0x1000);
+    private _bank1 = new Uint8Array(0x1000);
 
+    private _hasSC = false;
+    private _saraRAM = new Uint8Array(0x80);
+
+    private _bus: Bus = null;
 }
 
 export default CartridgeF8;

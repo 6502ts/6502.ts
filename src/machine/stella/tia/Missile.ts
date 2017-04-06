@@ -29,7 +29,10 @@ const enum Count {
 
 class Missile {
 
-    constructor(private _collisionMask: number) {
+    constructor(
+        private _collisionMask: number,
+        private _lineCacheViolated: () => void
+    ) {
         this.reset();
     }
 
@@ -50,8 +53,15 @@ class Missile {
     }
 
     enam(value: number): void {
-        this._enam = (value & 2) > 0;
-        this._enabled = this._enam && (this._resmp === 0);
+        const enam = (value & 2) > 0,
+            enabled = enam && (this._resmp === 0);
+
+        if (enam !== this._enam || enabled !== this._enabled) {
+            this._lineCacheViolated();
+        }
+
+        this._enam = enam;
+        this._enabled = enabled;
     }
 
     hmm(value: number): void {
@@ -103,6 +113,8 @@ class Missile {
             return;
         }
 
+        this._lineCacheViolated();
+
         this._resmp = resmp;
 
         if (resmp) {
@@ -135,18 +147,15 @@ class Missile {
         }
 
         if (this._moving && apply) {
-            this.render();
             this.tick(false);
         }
 
         return this._moving;
     }
 
-    render(): void {
-        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
-    }
-
     tick(isReceivingHclock: boolean): void {
+        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
+
         const starfieldEffect = this._moving && isReceivingHclock;
 
         if (this._decodes[this._counter]) {
@@ -183,6 +192,14 @@ class Missile {
 
     getPixel(colorIn: number): number {
         return this.collision ? colorIn : this.color;
+    }
+
+    setColor(color: number): void {
+        if (color !== this.color && this._enabled) {
+            this._lineCacheViolated();
+        }
+
+        this.color = color;
     }
 
     color = 0xFFFFFFFF;

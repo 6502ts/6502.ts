@@ -485,6 +485,23 @@ function opAax(state: CpuInterface.State, bus: BusInterface, operand: number): v
     setFlagsNZ(state, value);
 }
 
+function opLar(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    state.s = state.a = state.x = state.s & operand;
+    setFlagsNZ(state, state.a);
+}
+
+function opIsc(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    const value = bus.read(operand) + 1;
+    bus.write(operand, value);
+
+    opSbc(state, bus, value);
+}
+
+function opAac(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    state.a &= operand;
+    setFlagsNZ(state, state.a);
+    state.flags = (state.flags & (~CpuInterface.Flags.c)) | ((state.a & 0x80) >>> 7);
+}
 
 class Cpu {
     constructor(
@@ -1013,6 +1030,22 @@ class Cpu {
             case Instruction.Operation.aax:
                 this._opCycles = 1;
                 this._instructionCallback = opAax;
+                break;
+
+            case Instruction.Operation.lar:
+                this._opCycles = 0;
+                this._instructionCallback = opLar;
+                dereference = true;
+                break;
+
+            case Instruction.Operation.isc:
+                this._opCycles = 3;
+                this._instructionCallback = opIsc;
+                break;
+
+            case Instruction.Operation.aac:
+                this._opCycles = 0;
+                this._instructionCallback = opAac;
                 break;
 
             default:

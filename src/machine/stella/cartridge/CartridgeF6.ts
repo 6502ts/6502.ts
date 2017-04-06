@@ -50,6 +50,7 @@ class CartridgeF6 extends AbstractCartridge {
 
     reset(): void {
         this._bank = this._bank0;
+        this._hasSC = false;
     }
 
     read(address: number): number {

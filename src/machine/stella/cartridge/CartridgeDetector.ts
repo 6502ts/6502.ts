@@ -40,6 +40,10 @@ class CartridgeDetector {
             return CartridgeInfo.CartridgeType.vanilla_2k;
         }
 
+        if (buffer.length >= 10240 && buffer.length <= 10496) {
+            return CartridgeInfo.CartridgeType.bankswitch_8k_DPC;
+        }
+
         switch (buffer.length) {
             case 0x1000:
                 return CartridgeInfo.CartridgeType.vanilla_4k;

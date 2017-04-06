@@ -25,7 +25,10 @@ const enum Count {
 
 export default class Ball {
 
-    constructor(private _collisionMask: number) {
+    constructor(
+        private _collisionMask: number,
+        private _lineCacheViolated: () => void
+    ) {
         this.reset();
     }
 
@@ -47,8 +50,14 @@ export default class Ball {
     }
 
     enabl(value: number): void {
+        const enabledNewOldValue = this._enabledNew;
+
         this._enabledNew = (value & 2) > 0;
-        this._updateEnabled();
+
+        if (enabledNewOldValue !== this._enabledNew && !this._delaying) {
+            this._lineCacheViolated();
+            this._updateEnabled();
+        }
     }
 
     hmbl(value: number): void {
@@ -64,12 +73,24 @@ export default class Ball {
     }
 
     ctrlpf(value: number): void {
-        this._width = this._widths[(value & 0x30) >>> 4];
+        const width = this._widths[(value & 0x30) >>> 4];
+
+        if (width !== this._width) {
+            this._lineCacheViolated();
+        }
+
+        this._width = width;
     }
 
     vdelbl(value: number): void {
+        const oldDelaying = this._delaying;
+
         this._delaying = (value & 0x01) > 0;
-        this._updateEnabled();
+
+        if (oldDelaying !== this._delaying) {
+            this._lineCacheViolated();
+            this._updateEnabled();
+        }
     }
 
     startMovement(): void {
@@ -85,18 +106,15 @@ export default class Ball {
         }
 
         if (this._moving && apply) {
-            this.render();
             this.tick(false);
         }
 
         return this._moving;
     }
 
-    render(): void {
-        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
-    }
-
     tick(isReceivingHclock: boolean): void {
+        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
+
         const starfieldEffect = this._moving && isReceivingHclock;
 
         if (this._counter === 156) {
@@ -136,8 +154,22 @@ export default class Ball {
     }
 
     shuffleStatus(): void {
+        const oldEnabledOld = this._enabledOld;
+
         this._enabledOld = this._enabledNew;
-        this._updateEnabled();
+
+        if (this._delaying && this._enabledOld !== oldEnabledOld) {
+            this._lineCacheViolated();
+            this._updateEnabled();
+        }
+    }
+
+    setColor(color: number): void {
+        if (color !== this.color && this._enabled) {
+            this._lineCacheViolated();
+        }
+
+        this.color = color;
     }
 
     private _updateEnabled(): void {

@@ -27,7 +27,10 @@ const enum Count {
 
 export default class Player {
 
-    constructor(private _collisionMask: number) {
+    constructor(
+        private _collisionMask: number,
+        private _lineCacheViolated: () => void
+    ) {
         this.reset();
     }
 
@@ -53,8 +56,14 @@ export default class Player {
     }
 
     grp(pattern: number) {
-       this._patternNew = pattern;
+        if (pattern === this._patternNew) {
+            return;
+        }
+
+        this._patternNew = pattern;
+
         if (!this._delaying) {
+            this._lineCacheViolated();
             this._updatePattern();
         }
     }
@@ -63,7 +72,7 @@ export default class Player {
         this._hmmClocks = (value >>> 4) ^ 0x8;
     }
 
-    nusiz(value: number): void {
+    nusiz(value: number, hblank: boolean): void {
         const masked = value & 0x07;
 
         switch (masked) {
@@ -101,33 +110,43 @@ export default class Player {
             return;
         }
 
+        const delta = this._renderCounter - Count.renderCounterOffset;
+
         switch (this._divider << 4 | this._dividerPending) {
             case 0x12:
             case 0x14:
-                if ((this._renderCounter - Count.renderCounterOffset) < 3) {
-                    this._setDivider(this._dividerPending);
+                if (hblank) {
+                    if (delta < 4) {
+                        this._setDivider(this._dividerPending);
+                    } else {
+                        this._dividerChangeCounter = (delta < 5 ? 1 : 0);
+                    }
                 } else {
-                    this._dividerChangeCounter = 1;
+                    if (delta < 3) {
+                        this._setDivider(this._dividerPending);
+                    } else {
+                        this._dividerChangeCounter = 1;
+                    }
                 }
 
                 break;
 
             case 0x21:
             case 0x41:
-                if ((this._renderCounter - Count.renderCounterOffset) < 3) {
+                if (delta < (hblank ? 4 : 3)) {
                     this._setDivider(this._dividerPending);
-                } else if ((this._renderCounter - Count.renderCounterOffset) < 5) {
+                } else if (delta < (hblank ? 6 : 5)) {
                     this._setDivider(this._dividerPending);
                     this._renderCounter--;
                 } else {
-                    this._dividerChangeCounter = 1;
+                    this._dividerChangeCounter = (hblank ? 0 : 1);
                 }
 
                 break;
 
             case 0x42:
             case 0x24:
-                if (this._renderCounter < 1) {
+                if (this._renderCounter < 1 || (hblank && (this._renderCounter % this._divider === 1))) {
                     this._setDivider(this._dividerPending);
                 } else {
                     this._dividerChangeCounter = (this._divider - (this._renderCounter - 1) % this._divider);
@@ -154,6 +173,7 @@ export default class Player {
         this._reflected = (value & 0x08) > 0;
 
         if (this._reflected !== oldReflected) {
+            this._lineCacheViolated();
             this._updatePattern();
         }
     }
@@ -164,6 +184,7 @@ export default class Player {
         this._delaying = (value & 0x01) > 0;
 
         if (this._delaying !== oldDelaying) {
+            this._lineCacheViolated();
             this._updatePattern();
         }
     }
@@ -179,22 +200,19 @@ export default class Player {
         }
 
         if (this._moving && apply) {
-            this.render();
             this.tick();
         }
 
         return this._moving;
     }
 
-    render(): void {
+    tick(): void {
         this.collision = (
             this._rendering &&
             this._renderCounter >= this._renderCounterTripPoint &&
             (this._pattern & (1 << this._sampleCounter))
         ) ? 0 : this._collisionMask;
-    }
 
-    tick(): void {
         if (this._decodes[this._counter]) {
             this._rendering = true;
             this._renderCounter = Count.renderCounterOffset;
@@ -254,6 +272,7 @@ export default class Player {
         this._patternOld = this._patternNew;
 
         if (this._delaying && oldPatternOld !== this._patternOld) {
+            this._lineCacheViolated();
             this._updatePattern();
         }
     }
@@ -272,6 +291,14 @@ export default class Player {
             default:
                 throw new Error(`cannot happen: invalid divider ${this._divider}`);
         }
+    }
+
+    setColor(color: number): void {
+        if (color !== this.color && this._pattern) {
+            this._lineCacheViolated();
+        }
+
+        this.color = color;
     }
 
     private _updatePattern(): void {

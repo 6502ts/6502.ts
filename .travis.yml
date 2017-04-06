@@ -1,14 +1,18 @@
 language: node_js
 node_js:
-    - node
-install:
-    - npm install
-    - npm install grunt
+    - 7
+cache:
+    yarn: true
+before-script:
+    - yarn add grunt
+    - yarn add grunt-cli
+    - yarn install
 script:
-    - ./node_modules/.bin/grunt initial
+    - grunt initial
 before_deploy:
     - openssl aes-256-cbc -K $encrypted_6dbc9dbe3b2a_key -iv $encrypted_6dbc9dbe3b2a_iv -in deploy/key.enc -out deploy/key -d
-    - node_modules/.bin/grunt dev build
+    - grunt dev build
+    - grunt dev
 deploy:
     provider: script
     script: deploy/deploy.sh

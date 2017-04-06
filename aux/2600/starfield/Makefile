@@ -1,14 +1,7 @@
-SOURCE = \
-	player32.asm \
-	player16.asm \
-	player8.asm \
-	player32_8.asm \
-	player32_hblank.asm \
-	player16_hblank.asm \
-	player8_hblank.asm
+SOURCE = starfield.asm
 BINARIES = $(SOURCE:.asm=.bin)
 
-INCLUDE = main.inc main_hblank.inc
+INCLUDE =
 
 DASM = dasm
 DASM_OPTS = -I.. -f3
