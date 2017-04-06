@@ -56,7 +56,7 @@ class ConstantTimesliceScheduler implements SchedulerInterface {
 
             emulationTime += worker(context, delta) as number;
 
-            const timeToSleep = _timeSlice - getTimestamp() + timestamp;
+            const timeToSleep = timeSlice - getTimestamp() + timestamp;
 
             if (timeToSleep > 0) {
                 setTimeout(handler, timeToSleep);

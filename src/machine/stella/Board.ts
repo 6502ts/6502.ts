@@ -105,7 +105,7 @@ class Board implements BoardInterface {
         );
 
         this._clockMhz = Config.getClockMhz(_config);
-        this._sliceSize = 228 * (_config.tvMode === Config.TvMode.ntsc ? 262 : 312) / 4;
+        this._sliceSize = 228 * (_config.tvMode === Config.TvMode.ntsc ? 262 : 312);
 
         this.reset();
     }
