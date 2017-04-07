@@ -51,8 +51,8 @@ class Playfield {
             return;
         }
 
-        this._pf0 = value >>> 4;
         this._lineCacheViolated();
+        this._pf0 = value >>> 4;
 
         this._pattern = (this._pattern & 0x000FFFF0) | this._pf0;
     }
@@ -62,8 +62,8 @@ class Playfield {
             return;
         }
 
-        this._pf1 = value;
         this._lineCacheViolated();
+        this._pf1 = value;
 
         this._pattern = (this._pattern & 0x000FF00F)
             | ((value & 0x80) >>> 3)
@@ -81,8 +81,8 @@ class Playfield {
             return;
         }
 
-        this._pf2 = value;
         this._lineCacheViolated();
+        this._pf2 = value;
 
         this._pattern = (this._pattern & 0x00000FFF) | ((value & 0xFF) << 12);
     }
