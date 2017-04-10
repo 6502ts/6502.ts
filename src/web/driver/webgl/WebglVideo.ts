@@ -119,9 +119,9 @@ export default class WebglVideoDriver {
         const gl = this._gl;
 
         for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
-            const frameIndex = (this._currentFrameIndex + i) % FRAME_COMPOSITING_COUNT;
+            const frameIndex = (this._currentFrameIndex - i - 1 + FRAME_COMPOSITING_COUNT) % FRAME_COMPOSITING_COUNT;
 
-            if (this._textureGeneration[i] !== this._imageDataGeneration[i]) {
+            if (this._textureGeneration[frameIndex] !== this._imageDataGeneration[frameIndex]) {
                 gl.activeTexture((gl as any)[`TEXTURE${frameIndex}`]);
                 gl.bindTexture(gl.TEXTURE_2D, this._textures[frameIndex]);
                 gl.texImage2D(
@@ -133,14 +133,14 @@ export default class WebglVideoDriver {
                     this._imageData[frameIndex].get()
                 );
 
-                this._textureGeneration[i] = this._imageDataGeneration[i];
+                this._textureGeneration[frameIndex] = this._imageDataGeneration[frameIndex];
             }
         }
 
         for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
             gl.uniform1i(
                 this._getUniformLocation(`u_Sampler${i}`),
-                (this._currentFrameIndex + FRAME_COMPOSITING_COUNT - i) % FRAME_COMPOSITING_COUNT
+                (this._currentFrameIndex + FRAME_COMPOSITING_COUNT - i - 1) % FRAME_COMPOSITING_COUNT
             );
         }
 
