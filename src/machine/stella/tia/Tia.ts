@@ -718,7 +718,7 @@ class Tia implements VideoOutputInterface {
                 throw new Error('invalid priority');
         }
 
-        this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.vblank ? 0xFF000000 :color;
+        this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.vblank ? 0xFF000000 : color;
     }
 
     private _updateCollision() {
@@ -798,6 +798,7 @@ class Tia implements VideoOutputInterface {
     private static _delayedWrite(address: number, value: number, self: Tia): void {
         switch (address) {
             case Tia.Registers.vblank:
+                self._lineCacheViolated();
                 self._frameManager.setVblank((value & 0x02) > 0);
                 break;
 
