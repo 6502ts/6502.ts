@@ -31,7 +31,7 @@ class Missile {
 
     constructor(
         private _collisionMask: number,
-        private _lineCacheViolated: () => void
+        private _flushLineCache: () => void
     ) {
         this.reset();
     }
@@ -57,7 +57,7 @@ class Missile {
             enabled = enam && (this._resmp === 0);
 
         if (enam !== this._enam || enabled !== this._enabled) {
-            this._lineCacheViolated();
+            this._flushLineCache();
         }
 
         this._enam = enam;
@@ -113,7 +113,7 @@ class Missile {
             return;
         }
 
-        this._lineCacheViolated();
+        this._flushLineCache();
 
         this._resmp = resmp;
 
@@ -196,7 +196,7 @@ class Missile {
 
     setColor(color: number): void {
         if (color !== this.color && this._enabled) {
-            this._lineCacheViolated();
+            this._flushLineCache();
         }
 
         this.color = color;

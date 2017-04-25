@@ -27,7 +27,7 @@ export default class Ball {
 
     constructor(
         private _collisionMask: number,
-        private _lineCacheViolated: () => void
+        private _flushLineCache: () => void
     ) {
         this.reset();
     }
@@ -55,7 +55,7 @@ export default class Ball {
         this._enabledNew = (value & 2) > 0;
 
         if (enabledNewOldValue !== this._enabledNew && !this._delaying) {
-            this._lineCacheViolated();
+            this._flushLineCache();
             this._updateEnabled();
         }
     }
@@ -76,7 +76,7 @@ export default class Ball {
         const width = this._widths[(value & 0x30) >>> 4];
 
         if (width !== this._width) {
-            this._lineCacheViolated();
+            this._flushLineCache();
         }
 
         this._width = width;
@@ -88,7 +88,7 @@ export default class Ball {
         this._delaying = (value & 0x01) > 0;
 
         if (oldDelaying !== this._delaying) {
-            this._lineCacheViolated();
+            this._flushLineCache();
             this._updateEnabled();
         }
     }
@@ -159,14 +159,14 @@ export default class Ball {
         this._enabledOld = this._enabledNew;
 
         if (this._delaying && this._enabledOld !== oldEnabledOld) {
-            this._lineCacheViolated();
+            this._flushLineCache();
             this._updateEnabled();
         }
     }
 
     setColor(color: number): void {
         if (color !== this.color && this._enabled) {
-            this._lineCacheViolated();
+            this._flushLineCache();
         }
 
         this.color = color;

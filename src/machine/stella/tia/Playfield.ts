@@ -25,7 +25,7 @@ class Playfield {
 
     constructor(
         private _collisionMask: number,
-        private _lineCacheViolated: () => void
+        private _flushLineCache: () => void
     ) {
         this.reset();
     }
@@ -51,7 +51,7 @@ class Playfield {
             return;
         }
 
-        this._lineCacheViolated();
+        this._flushLineCache();
         this._pf0 = value >>> 4;
 
         this._pattern = (this._pattern & 0x000FFFF0) | this._pf0;
@@ -62,7 +62,7 @@ class Playfield {
             return;
         }
 
-        this._lineCacheViolated();
+        this._flushLineCache();
         this._pf1 = value;
 
         this._pattern = (this._pattern & 0x000FF00F)
@@ -81,7 +81,7 @@ class Playfield {
             return;
         }
 
-        this._lineCacheViolated();
+        this._flushLineCache();
         this._pf2 = value;
 
         this._pattern = (this._pattern & 0x00000FFF) | ((value & 0xFF) << 12);
@@ -91,9 +91,11 @@ class Playfield {
         const reflected = (value & 0x01) > 0,
             colorMode = (value & 0x06) === 0x02 ? ColorMode.score : ColorMode.normal;
 
-        if (reflected !== this._reflected || colorMode !== this._colorMode) {
-            this._lineCacheViolated();
+        if (reflected === this._reflected && colorMode === this._colorMode) {
+            return;
         }
+
+        this._flushLineCache();
 
         this._reflected = reflected;
         this._colorMode = colorMode;
@@ -103,7 +105,7 @@ class Playfield {
 
     setColor(color: number): void {
         if (color !== this._color && this._colorMode === ColorMode.normal) {
-            this._lineCacheViolated();
+            this._flushLineCache();
         }
 
         this._color = color;
@@ -112,7 +114,7 @@ class Playfield {
 
     setColorP0(color: number): void {
         if (color !== this._colorP0 && this._colorMode === ColorMode.score) {
-            this._lineCacheViolated();
+            this._flushLineCache();
         }
 
         this._colorP0 = color;
@@ -121,7 +123,7 @@ class Playfield {
 
     setColorP1(color: number): void {
         if (color !== this._colorP1 && this._colorMode === ColorMode.score) {
-            this._lineCacheViolated();
+            this._flushLineCache();
         }
 
         this._colorP1 = color;

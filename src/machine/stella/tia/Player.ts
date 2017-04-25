@@ -29,7 +29,7 @@ export default class Player {
 
     constructor(
         private _collisionMask: number,
-        private _lineCacheViolated: () => void
+        private _flushLineCache: () => void
     ) {
         this.reset();
     }
@@ -63,7 +63,7 @@ export default class Player {
         this._patternNew = pattern;
 
         if (!this._delaying) {
-            this._lineCacheViolated();
+            this._flushLineCache();
             this._updatePattern();
         }
     }
@@ -173,7 +173,7 @@ export default class Player {
         this._reflected = (value & 0x08) > 0;
 
         if (this._reflected !== oldReflected) {
-            this._lineCacheViolated();
+            this._flushLineCache();
             this._updatePattern();
         }
     }
@@ -184,7 +184,7 @@ export default class Player {
         this._delaying = (value & 0x01) > 0;
 
         if (this._delaying !== oldDelaying) {
-            this._lineCacheViolated();
+            this._flushLineCache();
             this._updatePattern();
         }
     }
@@ -272,7 +272,7 @@ export default class Player {
         this._patternOld = this._patternNew;
 
         if (this._delaying && oldPatternOld !== this._patternOld) {
-            this._lineCacheViolated();
+            this._flushLineCache();
             this._updatePattern();
         }
     }
@@ -295,7 +295,7 @@ export default class Player {
 
     setColor(color: number): void {
         if (color !== this.color && this._pattern) {
-            this._lineCacheViolated();
+            this._flushLineCache();
         }
 
         this.color = color;

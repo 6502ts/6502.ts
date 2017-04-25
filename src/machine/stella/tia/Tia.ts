@@ -292,7 +292,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.rsync:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._rsync();
                 break;
 
@@ -328,12 +328,12 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.resm0:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._missile0.resm(this._resxCounter(), this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.resm1:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._missile1.resm(this._resxCounter(), this._hstate === HState.blank);
                 break;
 
@@ -350,13 +350,13 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.nusiz0:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._missile0.nusiz(value);
                 this._player0.nusiz(value, this._hstate === HState.blank);
                 break;
 
             case Tia.Registers.nusiz1:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._missile1.nusiz(value);
                 this._player1.nusiz(value, this._hstate === HState.blank);
                 break;
@@ -366,7 +366,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.colubk:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._colorBk = this._palette[(value & 0xFF) >>> 1];
                 break;
 
@@ -405,7 +405,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.colupf:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 v = this._palette[(value & 0xFF) >>> 1];
                 this._playfield.setColor(v);
                 this._ball.color = v;
@@ -427,12 +427,12 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.resp0:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._player0.resp(this._resxCounter());
                 break;
 
             case Tia.Registers.resp1:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._player1.resp(this._resxCounter());
                 break;
 
@@ -469,7 +469,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.resbl:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._ball.resbl(this._resxCounter());
                 break;
 
@@ -478,7 +478,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.cxclr:
-                this._lineCacheViolated();
+                this._flushLineCache();
                 this._collisionMask = 0;
                 break;
 
@@ -585,7 +585,6 @@ class Tia implements VideoOutputInterface {
     }
 
     private _tickHblank() {
-        // we cannot use hblankctr === 0 here because it is not positive definite
         if (this._hctr === 0) {
             this._hblankCtr = 0;
             this._cpu.resume();
@@ -642,7 +641,7 @@ class Tia implements VideoOutputInterface {
         this._frameManager.nextLine();
 
         if (this._frameManager.isRendering() && this._frameManager.getCurrentLine() === 0) {
-            this._lineCacheViolated();
+            this._flushLineCache();
         }
     }
 
@@ -771,19 +770,18 @@ class Tia implements VideoOutputInterface {
                         ((value & 0x02) ? Priority.score : Priority.normal);
 
         if (priority !== this._priority) {
-            this._lineCacheViolated();
+            this._flushLineCache();
             this._priority = priority;
         }
     }
 
-    private _lineCacheViolated(): void {
+    private _flushLineCache(): void {
         const wasCaching = this._linesSinceChange >= 2;
 
         this._linesSinceChange = 0;
 
         if (wasCaching) {
             const rewindCycles = this._hctr;
-            this._hctr = 0;
 
             for (this._hctr = 0; this._hctr < rewindCycles; this._hctr++) {
                 if (this._hstate === HState.blank) {
@@ -798,12 +796,12 @@ class Tia implements VideoOutputInterface {
     private static _delayedWrite(address: number, value: number, self: Tia): void {
         switch (address) {
             case Tia.Registers.vblank:
-                self._lineCacheViolated();
+                self._flushLineCache();
                 self._frameManager.setVblank((value & 0x02) > 0);
                 break;
 
             case Tia.Registers.hmove:
-                self._lineCacheViolated();
+                self._flushLineCache();
 
                 // Start the timer and increase hblank
                 self._movementClock = 0;
@@ -964,12 +962,12 @@ class Tia implements VideoOutputInterface {
     // bitfield with collision latches
     private _collisionMask = 0;
 
-    private _player0 =   new Player(CollisionMask.player0, () => this._lineCacheViolated());
-    private _player1 =   new Player(CollisionMask.player1, () => this._lineCacheViolated());
-    private _missile0 =  new Missile(CollisionMask.missile0, () => this._lineCacheViolated());
-    private _missile1 =  new Missile(CollisionMask.missile1, () => this._lineCacheViolated());
-    private _playfield = new Playfield(CollisionMask.playfield, () => this._lineCacheViolated());
-    private _ball =      new Ball(CollisionMask.ball, () => this._lineCacheViolated());
+    private _player0 =   new Player(CollisionMask.player0, () => this._flushLineCache());
+    private _player1 =   new Player(CollisionMask.player1, () => this._flushLineCache());
+    private _missile0 =  new Missile(CollisionMask.missile0, () => this._flushLineCache());
+    private _missile1 =  new Missile(CollisionMask.missile1, () => this._flushLineCache());
+    private _playfield = new Playfield(CollisionMask.playfield, () => this._flushLineCache());
+    private _ball =      new Ball(CollisionMask.ball, () => this._flushLineCache());
 
     private _audio0: Audio;
     private _audio1: Audio;
