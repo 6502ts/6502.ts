@@ -45,6 +45,7 @@ module CartridgeInfo {
 
         bankswitch_3E,
         bankswitch_supercharger,
+        bankswitch_dpc_plus,
 
         unknown
     }
@@ -67,6 +68,7 @@ module CartridgeInfo {
             CartridgeType.bankswitch_3E,
             CartridgeType.bankswitch_64k_F0,
             CartridgeType.bankswitch_supercharger,
+            CartridgeType.bankswitch_dpc_plus,
             CartridgeType.unknown
         ];
     }
@@ -120,6 +122,9 @@ module CartridgeInfo {
 
             case CartridgeType.bankswitch_supercharger:
                 return 'bankswitched supercharger';
+
+            case CartridgeType.bankswitch_dpc_plus:
+                return 'bankswitched DPC+';
 
             case CartridgeType.unknown:
                 return 'unknown';

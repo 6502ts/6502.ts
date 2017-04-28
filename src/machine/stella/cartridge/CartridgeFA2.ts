@@ -27,7 +27,7 @@ import * as cartridgeUtil from './util';
 
 const enum IODelay {
     load = 10,
-    sace = 100
+    save = 100
 };
 
 class CartridgeFA2 extends AbstractCartridge {
@@ -117,6 +117,16 @@ class CartridgeFA2 extends AbstractCartridge {
         }
     }
 
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        // Signatures shamelessly stolen from Stella
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
+            [0xA0, 0xC1, 0x1F, 0xE0],
+            [0x00, 0x80, 0x02, 0xE0]
+        ]);
+
+        return (signatureCounts[0] > 0 || signatureCounts[1] > 0);
+    }
+
     private _handleIo(): void {
         if (this._accessCounter < this._accessCounterLimit) {
             return;
@@ -134,7 +144,7 @@ class CartridgeFA2 extends AbstractCartridge {
                 this._savedRam[i] = this._ram[i];
             }
 
-            this._accessCounterLimit = IODelay.sace;
+            this._accessCounterLimit = IODelay.save;
         }
         else {
             return;

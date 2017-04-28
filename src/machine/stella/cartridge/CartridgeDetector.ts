@@ -27,6 +27,8 @@ import Cartridge3E from './Cartridge3E';
 import CartridgeFE from './CartridgeFE';
 import CartridgeUA from './CartridgeUA';
 import CartridgeE7 from './CartridgeE7';
+import CartridgeFA2 from './CartridgeFA2';
+import CartridgeDPCPlus from './CartridgeDPCPlus';
 import * as cartridgeUtil from './util';
 
 class CartridgeDetector {
@@ -58,8 +60,10 @@ class CartridgeDetector {
                 return this._detect16k(buffer);
 
             case 0x7000:
-            case 0x7400:
                 return CartridgeInfo.CartridgeType.bankswitch_FA2;
+
+            case 0x7400:
+                return this._detect29k(buffer);
 
             case 0x8000:
                 return this._detect32k(buffer);
@@ -102,9 +106,21 @@ class CartridgeDetector {
         return CartridgeInfo.CartridgeType.bankswitch_16k_F6;
     }
 
+    private _detect29k(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
+        if (CartridgeFA2.matchesBuffer(buffer)) {
+            return CartridgeInfo.CartridgeType.bankswitch_FA2;
+        }
+
+        return CartridgeInfo.CartridgeType.bankswitch_dpc_plus;
+    }
+
     private _detect32k(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
         if (Cartridge3E.matchesBuffer(buffer)) {
             return CartridgeInfo.CartridgeType.bankswitch_3E;
+        }
+
+        if (CartridgeDPCPlus.matchesBuffer(buffer)) {
+            return CartridgeInfo.CartridgeType.bankswitch_dpc_plus;
         }
 
         return CartridgeInfo.CartridgeType.bankswitch_32k_F4;

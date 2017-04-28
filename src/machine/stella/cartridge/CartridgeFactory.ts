@@ -35,6 +35,7 @@ import CartridgeF4 from './CartridgeF4';
 import CartridgeFA2 from './CartridgeFA2';
 import CartridgeSupercharger from './CartridgeSupercharger';
 import CartridgeDPC from './CartridgeDPC';
+import CartridgeDPCPlus from './CartridgeDPCPlus';
 
 import CartridgeInfo from './CartridgeInfo';
 import CartridgeDetector from './CartridgeDetector';
@@ -102,6 +103,9 @@ export default class CartridgeFactory {
 
             case CartridgeInfo.CartridgeType.bankswitch_supercharger:
                 return new CartridgeSupercharger(buffer);
+
+            case CartridgeInfo.CartridgeType.bankswitch_dpc_plus:
+                return new CartridgeDPCPlus(buffer);
 
             default:
                 throw new Error(`invalid or unsupported cartridge image`);
