@@ -360,7 +360,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
         this._armMamcr = 0;
 
-        const trap = this._thumbulator.run(100000);
+        const trap = this._thumbulator.run(500000);
 
         if (trap !== CONST.trapReturn) {
             this.triggerTrap(
