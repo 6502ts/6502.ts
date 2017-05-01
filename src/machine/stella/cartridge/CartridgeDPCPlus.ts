@@ -91,12 +91,12 @@ class CartridgeDPCPlus extends AbstractCartridge {
     reset() {
         this._currentBank = this._banks[5];
 
-        for (let i = 0; i < 0x1000; i++) {
-            this._imageRam[i] = this._imageRom[i];
+        for (let i = 0; i < 0x0300; i++) {
+            this._ram32[i] = this._rom32[i];
         }
 
-        for (let i = 0; i < 0x0400; i++) {
-            this._frequencyRam[i] = this._frequencyRom[i];
+        for (let i = 0x1b00; i < 0x2000; i++) {
+            this._ram32[0x0300 + i - 0x1b00] = this._rom32[i];
         }
 
         this._currentBank = this._banks[5];
