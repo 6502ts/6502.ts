@@ -53,7 +53,7 @@ interface CartridgeInterface {
 
 module CartridgeInterface {
 
-    export const enum TrapReason {invalidRead, invalidWrite}
+    export const enum TrapReason {invalidRead, invalidWrite, other}
 
     export class TrapPayload {
         constructor(

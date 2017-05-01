@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "allowJs": false,
+        "allowJs": true,
         "module": "commonjs",
         "moduleResolution": "node",
         "noImplicitAny": true,
@@ -8,6 +8,7 @@
         "preserveConstEnums": true,
         "sourceMap": false,
         "noUnusedLocals": true,
+        "allowUnreachableCode": true,
         "lib": [
             "es5",
             "es6",

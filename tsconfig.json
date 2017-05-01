@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "allowJs": false,
+        "allowJs": true,
         "module": "commonjs",
         "moduleResolution": "node",
         "noImplicitAny": true,
@@ -8,6 +8,7 @@
         "target": "es5",
         "sourceMap": false,
         "jsx": "react",
+        "allowUnreachableCode": true,
         "lib": [
             "dom",
             "es5",
@@ -20,6 +21,7 @@
     "include": [
         "bin/*.ts",
         "src/**/*.ts",
+        "src/**/*.js",
         "tests/**/*.ts",
         "src/web/stella/stellerator/**/*.tsx"
     ],

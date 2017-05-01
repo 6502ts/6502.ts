@@ -22,7 +22,15 @@
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
+import Thumbulator from './thumbulator/Thumbulator';
+import CartridgeInterface from './CartridgeInterface';
 import * as cartridgeUtil from './util';
+import {encode as hex} from '../../../tools/hex';
+
+const enum CONST {
+    returnAddress = 0x8004,
+    trapReturn = 255
+};
 
 class CartridgeDPCPlus extends AbstractCartridge {
 
@@ -325,6 +333,34 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
                 this._parameterIndex = 0;
                 break;
+
+            case 254:
+            case 255:
+                this._dispatchArm();
+        }
+    }
+
+    private _dispatchArm(): void {
+        this._thumbulator.reset();
+        this._thumbulator.enableDebug(false);
+
+        for (let i = 0; i <= 12; i++) {
+            this._thumbulator.writeRegister(i, 0);
+        }
+
+        this._thumbulator.writeRegister(13, 0x40001FB4);
+        this._thumbulator.writeRegister(14, CONST.returnAddress - 1);
+        this._thumbulator.writeRegister(15, 0x0C0B);
+
+        this._armMamcr = 0;
+
+        const trap = this._thumbulator.run(100000);
+
+        if (trap !== CONST.trapReturn) {
+            this.triggerTrap(
+                CartridgeInterface.TrapReason.other,
+                `ARM execution trapped: ${trap}`
+            );
         }
     }
 
@@ -371,6 +407,145 @@ class CartridgeDPCPlus extends AbstractCartridge {
     private _ldaPending = false;
 
     private _bus: Bus;
+
+    private _thumbulatorBus: Thumbulator.Bus = {
+        read16: (address: number): number => {
+            if (address & 0x01) {
+                this.triggerTrap(
+                    CartridgeInterface.TrapReason.other,
+                    `unaligned 16 bit ARM read from ${hex(address, 8)}`
+                );
+                return;
+            }
+
+            const region = address >>> 28,
+                addr = address & 0x0FFFFFFF;
+
+            switch (region) {
+                case 0x0:
+                    if (addr < 0x8000) {
+                        return this._rom16[addr >>> 1];
+                    }
+                    break;
+
+                case 0x4:
+                    if (addr < 0x2000) {
+                        return this._ram16[addr >>> 1];
+                    }
+                    break;
+
+                case 0xE:
+                    if (addr === 0x001FC000) {
+                        return this._armMamcr;
+                    }
+                    break;
+
+                default:
+            }
+
+            this.triggerTrap(
+                CartridgeInterface.TrapReason.other,
+                `invalid 16 bit ARM read from ${hex(address, 8)}`
+            );
+        },
+
+        read32: (address: number): number => {
+            if (address & 0x03) {
+                this.triggerTrap(
+                    CartridgeInterface.TrapReason.other,
+                    `unaligned 32 bit ARM read from ${hex(address, 8)}`
+                );
+                return;
+            }
+
+            const region = address >>> 28,
+                addr = address & 0x0FFFFFFF;
+
+            switch (region) {
+                case 0x0:
+                    if (addr < 0x8000) {
+                        return this._rom32[addr >>> 2];
+                    }
+                    break;
+
+                case 0x4:
+                    if (addr < 0x2000) {
+                        return this._ram32[addr >>> 2];
+                    }
+                    break;
+
+                default:
+            }
+
+            this.triggerTrap(
+                CartridgeInterface.TrapReason.other,
+                `invalid 32 bit ARM read from ${hex(address, 8)}`
+            );
+        },
+
+        write16: (address: number, value: number): void => {
+            if (address & 0x01) {
+                this.triggerTrap(
+                    CartridgeInterface.TrapReason.other,
+                    `unaligned 16 bit ARM write: ${hex(value, 4)} -> ${hex(address, 8)}`
+                );
+                return;
+            }
+
+            const region = address >>> 28,
+                addr = address & 0x0FFFFFFF;
+
+            switch (region) {
+                case 0x04:
+                    if (addr < 0x2000) {
+                        this._ram16[addr >>> 1] = value & 0xFFFF;
+                        return;
+                    }
+                    break;
+
+                case 0xE:
+                    if (addr === 0x001FC000) {
+                        this._armMamcr = value;
+                        return;
+                    }
+                    break;
+            }
+
+            this.triggerTrap(
+                CartridgeInterface.TrapReason.other,
+                `invalid 16 bit ARM write: ${hex(value, 4)} -> ${hex(address, 8)}`
+            );
+        },
+
+        write32: (address: number, value: number): void => {
+            if (address & 0x03) {
+                this.triggerTrap(
+                    CartridgeInterface.TrapReason.other,
+                    `unaligned 32 bit ARM write: ${hex(value, 8)} -> ${hex(address, 8)}`
+                );
+                return;
+            }
+
+            const region = address >>> 28,
+                addr = address & 0x0FFFFFFF;
+
+            if (region === 0x4 && addr < 0x2000) {
+                this._ram32[addr >>> 2] = value;
+                return;
+            }
+
+            this.triggerTrap(
+                CartridgeInterface.TrapReason.other,
+                `invalid 32 bit ARM write: ${hex(value, 8)} -> ${hex(address, 8)}`
+            );
+        }
+    };
+
+    private _armMamcr = 0;
+
+    private _thumbulator = new Thumbulator(this._thumbulatorBus, {
+        trapOnInstructionFetch: address => address === 0x8004 ? CONST.trapReturn : 0
+    });
 
 }
 
