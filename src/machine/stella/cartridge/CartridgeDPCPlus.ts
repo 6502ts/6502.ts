@@ -342,6 +342,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             case 254:
             case 255:
                 this._dispatchArm();
+                break;
         }
     }
 
