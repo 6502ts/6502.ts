@@ -42,6 +42,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
         }
 
         // ARM ROM: the whole ROM image, suitable for 16bit and 32bit access
+        this._rom8 = new Uint8Array(this._romBuffer);
         this._rom16 = new Uint16Array(this._romBuffer);
         this._rom32 = new Uint32Array(this._romBuffer);
 
@@ -52,7 +53,6 @@ class CartridgeDPCPlus extends AbstractCartridge {
          *    4k image ROM
          *    1k frequency ROM
          */
-        this._programRom = new Uint8Array(this._romBuffer, 0x0C00);
         this._imageRom = new Uint8Array(this._romBuffer, 0x8000 - 0x1400, 0x1000);
         this._frequencyRom = new Uint8Array(this._romBuffer, 0x8000 - 0x0400);
 
@@ -61,6 +61,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
         }
 
         // ARM RAM
+        this._ram8 = new Uint8Array(this._ramBuffer);
         this._ram16 = new Uint16Array(this._ramBuffer);
         this._ram32 = new Uint32Array(this._ramBuffer);
 
@@ -318,8 +319,11 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             case 1:
                 for (let i = 0; i < this._parameters[3]; i++) {
-                    this._imageRam[(this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0FFF] =
-                        this._programRom[(romBase + i) & 0x5FFF];
+                    this._ram8[
+                        0x0C00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0FFF)
+                    ] = this._rom8[
+                        0x0C00 + ((romBase + i) % 0x7400)
+                    ];
                 }
 
                 this._parameterIndex = 0;
@@ -327,8 +331,9 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             case 2:
                 for (let i = 0; i < this._parameters[3]; i++) {
-                    this._imageRam[(this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0FFF] =
-                        this._parameters[0];
+                    this._ram8[
+                        0x0C00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0FFF)
+                    ] = this._parameters[0];
                 }
 
                 this._parameterIndex = 0;
@@ -377,10 +382,10 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
     private _romBuffer = new ArrayBuffer(0x8000);
 
+    private _rom8: Uint8Array;
     private _rom16: Uint16Array;
     private _rom32: Uint32Array;
 
-    private _programRom: Uint8Array;
     private _imageRom: Uint8Array;
     private _frequencyRom: Uint8Array;
 
@@ -389,6 +394,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
     private _ramBuffer = new ArrayBuffer(0x2000);
 
+    private _ram8: Uint8Array;
     private _ram16: Uint16Array;
     private _ram32: Uint32Array;
 
