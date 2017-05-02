@@ -19,11 +19,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import * as polyfill from 'setimmediate2';
-
 import SchedulerInterface from '../SchedulerInterface';
 import TaskInterface from '../TaskInterface';
 import getTimestamp from '../getTimestamp';
+import {setImmediate} from '../setImmediate';
 
 const CORRECTION_THESHOLD = 3,
     MAX_ACCUMULATED_DELTA = 100;
@@ -68,14 +67,14 @@ class ConstantCyclesScheduler implements SchedulerInterface {
             if (delay > 0) {
                 setTimeout(handler, Math.round(delay));
             } else {
-                polyfill.setImmediate(handler);
+                setImmediate(handler);
             }
 
             targetSleepInterval = delay;
             lastYieldTimestamp = getTimestamp();
         }
 
-        polyfill.setImmediate(handler);
+        setImmediate(handler);
 
         return {
             stop: () => terminate = true

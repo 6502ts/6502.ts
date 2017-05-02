@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import * as polyfill from 'setimmediate2';
+import {setImmediate} from './setImmediate';
 
 import SchedulerInterface from './SchedulerInterface';
 import TaskInterface from './TaskInterface';
@@ -33,10 +33,10 @@ class ImmediateScheduler implements SchedulerInterface {
             if (terminate) return;
 
             worker(context);
-            polyfill.setImmediate(handler);
+            setImmediate(handler);
         }
 
-        polyfill.setImmediate(handler);
+        setImmediate(handler);
 
         return {
             stop: () => terminate = true

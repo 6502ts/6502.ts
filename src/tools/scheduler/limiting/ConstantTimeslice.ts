@@ -19,11 +19,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import * as polyfill from 'setimmediate2';
-
 import SchedulerInterface from '../SchedulerInterface';
 import TaskInterface from '../TaskInterface';
 import getTimestamp from '../getTimestamp';
+import {setImmediate} from '../setImmediate';
 
 const SAFETY_FACTOR = 3;
 
@@ -61,11 +60,11 @@ class ConstantTimesliceScheduler implements SchedulerInterface {
             if (timeToSleep > 0) {
                 setTimeout(handler, timeToSleep);
             } else {
-                polyfill.setImmediate(handler);
+                setImmediate(handler);
             }
         }
 
-        polyfill.setImmediate(handler);
+        setImmediate(handler);
 
         return {stop: () => running = false};
 
