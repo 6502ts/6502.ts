@@ -419,13 +419,13 @@ function opTya(state: CpuInterface.State): void {
 }
 
 function opAlr(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    const old = state.a;
-    state.a = (state.a & operand) >>> 1;
+    const i = state.a & operand;
+    state.a = i >>> 1;
 
     state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (state.a & 0x80) |
         (state.a ? 0 : CpuInterface.Flags.z) |
-        (old & CpuInterface.Flags.c);
+        (i & CpuInterface.Flags.c);
 }
 
 function opAxs(state: CpuInterface.State, bus: BusInterface, operand: number): void {
