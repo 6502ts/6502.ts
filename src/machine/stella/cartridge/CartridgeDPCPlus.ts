@@ -420,7 +420,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             if (address & 0x01) {
                 this.triggerTrap(
                     CartridgeInterface.TrapReason.other,
-                    `unaligned 16 bit ARM read from ${hex(address, 8)}`
+                    `unaligned 16 bit ARM read from ${hex(address, 8, false)}`
                 );
                 return;
             }
@@ -452,7 +452,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             this.triggerTrap(
                 CartridgeInterface.TrapReason.other,
-                `invalid 16 bit ARM read from ${hex(address, 8)}`
+                `invalid 16 bit ARM read from ${hex(address, 8, false)}`
             );
         },
 
@@ -460,7 +460,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             if (address & 0x03) {
                 this.triggerTrap(
                     CartridgeInterface.TrapReason.other,
-                    `unaligned 32 bit ARM read from ${hex(address, 8)}`
+                    `unaligned 32 bit ARM read from ${hex(address, 8, false)}`
                 );
                 return;
             }
@@ -486,7 +486,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             this.triggerTrap(
                 CartridgeInterface.TrapReason.other,
-                `invalid 32 bit ARM read from ${hex(address, 8)}`
+                `invalid 32 bit ARM read from ${hex(address, 8, false)}`
             );
         },
 
@@ -494,7 +494,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             if (address & 0x01) {
                 this.triggerTrap(
                     CartridgeInterface.TrapReason.other,
-                    `unaligned 16 bit ARM write: ${hex(value, 4)} -> ${hex(address, 8)}`
+                    `unaligned 16 bit ARM write: ${hex(value, 4)} -> ${hex(address, 8, false)}`
                 );
                 return;
             }
@@ -520,7 +520,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             this.triggerTrap(
                 CartridgeInterface.TrapReason.other,
-                `invalid 16 bit ARM write: ${hex(value, 4)} -> ${hex(address, 8)}`
+                `invalid 16 bit ARM write: ${hex(value, 4)} -> ${hex(address, 8, false)}`
             );
         },
 
@@ -528,7 +528,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             if (address & 0x03) {
                 this.triggerTrap(
                     CartridgeInterface.TrapReason.other,
-                    `unaligned 32 bit ARM write: ${hex(value, 8)} -> ${hex(address, 8)}`
+                    `unaligned 32 bit ARM write: ${hex(value, 8, false)} -> ${hex(address, 8, false)}`
                 );
                 return;
             }
@@ -543,7 +543,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             this.triggerTrap(
                 CartridgeInterface.TrapReason.other,
-                `invalid 32 bit ARM write: ${hex(value, 8)} -> ${hex(address, 8)}`
+                `invalid 32 bit ARM write: ${hex(value, 8, false)} -> ${hex(address, 8, false)}`
             );
         }
     };
