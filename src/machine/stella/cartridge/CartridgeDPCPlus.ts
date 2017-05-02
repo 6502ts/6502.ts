@@ -442,9 +442,11 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     break;
 
                 case 0xE:
-                    if (addr === 0x001FC000) {
-                        return this._armMamcr;
+                    switch (addr) {
+                        case 0x001FC000:
+                            return this._armMamcr;
                     }
+
                     break;
 
                 default:
@@ -481,6 +483,15 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     }
                     break;
 
+                case 0xE:
+                    switch (addr) {
+                        case 0x8004:
+                        case 0x8008:
+                            return 0;
+                    }
+
+                    break;
+
                 default:
             }
 
@@ -511,10 +522,12 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     break;
 
                 case 0xE:
-                    if (addr === 0x001FC000) {
-                        this._armMamcr = value;
-                        return;
+                    switch (addr)  {
+                        case 0x001FC000:
+                            this._armMamcr = value;
+                            return;
                     }
+
                     break;
             }
 
@@ -536,10 +549,23 @@ class CartridgeDPCPlus extends AbstractCartridge {
             const region = address >>> 28,
                 addr = address & 0x0FFFFFFF;
 
-            if (region === 0x4 && addr < 0x2000) {
-                this._ram32[addr >>> 2] = value;
-                return;
+            switch (region) {
+                case 0x4:
+                    if (addr < 0x2000) {
+                        this._ram32[addr >>> 2] = value;
+                        return;
+                    }
+
+                case 0xE:
+                    switch (addr)  {
+                        case 0x8004:
+                        case 0x8008:
+                            return;
+                    }
+
+                    break;
             }
+
 
             this.triggerTrap(
                 CartridgeInterface.TrapReason.other,
