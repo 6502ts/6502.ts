@@ -25,6 +25,11 @@ import CpuInterface from './CpuInterface';
 
 import RngInterface from '../../tools/rng/GeneratorInterface';
 
+function restoreFlagsFromStack(state: CpuInterface.State, bus: BusInterface): void {
+    state.s = (state.s + 0x01) & 0xFF;
+    state.flags = (bus.read(0x0100 + state.s) | CpuInterface.Flags.e) & (~CpuInterface.Flags.b);
+}
+
 function setFlagsNZ(state: CpuInterface.State, operand: number): void {
     state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)) |
         (operand & 0x80) |
@@ -249,15 +254,12 @@ function opOra(state: CpuInterface.State, bus: BusInterface, operand: number): v
 }
 
 function opPhp(state: CpuInterface.State, bus: BusInterface): void {
-    bus.write(0x0100 + state.s, state.flags);
+    bus.write(0x0100 + state.s, state.flags | CpuInterface.Flags.b);
     state.s = (state.s + 0xFF) & 0xFF;
 }
 
 function opPlp(state: CpuInterface.State, bus: BusInterface): void {
-    const mask = CpuInterface.Flags.b | CpuInterface.Flags.e;
-
-    state.s = (state.s + 0x01) & 0xFF;
-    state.flags = (state.flags & mask) | (bus.read(0x0100 + state.s) & ~mask);
+    restoreFlagsFromStack(state, bus);
 }
 
 function opPha(state: CpuInterface.State, bus: BusInterface): void {
@@ -316,8 +318,7 @@ function opRorMem(state: CpuInterface.State, bus: BusInterface, operand: number)
 function opRti(state: CpuInterface.State, bus: BusInterface): void {
     let returnPtr: number;
 
-    state.s = (state.s + 1) & 0xFF;
-    state.flags = bus.read(0x0100 + state.s);
+    restoreFlagsFromStack(state, bus);
 
     state.s = (state.s + 1) & 0xFF;
     returnPtr = bus.read(0x0100 + state.s);

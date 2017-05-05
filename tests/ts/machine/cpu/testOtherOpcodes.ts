@@ -324,7 +324,7 @@ export function run() {
         test('immediate', () => Runner
                 .create([0x00])
                 .setState({
-                    flags: CpuInterface.Flags.z,
+                    flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0xFF
                 })
                 .poke({
@@ -334,21 +334,21 @@ export function run() {
                 .run()
                 .assertCycles(7)
                 .assertState({
-                    flags: CpuInterface.Flags.i | CpuInterface.Flags.z,
+                    flags: CpuInterface.Flags.i | CpuInterface.Flags.z | CpuInterface.Flags.e,
                     p: 0x3412,
                     s: 0xFC
                 })
                 .assertMemory({
                     '0x01FF': 0xE0,
                     '0x01FE': 0x02,
-                    '0x01FD': CpuInterface.Flags.z | CpuInterface.Flags.b
+                    '0x01FD': CpuInterface.Flags.z | CpuInterface.Flags.b | CpuInterface.Flags.e
                 })
         );
 
         test('immediate, stack overflow', () => Runner
                 .create([0x00])
                 .setState({
-                    flags: CpuInterface.Flags.z,
+                    flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0x01
                 })
                 .poke({
@@ -358,16 +358,17 @@ export function run() {
                 .run()
                 .assertCycles(7)
                 .assertState({
-                    flags: CpuInterface.Flags.i | CpuInterface.Flags.z,
+                    flags: CpuInterface.Flags.i | CpuInterface.Flags.z | CpuInterface.Flags.e,
                     p: 0x3412,
                     s: 0xFE
                 })
                 .assertMemory({
                     '0x0101': 0xE0,
                     '0x0100': 0x02,
-                    '0x01FF': CpuInterface.Flags.z | CpuInterface.Flags.b
+                    '0x01FF': CpuInterface.Flags.z | CpuInterface.Flags.b | CpuInterface.Flags.e
                 })
         );
+
     });
 
     suite('CMP', function() {
@@ -1395,7 +1396,7 @@ export function run() {
                     s: 0xFF
                 })
                 .assertMemory({
-                    '0x0100': 0xE8
+                    '0x0100': 0xE8 | CpuInterface.Flags.b
                 })
         );
     });
@@ -1414,7 +1415,24 @@ export function run() {
                 .assertCycles(4)
                 .assertState({
                     s: 0xFF,
-                    flags: 0xFF & ~CpuInterface.Flags.e & ~CpuInterface.Flags.b
+                    flags: 0xFF & ~CpuInterface.Flags.b
+                })
+        );
+
+        test('implied, e and b flag handling', () => Runner
+                .create([0x28])
+                .setState({
+                    flags: 0,
+                    s: 0xFE
+                })
+                .poke({
+                    '0x01FF': CpuInterface.Flags.b
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    s: 0xFF,
+                    flags: CpuInterface.Flags.e
                 })
         );
 
@@ -1431,7 +1449,7 @@ export function run() {
                 .assertCycles(4)
                 .assertState({
                     s: 0x00,
-                    flags: 0xA7 & ~CpuInterface.Flags.e & ~CpuInterface.Flags.b
+                    flags: 0xA7 & ~CpuInterface.Flags.b
                 })
         );
     });
@@ -1620,7 +1638,7 @@ export function run() {
                 .assertCycles(6)
                 .assertState({
                     s: 0xFF,
-                    flags: CpuInterface.Flags.z | CpuInterface.Flags.b
+                    flags: CpuInterface.Flags.z | CpuInterface.Flags.e
                 })
         );
 
@@ -1640,7 +1658,7 @@ export function run() {
                 .assertState({
                     s: 0x01,
                     p: 0x6745,
-                    flags: CpuInterface.Flags.z | CpuInterface.Flags.b
+                    flags: CpuInterface.Flags.z | CpuInterface.Flags.e
                 })
         );
 

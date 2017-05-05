@@ -89,6 +89,24 @@ class Runner {
         return this;
     }
 
+    runFor(cycles: number) {
+        this._originalState = Object.assign(new CpuInterface.State(), this._cpu.state);
+        this._cycles = 0;
+
+        this._cpu.setInvalidInstructionCallback(() => {
+            throw new Error('invalid instruction!');
+        });
+
+        this._bus.getLog().clear();
+
+        for (let i = 0; i < cycles; i++) {
+            this._cpu.cycle();
+            this._cycles++;
+        }
+
+        return this;
+    }
+
     assertCycles(cycles: number): this {
         if (this._cycles !== cycles) {
             throw new Error(`Cycle count mismatch, expected ${cycles}, got ${this._cycles}`);
@@ -112,7 +130,8 @@ class Runner {
             }
         });
 
-        const reference = state.hasOwnProperty('flags') ? state.flags : this._originalState.flags;
+        let reference = state.hasOwnProperty('flags') ? state.flags : this._originalState.flags;
+
         if (reference !== this._cpu.state.flags)
         {
             throw new Error(

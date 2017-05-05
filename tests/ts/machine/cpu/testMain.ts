@@ -25,6 +25,7 @@ import {run as testArithmetics} from './testArithmetics';
 import {run as testOtherOpcodes} from './testOtherOpcodes';
 import {run as testAccessPatterns} from './testAccessPatterns';
 import {run as testUndocumentedOpcodes} from './testUndocumentedOpcodes';
+import {run as testInterrupt} from './testInterrupt';
 
 suite('CPU', function() {
 
@@ -44,6 +45,10 @@ suite('CPU', function() {
 
     suite('memory access patterns', function() {
         testAccessPatterns();
+    });
+
+    suite('interrupt handling', function() {
+        testInterrupt();
     });
 
 });
