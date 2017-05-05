@@ -25,6 +25,11 @@ import CpuInterface from './CpuInterface';
 
 import RngInterface from '../../tools/rng/GeneratorInterface';
 
+const enum InterruptCheck {
+    endOfInstruction,
+    beforeOp
+}
+
 function restoreFlagsFromStack(state: CpuInterface.State, bus: BusInterface): void {
     state.s = (state.s + 0x01) & 0xFF;
     state.flags = (bus.read(0x0100 + state.s) | CpuInterface.Flags.e) & (~CpuInterface.Flags.b);
@@ -34,6 +39,36 @@ function setFlagsNZ(state: CpuInterface.State, operand: number): void {
     state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)) |
         (operand & 0x80) |
         (operand ? 0 : CpuInterface.Flags.z);
+}
+
+function dispatchInterrupt(state: CpuInterface.State, bus: BusInterface, vector: number): void {
+    const nextOpAddr = state.p;
+
+    if (state.nmi) {
+        vector = 0xFFFA;
+    }
+
+    state.nmi = state.irq = false;
+
+    bus.write(state.s + 0x0100, (nextOpAddr >>> 8) & 0xFF);
+    state.s = (state.s + 0xFF) & 0xFF;
+    bus.write(state.s + 0x0100, nextOpAddr & 0xFF);
+    state.s = (state.s + 0xFF) & 0xFF;
+
+    bus.write(state.s + 0x0100, state.flags & (~CpuInterface.Flags.b));
+    state.s = (state.s + 0xFF) & 0xFF;
+
+    state.flags |= CpuInterface.Flags.i;
+
+    state.p = (bus.readWord(vector));
+}
+
+function opIrq(state: CpuInterface.State, bus: BusInterface) {
+    dispatchInterrupt(state, bus, 0xFFFE);
+}
+
+function opNmi(state: CpuInterface.State, bus: BusInterface) {
+    dispatchInterrupt(state, bus, 0xFFFA);
 }
 
 function opBoot(state: CpuInterface.State, bus: BusInterface): void {
@@ -101,6 +136,14 @@ function opBit(state: CpuInterface.State, bus: BusInterface, operand: number): v
 
 function opBrk(state: CpuInterface.State, bus: BusInterface): void {
     const nextOpAddr = (state.p + 1) & 0xFFFF;
+    let vector = 0xFFFE;
+
+    if (state.nmi) {
+        vector = 0xFFFA;
+        state.nmi = false;
+    }
+
+    state.nmi = state.irq = false;
 
     bus.write(state.s + 0x0100, (nextOpAddr >>> 8) & 0xFF);
     state.s = (state.s + 0xFF) & 0xFF;
@@ -112,7 +155,7 @@ function opBrk(state: CpuInterface.State, bus: BusInterface): void {
 
     state.flags |= CpuInterface.Flags.i;
 
-    state.p = (bus.readWord(0xFFFE));
+    state.p = (bus.readWord(vector));
 }
 
 function opClc(state: CpuInterface.State): void {
@@ -512,13 +555,8 @@ class Cpu {
         this.reset();
     }
 
-    setInterrupt(): Cpu {
-        this._interruptPending = true;
-        return this;
-    }
-
-    clearInterrupt(): Cpu {
-        this._interruptPending = false;
+    setInterrupt(irq: boolean): Cpu {
+        this._interruptPending = irq;
         return this;
     }
 
@@ -566,6 +604,8 @@ class Cpu {
         this.state.p = this._rng ? this._rng.int(0xFFFF) : 0;
         this.state.flags = (this._rng ? this._rng.int(0xFF) : 0) |
             CpuInterface.Flags.i | CpuInterface.Flags.e | CpuInterface.Flags.b;
+        this.state.irq = false;
+        this.state.nmi = false;
 
         this.executionState = CpuInterface.ExecutionState.boot;
         this._opCycles = 7;
@@ -586,16 +626,43 @@ class Cpu {
             case CpuInterface.ExecutionState.boot:
             case CpuInterface.ExecutionState.execute:
                 if (--this._opCycles === 0) {
+                    if (this._interuptCheck === InterruptCheck.beforeOp) {
+                        this._checkForInterrupts();
+                    }
+
                     this._instructionCallback(this.state, this._bus, this._operand, this._currentAddressingMode);
                     this.executionState = CpuInterface.ExecutionState.fetch;
+
+                    if (this._interuptCheck === InterruptCheck.endOfInstruction) {
+                        this._checkForInterrupts();
+                    }
                 }
 
                 break;
 
             case CpuInterface.ExecutionState.fetch:
-                // TODO: interrupt handling
+                if (this.state.nmi) {
+                    this._instructionCallback = opNmi;
+                    this._opCycles = 6;
+                    this.state.nmi = this.state.irq = false;
+                    this._interuptCheck = InterruptCheck.beforeOp;
+                    this.executionState = CpuInterface.ExecutionState.execute;
+
+                    return this;
+                }
+
+                if (this.state.irq) {
+                    this._instructionCallback = opIrq;
+                    this._opCycles = 6;
+                    this.state.nmi = this.state.irq = false;
+                    this._interuptCheck = InterruptCheck.beforeOp;
+                    this.executionState = CpuInterface.ExecutionState.execute;
+
+                    return this;
+                }
 
                 this._fetch();
+                break;
         }
 
         return this;
@@ -610,6 +677,7 @@ class Cpu {
 
         this._lastInstructionPointer = this.state.p;
         this._currentAddressingMode = addressingMode;
+        this._interuptCheck = InterruptCheck.endOfInstruction;
 
         switch (instruction.operation) {
             case Instruction.Operation.adc:
@@ -755,6 +823,7 @@ class Cpu {
             case Instruction.Operation.cli:
                 this._opCycles = 1;
                 this._instructionCallback = opCli;
+                this._interuptCheck = InterruptCheck.beforeOp;
                 break;
 
             case Instruction.Operation.clv:
@@ -892,6 +961,7 @@ class Cpu {
             case Instruction.Operation.plp:
                 this._opCycles = 3;
                 this._instructionCallback = opPlp;
+                this._interuptCheck = InterruptCheck.beforeOp;
                 break;
 
             case Instruction.Operation.rol:
@@ -945,6 +1015,7 @@ class Cpu {
             case Instruction.Operation.sei:
                 this._opCycles = 1;
                 this._instructionCallback = opSei;
+                this._interuptCheck = InterruptCheck.beforeOp;
                 break;
 
             case Instruction.Operation.sta:
@@ -1182,15 +1253,31 @@ class Cpu {
         this.executionState = CpuInterface.ExecutionState.execute;
     }
 
+    private _checkForInterrupts(): void {
+        if (this.state.nmi) {
+            this.state.irq = false;
+            this.state.nmi = true;
+            this._nmiPending = false;
+        }
+
+        if (this._interruptPending && !this.state.nmi && !(this.state.flags & CpuInterface.Flags.i)) {
+            this.state.irq = true;
+        }
+    }
+
     executionState: CpuInterface.ExecutionState = CpuInterface.ExecutionState.boot;
     state: CpuInterface.State = new CpuInterface.State();
 
     private _opCycles: number = 0;
     private _instructionCallback: InstructionCallbackInterface = null;
     private _invalidInstructionCallback : CpuInterface.InvalidInstructionCallbackInterface = null;
+
     private _interruptPending: boolean = false;
     private _nmiPending: boolean = false;
+    private _interuptCheck = InterruptCheck.endOfInstruction;
+
     private _halted: boolean = false;
+
     private _operand: number = 0;
     private _lastInstructionPointer: number = 0;
     private _currentAddressingMode: Instruction.AddressingMode = Instruction.AddressingMode.invalid;

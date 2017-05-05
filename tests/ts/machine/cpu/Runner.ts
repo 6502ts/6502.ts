@@ -66,6 +66,7 @@ class Runner {
         const codeEnd = this._base + this._code.length;
         let pBeforeExecute = this._cpu.state.p;
 
+        this._cycles = 0;
         this._originalState = Object.assign(new CpuInterface.State(), this._cpu.state);
 
         this._cpu.setInvalidInstructionCallback(() => {
@@ -174,6 +175,12 @@ class Runner {
 
     getCpu(): CpuInterface {
         return this._cpu;
+    }
+
+    configure(cb: (cpu: CpuInterface) => any): this {
+        cb(this._cpu);
+
+        return this;
     }
 
     private _bus: InstrumentedBus;

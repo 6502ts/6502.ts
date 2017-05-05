@@ -20,9 +20,7 @@
  */
 
 interface CpuInterface {
-    setInterrupt(): CpuInterface;
-
-    clearInterrupt(): CpuInterface;
+    setInterrupt(irq: boolean): CpuInterface;
 
     isInterrupt(): boolean;
 
@@ -62,6 +60,9 @@ module CpuInterface {
         s: number = 0;
         p: number = 0;
         flags: number = 0;
+
+        irq = false;
+        nmi = false;
     }
 
     export const enum Flags {
