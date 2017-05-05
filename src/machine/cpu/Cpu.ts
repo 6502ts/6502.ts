@@ -808,6 +808,7 @@ class Cpu {
             case Instruction.Operation.brk:
                 this._opCycles = 6;
                 this._instructionCallback = opBrk;
+                this._interuptCheck = InterruptCheck.beforeOp;
                 break;
 
             case Instruction.Operation.clc:
@@ -1254,7 +1255,7 @@ class Cpu {
     }
 
     private _checkForInterrupts(): void {
-        if (this.state.nmi) {
+        if (this._nmiPending) {
             this.state.irq = false;
             this.state.nmi = true;
             this._nmiPending = false;
