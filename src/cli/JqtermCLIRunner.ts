@@ -81,7 +81,7 @@ class JqtermCLIRunner {
             handler: (candidates: Array<string>) => void
         ) {
             handler(me._completer.complete(this.get_command()).candidates);
-        }
+        };
     }
 
     private _terminal: JQueryTerminal;
