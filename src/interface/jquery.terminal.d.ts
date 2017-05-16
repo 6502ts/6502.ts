@@ -38,7 +38,7 @@ interface JQueryTerminalInterpreterFunction {
 }
 
 interface JQueryTerminalCompletionHandler {
-    (terminal: JQueryTerminal, cmd: string, handler: (candidates: Array<string>) => void): void;
+    (this: JQueryTerminal, cmd: string, handler: (candidates: Array<string>) => void): void;
 }
 
 interface JQuery {

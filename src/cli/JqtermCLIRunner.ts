@@ -37,9 +37,7 @@ class JqtermCLIRunner {
                 this._cli.pushInput(input),
             {
                 greetings: 'Ready.',
-                completion: (terminal: JQueryTerminal, cmd: string,
-                        handler: (candidates: Array<string>) => void
-                    ) => handler(this._completer.complete(terminal.get_command()).candidates),
+                completion: this._getCompletionHandler(),
                 exit: false,
                 clear: false
             }
@@ -72,6 +70,18 @@ class JqtermCLIRunner {
 
     private _onCLIPromptChanged(payload: void, ctx: JqtermCLIRunner): void {
         ctx._terminal.set_prompt(ctx._cli.getPrompt());
+    }
+
+    private _getCompletionHandler() {
+        const me = this;
+
+        return function(
+            this: JQueryTerminal,
+            cmd: string,
+            handler: (candidates: Array<string>) => void
+        ) {
+            handler(me._completer.complete(this.get_command()).candidates);
+        }
     }
 
     private _terminal: JQueryTerminal;

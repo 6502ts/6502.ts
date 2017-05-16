@@ -170,7 +170,7 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
                 </Col>
                 <Col md={5}>
                     <ControlPanel
-                        {...this.props}
+                        {...this.props as ControlPanel.Props}
                         onReset={this.props.resetEmulation}
                         onPause={this.props.userPauseEmulation}
                         onResume={this.props.resumeEmulation}

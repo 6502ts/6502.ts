@@ -33,13 +33,13 @@ import RandomSeedEdit from './RandomSeedEdit';
 function CartridgeSettings(props: CartridgeSettings.Props) {
     return <div className={props.visible ? '' : 'hidden'}>
         <ControlLabel>Name:</ControlLabel>
-        <CartridgeNameInput {...props}/>
+        <CartridgeNameInput {...props as CartridgeNameInput.Props}/>
 
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>TV mode:</ControlLabel>
-        <TvModeSelect {...props}/>
+        <TvModeSelect {...props as TvModeSelect.Props}/>
 
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Cartridge type:</ControlLabel>
-        <CartridgeTypeSelect {...props}/>
+        <CartridgeTypeSelect {...props as CartridgeTypeSelect.Props}/>
 
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Emulate paddles:</ControlLabel>
         <Switch
@@ -50,7 +50,7 @@ function CartridgeSettings(props: CartridgeSettings.Props) {
         />
 
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>RNG seed:</ControlLabel>
-        <RandomSeedEdit {...props}/>
+        <RandomSeedEdit {...props as RandomSeedEdit.Props}/>
 
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Audio:</ControlLabel>
         <Switch

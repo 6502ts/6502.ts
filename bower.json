@@ -7,8 +7,8 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "jquery": "~2.1.4",
+    "jquery": "~3.2.1",
     "jquery-mousewheel": "~3.1.12",
-    "jquery.terminal": "^0.10.8"
+    "jquery.terminal": "^1.4.0"
   }
 }
