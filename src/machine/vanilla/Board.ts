@@ -57,6 +57,7 @@ class Board implements BoardInterface {
 
     reset(hard: boolean): Board {
         this._cpu.reset();
+        this._bus.reset();
 
         if (hard) {
             this._bus.clear();

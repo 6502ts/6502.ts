@@ -21,13 +21,32 @@
 
 import VanillaMemory from '../vanilla/Memory';
 import SimpleSerialIOInterface from '../io/SimpleSerialIOInterface';
+import CpuInterface from '../cpu/CpuInterface';
 
 class Memory extends VanillaMemory implements SimpleSerialIOInterface {
+
+    reset(): void {
+        super.reset();
+
+        this._feedbackRegister = 0;
+    }
+
+    setCpu(cpu: CpuInterface): this {
+        this._cpu = cpu;
+
+        return this;
+    }
+
     read(address: number): number {
-        if (address === 0xF004) {
-            return this._inCallback(this);
-        } else {
-            return this._data[address];
+        switch (address) {
+            case 0xF002:
+                return this._feedbackRegister;
+
+            case 0xF004:
+                return this._inCallback(this);
+
+            default:
+                return this._data[address];
         }
     }
 
@@ -40,10 +59,25 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
     }
 
     write(address: number, value: number) {
-        if (address === 0xF001) {
-            this._outCallback(value, this);
-        } else if (address < 0xC000) {
-            this._data[address] = value;
+        switch (address) {
+            case 0xF001:
+                this._outCallback(value, this);
+                break;
+
+            case 0xF002:
+                this._cpu.setInterrupt(!!(value & 0x01));
+                if ((value & 0x02) && (!(this._feedbackRegister & 0x02))) {
+                    this._cpu.nmi();
+                }
+
+                this._feedbackRegister = value;
+                break;
+
+            default:
+                if (address < 0xC000) {
+                    this._data[address] = value;
+                }
+                break;
         }
     }
 
@@ -69,6 +103,9 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
         (): number => 0x00;
     private _outCallback: SimpleSerialIOInterface.OutCallbackInterface =
         (): void => undefined;
+
+    private _cpu: CpuInterface;
+    private _feedbackRegister = 0;
 }
 
 export default Memory;

@@ -22,9 +22,12 @@
 import BusInterface from '../bus/BusInterface';
 
 class Memory implements BusInterface {
+
     constructor() {
         this.clear();
     }
+
+    reset(): void {}
 
     clear(): void {
         for (let i = 0; i < 0x10000; i++) this._data[i] = 0;

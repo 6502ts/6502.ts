@@ -22,8 +22,16 @@
 import SimpleSerialIOInterface from '../io/SimpleSerialIOInterface';
 import VanillaBoard from '../vanilla/Board';
 import Memory from './Memory';
+import CpuInterface from '../cpu/CpuInterface';
+import BusInterface from '../bus/BusInterface';
 
 class Board extends VanillaBoard {
+
+    constructor(cpuFactory?: (bus: BusInterface) => CpuInterface) {
+        super(cpuFactory);
+
+        this._bus.setCpu(this._cpu);
+    }
 
     getSerialIO(): SimpleSerialIOInterface {
         return this._bus;
