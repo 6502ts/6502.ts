@@ -28,7 +28,7 @@ import * as cartridgeUtil from './util';
 const enum IODelay {
     load = 10,
     save = 100
-};
+}
 
 class CartridgeFA2 extends AbstractCartridge {
 
@@ -52,6 +52,16 @@ class CartridgeFA2 extends AbstractCartridge {
         }
 
         this.reset();
+    }
+
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        // Signatures shamelessly stolen from Stella
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
+            [0xA0, 0xC1, 0x1F, 0xE0],
+            [0x00, 0x80, 0x02, 0xE0]
+        ]);
+
+        return (signatureCounts[0] > 0 || signatureCounts[1] > 0);
     }
 
     reset(): void {
@@ -115,16 +125,6 @@ class CartridgeFA2 extends AbstractCartridge {
         if (address >= 0x0FF5 && address <= 0x0FFB) {
             this._bank = this._banks[address - 0x0FF5];
         }
-    }
-
-    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        // Signatures shamelessly stolen from Stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
-            [0xA0, 0xC1, 0x1F, 0xE0],
-            [0x00, 0x80, 0x02, 0xE0]
-        ]);
-
-        return (signatureCounts[0] > 0 || signatureCounts[1] > 0);
     }
 
     private _handleIo(): void {

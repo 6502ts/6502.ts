@@ -65,4 +65,4 @@ export enum registerMapWrite {
     hmove   = 0x2A,
     hmclr   = 0x2B,
     cxclr   = 0x2C
-};
+}

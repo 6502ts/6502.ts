@@ -36,4 +36,6 @@ const fsProvider = new NodeFilesystemProvider(),
 
 runner.startup();
 
-if (process.argv.length > 3) cli.runDebuggerScript(process.argv[3]);
+if (process.argv.length > 3) {
+    cli.runDebuggerScript(process.argv[3]);
+}

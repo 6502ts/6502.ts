@@ -22,7 +22,7 @@
 import * as redux from 'redux';
 
 import {
-    Type as ActionType
+    types as ActionType
 } from '../actions/root';
 
 import {

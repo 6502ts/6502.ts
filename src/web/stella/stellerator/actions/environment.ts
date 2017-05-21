@@ -21,10 +21,10 @@
 
 import {Action} from 'redux';
 
-export const Type = {
+export const types = {
     initialize: 'environment/initialize'
 };
-Object.freeze(Type);
+Object.freeze(types);
 
 export interface InitializeAction extends Action {
     helppageUrl: string;
@@ -42,7 +42,7 @@ export function initialize(
     }
 ): InitializeAction {
     return {
-        type: Type.initialize,
+        type: types.initialize,
         helppageUrl,
         buildId
     };

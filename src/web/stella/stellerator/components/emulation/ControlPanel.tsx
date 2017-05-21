@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
 import {
@@ -31,36 +30,36 @@ import Switch from '../Switch';
 import EmulationServiceInterface from '../../../service/EmulationServiceInterface';
 
 function ControlPanel(props: ControlPanel.Props) {
-    return <div style={props.style} className="emulation-control-panel">
+    return <div style={props.style} className='emulation-control-panel'>
         <ControlLabel style={{display: 'block'}}
         >Difficulty left</ControlLabel>
         <Switch
-            labelTrue="Amateur / B"
-            labelFalse="Pro / A"
+            labelTrue='Amateur / B'
+            labelFalse='Pro / A'
             state={props.difficultyPlayer0}
             onSwitch={props.onSwitchDifficultyPlayer0}
         ></Switch>
         <ControlLabel style={{display: 'block', paddingTop: '1rem'}}
         >Difficulty right</ControlLabel>
         <Switch
-            labelTrue="Amateur / B"
-            labelFalse="Pro / A"
+            labelTrue='Amateur / B'
+            labelFalse='Pro / A'
             state={props.difficultyPlayer1}
             onSwitch={props.onSwitchDifficultyPlayer1}
         ></Switch>
         <ControlLabel style={{display: 'block', paddingTop: '1rem'}}
         >TV mode</ControlLabel>
         <Switch
-            labelTrue="B/W"
-            labelFalse="Color"
+            labelTrue='B/W'
+            labelFalse='Color'
             state={props.tvModeSwitch}
             onSwitch={props.onSwitchTvMode}
         ></Switch>
         <ControlLabel style={{display: 'block', paddingTop: '1rem'}}
         >Limit framerate</ControlLabel>
         <Switch
-            labelTrue="yes"
-            labelFalse="no"
+            labelTrue='yes'
+            labelFalse='no'
             state={props.enforceRateLimit}
             onSwitch={props.onEnforceRateLimitChange}
         ></Switch>
@@ -78,7 +77,9 @@ function ControlPanel(props: ControlPanel.Props) {
                             props.emulationState === EmulationServiceInterface.State.paused
                         ) ? 'inline-block' : 'none'
                 }}
-                onClick={props.emulationState === EmulationServiceInterface.State.running ? props.onPause : props.onResume}
+                onClick={
+                    props.emulationState === EmulationServiceInterface.State.running ? props.onPause : props.onResume
+                }
             >
                 {props.emulationState === EmulationServiceInterface.State.running ? 'Pause' : 'Resume'}
             </Button>
@@ -86,7 +87,7 @@ function ControlPanel(props: ControlPanel.Props) {
     </div>;
 }
 
-module ControlPanel {
+namespace ControlPanel {
 
     export interface Props {
         difficultyPlayer0?: boolean;

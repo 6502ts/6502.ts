@@ -37,12 +37,14 @@ import {
 import State from '../state/State';
 import PendingChangesModalComponent from '../components/PendingChangesModal';
 
+// tslint:disable-next-line:variable-name
 export const SelectPendingChangesModal = factory(
     (state: State) => state.guiState.showSelectPendingChangesModal,
     selectClosePendingChangesModal,
     selectCartridge
 );
 
+// tslint:disable-next-line:variable-name
 export const LoadPendingChangesModal = factory(
     (state: State) => state.guiState.showLoadPendingChangesModal,
     loadClosePendingChangesModal,

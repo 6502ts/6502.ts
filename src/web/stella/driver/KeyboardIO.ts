@@ -181,7 +181,7 @@ class KeyboardIO {
     } = {};
 }
 
-module KeyboardIO {
+namespace KeyboardIO {
 
     export const enum Action {
         select,

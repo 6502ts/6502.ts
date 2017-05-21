@@ -30,8 +30,7 @@ interface SimpleSerialIOInterface {
     getInCallback(): SimpleSerialIOInterface.InCallbackInterface;
 }
 
-
-module SimpleSerialIOInterface {
+namespace SimpleSerialIOInterface {
 
     export interface OutCallbackInterface {
         (data: number, source: SimpleSerialIOInterface): void;

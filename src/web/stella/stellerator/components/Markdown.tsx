@@ -71,7 +71,7 @@ class Markdown extends React.Component<Markdown.Props, Markdown.State> {
 
 }
 
-module Markdown {
+namespace Markdown {
 
     export interface Props extends React.HTMLProps<any> {
         url?: string;

@@ -19,9 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/// <reference path="../interface/jquery.terminal.d.ts"/>
-
-import EhBasicCLI from "../cli/EhBasicCLI";
+import EhBasicCLI from '../cli/EhBasicCLI';
 import JqtermCLIRunner from '../cli/JqtermCLIRunner';
 import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 
@@ -34,8 +32,8 @@ export function run(
     const fsProvider = new PrepackagedFilesystemProvider(fileBlob),
         cli = new EhBasicCLI(fsProvider),
         runner = new JqtermCLIRunner(cli, terminalElt, {
-            interruptButton: interruptButton,
-            clearButton: clearButton
+            interruptButton,
+            clearButton
         });
 
     cli.allowQuit(false);

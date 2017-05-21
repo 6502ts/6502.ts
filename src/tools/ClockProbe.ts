@@ -29,7 +29,9 @@ class ClockProbe {
     constructor(private _scheduler: SchedulerInterface) {}
 
     attach(clock: EventInterface<any>): ClockProbe {
-        if (this._clock) this.detach();
+        if (this._clock) {
+            this.detach();
+        }
 
         this._clock = clock;
         clock.addHandler(this._clockHandler, this);
@@ -38,7 +40,9 @@ class ClockProbe {
     }
 
     start(): ClockProbe {
-        if (this._measurementTask) return;
+        if (this._measurementTask) {
+            return;
+        }
 
         this._timestamp = Date.now();
         this._counter = 0;
@@ -48,7 +52,9 @@ class ClockProbe {
     }
 
     detach(): ClockProbe {
-        if (!this._clock) return;
+        if (!this._clock) {
+            return;
+        }
 
         this._clock.removeHandler(this._clockHandler, this);
         this._clock = undefined;
@@ -57,7 +63,9 @@ class ClockProbe {
     }
 
     stop(): ClockProbe {
-        if (!this._measurementTask) return;
+        if (!this._measurementTask) {
+            return;
+        }
 
         this._measurementTask.stop();
         this._measurementTask = undefined;
@@ -68,8 +76,6 @@ class ClockProbe {
     getFrequency(): number {
         return this._frequency;
     }
-
-    frequencyUpdate = new Event<number>();
 
     private _updateMeasurement(probe: ClockProbe) {
         const timestamp = Date.now();
@@ -85,6 +91,8 @@ class ClockProbe {
     private _clockHandler(clocks: number, ctx: ClockProbe) {
         ctx._counter += clocks;
     }
+
+    frequencyUpdate = new Event<number>();
 
     private _counter = 0;
     private _timestamp: number;

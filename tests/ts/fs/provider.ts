@@ -66,7 +66,7 @@ function runProviderTests(factory: () => FilesystemProviderInterface): void {
         });
     }
 
-    function testDirectoryListing(path:string, content: Array<string>) {
+    function testDirectoryListing(path: string, content: Array<string>) {
         test(util.format('directory listing %s, sync', path), function() {
             assert.deepEqual(provider.readDirSync(path).sort(), content.sort());
         });

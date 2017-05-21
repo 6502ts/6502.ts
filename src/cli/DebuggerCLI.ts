@@ -46,29 +46,6 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
         this._debuggerFrontend = debuggerFrontend;
     }
 
-    protected _initialize() {
-        this._initializeHardware();
-        this._debugger.attach(this._board);
-    }
-
-    protected _initializeHardware(): void {
-        this._board = new Board();
-    }
-
-    protected _extendCommandInterpreter(): void {
-        this._commandInterpreter.registerCommands({
-            quit: (): string => {
-                this._quit();
-                return 'bye';
-            },
-            'run-script': (args: Array<string>): string => {
-                if (!args.length) throw new Error('filename required');
-                this.runDebuggerScript(args[0]);
-                return 'script executed';
-            }
-        });
-    }
-
     runDebuggerScript(filename: string): void {
         this._fsProvider.pushd(path.dirname(filename));
 
@@ -133,12 +110,40 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
         this._allowQuit = allowQuit;
     }
 
+    protected _initialize() {
+        this._initializeHardware();
+        this._debugger.attach(this._board);
+    }
+
+    protected _initializeHardware(): void {
+        this._board = new Board();
+    }
+
+    protected _extendCommandInterpreter(): void {
+        this._commandInterpreter.registerCommands({
+            'quit': (): string => {
+                this._quit();
+                return 'bye';
+            },
+            'run-script': (args: Array<string>): string => {
+                if (!args.length) {
+                    throw new Error('filename required');
+                }
+
+                this.runDebuggerScript(args[0]);
+                return 'script executed';
+            }
+        });
+    }
+
     protected _prompt(): void {
         this.events.prompt.dispatch(undefined);
     }
 
     protected _quit(): void {
-        if (this._allowQuit) this.events.quit.dispatch(undefined);
+        if (this._allowQuit) {
+            this.events.quit.dispatch(undefined);
+        }
     }
 
     protected _outputLine(line: string): void {

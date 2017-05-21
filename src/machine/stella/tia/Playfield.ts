@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-const enum ColorMode {normal, score};
+const enum ColorMode {normal, score}
 
 class Playfield {
 
@@ -129,7 +129,6 @@ class Playfield {
         this._colorP1 = color;
         this._applyColors();
     }
-
 
     tick(x: number) {
         this._x = x;

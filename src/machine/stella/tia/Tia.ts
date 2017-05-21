@@ -82,8 +82,8 @@ const enum CollisionMask {
     playfield =     0b0000010001001011
 }
 
-const enum HState {blank, frame};
-const enum Priority {normal, pfp, score};
+const enum HState {blank, frame}
+const enum Priority {normal, pfp, score}
 
 class Tia implements VideoOutputInterface {
 
@@ -521,7 +521,6 @@ class Tia implements VideoOutputInterface {
         return this;
     }
 
-
     cycle(): void {
         this._delayQueue.execute(Tia._delayedWrite, this);
 
@@ -550,6 +549,137 @@ class Tia implements VideoOutputInterface {
         }
 
         this._clock++;
+    }
+
+    private static _delayedWrite(address: number, value: number, self: Tia): void {
+        switch (address) {
+            case Tia.Registers.vblank:
+                self._flushLineCache();
+                self._frameManager.setVblank((value & 0x02) > 0);
+                break;
+
+            case Tia.Registers.hmove:
+                self._flushLineCache();
+
+                // Start the timer and increase hblank
+                self._movementClock = 0;
+                self._movementInProgress = true;
+
+                if (!self._extendedHblank) {
+                    self._hblankCtr -= 8;
+                    self._clearHmoveComb();
+                    self._extendedHblank = true;
+                }
+
+                // Start sprite movement
+                self._missile0.startMovement();
+                self._missile1.startMovement();
+                self._player0.startMovement();
+                self._player1.startMovement();
+                self._ball.startMovement();
+
+                break;
+
+            case Tia.Registers.pf0:
+                self._playfield.pf0(value);
+                break;
+
+            case Tia.Registers.pf1:
+                self._playfield.pf1(value);
+                break;
+
+            case Tia.Registers.pf2:
+                self._playfield.pf2(value);
+                break;
+
+            case Tia.Registers.grp0:
+                self._player0.grp(value);
+                break;
+
+            case Tia.Registers.grp1:
+                self._player1.grp(value);
+                break;
+
+            case Tia.Registers._shuffleP0:
+                self._player0.shufflePatterns();
+                break;
+
+            case Tia.Registers._shuffleP1:
+                self._player1.shufflePatterns();
+                break;
+
+            case Tia.Registers.hmp0:
+                self._player0.hmp(value);
+                break;
+
+            case Tia.Registers.hmp1:
+                self._player1.hmp(value);
+                break;
+
+            case Tia.Registers.hmm0:
+                self._missile0.hmm(value);
+                break;
+
+            case Tia.Registers.hmm1:
+                self._missile1.hmm(value);
+                break;
+
+            case Tia.Registers.hmbl:
+                self._ball.hmbl(value);
+                break;
+
+            case Tia.Registers.hmclr:
+                self._missile0.hmm(0);
+                self._missile1.hmm(0);
+                self._player0.hmp(0);
+                self._player1.hmp(0);
+                self._ball.hmbl(0);
+                break;
+
+            case Tia.Registers.refp0:
+                self._player0.refp(value);
+                break;
+
+            case Tia.Registers.refp1:
+                self._player1.refp(value);
+                break;
+
+            case Tia.Registers._shuffleBL:
+                self._ball.shuffleStatus();
+                break;
+
+            case Tia.Registers.enabl:
+                self._ball.enabl(value);
+                break;
+
+            case Tia.Registers.enam0:
+                self._missile0.enam(value);
+                break;
+
+            case Tia.Registers.enam1:
+                self._missile1.enam(value);
+                break;
+        }
+    }
+
+    private static _onNewFrame(surface: RGBASurfaceInterface, self: Tia): void {
+        const linesTotal = self._frameManager.getCurrentLine();
+
+        if (linesTotal > self._maxLinesTotal) {
+            self._maxLinesTotal = linesTotal;
+        }
+
+        if (linesTotal < self._maxLinesTotal) {
+            const buffer = surface.getBuffer(),
+                base = 160 * linesTotal,
+                boundary = self._maxLinesTotal * 160;
+
+            for (let i = base; i < boundary; i++) {
+                buffer[i] = 0xFF000000;
+            }
+        }
+
+        self.newFrame.dispatch(surface);
     }
 
     private _tickMovement(): void {
@@ -793,136 +923,9 @@ class Tia implements VideoOutputInterface {
         }
     }
 
-    private static _delayedWrite(address: number, value: number, self: Tia): void {
-        switch (address) {
-            case Tia.Registers.vblank:
-                self._flushLineCache();
-                self._frameManager.setVblank((value & 0x02) > 0);
-                break;
+    newFrame = new Event<RGBASurfaceInterface>();
 
-            case Tia.Registers.hmove:
-                self._flushLineCache();
-
-                // Start the timer and increase hblank
-                self._movementClock = 0;
-                self._movementInProgress = true;
-
-                if (!self._extendedHblank) {
-                    self._hblankCtr -= 8;
-                    self._clearHmoveComb();
-                    self._extendedHblank = true;
-                }
-
-                // Start sprite movement
-                self._missile0.startMovement();
-                self._missile1.startMovement();
-                self._player0.startMovement();
-                self._player1.startMovement();
-                self._ball.startMovement();
-
-                break;
-
-            case Tia.Registers.pf0:
-                self._playfield.pf0(value);
-                break;
-
-            case Tia.Registers.pf1:
-                self._playfield.pf1(value);
-                break;
-
-            case Tia.Registers.pf2:
-                self._playfield.pf2(value);
-               break;
-
-            case Tia.Registers.grp0:
-                self._player0.grp(value);
-                break;
-
-            case Tia.Registers.grp1:
-                self._player1.grp(value);
-                break;
-
-            case Tia.Registers._shuffleP0:
-                self._player0.shufflePatterns();
-                break;
-
-            case Tia.Registers._shuffleP1:
-                self._player1.shufflePatterns();
-                break;
-
-            case Tia.Registers.hmp0:
-                self._player0.hmp(value);
-                break;
-
-            case Tia.Registers.hmp1:
-                self._player1.hmp(value);
-                break;
-
-            case Tia.Registers.hmm0:
-                self._missile0.hmm(value);
-                break;
-
-            case Tia.Registers.hmm1:
-                self._missile1.hmm(value);
-                break;
-
-            case Tia.Registers.hmbl:
-                self._ball.hmbl(value);
-                break;
-
-            case Tia.Registers.hmclr:
-                self._missile0.hmm(0);
-                self._missile1.hmm(0);
-                self._player0.hmp(0);
-                self._player1.hmp(0);
-                self._ball.hmbl(0);
-                break;
-
-            case Tia.Registers.refp0:
-                self._player0.refp(value);
-                break;
-
-            case Tia.Registers.refp1:
-                self._player1.refp(value);
-                break;
-
-            case Tia.Registers._shuffleBL:
-                self._ball.shuffleStatus();
-                break;
-
-            case Tia.Registers.enabl:
-                self._ball.enabl(value);
-                break;
-
-            case Tia.Registers.enam0:
-                self._missile0.enam(value);
-                break;
-
-            case Tia.Registers.enam1:
-                self._missile1.enam(value);
-                break;
-        }
-    }
-
-    private static _onNewFrame(surface: RGBASurfaceInterface, self: Tia): void {
-        const linesTotal = self._frameManager.getCurrentLine();
-
-        if (linesTotal > self._maxLinesTotal) {
-            self._maxLinesTotal = linesTotal;
-        }
-
-        if (linesTotal < self._maxLinesTotal) {
-            const buffer = surface.getBuffer(),
-                base = 160 * linesTotal,
-                boundary = self._maxLinesTotal * 160;
-
-            for (let i = base; i < boundary; i++) {
-                buffer[i] = 0xFF000000;
-            }
-        }
-
-        self.newFrame.dispatch(surface);
-    }
+    trap = new Event<Tia.TrapPayload>();
 
     private _cpu: CpuInterface = null;
     private _bus: Bus = null;
@@ -976,13 +979,9 @@ class Tia implements VideoOutputInterface {
     private _input1: LatchedInput;
 
     private _paddles: Array<PaddleReader>;
-
-    newFrame = new Event<RGBASurfaceInterface>();
-
-    trap = new Event<Tia.TrapPayload>();
 }
 
-module Tia {
+namespace Tia {
 
     export const enum Registers {
         vsync   = 0x00,

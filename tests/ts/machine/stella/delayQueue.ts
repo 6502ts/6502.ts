@@ -131,7 +131,7 @@ suite('TIA: write delay queue', function() {
 
     suite('rescheduling clears any pending writes', function() {
 
-        test('no other writes', function () {
+        test('no other writes', function() {
             delayQueue.push(1, 2, 1);
             assert.deepEqual(writes, {});
 
@@ -141,14 +141,14 @@ suite('TIA: write delay queue', function() {
             delayQueue.push(1, 2, 1);
             assert.deepEqual(writes, {});
 
-             delayQueue.execute(logger(writes));
+            delayQueue.execute(logger(writes));
             assert.deepEqual(writes, {});
 
             delayQueue.execute(logger(writes));
             assert.deepEqual(writes, {1: [2]});
         });
 
-        test('one other write', function () {
+        test('one other write', function() {
             delayQueue
                 .push(1, 2, 1)
                 .push(2, 1, 1);

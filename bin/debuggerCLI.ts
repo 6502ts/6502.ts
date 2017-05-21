@@ -20,7 +20,7 @@
  */
 
 import DebuggerCLI from '../src/cli/DebuggerCLI';
-import NodeCLIRunner  from '../src/cli/NodeCLIRunner';
+import NodeCLIRunner from '../src/cli/NodeCLIRunner';
 import NodeFilesystemProvider from '../src/fs/NodeFilesystemProvider';
 
 const fsProvider = new NodeFilesystemProvider(),
@@ -29,4 +29,6 @@ const fsProvider = new NodeFilesystemProvider(),
 
 runner.startup();
 
-if (process.argv.length > 2) cli.runDebuggerScript(process.argv[2]);
+if (process.argv.length > 2) {
+    cli.runDebuggerScript(process.argv[2]);
+}

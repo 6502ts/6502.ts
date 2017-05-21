@@ -23,7 +23,7 @@ import {Action} from 'redux';
 
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 
-export const Type = {
+export const types = {
     start: 'emulation/start',
     pause: 'emulation/pause',
     userPause: 'emulation/user-pause',
@@ -36,13 +36,13 @@ export const Type = {
     updateGamepadCount: 'emuation/update-gamepad-count',
     setEnforceRateLimit: 'emulation/set-enforce-rate_lLimit'
 };
-Object.freeze(Type);
+Object.freeze(types);
 
 export interface PauseAction extends Action {}
 
 export function pause(): PauseAction {
     return {
-        type: Type.pause
+        type: types.pause
     };
 }
 
@@ -50,7 +50,7 @@ export interface UserPauseAction extends Action {}
 
 export function userPause(): UserPauseAction {
     return {
-        type: Type.userPause
+        type: types.userPause
     };
 }
 
@@ -60,7 +60,7 @@ export interface StartAction extends Action {
 
 export function start(hash: string = ''): StartAction {
     return {
-        type: Type.start,
+        type: types.start,
         hash
     };
 }
@@ -69,7 +69,7 @@ export interface ResumeAction extends Action {}
 
 export function resume(): ResumeAction {
     return {
-        type: Type.resume
+        type: types.resume
     };
 }
 
@@ -77,7 +77,7 @@ export interface ResetAction extends Action {}
 
 export function reset(): ResetAction {
     return {
-        type: Type.reset
+        type: types.reset
     };
 }
 
@@ -87,7 +87,7 @@ export interface StateChangeAction extends Action {
 
 export function stateChange(newState: EmulationServiceInterface.State): StateChangeAction {
     return {
-        type: Type.stateChange,
+        type: types.stateChange,
         newState
     };
 }
@@ -99,7 +99,7 @@ export interface ChangeDifficultyAction extends Action {
 
 export function changeDifficulty(player: number, state: boolean): ChangeDifficultyAction {
     return {
-        type: Type.changeDifficulty,
+        type: types.changeDifficulty,
         player,
         state
     };
@@ -111,7 +111,7 @@ export interface ChangeTvModeAction extends Action {
 
 export function changeTvMode(state: boolean): ChangeTvModeAction {
     return {
-        type: Type.changeTvMode,
+        type: types.changeTvMode,
         state
     };
 }
@@ -122,18 +122,18 @@ export interface UpdateFrequencyAction extends Action {
 
 export function updateFrequency(value: number): UpdateFrequencyAction {
     return {
-        type: Type.updateFrequency,
+        type: types.updateFrequency,
         value
     };
 }
 
 export interface UpdateGamepadCountAction extends Action {
     value: number;
-};
+}
 
 export function updateGamepadCount(value: number): UpdateGamepadCountAction {
     return {
-        type: Type.updateGamepadCount,
+        type: types.updateGamepadCount,
         value
     };
 }
@@ -144,7 +144,7 @@ export interface SetEnforceRateLimitAction extends Action {
 
 export function enforceRateLimit(enforce: boolean): SetEnforceRateLimitAction {
     return {
-        type: Type.setEnforceRateLimit,
+        type: types.setEnforceRateLimit,
         enforce
     };
 }

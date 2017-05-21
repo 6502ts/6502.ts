@@ -30,7 +30,7 @@ import {encode as hex} from '../../../tools/hex';
 const enum CONST {
     returnAddress = 0x8004,
     trapReturn = 255
-};
+}
 
 class CartridgeDPCPlus extends AbstractCartridge {
 
@@ -89,6 +89,15 @@ class CartridgeDPCPlus extends AbstractCartridge {
         this.reset();
     }
 
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        const signatureCounts = cartridgeUtil.searchForSignatures(
+            buffer,
+            ['DPC+'.split('').map(x => x.charCodeAt(0))]
+        );
+
+        return signatureCounts[0] === 2;
+    }
+
     reset() {
         this._currentBank = this._banks[5];
 
@@ -133,15 +142,6 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
     write(address: number, value: number): void {
         this._access(address, value);
-    }
-
-    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        const signatureCounts = cartridgeUtil.searchForSignatures(
-            buffer,
-            ['DPC+'.split('').map(x => x.charCodeAt(0))]
-        );
-
-        return signatureCounts[0] === 2;
     }
 
     private _access(address: number, value: number): number {
@@ -371,13 +371,13 @@ class CartridgeDPCPlus extends AbstractCartridge {
     }
 
     private _advanceRng(): void {
-        this._rng = ((this._rng & (1<<10)) ? 0x10adab1e: 0x00) ^
+        this._rng = ((this._rng & (1 << 10)) ? 0x10adab1e : 0x00) ^
             ((this._rng >>> 11) | (this._rng << 21));
     }
 
     private _rewindRng(): void {
-        this._rng = ((this._rng & (1<<31)) ?
-            ((0x10adab1e^this._rng) << 11) | ((0x10adab1e^this._rng) >>> 21) :
+        this._rng = ((this._rng & (1 << 31)) ?
+            ((0x10adab1e ^ this._rng) << 11) | ((0x10adab1e ^ this._rng) >>> 21) :
             (this._rng << 11) | (this._rng >>> 21));
     }
 
@@ -565,7 +565,6 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
                     break;
             }
-
 
             this.triggerTrap(
                 CartridgeInterface.TrapReason.other,

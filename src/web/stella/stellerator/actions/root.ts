@@ -23,7 +23,7 @@ import {Action} from 'redux';
 
 import Cartridge from '../state/Cartridge';
 
-export const Type = {
+export const types = {
     batch                       : 'batch',
     deleteCurrentCartridge      : 'delete-current-cartridge',
     initCartridges              : 'init-cartridges',
@@ -31,14 +31,14 @@ export const Type = {
     selectCartridge             : 'select-cartridge',
     saveCurrentCartridge        : 'save-current-cartridge'
 };
-Object.freeze(Type);
+Object.freeze(types);
 
 export interface DeleteCurrentCartridgeAction extends Action {
 }
 
 export function deleteCurrentCartridge(): DeleteCurrentCartridgeAction {
     return {
-        type: Type.deleteCurrentCartridge
+        type: types.deleteCurrentCartridge
     };
 }
 
@@ -48,19 +48,21 @@ export interface SelectCartridgeAction extends Action {
 
 export function selectCartridge(hash: string = ''): SelectCartridgeAction {
     return {
-        hash: hash,
+        hash,
 
-        type: Type.selectCartridge
+        type: types.selectCartridge
     };
 }
 
 export interface BatchAction extends Action {
+    // tslint:disable-next-line:ban-types
     items: Array<Action|Function>;
 }
 
+// tslint:disable-next-line:ban-types
 export function batch(...items: Array<Action|Function>): BatchAction {
     return {
-        type: Type.batch,
+        type: types.batch,
         items
     };
 }
@@ -69,7 +71,7 @@ export interface SaveCurrentCartridgeAction extends Action {}
 
 export function saveCurrentCartride(): SaveCurrentCartridgeAction {
     return {
-        type: Type.saveCurrentCartridge
+        type: types.saveCurrentCartridge
     };
 }
 
@@ -80,7 +82,7 @@ export interface RegisterNewCartridgeAction extends Action {
 
 export function registerNewCartridge(name?: string, buffer?: Uint8Array) {
     return {
-        type: Type.registerNewCartridge,
+        type: types.registerNewCartridge,
         name,
         buffer
     };
@@ -92,7 +94,7 @@ export interface InitCartridgesAction extends Action {
 
 export function initCartridges(cartridges: Array<Cartridge>): InitCartridgesAction {
     return {
-        type: Type.initCartridges,
+        type: types.initCartridges,
         cartridges
     };
 }

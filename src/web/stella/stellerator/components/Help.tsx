@@ -19,10 +19,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
-import{
+import {
     Col,
     Grid,
     Row
@@ -34,17 +33,17 @@ function Help(props: Help.Props) {
     return <Grid fluid>
         <Row>
             <Col md={12}>
-                <Markdown url={props.helppageUrl} className="helppage"/>
+                <Markdown url={props.helppageUrl} className='helppage'/>
             </Col>
         </Row>
-        <div className="build-id" >
+        <div className='build-id' >
             <br/>
             === build: {props.buildId} ===
         </div>
     </Grid>;
 }
 
-module Help {
+namespace Help {
 
     export interface Props {
         helppageUrl?: string;

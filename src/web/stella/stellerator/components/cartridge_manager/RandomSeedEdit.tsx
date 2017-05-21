@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
 import ValidatingInput from '../ValidatingInput';
@@ -29,8 +28,8 @@ function RandomSeedEdit(props: RandomSeedEdit.Props) {
     return <div>
         <Switch
             state={props.rngSeedAuto}
-            labelTrue="auto"
-            labelFalse="fixed"
+            labelTrue='auto'
+            labelFalse='fixed'
             onSwitch={props.onChangeSeedStrategy}
         />
         <ValidatingInput
@@ -48,7 +47,7 @@ function RandomSeedEdit(props: RandomSeedEdit.Props) {
     </div>;
 }
 
-module RandomSeedEdit {
+namespace RandomSeedEdit {
 
     export interface Props {
         rngSeedAuto?: boolean;

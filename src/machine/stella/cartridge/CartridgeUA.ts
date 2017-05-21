@@ -41,6 +41,25 @@ class CartridgeUA extends AbstractCartridge {
         this.reset();
     }
 
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        // Signatures shamelessly stolen from stella
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer,
+            [
+                [0x8D, 0x40, 0x02],  // STA $240
+                [0xAD, 0x40, 0x02],  // LDA $240
+                [0xBD, 0x1F, 0x02]   // LDA $21F,X
+            ]
+        );
+
+        for (let i = 0; i < signatureCounts.length; i++) {
+            if (signatureCounts[i] > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     reset(): void {
         this._bank = this._bank0;
     }
@@ -60,25 +79,6 @@ class CartridgeUA extends AbstractCartridge {
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.bankswitch_8k_UA;
-    }
-
-    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(buffer,
-            [
-                [0x8D, 0x40, 0x02],  // STA $240
-                [0xAD, 0x40, 0x02],  // LDA $240
-                [0xBD, 0x1F, 0x02]   // LDA $21F,X
-            ]
-        );
-
-        for (let i = 0; i < signatureCounts.length; i++) {
-            if (signatureCounts[i] > 0) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static _onBusAccess(accessType: Bus.AccessType, self: CartridgeUA): void {

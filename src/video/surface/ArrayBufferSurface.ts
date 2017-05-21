@@ -23,6 +23,10 @@ import RGBASurfaceInterface from './RGBASurfaceInterface';
 
 class ArrayBufferSurface implements RGBASurfaceInterface {
 
+    static createFromArrayBuffer(width: number, height: number, buffer: ArrayBuffer): ArrayBufferSurface {
+        return (new ArrayBufferSurface()).replaceUnderlyingBuffer(width, height, buffer);
+    }
+
     replaceUnderlyingBuffer(width: number, height: number, buffer: ArrayBuffer): ArrayBufferSurface {
         if (width * height * 4 !== buffer.byteLength) {
             throw new Error('surface size mismatch');
@@ -70,10 +74,6 @@ class ArrayBufferSurface implements RGBASurfaceInterface {
         }
 
         return this;
-    }
-
-    static createFromArrayBuffer(width: number, height: number, buffer: ArrayBuffer): ArrayBufferSurface {
-        return (new ArrayBufferSurface()).replaceUnderlyingBuffer(width, height, buffer);
     }
 
     private _height = 0;

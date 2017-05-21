@@ -21,8 +21,9 @@
 
 type AudioContextType = typeof AudioContext;
 
-declare module window {
+declare namespace window {
     const webkitAudioContext: AudioContextType;
+    // tslint:disable-next-line:variable-name
     const AudioContext: AudioContextType;
 }
 
@@ -93,8 +94,7 @@ export default class WebAudioDriver {
 
 }
 
-class Channel{
-
+class Channel {
 
     constructor(
         private _cache: BufferCache
@@ -152,7 +152,6 @@ class Channel{
 
         const buffer = self._cache[key],
             source = self._context.createBufferSource();
-
 
         if (self._source) {
             self._source.stop();

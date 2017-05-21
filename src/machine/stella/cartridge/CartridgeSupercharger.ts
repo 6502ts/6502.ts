@@ -125,6 +125,18 @@ class CartridgeSupercharger extends AbstractCartridge {
         return CartridgeInfo.CartridgeType.bankswitch_supercharger;
     }
 
+    private static _onBusAccess(type: Bus.AccessType, self: CartridgeSupercharger) {
+        const address = self._bus.getLastAddresBusValue();
+
+        if (address !== self._lastAddressBusValue) {
+            if (++self._transitionCount > 5) {
+                self._pendingWrite = false;
+            }
+
+            self._lastAddressBusValue = address;
+        }
+    }
+
     private _access(address: number, value: number): number {
         address &= 0x0FFF;
 
@@ -250,18 +262,6 @@ class CartridgeSupercharger extends AbstractCartridge {
         this._bus.write(0xfe, header.startAddressLow);
         this._bus.write(0xff, header.startAddressHigh);
         this._bus.write(0x80, header.controlWord);
-    }
-
-    private static _onBusAccess(type: Bus.AccessType, self: CartridgeSupercharger) {
-        const address = self._bus.getLastAddresBusValue();
-
-        if (address !== self._lastAddressBusValue) {
-            if (++self._transitionCount > 5) {
-                self._pendingWrite = false;
-            }
-
-            self._lastAddressBusValue = address;
-        }
     }
 
     private _bus: Bus;

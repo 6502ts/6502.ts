@@ -48,7 +48,7 @@ interface CpuInterface {
     state: CpuInterface.State;
 }
 
-module CpuInterface {
+namespace CpuInterface {
     export const enum ExecutionState {
         boot, fetch, execute
     }

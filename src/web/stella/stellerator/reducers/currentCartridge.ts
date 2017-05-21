@@ -22,7 +22,7 @@
 import {Action} from 'redux';
 
 import {
-    Type as ActionType,
+    types as ActionType,
     ChangeCartridgeTypeAction,
     ChangeNameAction,
     ChangeTvModeAction,

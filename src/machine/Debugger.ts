@@ -48,7 +48,9 @@ class Debugger {
     }
 
     detach(): Debugger {
-        if (!this._board) return;
+        if (!this._board) {
+            return;
+        }
 
         this._board.cpuClock.removeHandler(this._cpuClockHandler);
         this._board.trap.removeHandler(this._trapHandler);
@@ -57,7 +59,9 @@ class Debugger {
     }
 
     clearAllBreakpoints(): Debugger {
-        for (let i = 0; i < 0x10000; i++) this._breakpoints[i] = 0;
+        for (let i = 0; i < 0x10000; i++) {
+            this._breakpoints[i] = 0;
+        }
 
         return this;
     }
@@ -81,10 +85,11 @@ class Debugger {
         let result = '';
 
         for (let address = 0; address < 0x10000; address++) {
-            if (this._breakpoints[address])
+            if (this._breakpoints[address]) {
                 result += (
                     hex.encode(address, 4) + ': ' +
                     this._breakpointDescriptions[address] + '\n');
+            }
         }
 
         return result.replace(/\n$/, '');
@@ -96,8 +101,9 @@ class Debugger {
         from: number = 0,
         to: number = block.length - 1
     ) {
-        for (let i = 0; i <= to - from; i++)
+        for (let i = 0; i <= to - from; i++) {
             this._poke(at + i, block[i]);
+        }
     }
 
     disassembleAt(start: number, length: number): string {
@@ -192,8 +198,8 @@ class Debugger {
         let instruction = 0,
             cycles = 0,
             lastExecutionState = this._cpu.executionState,
-            cpuCycles = 0,
-            timer = this._board.getTimer();
+            cpuCycles = 0;
+        const timer = this._board.getTimer();
 
         const cpuClockHandler = (c: number) => cpuCycles += c;
         this._board.cpuClock.addHandler(cpuClockHandler);
@@ -299,7 +305,9 @@ class Debugger {
         if (ctx._traceEnabled) {
             ctx._trace[ctx._traceIndex] = lastInstructionPointer;
             ctx._traceIndex = (ctx._traceIndex + 1) % ctx._traceSize;
-            if (ctx._traceLength < ctx._traceSize) ctx._traceLength++;
+            if (ctx._traceLength < ctx._traceSize) {
+                ctx._traceLength++;
+            }
         }
 
         if (ctx._breakpointsEnabled && ctx._breakpoints[ctx._cpu.state.p]) {
@@ -330,7 +338,7 @@ class Debugger {
     private _board: BoardInterface;
 
     private _breakpoints = new Uint8Array(0x10000);
-    private _breakpointDescriptions: Array<String> = new Array(0x10000);
+    private _breakpointDescriptions: Array<string> = new Array(0x10000);
     private _breakpointsEnabled = false;
 
     private _traceEnabled = false;
@@ -340,13 +348,13 @@ class Debugger {
     private _lastInstructionPointer: number;
 
     private _lastTrap: BoardInterface.TrapPayload;
-};
+}
 
-module Debugger {
+namespace Debugger {
     export interface MemoryBlockInterface {
         [index: number]: number;
         length: number;
     }
-};
+}
 
 export default Debugger;

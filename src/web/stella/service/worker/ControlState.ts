@@ -25,7 +25,7 @@ interface ControlState {
     controlPanelState: ControlState.ControlPanelState;
 }
 
-module ControlState {
+namespace ControlState {
 
     export interface JoystickState {
         left: boolean;

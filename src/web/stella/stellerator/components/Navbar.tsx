@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
 import {
@@ -58,16 +57,16 @@ function Navbar(props: Navbar.Props) {
             </BootstrapNavbar.Brand>
         </BootstrapNavbar.Header>
         <Nav>
-            <LinkContainer to="/cartridge-manager">
+            <LinkContainer to='/cartridge-manager'>
                 <NavItem>Cartridges</NavItem>
             </LinkContainer>
-            <LinkContainer to="/settings">
+            <LinkContainer to='/settings'>
                 <NavItem>Settings</NavItem>
             </LinkContainer>
-            <LinkContainer to="/emulation" className={props.linkEmulation ? '' : 'hidden'}>
+            <LinkContainer to='/emulation' className={props.linkEmulation ? '' : 'hidden'}>
                 <NavItem>Emulation</NavItem>
             </LinkContainer>
-            <LinkContainer to="/help">
+            <LinkContainer to='/help'>
                 <NavItem>Help</NavItem>
             </LinkContainer>
         </Nav>
@@ -82,7 +81,7 @@ function Navbar(props: Navbar.Props) {
     </BootstrapNavbar>;
 }
 
-module Navbar {
+namespace Navbar {
 
     export interface Props {
         linkEmulation?: boolean;

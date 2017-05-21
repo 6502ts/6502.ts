@@ -36,7 +36,7 @@ interface VideoOutputInterface {
 
 }
 
-module VideoOutputInterface {
+namespace VideoOutputInterface {
 
     export interface SurfaceFactoryInterface {
         (): RGBASurfaceInterface;

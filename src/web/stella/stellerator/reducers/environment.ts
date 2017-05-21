@@ -24,7 +24,7 @@ import {Action} from 'redux';
 import Environment from '../state/Environment';
 
 import {
-    Type as Actions,
+    types as Actions,
     InitializeAction
 } from '../actions/environment';
 

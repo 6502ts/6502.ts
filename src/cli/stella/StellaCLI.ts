@@ -43,7 +43,7 @@ import ClockProbe from '../../tools/ClockProbe';
 import SystemConfigSetupProvider from './SystemConfigSetupProvider';
 import ControlPanelManagementProvider from './ControlPanelManagementProvider';
 
-const enum RunMode {limited, unlimited};
+const enum RunMode {limited, unlimited}
 
 const CLOCK_PROBE_INTERVAL = 1000;
 
@@ -296,8 +296,8 @@ interface Events extends AbstractCLI.Events {
     stateChanged: Event<StellaCLI.State>;
 }
 
-module StellaCLI {
-    export const enum State {setup, debug, run};
+namespace StellaCLI {
+    export const enum State {setup, debug, run}
 }
 
 export default StellaCLI;

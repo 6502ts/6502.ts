@@ -62,7 +62,9 @@ class NodeCLIRunner {
     }
 
     private _onCLIOutputAvailable(payload: void, ctx: NodeCLIRunner): void {
-        if (ctx._closed) return;
+        if (ctx._closed) {
+            return;
+        }
 
         const output = ctx._cli.readOutput();
         process.stdout.write(output);
@@ -71,14 +73,18 @@ class NodeCLIRunner {
     }
 
     private _onCLIPromptChanged(payload: void, ctx: NodeCLIRunner) {
-        if (ctx._closed) return;
+        if (ctx._closed) {
+            return;
+        }
 
         const prompt = ctx._cli.getPrompt();
         ctx._readline.setPrompt(prompt);
     }
 
     private _onCLIPrompt(payload: void, ctx: NodeCLIRunner) {
-        if (ctx._closed) return;
+        if (ctx._closed) {
+            return;
+        }
 
         ctx._readline.prompt();
     }

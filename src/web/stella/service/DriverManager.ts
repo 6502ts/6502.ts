@@ -125,7 +125,7 @@ class DriverManager {
     private _driversBound = false;
 }
 
-module DriverManager {
+namespace DriverManager {
 
     export interface Driver {
         unbind(): void;

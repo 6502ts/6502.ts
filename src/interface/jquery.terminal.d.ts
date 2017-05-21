@@ -42,7 +42,8 @@ interface JQueryTerminalCompletionHandler {
 }
 
 interface JQuery {
-    terminal(rpcURI: string, options?: JQueryTerminalOptions): JQueryTerminal;
-    terminal(interpreter: JQueryTerminalInterpreterFunction,
-        options?: JQueryTerminalOptions): JQueryTerminal;
+    terminal(
+        interpreterOrRpcURI: JQueryTerminalInterpreterFunction | string,
+        options?: JQueryTerminalOptions
+    ): JQueryTerminal;
 }

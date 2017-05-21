@@ -35,6 +35,7 @@ function mapStateToProps(state: State): CartridgeListComponent.Props {
     };
 }
 
+// tslint:disable-next-line:variable-name
 const CartridgeListContainer = connect(
     mapStateToProps,
     {

@@ -29,5 +29,10 @@ const fsProvider = new NodeFilesystemProvider(),
 
 runner.startup();
 
-if (process.argv.length > 2) cli.runDebuggerScript(process.argv[2]);
-if (process.argv.length > 3) cli.readBasicProgram(process.argv[3]);
+if (process.argv.length > 2) {
+    cli.runDebuggerScript(process.argv[2]);
+}
+
+if (process.argv.length > 3) {
+    cli.readBasicProgram(process.argv[3]);
+}

@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
 import CartridgeInfo from '../../../../../machine/stella/cartridge/CartridgeInfo';
@@ -28,8 +27,11 @@ import {
     DropdownButton,
     MenuItem
 } from 'react-bootstrap';
+export interface State {
+    id: string;
+}
 
-class CartridgeTypeSelect extends React.Component<CartridgeTypeSelect.Props, CartridgeTypeSelect.State> {
+class CartridgeTypeSelect extends React.Component<CartridgeTypeSelect.Props, State> {
 
     render() {
         return <DropdownButton
@@ -49,27 +51,23 @@ class CartridgeTypeSelect extends React.Component<CartridgeTypeSelect.Props, Car
         </DropdownButton>;
     }
 
-    state: CartridgeTypeSelect.State = {
+    state: State = {
         id: `cartridge_type_select_${Math.floor(Math.random() * 10000000)}`
-    };
-
-    static defaultProps: CartridgeTypeSelect.Props = {
-        cartridgeType: CartridgeInfo.CartridgeType.unknown,
-        onCartridgeTypeChange: (): void => undefined
     };
 
 }
 
-module CartridgeTypeSelect {
+namespace CartridgeTypeSelect {
 
     export interface Props {
         cartridgeType?: CartridgeInfo.CartridgeType;
         onCartridgeTypeChange?: (t: CartridgeInfo.CartridgeType) => void;
     }
 
-    export interface State {
-        id: string;
-    }
+    export const defaultProps: Props = {
+        cartridgeType: CartridgeInfo.CartridgeType.unknown,
+        onCartridgeTypeChange: (): void => undefined
+    };
 
 }
 

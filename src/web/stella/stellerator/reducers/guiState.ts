@@ -24,7 +24,7 @@ import {Action} from 'redux';
 import {
     SetModeAction,
     SelectOpenPendingChangesModalAction,
-    Type as ActionType,
+    types as ActionType,
     LoadOpenPendingChangesModalAction,
 } from '../actions/guiState';
 

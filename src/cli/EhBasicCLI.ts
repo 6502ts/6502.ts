@@ -65,29 +65,40 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         board.trap.addHandler(this._onTrap, this);
 
         commandInterpreter.registerCommands({
-            quit: (): string => {
-                if (this._allowQuit) this._setState(State.quit);
+            'quit': (): string => {
+                if (this._allowQuit) {
+                    this._setState(State.quit);
+                }
+
                 return 'bye';
             },
-            run: (): string => {
+            'run': (): string => {
                 this._setState(State.run);
                 return 'running, press ctl-c to interrupt...';
             },
-            input: (args: Array<string>, cmd: string): string => {
+            'input': (args: Array<string>, cmd: string): string => {
                 const data = cmd.replace(/^\s*input\s*/, '').replace(/\\n/, '\n'),
                     length = data.length;
 
-                for (let i = 0; i < length; i++)
+                for (let i = 0; i < length; i++) {
                     this._inputBuffer.push(data[i] === '\n' ? 0x0D : data.charCodeAt(i) & 0xFF);
+                }
+
                 return '';
             },
             'run-script': (args: Array<string>): string => {
-                if (!args.length) throw new Error('filename required');
+                if (!args.length) {
+                    throw new Error('filename required');
+                }
+
                 this.runDebuggerScript(args[0]);
                 return 'script executed';
             },
             'read-program': (args: Array<string>): string => {
-                if (!args.length) throw new Error('filename required');
+                if (!args.length) {
+                    throw new Error('filename required');
+                }
+
                 this.readBasicProgram(args[0]);
                 return 'program read into buffer';
             }
@@ -126,7 +137,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         this._fsProvider.readTextFileSync(filename)
             .split('\n')
             .forEach((line: string): void => {
-                let length = line.length;
+                const length = line.length;
                 for (let i = 0; i < length; i++) {
                     this._inputBuffer.push(line.charCodeAt(i) & 0xFF);
                 }
@@ -144,7 +155,10 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     }
 
     shutdown(): void {
-        if (!this._flushOutputTask) return;
+        if (!this._flushOutputTask) {
+            return;
+        }
+
         this._flushOutputTask.stop();
         this._flushOutputTask = undefined;
     }
@@ -167,7 +181,10 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
                 break;
 
             case State.debug:
-                if (this._allowQuit) this._setState(State.quit);
+                if (this._allowQuit) {
+                    this._setState(State.quit);
+                }
+
                 break;
         }
     }
@@ -176,7 +193,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         return !!this._cliOutputBuffer;
     }
 
-    pushInput (data: string): void {
+    pushInput(data: string): void {
         switch (this._state) {
             case State.run:
                 const size = data.length;
@@ -224,7 +241,9 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     }
 
     private _setState(newState: State): void {
-        if (this._state === newState) return;
+        if (this._state === newState) {
+            return;
+        }
 
         const timer = this._board.getTimer();
 
@@ -249,7 +268,10 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
 
             case State.quit:
                 timer.stop();
-                if (this._allowQuit) this.events.quit.dispatch(undefined);
+                if (this._allowQuit) {
+                    this.events.quit.dispatch(undefined);
+                }
+
                 break;
         }
 
@@ -262,7 +284,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
                 this._outputBuffer += String.fromCharCode(value);
                 this._outputLine('output event, buffer now\n' +
                     this._outputBuffer +
-                    "\n"
+                    '\n'
                 );
                 break;
 
@@ -292,11 +314,13 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     }
 
     private _outputLine(output: string = '') {
-        this._cliOutputBuffer += (output + "\n");
+        this._cliOutputBuffer += (output + '\n');
     }
 
     private _flushOutput(): void {
-        if (this._cliOutputBuffer) this.events.outputAvailable.dispatch(undefined);
+        if (this._cliOutputBuffer) {
+            this.events.outputAvailable.dispatch(undefined);
+        }
     }
 
     private _prompt(): void {

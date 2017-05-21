@@ -19,13 +19,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
 import Cartridge from '../../state/Cartridge';
 
 function CartridgeList(props: CartridgeList.Props) {
-    return  <div className="cartridge-list border-box">
+    return  <div className='cartridge-list border-box'>
         <ul>
             {Object
                 .keys(props.cartridges)
@@ -46,7 +45,7 @@ function CartridgeList(props: CartridgeList.Props) {
     </div>;
 }
 
-module CartridgeList {
+namespace CartridgeList {
 
     export interface Props {
         cartridges?: {[key: string]: Cartridge};

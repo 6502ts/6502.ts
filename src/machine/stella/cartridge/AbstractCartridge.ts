@@ -61,8 +61,6 @@ class AbstractCartridge implements CartridgeInterface {
     randomize(rng: RngInterface): void {
     }
 
-    trap = new Event<CartridgeInterface.TrapPayload>();
-
     protected triggerTrap(reason: CartridgeInterface.TrapReason, message: string) {
         if (this.trap.hasHandlers) {
             this.trap.dispatch(new CartridgeInterface.TrapPayload(reason, this, message));
@@ -70,6 +68,9 @@ class AbstractCartridge implements CartridgeInterface {
             throw new Error(message);
         }
     }
+
+    trap = new Event<CartridgeInterface.TrapPayload>();
+
 }
 
 export default AbstractCartridge;

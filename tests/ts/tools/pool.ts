@@ -73,7 +73,7 @@ suite('Object Pool', function() {
 
         p1.release();
 
-        let p2 = pool.get();
+        const p2 = pool.get();
 
         assert(p1.get() === p2.get(), 'pool should have returned identical instances');
         assertCallCount(1, 1, 0);

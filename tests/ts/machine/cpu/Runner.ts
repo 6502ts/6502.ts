@@ -48,6 +48,13 @@ class Runner {
         }
     }
 
+    static create(
+        code?: {length: number, [address: number]: number},
+        base?: number
+    ): Runner {
+        return new Runner(code, base);
+    }
+
     setState(state: Runner.State): this {
         Object.assign(this._cpu.state, state);
 
@@ -131,12 +138,12 @@ class Runner {
             }
         });
 
-        let reference = state.hasOwnProperty('flags') ? state.flags : this._originalState.flags;
+        const reference = state.hasOwnProperty('flags') ? state.flags : this._originalState.flags;
 
         if (reference !== this._cpu.state.flags)
         {
             throw new Error(
-                `expected flags to be ${binary.encode(reference, 8)}, `+
+                `expected flags to be ${binary.encode(reference, 8)}, ` +
                 `got ${binary.encode(this._cpu.state.flags, 8)}`
             );
         }
@@ -187,16 +194,9 @@ class Runner {
     private _cpu: CpuInterface;
     private _cycles = 0;
     private _originalState: CpuInterface.State = null;
-
-    static create(
-        code?: {length: number, [address: number]: number},
-        base?: number
-    ): Runner {
-        return new Runner(code, base);
-    }
 }
 
-module Runner {
+namespace Runner {
 
     export interface State {
         a?: number;

@@ -118,7 +118,7 @@ export function run() {
         );
 
         test('indexed,X via LDA', () => Runner
-            .create([0xA1,0x01], 0xE000)
+            .create([0xA1, 0x01], 0xE000)
             .setState({
                 x: 0x05
             })
@@ -158,7 +158,7 @@ export function run() {
             )
         );
 
-    test('indexed,Y via LDA (page crossing)', () => Runner
+        test('indexed,Y via LDA (page crossing)', () => Runner
             .create([0xB1, 0x02], 0xE000)
             .setState({
                 y: 0xFF

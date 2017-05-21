@@ -42,6 +42,7 @@ function mapStateToProps(state: State): SettingsComponent.Props {
     };
 }
 
+// tslint:disable-next-line:variable-name
 const SettingsContainer = connect(mapStateToProps, {
     onToggleSmoothScaling: setSmoothScaling,
     onToggleWebGlRendering: setWebGlRendering,

@@ -62,8 +62,8 @@ export function run({
     const fsProvider = new PrepackagedFilesystemProvider(fileBlob),
         cli = new StellaCLI(fsProvider),
         runner = new JqtermCLIRunner(cli, terminalElt, {
-            interruptButton: interruptButton,
-            clearButton: clearButton
+            interruptButton,
+            clearButton
         });
 
     cli.allowQuit(false);
@@ -127,8 +127,12 @@ function setupCartridgeReader(
 
     const onCliStateChange: () => void =
         cartridgeFileInputLabel ?
-        ()  => (cli.getState() === StellaCLI.State.setup ? cartridgeFileInputLabel.show() : cartridgeFileInputLabel.hide()) :
-        () => undefined;
+            ()  => (
+                cli.getState() === StellaCLI.State.setup ?
+                cartridgeFileInputLabel.show() :
+                cartridgeFileInputLabel.hide())
+            :
+            () => undefined;
 
     cli.events.stateChanged.addHandler(onCliStateChange);
     onCliStateChange();

@@ -46,7 +46,6 @@ suite('Random Nuber Generator', function() {
             sequence1 = sequence(100, rng1),
             sequence2 = sequence(100, rng2);
 
-
         assert.deepEqual(sequence1, sequence2);
     });
 
@@ -55,7 +54,6 @@ suite('Random Nuber Generator', function() {
             rng2 = createRng(2),
             sequence1 = sequence(100, rng1),
             sequence2 = sequence(100, rng2);
-
 
         assert.notDeepEqual(sequence1, sequence2);
     });

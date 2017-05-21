@@ -53,7 +53,7 @@ function App(emulationService: EmulationServiceInterface) {
     return App;
 }
 
-module App {
+namespace App {
 
     export interface Props {
         children: Array<React.ReactNode>;

@@ -40,7 +40,9 @@ class PeriodicScheduler implements SchedulerInterface {
         let terminate = false;
 
         const handler = () => {
-            if (terminate) return;
+            if (terminate) {
+                return;
+            }
 
             worker(context);
 

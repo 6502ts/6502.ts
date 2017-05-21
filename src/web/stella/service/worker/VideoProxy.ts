@@ -33,7 +33,7 @@ import {
 
 class VideoProxy implements VideoEndpointInterface {
 
-    constructor (
+    constructor(
         private _rpc: RpcProviderInterface
     ) {}
 

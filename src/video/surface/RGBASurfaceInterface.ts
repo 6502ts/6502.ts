@@ -29,8 +29,8 @@ interface RGBASurfaceInterface {
     getByteOrder(): RGBASurfaceInterface.ByteOrder;
 }
 
-module RGBASurfaceInterface {
-    export const enum ByteOrder {rgba};
+namespace RGBASurfaceInterface {
+    export const enum ByteOrder {rgba}
 
     export interface BufferInterface {
         [index: number]: number;

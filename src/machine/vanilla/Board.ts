@@ -37,7 +37,9 @@ class Board implements BoardInterface {
 
         this._bus = this._createBus();
 
-        if (typeof(cpuFactory) === 'undefined') cpuFactory = bus => new Cpu(bus);
+        if (typeof(cpuFactory) === 'undefined') {
+            cpuFactory = bus => new Cpu(bus);
+        }
 
         this._cpu = cpuFactory(this._bus);
         this._cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
@@ -69,8 +71,9 @@ class Board implements BoardInterface {
     boot(): Board {
         let clock = 0;
 
-        if (this._cpu.executionState !== CpuInterface.ExecutionState.boot)
-            throw new Error("Already booted!");
+        if (this._cpu.executionState !== CpuInterface.ExecutionState.boot) {
+            throw new Error('Already booted!');
+        }
 
         while (this._cpu.executionState as CpuInterface.ExecutionState !== CpuInterface.ExecutionState.fetch) {
             this._cpu.cycle();
@@ -103,10 +106,6 @@ class Board implements BoardInterface {
         return undefined;
     }
 
-    clock = new Event<number>();
-
-    cpuClock: Event<number>;
-
     setClockMode(clockMode: BoardInterface.ClockMode): Board {
         this._clockMode = clockMode;
 
@@ -116,8 +115,6 @@ class Board implements BoardInterface {
     getClockMode(): BoardInterface.ClockMode {
         return this._clockMode;
     }
-
-    trap = new Event<BoardInterface.TrapPayload>();
 
     protected _createBus() {
         return new Memory();
@@ -142,13 +139,17 @@ class Board implements BoardInterface {
             }
         }
 
-        if (clock > 0 && this.clock.hasHandlers) this.clock.dispatch(clock);
+        if (clock > 0 && this.clock.hasHandlers) {
+            this.clock.dispatch(clock);
+        }
 
         return clock;
     }
 
     protected _start(scheduler: SchedulerInterface, sliceHint = 100000) {
-        if (this._runTask) return;
+        if (this._runTask) {
+            return;
+        }
 
         this._sliceHint = sliceHint;
 
@@ -160,7 +161,9 @@ class Board implements BoardInterface {
     }
 
     protected _stop() {
-        if (!this._runTask) return;
+        if (!this._runTask) {
+            return;
+        }
 
         this._runTask.stop();
 
@@ -170,6 +173,12 @@ class Board implements BoardInterface {
     protected _onInvalidInstruction() {
         this.triggerTrap(BoardInterface.TrapReason.cpu, 'invalid instruction');
     }
+
+    clock = new Event<number>();
+
+    cpuClock: Event<number>;
+
+    trap = new Event<BoardInterface.TrapPayload>();
 
     protected _cpu: CpuInterface;
     protected _bus: Memory;

@@ -37,14 +37,15 @@ import {
 
 class VideoDriver {
 
-    constructor (
+    constructor(
         private _rpc: RpcProviderInterface
     ) {}
 
     init(videoPipelinePort: MessagePort): void {
         this._rpc.registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurfaceFromHost.bind(this));
 
-        const videoPipelineRpc = new RpcProvider((data: any, transfer?: any) => videoPipelinePort.postMessage(data, transfer));
+        const videoPipelineRpc =
+            new RpcProvider((data: any, transfer?: any) => videoPipelinePort.postMessage(data, transfer));
         videoPipelinePort.onmessage = (e: MessageEvent) => videoPipelineRpc.dispatch(e.data);
 
         this._videoPipelineClient = new VideoPipelineClient(videoPipelineRpc);
@@ -62,6 +63,50 @@ class VideoDriver {
 
     unbind(): void {
         this._mutex.runExclusive(() => this._unbind());
+    }
+
+    private static _onEmitFromPipeline(surface: ObjectPoolMember<ArrayBufferSurface>, self: VideoDriver) {
+        if (!self._active) {
+            console.warn('surface emmited from pipeline to inactive driver');
+            return;
+        }
+
+        if (!self._ids.has(surface)) {
+            console.warn('surface not registered');
+            return;
+        }
+
+        const buffer = surface.get().getUnderlyingBuffer(),
+            id = self._ids.get(surface);
+
+        self._rpc.signal<VideoNewFrameMessage>(
+            SIGNAL_TYPE.videoNewFrame,
+            {
+                id,
+                width: self._width,
+                height: self._height,
+                buffer
+            },
+            [buffer]
+        );
+    }
+
+    private static _onNewFrame(surface: ArrayBufferSurface, self: VideoDriver): void {
+        if (!self._active) {
+            console.warn('new frame passed to inactive driver');
+            return;
+        }
+
+        if (!self._managedSurfaces.has(surface)) {
+            console.warn(`surface not registered`);
+            return;
+        }
+
+        if (self._bypassProcessingPipeline) {
+            VideoDriver._onEmitFromPipeline(self._managedSurfaces.get(surface), self);
+        } else {
+            self._videoPipelineClient.processSurface(self._managedSurfaces.get(surface));
+        }
     }
 
     private _bind(video: VideoOutputInterface): void|Promise<any> {
@@ -111,7 +156,8 @@ class VideoDriver {
 
                 this._video.newFrame.addHandler(VideoDriver._onNewFrame, this);
 
-                this._bypassProcessingPipeline = !this._videoProcessingConfig  || this._videoProcessingConfig.length === 0;
+                this._bypassProcessingPipeline =
+                    !this._videoProcessingConfig  || this._videoProcessingConfig.length === 0;
                 this._active = true;
             });
     }
@@ -150,50 +196,6 @@ class VideoDriver {
 
         surface.get().replaceUnderlyingBuffer(this._width, this._height, message.buffer);
         surface.release();
-    }
-
-    private static _onEmitFromPipeline(surface: ObjectPoolMember<ArrayBufferSurface>, self: VideoDriver) {
-        if (!self._active) {
-            console.warn('surface emmited from pipeline to inactive driver');
-            return;
-        }
-
-        if (!self._ids.has(surface)) {
-            console.warn('surface not registered');
-            return;
-        }
-
-        const buffer = surface.get().getUnderlyingBuffer(),
-            id = self._ids.get(surface);
-
-        self._rpc.signal<VideoNewFrameMessage>(
-            SIGNAL_TYPE.videoNewFrame,
-            {
-                id,
-                width: self._width,
-                height: self._height,
-                buffer
-            },
-            [buffer]
-        );
-    }
-
-    private static _onNewFrame(surface: ArrayBufferSurface, self: VideoDriver): void {
-        if (!self._active) {
-            console.warn('new frame passed to inactive driver');
-            return;
-        }
-
-        if (!self._managedSurfaces.has(surface)) {
-            console.warn(`surface not registered`);
-            return;
-        }
-
-        if (self._bypassProcessingPipeline) {
-            VideoDriver._onEmitFromPipeline(self._managedSurfaces.get(surface), self);
-        } else {
-            self._videoPipelineClient.processSurface(self._managedSurfaces.get(surface));
-        }
     }
 
     private _active = false;

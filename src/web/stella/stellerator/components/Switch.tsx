@@ -40,7 +40,7 @@ function Switch(props: Switch.Props) {
     </ButtonGroup>;
 }
 
-module Switch {
+namespace Switch {
 
     export interface Props {
         state?: boolean;

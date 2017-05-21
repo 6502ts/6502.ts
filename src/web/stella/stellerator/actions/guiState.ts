@@ -23,7 +23,7 @@ import {Action} from 'redux';
 
 import GuiState from '../state/GuiState';
 
-export const Type = {
+export const types = {
     setMode: 'gui-state/set-mode',
     selectOpenPendingChangesModal: 'gui-state/select-open-pending-changes-modal',
     selectClosePendingChangesModal: 'gui-state/select-close-pending-changes-modal',
@@ -32,7 +32,7 @@ export const Type = {
     loadClosePendingChangesModal: 'gui-state/upload-close-pending-changes-modal',
     finishPendingUpload: 'gui-state/finish-pending-upload'
 };
-Object.freeze(Type);
+Object.freeze(types);
 
 export interface SetModeAction extends Action {
     guiMode: GuiState.GuiMode;
@@ -40,7 +40,7 @@ export interface SetModeAction extends Action {
 
 export function setMode(guiMode: GuiState.GuiMode) {
     return {
-        type: Type.setMode,
+        type: types.setMode,
         guiMode
     };
 }
@@ -51,16 +51,16 @@ export interface SelectOpenPendingChangesModalAction extends Action {
 
 export function selectOpenPendingChangesModal(pendingSelectHash: string): SelectOpenPendingChangesModalAction {
     return {
-        type: Type.selectOpenPendingChangesModal,
+        type: types.selectOpenPendingChangesModal,
         pendingSelectHash
     };
 }
 
-export interface SelectClosePendingChangesModalAction extends Action {};
+export interface SelectClosePendingChangesModalAction extends Action {}
 
 export function selectClosePendingChangesModal(): SelectClosePendingChangesModalAction {
     return {
-        type: Type.selectClosePendingChangesModal
+        type: types.selectClosePendingChangesModal
     };
 }
 
@@ -69,9 +69,12 @@ export interface LoadOpenPendingChangesModalAction extends Action {
     pendingLoadName: string;
 }
 
-export function loadOpenPendingChangesModal(pendingLoad: Uint8Array, pendingLoadName: string): LoadOpenPendingChangesModalAction {
+export function loadOpenPendingChangesModal(
+    pendingLoad: Uint8Array,
+    pendingLoadName: string
+): LoadOpenPendingChangesModalAction {
     return {
-        type: Type.loadOpenPendingChangesModal,
+        type: types.loadOpenPendingChangesModal,
         pendingLoad,
         pendingLoadName
     };
@@ -81,6 +84,6 @@ export interface LoadClosePendingChangesModalAction extends Action {}
 
 export function loadClosePendingChangesModal(): LoadClosePendingChangesModalAction {
     return {
-        type: Type.loadClosePendingChangesModal
+        type: types.loadClosePendingChangesModal
     };
 }

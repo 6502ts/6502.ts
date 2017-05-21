@@ -29,11 +29,11 @@ suite('CLI Completer', function() {
 
     let completer: Completer;
 
-    function testCompletion(cmd: string, candidates:  Array<string>, match: string): void {
+    function testCompletion(cmd: string, candidates: Array<string>, match: string): void {
         test(
             util.format('"%s" completes to [%s], match: "%s"', cmd, candidates.join(', '), match),
             function() {
-                let result = completer.complete(cmd);
+                const result = completer.complete(cmd);
 
                 assert.deepEqual(result.candidates.sort(), candidates.sort());
                 assert.strictEqual(result.match, match);

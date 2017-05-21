@@ -57,13 +57,13 @@ export interface EmulationStartMessage {
     config: StellaConfig;
     cartridgeType?: CartridgeInfo.CartridgeType;
     videoProcessing?: Array<VideoProcessorConfig>;
-};
+}
 
 export interface EmulationParametersResponse {
     width: number;
     height: number;
     volume: Array<number>;
-};
+}
 
 export interface VideoNewFrameMessage {
     id: number;

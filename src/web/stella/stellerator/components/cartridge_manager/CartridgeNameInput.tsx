@@ -19,20 +19,19 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 import {FormControl} from 'react-bootstrap';
 
 function CartridgeNameInput(props: CartridgeNameInput.Props) {
     return <FormControl
-        type="text"
+        type='text'
         value={props.name}
         onChange={(e: React.FormEvent<any>) => props.onNameChange((e.target as HTMLInputElement).value)}
         onKeyDown={(e: React.KeyboardEvent<any>) => e.keyCode === 13 ? props.onKeyEnter() : undefined}
     />;
 }
 
-module CartridgeNameInput {
+namespace CartridgeNameInput {
 
     export interface Props {
         name?: string;

@@ -42,7 +42,9 @@ function mapStateToProps(state: State): CartridgeSettingsComponent.Props {
     return {
         name: state.currentCartridge ? state.currentCartridge.name : '',
         tvMode: state.currentCartridge ? state.currentCartridge.tvMode : StellaConfig.TvMode.ntsc,
-        cartridgeType: state.currentCartridge ? state.currentCartridge.cartridgeType : CartridgeInfo.CartridgeType.unknown,
+        cartridgeType: state.currentCartridge ?
+            state.currentCartridge.cartridgeType :
+            CartridgeInfo.CartridgeType.unknown,
         emulatePaddles: state.currentCartridge ? state.currentCartridge.emulatePaddles : true,
         visible: !!state.currentCartridge,
         rngSeedAuto: state.currentCartridge ? state.currentCartridge.rngSeedAuto : true,
@@ -51,6 +53,7 @@ function mapStateToProps(state: State): CartridgeSettingsComponent.Props {
     };
 }
 
+// tslint:disable-next-line:variable-name
 const CartridgeSettingsContainer = connect(
     mapStateToProps, {
         onNameChange: changeName,

@@ -53,6 +53,30 @@ class CartrdigeE7 extends AbstractCartridge {
         this.reset();
     }
 
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        // Signatures shamelessly stolen from stella
+        const signatureCounts = cartridgeUtil.searchForSignatures(
+            buffer,
+            [
+                [0xAD, 0xE2, 0xFF],  // LDA $FFE2
+                [0xAD, 0xE5, 0xFF],  // LDA $FFE5
+                [0xAD, 0xE5, 0x1F],  // LDA $1FE5
+                [0xAD, 0xE7, 0x1F],  // LDA $1FE7
+                [0x0C, 0xE7, 0x1F],  // NOP $1FE7
+                [0x8D, 0xE7, 0xFF],  // STA $FFE7
+                [0x8D, 0xE7, 0x1F]   // STA $1FE7
+            ]
+        );
+
+        for (let i = 0; i < signatureCounts.length; i++) {
+            if (signatureCounts[i] > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     reset(): void {
         this._bank0 = this._banks[0];
         this._ram1 = this._ram1Banks[0];
@@ -113,23 +137,6 @@ class CartrdigeE7 extends AbstractCartridge {
         }
     }
 
-    private _handleBankswitch(address: number): void {
-        if (address < 0x0FE0) {
-            return;
-        }
-
-        if (address <= 0x0FE6) {
-            this._bank0 = this._banks[address & 0x000F];
-            this._ram0Enabled = false;
-        }
-        else if (address === 0x0FE7) {
-            this._ram0Enabled = true;
-        }
-        else if (address <= 0x0FEB) {
-            this._ram1 = this._ram1Banks[address - 0x0FE8];
-        }
-    }
-
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.bankswitch_16k_E7;
     }
@@ -146,28 +153,21 @@ class CartrdigeE7 extends AbstractCartridge {
         }
     }
 
-    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(
-            buffer,
-            [
-                [0xAD, 0xE2, 0xFF],  // LDA $FFE2
-                [0xAD, 0xE5, 0xFF],  // LDA $FFE5
-                [0xAD, 0xE5, 0x1F],  // LDA $1FE5
-                [0xAD, 0xE7, 0x1F],  // LDA $1FE7
-                [0x0C, 0xE7, 0x1F],  // NOP $1FE7
-                [0x8D, 0xE7, 0xFF],  // STA $FFE7
-                [0x8D, 0xE7, 0x1F]   // STA $1FE7
-            ]
-        );
-
-        for (let i = 0; i < signatureCounts.length; i++) {
-            if (signatureCounts[i] > 0) {
-                return true;
-            }
+    private _handleBankswitch(address: number): void {
+        if (address < 0x0FE0) {
+            return;
         }
 
-        return false;
+        if (address <= 0x0FE6) {
+            this._bank0 = this._banks[address & 0x000F];
+            this._ram0Enabled = false;
+        }
+        else if (address === 0x0FE7) {
+            this._ram0Enabled = true;
+        }
+        else if (address <= 0x0FEB) {
+            this._ram1 = this._ram1Banks[address - 0x0FE8];
+        }
     }
 
     private _banks = new Array<Uint8Array>(8);

@@ -33,7 +33,7 @@ abstract class AbstractCLI {
 
 }
 
-module AbstractCLI {
+namespace AbstractCLI {
     export interface Events {
         outputAvailable: Event<void>;
 

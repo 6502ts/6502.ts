@@ -63,7 +63,7 @@ interface EmulationServiceInterface {
 
 }
 
-module EmulationServiceInterface {
+namespace EmulationServiceInterface {
 
     export enum State {
         stopped,

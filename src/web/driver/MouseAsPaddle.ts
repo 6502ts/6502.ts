@@ -49,8 +49,12 @@ export default class MouseAsPaddleDriver {
             let value = this._paddle.getValue();
 
             value += -dx / window.innerWidth / 0.9;
-            if (value < 0) value = 0;
-            if (value > 1) value = 1;
+            if (value < 0) {
+                value = 0;
+            }
+            if (value > 1) {
+                value = 1;
+            }
 
             this._paddle.setValue(value);
         }

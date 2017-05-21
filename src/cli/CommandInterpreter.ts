@@ -23,7 +23,9 @@ class CommandInterpreter {
     constructor(
         commandTable?: CommandInterpreter.CommandTableInterface
     ) {
-        if (typeof(commandTable) !== 'undefined') this.registerCommands(commandTable);
+        if (typeof(commandTable) !== 'undefined') {
+            this.registerCommands(commandTable);
+        }
     }
 
     public registerCommands(commandTable: CommandInterpreter.CommandTableInterface) {
@@ -34,7 +36,9 @@ class CommandInterpreter {
 
     public execute(cmd: string): string {
         cmd = cmd.replace(/;.*/, '');
-        if (cmd.match(/^\s*$/)) return '';
+        if (cmd.match(/^\s*$/)) {
+            return '';
+        }
 
         const components = cmd.split(/\s+/).filter((value: string): boolean => !!value),
             commandName = components.shift();
@@ -47,18 +51,27 @@ class CommandInterpreter {
     }
 
     private _locateCommand(name: string): CommandInterpreter.CommandInterface {
-        if (this._commandTable[name]) return this._commandTable[name];
-        if (this._aliasTable[name]) return this._aliasTable[name];
+        if (this._commandTable[name]) {
+            return this._commandTable[name];
+        }
+
+        if (this._aliasTable[name]) {
+            return this._aliasTable[name];
+        }
 
         const candidates = Object.keys(this._commandTable).filter(
             (candidate: string) => candidate.indexOf(name) === 0
         );
         const nCandidates = candidates.length;
 
-        if (nCandidates > 1) throw new Error('ambiguous command ' + name + ', candidates are ' +
-            candidates.join(', ').replace(/, $/, ''));
+        if (nCandidates > 1) {
+            throw new Error('ambiguous command ' + name + ', candidates are ' +
+                candidates.join(', ').replace(/, $/, ''));
+        }
 
-        if (nCandidates === 0) throw new Error('invalid command ' + name);
+        if (nCandidates === 0) {
+            throw new Error('invalid command ' + name);
+        }
 
         return this._aliasTable[name] = this._commandTable[candidates[0]];
     }
@@ -67,7 +80,7 @@ class CommandInterpreter {
     private _aliasTable: CommandInterpreter.CommandTableInterface = {};
 }
 
-module CommandInterpreter {
+namespace CommandInterpreter {
     export interface CommandInterface {
         (args?: Array<string>, cmdString?: string): string;
     }

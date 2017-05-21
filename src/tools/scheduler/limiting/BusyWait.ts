@@ -42,8 +42,8 @@ class ConstantTimesliceScheduler implements SchedulerInterface {
                 return;
             }
 
-            let timestampStart = getTimestamp(),
-                emulationTime = 0,
+            const timestampStart = getTimestamp();
+            let emulationTime = 0,
                 delta = 0;
 
             while (getTimestamp() - timestampStart < timeSlice) {

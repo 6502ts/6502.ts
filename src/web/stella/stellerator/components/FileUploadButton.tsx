@@ -24,23 +24,23 @@ import * as React from 'react';
 class FileUploadButton extends React.Component<FileUploadButton.Props, FileUploadButton.State> {
 
     render() {
-        return <div className="btn btn-default" style={{display: 'inline-block'}}>
+        return <div className='btn btn-default' style={{display: 'inline-block'}}>
             <label htmlFor={this.state.id}>{this.props.children}</label>
-            <input type="file" id={this.state.id} style={{display: 'none'}} onChange={this._onChange.bind(this)}/>
+            <input type='file' id={this.state.id} style={{display: 'none'}} onChange={this._onChange.bind(this)}/>
         </div>;
+    }
+
+    private _onChange(e: Event) {
+        this.props.onFilesSelected((e.currentTarget as HTMLInputElement).files);
     }
 
     state: FileUploadButton.State = {
         id: `file_upload_${Math.floor(Math.random() * 10000000)}`
     };
 
-    private _onChange(e: Event) {
-        this.props.onFilesSelected((e.currentTarget as HTMLInputElement).files);
-    }
-
 }
 
-module FileUploadButton {
+namespace FileUploadButton {
 
     export interface Props {
         onFilesSelected?: (files: FileList) => void;

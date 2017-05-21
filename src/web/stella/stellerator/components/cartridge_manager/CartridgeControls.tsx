@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
 import {
@@ -29,7 +28,7 @@ import {
 import FileUploadButton from '../FileUploadButton';
 
 function CartridgeControls(props: CartridgeControls.Props) {
-    return <div className="cartridge-controls">
+    return <div className='cartridge-controls'>
         <FileUploadButton
             onFilesSelected={
                 files => files.length === 1 ? props.onCartridgeUploaded(files[0], props.changes) : undefined
@@ -52,7 +51,7 @@ function CartridgeControls(props: CartridgeControls.Props) {
     </div>;
 }
 
-module CartridgeControls {
+namespace CartridgeControls {
 
     export interface Props {
 

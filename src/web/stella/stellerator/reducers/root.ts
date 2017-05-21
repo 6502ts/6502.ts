@@ -26,7 +26,7 @@ import {
     InitCartridgesAction,
     SelectCartridgeAction,
     RegisterNewCartridgeAction,
-    Type as ActionType
+    types as ActionType
 } from '../actions/root';
 
 import {calculateFromUint8Array as md5sum} from '../../../../tools/hash/md5';

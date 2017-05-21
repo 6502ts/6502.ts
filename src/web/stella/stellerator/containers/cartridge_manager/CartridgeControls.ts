@@ -51,9 +51,8 @@ function mapStateToProps(state: State): CartridgeControlsComponent.Props {
     };
 }
 
-// Type inference fails, so we need to drop a hint for the compiler
-type Props = CartridgeControlsComponent.Props;
-const CartridgeControlsContainer = connect<Props, Props, Props>(
+// tslint:disable-next-line:variable-name
+const CartridgeControlsContainer = connect(
     mapStateToProps,
     {
         onDelete: deleteCurrentCartridge,

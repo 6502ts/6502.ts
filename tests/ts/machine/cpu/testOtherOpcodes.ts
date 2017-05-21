@@ -1256,7 +1256,6 @@ export function run() {
             ', 0x01 + c, flags'
         );
 
-
         util.testImplied(0x4A, 2,
             {
                 a: parseInt('10101010', 2)
@@ -1283,7 +1282,6 @@ export function run() {
             },
             ', 0x01 + c, flags'
         );
-
 
         util.testMutatingAbsolute(0x4E, parseInt('10101010', 2),  parseInt('01010101', 2), 6,
             {}, {}, ', pattern, flags'
@@ -1365,7 +1363,6 @@ export function run() {
                 })
         );
     });
-
 
     suite('PHP', function() {
         test('implied', () => Runner
@@ -1990,7 +1987,7 @@ export function run() {
                 x: 0x00,
                 flags: 0xFF
             }, {
-                x:0x45,
+                x: 0x45,
                 flags: 0xFF & ~CpuInterface.Flags.z & ~CpuInterface.Flags.n
             }
         );

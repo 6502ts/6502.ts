@@ -40,36 +40,6 @@ class PipelineHost {
         this._surfacePool.event.release.addHandler(PipelineHost._onReleaseSurface, this);
     }
 
-    private _onConfigure(msg: messages.ConfigureMessage): void {
-        if (this._pipeline) {
-            this._pipeline.flush();
-            this._pipeline.emit.removeHandler(PipelineHost._onEmitSurface, this);
-        }
-
-        this._pipeline = new ProcessorPipeline(msg.config);
-        this._pipeline.init(msg.width, msg.height);
-        this._pipeline.emit.addHandler(PipelineHost._onEmitSurface, this);
-    }
-
-    private _onFlush(msg: messages.FlushMessage): void {
-        if (this._pipeline) {
-            this._pipeline.flush();
-        }
-    }
-
-    private _onProcess(msg: messages.ProcessMessage): void {
-        if (!this._pipeline) {
-            return;
-        }
-
-        this._bufferIds.set(msg.buffer, msg.id);
-
-        const managedSurface = this._surfacePool.get();
-        managedSurface.get().replaceUnderlyingBuffer(msg.width, msg.height, msg.buffer);
-
-        this._pipeline.processSurface(managedSurface);
-    }
-
     private static _onReleaseSurface(surface: ArrayBufferSurface, self: PipelineHost): void {
         const buffer = surface.getUnderlyingBuffer();
 
@@ -107,6 +77,36 @@ class PipelineHost {
 
         managedSurface.get().resetUnderlyingBuffer();
         managedSurface.release();
+    }
+
+    private _onConfigure(msg: messages.ConfigureMessage): void {
+        if (this._pipeline) {
+            this._pipeline.flush();
+            this._pipeline.emit.removeHandler(PipelineHost._onEmitSurface, this);
+        }
+
+        this._pipeline = new ProcessorPipeline(msg.config);
+        this._pipeline.init(msg.width, msg.height);
+        this._pipeline.emit.addHandler(PipelineHost._onEmitSurface, this);
+    }
+
+    private _onFlush(msg: messages.FlushMessage): void {
+        if (this._pipeline) {
+            this._pipeline.flush();
+        }
+    }
+
+    private _onProcess(msg: messages.ProcessMessage): void {
+        if (!this._pipeline) {
+            return;
+        }
+
+        this._bufferIds.set(msg.buffer, msg.id);
+
+        const managedSurface = this._surfacePool.get();
+        managedSurface.get().replaceUnderlyingBuffer(msg.width, msg.height, msg.buffer);
+
+        this._pipeline.processSurface(managedSurface);
     }
 
     private _pipeline: ProcessorPipeline = null;

@@ -104,7 +104,7 @@ function testAdcBcd(
         `immediate, BCD: ${hex.encode(in1, 2)} + ${hex.encode(in2, 2)} ` +
             `${carry ? '+ c ' : ''}= ${hex.encode(out, 2)}`,
 
-        function () {
+        function() {
             const runner = Runner
                 .create([0x69, in1])
                 .setState({
@@ -124,7 +124,6 @@ function testAdcBcd(
     );
 }
 
-
 function testSbc(
     opcode: number,
     in1: number,
@@ -138,7 +137,7 @@ function testSbc(
         `immediate: ${hex.encode(in1, 2)} - ${hex.encode(in2, 2)} ` +
             `${borrow ? '- b ' : ''}= ${hex.encode(out, 2)}`,
 
-    function () {
+    function() {
             const runner = Runner
                 .create([opcode, in2])
                 .setState({

@@ -91,7 +91,8 @@ function opAdc(state: CpuInterface.State, bus: BusInterface, operand: number): v
             result = sum & 0xFF;
 
         state.flags =
-            (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c | CpuInterface.Flags.v)) |
+            (state.flags &
+                ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c | CpuInterface.Flags.v)) |
             (result & 0x80) |  // negative
             (result ? 0 : CpuInterface.Flags.z) |   // zero
             (sum >>> 8) |         // carry
@@ -177,7 +178,7 @@ function opClv(state: CpuInterface.State): void {
 function opCmp(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     const diff = state.a + (~operand & 0xFF) + 1;
 
-     state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (diff & 0x80) |
         ((diff & 0xFF) ? 0 : CpuInterface.Flags.z) |
         (diff >>> 8);
@@ -253,17 +254,32 @@ function opJsr(state: CpuInterface.State, bus: BusInterface, operand: number): v
     state.p = operand;
 }
 
-function opLda(state: CpuInterface.State, bus: BusInterface, operand: number, addressingMode: Instruction.AddressingMode): void {
+function opLda(
+    state: CpuInterface.State,
+    bus: BusInterface,
+    operand: number,
+    addressingMode: Instruction.AddressingMode
+): void {
     state.a = addressingMode === Instruction.AddressingMode.immediate ? operand : bus.read(operand);
     setFlagsNZ(state, state.a);
 }
 
-function opLdx(state: CpuInterface.State, bus: BusInterface, operand: number, addressingMode: Instruction.AddressingMode): void {
+function opLdx(
+    state: CpuInterface.State,
+    bus: BusInterface,
+    operand: number,
+    addressingMode: Instruction.AddressingMode
+): void {
     state.x = addressingMode === Instruction.AddressingMode.immediate ? operand : bus.read(operand);
     setFlagsNZ(state, state.x);
 }
 
-function opLdy(state: CpuInterface.State, bus: BusInterface, operand: number, addressingMode: Instruction.AddressingMode): void {
+function opLdy(
+    state: CpuInterface.State,
+    bus: BusInterface,
+    operand: number,
+    addressingMode: Instruction.AddressingMode
+): void {
     state.y = addressingMode === Instruction.AddressingMode.immediate ? operand : bus.read(operand);
     setFlagsNZ(state, state.y);
 }
@@ -399,7 +415,8 @@ function opSbc(state: CpuInterface.State, bus: BusInterface, operand: number): v
         const sum = state.a + operand + (state.flags & CpuInterface.Flags.c),
             result = sum & 0xFF;
 
-        state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c | CpuInterface.Flags.v)) |
+        state.flags = (state.flags &
+                ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c | CpuInterface.Flags.v)) |
             (result & 0x80) |  // negative
             (result ? 0 : CpuInterface.Flags.z) |   // zero
             (sum >>> 8) |         // carry / borrow
@@ -1122,14 +1139,16 @@ class Cpu {
                 break;
 
             default:
-                if (this._invalidInstructionCallback) this._invalidInstructionCallback(this);
+                if (this._invalidInstructionCallback) {
+                    this._invalidInstructionCallback(this);
+                }
                 return;
         }
 
         this.state.p = (this.state.p + 1) & 0xFFFF;
 
         let value: number,
-            base : number;
+            base: number;
 
         switch (addressingMode) {
             case Instruction.AddressingMode.immediate:
@@ -1153,9 +1172,12 @@ class Cpu {
 
             case Instruction.AddressingMode.indirect:
                 value = this._bus.readWord(this.state.p);
-                if ((value & 0xFF) === 0xFF)
+                if ((value & 0xFF) === 0xFF) {
                     this._operand = this._bus.read(value) + (this._bus.read(value & 0xFF00) << 8);
-                else this._operand = this._bus.readWord(value);
+                }
+                else {
+                    this._operand = this._bus.readWord(value);
+                }
                 this.state.p = (this.state.p + 2) & 0xFFFF;
                 this._opCycles += 4;
                 break;
@@ -1271,7 +1293,7 @@ class Cpu {
 
     private _opCycles: number = 0;
     private _instructionCallback: InstructionCallbackInterface = null;
-    private _invalidInstructionCallback : CpuInterface.InvalidInstructionCallbackInterface = null;
+    private _invalidInstructionCallback: CpuInterface.InvalidInstructionCallbackInterface = null;
 
     private _interruptPending: boolean = false;
     private _nmiPending: boolean = false;

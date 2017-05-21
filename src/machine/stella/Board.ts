@@ -58,7 +58,9 @@ class Board implements BoardInterface {
 
         const bus = new Bus();
 
-        if (typeof(cpuFactory) === 'undefined') cpuFactory = (bus, rng) => new Cpu(bus, rng);
+        if (typeof(cpuFactory) === 'undefined') {
+            cpuFactory = (_bus, rng) => new Cpu(_bus, rng);
+        }
 
         const controlPanel = new ControlPanel(),
             joystick0 = new DigitalJoystick(),
@@ -156,8 +158,9 @@ class Board implements BoardInterface {
 
         this.reset();
 
-        if (this._cpu.executionState !== CpuInterface.ExecutionState.boot)
-            throw new Error("Already booted!");
+        if (this._cpu.executionState !== CpuInterface.ExecutionState.boot) {
+            throw new Error('Already booted!');
+        }
 
         while (this._cpu.executionState as CpuInterface.ExecutionState !== CpuInterface.ExecutionState.fetch) {
             this._cycle();
@@ -219,7 +222,7 @@ class Board implements BoardInterface {
     }
 
     getBoardStateDebug(): string {
-        const sep = "============";
+        const sep = '============';
 
         return  'TIA:\n' +
                 sep + '\n' +
@@ -229,10 +232,6 @@ class Board implements BoardInterface {
                 `${sep}\n` +
                 `${this._pia.getDebugState()}\n`;
     }
-
-    clock = new Event<number>();
-
-    cpuClock = new Event<number>();
 
     setClockMode(clockMode: BoardInterface.ClockMode): Board {
         this._clockMode = clockMode;
@@ -248,7 +247,11 @@ class Board implements BoardInterface {
         return this._paddles[idx];
     }
 
-    trap = new Event<BoardInterface.TrapPayload>();
+    private static _executeSlice(board: Board, _timeSlice?: number) {
+        const slice = _timeSlice ? Math.round(_timeSlice * board._clockMhz * 1000) : board._sliceSize;
+
+        return board._tick(slice) / board._clockMhz  / 1000;
+    }
 
     private _cycle(): void {
         this._tia.cycle();
@@ -305,7 +308,9 @@ class Board implements BoardInterface {
     }
 
     private _start(scheduler: SchedulerInterface) {
-        if (this._runTask) return;
+        if (this._runTask) {
+            return;
+        }
 
         this._runTask = scheduler.start(
             Board._executeSlice,
@@ -314,14 +319,10 @@ class Board implements BoardInterface {
         );
     }
 
-    private static _executeSlice(board: Board, _timeSlice?: number) {
-        const slice = _timeSlice ? Math.round(_timeSlice * board._clockMhz * 1000) : board._sliceSize;
-
-        return board._tick(slice) / board._clockMhz  / 1000;
-    }
-
     private _stop() {
-        if (!this._runTask) return;
+        if (!this._runTask) {
+            return;
+        }
 
         this._runTask.stop();
 
@@ -331,6 +332,12 @@ class Board implements BoardInterface {
     private _onInvalidInstruction() {
         this.triggerTrap(BoardInterface.TrapReason.cpu, 'invalid instruction');
     }
+
+    trap = new Event<BoardInterface.TrapPayload>();
+
+    clock = new Event<number>();
+
+    cpuClock = new Event<number>();
 
     private _cpu: CpuInterface;
     private _bus: Bus;
@@ -364,7 +371,7 @@ class Board implements BoardInterface {
     private _rng: RngInterface;
 }
 
-module Board {
+namespace Board {
     export interface Audio {
         channel0: AudioOutputInterface;
         channel1: AudioOutputInterface;

@@ -46,6 +46,15 @@ class CartridgeF8 extends AbstractCartridge {
         this.reset();
     }
 
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        // Signatures shamelessly stolen from stella
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer,
+            [[0x8D, 0xF9, 0x1F]]  // STA $1FF9
+        );
+
+        return signatureCounts[0] >= 2;
+    }
+
     reset(): void {
         this._bank = this._bank1;
         this._hasSC = false;
@@ -91,15 +100,6 @@ class CartridgeF8 extends AbstractCartridge {
         this._bus = bus;
 
         return this;
-    }
-
-    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(buffer,
-            [[0x8D, 0xF9, 0x1F]]  // STA $1FF9
-        );
-
-        return signatureCounts[0] >= 2;
     }
 
     private _access(address: number, value: number): void {

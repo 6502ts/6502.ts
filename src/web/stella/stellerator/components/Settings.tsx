@@ -19,10 +19,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
-import{
+import {
     Col,
     ControlLabel,
     Grid,
@@ -32,7 +31,7 @@ import{
 import Switch from './Switch';
 
 function Settings(props: Settings.Props) {
-    return <Grid fluid className="settings-grid">
+    return <Grid fluid className='settings-grid'>
         <Row>
             <Col md={12}>
                 <h1>General Settings</h1>
@@ -44,8 +43,8 @@ function Settings(props: Settings.Props) {
             </Col>
             <Col sm={8}>
                 <Switch
-                    labelTrue="Yes"
-                    labelFalse="No"
+                    labelTrue='Yes'
+                    labelFalse='No'
                     state={props.useWorker}
                     onSwitch={props.onToggleUseWorker}
                 />
@@ -62,8 +61,8 @@ function Settings(props: Settings.Props) {
             </Col>
             <Col sm={8}>
                 <Switch
-                    labelTrue="On"
-                    labelFalse="Off"
+                    labelTrue='On'
+                    labelFalse='Off'
                     state={props.smoothScaling}
                     onSwitch={props.onToggleSmoothScaling}
                 />
@@ -75,8 +74,8 @@ function Settings(props: Settings.Props) {
             </Col>
             <Col sm={8}>
                 <Switch
-                    labelTrue="On"
-                    labelFalse="Off"
+                    labelTrue='On'
+                    labelFalse='Off'
                     state={props.webGlRendering}
                     onSwitch={props.onToggleWebGlRendering}
                 />
@@ -88,11 +87,11 @@ function Settings(props: Settings.Props) {
             </Col>
             <Col sm={4}>
                 <input
-                    type="range"
+                    type='range'
                     value={props.gamma + ''}
-                    min="0.1"
-                    max="5"
-                    step="0.1"
+                    min='0.1'
+                    max='5'
+                    step='0.1'
                     onChange={e => props.onChangeGamma(parseFloat((e.target as HTMLInputElement).value))}
                 />
             </Col>
@@ -106,8 +105,8 @@ function Settings(props: Settings.Props) {
             </Col>
             <Col sm={8}>
                 <Switch
-                    labelTrue="On"
-                    labelFalse="Off"
+                    labelTrue='On'
+                    labelFalse='Off'
                     state={props.mergeFrames}
                     onSwitch={props.onToggleMergeFrames}
                 />
@@ -116,7 +115,7 @@ function Settings(props: Settings.Props) {
     </Grid>;
 }
 
-module Settings {
+namespace Settings {
 
     export interface Props {
         smoothScaling?: boolean;

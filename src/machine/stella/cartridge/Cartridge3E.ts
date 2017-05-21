@@ -61,6 +61,16 @@ class Cartridge3E extends AbstractCartridge {
         }
     }
 
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        // Signature shamelessly stolen from stella
+        const signatureCounts = cartridgeUtil.searchForSignatures(
+            buffer,
+            [[ 0x85, 0x3E, 0xA9, 0x00 ]]  // STA $3E, LDA #0
+        );
+
+        return signatureCounts[0] >= 1;
+    }
+
     reset(): void {
         this._bank0 = this._banks[0];
     }
@@ -79,7 +89,7 @@ class Cartridge3E extends AbstractCartridge {
         // Bankswitch on read breaks actual cartridges badly -> maybe the hardware actively
         // watches out for STA on the bus? Disable for now, more research would be in order.
         //
-        //this._bus.event.read.addHandler(Cartridge3E._onBusAccess, this);
+        // this._bus.event.read.addHandler(Cartridge3E._onBusAccess, this);
         this._bus.event.write.addHandler(Cartridge3E._onBusAccess, this);
 
         return this;
@@ -135,16 +145,6 @@ class Cartridge3E extends AbstractCartridge {
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.bankswitch_3E;
-    }
-
-    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        // Signature shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(
-            buffer,
-            [[ 0x85, 0x3E, 0xA9, 0x00 ]]  // STA $3E, LDA #0
-        );
-
-        return signatureCounts[0] >= 1;
     }
 
     private static _onBusAccess(accessType: Bus.AccessType, self: Cartridge3E): void {

@@ -45,6 +45,31 @@ class CartridgeE0 extends AbstractCartridge {
         this.reset();
     }
 
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        // Signatures shamelessly stolen from stella
+        const signatureCounts = cartridgeUtil.searchForSignatures(
+            buffer,
+            [
+                [ 0x8D, 0xE0, 0x1F ],  // STA $1FE0
+                [ 0x8D, 0xE0, 0x5F ],  // STA $5FE0
+                [ 0x8D, 0xE9, 0xFF ],  // STA $FFE9
+                [ 0x0C, 0xE0, 0x1F ],  // NOP $1FE0
+                [ 0xAD, 0xE0, 0x1F ],  // LDA $1FE0
+                [ 0xAD, 0xE9, 0xFF ],  // LDA $FFE9
+                [ 0xAD, 0xED, 0xFF ],  // LDA $FFED
+                [ 0xAD, 0xF3, 0xBF ]   // LDA $BFF3
+            ]
+        );
+
+        for (let i = 0; i < signatureCounts.length; i++) {
+            if (signatureCounts[i] > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     reset(): void {
         for (let i = 0; i < 4; i++) {
             this._activeBanks[i] = this._banks[7];
@@ -79,31 +104,6 @@ class CartridgeE0 extends AbstractCartridge {
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.bankswitch_8k_E0;
-    }
-
-    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(
-            buffer,
-            [
-                [ 0x8D, 0xE0, 0x1F ],  // STA $1FE0
-                [ 0x8D, 0xE0, 0x5F ],  // STA $5FE0
-                [ 0x8D, 0xE9, 0xFF ],  // STA $FFE9
-                [ 0x0C, 0xE0, 0x1F ],  // NOP $1FE0
-                [ 0xAD, 0xE0, 0x1F ],  // LDA $1FE0
-                [ 0xAD, 0xE9, 0xFF ],  // LDA $FFE9
-                [ 0xAD, 0xED, 0xFF ],  // LDA $FFED
-                [ 0xAD, 0xF3, 0xBF ]   // LDA $BFF3
-            ]
-        );
-
-        for (let i = 0; i < signatureCounts.length; i++) {
-            if (signatureCounts[i] > 0) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private _handleBankswitch(address: number): void {

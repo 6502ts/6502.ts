@@ -49,17 +49,14 @@ class Pool<T> implements PoolInterface<T> {
         return member;
     }
 
-    event = {
-        release: new Event<T>(),
-        dispose: new Event<T>()
-    };
-
     private _releaseMember(victim: PoolMember<T>) {
-        if (victim._isAvailable)
+        if (victim._isAvailable) {
             throw new Error('Trying to release an already released pool member');
+        }
 
-        if (victim._isDisposed)
+        if (victim._isDisposed) {
             throw new Error('Trying to release an already disposed pool member');
+        }
 
         const position = this._poolSize++;
 
@@ -72,8 +69,9 @@ class Pool<T> implements PoolInterface<T> {
     }
 
     private _disposeMember(victim: PoolMember<T>) {
-        if (victim._isDisposed)
+        if (victim._isDisposed) {
             throw new Error('Trying to dispose of an already disposed pool member');
+        }
 
         if (victim._isAvailable) {
             if (this._poolSize > 1) {
@@ -88,12 +86,17 @@ class Pool<T> implements PoolInterface<T> {
         this.event.dispose.dispatch(victim.get());
     }
 
+    event = {
+        release: new Event<T>(),
+        dispose: new Event<T>()
+    };
+
     private _pool: Array<PoolMember<T> > = [];
 
     private _poolSize = 0;
 }
 
-module Pool {
+namespace Pool {
     export interface FactoryInterface<T> {
         (): T;
     }

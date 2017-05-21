@@ -51,7 +51,7 @@ interface CartridgeInterface {
 
 }
 
-module CartridgeInterface {
+namespace CartridgeInterface {
 
     export const enum TrapReason {invalidRead, invalidWrite, other}
 

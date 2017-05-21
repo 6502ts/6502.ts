@@ -29,7 +29,7 @@ import StellaConfig from '../../../../machine/stella/Config';
 import * as VideoProcessorConfig from '../../../../video/processing/config';
 
 import {
-    Type,
+    types,
     StartAction,
     SetEnforceRateLimitAction
 } from '../actions/emulation';
@@ -45,59 +45,6 @@ class EmulationMiddleware {
 
         return this;
     }
-
-    private _middleware: redux.Middleware =
-        ((api: redux.MiddlewareAPI<State>) => (next: (a: any) => void) => (a: redux.Action): any =>
-    {
-        if (!a || !this._emulationService) {
-            return next(a);
-        }
-
-        const initialState = api.getState();
-
-        switch (a.type) {
-            case Type.start:
-                if (initialState.currentCartridge) {
-                    (a as StartAction).hash = initialState.currentCartridge.hash;
-
-                    return this._emulationService
-                        .start(
-                            initialState.currentCartridge.buffer,
-                            this._createStellaConfig(initialState.currentCartridge),
-                            initialState.currentCartridge.cartridgeType,
-                            initialState.settings.mergeFrames ? [{type: VideoProcessorConfig.Type.merge}] : undefined
-                        )
-                        .then(() => {
-                            this._updateControlPanelState(initialState.emulationState);
-                            next(a);
-                        });
-                }
-
-                break;
-
-            case Type.pause:
-            case Type.userPause:
-                return this._emulationService.pause().then(() => next(a));
-
-            case Type.resume:
-                return this._emulationService.resume().then(() => next(a));
-
-            case Type.reset:
-                return this._emulationService.reset().then(() => next(a));
-
-            case Type.changeDifficulty:
-            case Type.changeTvMode:
-                return Promise.resolve(next(a))
-                    .then(() => this._updateControlPanelState(api.getState().emulationState));
-
-            case Type.setEnforceRateLimit:
-                return this._emulationService.setRateLimit((a as SetEnforceRateLimitAction).enforce)
-                    .then(() => next(a));
-        }
-
-        return next(a);
-
-    }) as any;
 
     private _updateControlPanelState(state: EmulationState): void {
         if (!this._emulationService) {
@@ -125,6 +72,59 @@ class EmulationMiddleware {
             cartridge.emulatePaddles
         );
     }
+
+    private _middleware: redux.Middleware =
+        ((api: redux.MiddlewareAPI<State>) => (next: (a: any) => void) => (a: redux.Action): any =>
+    {
+        if (!a || !this._emulationService) {
+            return next(a);
+        }
+
+        const initialState = api.getState();
+
+        switch (a.type) {
+            case types.start:
+                if (initialState.currentCartridge) {
+                    (a as StartAction).hash = initialState.currentCartridge.hash;
+
+                    return this._emulationService
+                        .start(
+                            initialState.currentCartridge.buffer,
+                            this._createStellaConfig(initialState.currentCartridge),
+                            initialState.currentCartridge.cartridgeType,
+                            initialState.settings.mergeFrames ? [{type: VideoProcessorConfig.Type.merge}] : undefined
+                        )
+                        .then(() => {
+                            this._updateControlPanelState(initialState.emulationState);
+                            next(a);
+                        });
+                }
+
+                break;
+
+            case types.pause:
+            case types.userPause:
+                return this._emulationService.pause().then(() => next(a));
+
+            case types.resume:
+                return this._emulationService.resume().then(() => next(a));
+
+            case types.reset:
+                return this._emulationService.reset().then(() => next(a));
+
+            case types.changeDifficulty:
+            case types.changeTvMode:
+                return Promise.resolve(next(a))
+                    .then(() => this._updateControlPanelState(api.getState().emulationState));
+
+            case types.setEnforceRateLimit:
+                return this._emulationService.setRateLimit((a as SetEnforceRateLimitAction).enforce)
+                    .then(() => next(a));
+        }
+
+        return next(a);
+
+    }) as any;
 
     private _emulationService: EmulationServiceInterface = null;
 

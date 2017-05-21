@@ -188,7 +188,8 @@ export default class FrameManager {
     }
 
     getDebugState(): string {
-        return `${this._getReadableState()}, line = ${this._lineInState}, vblank = ${this.vblank ? '1' : '0'}, ${this._waitForVsync ? '' : 'given up on vsync'}`;
+        return `${this._getReadableState()}, line = ${this._lineInState}, ` +
+            `vblank = ${this.vblank ? '1' : '0'}, ${this._waitForVsync ? '' : 'given up on vsync'}`;
     }
 
     private _getReadableState(): string {

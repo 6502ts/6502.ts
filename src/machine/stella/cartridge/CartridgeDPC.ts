@@ -185,7 +185,9 @@ class CartridgeDPC extends AbstractCartridge {
         const oldRng = this._rng;
 
         this._rng =
-            ((this._rng << 1) | (~(((this._rng >>> 7) ^ (this._rng >>> 5)) ^ ((this._rng >>> 4) ^ (this._rng >>> 3))) & 0x01)) & 0xFF;
+            ((this._rng << 1) |
+            (~(((this._rng >>> 7) ^ (this._rng >>> 5)) ^ ((this._rng >>> 4) ^ (this._rng >>> 3))) & 0x01)) &
+            0xFF;
 
         return oldRng;
     }

@@ -39,9 +39,9 @@ class Config {
     }
 }
 
-module Config {
+namespace Config {
 
-    export const enum TvMode {ntsc, pal, secam};
+    export const enum TvMode {ntsc, pal, secam}
 
 }
 

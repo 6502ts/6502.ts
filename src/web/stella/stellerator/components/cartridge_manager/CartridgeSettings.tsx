@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
 import {ControlLabel} from 'react-bootstrap';
@@ -44,8 +43,8 @@ function CartridgeSettings(props: CartridgeSettings.Props) {
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Emulate paddles:</ControlLabel>
         <Switch
             state={props.emulatePaddles}
-            labelTrue="yes"
-            labelFalse="no"
+            labelTrue='yes'
+            labelFalse='no'
             onSwitch={props.onTogglePaddleEmulation}
         />
 
@@ -55,14 +54,14 @@ function CartridgeSettings(props: CartridgeSettings.Props) {
         <ControlLabel style={{display: 'block', marginTop: '1rem'}}>Audio:</ControlLabel>
         <Switch
             state={props.audioEnabled}
-            labelTrue="enabled"
-            labelFalse="disabled"
+            labelTrue='enabled'
+            labelFalse='disabled'
             onSwitch={props.onToggleAudioEnabled}
         />
     </div>;
 }
 
-module CartridgeSettings {
+namespace CartridgeSettings {
 
     export interface Props extends
         CartridgeNameInput.Props,

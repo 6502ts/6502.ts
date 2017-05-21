@@ -22,7 +22,7 @@
 import * as redux from 'redux';
 
 import {
-    Type as ActionType,
+    types as ActionType,
     BatchAction
 } from './actions/root';
 import State from './state/State';

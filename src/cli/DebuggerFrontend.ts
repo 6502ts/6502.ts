@@ -31,8 +31,9 @@ function decodeNumber(value: string): number {
     try {
         return hex.decode(value);
     } catch (e) {
-        if (!value.match(/^-?\d+$/))
+        if (!value.match(/^-?\d+$/)) {
             throw new TypeError('number expected, got ' + value);
+        }
 
         return Number(value);
     }
@@ -45,18 +46,18 @@ class DebuggerFrontend {
             private _commandInterpreter: CommandInterpreter
     ) {
         this._commandInterpreter.registerCommands({
-            disassemble:        this._disassemble.bind(this),
-            dump:               this._dump.bind(this),
-            load:               this._load.bind(this),
-            hex2dec:            this._hex2dec.bind(this),
-            dec2hex:            this._dec2hex.bind(this),
-            state:              this._state.bind(this),
-            boot:               this._boot.bind(this),
-            stack:              this._stack.bind(this),
+            'disassemble':        this._disassemble.bind(this),
+            'dump':               this._dump.bind(this),
+            'load':               this._load.bind(this),
+            'hex2dec':            this._hex2dec.bind(this),
+            'dec2hex':            this._dec2hex.bind(this),
+            'state':              this._state.bind(this),
+            'boot':               this._boot.bind(this),
+            'stack':              this._stack.bind(this),
             'step':             this._step.bind(this),
             'step-clock':       this._stepClock.bind(this),
-            "reset":            () => this._reset(false),
-            "reset-hard":       () => this._reset(true),
+            'reset':            () => this._reset(false),
+            'reset-hard':       () => this._reset(true),
             'break-on':         this._enableBreakpoints.bind(this),
             'break-off':        this._disableBreakpoints.bind(this),
             'break':            this._setBreakpoint.bind(this),
@@ -70,9 +71,13 @@ class DebuggerFrontend {
     }
 
     describeTrap(trap?: BoardInterface.TrapPayload): string {
-        if (typeof(trap) === 'undefined') trap = this._debugger.getLastTrap();
+        if (typeof(trap) === 'undefined') {
+            trap = this._debugger.getLastTrap();
+        }
 
-        if (!trap) return '';
+        if (!trap) {
+            return '';
+        }
 
         const message = trap.message ? trap.message : 'unknown';
 
@@ -103,7 +108,9 @@ class DebuggerFrontend {
     }
 
     private _dump(args: Array<string>): string {
-        if (args.length < 1) throw new Error('at least one argument expected');
+        if (args.length < 1) {
+            throw new Error('at least one argument expected');
+        }
 
         return this._debugger.dumpAt(
             Math.abs(decodeNumber(args[0])),
@@ -112,7 +119,9 @@ class DebuggerFrontend {
     }
 
     private _load(args: Array<string>): string {
-        if (args.length < 2) throw new Error('at least two arguments. expected');
+        if (args.length < 2) {
+            throw new Error('at least two arguments. expected');
+        }
 
         const file = args[0],
             base = Math.abs(decodeNumber(args[1])) % 0x10000,
@@ -154,7 +163,9 @@ class DebuggerFrontend {
 
         board.cpuClock.removeHandler(clockHandler);
 
-        if (exception) throw (exception);
+        if (exception) {
+            throw (exception);
+        }
 
         return util.format('Boot successful in %s cycles', cycles);
     }
@@ -195,7 +206,9 @@ class DebuggerFrontend {
     }
 
     private _setBreakpoint(args: Array<string>): string {
-        if (args.length < 1) throw new Error('at least one argument expected');
+        if (args.length < 1) {
+            throw new Error('at least one argument expected');
+        }
 
         const name = args.length > 1 ? args[1] : '-',
             address = decodeNumber(args[0]);
@@ -206,7 +219,9 @@ class DebuggerFrontend {
     }
 
     private _clearBreakpoint(args: Array<string>): string {
-        if (args.length < 1) throw new Error('argument expected');
+        if (args.length < 1) {
+            throw new Error('argument expected');
+        }
 
         const address = decodeNumber(args[0]);
 
@@ -238,7 +253,7 @@ class DebuggerFrontend {
     }
 
     private _trace(args: Array<string>): string {
-        return this._debugger.trace(args.length > 0 ? decodeNumber(args[0]): 10);
+        return this._debugger.trace(args.length > 0 ? decodeNumber(args[0]) : 10);
     }
 
     private _stepClock(args: Array<string>): string {
@@ -250,7 +265,8 @@ class DebuggerFrontend {
         const time = Date.now() - timestamp,
             trap = this._debugger.getLastTrap();
 
-        return `clock stepped ${cycles} cycles in ${time} msec; now at ${this._debugger.disassemble(1)}\n${trap ? this.describeTrap(trap) : ''}`;
+        return  `clock stepped ${cycles} cycles in ${time} msec; ` +
+                `now at ${this._debugger.disassemble(1)}\n${trap ? this.describeTrap(trap) : ''}`;
     }
 }
 

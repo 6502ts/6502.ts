@@ -19,13 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-declare module _stelleratorSettings {
+declare namespace _stelleratorSettings {
     export const workerUrl: string;
     export const helppageUrl: string;
     export const buildId: string;
 }
 
-declare module window {
+declare namespace window {
     export const devToolsExtension: any;
 }
 
@@ -124,12 +124,12 @@ Promise
     .then(emulationService => render(
         <Provider store={store}>
             <Router history={history}>
-                <Redirect from="/" to="/cartridge-manager"/>
-                <Route path="/" component={App(emulationService)}>
-                    <Route path="cartridge-manager" component={CartridgeManager}/>
-                    <Route path="emulation" component={Emulation}/>
-                    <Route path="settings" component={Settings}/>
-                    <Route path="help" component={Help}/>
+                <Redirect from='/' to='/cartridge-manager'/>
+                <Route path='/' component={App(emulationService)}>
+                    <Route path='cartridge-manager' component={CartridgeManager}/>
+                    <Route path='emulation' component={Emulation}/>
+                    <Route path='settings' component={Settings}/>
+                    <Route path='help' component={Help}/>
                 </Route>
             </Router>
         </Provider>,

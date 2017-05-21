@@ -34,7 +34,7 @@ const enum MappingButton {
     fire    = 5,
     start   = 6,
     select  = 7
-};
+}
 
 const standardMappings: {[button: number]: Array<number>} = {
     [MappingButton.up]:     [12],
@@ -284,6 +284,9 @@ export default class GamepadDriver {
         }
     }
 
+    private _onGamepadConnect = () => this._probeGamepads();
+    private _onGamepadDisconnect = () => this._probeGamepads();
+
     gamepadCountChanged = new Event<number>();
 
     private _bound = false;
@@ -297,9 +300,6 @@ export default class GamepadDriver {
     private _joysticksShadow: Array<ShadowJoystick> = null;
     private _startShadow: ShadowSwitch = null;
     private _selectShadow: ShadowSwitch = null;
-
-    private _onGamepadConnect = () => this._probeGamepads();
-    private _onGamepadDisconnect = () => this._probeGamepads();
 }
 
 class ShadowSwitch {

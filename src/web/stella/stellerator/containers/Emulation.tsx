@@ -52,6 +52,7 @@ function mapStateToProps(state: State): EmulationComponent.Props {
     };
 }
 
+// tslint:disable-next-line:variable-name
 const EmulationContainer = connect(mapStateToProps, {
     navigateAway: () => push('/cartridge-manager'),
     pauseEmulation,

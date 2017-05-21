@@ -28,6 +28,15 @@ class Disassembler {
     constructor(private _bus?: BusInterface)
     {}
 
+    setBus(bus: BusInterface): Disassembler {
+        this._bus = bus;
+        return this;
+    }
+
+    getBus(): BusInterface {
+        return this._bus;
+    }
+
     disassembleAt(address: number): string {
         const instruction = Instruction.opcodes[this._peek(address)],
             operation = Instruction.OperationMap[instruction.operation].toUpperCase();
@@ -39,7 +48,7 @@ class Disassembler {
             hex.encode(
                 this._peek(a) + (this._peek(a + 1) << 8), 4);
 
-        const decodeSint8 = (value: number) => (value & 0x80) ? (-(~(value-1) & 0xFF)) : value;
+        const decodeSint8 = (value: number) => (value & 0x80) ? (-(~(value - 1) & 0xFF)) : value;
 
         switch (instruction.addressingMode) {
             case Instruction.AddressingMode.implied:
@@ -91,14 +100,6 @@ class Disassembler {
         return this._bus.peek(address % 0x10000);
     }
 
-    setBus(bus: BusInterface): Disassembler {
-        this._bus = bus;
-        return this;
-    }
-
-    getBus(): BusInterface {
-        return this._bus;
-    }
 }
 
 export default Disassembler;

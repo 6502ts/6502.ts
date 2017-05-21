@@ -21,7 +21,7 @@
 
 import * as hex from '../../../../src/tools/hex';
 
-const enum AccessType {read, write};
+const enum AccessType {read, write}
 
 class Entry {
 

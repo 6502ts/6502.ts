@@ -31,15 +31,18 @@ class Pia {
 
     constructor(
         private _controlPanel: ControlPanelInterface,
-        private _joystick0 : DigitalJoystickInterface,
-        private _joystick1 : DigitalJoystickInterface,
+        private _joystick0: DigitalJoystickInterface,
+        private _joystick1: DigitalJoystickInterface,
         private _rng?: RngInterface
     ) {
         this.reset();
     }
 
     reset(): void {
-        for (let i = 0; i < 128; i++) this.ram[i] = this._rng ? this._rng.int(0xFF) : 0;
+        for (let i = 0; i < 128; i++)  {
+            this.ram[i] = this._rng ? this._rng.int(0xFF) : 0;
+        }
+
         this._interruptFlag = 0;
         this._flagSetDuringThisCycle = false;
 
@@ -105,10 +108,6 @@ class Pia {
 
         return this;
     }
-
-    trap = new Event<Pia.TrapPayload>();
-
-    ram = new Uint8Array(128);
 
     private _writeIo(address: number, value: number): void {
     }
@@ -202,6 +201,10 @@ class Pia {
         }
     }
 
+    trap = new Event<Pia.TrapPayload>();
+
+    ram = new Uint8Array(128);
+
     private _bus: Bus = null;
 
     private _timerValue = 255;
@@ -212,7 +215,7 @@ class Pia {
     private _flagSetDuringThisCycle = false;
 }
 
-module Pia {
+namespace Pia {
     export const enum Registers {
         swcha   = 0x280,
         swacnt  = 0x281,
@@ -229,7 +232,7 @@ module Pia {
     export const enum TrapReason {invalidRead, invalidWrite}
 
     export class TrapPayload {
-        constructor (
+        constructor(
             public reason: TrapReason,
             public pia: Pia,
             public message?: string

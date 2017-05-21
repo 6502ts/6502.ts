@@ -24,7 +24,7 @@ import * as pathlib from 'path';
 
 class Completer {
 
-    constructor (
+    constructor(
         private _availableCommands: Array<string>,
         private _fsProvider: FilesystemProviderInterface
     ) {}
@@ -32,7 +32,9 @@ class Completer {
     complete(cmd: string): Completer.CompletionResult {
         const chunks = cmd.split(/\s+/);
 
-        if (chunks.length > 0 && chunks[0] === '') chunks.shift();
+        if (chunks.length > 0 && chunks[0] === '') {
+            chunks.shift();
+        }
 
         switch (chunks.length) {
             case 0:
@@ -56,7 +58,9 @@ class Completer {
             basename = pathlib.basename(path),
             directory: Array<string>;
 
-        if (!this._fsProvider) return [];
+        if (!this._fsProvider) {
+            return [];
+        }
 
         if (path && path[path.length - 1] === pathlib.sep || path[path.length - 1] === '/') {
             dirname = path;
@@ -73,7 +77,7 @@ class Completer {
                     )
                     .map(entry => pathlib.join(dirname, entry))
             );
-        } catch(e) {}
+        } catch (e) {}
 
         return [];
     }
@@ -83,14 +87,14 @@ class Completer {
             try {
                 return (this._fsProvider.getTypeSync(path) === FilesystemProviderInterface.FileType.DIRECTORY ?
                     pathlib.join(path, pathlib.sep) : path);
-            } catch(e) {
+            } catch (e) {
                 return path;
             }
         });
     }
 }
 
-module Completer {
+namespace Completer {
 
     export class CompletionResult {
         constructor(

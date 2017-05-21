@@ -27,7 +27,7 @@ export interface BufferInterface {
 export function searchForSignatures(
     buffer: BufferInterface,
     signatures: Array<Array<number>>
-) : Array<number> {
+): Array<number> {
 
     interface Candidate {
         signature: number;

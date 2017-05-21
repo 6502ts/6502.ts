@@ -36,7 +36,9 @@ class ConstantCyclesScheduler implements SchedulerInterface {
             accumulatedDelta = 0;
 
         function handler() {
-            if (terminate) return;
+            if (terminate) {
+                return;
+            }
 
             const timestamp0 = getTimestamp(),
                 targetDuration = worker(context) || 0,

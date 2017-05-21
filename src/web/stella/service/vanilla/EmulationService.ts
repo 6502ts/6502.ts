@@ -111,8 +111,7 @@ export default class EmulationService implements EmulationServiceInterface {
             if (this._state === EmulationServiceInterface.State.paused) {
                 try {
                     this._tryToResume();
-                }
-                catch (e) {
+                } catch (e) {
                     this._setError(e);
                 }
 
@@ -138,8 +137,7 @@ export default class EmulationService implements EmulationServiceInterface {
 
                         break;
                 }
-            }
-            catch (e) {
+            } catch (e) {
                 this._setError(e);
             }
 
@@ -193,6 +191,11 @@ export default class EmulationService implements EmulationServiceInterface {
         });
     }
 
+    private static _trapHandler(trap: BoardInterface.TrapPayload, self: EmulationService) {
+        self._setError(new Error(`TRAP: ${trap.message}`));
+        self.emulationError.dispatch(self._lastError);
+    }
+
     private _stop(): EmulationServiceInterface.State {
         try {
             if (this._state === EmulationServiceInterface.State.running) {
@@ -239,11 +242,6 @@ export default class EmulationService implements EmulationServiceInterface {
         }
 
         return this._state;
-    }
-
-    private static _trapHandler(trap: BoardInterface.TrapPayload, self: EmulationService) {
-        self._setError(new Error(`TRAP: ${trap.message}`));
-        self.emulationError.dispatch(self._lastError);
     }
 
     private _updateScheduler(): void {

@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 import {FormControl} from 'react-bootstrap';
 
@@ -35,7 +34,7 @@ class ValidatingInput extends React.Component<ValidatingInput.Props, ValidatingI
 
     render() {
         return <FormControl
-            type="text"
+            type='text'
             className={this.props.validator(this.state.rawValue) ? 'valid' : 'invalid'}
             value={this.state.rawValue}
             onChange={(e: React.FormEvent<any>) => this._onChange((e.target as HTMLInputElement).value)}
@@ -59,7 +58,7 @@ class ValidatingInput extends React.Component<ValidatingInput.Props, ValidatingI
 
 }
 
-module ValidatingInput {
+namespace ValidatingInput {
 
     export interface Props {
         value?: string;

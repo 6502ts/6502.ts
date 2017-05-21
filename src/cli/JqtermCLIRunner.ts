@@ -19,8 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/// <reference path="../interface/jquery.terminal.d.ts"/>
-
 import CLIInterface from './CLIInterface';
 import Completer from './Completer';
 
@@ -47,11 +45,13 @@ class JqtermCLIRunner {
         this._cli.events.promptChanged.addHandler(this._onCLIPromptChanged, this);
         this._cli.events.availableCommandsChanged.addHandler(this._updateCompleter.bind(this));
 
-        if (options.interruptButton)
+        if (options.interruptButton) {
             options.interruptButton.mousedown((): void => this._cli.interrupt());
+        }
 
-        if (options.clearButton)
+        if (options.clearButton) {
             options.clearButton.mousedown((): void => this._terminal.clear());
+        }
     }
 
     startup() {
@@ -88,7 +88,7 @@ class JqtermCLIRunner {
     private _completer: Completer;
 }
 
-module JqtermCLIRunner {
+namespace JqtermCLIRunner {
     export interface Options {
         interruptButton?: JQuery;
         clearButton?: JQuery;

@@ -28,7 +28,9 @@ function encodeWithPrefix(value: number, width?: number, signed = true, prefix =
     let result = Math.abs(value).toString(16).toUpperCase();
 
     if (typeof(width) !== 'undefined') {
-        while (result.length < width) result = '0' + result;
+        while (result.length < width) {
+            result = '0' + result;
+        }
     }
 
     return (value < 0 ? '-' : '') + prefix + result;

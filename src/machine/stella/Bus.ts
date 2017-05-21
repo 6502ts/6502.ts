@@ -146,7 +146,6 @@ class Bus implements BusInterface {
         write: new Event<Bus.AccessType>()
     };
 
-
     private _tia: Tia = null;
     private _pia: Pia = null;
     private _cartridge: CartridgeInterface = null;
@@ -155,7 +154,7 @@ class Bus implements BusInterface {
     private _lastAddressBusValue = 0;
 }
 
-module Bus {
+namespace Bus {
 
     export const enum TrapReason {tia, pia, cartridge}
 
@@ -163,7 +162,7 @@ module Bus {
 
     export class TrapPayload {
 
-        constructor (
+        constructor(
             public reason: TrapReason,
             public bus: Bus,
             public message?: string

@@ -30,7 +30,7 @@ import {
 
 class AudioDriver {
 
-    constructor (
+    constructor(
         private _index: number,
         private _rpc: RpcProviderInterface
     ) {

@@ -36,11 +36,13 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
 
         const content = this._lookup(name);
 
-        if (typeof(content) === 'undefined')
+        if (typeof(content) === 'undefined') {
             throw new Error(util.format('%s not part of file bundle', name));
+        }
 
-        if (!Buffer.isBuffer(content))
+        if (!Buffer.isBuffer(content)) {
              throw new Error(util.format('%s is a directory, not a file', name));
+        }
 
         return content;
     }
@@ -56,12 +58,13 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
 
         const content = this._lookup(name);
 
-        if (typeof(content) === 'undefined')
+        if (typeof(content) === 'undefined') {
             throw new Error(util.format('%s not part of file bundle', name));
+        }
 
-        if (typeof(content) === 'string' || Buffer.isBuffer(content))
+        if (typeof(content) === 'string' || Buffer.isBuffer(content)) {
             throw new Error(util.format('%s is a file, not a directory', name));
-
+        }
 
         return Object.keys(content);
     }
@@ -71,8 +74,9 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
 
         const content = this._lookup(name);
 
-        if (typeof(content) === 'undefined')
+        if (typeof(content) === 'undefined') {
              throw new Error(util.format('%s not part of file bundle', name));
+        }
 
         if (Buffer.isBuffer(content)) {
             return FilesystemProviderInterface.FileType.FILE;
@@ -100,15 +104,16 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider
             }
         }
 
-        if (name && typeof(scope[name]) === 'string')
+        if (name && typeof(scope[name]) === 'string') {
             scope[name] = new Buffer(scope[name], 'base64');
+        }
 
         return name ? scope[name] : scope;
     }
 
 }
 
-module PrepackagedFilesystemProvider {
+namespace PrepackagedFilesystemProvider {
 
     export interface BlobInterface {
         [index: string]: any;

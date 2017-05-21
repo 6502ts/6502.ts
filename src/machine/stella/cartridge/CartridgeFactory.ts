@@ -41,7 +41,6 @@ import CartridgeInfo from './CartridgeInfo';
 import CartridgeDetector from './CartridgeDetector';
 import CartridgeInterface from './CartridgeInterface';
 
-
 export default class CartridgeFactory {
 
     createCartridge(

@@ -33,14 +33,14 @@ class Header {
         return (checksum & 0xFF) === 0x55;
     }
 
-    startAddressLow:        number;
-    startAddressHigh:       number;
-    controlWord:            number;
-    blockCount:             number;
-    checksum:               number;
-    multiloadId:            number;
-    progressBarSpeedLow:    number;
-    progressBarSpeedHigh:   number;
+    startAddressLow: number;
+    startAddressHigh: number;
+    controlWord: number;
+    blockCount: number;
+    checksum: number;
+    multiloadId: number;
+    progressBarSpeedLow: number;
+    progressBarSpeedHigh: number;
 
     blockLocation: Uint8Array = null;
     blockChecksum: Uint8Array = null;

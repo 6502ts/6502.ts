@@ -36,7 +36,7 @@ class GuiState implements Changeset {
 
 }
 
-module GuiState {
+namespace GuiState {
 
     export enum GuiMode {
         cartridgeList,

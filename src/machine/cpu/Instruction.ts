@@ -46,9 +46,9 @@ class Instruction {
                 return 1;
         }
     }
-};
+}
 
-module Instruction {
+namespace Instruction {
     export const enum Operation {
         adc, and, asl, bcc, bcs, beq, bit, bmi, bne, bpl, brk, bvc, bvs, clc,
         cld, cli, clv, cmp, cpx, cpy, dec, dex, dey, eor, inc, inx, iny, jmp,
@@ -57,7 +57,7 @@ module Instruction {
         // undocumented operations
         dop, top, alr, axs, dcp, lax, arr, slo, aax, lar, isc, aac,
         invalid
-    };
+    }
 
     export enum OperationMap {
         adc, and, asl, bcc, bcs, beq, bit, bmi, bne, bpl, brk, bvc, bvs, clc,
@@ -67,7 +67,7 @@ module Instruction {
         // undocumented operations
         dop, top, alr, axs, dcp, lax, arr, slo, aax, lar, isc, aac,
         invalid
-    };
+    }
 
     export const enum AddressingMode {
         implied,
@@ -75,23 +75,22 @@ module Instruction {
         zeroPageX, absoluteX, indexedIndirectX,
         zeroPageY, absoluteY, indirectIndexedY,
         invalid
-    };
+    }
 
     export const opcodes = new Array<Instruction>(256);
-};
+}
 
 export default Instruction;
 
 // Opcodes init
 
-module Instruction {
-    (function() {
+namespace Instruction {
+
+    export namespace __init {
         for (let i = 0; i < 256; i++) {
             opcodes[i] = new Instruction(Operation.invalid, AddressingMode.invalid);
         }
-    })();
 
-    (function() {
         let operation: Operation,
             addressingMode: AddressingMode,
             opcode: number;
@@ -106,7 +105,7 @@ module Instruction {
                 case 5: operation = Operation.lda; break;
                 case 6: operation = Operation.cmp; break;
                 case 7: operation = Operation.sbc; break;
-            };
+            }
             for (let j = 0; j < 8; j++) {
                 switch (j) {
                     case 0: addressingMode = AddressingMode.indexedIndirectX; break;
@@ -119,8 +118,9 @@ module Instruction {
                     case 7: addressingMode = AddressingMode.absoluteX; break;
                 }
 
-                if (operation === Operation.sta && addressingMode === AddressingMode.immediate)
+                if (operation === Operation.sta && addressingMode === AddressingMode.immediate) {
                     addressingMode = AddressingMode.invalid;
+                }
 
                 if (operation !== Operation.invalid && addressingMode !== AddressingMode.invalid) {
                     opcode = (i << 5) | (j << 2) | 1;
@@ -130,13 +130,13 @@ module Instruction {
             }
         }
 
-        function set(opcode: number, operation: Operation, addressingMode: AddressingMode): void {
-            if (opcodes[opcode].operation !== Operation.invalid) {
-                throw new Error("entry for opcode " + opcode + " already exists");
+        function set(_opcode: number, _operation: Operation, _addressingMode: AddressingMode): void {
+            if (opcodes[_opcode].operation !== Operation.invalid) {
+                throw new Error('entry for opcode ' + _opcode + ' already exists');
             }
 
-            opcodes[opcode].operation = operation;
-            opcodes[opcode].addressingMode = addressingMode;
+            opcodes[_opcode].operation = _operation;
+            opcodes[_opcode].addressingMode = _addressingMode;
         }
 
         set(0x06, Operation.asl, AddressingMode.zeroPage);
@@ -322,5 +322,5 @@ module Instruction {
 
         set(0x0B, Operation.aac, AddressingMode.immediate);
         set(0x2B, Operation.aac, AddressingMode.immediate);
-    })();
-};
+    }
+}

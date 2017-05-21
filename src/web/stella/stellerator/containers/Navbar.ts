@@ -34,6 +34,7 @@ function mapStateToProps(state: State): NavbarComponent.Props {
     };
 }
 
+// tslint:disable-next-line:variable-name
 const NavbarContainer = connect(mapStateToProps, {}, null, {pure: false})(NavbarComponent);
 
 export default NavbarContainer;

@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
 import {
@@ -46,7 +45,7 @@ function TvModeSelect(props: TvModeSelect.Props) {
     </ButtonGroup>;
 }
 
-module TvModeSelect {
+namespace TvModeSelect {
 
     export interface Props {
         tvMode?: StellaConfig.TvMode;

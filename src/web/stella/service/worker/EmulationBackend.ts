@@ -87,6 +87,14 @@ class EmulationBackend {
         }
     }
 
+    private static _onFrequencyUpdate(frequency: number, self: EmulationBackend): void {
+        self._rpc.signal<number>(SIGNAL_TYPE.emulationFrequencyUpdate, frequency);
+    }
+
+    private static _onEmulationError(error: Error, self: EmulationBackend): void {
+        self._rpc.signal<string>(SIGNAL_TYPE.emulationError, error ? error.message : null);
+    }
+
     private _onSetup(msg: SetupMessage): void {
         this._videoDriver.init(msg.videoProcessorPort);
     }
@@ -136,14 +144,6 @@ class EmulationBackend {
                 audio.channel1.getVolume()
             ]
         });
-    }
-
-    private static _onFrequencyUpdate(frequency: number, self: EmulationBackend): void {
-        self._rpc.signal<number>(SIGNAL_TYPE.emulationFrequencyUpdate, frequency);
-    }
-
-    private static _onEmulationError(error: Error, self: EmulationBackend): void {
-        self._rpc.signal<string>(SIGNAL_TYPE.emulationError, error ? error.message : null);
     }
 
     private _service: EmulationService;

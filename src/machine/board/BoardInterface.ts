@@ -41,26 +41,27 @@ interface BoardInterface {
 
     resume(): void;
 
-    cpuClock: EventInterface<number>;
-
-    clock: EventInterface<number>;
-
     getClockMode(): BoardInterface.ClockMode;
 
     setClockMode(clockMode: BoardInterface.ClockMode): BoardInterface;
 
-    trap: EventInterface<BoardInterface.TrapPayload>;
-
     triggerTrap(reason: BoardInterface.TrapReason, message?: string): BoardInterface;
 
     getBoardStateDebug(): string;
+
+    trap: EventInterface<BoardInterface.TrapPayload>;
+
+    cpuClock: EventInterface<number>;
+
+    clock: EventInterface<number>;
+
 }
 
-module BoardInterface {
+namespace BoardInterface {
 
-    export const enum TrapReason {cpu, bus, debug, board};
+    export const enum TrapReason {cpu, bus, debug, board}
 
-    export const enum ClockMode {instruction, lazy};
+    export const enum ClockMode {instruction, lazy}
 
     export class TrapPayload {
         constructor(

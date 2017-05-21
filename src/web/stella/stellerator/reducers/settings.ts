@@ -24,7 +24,7 @@ import {Action} from 'redux';
 import Settings from '../state/Settings';
 
 import {
-    Types,
+    types,
     InitSettingsAction,
     SetSmoothScalingAction,
     SetWebGlRenderingAction,
@@ -35,22 +35,22 @@ import {
 
 export default function reducer(state: Settings = new Settings(), action: Action): Settings {
     switch (action.type) {
-        case Types.setSmoothScaling:
+        case types.setSmoothScaling:
             return setSmoothScaling(state, action as SetSmoothScalingAction);
 
-        case Types.setWebGlRendering:
+        case types.setWebGlRendering:
             return setWebGlRendering(state, action as SetWebGlRenderingAction);
 
-        case Types.setGamma:
+        case types.setGamma:
             return setGamma(state, action as SetGammaAction);
 
-        case Types.setUseWorker:
+        case types.setUseWorker:
             return setUseWorker(state, action as SetUseWorkerAction);
 
-        case Types.init:
+        case types.init:
             return init(state, action as InitSettingsAction);
 
-        case Types.setMergeFrames:
+        case types.setMergeFrames:
             return setMergeFrames(state, action as SetMergeFramesAction);
     }
 

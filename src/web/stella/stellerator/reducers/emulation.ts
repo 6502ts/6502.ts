@@ -24,7 +24,7 @@ import {Action} from 'redux';
 import EmulationState from '../state/Emulation';
 
 import {
-    Type,
+    types,
     ChangeDifficultyAction,
     ChangeTvModeAction,
     StartAction,
@@ -38,28 +38,28 @@ import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 
 export default function reducer(state: EmulationState = new EmulationState(), action: Action): EmulationState {
     switch (action.type) {
-        case Type.changeDifficulty:
+        case types.changeDifficulty:
             return changeDifficulty(state, action as ChangeDifficultyAction);
 
-        case Type.changeTvMode:
+        case types.changeTvMode:
             return changeTvMode(state, action as ChangeTvModeAction);
 
-        case Type.start:
+        case types.start:
             return start(state, action as StartAction);
 
-        case Type.stateChange:
+        case types.stateChange:
             return stateChange(state, action as StateChangeAction);
 
-        case Type.updateFrequency:
+        case types.updateFrequency:
             return updateFrequency(state, action as UpdateFrequencyAction);
 
-        case Type.updateGamepadCount:
+        case types.updateGamepadCount:
             return updateGamepadCount(state, action as UpdateGamepadCountAction);
 
-        case Type.setEnforceRateLimit:
+        case types.setEnforceRateLimit:
             return setEnforceRateLimit(state, action as SetEnforceRateLimitAction);
 
-        case Type.userPause:
+        case types.userPause:
             return userPause(state);
     }
 

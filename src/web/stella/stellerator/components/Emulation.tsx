@@ -19,7 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
 
 import {
@@ -180,31 +179,6 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         </Grid>;
     }
 
-    context: {
-        emulationService: EmulationServiceInterface
-    };
-
-    static defaultProps: Emulation.Props = Object.assign({
-        enabled: false,
-        initialViewportWidth: 160,
-        initialViewportHeight: 192,
-        smoothScaling: true,
-        webGlRendering: true,
-        gamma: 1,
-        emulationState: EmulationServiceInterface.State.stopped,
-        pausedByUser: false,
-
-        navigateAway: (): void => undefined,
-        pauseEmulation: (): void => undefined,
-        userPauseEmulation: (): void => undefined,
-        resumeEmulation: (): void => undefined,
-        resetEmulation: (): void => undefined
-    }, ControlPanel.defaultProps);
-
-    static contextTypes: React.ValidationMap<any> = {
-        emulationService: React.PropTypes.object
-    };
-
     private _showErrorMessage(): boolean {
         return this.props.emulationState === EmulationServiceInterface.State.error;
     }
@@ -223,12 +197,20 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         return error && error.message ? error.message : '[unknown]';
     }
 
+    static contextTypes: React.ValidationMap<any> = {
+        emulationService: React.PropTypes.object
+    };
+
+    context: {
+        emulationService: EmulationServiceInterface
+    };
+
     private _driverManager = new DriverManager();
     private _fullscreenDriver: FullscreenVideoDriver = null;
     private _canvasElt: HTMLCanvasElement = null;
 }
 
-module Emulation {
+namespace Emulation {
 
     export interface Props extends ControlPanel.Props {
         enabled?: boolean;
@@ -246,6 +228,25 @@ module Emulation {
         resumeEmulation?: () => void;
         resetEmulation?: () => void;
     }
+
+    export const defaultProps: Props = {
+        enabled: false,
+        initialViewportWidth: 160,
+        initialViewportHeight: 192,
+        smoothScaling: true,
+        webGlRendering: true,
+        gamma: 1,
+        emulationState: EmulationServiceInterface.State.stopped,
+        pausedByUser: false,
+
+        navigateAway: (): void => undefined,
+        pauseEmulation: (): void => undefined,
+        userPauseEmulation: (): void => undefined,
+        resumeEmulation: (): void => undefined,
+        resetEmulation: (): void => undefined,
+
+        ...ControlPanel.defaultProps
+    };
 
     export interface State {
         initialPause: boolean;

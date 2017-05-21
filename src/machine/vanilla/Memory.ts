@@ -30,7 +30,9 @@ class Memory implements BusInterface {
     reset(): void {}
 
     clear(): void {
-        for (let i = 0; i < 0x10000; i++) this._data[i] = 0;
+        for (let i = 0; i < 0x10000; i++) {
+            this._data[i] = 0;
+        }
     }
 
     read(address: number): number {
@@ -42,7 +44,7 @@ class Memory implements BusInterface {
     }
 
     readWord(address: number): number {
-        return this._data[address] + (this._data[(address+1) & 0xFFFF] << 8);
+        return this._data[address] + (this._data[(address + 1) & 0xFFFF] << 8);
     }
 
     write(address: number, value: number) {

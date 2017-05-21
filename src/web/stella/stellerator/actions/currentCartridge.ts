@@ -24,7 +24,7 @@ import {Action} from 'redux';
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
-export const Type = {
+export const types = {
     changeCartridgeType: 'current-cartridge/change-cartridge-type',
     changeName: 'current-cartridge/change-name',
     changeTvMode: 'current-cartridge/change-tv-mode',
@@ -33,7 +33,7 @@ export const Type = {
     changeRngSeed: 'current-cartridge/change-rng-seed',
     toggleAudioEnabled: 'current-cartridge/toggle-audio-enabled'
 };
-Object.freeze(Type);
+Object.freeze(types);
 
 export interface ChangeNameAction extends Action {
     name: string;
@@ -41,7 +41,7 @@ export interface ChangeNameAction extends Action {
 
 export function changeName(name: string) {
     return {
-        type: Type.changeName,
+        type: types.changeName,
         name
     };
 }
@@ -52,7 +52,7 @@ export interface ChangeTvModeAction extends Action {
 
 export function changeTvMode(tvMode: StellaConfig.TvMode): ChangeTvModeAction {
     return {
-        type: Type.changeTvMode,
+        type: types.changeTvMode,
         tvMode
     };
 }
@@ -63,7 +63,7 @@ export interface ChangeCartridgeTypeAction extends Action {
 
 export function changeCartridgeType(cartridgeType: CartridgeInfo.CartridgeType): ChangeCartridgeTypeAction {
     return {
-        type: Type.changeCartridgeType,
+        type: types.changeCartridgeType,
         cartridgeType
     };
 }
@@ -74,7 +74,7 @@ export interface ChangePaddleEmulationAction extends Action {
 
 export function changePaddleEmulation(emulatePaddles: boolean): ChangePaddleEmulationAction {
     return {
-        type: Type.changePaddleEmulation,
+        type: types.changePaddleEmulation,
         emulatePaddles
     };
 }
@@ -85,7 +85,7 @@ export interface ChangeRngSeedStrategyAction extends Action {
 
 export function changeRngSeedStrategy(auto: boolean): ChangeRngSeedStrategyAction {
     return {
-        type: Type.changeRngSeedStrategy,
+        type: types.changeRngSeedStrategy,
         auto
     };
 }
@@ -96,7 +96,7 @@ export interface ChangeRngSeedAction extends Action {
 
 export function changeRngSeed(seed: number): ChangeRngSeedAction {
     return {
-        type: Type.changeRngSeed,
+        type: types.changeRngSeed,
         seed
     };
 }
@@ -107,7 +107,7 @@ export interface ToggleAudioEnabledAction extends Action {
 
 export function toggleAudioEnabled(audioEnabled: boolean): ToggleAudioEnabledAction {
     return {
-        type: Type.toggleAudioEnabled,
+        type: types.toggleAudioEnabled,
         audioEnabled
     };
 }

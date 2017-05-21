@@ -37,6 +37,17 @@ class PipelineClient {
             .registerSignalHandler(messages.messageIds.release, this._onMessageRelease.bind(this));
     }
 
+    static spawn(workerUrl = 'video-pipeline.js'): PipelineClient {
+        const worker = new Worker(workerUrl),
+            rpc = new RpcProvider(
+                (message: any, transfer: Array<any>) => worker.postMessage(message, transfer)
+            );
+
+        worker.onmessage = messageEvent => rpc.dispatch(messageEvent.data);
+
+        return new PipelineClient(rpc);
+    }
+
     configure(width: number, height: number, videoConfig?: Array<ProcessorConfig>): Promise<any> {
         return this._rpc.rpc(messages.messageIds.configure, {
             width,
@@ -64,20 +75,9 @@ class PipelineClient {
         } as messages.ProcessMessage, [buffer]);
     }
 
-    static spawn(workerUrl = 'video-pipeline.js'): PipelineClient {
-        const worker = new Worker(workerUrl),
-            rpc = new RpcProvider(
-                (message: any, transfer: Array<any>) => worker.postMessage(message, transfer)
-            );
-
-        worker.onmessage = messageEvent => rpc.dispatch(messageEvent.data);
-
-        return new PipelineClient(rpc);
-    }
-
     private _onMessageEmit(msg: messages.EmitMessage): void {
         if (!this._surfaces.has(msg.id)) {
-            throw `no surface with id ${msg.id}`;
+            throw new Error(`no surface with id ${msg.id}`);
         }
 
         const managedSurface = this._surfaces.get(msg.id),
@@ -91,7 +91,7 @@ class PipelineClient {
 
     private _onMessageRelease(msg: messages.ReleaseMessage): void {
         if (!this._surfaces.has(msg.id)) {
-            throw `no surface with id ${msg.id}`;
+            throw new Error(`no surface with id ${msg.id}`);
         }
 
         const managedSurface = this._surfaces.get(msg.id),
@@ -100,7 +100,7 @@ class PipelineClient {
         this._surfaces.delete(msg.id);
         surface.replaceUnderlyingBuffer(surface.getWidth(), surface.getHeight(), msg.buffer);
 
-        managedSurface.release();;
+        managedSurface.release();
     }
 
     emit = new Event<PoolMemberInterface<ArrayBufferSurface>>();

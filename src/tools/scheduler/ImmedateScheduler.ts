@@ -30,7 +30,9 @@ class ImmediateScheduler implements SchedulerInterface {
         let terminate = false;
 
         function handler() {
-            if (terminate) return;
+            if (terminate)  {
+                return;
+            }
 
             worker(context);
             setImmediate(handler);

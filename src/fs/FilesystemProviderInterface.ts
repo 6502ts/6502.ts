@@ -37,7 +37,7 @@ interface FileSystemProviderInterface {
     cwd(): string;
 }
 
-module FileSystemProviderInterface {
+namespace FileSystemProviderInterface {
 
     export interface FileBufferInterface {
         [index: number]: number;

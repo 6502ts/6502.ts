@@ -23,7 +23,7 @@ import {Action} from 'redux';
 
 import Settings from '../state/Settings';
 
-export const Types = {
+export const types = {
     setSmoothScaling: 'settings/setSmoothScaling',
     setWebGlRendering: 'settings/setWebGlRendering',
     setGamma: 'settings/setGamma',
@@ -38,18 +38,18 @@ export interface SetSmoothScalingAction extends Action {
 
 export function setSmoothScaling(value: boolean): SetSmoothScalingAction {
     return {
-        type: Types.setSmoothScaling,
+        type: types.setSmoothScaling,
         value
     };
 }
 
 export interface InitSettingsAction extends Action {
     settings: Settings;
-};
+}
 
 export function initSettings(settings: Settings): InitSettingsAction {
     return {
-        type: Types.init,
+        type: types.init,
         settings
     };
 }
@@ -60,7 +60,7 @@ export interface SetWebGlRenderingAction extends Action {
 
 export function setWebGlRendering(value: boolean): SetWebGlRenderingAction {
     return {
-        type: Types.setWebGlRendering,
+        type: types.setWebGlRendering,
         value
     };
 }
@@ -71,7 +71,7 @@ export interface SetGammaAction extends Action {
 
 export function setGamma(value: number): SetGammaAction {
     return {
-        type: Types.setGamma,
+        type: types.setGamma,
         value
     };
 }
@@ -82,7 +82,7 @@ export interface SetUseWorkerAction extends Action {
 
 export function setUseWorker(value: boolean): SetUseWorkerAction {
     return {
-        type: Types.setUseWorker,
+        type: types.setUseWorker,
         value
     };
 }
@@ -93,11 +93,11 @@ export interface SetMergeFramesAction extends Action {
 
 export function setMergeFrames(value: boolean): SetMergeFramesAction {
     return {
-        type: Types.setMergeFrames,
+        type: types.setMergeFrames,
         value
     };
 }
 
 export function isSettingsChange(a: Action): boolean {
-    return a.type.indexOf('settings/') === 0 && a.type !== Types.init;
+    return a.type.indexOf('settings/') === 0 && a.type !== types.init;
 }

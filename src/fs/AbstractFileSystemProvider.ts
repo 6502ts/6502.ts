@@ -26,11 +26,15 @@ abstract class AbstractFileSystemProvider {
     pushd(path?: string): void {
         this._directoryStack.unshift(this._cwd);
 
-        if (typeof(path) !== 'undefined') this.chdir(path);
+        if (typeof(path) !== 'undefined') {
+            this.chdir(path);
+        }
     }
 
     popd(): string {
-        if (this._directoryStack.length === 0) return;
+        if (this._directoryStack.length === 0) {
+            return;
+        }
 
         const targetDir = this._directoryStack.shift();
 

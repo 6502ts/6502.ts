@@ -45,7 +45,7 @@ interface CLIInterface {
     events: CLIInterface.Events;
 }
 
-module CLIInterface {
+namespace CLIInterface {
     export interface Events {
         outputAvailable: EventInterface<void>;
 
