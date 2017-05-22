@@ -9,6 +9,7 @@
         "sourceMap": false,
         "jsx": "react",
         "allowUnreachableCode": true,
+        "downlevelIteration": true,
         "lib": [
             "dom",
             "es5",

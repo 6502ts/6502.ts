@@ -26,7 +26,6 @@ class GuiState implements Changeset {
     }
 
     mode = GuiState.GuiMode.cartridgeList;
-
     showSelectPendingChangesModal = false;
     pendingSelectHash = '';
 
