@@ -25,6 +25,8 @@ import {Event} from 'microevent.ts';
 import State from '../../state/State';
 import ContainerInterface from '../Container';
 import EmulationProvider from './EmulationProvider';
+import PersistenceProvider from './PersistenceProvider';
+import StorageManager from './StorageManager';
 
 interface InjectableWithStore {
     setStore(store: Store<State>): void;
@@ -48,6 +50,21 @@ class Container implements ContainerInterface {
             'emulation-provider',
             () => new EmulationProvider(),
             true
+        );
+    }
+
+    getPersistenceProvider(): PersistenceProvider {
+        return this._getOrCreateSingetonService(
+            'persistence-provider',
+            () => new PersistenceProvider(this.getStorageManager()),
+            true
+        );
+    }
+
+    getStorageManager(): StorageManager {
+        return this._getOrCreateSingetonService(
+            'storage-manager',
+            () => new StorageManager()
         );
     }
 

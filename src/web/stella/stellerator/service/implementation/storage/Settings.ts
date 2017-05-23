@@ -19,16 +19,34 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Store} from 'redux';
+import SettingsModel from '../../../model/Settings';
 
-import {updateGamepadCount} from './actions/emulation';
-import State from './state/State';
-import GamepadDriver from '../../driver/Gamepad';
+export const UNIQUE_ID = 0;
 
-export function startGamepadDriverDispatcher(driver: GamepadDriver, store: Store<State>): void {
-    driver.gamepadCountChanged.addHandler(
-        gamepadCount => store.dispatch(updateGamepadCount(gamepadCount))
-    );
+export type indexType = number;
 
-    store.dispatch(updateGamepadCount(driver.getGamepadCount()));
+export interface SettingsSchema {
+    id: number;
+    smoothScaling: boolean;
+    webGlRendering: boolean;
+    gamma: number;
+    useWorker: boolean;
+    mergeFrames: boolean;
+}
+
+export function fromModel(model: SettingsModel): SettingsSchema {
+    return {
+        ...model,
+        id: UNIQUE_ID
+    };
+}
+
+export function toState(record?: SettingsSchema): SettingsModel {
+    if (!record) {
+        return SettingsModel.create();
+    }
+
+    const {id, ...settings} = record;
+
+    return settings;
 }

@@ -19,10 +19,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import StellaConfig from '../../../../machine/stella/Config';
-import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
+import StellaConfig from '../../../../../../machine/stella/Config';
+import CartridgeInfo from '../../../../../../machine/stella/cartridge/CartridgeInfo';
 
-import CartridgeModel from '../model/Cartridge';
+import CartridgeModel from '../../../model/Cartridge';
 
 type tvModeString = 'pal'|'secam'|'ntsc';
 

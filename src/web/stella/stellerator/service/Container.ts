@@ -22,11 +22,17 @@
 import {Store} from 'redux';
 
 import EmulationProvider from './EmulationProvider';
+import PersistenceProvider from './PersistenceProvider';
+import StorageManager from './StorageManager';
 import State from '../state/State';
 
 interface Container {
 
     getEmulationProvider(): EmulationProvider;
+
+    getPersistenceProvider(): PersistenceProvider;
+
+    getStorageManager(): StorageManager;
 
     setStore(store: Store<State>): this;
 

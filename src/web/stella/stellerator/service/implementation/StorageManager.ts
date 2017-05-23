@@ -19,22 +19,23 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import CartridgeModel from '../model/Cartridge';
-import SettingsModel from '../model/Settings';
-import Database from './Database';
+import StorageManagerInterface from '../StorageManager';
+import CartridgeModel from '../../model/Cartridge';
+import SettingsModel from '../../model/Settings';
+import Database from './storage/Database';
 
 import {
     toState as cartridgeToState,
     fromModel as cartridgeFromState
-} from './Cartridge';
+} from './storage/Cartridge';
 
 import {
     UNIQUE_ID as SETTINGS_UNIQUE_ID,
     toState as settingsToState,
     fromModel as settingsFromState
-} from './Settings';
+} from './storage/Settings';
 
-export default class Manager {
+export default class StorageManager implements StorageManagerInterface {
 
     getAllCartridges(): Promise<Array<CartridgeModel>> {
         return Promise.resolve(this._database

@@ -59,11 +59,6 @@ import Emulation from './containers/Emulation';
 import Settings from './containers/Settings';
 import Help from './containers/Help';
 
-import PersistenceManager from './persistence/Manager';
-import {create as createPersistenceMiddleware} from './persistence/middleware';
-
-import {initCartridges} from './actions/root';
-import {initSettings} from './actions/settings';
 import {initialize as initializeEnvironment} from './actions/environment';
 
 import State from './state/State';
@@ -75,8 +70,6 @@ import ServiceContainer from './service/implementation/Container';
 async function main() {
     const serviceContainer = new ServiceContainer();
 
-    const persistenceManager = new PersistenceManager();
-
     const store = createStore<State>(
             reducer,
             new State(),
@@ -84,7 +77,7 @@ async function main() {
                 applyMiddleware(
                     thunk,
                     batchMiddleware,
-                    createPersistenceMiddleware(persistenceManager),
+                    serviceContainer.getPersistenceProvider().getMiddleware(),
                     serviceContainer.getEmulationProvider().getMiddleware(),
                     routerMiddleware(hashHistory)
                 ),
@@ -105,14 +98,7 @@ async function main() {
 
     const history = syncHistoryWithStore(hashHistory, store);
 
-    const [cartridges, settings] = await Promise.all([
-        persistenceManager.getAllCartridges(),
-        persistenceManager.getSettings()
-    ]);
-
-    await store.dispatch(initCartridges(cartridges));
-    await store.dispatch(initSettings(settings));
-
+    await serviceContainer.getPersistenceProvider().init();
     await serviceContainer.getEmulationProvider().init();
 
     render(
