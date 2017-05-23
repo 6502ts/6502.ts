@@ -19,34 +19,34 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import SettingsState from '../state/Settings';
+import SettingsModel from '../model/Settings';
 
 export const UNIQUE_ID = 0;
 
 export type indexType = number;
 
-export interface Type {
-
+export interface SettingsSchema {
     id: number;
     smoothScaling: boolean;
     webGlRendering: boolean;
     gamma: number;
     useWorker: boolean;
     mergeFrames: boolean;
-
 }
 
-export function fromState(state: SettingsState): Type {
+export function fromModel(model: SettingsModel): SettingsSchema {
     return {
-        id: UNIQUE_ID,
-        smoothScaling: state.smoothScaling,
-        webGlRendering: state.webGlRendering,
-        gamma: state.gamma,
-        useWorker: state.useWorker,
-        mergeFrames: state.mergeFrames
+        ...model,
+        id: UNIQUE_ID
     };
 }
 
-export function toState(record?: Type): SettingsState {
-    return new SettingsState(record);
+export function toState(record?: SettingsSchema): SettingsModel {
+    if (!record) {
+        return SettingsModel.create();
+    }
+
+    const {id, ...settings} = record;
+
+    return settings;
 }

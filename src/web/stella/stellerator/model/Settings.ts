@@ -2,7 +2,7 @@
  *   This file is part of 6502.ts, an emulator for 6502 based systems built
  *   in Typescript.
  *
- *   Copyright (C) 2016  Christian Speckner & contributors
+ *   Copyright (C) 2017  Christian Speckner & contributors
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,31 +19,41 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export default class Settings implements Changeset {
+interface Settings {
+    smoothScaling: boolean;
+    webGlRendering: boolean;
+    gamma: number;
+    useWorker: boolean;
+    mergeFrames: boolean;
+}
 
-    constructor(changes?: Changeset, old?: Settings) {
-        Object.assign(this, old, changes);
+namespace Settings {
 
-        if (this.gamma < 0.1) {
-            this.gamma = 0.1;
-        }
+    export const MAX_GAMMA = 5;
+    export const MIN_GAMMA = 0.1;
 
-        if (this.gamma > 5) {
-            this.gamma = 5;
-        }
+    export function create(): Settings {
+        return {
+            smoothScaling: true,
+            webGlRendering: true,
+            gamma: 1,
+            useWorker: true,
+            mergeFrames: false
+        };
     }
 
-    smoothScaling = true;
-    webGlRendering = true;
-    gamma = 1;
-    useWorker = true;
-    mergeFrames = false;
+    export function clampGamma(settings: Settings): Settings {
+        if (settings.gamma < MIN_GAMMA)  {
+            settings.gamma = MIN_GAMMA;
+        }
+
+        if (settings.gamma > MAX_GAMMA) {
+            settings.gamma = MAX_GAMMA;
+        }
+
+        return settings;
+    }
+
 }
 
-interface Changeset {
-    smoothScaling?: boolean;
-    webGlRendering?: boolean;
-    gamma?: number;
-    useWorker?: boolean;
-    mergeFrames?: boolean;
-}
+export default Settings;

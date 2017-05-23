@@ -21,7 +21,7 @@
 
 import {Action} from 'redux';
 
-import Settings from '../state/Settings';
+import Settings from '../model/Settings';
 
 export const types = {
     setSmoothScaling: 'settings/setSmoothScaling',

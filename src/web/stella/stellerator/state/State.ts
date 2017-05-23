@@ -22,7 +22,7 @@
 import Cartridge from '../model/Cartridge';
 import GuiState from './GuiState';
 import EmulationState from './Emulation';
-import Settings from './Settings';
+import Settings from '../model/Settings';
 import Environment from './Environment';
 
 export default class State implements Changeset {

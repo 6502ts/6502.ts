@@ -76,5 +76,5 @@ export default class Database extends Dexie {
 
     cartridge: Dexie.Table<Cartridge.CartridgeSchema, Cartridge.indexType>;
 
-    settings: Dexie.Table<Settings.Type, Settings.indexType>;
+    settings: Dexie.Table<Settings.SettingsSchema, Settings.indexType>;
 }

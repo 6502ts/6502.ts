@@ -10,6 +10,7 @@
         "jsx": "react",
         "allowUnreachableCode": true,
         "downlevelIteration": true,
+        "importHelpers": true,
         "lib": [
             "dom",
             "es5",

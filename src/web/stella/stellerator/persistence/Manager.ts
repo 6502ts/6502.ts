@@ -19,8 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import CartridgeState from '../model/Cartridge';
-import SettingsState from '../state/Settings';
+import CartridgeModel from '../model/Cartridge';
+import SettingsModel from '../model/Settings';
 import Database from './Database';
 
 import {
@@ -31,12 +31,12 @@ import {
 import {
     UNIQUE_ID as SETTINGS_UNIQUE_ID,
     toState as settingsToState,
-    fromState as settingsFromState
+    fromModel as settingsFromState
 } from './Settings';
 
 export default class Manager {
 
-    getAllCartridges(): Promise<Array<CartridgeState>> {
+    getAllCartridges(): Promise<Array<CartridgeModel>> {
         return Promise.resolve(this._database
             .cartridge
             .toArray()
@@ -44,7 +44,7 @@ export default class Manager {
         );
     }
 
-    saveCartridge(cartridge: CartridgeState): Promise<void> {
+    saveCartridge(cartridge: CartridgeModel): Promise<void> {
         return Promise.resolve(this._database
             .cartridge
             .where('hash')
@@ -55,7 +55,7 @@ export default class Manager {
         );
     }
 
-    deleteCartridge(cartridge: CartridgeState): Promise<void> {
+    deleteCartridge(cartridge: CartridgeModel): Promise<void> {
         return Promise.resolve(this._database
             .cartridge
             .where('hash')
@@ -65,7 +65,7 @@ export default class Manager {
         );
     }
 
-    getSettings(): Promise<SettingsState> {
+    getSettings(): Promise<SettingsModel> {
         return Promise.resolve(this._database
             .settings
             .where('id')
@@ -75,7 +75,7 @@ export default class Manager {
         );
     }
 
-    saveSettings(settings: SettingsState): Promise<void> {
+    saveSettings(settings: SettingsModel): Promise<void> {
         return Promise.resolve(this._database
             .settings
             .put(settingsFromState(settings))

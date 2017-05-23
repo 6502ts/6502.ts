@@ -21,7 +21,7 @@
 
 import {Action} from 'redux';
 
-import Settings from '../state/Settings';
+import Settings from '../model/Settings';
 
 import {
     types,
@@ -33,50 +33,65 @@ import {
     SetMergeFramesAction
 } from '../actions/settings';
 
-export default function reducer(state: Settings = new Settings(), action: Action): Settings {
+export default function reducer(settings: Settings = Settings.create(), action: Action): Settings {
     switch (action.type) {
         case types.setSmoothScaling:
-            return setSmoothScaling(state, action as SetSmoothScalingAction);
+            return setSmoothScaling(settings, action as SetSmoothScalingAction);
 
         case types.setWebGlRendering:
-            return setWebGlRendering(state, action as SetWebGlRenderingAction);
+            return setWebGlRendering(settings, action as SetWebGlRenderingAction);
 
         case types.setGamma:
-            return setGamma(state, action as SetGammaAction);
+            return setGamma(settings, action as SetGammaAction);
 
         case types.setUseWorker:
-            return setUseWorker(state, action as SetUseWorkerAction);
+            return setUseWorker(settings, action as SetUseWorkerAction);
 
         case types.init:
-            return init(state, action as InitSettingsAction);
+            return init(settings, action as InitSettingsAction);
 
         case types.setMergeFrames:
-            return setMergeFrames(state, action as SetMergeFramesAction);
+            return setMergeFrames(settings, action as SetMergeFramesAction);
     }
 
-    return state;
+    return settings;
 }
 
-function setSmoothScaling(state: Settings, action: SetSmoothScalingAction): Settings {
-    return new Settings({smoothScaling: action.value}, state);
+function setSmoothScaling(settings: Settings, action: SetSmoothScalingAction): Settings {
+    return {
+        ...settings,
+        smoothScaling: action.value
+    };
 }
 
 function init(state: Settings, action: InitSettingsAction): Settings {
     return action.settings;
 }
 
-function setWebGlRendering(state: Settings, action: SetWebGlRenderingAction): Settings {
-    return new Settings({webGlRendering: action.value}, state);
+function setWebGlRendering(settings: Settings, action: SetWebGlRenderingAction): Settings {
+    return {
+        ...settings,
+        webGlRendering: action.value
+    };
 }
 
-function setGamma(state: Settings, action: SetGammaAction): Settings {
-    return new Settings({gamma: action.value}, state);
+function setGamma(settings: Settings, action: SetGammaAction): Settings {
+    return Settings.clampGamma({
+        ...settings,
+        gamma: action.value
+    });
 }
 
-function setUseWorker(state: Settings, action: SetUseWorkerAction): Settings {
-    return new Settings({useWorker: action.value}, state);
+function setUseWorker(settings: Settings, action: SetUseWorkerAction): Settings {
+    return {
+        ...settings,
+        useWorker: action.value
+    };
 }
 
-function setMergeFrames(state: Settings, action: SetMergeFramesAction): Settings {
-    return new Settings({mergeFrames: action.value}, state);
+function setMergeFrames(settings: Settings, action: SetMergeFramesAction): Settings {
+    return {
+        ...settings,
+        mergeFrames: action.value
+    };
 }
