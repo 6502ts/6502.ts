@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import Cartridge from './Cartridge';
+import Cartridge from '../model/Cartridge';
 import GuiState from './GuiState';
 import EmulationState from './Emulation';
 import Settings from './Settings';

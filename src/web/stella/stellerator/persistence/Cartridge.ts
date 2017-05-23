@@ -22,53 +22,62 @@
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
-import CartridgeState from '../state/Cartridge';
+import CartridgeModel from '../model/Cartridge';
 
-export interface Type {
+type tvModeString = 'pal'|'secam'|'ntsc';
 
+export interface CartridgeSchema {
     id?: number;
     name: string;
     hash: string;
     buffer: Uint8Array;
-    tvMode: 'pal'|'secam'|'ntsc';
+    tvMode: tvModeString;
     cartridgeType: string;
     emulatePaddles: boolean;
     rngSeedAuto: boolean;
     rngSeed: number;
     audioEnabled: boolean;
-
 }
 
-export function fromState(state: CartridgeState, id?: number): Type {
-    let tvMode: 'pal'|'ntsc'|'secam';
-
-    switch (state.tvMode) {
+function tvModeToString(tvMode: StellaConfig.TvMode): tvModeString {
+    switch (tvMode) {
         case StellaConfig.TvMode.ntsc:
-            tvMode = 'ntsc';
-            break;
+            return 'ntsc';
 
         case StellaConfig.TvMode.pal:
-            tvMode = 'pal';
-            break;
+            return 'pal';
 
         case StellaConfig.TvMode.secam:
-            tvMode = 'secam';
-            break;
+            return 'secam';
 
         default:
-            throw new Error(`invalid tv mode ${state.tvMode}`);
+            throw new Error(`invalid tv mode ${tvMode}`);
     }
+}
 
-    const cartridge: Type = {
-        name: state.name,
-        buffer: state.buffer,
-        hash: state.hash,
-        emulatePaddles: state.emulatePaddles,
-        tvMode,
-        cartridgeType: CartridgeInfo.CartridgeType[state.cartridgeType],
-        rngSeedAuto: state.rngSeedAuto,
-        rngSeed: state.rngSeed,
-        audioEnabled: state.audioEnabled
+function tvModeFromString(modeString: tvModeString): StellaConfig.TvMode {
+    switch (modeString) {
+        case 'ntsc':
+            return StellaConfig.TvMode.ntsc;
+
+        case 'pal':
+            return StellaConfig.TvMode.pal;
+
+        case 'secam':
+            return StellaConfig.TvMode.secam;
+
+        default:
+            throw new Error(`invalid tv mode string ${modeString}`);
+    }
+}
+
+export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
+    const {tvMode, cartridgeType, ...c} = model;
+
+    const cartridge: CartridgeSchema = {
+        ...c,
+        tvMode: tvModeToString(tvMode),
+        cartridgeType: CartridgeInfo.CartridgeType[cartridgeType]
     };
 
     if (typeof(id) !== 'undefined') {
@@ -78,37 +87,14 @@ export function fromState(state: CartridgeState, id?: number): Type {
     return cartridge;
 }
 
-export function toState(cartridge: Type): CartridgeState {
-    let tvMode: StellaConfig.TvMode;
+export function toState(cartridge: CartridgeSchema): CartridgeModel {
+    const {tvMode, cartridgeType, ...c} = cartridge;
 
-    switch (cartridge.tvMode) {
-        case 'ntsc':
-            tvMode = StellaConfig.TvMode.ntsc;
-            break;
-
-        case 'pal':
-            tvMode = StellaConfig.TvMode.pal;
-            break;
-
-        case 'secam':
-            tvMode = StellaConfig.TvMode.secam;
-            break;
-
-        default:
-            throw new Error(`invalid tv mode`);
-    }
-
-    return new CartridgeState({
-        name: cartridge.name,
-        buffer: cartridge.buffer,
-        hash: cartridge.hash,
-        emulatePaddles: cartridge.emulatePaddles,
-        tvMode,
-        cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridge.cartridgeType],
-        rngSeedAuto: cartridge.rngSeedAuto,
-        rngSeed: cartridge.rngSeed,
-        audioEnabled: cartridge.audioEnabled
-    });
+    return {
+        ...c,
+        tvMode: tvModeFromString(tvMode),
+        cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridgeType]
+    };
 }
 
 export type indexType = number;

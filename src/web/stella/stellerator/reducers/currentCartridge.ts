@@ -32,60 +32,87 @@ import {
     ToggleAudioEnabledAction
 } from '../actions/currentCartridge';
 
-import Cartridge from '../state/Cartridge';
+import Cartridge from '../model/Cartridge';
 
-export default function reduce(state: Cartridge, action: Action): Cartridge {
+export default function reduce(cartridge: Cartridge, action: Action): Cartridge {
     switch (action.type) {
         case ActionType.changeCartridgeType:
-            return changeCartridgeType(state, action as ChangeCartridgeTypeAction);
+            return changeCartridgeType(cartridge, action as ChangeCartridgeTypeAction);
 
         case ActionType.changeName:
-            return changeName(state, action as ChangeNameAction);
+            return changeName(cartridge, action as ChangeNameAction);
 
         case ActionType.changeTvMode:
-            return changeTvMode(state, action as ChangeTvModeAction);
+            return changeTvMode(cartridge, action as ChangeTvModeAction);
 
         case ActionType.changePaddleEmulation:
-            return changePaddleEmulation(state, action as ChangePaddleEmulationAction);
+            return changePaddleEmulation(cartridge, action as ChangePaddleEmulationAction);
 
         case ActionType.changeRngSeedStrategy:
-            return changeRngSeedStrategy(state, action as ChangeRngSeedStrategyAction);
+            return changeRngSeedStrategy(cartridge, action as ChangeRngSeedStrategyAction);
 
         case ActionType.changeRngSeed:
-            return changeRngSeed(state, action as ChangeRngSeedAction);
+            return changeRngSeed(cartridge, action as ChangeRngSeedAction);
 
         case ActionType.toggleAudioEnabled:
-            return toggleAudioEnabled(state, action as ToggleAudioEnabledAction);
+            return toggleAudioEnabled(cartridge, action as ToggleAudioEnabledAction);
 
         default:
-            return state;
+            return cartridge;
     }
 }
 
-function changeName(state: Cartridge = new Cartridge(), action: ChangeNameAction): Cartridge {
-    return new Cartridge({name: action.name}, state);
+function changeName(cartridge: Cartridge = Cartridge.create(), action: ChangeNameAction): Cartridge {
+    return {
+        ...cartridge,
+        name: action.name
+    };
 }
 
-function changeTvMode(state: Cartridge = new Cartridge(), action: ChangeTvModeAction): Cartridge {
-    return new Cartridge({tvMode: action.tvMode}, state);
+function changeTvMode(cartridge: Cartridge = Cartridge.create(), action: ChangeTvModeAction): Cartridge {
+    return {
+        ...cartridge,
+        tvMode: action.tvMode
+    };
 }
 
-function changeCartridgeType(state: Cartridge = new Cartridge(), action: ChangeCartridgeTypeAction): Cartridge {
-    return new Cartridge({cartridgeType: action.cartridgeType}, state);
+function changeCartridgeType(cartridge: Cartridge = Cartridge.create(), action: ChangeCartridgeTypeAction): Cartridge {
+    return {
+        ...cartridge,
+        cartridgeType: action.cartridgeType
+    };
 }
 
-function changePaddleEmulation(state: Cartridge = new Cartridge(), action: ChangePaddleEmulationAction): Cartridge {
-    return new Cartridge({emulatePaddles: action.emulatePaddles}, state);
+function changePaddleEmulation(
+    cartridge: Cartridge = Cartridge.create(),
+    action: ChangePaddleEmulationAction
+): Cartridge {
+    return {
+        ...cartridge,
+        emulatePaddles: action.emulatePaddles
+    };
 }
 
-function changeRngSeedStrategy(state: Cartridge = new Cartridge(), action: ChangeRngSeedStrategyAction): Cartridge {
-    return new Cartridge({rngSeedAuto: action.auto}, state);
+function changeRngSeedStrategy(
+    cartridge: Cartridge = Cartridge.create(),
+    action: ChangeRngSeedStrategyAction
+): Cartridge {
+    return {
+        ...cartridge,
+        rngSeedAuto: action.auto
+    };
 }
 
-function changeRngSeed(state: Cartridge = new Cartridge(), action: ChangeRngSeedAction): Cartridge {
-    return new Cartridge({rngSeed: action.seed}, state);
+function changeRngSeed(cartridge: Cartridge = Cartridge.create(), action: ChangeRngSeedAction): Cartridge {
+    return {
+        ...cartridge,
+        rngSeed: action.seed
+    };
 }
 
-function toggleAudioEnabled(state: Cartridge = new Cartridge(), action: ToggleAudioEnabledAction): Cartridge {
-    return new Cartridge({audioEnabled: action.audioEnabled}, state);
+function toggleAudioEnabled(cartridge: Cartridge = Cartridge.create(), action: ToggleAudioEnabledAction): Cartridge {
+    return {
+        ...cartridge,
+        audioEnabled: action.audioEnabled
+    };
 }

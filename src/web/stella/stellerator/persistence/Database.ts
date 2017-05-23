@@ -49,7 +49,7 @@ export default class Database extends Dexie {
                 settings: 'id'
             })
             .upgrade(transaction => transaction
-                .table<Cartridge.Type, Cartridge.indexType>('cartridge')
+                .table<Cartridge.CartridgeSchema, Cartridge.indexType>('cartridge')
                 .each((cartridge, c) => {
                     const cursor: IDBCursor = (c as any);
 
@@ -74,7 +74,7 @@ export default class Database extends Dexie {
             );
     }
 
-    cartridge: Dexie.Table<Cartridge.Type, Cartridge.indexType>;
+    cartridge: Dexie.Table<Cartridge.CartridgeSchema, Cartridge.indexType>;
 
     settings: Dexie.Table<Settings.Type, Settings.indexType>;
 }

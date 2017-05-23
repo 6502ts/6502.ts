@@ -29,16 +29,14 @@ import {
     registerNewCartridge,
     saveCurrentCartride
 } from '../../actions/root';
-
 import {
     start as startEmulation
 } from '../../actions/emulation';
-
 import {
     loadOpenPendingChangesModal,
     setMode,
 } from '../../actions/guiState';
-
+import Cartridge from '../../model/Cartridge';
 import CartridgeControlsComponent from '../../components/cartridge_manager/CartridgeControls';
 import State from '../../state/State';
 import GuiState from '../../state/GuiState';
@@ -47,7 +45,7 @@ function mapStateToProps(state: State): CartridgeControlsComponent.Props {
     return {
         active: !!state.currentCartridge,
         changes: !!state.currentCartridge &&
-            !state.currentCartridge.equals(state.cartridges[state.currentCartridge.hash])
+            !Cartridge.equals(state.currentCartridge, state.cartridges[state.currentCartridge.hash])
     };
 }
 

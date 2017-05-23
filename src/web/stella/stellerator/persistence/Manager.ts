@@ -19,13 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import CartridgeState from '../state/Cartridge';
+import CartridgeState from '../model/Cartridge';
 import SettingsState from '../state/Settings';
 import Database from './Database';
 
 import {
     toState as cartridgeToState,
-    fromState as cartridgeFromState
+    fromModel as cartridgeFromState
 } from './Cartridge';
 
 import {

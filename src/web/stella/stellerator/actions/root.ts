@@ -21,7 +21,7 @@
 
 import {Action} from 'redux';
 
-import Cartridge from '../state/Cartridge';
+import Cartridge from '../model/Cartridge';
 
 export const types = {
     batch                       : 'batch',
@@ -48,9 +48,8 @@ export interface SelectCartridgeAction extends Action {
 
 export function selectCartridge(hash: string = ''): SelectCartridgeAction {
     return {
-        hash,
-
-        type: types.selectCartridge
+        type: types.selectCartridge,
+        hash
     };
 }
 

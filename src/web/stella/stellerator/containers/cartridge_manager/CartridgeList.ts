@@ -21,6 +21,7 @@
 
 import {connect} from 'react-redux';
 
+import Cartridge from '../../model/Cartridge';
 import CartridgeListComponent from '../../components/cartridge_manager/CartridgeList';
 import {selectCartridge} from '../../actions/root';
 import {selectOpenPendingChangesModal} from '../../actions/guiState';
@@ -31,7 +32,7 @@ function mapStateToProps(state: State): CartridgeListComponent.Props {
         cartridges: state.cartridges,
         selectedKey: state.currentCartridge ? state.currentCartridge.hash : '',
         pendingChanges: !!state.currentCartridge &&
-            !state.currentCartridge.equals(state.cartridges[state.currentCartridge.hash])
+            !Cartridge.equals(state.currentCartridge, state.cartridges[state.currentCartridge.hash])
     };
 }
 

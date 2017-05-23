@@ -38,7 +38,7 @@ import reduceSettings from './settings';
 import reduceEnvironment from './environment';
 
 import State from '../state/State';
-import Cartridge from '../state/Cartridge';
+import Cartridge from '../model/Cartridge';
 
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeDetector from '../../../../machine/stella/cartridge/CartridgeDetector';
@@ -113,13 +113,14 @@ function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): Stat
         tvMode = StellaConfig.TvMode.ntsc;
     }
 
-    const newCartridge = new Cartridge({
+    const newCartridge = {
+        ...Cartridge.create(),
         name,
         buffer,
         hash,
         tvMode,
         cartridgeType
-    });
+    };
 
     return new State({
         currentCartridge: newCartridge

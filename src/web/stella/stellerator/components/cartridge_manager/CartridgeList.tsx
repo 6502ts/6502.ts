@@ -21,7 +21,7 @@
 
 import * as React from 'react';
 
-import Cartridge from '../../state/Cartridge';
+import Cartridge from '../../model/Cartridge';
 
 function CartridgeList(props: CartridgeList.Props) {
     return  <div className='cartridge-list border-box'>
