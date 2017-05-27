@@ -76,9 +76,9 @@ export function run({
 
     cli.hardwareInitialized.addHandler(() => {
         const board = cli.getBoard(),
-            fullscreenDriver = new FullscreenVideoDriver(canvas.get(0));
+            videoDriver = setupVideo(canvas.get(0) as HTMLCanvasElement, board),
+            fullscreenDriver = new FullscreenVideoDriver(videoDriver);
 
-        setupVideo(canvas.get(0) as HTMLCanvasElement, board);
         setupAudio(board);
         setupKeyboardControls(
             canvas,
@@ -158,10 +158,12 @@ function setupCartridgeReader(
     });
 }
 
-function setupVideo(canvas: HTMLCanvasElement, board: Board) {
+function setupVideo(canvas: HTMLCanvasElement, board: Board): SimpleCanvasVideoDriver {
     const driver = new SimpleCanvasVideoDriver(canvas);
     driver.init();
     driver.bind(new VideoEndpoint(board.getVideoOutput()));
+
+    return driver;
 }
 
 function setupAudio(board: Board) {

@@ -20,13 +20,14 @@
  */
 
 import * as screenfull from 'screenfull';
+import VideoDriver from './VideoDriverInterface';
 
 export default class FullscreenVideoDriver {
 
-    constructor(private _element: HTMLElement) {}
+    constructor(private _videoDriver: VideoDriver) {}
 
     engage(): void {
-        screenfull.request(this._element);
+        screenfull.request(this._videoDriver.getCanvas());
         this._adjustSize();
     }
 
@@ -36,7 +37,7 @@ export default class FullscreenVideoDriver {
     }
 
     toggle(): void {
-        screenfull.toggle(this._element);
+        screenfull.toggle(this._videoDriver.getCanvas());
         this._adjustSize();
     }
 
@@ -50,32 +51,27 @@ export default class FullscreenVideoDriver {
         }
 
         window.addEventListener('resize', this._resizeListener);
+
+        this._adjustSizeForFullscreen();
     }
 
     private _adjustSizeForFullscreen() {
+        const element = this._videoDriver.getCanvas();
+
         if (!this.isEngaged()) {
             window.removeEventListener('resize', this._resizeListener);
 
-            this._element.style.width = '';
-            this._element.style.height = '';
+            element.style.width = '';
+            element.style.height = '';
+
+            setTimeout(() => this._videoDriver.resize(), 0);
+
             return;
         }
 
-        const actualWidth = window.innerWidth,
-            actualHeight = window.innerHeight;
-
-        let correctedWidth: number, correctedHeight: number;
-
-        if (actualWidth > actualHeight) {
-            correctedHeight = actualHeight;
-            correctedWidth = actualHeight / 3 * 4;
-        } else {
-            correctedWidth = actualWidth;
-            correctedHeight = actualHeight / 4 * 3;
-        }
-
-        this._element.style.width = correctedWidth + 'px';
-        this._element.style.height = correctedHeight + 'px';
+        this._videoDriver.resize(window.innerWidth, window.innerHeight);
+        element.style.width = window.innerWidth + 'px';
+        element.style.height = window.innerHeight + 'px';
     }
 
     private _resizeListener: () => void = this._adjustSizeForFullscreen.bind(this);

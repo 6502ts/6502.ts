@@ -91,16 +91,20 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         let videoDriver: SimpleCanvasVideoDriver|WebglVideoDriver;
 
         try {
+/*
             if (this.props.webGlRendering) {
                 videoDriver = new WebglVideoDriver(this._canvasElt, this.props.gamma);
                 videoDriver.init();
             } else {
+
                 videoDriver = new SimpleCanvasVideoDriver(this._canvasElt);
             }
+*/
+            videoDriver = new SimpleCanvasVideoDriver(this._canvasElt);
 
             this._driverManager.addDriver(
                 videoDriver,
-                (context: EmulationContextInterface, driver: WebglVideoDriver) =>
+                (context: EmulationContextInterface, driver: WebglVideoDriver|WebglVideoDriver) =>
                     driver.bind(context.getVideo())
             );
         } catch (e) {
@@ -108,7 +112,7 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         }
 
         const keyboardDriver = new KeyboardIoDriver(document);
-        this._fullscreenDriver = new FullscreenVideoDriver(this._canvasElt);
+        this._fullscreenDriver = new FullscreenVideoDriver(videoDriver as any);
 
         this._driverManager
             .addDriver(

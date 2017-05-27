@@ -21,13 +21,44 @@
 
 import VideoEndpointInterface from './VideoEndpointInterface';
 import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
+import VideoDriverInterface from './VideoDriverInterface';
 
-export default class SimpleCanvasVideo {
+const SMOOTHING_PROPS = [
+    'imageSmoothingEnabled',
+    'mozImageSmoothingEnabled',
+    'webkitImageSmoothingEnabled',
+    'msImageSmoothingEnabled'
+];
+
+const INITIAL_RENDER_CANVAS_SIZE = 100;
+
+export default class SimpleCanvasVideo implements VideoDriverInterface {
 
     constructor(
-        private _canvas: HTMLCanvasElement
+        private _canvas: HTMLCanvasElement,
+        private _aspect = 4 / 3
     ) {
         this._context = this._canvas.getContext('2d');
+
+        this._renderCanvas = document.createElement('canvas');
+        this._renderCanvas.width = this._renderCanvas.height = INITIAL_RENDER_CANVAS_SIZE;
+        this._renderContext = this._renderCanvas.getContext('2d');
+        this.enableInterpolation(true);
+    }
+
+    resize(width?: number, height?: number): this {
+        if (typeof(width) === 'undefined' || typeof(height) === 'undefined') {
+            width = this._canvas.clientWidth;
+            height = this._canvas.clientHeight;
+        }
+
+        this._canvas.width = width;
+        this._canvas.height = height;
+
+        this._clearCanvas();
+        this._recalculateBlittingMetrics();
+
+        return this;
     }
 
     init(): void {
@@ -51,9 +82,10 @@ export default class SimpleCanvasVideo {
 
         this._video = video;
 
-        this._canvas.width = this._video.getWidth();
-        this._canvas.height = this._video.getHeight();
-        this._clearCanvas();
+        this._videoWidth = this._renderCanvas.width = this._video.getWidth();
+        this._videoHeight = this._renderCanvas.height = this._video.getHeight();
+
+        this.resize();
 
         this._video.newFrame.addHandler(SimpleCanvasVideo._frameHandler, this);
     }
@@ -69,6 +101,28 @@ export default class SimpleCanvasVideo {
         this._cancelPendingFrame();
 
         this._clearCanvas();
+    }
+
+    enableInterpolation(enable: boolean): this {
+        if (this._interpolate === enable) {
+            return;
+        }
+
+        this._interpolate = enable;
+
+        for (const prop of SMOOTHING_PROPS) {
+            (this._canvas as any)[prop] = this._interpolate;
+        }
+
+        return this;
+    }
+
+    interpolationEnabled(): boolean {
+        return this._interpolate;
+    }
+
+    getCanvas(): HTMLCanvasElement {
+        return this._canvas;
     }
 
     private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: SimpleCanvasVideo): void {
@@ -90,10 +144,26 @@ export default class SimpleCanvasVideo {
     private _clearCanvas(): void {
         this._context.fillStyle = 'solid black';
         this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+
+        this._renderContext.fillStyle = 'solid black';
+        this._renderContext.fillRect(0, 0, this._renderCanvas.width, this._renderCanvas.height);
     }
 
     private _draw(): void {
-        this._context.putImageData(this._pendingFrame.get(), 0, 0);
+        this._renderContext.putImageData(this._pendingFrame.get(), 0, 0);
+
+        this._context.drawImage(
+            this._renderCanvas,
+            0,
+            0,
+            this._videoWidth,
+            this._videoHeight,
+            this._renderX,
+            this._renderY,
+            this._renderWidth,
+            this._renderHeight
+        );
+
         this._pendingFrame.release();
         this._pendingFrame = null;
     }
@@ -119,10 +189,40 @@ export default class SimpleCanvasVideo {
         }
     }
 
+    private _recalculateBlittingMetrics(): void {
+        const targetWidth = this._canvas.width,
+            targetHeight = this._canvas.height;
+
+        if (this._aspect <= targetWidth / targetHeight) {
+            this._renderHeight = targetHeight;
+            this._renderWidth = this._aspect * targetHeight;
+            this._renderY = 0;
+            this._renderX = Math.floor((targetWidth - this._renderWidth) / 2);
+        } else {
+            this._renderHeight = targetWidth / this._aspect;
+            this._renderWidth = targetWidth;
+            this._renderY = Math.floor((targetHeight - this._renderHeight) / 2);
+            this._renderX = 0;
+        }
+    }
+
     private _throttle = true;
     private _animationFrameHandle = 0;
     private _pendingFrame: PoolMemberInterface<ImageData> = null;
 
     private _context: CanvasRenderingContext2D;
     private _video: VideoEndpointInterface = null;
+
+    private _renderCanvas: HTMLCanvasElement;
+    private _renderContext: CanvasRenderingContext2D;
+
+    private _interpolate = true;
+
+    private _renderX: number;
+    private _renderY: number;
+    private _renderWidth: number;
+    private _renderHeight: number;
+
+    private _videoWidth: number;
+    private _videoHeight: number;
 }
