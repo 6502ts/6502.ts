@@ -2,7 +2,9 @@
 
 Stellerator is an emulator for the Atari 2600 VCS (Stella) developed as part
 of the 6502.ts project. Stellerator runs the vast majority of
-games for the VCS flawlessly, including both original games and homebrews.
+games for the VCS flawlessly, including both original games and homebrews. Most
+cartridge types and bankswitching schemes are supported, including ARM-based DPC+
+cartridges.
 
 Among other things, it supports hardware accelerated graphics with TV afterglow
 emulation and skip-free audio emulation. Cartridges are
@@ -45,13 +47,15 @@ The "Settings" page allows to configure global emulation settings.
 
 ## Video Settings
 
- * **Smooth scaling:** Toggle smooth scaling of the image. This currently only
-   affects Chrome.
+ * **Smooth scaling:** Toggle smooth scaling of the image.
  * **WebGL rendering:** Stellerator uses hardware accelerated rendering to provide
-   afterglow simulation and gamma correction. Disable this if you are experiencing
+   phosphor simulation and gamma correction. Disable this if you are experiencing
    video issues.
  * **Gamma correction:** Adjust gamma correction. This will only affect WebGL-enabled
    rendering.
+ * **Reduce framerate:** Merge frames in pair. Reduces rendering load and provides another
+   way of emulating phosphor. This currently doesn't play along well with WebGL (extreme
+   phosphor effect).
 
 # Emulation
 
@@ -91,8 +95,7 @@ fire corresponds to joystick 0 / right.
 
 ## Fullscreen mode
 
-Pressing enter toggles fullscreen mode. Unfortunately, Firefox does not honor
-aspect ratio and stretches the video to full display with.
+Pressing enter toggles fullscreen mode.
 
 # Browser support and emulation speed
 
@@ -113,16 +116,14 @@ Chrome / V8 tends to be faster than Firefox.
 # Current limitations
 
  * Keyboard and gamepad mappings cannot be configured.
- * Emulation of undoumented 6502 opcodes is not complete yet, and homebrew using unimplemented
-   opcodes will die with an "invalid instruction" trap.
+ * Emulation of undoumented 6502 opcodes is not complete yet, and very few homebrew
+   using unimplemented opcodes will die with an "invalid instruction" trap.
  * Only the first paddle can be controlled.
- * Some of the more exotic cartridge formats are currently unsupported, including
-   supercharger and DPC (Pitfall II).
  * Audio register writes have a timing resolution of approximately one frame.
    This is more than enough for run-of-the-mill game audio, but code that
    attempts to do PCM audio by banging the audio registers
-   will produce silence. Apart from audio demos, this would mainly affect DPC music
-   --- if DPC cartridges were supported in the first place ;)
+   will produce silence. Apart from audio demos, this affects mainly DPC and DPC+ music
+   (and some exots like Quadrun).
 
 ## License
 
