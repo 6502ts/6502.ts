@@ -57,6 +57,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
 
         this._clearCanvas();
         this._recalculateBlittingMetrics();
+        this._blitToCanvas();
 
         return this;
     }
@@ -86,6 +87,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
         this._videoHeight = this._renderCanvas.height = this._video.getHeight();
 
         this.resize();
+        this._clearRenderCanvas();
 
         this._video.newFrame.addHandler(SimpleCanvasVideo._frameHandler, this);
     }
@@ -144,14 +146,26 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
     private _clearCanvas(): void {
         this._context.fillStyle = 'solid black';
         this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+    }
 
+    private _clearRenderCanvas(): void {
         this._renderContext.fillStyle = 'solid black';
         this._renderContext.fillRect(0, 0, this._renderCanvas.width, this._renderCanvas.height);
     }
 
     private _draw(): void {
-        this._renderContext.putImageData(this._pendingFrame.get(), 0, 0);
+        this._blitToRenderCanvas();
+        this._blitToCanvas();
 
+        this._pendingFrame.release();
+        this._pendingFrame = null;
+    }
+
+    private _blitToRenderCanvas(): void {
+        this._renderContext.putImageData(this._pendingFrame.get(), 0, 0);
+    }
+
+    private _blitToCanvas(): void {
         this._context.drawImage(
             this._renderCanvas,
             0,
@@ -163,9 +177,6 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
             this._renderWidth,
             this._renderHeight
         );
-
-        this._pendingFrame.release();
-        this._pendingFrame = null;
     }
 
     private _scheduleDraw(): void {
