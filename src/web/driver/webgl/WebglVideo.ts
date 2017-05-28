@@ -23,17 +23,19 @@ import * as fs from 'fs';
 
 import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
 import VideoEndpointInterface from '../VideoEndpointInterface';
+import VideoDriverInterface from '../VideoDriverInterface';
 
 const fragmentShaderSource = fs.readFileSync(__dirname + '/shader/render.fsh', 'utf-8');
 const vertexShaderSource = fs.readFileSync(__dirname + '/shader/render.vsh', 'utf-8');
 
 const FRAME_COMPOSITING_COUNT = 3;
 
-export default class WebglVideoDriver {
+export default class WebglVideoDriver implements VideoDriverInterface {
 
     constructor(
         private _canvas: HTMLCanvasElement,
-        private _gamma = 1
+        private _gamma = 1,
+        private _aspect = 4 / 3
     ) {
         this._gl = this._canvas.getContext('webgl', {
             alpha: false
@@ -45,28 +47,55 @@ export default class WebglVideoDriver {
         }
     }
 
-    init(): void {
+    init(): this {
         this._createProgram();
         this._createBuffers();
+        this.resize();
         this._allocateTextures();
+        this._configureTextures();
         this._setupAttribs();
+
+        this.enableInterpolation(true);
+
+        return this;
     }
 
-    bind(video: VideoEndpointInterface): void {
+    resize(width?: number, height?: number): this {
+        if (typeof(width) === 'undefined' || typeof(height) === 'undefined') {
+            width = this._canvas.clientWidth;
+            height = this._canvas.clientHeight;
+        }
+
+        this._canvas.width = width;
+        this._canvas.height = height;
+        this._gl.viewport(0, 0, width, height);
+        this._recalculateVertexBuffer();
+
+        if (this._video) {
+            this._draw();
+        }
+
+        return this;
+    }
+
+    getCanvas(): HTMLCanvasElement {
+        return this._canvas;
+    }
+
+    bind(video: VideoEndpointInterface): this {
         if (this._video) {
             return;
         }
 
+        this.resize();
+
         this._video = video;
-
-        this._canvas.width = this._video.getWidth();
-        this._canvas.height = this._video.getHeight();
-        this._gl.viewport(0, 0, this._canvas.width, this._canvas.height);
-
         this._video.newFrame.addHandler(WebglVideoDriver._frameHandler, this);
+
+        return this;
     }
 
-    unbind(): void {
+    unbind(): this {
         this._cancelDraw();
 
         if (!this._video) {
@@ -75,6 +104,23 @@ export default class WebglVideoDriver {
 
         this._video.newFrame.removeHandler(WebglVideoDriver._frameHandler, this);
         this._video = null;
+
+        return this;
+    }
+
+    enableInterpolation(enabled: boolean): this {
+        if (enabled === this._interpolation) {
+            return this;
+        }
+
+        this._interpolation = enabled;
+        this._configureTextures();
+
+        return this;
+    }
+
+    interpolationEnabled(): boolean {
+        return this._interpolation;
     }
 
     private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: WebglVideoDriver): void {
@@ -188,6 +234,12 @@ export default class WebglVideoDriver {
         }
     }
 
+    private _configureTextures(): void {
+        for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
+            this._configureTexture(i);
+        }
+    }
+
     private _allocateTexture(index: number): void {
         const gl = this._gl,
             texture = gl.createTexture();
@@ -195,14 +247,21 @@ export default class WebglVideoDriver {
         gl.activeTexture((gl as any)[`TEXTURE${index}`]);
         gl.bindTexture(gl.TEXTURE_2D, texture);
 
+        this._textures[index] = texture;
+    }
+
+    private _configureTexture(index: number): void {
+        const gl = this._gl;
+
+        gl.activeTexture((gl as any)[`TEXTURE${index}`]);
+        gl.bindTexture(gl.TEXTURE_2D, this._textures[index]);
+
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this._interpolation ? gl.LINEAR : gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this._interpolation ? gl.LINEAR : gl.NEAREST);
 
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-
-        this._textures[index] = texture;
     }
 
     private _createBuffers(): void {
@@ -210,17 +269,48 @@ export default class WebglVideoDriver {
             vertexBuffer = gl.createBuffer(),
             textureCoordinateBuffer = gl.createBuffer();
 
-        const vertexData = [1, 1,   -1, 1,   1, -1,   -1, -1],
-            textureCoordinateData = [1, 1,   0, 1,   1, 0,   0, 0];
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+        const textureCoordinateData = [1, 1,   0, 1,   1, 0,   0, 0];
 
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordinateBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinateData), gl.STATIC_DRAW);
 
         this._vertexBuffer = vertexBuffer;
         this._textureCoordinateBuffer = textureCoordinateBuffer;
+    }
+
+    private _recalculateVertexBuffer(): void {
+        const gl = this._gl,
+            targetWidth = this._canvas.width,
+            targetHeight = this._canvas.height,
+            scaleX = (targetWidth > 0) ?  2 / targetWidth : 1,
+            scaleY = (targetHeight > 0 ) ? 2 / targetHeight : 1;
+
+        let width: number,
+            height: number,
+            west: number,
+            north: number;
+
+        if (this._aspect * targetHeight <= targetWidth) {
+            height = 2;
+            width = this._aspect * targetHeight * scaleX;
+            north = 1;
+            west = Math.floor(-this._aspect * targetHeight) / 2 * scaleX;
+        } else {
+            height = targetWidth / this._aspect * scaleY;
+            width = 2;
+            north = Math.floor(targetWidth / this._aspect) / 2 * scaleY;
+            west = -1;
+        }
+
+        const vertexData = [
+            west + width, north,
+            west, north,
+            west + width, north - height,
+            west, north - height
+        ];
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
     }
 
     private _getAttribLocation(name: string): number {
@@ -288,4 +378,5 @@ export default class WebglVideoDriver {
 
     private _video: VideoEndpointInterface = null;
 
+    private _interpolation = true;
 }

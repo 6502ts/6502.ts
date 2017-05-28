@@ -34,6 +34,7 @@ import EmulationContextInterface from '../../service/EmulationContextInterface';
 import DriverManager from '../../service/DriverManager';
 import SimpleCanvasVideoDriver from '../../../driver/SimpleCanvasVideo';
 import WebglVideoDriver from '../../../driver/webgl/WebglVideo';
+import VideoDriver from '../../../driver/VideoDriverInterface';
 import KeyboardIoDriver from '../../driver/KeyboardIO';
 import FullscreenVideoDriver from '../../../driver/FullscreenVideo';
 import MouseAsPaddleDriver from '../../../driver/MouseAsPaddle';
@@ -88,31 +89,32 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
     componentDidMount(): void {
         this._driverManager.bind(this.context.emulationService);
 
-        let videoDriver: SimpleCanvasVideoDriver|WebglVideoDriver;
+        let videoDriver: VideoDriver;
 
         try {
-/*
             if (this.props.webGlRendering) {
                 videoDriver = new WebglVideoDriver(this._canvasElt, this.props.gamma);
-                videoDriver.init();
             } else {
-
                 videoDriver = new SimpleCanvasVideoDriver(this._canvasElt);
             }
-*/
-            videoDriver = new SimpleCanvasVideoDriver(this._canvasElt);
+
+            videoDriver
+                .init()
+                .enableInterpolation(this.props.smoothScaling);
 
             this._driverManager.addDriver(
                 videoDriver,
                 (context: EmulationContextInterface, driver: WebglVideoDriver|WebglVideoDriver) =>
                     driver.bind(context.getVideo())
             );
+
+            this._videoDriver = videoDriver;
         } catch (e) {
             console.log(e);
         }
 
         const keyboardDriver = new KeyboardIoDriver(document);
-        this._fullscreenDriver = new FullscreenVideoDriver(videoDriver as any);
+        this._fullscreenDriver = new FullscreenVideoDriver(videoDriver);
 
         this._driverManager
             .addDriver(
@@ -138,6 +140,19 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
                 this.props.resumeEmulation();
             }
         });
+
+        if (this._videoDriver) {
+            this._videoDriver.resize();
+        }
+        this._canvasVisible = this._showCanvas();
+    }
+
+    componentDidUpdate(): void {
+        const canvasVisible = this._showCanvas();
+
+        if (canvasVisible && !this._canvasVisible && this._videoDriver) {
+            this._videoDriver.resize();
+        }
     }
 
     render() {
@@ -167,7 +182,6 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
                         className={`emulation-viewport ${this._showCanvas() ? '' : 'hidden'}`}
                         width={this.props.initialViewportWidth}
                         height={this.props.initialViewportHeight}
-                        style={{imageRendering: this.props.smoothScaling ? 'auto' : 'pixelated'}}
                         ref={(elt) => this._canvasElt = elt as HTMLCanvasElement}
                     ></canvas>
                 </Col>
@@ -212,6 +226,9 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
     private _driverManager = new DriverManager();
     private _fullscreenDriver: FullscreenVideoDriver = null;
     private _canvasElt: HTMLCanvasElement = null;
+
+    private _videoDriver: VideoDriver;
+    private _canvasVisible = false;
 }
 
 namespace Emulation {

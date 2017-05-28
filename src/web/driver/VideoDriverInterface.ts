@@ -19,6 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import VideoEndpointInterface from './VideoEndpointInterface';
+
 interface VideoDriverInterface {
 
     resize(width?: number, height?: number): this;
@@ -28,6 +30,12 @@ interface VideoDriverInterface {
     enableInterpolation(enable: boolean): this;
 
     interpolationEnabled(): boolean;
+
+    init(): this;
+
+    unbind(): this;
+
+    bind(video: VideoEndpointInterface): this;
 
 }
 

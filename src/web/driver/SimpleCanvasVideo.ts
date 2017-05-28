@@ -43,7 +43,6 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
         this._renderCanvas = document.createElement('canvas');
         this._renderCanvas.width = this._renderCanvas.height = INITIAL_RENDER_CANVAS_SIZE;
         this._renderContext = this._renderCanvas.getContext('2d');
-        this.enableInterpolation(true);
     }
 
     resize(width?: number, height?: number): this {
@@ -57,13 +56,21 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
 
         this._clearCanvas();
         this._recalculateBlittingMetrics();
-        this._blitToCanvas();
+        this._applyInterpolationSettings();
+
+        if (this._video) {
+            this._blitToCanvas();
+        }
 
         return this;
     }
 
-    init(): void {
-        this._clearCanvas();
+    init(): this {
+        this.enableInterpolation(true);
+        this._clearRenderCanvas();
+        this.resize();
+
+        return this;
     }
 
     setThrottle(throttle: boolean) {
@@ -76,7 +83,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
         this._throttle = throttle;
     }
 
-    bind(video: VideoEndpointInterface): void {
+    bind(video: VideoEndpointInterface): this {
         if (this._video) {
             return;
         }
@@ -90,9 +97,11 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
         this._clearRenderCanvas();
 
         this._video.newFrame.addHandler(SimpleCanvasVideo._frameHandler, this);
+
+        return this;
     }
 
-    unbind(): void {
+    unbind(): this {
         if (!this._video) {
             return;
         }
@@ -101,20 +110,19 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
         this._video = null;
 
         this._cancelPendingFrame();
-
         this._clearCanvas();
+
+        return this;
     }
 
     enableInterpolation(enable: boolean): this {
         if (this._interpolate === enable) {
-            return;
+            return this;
         }
 
         this._interpolate = enable;
 
-        for (const prop of SMOOTHING_PROPS) {
-            (this._canvas as any)[prop] = this._interpolate;
-        }
+        this._applyInterpolationSettings();
 
         return this;
     }
@@ -204,7 +212,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
         const targetWidth = this._canvas.width,
             targetHeight = this._canvas.height;
 
-        if (this._aspect <= targetWidth / targetHeight) {
+        if (this._aspect * targetHeight <= targetWidth) {
             this._renderHeight = targetHeight;
             this._renderWidth = this._aspect * targetHeight;
             this._renderY = 0;
@@ -214,6 +222,12 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
             this._renderWidth = targetWidth;
             this._renderY = Math.floor((targetHeight - this._renderHeight) / 2);
             this._renderX = 0;
+        }
+    }
+
+    private _applyInterpolationSettings(): void {
+        for (const prop of SMOOTHING_PROPS) {
+            (this._context as any)[prop] = this._interpolate;
         }
     }
 

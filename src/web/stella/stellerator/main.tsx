@@ -99,7 +99,9 @@ async function main() {
     const history = syncHistoryWithStore(hashHistory, store);
 
     await serviceContainer.getPersistenceProvider().init();
-    await serviceContainer.getEmulationProvider().init();
+    await serviceContainer.getEmulationProvider().init(
+        store.getState().settings.useWorker ? _stelleratorSettings.workerUrl : undefined
+    );
 
     render(
         <Provider store={store}>
