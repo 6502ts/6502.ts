@@ -23,7 +23,7 @@ import {connect} from 'react-redux';
 import {push} from 'react-router-redux';
 
 import State from '../state/State';
-import GuiState from '../state/GuiState';
+import {GuiMode} from '../model/types';
 
 import {
     pause as pauseEmulation,
@@ -39,7 +39,7 @@ import EmulationComponent from '../components/Emulation';
 
 function mapStateToProps(state: State): EmulationComponent.Props {
     return {
-        enabled: state.guiState.mode === GuiState.GuiMode.run,
+        enabled: state.guiState.mode === GuiMode.run,
         emulationState: state.emulationState.emulationState,
         difficultyPlayer0: state.emulationState.difficultyPlayer0,
         difficultyPlayer1: state.emulationState.difficultyPlayer1,

@@ -21,7 +21,7 @@
 
 import {Action} from 'redux';
 
-import GuiState from '../state/GuiState';
+import {GuiMode} from '../model/types';
 
 export const types = {
     setMode: 'gui-state/set-mode',
@@ -35,10 +35,10 @@ export const types = {
 Object.freeze(types);
 
 export interface SetModeAction extends Action {
-    guiMode: GuiState.GuiMode;
+    guiMode: GuiMode;
 }
 
-export function setMode(guiMode: GuiState.GuiMode) {
+export function setMode(guiMode: GuiMode) {
     return {
         type: types.setMode,
         guiMode

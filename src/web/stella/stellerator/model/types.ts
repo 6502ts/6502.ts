@@ -2,7 +2,7 @@
  *   This file is part of 6502.ts, an emulator for 6502 based systems built
  *   in Typescript.
  *
- *   Copyright (C) 2016  Christian Speckner & contributors
+ *   Copyright (C) 2017  Christian Speckner & contributors
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,31 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {GuiMode} from '../model/types';
-
-class GuiState implements Changeset {
-
-    constructor(changes?: Changeset, old?: GuiState) {
-        Object.assign(this, old, changes);
-    }
-
-    mode = GuiMode.cartridgeList;
-    showSelectPendingChangesModal = false;
-    pendingSelectHash = '';
-
-    showLoadPendingChangesModal = false;
-    pendingLoad: Uint8Array;
-    pendingLoadName: string;
-
+export enum GuiMode {
+    cartridgeList,
+    run
 }
-
-interface Changeset {
-    mode?: GuiMode;
-    showSelectPendingChangesModal?: boolean;
-    pendingSelectHash?: string;
-    showLoadPendingChangesModal?: boolean;
-    pendingLoad?: Uint8Array;
-    pendingLoadName?: string;
-}
-
-export default GuiState;

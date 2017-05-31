@@ -19,31 +19,29 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {GuiMode} from '../model/types';
+import * as React from 'react';
+import {styled, StyledComponent} from '../../style';
 
-class GuiState implements Changeset {
+import {default as GamepadStatus, Props as GamepadStatusProps} from './GamepadStatus';
+import {default as EmulationStatus, Props as EmulationStatusProps} from './EmulationStatus';
 
-    constructor(changes?: Changeset, old?: GuiState) {
-        Object.assign(this, old, changes);
-    }
-
-    mode = GuiMode.cartridgeList;
-    showSelectPendingChangesModal = false;
-    pendingSelectHash = '';
-
-    showLoadPendingChangesModal = false;
-    pendingLoad: Uint8Array;
-    pendingLoadName: string;
-
+export interface Props extends GamepadStatusProps, EmulationStatusProps {
+    className?: string;
 }
 
-interface Changeset {
-    mode?: GuiMode;
-    showSelectPendingChangesModal?: boolean;
-    pendingSelectHash?: string;
-    showLoadPendingChangesModal?: boolean;
-    pendingLoad?: Uint8Array;
-    pendingLoadName?: string;
+export function StatusWidgetUnstyled(props: Props) {
+    return (
+        <div className={props.className}>
+            <EmulationStatus {...props as EmulationStatusProps}/>
+            <GamepadStatus {...props as GamepadStatusProps}/>
+        </div>
+    );
 }
 
-export default GuiState;
+type StatusWidgetStyled = StyledComponent<Props>;
+
+const StatusWidgetStyled: StatusWidgetStyled = styled(StatusWidgetUnstyled)`
+    float: right;
+`;
+
+export default StatusWidgetStyled;

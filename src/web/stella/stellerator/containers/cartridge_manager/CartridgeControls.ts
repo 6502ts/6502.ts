@@ -23,6 +23,7 @@ import {connect} from 'react-redux';
 import {push} from 'react-router-redux';
 import {Action} from 'redux';
 
+import {GuiMode} from '../../model/types';
 import {
     batch,
     deleteCurrentCartridge,
@@ -39,7 +40,6 @@ import {
 import Cartridge from '../../model/Cartridge';
 import CartridgeControlsComponent from '../../components/cartridge_manager/CartridgeControls';
 import State from '../../state/State';
-import GuiState from '../../state/GuiState';
 
 function mapStateToProps(state: State): CartridgeControlsComponent.Props {
     return {
@@ -56,7 +56,7 @@ const CartridgeControlsContainer = connect(
         onDelete: deleteCurrentCartridge,
         onRun: () => batch(
             saveCurrentCartride(),
-            setMode(GuiState.GuiMode.run),
+            setMode(GuiMode.run),
             startEmulation(),
             push('/emulation')
         ),

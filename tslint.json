@@ -22,7 +22,8 @@
         ],
         "variable-name": [
             true,
-            "allow-leading-underscore"
+            "allow-leading-underscore",
+            "allow-pascal-case"
         ],
         "member-access": [
             false

@@ -28,6 +28,7 @@ import {
 } from 'react-bootstrap';
 
 import ControlPanel from './emulation/ControlPanel';
+import {Context as EmulationContext, contextTypes as emulationContextTypes} from '../context/Emulation';
 
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 import EmulationContextInterface from '../../service/EmulationContextInterface';
@@ -215,13 +216,9 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         return error && error.message ? error.message : '[unknown]';
     }
 
-    static contextTypes: React.ValidationMap<any> = {
-        emulationService: React.PropTypes.object
-    };
+    static readonly contextTypes = {...emulationContextTypes};
 
-    context: {
-        emulationService: EmulationServiceInterface
-    };
+    context: EmulationContext;
 
     private _driverManager = new DriverManager();
     private _fullscreenDriver: FullscreenVideoDriver = null;

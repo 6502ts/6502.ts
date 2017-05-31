@@ -19,50 +19,26 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// tslint:disable-next-line
 import * as React from 'react';
+import {styled, StyledComponent} from '../../style';
 
-import Navbar from './Navbar';
-
-import EmulationServiceInterface from '../../service/EmulationServiceInterface';
-
-function App(emulationService: EmulationServiceInterface) {
-    class App
-        extends React.Component<App.Props, {}>
-        implements React.ChildContextProvider<App.Context>
-    {
-        getChildContext(): App.Context {
-            return {
-                emulationService
-            };
-        }
-
-        render() {
-            return <div>
-                <Navbar/>
-
-                {this.props.children}
-            </div>;
-        }
-
-        static childContextTypes: React.ValidationMap<any> = {
-            emulationService: React.PropTypes.object
-        };
-    }
-
-    return App;
+export interface Props {
+    className?: string;
+    gamepadCount: number;
 }
 
-namespace App {
-
-    export interface Props {
-        children: Array<React.ReactNode>;
-    }
-
-    export interface Context {
-        emulationService: EmulationServiceInterface;
-    }
-
+export function GamepadStatusUnstyled(props: Props) {
+    return (
+        <span className={props.className}>
+            Gamepads: {props.gamepadCount < 2 ? 'A |' : 'AB |'}
+        </span>
+    );
 }
 
-export default App;
+type GamepadStatusStyled = StyledComponent<Props>;
+
+const GamepadStatusStyled: GamepadStatusStyled = styled(GamepadStatusUnstyled)`
+    display: ${props => (props.gamepadCount > 0) ? 'inline' : 'none'}
+`;
+
+export default GamepadStatusStyled;

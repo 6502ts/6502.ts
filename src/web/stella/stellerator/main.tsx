@@ -31,40 +31,24 @@ declare namespace window {
 
 import * as React from 'react';
 import {render} from 'react-dom';
-
-import {
-    hashHistory,
-    Redirect,
-    Router,
-    Route
-} from 'react-router';
-
-import {
-    applyMiddleware,
-    compose,
-    createStore
-} from 'redux';
-
-import {Provider} from 'react-redux';
+import {hashHistory, Redirect, Router, Route} from 'react-router';
+import {applyMiddleware, compose, createStore} from 'redux';
+import {ThemeProvider} from 'styled-components';
+import {Provider as ReduxProvider} from 'react-redux';
 import thunk from 'redux-thunk';
+import {routerMiddleware, syncHistoryWithStore} from 'react-router-redux';
 
-import {
-    routerMiddleware,
-    syncHistoryWithStore
-} from 'react-router-redux';
-
-import App from './containers/App';
+import Main from './containers/Main';
 import CartridgeManager from './containers/CartridgeManager';
 import Emulation from './containers/Emulation';
 import Settings from './containers/Settings';
 import Help from './containers/Help';
 
+import {Provider as EmulationProvider} from './context/Emulation';
 import {initialize as initializeEnvironment} from './actions/environment';
-
 import State from './state/State';
 import reducer from './reducers/root';
 import {batchMiddleware} from './middleware';
-
 import ServiceContainer from './service/implementation/Container';
 
 async function main() {
@@ -104,17 +88,21 @@ async function main() {
     );
 
     render(
-        <Provider store={store}>
+        <ThemeProvider theme={{}}>
+        <ReduxProvider store={store}>
+        <EmulationProvider emulationProvider={serviceContainer.getEmulationProvider()}>
             <Router history={history}>
                 <Redirect from='/' to='/cartridge-manager'/>
-                <Route path='/' component={App(serviceContainer.getEmulationProvider().getService())}>
+                <Route path='/' component={Main}>
                     <Route path='cartridge-manager' component={CartridgeManager}/>
                     <Route path='emulation' component={Emulation}/>
                     <Route path='settings' component={Settings}/>
                     <Route path='help' component={Help}/>
                 </Route>
             </Router>
-        </Provider>,
+        </EmulationProvider>
+        </ReduxProvider>
+        </ThemeProvider>,
         document.getElementById('react-root')
     );
 }

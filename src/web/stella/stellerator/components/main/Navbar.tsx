@@ -19,31 +19,23 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {GuiMode} from '../model/types';
+import * as React from 'react';
+import {Navbar as BootstrapNavbar} from 'react-bootstrap';
 
-class GuiState implements Changeset {
+import {default as Header, Props as HeaderProps} from './navbar/Header';
+import {default as Navigation, Props as NavigationProps} from './navbar/Navigation';
+import {default as StatusWidget, Props as StatusWidgetProps} from './navbar/StatusWidget';
 
-    constructor(changes?: Changeset, old?: GuiState) {
-        Object.assign(this, old, changes);
-    }
+export interface Props extends HeaderProps, NavigationProps, StatusWidgetProps {}
 
-    mode = GuiMode.cartridgeList;
-    showSelectPendingChangesModal = false;
-    pendingSelectHash = '';
-
-    showLoadPendingChangesModal = false;
-    pendingLoad: Uint8Array;
-    pendingLoadName: string;
-
+function Navbar(props: Props) {
+    return (
+        <BootstrapNavbar fixedTop inverse fluid>
+            <Header {...props as HeaderProps}/>
+            <Navigation {...props as NavigationProps}/>
+            <StatusWidget {...props as StatusWidgetProps}/>
+        </BootstrapNavbar>
+    );
 }
 
-interface Changeset {
-    mode?: GuiMode;
-    showSelectPendingChangesModal?: boolean;
-    pendingSelectHash?: string;
-    showLoadPendingChangesModal?: boolean;
-    pendingLoad?: Uint8Array;
-    pendingLoadName?: string;
-}
-
-export default GuiState;
+export default Navbar;

@@ -21,20 +21,19 @@
 
 import {connect} from 'react-redux';
 
-import NavbarComponent from '../components/Navbar';
+import {default as MainComponent, Props} from '../components/Main';
 import State from '../state/State';
-import GuiState from '../state/GuiState';
+import {GuiMode} from '../model/types';
 
-function mapStateToProps(state: State): NavbarComponent.Props {
+function mapStateToProps(state: State): Props {
     return {
-        linkEmulation: state.guiState.mode === GuiState.GuiMode.run,
+        emulationActive: state.guiState.mode === GuiMode.run,
         frequency: state.emulationState.frequency,
         emulationState: state.emulationState.emulationState,
         gamepadCount: state.emulationState.gamepadCount
     };
 }
 
-// tslint:disable-next-line:variable-name
-const NavbarContainer = connect(mapStateToProps, {}, null, {pure: false})(NavbarComponent);
+const Navbar = connect(mapStateToProps, {}, undefined, {pure: false})(MainComponent);
 
-export default NavbarContainer;
+export default Navbar;
