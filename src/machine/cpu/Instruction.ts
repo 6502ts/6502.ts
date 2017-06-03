@@ -217,7 +217,7 @@ namespace Instruction {
         set(0xF0, Operation.beq, AddressingMode.relative);
 
         set(0x00, Operation.brk, AddressingMode.implied);
-        set(0x20, Operation.jsr, AddressingMode.absolute);
+        set(0x20, Operation.jsr, AddressingMode.implied);
         set(0x40, Operation.rti, AddressingMode.implied);
         set(0x60, Operation.rts, AddressingMode.implied);
         set(0x08, Operation.php, AddressingMode.implied);

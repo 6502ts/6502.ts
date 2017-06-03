@@ -97,6 +97,30 @@ class Runner {
         return this;
     }
 
+    runTo(codeEnd: number, maxCycles = 100) {
+        this._cycles = 0;
+        this._originalState = Object.assign(new CpuInterface.State(), this._cpu.state);
+
+        this._cpu.setInvalidInstructionCallback(() => {
+            throw new Error('invalid instruction!');
+        });
+
+        this._bus.getLog().clear();
+
+        while (this._cpu.state.p !== codeEnd && this._cycles <= maxCycles) {
+            do {
+                this._cpu.cycle();
+                this._cycles++;
+            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch);
+        }
+
+        if (this._cycles > maxCycles) {
+            throw new Error('maximum execution cycles exceeded');
+        }
+
+        return this;
+    }
+
     runFor(cycles: number) {
         this._originalState = Object.assign(new CpuInterface.State(), this._cpu.state);
         this._cycles = 0;

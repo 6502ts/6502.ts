@@ -21,7 +21,7 @@
 
 import AbstractCartridge from './AbstractCartridge';
 import CpuInterface from '../../cpu/CpuInterface';
-import BusInterface from '../../bus/BusInterface';
+import Bus from '../Bus';
 import CartridgeInfo from './CartridgeInfo';
 import * as cartridgeUtil from './util';
 
@@ -64,6 +64,8 @@ class CartridgeFE extends AbstractCartridge {
 
     reset(): void {
         this._bank = this._bank0;
+        this._lastAccessWasFE = false;
+        this._lastAddressBusValue = -1;
     }
 
     read(address: number): number {
@@ -80,34 +82,43 @@ class CartridgeFE extends AbstractCartridge {
         return this;
     }
 
-    setBus(bus: BusInterface): this {
+    setBus(bus: Bus): this {
         this._bus = bus;
 
+        this._bus.event.read.addHandler(CartridgeFE._onBusAccess, this);
+        this._bus.event.write.addHandler(CartridgeFE._onBusAccess, this);
+
         return this;
-    }
-
-    notifyCpuCycleComplete(): void {
-        const lastInstruction = this._bus.peek(this._cpu.getLastInstructionPointer());
-
-        if (
-            lastInstruction === 0x20 || // JSR
-            lastInstruction === 0x60    // RTS
-        ) {
-            this._bank = (this._cpu.state.p & 0x2000) > 0 ? this._bank0 : this._bank1;
-        }
     }
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.bankswitch_8k_FE;
     }
 
+    private static _onBusAccess(accessType: Bus.AccessType, self: CartridgeFE): void {
+        const lastAddressBusValue = self._lastAddressBusValue;
+        self._lastAddressBusValue = self._bus.getLastAddresBusValue();
+
+        if (self._lastAddressBusValue === lastAddressBusValue) {
+            return;
+        }
+
+        if (self._lastAccessWasFE) {
+            self._bank = (self._bus.getLastDataBusValue() & 0x20) > 0 ? self._bank0 : self._bank1;
+        }
+
+        self._lastAccessWasFE = self._bus.getLastAddresBusValue() === 0x01FE;
+    }
+
     private _cpu: CpuInterface;
-    private _bus: BusInterface;
+    private _bus: Bus;
 
     private _bank0 = new Uint8Array(0x1000);
     private _bank1 = new Uint8Array(0x1000);
     private _bank: Uint8Array;
 
+    private _lastAccessWasFE = false;
+    private _lastAddressBusValue = -1;
 }
 
 export default CartridgeFE;
