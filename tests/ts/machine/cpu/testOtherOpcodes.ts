@@ -849,7 +849,7 @@ export function run() {
                 .setState({
                     s: 0xFF
                 })
-                .run()
+                .runTo(0xA167)
                 .assertCycles(6)
                 .assertState({
                     p: 0xA167,
@@ -866,7 +866,7 @@ export function run() {
                 .setState({
                     s: 0x00
                 })
-                .run()
+                .runTo(0xA167)
                 .assertCycles(6)
                 .assertState({
                     p: 0xA167,

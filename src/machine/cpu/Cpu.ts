@@ -244,14 +244,16 @@ function opJmp(state: CpuInterface.State, bus: BusInterface, operand: number): v
 }
 
 function opJsr(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    const returnPtr = (state.p + 0xFFFF) & 0xFFFF;
+    const returnPtr = (state.p + 1) & 0xFFFF,
+        addrLo = bus.read(state.p);
 
+    bus.read(0x0100 + state.s);
     bus.write(0x0100 + state.s, returnPtr >>> 8);
     state.s = (state.s + 0xFF) & 0xFF;
     bus.write(0x0100 + state.s, returnPtr & 0xFF);
     state.s = (state.s + 0xFF) & 0xFF;
 
-    state.p = operand;
+    state.p = addrLo | (bus.read((state.p + 1) & 0xFFFF) << 8);
 }
 
 function opLda(
@@ -390,6 +392,7 @@ function opRti(state: CpuInterface.State, bus: BusInterface): void {
 function opRts(state: CpuInterface.State, bus: BusInterface): void {
     let returnPtr: number;
 
+    bus.read(0x0100 + state.s);
     state.s = (state.s + 1) & 0xFF;
     returnPtr = bus.read(0x0100 + state.s);
     state.s = (state.s + 1) & 0xFF;
@@ -911,7 +914,7 @@ class Cpu {
                 break;
 
             case Instruction.Operation.jsr:
-                this._opCycles = 3;
+                this._opCycles = 5;
                 this._instructionCallback = opJsr;
                 break;
 
