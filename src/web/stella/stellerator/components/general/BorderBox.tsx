@@ -2,7 +2,7 @@
  *   This file is part of 6502.ts, an emulator for 6502 based systems built
  *   in Typescript.
  *
- *   Copyright (C) 2016  Christian Speckner & contributors
+ *   Copyright (C) 2017  Christian Speckner & contributors
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,32 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import * as React from 'react';
-import {FormControl} from 'react-bootstrap';
+import {styled} from '../style';
 
-function CartridgeNameInput(props: CartridgeNameInput.Props) {
-    return <FormControl
-        type='text'
-        value={props.name}
-        onChange={(e: React.FormEvent<any>) => props.onNameChange((e.target as HTMLInputElement).value)}
-        onKeyDown={(e: React.KeyboardEvent<any>) => e.keyCode === 13 ? props.onKeyEnter() : undefined}
-    />;
-}
+const BorderBox = styled.div`
+    border: 2px solid;
+    background: #555;
+    box-shadow: 0 0 0 5px #555;
+`;
+BorderBox.displayName = 'BorderBox';
 
-namespace CartridgeNameInput {
-
-    export interface Props {
-        name?: string;
-        onNameChange?: (value: string) => void;
-        onKeyEnter?: () => void;
-    }
-
-    export const defaultProps: Props = {
-        name : '',
-        onNameChange: () => undefined,
-        onKeyEnter: () => undefined,
-    };
-
-}
-
-export default CartridgeNameInput;
+export default BorderBox;

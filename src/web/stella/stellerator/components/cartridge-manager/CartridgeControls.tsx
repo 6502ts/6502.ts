@@ -21,17 +21,29 @@
 
 import * as React from 'react';
 
+import {styled, StyledComponent} from '../style';
 import {
     Button
 } from 'react-bootstrap';
 
-import FileUploadButton from '../FileUploadButton';
+import FileUploadButton from '../general/FileUploadButton';
 
-function CartridgeControls(props: CartridgeControls.Props) {
-    return <div className='cartridge-controls'>
+export interface Props {
+    active: boolean;
+    changes: boolean;
+    className?: string;
+
+    onDelete?: () => void;
+    onSave?: () => void;
+    onRun?: () => void;
+    onCartridgeUploaded?: (file: File) => void;
+}
+
+function CartridgeControlsUnstyled(props: Props) {
+    return <div className={props.className}>
         <FileUploadButton
             onFilesSelected={
-                files => files.length === 1 ? props.onCartridgeUploaded(files[0], props.changes) : undefined
+                files => files.length === 1 ? props.onCartridgeUploaded(files[0]) : undefined
             }
         >Load</FileUploadButton>
         <Button
@@ -51,19 +63,7 @@ function CartridgeControls(props: CartridgeControls.Props) {
     </div>;
 }
 
-namespace CartridgeControls {
-
-    export interface Props {
-
-        active?: boolean;
-        changes?: boolean;
-
-        onDelete?: () => void;
-        onSave?: () => void;
-        onRun?: () => void;
-        onCartridgeUploaded?: (file: File, changes: boolean) => void;
-
-    }
+namespace CartridgeControlsUnstyled {
 
     export const defaultProps: Props = {
         active: false,
@@ -76,4 +76,16 @@ namespace CartridgeControls {
 
 }
 
-export default CartridgeControls;
+type CartridgeControlsStyled = StyledComponent<Props, void>;
+
+const CartridgeControlsStyled = styled(CartridgeControlsUnstyled)`
+    .btn:not(:last-child) {
+        margin-right: 2ex;
+    }
+
+    button[disabled] {
+        color: #777;
+    }
+`;
+
+export default CartridgeControlsStyled;

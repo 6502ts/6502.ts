@@ -45,34 +45,34 @@ export function setMode(guiMode: GuiMode) {
     };
 }
 
-export interface SelectOpenPendingChangesModalAction extends Action {
+export interface OpenSelectPendingChangesModalAction extends Action {
     pendingSelectHash: string;
 }
 
-export function selectOpenPendingChangesModal(pendingSelectHash: string): SelectOpenPendingChangesModalAction {
+export function openSelectPendingChangesModal(pendingSelectHash: string): OpenSelectPendingChangesModalAction {
     return {
         type: types.selectOpenPendingChangesModal,
         pendingSelectHash
     };
 }
 
-export interface SelectClosePendingChangesModalAction extends Action {}
+export interface CloseSelectPendingChangesModalAction extends Action {}
 
-export function selectClosePendingChangesModal(): SelectClosePendingChangesModalAction {
+export function closeSelectPendingChangesModal(): CloseSelectPendingChangesModalAction {
     return {
         type: types.selectClosePendingChangesModal
     };
 }
 
-export interface LoadOpenPendingChangesModalAction extends Action {
+export interface OpenLoadPendingChangesModalAction extends Action {
     pendingLoad: Uint8Array;
     pendingLoadName: string;
 }
 
-export function loadOpenPendingChangesModal(
+export function openLoadPendingChangesModal(
     pendingLoad: Uint8Array,
     pendingLoadName: string
-): LoadOpenPendingChangesModalAction {
+): OpenLoadPendingChangesModalAction {
     return {
         type: types.loadOpenPendingChangesModal,
         pendingLoad,
@@ -80,9 +80,9 @@ export function loadOpenPendingChangesModal(
     };
 }
 
-export interface LoadClosePendingChangesModalAction extends Action {}
+export interface CloseLoadPendingChangesModalAction extends Action {}
 
-export function loadClosePendingChangesModal(): LoadClosePendingChangesModalAction {
+export function closeLoadPendingChangesModal(): CloseLoadPendingChangesModalAction {
     return {
         type: types.loadClosePendingChangesModal
     };

@@ -23,42 +23,40 @@ import * as React from 'react';
 
 import {
     Button,
-    Modal
+    ButtonGroup
 } from 'react-bootstrap';
 
-function PendingChangesModal(props: PendingChangesModal.Props) {
-    return <Modal show={props.show} onHide={props.onHide}>
-        <Modal.Header closeButton>
-            <Modal.Title>Unsaved changes</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-            {props.children}
-        </Modal.Body>
-        <Modal.Footer>
-            <Button onClick={props.onHide}>Cancel</Button>
-            <Button onClick={props.onContinueAndSave}>Continue &amp; Save</Button>
-            <Button onClick={props.onContinueAndDiscard}>Continue &amp; Discard</Button>
-        </Modal.Footer>
-    </Modal>;
+import StellaConfig from '../../../../../machine/stella/Config';
+
+function TvModeSelect(props: TvModeSelect.Props) {
+    return <ButtonGroup>
+        <Button
+            active={props.tvMode === StellaConfig.TvMode.ntsc}
+            onClick={() => props.onTvModeChange(StellaConfig.TvMode.ntsc)}
+        >NTSC</Button>
+        <Button
+            active={props.tvMode === StellaConfig.TvMode.pal}
+            onClick={() => props.onTvModeChange(StellaConfig.TvMode.pal)}
+        >PAL</Button>
+        <Button
+            active={props.tvMode === StellaConfig.TvMode.secam}
+            onClick={() => props.onTvModeChange(StellaConfig.TvMode.secam)}
+        >SECAM</Button>
+    </ButtonGroup>;
 }
 
-namespace PendingChangesModal {
+namespace TvModeSelect {
 
     export interface Props {
-        show?: boolean;
-        onHide?: () => void;
-        onContinueAndDiscard?: () => void;
-        onContinueAndSave?: () => void;
-        children?: React.ReactNode;
+        tvMode: StellaConfig.TvMode;
+        onTvModeChange?: (tvMode: StellaConfig.TvMode) => void;
     }
 
-    export const defaultProps: Props = {
-        show: false,
-        onHide: () => undefined,
-        onContinueAndDiscard: () => undefined,
-        onContinueAndSave: () => undefined
+    export const defaultProps = {
+        tvMode: StellaConfig.TvMode.ntsc,
+        onTvModeChange: (): void => undefined
     };
 
 }
 
-export default PendingChangesModal;
+export default TvModeSelect;

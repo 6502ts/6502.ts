@@ -28,7 +28,7 @@ import {
     Row
 } from 'react-bootstrap';
 
-import Switch from './Switch';
+import Switch from './general/Switch';
 
 function Settings(props: Settings.Props) {
     return <Grid fluid className='settings-grid'>

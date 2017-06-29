@@ -26,7 +26,7 @@ import {
     ControlLabel
 } from 'react-bootstrap';
 
-import Switch from '../Switch';
+import Switch from '../general/Switch';
 import EmulationServiceInterface from '../../../service/EmulationServiceInterface';
 
 function ControlPanel(props: ControlPanel.Props) {

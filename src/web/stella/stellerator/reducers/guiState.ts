@@ -23,9 +23,9 @@ import {Action} from 'redux';
 
 import {
     SetModeAction,
-    SelectOpenPendingChangesModalAction,
+    OpenSelectPendingChangesModalAction,
     types as ActionType,
-    LoadOpenPendingChangesModalAction,
+    OpenLoadPendingChangesModalAction,
 } from '../actions/guiState';
 
 import GuiState from '../state/GuiState';
@@ -33,7 +33,7 @@ import GuiState from '../state/GuiState';
 export default function reduce(state: GuiState = new GuiState(), action: Action): GuiState {
     switch (action.type) {
         case ActionType.loadOpenPendingChangesModal:
-            return loadOpenPendingChangesModal(state, action as LoadOpenPendingChangesModalAction);
+            return loadOpenPendingChangesModal(state, action as OpenLoadPendingChangesModalAction);
 
         case ActionType.loadClosePendingChangesModal:
             return loadClosePendingChangesModal(state);
@@ -42,7 +42,7 @@ export default function reduce(state: GuiState = new GuiState(), action: Action)
             return selectClosePendingChangesModal(state);
 
         case ActionType.selectOpenPendingChangesModal:
-            return selectOpenPendingChangesModal(state, action as SelectOpenPendingChangesModalAction);
+            return selectOpenPendingChangesModal(state, action as OpenSelectPendingChangesModalAction);
 
         case ActionType.setMode:
             return setMode(state, action as SetModeAction);
@@ -56,7 +56,7 @@ function setMode(state: GuiState, action: SetModeAction): GuiState {
     return new GuiState({mode: action.guiMode}, state);
 }
 
-function selectOpenPendingChangesModal(state: GuiState, action: SelectOpenPendingChangesModalAction): GuiState {
+function selectOpenPendingChangesModal(state: GuiState, action: OpenSelectPendingChangesModalAction): GuiState {
     return new GuiState({
         showSelectPendingChangesModal: true,
         pendingSelectHash: action.pendingSelectHash
@@ -70,7 +70,7 @@ function selectClosePendingChangesModal(state: GuiState): GuiState {
     }, state);
 }
 
-function loadOpenPendingChangesModal(state: GuiState, action: LoadOpenPendingChangesModalAction): GuiState {
+function loadOpenPendingChangesModal(state: GuiState, action: OpenLoadPendingChangesModalAction): GuiState {
     return new GuiState({
         showLoadPendingChangesModal: true,
         pendingLoad: action.pendingLoad,

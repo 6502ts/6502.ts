@@ -67,7 +67,7 @@ class Cartridge3F extends AbstractCartridge {
         // Bankswitch on read breaks actual cartridges badly -> maybe the hardware actively
         // watches out for STA on the bus? Disable for now, more research would be in order.
         //
-        // this._bus.event.read.addHandler(Cartridge3F._onBusAccess, this);
+        this._bus.event.read.addHandler(Cartridge3F._onBusAccess, this);
         this._bus.event.write.addHandler(Cartridge3F._onBusAccess, this);
 
         return this;
@@ -84,7 +84,7 @@ class Cartridge3F extends AbstractCartridge {
     }
 
     private static _onBusAccess(accessType: Bus.AccessType, self: Cartridge3F): void {
-        if (self._bus.getLastAddresBusValue() <= 0x003F) {
+        if (self._bus.getLastAddresBusValue() === 0x003F) {
             self._bank0 = self._banks[self._bus.getLastDataBusValue() & 0x03];
         }
     }

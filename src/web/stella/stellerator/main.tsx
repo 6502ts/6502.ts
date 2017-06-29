@@ -63,6 +63,7 @@ async function main() {
                     batchMiddleware,
                     serviceContainer.getPersistenceProvider().getMiddleware(),
                     serviceContainer.getEmulationProvider().getMiddleware(),
+                    serviceContainer.getCartridgeManager().getMiddleware(),
                     routerMiddleware(hashHistory)
                 ),
                 (

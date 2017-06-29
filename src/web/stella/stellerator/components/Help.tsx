@@ -27,7 +27,7 @@ import {
     Row
 } from 'react-bootstrap';
 
-import Markdown from './Markdown';
+import Markdown from './general/Markdown';
 
 function Help(props: Help.Props) {
     return <Grid fluid>

@@ -2,7 +2,7 @@
  *   This file is part of 6502.ts, an emulator for 6502 based systems built
  *   in Typescript.
  *
- *   Copyright (C) 2017  Christian Speckner & contributors
+ *   Copyright (C) 2016  Christian Speckner & contributors
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,26 +19,32 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Store} from 'redux';
+import * as React from 'react';
+import {FormControl} from 'react-bootstrap';
 
-import EmulationProvider from './EmulationProvider';
-import PersistenceProvider from './PersistenceProvider';
-import StorageManager from './StorageManager';
-import CartridgeManager from './CartridgeManager';
-import State from '../state/State';
+function CartridgeNameInput(props: CartridgeNameInput.Props) {
+    return <FormControl
+        type='text'
+        value={props.name}
+        onChange={(e: React.FormEvent<any>) => props.onNameChange((e.target as HTMLInputElement).value)}
+        onKeyDown={(e: React.KeyboardEvent<any>) => e.keyCode === 13 ? props.onKeyEnter() : undefined}
+    />;
+}
 
-interface Container {
+namespace CartridgeNameInput {
 
-    getEmulationProvider(): EmulationProvider;
+    export interface Props {
+        name: string;
+        onNameChange?: (value: string) => void;
+        onKeyEnter?: () => void;
+    }
 
-    getPersistenceProvider(): PersistenceProvider;
-
-    getStorageManager(): StorageManager;
-
-    getCartridgeManager(): CartridgeManager;
-
-    setStore(store: Store<State>): this;
+    export const defaultProps: Props = {
+        name : '',
+        onNameChange: () => undefined,
+        onKeyEnter: () => undefined,
+    };
 
 }
 
-export default Container;
+export default CartridgeNameInput;

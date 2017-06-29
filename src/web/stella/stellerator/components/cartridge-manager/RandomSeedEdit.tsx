@@ -21,8 +21,8 @@
 
 import * as React from 'react';
 
-import ValidatingInput from '../ValidatingInput';
-import Switch from '../Switch';
+import ValidatingInput from '../general/ValidatingInput';
+import Switch from '../general/Switch';
 
 function RandomSeedEdit(props: RandomSeedEdit.Props) {
     return <div>

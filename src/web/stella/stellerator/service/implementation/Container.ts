@@ -27,6 +27,7 @@ import ContainerInterface from '../Container';
 import EmulationProvider from './EmulationProvider';
 import PersistenceProvider from './PersistenceProvider';
 import StorageManager from './StorageManager';
+import CartridgManager from './CartridgManager';
 
 interface InjectableWithStore {
     setStore(store: Store<State>): void;
@@ -65,6 +66,14 @@ class Container implements ContainerInterface {
         return this._getOrCreateSingetonService(
             'storage-manager',
             () => new StorageManager()
+        );
+    }
+
+    getCartridgeManager(): CartridgManager {
+        return this._getOrCreateSingetonService(
+            'cartridge-manager',
+            () => new CartridgManager(),
+            true
         );
     }
 

@@ -21,47 +21,77 @@
 
 import * as React from 'react';
 
+import {styled, StyledComponent} from '../style';
 import Cartridge from '../../model/Cartridge';
+import BorderBox from '../general/BorderBox';
 
-function CartridgeList(props: CartridgeList.Props) {
-    return  <div className='cartridge-list border-box'>
-        <ul>
+export interface Props {
+    cartridges: {[key: string]: Cartridge};
+    selectedCartridgeKey: string;
+    className?: string;
+
+    onClick?: (key: string) => void;
+}
+
+function CartridgeListUnstyled(props: Props) {
+    return  <BorderBox className={props.className}>
+        <ListStyled>
             {Object
                 .keys(props.cartridges)
                 .map(key => props.cartridges[key])
                 .sort((c1: Cartridge, c2: Cartridge) => c1.name === c2.name ? 0 : ((c1.name < c2.name) ? -1 : 1))
                 .map(
                     cartridge =>
-                    <li
-                        onClick={() => props.onClick(cartridge.hash, props.pendingChanges)}
-                        className={props.selectedKey === cartridge.hash ? 'selected' : ''}
+                    <ListItemStyled
+                        onClick={() => props.onClick(cartridge.hash)}
+                        className={props.selectedCartridgeKey === cartridge.hash ? 'selected' : ''}
                         key={cartridge.hash}
                     >
                         {cartridge.name}
-                    </li>
+                    </ListItemStyled>
                 )
             }
-        </ul>
-    </div>;
+        </ListStyled>
+    </BorderBox>;
 }
 
-namespace CartridgeList {
-
-    export interface Props {
-        cartridges?: {[key: string]: Cartridge};
-        pendingChanges: boolean;
-        selectedKey?: string;
-
-        onClick?: (key: string, pendingChanges: boolean) => void;
-    }
+namespace CartridgeListUnstyled {
 
     export const defaultProps: Props = {
         cartridges: {},
-        selectedKey: '',
-        pendingChanges: false,
+        selectedCartridgeKey: '',
         onClick: () => undefined
     };
 
 }
 
-export default CartridgeList;
+const ListStyled = styled.ul`
+    list-style: none;
+    padding: 0;
+`;
+
+const ListItemStyled = styled.li`
+    cursor: pointer;
+    list-style: none;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+
+    &:nth-child(odd) {
+       background-color: #444;
+    }
+
+    &.selected {
+        color: black;
+        background: #bbb;
+    }
+`;
+
+type CartridgeListStyled = StyledComponent<Props, void>;
+
+const CartridgeListStyled: CartridgeListStyled = styled(CartridgeListUnstyled)`
+    height: 15rem;
+    overflow-y: auto;
+    margin-bottom: 1.5rem;
+`;
+
+export default CartridgeListStyled;
