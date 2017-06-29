@@ -35,7 +35,6 @@ import {hashHistory, Redirect, Router, Route} from 'react-router';
 import {applyMiddleware, compose, createStore} from 'redux';
 import {ThemeProvider} from 'styled-components';
 import {Provider as ReduxProvider} from 'react-redux';
-import thunk from 'redux-thunk';
 import {routerMiddleware, syncHistoryWithStore} from 'react-router-redux';
 
 import Main from './containers/Main';
@@ -59,7 +58,6 @@ async function main() {
             new State(),
             compose(
                 applyMiddleware(
-                    thunk,
                     batchMiddleware,
                     serviceContainer.getPersistenceProvider().getMiddleware(),
                     serviceContainer.getEmulationProvider().getMiddleware(),

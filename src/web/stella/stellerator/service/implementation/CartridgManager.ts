@@ -33,8 +33,7 @@ class CartridgeManager implements CartridgeManagerInterface {
     }
 
     getMiddleware(): Middleware {
-        // TODO: remove cast once redux-thunk is gone
-        return this._middleware as any;
+        return this._middleware;
     }
 
     private async _onRunCurrentCartridge(): Promise<void> {

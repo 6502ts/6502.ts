@@ -40,8 +40,7 @@ class PersistenceProvider implements PersistenceProviderInterface {
     }
 
     getMiddleware(): Middleware {
-        // TODO: remove cast once redux-thunk is gone
-        return this._middleware as any;
+        return this._middleware;
     }
 
     async init(): Promise<any> {

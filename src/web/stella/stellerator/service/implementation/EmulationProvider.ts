@@ -69,8 +69,7 @@ class EmulationProvider implements EmulationProviderInterface {
     }
 
     getMiddleware(): Middleware {
-        // TODO: remove cast once redux-thunk is gone
-        return this._middleware as any;
+        return this._middleware;
     }
 
     private _initAudio(): void {
