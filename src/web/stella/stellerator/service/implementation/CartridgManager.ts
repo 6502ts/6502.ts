@@ -2,6 +2,7 @@ import {Middleware, MiddlewareAPI, Action, Store} from 'redux';
 import {push} from 'react-router-redux';
 
 import CartridgeManagerInterface from '../CartridgeManager';
+import StorageManager from '../StorageManager';
 import {
     actions,
     UploadNewCartridgeAction,
@@ -12,7 +13,8 @@ import {
 import {
     saveCurrentCartride,
     registerNewCartridge,
-    selectCartridge
+    selectCartridge,
+    types as rootActions
 } from '../../actions/root';
 import {
     setMode,
@@ -25,8 +27,13 @@ import {start as startEmulation} from '../../actions/emulation';
 import {GuiMode} from '../../model/types';
 import State from '../../state/State';
 import Cartride from '../../model/Cartridge';
+import {calculateFromUint8Array as md5sum} from '../../../../../tools/hash/md5';
 
 class CartridgeManager implements CartridgeManagerInterface {
+
+    constructor(
+        private _storage: StorageManager
+    ) {}
 
     setStore(store: Store<State>): void {
         this._store = store;
@@ -60,6 +67,7 @@ class CartridgeManager implements CartridgeManagerInterface {
         if (changes) {
             await this._store.dispatch(openLoadPendingChangesModal(cartridgeData, name));
         } else {
+            await this._storage.saveImage(md5sum(cartridgeData), cartridgeData);
             await this._store.dispatch(registerNewCartridge(name, cartridgeData));
         }
     }
@@ -69,6 +77,9 @@ class CartridgeManager implements CartridgeManagerInterface {
             await this._store.dispatch(saveCurrentCartride());
         }
 
+        const cartridgeData = this._store.getState().guiState.pendingLoad;
+
+        await this._storage.saveImage(md5sum(cartridgeData), cartridgeData);
         await this._store.dispatch(registerNewCartridge());
         await this._store.dispatch(closeLoadPendingChangesModal());
     }
@@ -94,6 +105,12 @@ class CartridgeManager implements CartridgeManagerInterface {
         await this._store.dispatch(closeSelectPendingChangesModal());
     }
 
+    private _onDeleteCurrentCartridge(): Promise<void> {
+        return this._storage.deleteImage(
+            this._store.getState().currentCartridge.hash
+        );
+    }
+
     private _middleware =
         (api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (action: Action): Promise<void> =>
     {
@@ -117,6 +134,10 @@ class CartridgeManager implements CartridgeManagerInterface {
             case actions.confirmSelect:
                 await next(action);
                 return this._onConfirmSelect(action as ConfirmSelectAction);
+
+            case rootActions.deleteCurrentCartridge:
+                await this._onDeleteCurrentCartridge();
+                return next(action);
         }
 
         return next(action);

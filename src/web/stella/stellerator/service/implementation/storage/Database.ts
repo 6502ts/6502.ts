@@ -23,6 +23,7 @@ import Dexie from 'dexie';
 
 import * as Cartridge from './Cartridge';
 import * as Settings from './Settings';
+import * as Image from './Image';
 
 export default class Database extends Dexie {
 
@@ -72,9 +73,36 @@ export default class Database extends Dexie {
                     cursor.update(cartridge);
                 })
             );
+
+        this.version(5)
+            .stores({
+                cartridge: '++id, &hash',
+                settings: 'id',
+                image: '&hash'
+            })
+            .upgrade(transaction => {
+                const images = transaction.table<Image.ImageSchema, Image.indexType>('image');
+
+                transaction
+                    .table<Cartridge.CartridgeSchema & {buffer: Uint8Array}, Cartridge.indexType>('cartridge')
+                    .each((cartridge, c) => {
+                        const cursor: IDBCursor = (c as any);
+
+                        images.add({
+                            hash: cartridge.hash,
+                            buffer: cartridge.buffer
+                        });
+
+                        delete cartridge.buffer;
+
+                        cursor.update(cartridge);
+                    });
+            });
     }
 
     cartridge: Dexie.Table<Cartridge.CartridgeSchema, Cartridge.indexType>;
 
     settings: Dexie.Table<Settings.SettingsSchema, Settings.indexType>;
+
+    image: Dexie.Table<Image.ImageSchema, Image.indexType>;
 }

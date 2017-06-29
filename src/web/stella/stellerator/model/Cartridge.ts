@@ -24,7 +24,6 @@ import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
 interface Cartridge {
     name: string;
-    buffer: Uint8Array;
     hash: string;
     tvMode: StellaConfig.TvMode;
     cartridgeType: CartridgeInfo.CartridgeType;
@@ -39,7 +38,6 @@ namespace Cartridge {
     export function create(): Cartridge {
         return {
             name: '',
-            buffer: null,
             hash: '',
             tvMode: StellaConfig.TvMode.ntsc,
             cartridgeType: CartridgeInfo.CartridgeType.unknown,

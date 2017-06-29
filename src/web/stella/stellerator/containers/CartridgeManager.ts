@@ -32,7 +32,7 @@ import State from '../state/State';
 
 import {
     deleteCurrentCartridge,
-    saveCurrentCartride,
+    saveCurrentCartride
 } from '../actions/root';
 import {
     changeCartridgeType,

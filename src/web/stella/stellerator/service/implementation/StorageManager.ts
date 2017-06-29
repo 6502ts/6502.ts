@@ -66,6 +66,29 @@ export default class StorageManager implements StorageManagerInterface {
         );
     }
 
+    getImage(hash: string): Promise<Uint8Array> {
+        return Promise.resolve(this._database
+            .image
+            .get(hash)
+            .then(image => image && image.buffer)
+        );
+    }
+
+    saveImage(hash: string, buffer: Uint8Array): Promise<void> {
+        return Promise.resolve(this._database
+            .image
+            .put({hash, buffer})
+            .then(() => undefined)
+        );
+    }
+
+    deleteImage(hash: string): Promise<void> {
+        return Promise.resolve(this._database
+            .image
+            .delete(hash)
+        );
+    }
+
     getSettings(): Promise<SettingsModel> {
         return Promise.resolve(this._database
             .settings

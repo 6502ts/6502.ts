@@ -2,7 +2,7 @@
  *   This file is part of 6502.ts, an emulator for 6502 based systems built
  *   in Typescript.
  *
- *   Copyright (C) 2017  Christian Speckner & contributors
+ *   Copyright (C) 2016  Christian Speckner & contributors
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,27 +19,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import CartridgeModel from '../model/Cartridge';
-import SettingsModel from '../model/Settings';
+export type indexType = string;
 
-interface StorageManager {
-
-    getAllCartridges(): Promise<Array<CartridgeModel>>;
-
-    saveCartridge(cartridge: CartridgeModel): Promise<void>;
-
-    deleteCartridge(cartridge: CartridgeModel): Promise<void>;
-
-    getImage(hash: string): Promise<Uint8Array>;
-
-    saveImage(hash: string, image: Uint8Array): Promise<void>;
-
-    deleteImage(hash: string): Promise<void>;
-
-    getSettings(): Promise<SettingsModel>;
-
-    saveSettings(settings: SettingsModel): Promise<void>;
-
+export interface ImageSchema {
+    hash: string;
+    buffer: Uint8Array;
 }
-
-export default StorageManager;

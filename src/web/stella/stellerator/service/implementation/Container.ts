@@ -49,7 +49,7 @@ class Container implements ContainerInterface {
     getEmulationProvider(): EmulationProvider {
         return this._getOrCreateSingetonService(
             'emulation-provider',
-            () => new EmulationProvider(),
+            () => new EmulationProvider(this.getStorageManager()),
             true
         );
     }
@@ -72,7 +72,7 @@ class Container implements ContainerInterface {
     getCartridgeManager(): CartridgManager {
         return this._getOrCreateSingetonService(
             'cartridge-manager',
-            () => new CartridgManager(),
+            () => new CartridgManager(this.getStorageManager()),
             true
         );
     }

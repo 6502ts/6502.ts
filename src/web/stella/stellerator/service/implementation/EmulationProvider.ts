@@ -37,6 +37,7 @@ import EmulationServiceInterface from '../../../service/EmulationServiceInterfac
 import WorkerEmulationService from '../../../service/worker/EmulationService';
 import VanillaEmulationService from '../../../service/vanilla/EmulationService';
 import EmulationContextInterface from '../../../service/EmulationContextInterface';
+import StorageManager from '../StorageManager';
 import DriverManager from '../../../service/DriverManager';
 import WebAudioDriver from '../../../driver/WebAudio';
 import GamepadDriver from '../../../../driver/Gamepad';
@@ -44,6 +45,10 @@ import StellaConfig from '../../../../../machine/stella/Config';
 import * as VideoProcessorConfig from '../../../../../video/processing/config';
 
 class EmulationProvider implements EmulationProviderInterface {
+
+    constructor(
+        private _storage: StorageManager
+    ) {}
 
     setStore(store: Store<State>): void {
         this._store = store;
@@ -155,8 +160,14 @@ class EmulationProvider implements EmulationProviderInterface {
             cartridge.emulatePaddles
         );
 
+        const buffer = await this._storage.getImage(cartridge.hash);
+
+        if (!buffer) {
+            throw new Error(`no buffer for hash ${cartridge.hash}`);
+        }
+
         await this._service.start(
-            cartridge.buffer,
+            buffer,
             stellaConfig,
             cartridge.cartridgeType,
             state.settings.mergeFrames ? [{type: VideoProcessorConfig.Type.merge}] : undefined

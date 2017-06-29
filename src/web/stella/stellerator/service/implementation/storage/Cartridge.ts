@@ -30,7 +30,6 @@ export interface CartridgeSchema {
     id?: number;
     name: string;
     hash: string;
-    buffer: Uint8Array;
     tvMode: tvModeString;
     cartridgeType: string;
     emulatePaddles: boolean;

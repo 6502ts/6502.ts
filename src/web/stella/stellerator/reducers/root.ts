@@ -116,7 +116,6 @@ function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): Stat
     const newCartridge = {
         ...Cartridge.create(),
         name,
-        buffer,
         hash,
         tvMode,
         cartridgeType
