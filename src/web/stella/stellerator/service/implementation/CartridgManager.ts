@@ -1,5 +1,6 @@
 import {Middleware, MiddlewareAPI, Action, Store} from 'redux';
 import {push} from 'react-router-redux';
+import * as JsZip from 'jszip';
 
 import CartridgeManagerInterface from '../CartridgeManager';
 import StorageManager from '../StorageManager';
@@ -51,24 +52,46 @@ class CartridgeManager implements CartridgeManagerInterface {
     }
 
     private async _onUpload(action: UploadNewCartridgeAction): Promise<void> {
-        const state = this._store.getState(),
-            name = action.file.name,
-            changes = !!state.currentCartridge &&
-                !Cartride.equals(state.currentCartridge, state.cartridges[state.currentCartridge.hash]);
-
         const reader = new FileReader(),
-            cartridgeData = await new Promise<Uint8Array>(
+            fileContent = await new Promise<Uint8Array>(
                 r => {
                     reader.addEventListener('load', () => r(new Uint8Array(reader.result)));
                     reader.readAsArrayBuffer(action.file);
                 }
             );
 
-        if (changes) {
-            await this._store.dispatch(openLoadPendingChangesModal(cartridgeData, name));
+        if (action.file.name.match(/\.zip$/)) {
+            return this._handleZipfile(action.file.name, fileContent);
         } else {
-            await this._storage.saveImage(md5sum(cartridgeData), cartridgeData);
-            await this._store.dispatch(registerNewCartridge(name, cartridgeData));
+            return this._handleCartridge(action.file.name, fileContent);
+        }
+    }
+
+    private async _handleCartridge(name: string, content: Uint8Array) {
+        const state = this._store.getState(),
+            changes = !!state.currentCartridge &&
+                !Cartride.equals(state.currentCartridge, state.cartridges[state.currentCartridge.hash]);
+
+        if (changes) {
+            await this._store.dispatch(openLoadPendingChangesModal(content, name));
+        } else {
+            await this._storage.saveImage(md5sum(content), content);
+            await this._store.dispatch(registerNewCartridge(name, content));
+        }
+    }
+
+    private async _handleZipfile(name: string, content: Uint8Array): Promise<void> {
+        const zipfile = new JsZip();
+
+        await zipfile.loadAsync(content);
+
+        const files = zipfile.file(/\.(bin|a26)$/);
+
+        if (files.length === 1) {
+            const file = files[0],
+                deflatedImage = await file.async('uint8array');
+
+            this._handleCartridge(file.name.replace(/$.*\//, ''), deflatedImage);
         }
     }
 

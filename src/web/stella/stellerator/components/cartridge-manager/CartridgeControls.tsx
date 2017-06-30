@@ -42,6 +42,7 @@ export interface Props {
 function CartridgeControlsUnstyled(props: Props) {
     return <div className={props.className}>
         <FileUploadButton
+            accept='.bin, .a26, .zip'
             onFilesSelected={
                 files => files.length === 1 ? props.onCartridgeUploaded(files[0]) : undefined
             }
