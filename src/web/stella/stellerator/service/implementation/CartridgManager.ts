@@ -111,7 +111,7 @@ class CartridgeManager implements CartridgeManagerInterface {
         );
     }
 
-    private _middleware =
+    private _middleware = (
         (api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (action: Action): Promise<void> =>
     {
         switch (action.type) {
@@ -141,7 +141,7 @@ class CartridgeManager implements CartridgeManagerInterface {
         }
 
         return next(action);
-    }
+    }) as Middleware;
 
     private _store: Store<State>;
 

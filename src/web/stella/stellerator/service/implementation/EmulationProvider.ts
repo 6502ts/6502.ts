@@ -176,7 +176,7 @@ class EmulationProvider implements EmulationProviderInterface {
         this._updateControlPanelState(state.emulationState);
     }
 
-    private _middleware =
+    private _middleware = (
         (api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (a: Action): Promise<any> =>
     {
         if (!a || !this._service) {
@@ -215,7 +215,7 @@ class EmulationProvider implements EmulationProviderInterface {
             default:
                 return next(a);
         }
-    }
+    }) as Middleware;
 
     private _store: Store<State>;
 

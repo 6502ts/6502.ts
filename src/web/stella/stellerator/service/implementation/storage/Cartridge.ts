@@ -87,7 +87,7 @@ export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
 }
 
 export function toState(cartridge: CartridgeSchema): CartridgeModel {
-    const {tvMode, cartridgeType, ...c} = cartridge;
+    const {tvMode, cartridgeType, id, ...c} = cartridge;
 
     return {
         ...c,
