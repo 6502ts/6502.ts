@@ -20,7 +20,7 @@
  */
 
 import {Action} from 'redux';
-import {routerReducer} from 'react-router-redux';
+import {routerReducer, RouterAction} from 'react-router-redux';
 
 import {
     InitCartridgesAction,
@@ -48,7 +48,7 @@ export default function rootReducer(state: State = new State(), a: Action): Stat
 
     return new State(
         {
-            routing: routerReducer(state.routing, a),
+            routing: routerReducer(state.routing, a as RouterAction),
             currentCartridge: reduceCurrentCartridge(reducedState.currentCartridge, a),
             guiState: reduceGuiState(reducedState.guiState, a),
             emulationState: reduceEmulationState(reducedState.emulationState, a),

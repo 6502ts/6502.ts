@@ -137,7 +137,7 @@ function setupCartridgeReader(
     cli.events.stateChanged.addHandler(onCliStateChange);
     onCliStateChange();
 
-    cartridgeFileInput.change((e: JQueryInputEventObject) => {
+    cartridgeFileInput.change(e => {
         const files = (e.currentTarget as HTMLInputElement).files;
 
         if (files.length !== 1) {

@@ -31,17 +31,11 @@ declare namespace window {
 
 import * as React from 'react';
 import {render} from 'react-dom';
-import {hashHistory, Redirect, Router, Route} from 'react-router';
+import {createHashHistory} from 'history';
 import {applyMiddleware, compose, createStore} from 'redux';
 import {ThemeProvider} from 'styled-components';
 import {Provider as ReduxProvider} from 'react-redux';
-import {routerMiddleware, syncHistoryWithStore} from 'react-router-redux';
-
-import Main from './containers/Main';
-import CartridgeManager from './containers/CartridgeManager';
-import Emulation from './containers/Emulation';
-import Settings from './containers/Settings';
-import Help from './containers/Help';
+import {routerMiddleware, ConnectedRouter} from 'react-router-redux';
 
 import {Provider as EmulationProvider} from './context/Emulation';
 import {initialize as initializeEnvironment} from './actions/environment';
@@ -49,9 +43,12 @@ import State from './state/State';
 import reducer from './reducers/root';
 import {batchMiddleware} from './middleware';
 import ServiceContainer from './service/implementation/Container';
+import Main from './containers/Main';
+import Routing from './Routing';
 
 async function main() {
-    const serviceContainer = new ServiceContainer();
+    const serviceContainer = new ServiceContainer(),
+        history = createHashHistory();
 
     const store = createStore<State>(
             reducer,
@@ -62,7 +59,7 @@ async function main() {
                     serviceContainer.getPersistenceProvider().getMiddleware(),
                     serviceContainer.getEmulationProvider().getMiddleware(),
                     serviceContainer.getCartridgeManager().getMiddleware(),
-                    routerMiddleware(hashHistory)
+                    routerMiddleware(history)
                 ),
                 (
                     (process.env.NODE_ENV !== 'production' && window.devToolsExtension) ?
@@ -79,8 +76,6 @@ async function main() {
         buildId: _stelleratorSettings.buildId
     }));
 
-    const history = syncHistoryWithStore(hashHistory, store);
-
     await serviceContainer.getPersistenceProvider().init();
     await serviceContainer.getEmulationProvider().init(
         store.getState().settings.useWorker ? _stelleratorSettings.workerUrl : undefined
@@ -90,15 +85,11 @@ async function main() {
         <ThemeProvider theme={{}}>
         <ReduxProvider store={store}>
         <EmulationProvider emulationProvider={serviceContainer.getEmulationProvider()}>
-            <Router history={history}>
-                <Redirect from='/' to='/cartridge-manager'/>
-                <Route path='/' component={Main}>
-                    <Route path='cartridge-manager' component={CartridgeManager}/>
-                    <Route path='emulation' component={Emulation}/>
-                    <Route path='settings' component={Settings}/>
-                    <Route path='help' component={Help}/>
-                </Route>
-            </Router>
+        <ConnectedRouter history={history} store={store as any}>
+            <Main>
+                <Routing/>
+            </Main>
+        </ConnectedRouter>
         </EmulationProvider>
         </ReduxProvider>
         </ThemeProvider>,
