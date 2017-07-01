@@ -9,7 +9,8 @@ import {
     UploadNewCartridgeAction,
     SelectCartridgeAction,
     ConfirmLoadAction,
-    ConfirmSelectAction
+    ConfirmSelectAction,
+    SelectRomFromZipfileAction
 } from '../../actions/cartridgeManager';
 import {
     saveCurrentCartride,
@@ -24,6 +25,10 @@ import {
     closeLoadPendingChangesModal,
     closeSelectPendingChangesModal
 } from '../../actions/guiState';
+import {
+    set as setZipfile,
+    clear as clearZipfile
+} from '../../actions/zipfile';
 import {start as startEmulation} from '../../actions/emulation';
 import {GuiMode} from '../../model/types';
 import State from '../../state/State';
@@ -83,15 +88,46 @@ class CartridgeManager implements CartridgeManagerInterface {
     private async _handleZipfile(name: string, content: Uint8Array): Promise<void> {
         const zipfile = new JsZip();
 
-        await zipfile.loadAsync(content);
+        try {
+            await zipfile.loadAsync(content);
 
-        const files = zipfile.file(/\.(bin|a26)$/);
+            const files = zipfile.file(/\.(bin|a26)$/);
 
-        if (files.length === 1) {
-            const file = files[0],
-                deflatedImage = await file.async('uint8array');
+            if (files.length === 1) {
+                const file = files[0],
+                    deflatedImage = await file.async('uint8array');
 
-            this._handleCartridge(file.name.replace(/$.*\//, ''), deflatedImage);
+                this._handleCartridge(file.name.replace(/^.*\//, ''), deflatedImage);
+            } else if (files.length > 1) {
+                await this._store.dispatch(setZipfile(
+                    content,
+                    files.map(f => f.name).sort()
+                ));
+            }
+        } catch (e) {
+            await this._store.dispatch(clearZipfile());
+        }
+    }
+
+    private async _onSelectRomFromZipfile(action: SelectRomFromZipfileAction): Promise<void> {
+        const zipfile = new JsZip(),
+            state = this._store.getState();
+
+        try {
+            await zipfile.loadAsync(state.zipfile.content);
+
+            const file = zipfile.file(action.filename);
+
+            if (!file) {
+                throw new Error('no such file in archive');
+            }
+
+            const deflatedImage = await file.async('uint8array');
+
+            await this._handleCartridge(action.filename.replace(/^.*\//, ''), deflatedImage);
+            await this._store.dispatch(clearZipfile());
+        } catch (e) {
+            await this._store.dispatch(clearZipfile());
         }
     }
 
@@ -157,6 +193,10 @@ class CartridgeManager implements CartridgeManagerInterface {
             case actions.confirmSelect:
                 await next(action);
                 return this._onConfirmSelect(action as ConfirmSelectAction);
+
+            case actions.selectRomFromZipfile:
+                await next(action);
+                return this._onSelectRomFromZipfile(action as SelectRomFromZipfileAction);
 
             case rootActions.deleteCurrentCartridge:
                 await this._onDeleteCurrentCartridge();

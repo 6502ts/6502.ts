@@ -5,7 +5,8 @@ export const actions = {
     uploadNewCartridge: 'cartridge-manager/upload-new-cartridge',
     selectCartridge: 'cartridge-manager/select-cartridge',
     confirmLoad: 'cartridge-manager/confirm-load',
-    confirmSelect: 'cartridge-manager/confirm-select'
+    confirmSelect: 'cartridge-manager/confirm-select',
+    selectRomFromZipfile: 'cartridge-manager/select-rom-from-zipfile'
 };
 Object.freeze(actions);
 
@@ -58,5 +59,16 @@ export function confirmSelect(discardChanges = false): ConfirmSelectAction {
     return {
         type: actions.confirmSelect,
         discardChanges
+    };
+}
+
+export interface SelectRomFromZipfileAction extends Action {
+    filename: string;
+}
+
+export function selectRomFromZipfile(filename: string): SelectRomFromZipfileAction {
+    return {
+        type: actions.selectRomFromZipfile,
+        filename
     };
 }

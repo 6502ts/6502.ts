@@ -24,13 +24,12 @@ import { Col, Grid, Row } from 'react-bootstrap';
 
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 import StellaConfig from '../../../../machine/stella/Config';
-
+import Cartridge from '../model/Cartridge';
 import CartridgeControls from './cartridge-manager/CartridgeControls';
 import CartridgeList from './cartridge-manager/CartridgeList';
 import CartridgeSettings from './cartridge-manager/CartridgeSettings';
 import PendingChangesModal from './cartridge-manager/PendingChangesModal';
-
-import Cartridge from '../model/Cartridge';
+import ZipfileSelectModal from './cartridge-manager/ZipfileSelectModal';
 
 export interface DataProps {
     cartridges: {[key: string]: Cartridge};
@@ -39,6 +38,9 @@ export interface DataProps {
 
     showSelectPendingChangesModel: boolean;
     showLoadPendingChangesModel: boolean;
+
+    showZipfileModal: boolean;
+    zipfileMembers: Array<string>;
 }
 
 export interface HandlerProps {
@@ -64,6 +66,9 @@ export interface HandlerProps {
     onLoadPendingChangesClose: () => void;
     onLoadPendingChangesSave: () => void;
     onLoadPendingChangesDiscard: () => void;
+
+    onZipfileModalClose: () => void;
+    onZipfileModalSelect: (file: string) => void;
 }
 
 export interface Props extends DataProps, HandlerProps {}
@@ -138,6 +143,12 @@ export default function CartridgeManager(props: Props) {
                     Do you want to continue?
                 </p>
             </PendingChangesModal>
+            <ZipfileSelectModal
+                show={props.showZipfileModal}
+                files={props.zipfileMembers}
+                onCancel={props.onZipfileModalClose}
+                onSelect={props.onZipfileModalSelect}
+            />
         </Grid>
     );
 }

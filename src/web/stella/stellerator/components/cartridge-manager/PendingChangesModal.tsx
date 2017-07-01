@@ -38,7 +38,7 @@ export interface Props {
 
 function PendingChangesModal(props: Props) {
     return (
-        <Modal show={props.show} onHide={props.onHide}>
+        <Modal show={props.show} onHide={props.onHide} backdrop={false}>
             <Modal.Header closeButton>
                 <Modal.Title>Unsaved changes</Modal.Title>
             </Modal.Header>

@@ -23,6 +23,7 @@ import * as React from 'react';
 
 interface State {
     id: string;
+    index: number;
 }
 
 class FileUploadButton extends React.Component<FileUploadButton.Props, State> {
@@ -36,16 +37,21 @@ class FileUploadButton extends React.Component<FileUploadButton.Props, State> {
                 id={this.state.id}
                 style={{display: 'none'}}
                 onChange={this._onChange.bind(this)}
+                key={this.state.index}
             />
         </div>;
     }
 
     private _onChange(e: Event) {
         this.props.onFilesSelected((e.currentTarget as HTMLInputElement).files);
+
+        // Recreate the input node in order to allow subsequent uploads of the same file
+        this.setState({index: this.state.index + 1});
     }
 
     state: State = {
-        id: `file_upload_${Math.floor(Math.random() * 10000000)}`
+        id: `file_upload_${Math.floor(Math.random() * 10000000)}`,
+        index: 1
     };
 
 }

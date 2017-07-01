@@ -2,7 +2,7 @@
  *   This file is part of 6502.ts, an emulator for 6502 based systems built
  *   in Typescript.
  *
- *   Copyright (C) 2016  Christian Speckner & contributors
+ *   Copyright (C) 2017 Christian Speckner & contributors
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,37 +19,22 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import Cartridge from '../model/Cartridge';
-import GuiState from './GuiState';
-import EmulationState from './Emulation';
-import Settings from '../model/Settings';
-import Environment from './Environment';
-import Zipfile from './Zipfile';
+class Zipfile implements Changeset {
 
-export default class State implements Changeset {
-
-    constructor(changes?: Changeset, old?: State) {
+    constructor(changes?: Changeset, old?: Zipfile) {
         Object.assign(this, old, changes);
     }
 
-    routing: any;
-    cartridges: {[hash: string]: Cartridge} = {};
-    currentCartridge: Cartridge = null;
+    candidateNames: Array<string> = [];
+    content: Uint8Array = null;
+    error = '';
 
-    guiState: GuiState;
-    emulationState: EmulationState;
-    settings: Settings;
-    environment: Environment;
-    zipfile: Zipfile;
 }
 
 interface Changeset {
-    routing?: any;
-    cartridges?: {[hash: string]: Cartridge};
-    currentCartridge?: Cartridge;
-    guiState?: GuiState;
-    emulationState?: EmulationState;
-    settings?: Settings;
-    environment?: Environment;
-    zipfile?: Zipfile;
+    candidateNames?: Array<string>;
+    content?: Uint8Array;
+    error?: string;
 }
+
+export default Zipfile;

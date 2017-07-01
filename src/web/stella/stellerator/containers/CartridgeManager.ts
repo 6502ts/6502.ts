@@ -52,8 +52,12 @@ import {
     uploadNewCartridge,
     selectCartridge,
     confirmLoad,
-    confirmSelect
+    confirmSelect,
+    selectRomFromZipfile
 } from '../actions/cartridgeManager';
+import {
+    clear as clearZipfile
+} from '../actions/zipfile';
 
 function mapStateToProps(state: State): DataProps {
     return {
@@ -64,7 +68,9 @@ function mapStateToProps(state: State): DataProps {
             state.cartridges[state.currentCartridge.hash]
         ),
         showLoadPendingChangesModel: state.guiState.showLoadPendingChangesModal,
-        showSelectPendingChangesModel: state.guiState.showSelectPendingChangesModal
+        showSelectPendingChangesModel: state.guiState.showSelectPendingChangesModal,
+        showZipfileModal: !!state.zipfile.content,
+        zipfileMembers: state.zipfile.candidateNames
     };
 }
 
@@ -91,7 +97,10 @@ function mapDispatchToProps(dispatch: Dispatch<State>): HandlerProps {
 
         onLoadPendingChangesClose: () => dispatch(closeLoadPendingChangesModal()),
         onLoadPendingChangesSave: () => dispatch(confirmLoad()),
-        onLoadPendingChangesDiscard: () => dispatch(confirmLoad(true))
+        onLoadPendingChangesDiscard: () => dispatch(confirmLoad(true)),
+
+        onZipfileModalClose: () => dispatch(clearZipfile()),
+        onZipfileModalSelect: filename => dispatch(selectRomFromZipfile(filename))
     };
 }
 

@@ -55,6 +55,7 @@ namespace Cartridge {
             c1.hash === c2.hash &&
             c1.tvMode === c2.tvMode &&
             c1.cartridgeType === c2.cartridgeType &&
+            c1.emulatePaddles === c2.emulatePaddles &&
             c1.rngSeedAuto === c2.rngSeedAuto &&
             c1.rngSeed === c2.rngSeed &&
             c1.audioEnabled === c2.audioEnabled
