@@ -14,8 +14,7 @@ in order to properly emulate undefined hardware access on the VCS.
 
 ## Interrupts
 
-Interrupt dispatch is implemented and software interrupts via BRK work. Hardware
-interrupts are currently missing. RDY halts the CPU during all cycles (the silicon
+Interrupts are fully implemented. RDY halts the CPU during all cycles (the silicon
 does so only during read cycles).
 
 ## Tests
