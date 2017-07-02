@@ -115,12 +115,15 @@ class CartridgeManager implements CartridgeManagerInterface {
 
             const files = zipfile.file(/\.(bin|a26)$/);
 
-            if (files.length === 1) {
+            if (files.length === 0) {
+                this._store.dispatch(setZipfileError('No ROM images in ZIP file.'));
+            }
+            else if (files.length === 1) {
                 const file = files[0],
                     deflatedImage = await file.async('uint8array');
 
                 this._handleCartridge(file.name.replace(/^.*\//, ''), deflatedImage);
-            } else if (files.length > 1) {
+            } else {
                 await this._store.dispatch(setZipfile(
                     content,
                     files.map(f => f.name).sort()
