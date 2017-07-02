@@ -29,6 +29,7 @@ import CartridgeControls from './cartridge-manager/CartridgeControls';
 import CartridgeList from './cartridge-manager/CartridgeList';
 import CartridgeSettings from './cartridge-manager/CartridgeSettings';
 import PendingChangesModal from './cartridge-manager/PendingChangesModal';
+import ZipfileErrorModal from './cartridge-manager/ZipfileErrorModal';
 import ZipfileSelectModal from './cartridge-manager/ZipfileSelectModal';
 
 export interface DataProps {
@@ -41,6 +42,8 @@ export interface DataProps {
 
     showZipfileModal: boolean;
     zipfileMembers: Array<string>;
+
+    zipfileErrorMessage: string;
 }
 
 export interface HandlerProps {
@@ -69,6 +72,8 @@ export interface HandlerProps {
 
     onZipfileModalClose: () => void;
     onZipfileModalSelect: (file: string) => void;
+
+    onZipfileErrorModalClose: () => void;
 }
 
 export interface Props extends DataProps, HandlerProps {}
@@ -148,6 +153,10 @@ export default function CartridgeManager(props: Props) {
                 files={props.zipfileMembers}
                 onCancel={props.onZipfileModalClose}
                 onSelect={props.onZipfileModalSelect}
+            />
+            <ZipfileErrorModal
+                errorMessage={props.zipfileErrorMessage}
+                onClose={props.onZipfileErrorModalClose}
             />
         </Grid>
     );

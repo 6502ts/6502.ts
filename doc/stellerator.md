@@ -15,7 +15,8 @@ The source is available under the GNU General Public License (see below) on
 
 # Loading and running cartridge images
 
-The "Cartridges" page allows you to import, configure and run cartridge images.
+The "Cartridges" page allows you to import, configure and run cartridge images. Cartridge
+images can be loaded directly from ZIP files.
 
 ## Available Settings
 

@@ -27,7 +27,8 @@ import {
 } from '../../actions/guiState';
 import {
     set as setZipfile,
-    clear as clearZipfile
+    clear as clearZipfile,
+    setError as setZipfileError
 } from '../../actions/zipfile';
 import {start as startEmulation} from '../../actions/emulation';
 import {GuiMode} from '../../model/types';
@@ -106,6 +107,7 @@ class CartridgeManager implements CartridgeManagerInterface {
             }
         } catch (e) {
             await this._store.dispatch(clearZipfile());
+            await this._store.dispatch(setZipfileError('Unable to read ZIP.'));
         }
     }
 
@@ -128,6 +130,7 @@ class CartridgeManager implements CartridgeManagerInterface {
             await this._store.dispatch(clearZipfile());
         } catch (e) {
             await this._store.dispatch(clearZipfile());
+            await this._store.dispatch(setZipfileError(`Unable to read '${action.filename}' from ZIP.`));
         }
     }
 
