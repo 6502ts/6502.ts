@@ -41,7 +41,7 @@ import {
     changeTvMode,
     changeRngSeedStrategy,
     changeRngSeed,
-    toggleAudioEnabled
+    changeVolume
 } from '../actions/currentCartridge';
 import {
     closeSelectPendingChangesModal,
@@ -88,10 +88,10 @@ function mapDispatchToProps(dispatch: Dispatch<State>): HandlerProps {
         onCartridgeNameChange: value => dispatch(changeName(value)),
         onTvModeChanged: mode => dispatch(changeTvMode(mode)),
         onTogglePaddleEmulation: state => dispatch(changePaddleEmulation(state)),
-        onToggleAudioEnabled: state => dispatch(toggleAudioEnabled(state)),
         onCartridgeTypeChange: type => dispatch(changeCartridgeType(type)),
         onChangeSeedStrategy: auto => dispatch(changeRngSeedStrategy(auto)),
         onChangeSeedValue: seed => dispatch(changeRngSeed(seed)),
+        onChangeVolume: volume => dispatch(changeVolume(volume)),
 
         onSelectPendingChangesClose: () => dispatch(closeSelectPendingChangesModal()),
         onSelectPendingChangesSave: () => dispatch(confirmSelect()),

@@ -25,6 +25,7 @@ interface Settings {
     gamma: number;
     useWorker: boolean;
     mergeFrames: boolean;
+    volume: number;
 }
 
 namespace Settings {
@@ -38,7 +39,8 @@ namespace Settings {
             webGlRendering: true,
             gamma: 1,
             useWorker: true,
-            mergeFrames: false
+            mergeFrames: false,
+            volume: 1
         };
     }
 

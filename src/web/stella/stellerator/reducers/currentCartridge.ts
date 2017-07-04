@@ -22,16 +22,15 @@
 import {Action} from 'redux';
 
 import {
-    types as ActionType,
     ChangeCartridgeTypeAction,
     ChangeNameAction,
-    ChangeTvModeAction,
     ChangePaddleEmulationAction,
-    ChangeRngSeedStrategyAction,
     ChangeRngSeedAction,
-    ToggleAudioEnabledAction
+    ChangeRngSeedStrategyAction,
+    ChangeTvModeAction,
+    ChangeVolumeAction,
+    types as ActionType,
 } from '../actions/currentCartridge';
-
 import Cartridge from '../model/Cartridge';
 
 export default function reduce(cartridge: Cartridge, action: Action): Cartridge {
@@ -54,8 +53,8 @@ export default function reduce(cartridge: Cartridge, action: Action): Cartridge 
         case ActionType.changeRngSeed:
             return changeRngSeed(cartridge, action as ChangeRngSeedAction);
 
-        case ActionType.toggleAudioEnabled:
-            return toggleAudioEnabled(cartridge, action as ToggleAudioEnabledAction);
+        case ActionType.changeVolume:
+            return changeVolume(cartridge, action as ChangeVolumeAction);
 
         default:
             return cartridge;
@@ -110,9 +109,11 @@ function changeRngSeed(cartridge: Cartridge = Cartridge.create(), action: Change
     };
 }
 
-function toggleAudioEnabled(cartridge: Cartridge = Cartridge.create(), action: ToggleAudioEnabledAction): Cartridge {
+function changeVolume(cartridge: Cartridge = Cartridge.create(), action: ChangeVolumeAction): Cartridge {
+    const volume = Math.max(Math.min(action.volume, 1), 0);
+
     return {
         ...cartridge,
-        audioEnabled: action.audioEnabled
+        volume
     };
 }

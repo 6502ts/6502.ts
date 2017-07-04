@@ -29,7 +29,8 @@ import {
     setWebGlRendering,
     setGamma,
     setUseWorker,
-    setMergeFrames
+    setMergeFrames,
+    setVolume
 } from '../actions/settings';
 
 function mapStateToProps(state: State): SettingsComponent.Props {
@@ -38,7 +39,8 @@ function mapStateToProps(state: State): SettingsComponent.Props {
         webGlRendering: state.settings.webGlRendering,
         gamma: state.settings.gamma,
         useWorker: state.settings.useWorker,
-        mergeFrames: state.settings.mergeFrames
+        mergeFrames: state.settings.mergeFrames,
+        volume: state.settings.volume
     };
 }
 
@@ -48,7 +50,8 @@ const SettingsContainer = connect(mapStateToProps, {
     onToggleWebGlRendering: setWebGlRendering,
     onChangeGamma: setGamma,
     onToggleUseWorker: setUseWorker,
-    onToggleMergeFrames: setMergeFrames
+    onToggleMergeFrames: setMergeFrames,
+    onChangeVolume: setVolume
 })(SettingsComponent);
 
 export default SettingsContainer;

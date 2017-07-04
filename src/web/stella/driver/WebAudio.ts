@@ -47,6 +47,11 @@ export default class WebAudioDriver {
         this._audio = null;
     }
 
+    setMasterVolume(volume: number): void {
+        this._driver.setMasterVolume(0, volume);
+        this._driver.setMasterVolume(1, volume);
+    }
+
     private _driver = new VanillaDriver(2);
     private _audio: Board.Audio = null;
 }

@@ -28,6 +28,7 @@ import {
     Row
 } from 'react-bootstrap';
 
+import Slider from './general/Slider';
 import Switch from './general/Switch';
 
 function Settings(props: Settings.Props) {
@@ -47,6 +48,20 @@ function Settings(props: Settings.Props) {
                     labelFalse='No'
                     state={props.useWorker}
                     onSwitch={props.onToggleUseWorker}
+                />
+            </Col>
+        </Row>
+        <Row>
+            <Col sm={4}>
+                <ControlLabel>Volume:</ControlLabel>
+            </Col>
+            <Col sm={4}>
+                <Slider
+                    value={props.volume}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onChange={props.onChangeVolume}
                 />
             </Col>
         </Row>
@@ -86,17 +101,13 @@ function Settings(props: Settings.Props) {
                 <ControlLabel>Gamma correction (WebGL only):</ControlLabel>
             </Col>
             <Col sm={4}>
-                <input
-                    type='range'
-                    value={props.gamma + ''}
-                    min='0.1'
-                    max='5'
-                    step='0.1'
-                    onChange={e => props.onChangeGamma(parseFloat((e.target as HTMLInputElement).value))}
+                <Slider
+                    value={props.gamma}
+                    min={0.1}
+                    max={5}
+                    step={0.1}
+                    onChange={props.onChangeGamma}
                 />
-            </Col>
-            <Col sm={1} style={{paddingLeft: '1rem'}}>
-                {props.gamma}
             </Col>
         </Row>
         <Row>
@@ -123,12 +134,14 @@ namespace Settings {
         gamma?: number;
         useWorker?: boolean;
         mergeFrames?: boolean;
+        volume?: number;
 
         onToggleSmoothScaling?: (value: boolean) => void;
         onToggleWebGlRendering?: (value: boolean) => void;
         onChangeGamma?: (value: number) => void;
         onToggleUseWorker?: (value: boolean) => void;
         onToggleMergeFrames?: (value: boolean) => void;
+        onChangeVolume?: (value: number) => void;
     }
 
     export const defaultProps: Props = {
@@ -142,7 +155,8 @@ namespace Settings {
         onToggleWebGlRendering: () => undefined,
         onChangeGamma: () => undefined,
         onToggleUseWorker: () => undefined,
-        onToggleMergeFrames: () => undefined
+        onToggleMergeFrames: () => undefined,
+        onChangeVolume: () => undefined
     };
 
 }

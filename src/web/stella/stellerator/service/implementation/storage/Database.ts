@@ -50,7 +50,7 @@ export default class Database extends Dexie {
                 settings: 'id'
             })
             .upgrade(transaction => transaction
-                .table<Cartridge.CartridgeSchema, Cartridge.indexType>('cartridge')
+                .table<Cartridge.CartridgeSchema & {audioEnabled: boolean}, Cartridge.indexType>('cartridge')
                 .each((cartridge, c) => {
                     const cursor: IDBCursor = (c as any);
 
@@ -96,6 +96,33 @@ export default class Database extends Dexie {
                         delete cartridge.buffer;
 
                         cursor.update(cartridge);
+                    });
+            });
+
+        this.version(6)
+            .stores({
+                cartridge: '++id, &hash',
+                settings: 'id'
+            })
+            .upgrade(transaction => {
+                transaction
+                    .table<Cartridge.CartridgeSchema & {audioEnabled: boolean}, Cartridge.indexType>('cartridge')
+                    .each((cartridge, c) => {
+                        const cursor: IDBCursor = (c as any);
+
+                        cartridge.volume = cartridge.audioEnabled ? 1 : 0;
+
+                        cursor.update(cartridge);
+                    });
+
+                transaction
+                    .table<Settings.SettingsSchema, Settings.indexType>('settings')
+                    .each((settings, c) => {
+                        const cursor: IDBCursor = (c as any);
+
+                        settings.volume = 1;
+
+                        cursor.update(settings);
                     });
             });
     }

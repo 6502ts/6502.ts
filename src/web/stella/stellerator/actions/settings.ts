@@ -29,6 +29,7 @@ export const types = {
     setGamma: 'settings/setGamma',
     setUseWorker: 'settings/setUseWorker',
     setMergeFrames: 'settings/mergeFrames',
+    setVolume: 'settings/setVolume',
     init: 'settings/init'
 };
 
@@ -100,4 +101,15 @@ export function setMergeFrames(value: boolean): SetMergeFramesAction {
 
 export function isSettingsChange(a: Action): boolean {
     return a.type.indexOf('settings/') === 0 && a.type !== types.init;
+}
+
+export interface SetVolumeAction extends Action {
+    volume: number;
+}
+
+export function setVolume(volume: number): SetVolumeAction {
+    return {
+        type: types.setVolume,
+        volume
+    };
 }

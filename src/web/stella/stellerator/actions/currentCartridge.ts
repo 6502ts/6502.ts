@@ -31,7 +31,7 @@ export const types = {
     changePaddleEmulation: 'current-cartridge/change-paddle-emulation',
     changeRngSeedStrategy: 'current-cartridge/change-rng-seed-strateg',
     changeRngSeed: 'current-cartridge/change-rng-seed',
-    toggleAudioEnabled: 'current-cartridge/toggle-audio-enabled'
+    changeVolume: 'current-cartridge/change-volume'
 };
 Object.freeze(types);
 
@@ -101,13 +101,13 @@ export function changeRngSeed(seed: number): ChangeRngSeedAction {
     };
 }
 
-export interface ToggleAudioEnabledAction extends Action {
-    audioEnabled: boolean;
+export interface ChangeVolumeAction extends Action {
+    volume: number;
 }
 
-export function toggleAudioEnabled(audioEnabled: boolean): ToggleAudioEnabledAction {
+export function changeVolume(volume: number): ChangeVolumeAction {
     return {
-        type: types.toggleAudioEnabled,
-        audioEnabled
+        type: types.changeVolume,
+        volume
     };
 }

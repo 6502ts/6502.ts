@@ -32,6 +32,7 @@ export interface SettingsSchema {
     gamma: number;
     useWorker: boolean;
     mergeFrames: boolean;
+    volume: number;
 }
 
 export function fromModel(model: SettingsModel): SettingsSchema {

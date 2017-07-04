@@ -30,7 +30,7 @@ interface Cartridge {
     emulatePaddles: boolean;
     rngSeedAuto: boolean;
     rngSeed: number;
-    audioEnabled: boolean;
+    volume: number;
 }
 
 namespace Cartridge {
@@ -44,7 +44,7 @@ namespace Cartridge {
             emulatePaddles: true,
             rngSeedAuto: true,
             rngSeed: 0,
-            audioEnabled: true
+            volume: 1
         };
     }
 
@@ -58,7 +58,7 @@ namespace Cartridge {
             c1.emulatePaddles === c2.emulatePaddles &&
             c1.rngSeedAuto === c2.rngSeedAuto &&
             c1.rngSeed === c2.rngSeed &&
-            c1.audioEnabled === c2.audioEnabled
+            c1.volume === c2.volume
         );
     }
 

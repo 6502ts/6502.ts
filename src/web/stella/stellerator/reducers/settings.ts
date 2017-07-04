@@ -30,7 +30,8 @@ import {
     SetWebGlRenderingAction,
     SetGammaAction,
     SetUseWorkerAction,
-    SetMergeFramesAction
+    SetMergeFramesAction,
+    SetVolumeAction
 } from '../actions/settings';
 
 export default function reducer(settings: Settings = Settings.create(), action: Action): Settings {
@@ -52,6 +53,9 @@ export default function reducer(settings: Settings = Settings.create(), action: 
 
         case types.setMergeFrames:
             return setMergeFrames(settings, action as SetMergeFramesAction);
+
+        case types.setVolume:
+            return setVolume(settings, action as SetVolumeAction);
     }
 
     return settings;
@@ -93,5 +97,14 @@ function setMergeFrames(settings: Settings, action: SetMergeFramesAction): Setti
     return {
         ...settings,
         mergeFrames: action.value
+    };
+}
+
+function setVolume(settings: Settings, action: SetVolumeAction): Settings {
+    const volume = Math.max(Math.min(action.volume, 1), 0);
+
+    return {
+        ...settings,
+        volume
     };
 }

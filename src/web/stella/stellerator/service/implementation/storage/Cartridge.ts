@@ -35,7 +35,7 @@ export interface CartridgeSchema {
     emulatePaddles: boolean;
     rngSeedAuto: boolean;
     rngSeed: number;
-    audioEnabled: boolean;
+    volume: number;
 }
 
 function tvModeToString(tvMode: StellaConfig.TvMode): tvModeString {

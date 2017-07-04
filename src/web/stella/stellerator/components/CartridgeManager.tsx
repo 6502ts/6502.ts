@@ -57,10 +57,10 @@ export interface HandlerProps {
     onCartridgeNameChange: (value: string) => void;
     onTvModeChanged: (tvMode: StellaConfig.TvMode) => void;
     onTogglePaddleEmulation: (state: boolean) => void;
-    onToggleAudioEnabled: (state: boolean) => void;
     onCartridgeTypeChange: (t: CartridgeInfo.CartridgeType) => void;
     onChangeSeedStrategy: (auto: boolean) => void;
     onChangeSeedValue: (seed: number) => void;
+    onChangeVolume: (volume: number) => void;
 
     onSelectPendingChangesClose: () => void;
     onSelectPendingChangesSave: () => void;
@@ -98,10 +98,10 @@ export default function CartridgeManager(props: Props) {
                         onTvModeChanged={props.onTvModeChanged}
                         onSave={props.onSave}
                         onTogglePaddleEmulation={props.onTogglePaddleEmulation}
-                        onToggleAudioEnabled={props.onToggleAudioEnabled}
                         onCartridgeTypeChange={props.onCartridgeTypeChange}
                         onChangeSeedStrategy={props.onChangeSeedStrategy}
                         onChangeSeedValue={props.onChangeSeedValue}
+                        onChangeVolume={props.onChangeVolume}
                     />
                 </Col>
             </Row>

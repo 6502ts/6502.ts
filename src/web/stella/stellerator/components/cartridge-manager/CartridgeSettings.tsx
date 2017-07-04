@@ -28,6 +28,7 @@ import CartridgeInfo from '../../../../../machine/stella/cartridge/CartridgeInfo
 
 import {styled, StyledComponent} from '../style';
 import CartridgeNameInput from './CartridgeNameInput';
+import Slider from '../general/Slider';
 import TvModeSelect from './TvModeSelect';
 import CartridgeTypeSelect from './CartridgeTypeSelect';
 import Switch from '../general/Switch';
@@ -42,10 +43,10 @@ export interface Props {
     onSave?: () => void;
     onTvModeChanged?: (tvMode: StellaConfig.TvMode) => void;
     onTogglePaddleEmulation?: (state: boolean) => void;
-    onToggleAudioEnabled?: (state: boolean) => void;
     onCartridgeTypeChange?: (t: CartridgeInfo.CartridgeType) => void;
     onChangeSeedStrategy?: (auto: boolean) => void;
     onChangeSeedValue?: (seed: number) => void;
+    onChangeVolume?: (volume: number) => void;
 }
 
 function CartridgeSettingsUnstyled(props: Props) {
@@ -84,12 +85,13 @@ function CartridgeSettingsUnstyled(props: Props) {
         <LabelStyled>RNG seed:</LabelStyled>
         <RandomSeedEdit {...props as RandomSeedEdit.Props}/>
 
-        <LabelStyled>Audio:</LabelStyled>
-        <Switch
-            state={props.cartridge.audioEnabled}
-            labelTrue='enabled'
-            labelFalse='disabled'
-            onSwitch={props.onToggleAudioEnabled}
+        <LabelStyled>Volume:</LabelStyled>
+        <Slider
+            value={props.cartridge.volume}
+            min={0}
+            max={1}
+            step={0.01}
+            onChange={props.onChangeVolume}
         />
     </div>;
 }
@@ -103,10 +105,10 @@ namespace CartridgeSettingsUnstyled {
         onSave: () => undefined,
         onTvModeChanged: () => undefined,
         onTogglePaddleEmulation: () => undefined,
-        onToggleAudioEnabled: () => undefined,
         onCartridgeTypeChange: () => undefined,
         onChangeSeedStrategy: () => undefined,
-        onChangeSeedValue: () => undefined
+        onChangeSeedValue: () => undefined,
+        onChangeVolume: () => undefined
     };
 
 }

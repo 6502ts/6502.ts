@@ -20,6 +20,7 @@
  */
 
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
+import Cartridge from '../model/Cartridge';
 
 export default class EmulationState implements Changeset {
 
@@ -27,7 +28,7 @@ export default class EmulationState implements Changeset {
         Object.assign(this, old, changes);
     }
 
-    cartridgeHash = '';
+    cartridge: Cartridge = null;
     emulationState = EmulationServiceInterface.State.stopped;
 
     difficultyPlayer0 = true;
@@ -43,7 +44,7 @@ export default class EmulationState implements Changeset {
 }
 
 interface Changeset {
-    cartridgeHash?: string;
+    cartridge?: Cartridge;
     emulationState?: EmulationServiceInterface.State;
 
     difficultyPlayer0?: boolean;

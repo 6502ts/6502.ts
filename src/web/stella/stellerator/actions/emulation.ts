@@ -22,6 +22,7 @@
 import {Action} from 'redux';
 
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
+import Cartridge from '../model/Cartridge';
 
 export const types = {
     start: 'emulation/start',
@@ -55,13 +56,13 @@ export function userPause(): UserPauseAction {
 }
 
 export interface StartAction extends Action {
-    hash: string;
+    cartridge: Cartridge;
 }
 
-export function start(hash: string = ''): StartAction {
+export function start(cartridge: Cartridge = null): StartAction {
     return {
         type: types.start,
-        hash
+        cartridge
     };
 }
 

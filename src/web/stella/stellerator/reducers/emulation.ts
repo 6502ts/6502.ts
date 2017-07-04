@@ -85,7 +85,7 @@ function changeTvMode(state: EmulationState, action: ChangeTvModeAction): Emulat
 
 function start(state: EmulationState, action: StartAction): EmulationState {
     return new EmulationState({
-        cartridgeHash: action.hash || state.cartridgeHash,
+        cartridge: action.cartridge || state.cartridge,
         pausedByUser: false,
     }, state);
 }

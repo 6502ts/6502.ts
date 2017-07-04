@@ -32,6 +32,7 @@ import {
     StartAction,
     SetEnforceRateLimitAction
 } from '../../actions/emulation';
+import {types as settingsActions} from '../../actions/settings';
 
 import EmulationServiceInterface from '../../../service/EmulationServiceInterface';
 import WorkerEmulationService from '../../../service/worker/EmulationService';
@@ -151,11 +152,11 @@ class EmulationProvider implements EmulationProviderInterface {
             return;
         }
 
-        action.hash = cartridge.hash;
+        action.cartridge = cartridge;
 
         const stellaConfig = new StellaConfig(
             cartridge.tvMode,
-            cartridge.audioEnabled,
+            cartridge.volume > 0,
             cartridge.rngSeedAuto ? -1 : cartridge.rngSeed,
             cartridge.emulatePaddles
         );
@@ -165,6 +166,8 @@ class EmulationProvider implements EmulationProviderInterface {
         if (!buffer) {
             throw new Error(`no buffer for hash ${cartridge.hash}`);
         }
+
+        this._updateVolume(cartridge);
 
         await this._service.start(
             buffer,
@@ -176,6 +179,18 @@ class EmulationProvider implements EmulationProviderInterface {
         this._updateControlPanelState(state.emulationState);
     }
 
+    private _updateVolume(cartridge = this._store.getState().emulationState.cartridge) {
+        if (!cartridge) {
+            return;
+        }
+
+        const state = this._store.getState();
+
+        this._audioDriver.setMasterVolume(
+            state.settings.volume * cartridge.volume
+        );
+    }
+
     private _middleware = (
         (api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (a: Action): Promise<any> =>
     {
@@ -184,6 +199,7 @@ class EmulationProvider implements EmulationProviderInterface {
         }
 
         const initialState = api.getState();
+        let result: any;
 
         switch (a.type) {
             case emulationActions.start:
@@ -211,6 +227,11 @@ class EmulationProvider implements EmulationProviderInterface {
             case emulationActions.setEnforceRateLimit:
                 await this._service.setRateLimit((a as SetEnforceRateLimitAction).enforce);
                 return next(a);
+
+            case settingsActions.setVolume:
+                result = await next(a);
+                this._updateVolume();
+                return result;
 
             default:
                 return next(a);

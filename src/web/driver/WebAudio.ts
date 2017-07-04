@@ -86,6 +86,10 @@ export default class WebAudioDriver {
         this._sources = null;
     }
 
+    setMasterVolume(channel: number, volume: number): void {
+        this._channels[channel].setMasterVolume(volume);
+    }
+
     private _context: AudioContext = null;
     private _merger: ChannelMergerNode = null;
     private _channels: Array<Channel> = null;
@@ -113,7 +117,8 @@ class Channel {
         }
 
         this._audio = target;
-        this._gain.gain.value = this._audio.getVolume();
+        this._volume = this._audio.getVolume();
+        this._updateGain();
 
         this._audio.volumeChanged.addHandler(Channel._onVolumeChanged, this);
         this._audio.bufferChanged.addHandler(Channel._onBufferChanged, this);
@@ -137,8 +142,14 @@ class Channel {
         this._audio = null;
     }
 
+    setMasterVolume(volume: number): void {
+        this._masterVolume = volume;
+        this._updateGain();
+    }
+
     private static _onVolumeChanged(volume: number, self: Channel): void {
-        self._gain.gain.value = volume;
+        self._volume = volume;
+        self._updateGain();
     }
 
     private static _onBufferChanged(key: number, self: Channel): void {
@@ -172,10 +183,17 @@ class Channel {
         }
     }
 
+    private _updateGain(): void {
+        this._gain.gain.value = this._volume * this._masterVolume;
+    }
+
     private _context: AudioContext = null;
     private _source: AudioBufferSourceNode = null;
     private _gain: GainNode = null;
     private _audio: AudioOutputInterface = null;
+
+    private _volume = 0;
+    private _masterVolume = 1;
 
 }
 
