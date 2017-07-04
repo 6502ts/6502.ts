@@ -86,7 +86,7 @@ input[type=range]::-webkit-slider-thumb {
     background: #aaa;
     cursor: pointer;
     -webkit-appearance: none;
-    margin-top: -8px;
+    margin-top: -9px;
     border-radius: 0;
 }
 
