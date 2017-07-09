@@ -158,7 +158,7 @@ class Missile {
 
         const starfieldEffect = this._moving && isReceivingHclock;
 
-        if (this._decodes[this._counter]) {
+        if (this._decodes[this._counter] && !this._resmp) {
             const starfieldDelta = (this._counter - this._lastMovementTick + 160) % 4;
 
             this._rendering = true;
