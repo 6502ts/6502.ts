@@ -4,10 +4,11 @@ import {styled} from '../style';
 export interface Props {
     className?: string;
 
-    value: number;
-    max: number;
-    min: number;
-    step: number;
+    value?: number;
+    max?: number;
+    min?: number;
+    step?: number;
+    wheelWeight?: number;
 
     onChange?: (newValue: number) => void;
 }
@@ -24,7 +25,24 @@ const Label = styled.div`
 
 function Slider(props: Props) {
     return (
-        <Container>
+        <Container
+            onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const newValue = props.value + e.deltaY * props.wheelWeight * props.step;
+
+                if (newValue < props.min) {
+                    props.onChange(props.min);
+                }
+                else if (newValue > props.max) {
+                    props.onChange(props.max);
+                }
+                else {
+                    props.onChange(newValue);
+                }
+            }}
+        >
             <input
                 type='range'
                 value={props.value.toString()}
@@ -45,6 +63,7 @@ namespace Slider {
         max: 0,
         min: 1,
         step: 0.01,
+        wheelWeight: 0.1,
 
         onChange: () => undefined
     };
