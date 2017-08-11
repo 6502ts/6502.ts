@@ -154,10 +154,10 @@ class Channel {
 
     private static _onBufferChanged(key: number, self: Channel): void {
         if (!self._cache[key]) {
-            const buffer = self._audio.getBuffer(key),
-                audioBuffer = self._context.createBuffer(1, buffer.getLength(), buffer.getSampleRate());
+            const sampleBuffer = self._audio.getBuffer(key),
+                audioBuffer = self._context.createBuffer(1, sampleBuffer.getLength(), sampleBuffer.getSampleRate());
 
-            audioBuffer.getChannelData(0).set(buffer.getContent());
+            audioBuffer.getChannelData(0).set(sampleBuffer.getContent());
             self._cache[key] = audioBuffer;
         }
 

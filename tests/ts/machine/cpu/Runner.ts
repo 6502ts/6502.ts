@@ -150,13 +150,13 @@ class Runner {
     assertState(state: Runner.State = {}): this {
         ['a', 'x', 'y', 's'].forEach(property => {
 
-            const reference = state.hasOwnProperty(property) ?
+            const referenceValue = state.hasOwnProperty(property) ?
                     (state as any)[property] : (this._originalState as any)[property],
                 actual: number = (this._cpu.state as any)[property];
 
-            if (reference !== actual) {
+            if (referenceValue !== actual) {
                 throw new Error(
-                    `expected ${property.toUpperCase()} to be ${hex.encode(reference, 2)}, ` +
+                    `expected ${property.toUpperCase()} to be ${hex.encode(referenceValue, 2)}, ` +
                     `got ${hex.encode(actual, 2)}`
                 );
             }

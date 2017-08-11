@@ -56,19 +56,19 @@ function runProviderTests(factory: () => FilesystemProviderInterface): void {
         provider = factory();
     });
 
-    function testFileIdentity(path: string, key: string) {
-        test(util.format('%s as UTF-8, sync', path), function() {
-            assert.strictEqual(provider.readTextFileSync(path), (fixtures as any)[key]);
+    function testFileIdentity(filePath: string, key: string) {
+        test(util.format('%s as UTF-8, sync', filePath), function() {
+            assert.strictEqual(provider.readTextFileSync(filePath), (fixtures as any)[key]);
         });
 
-        test(util.format('%s as binary, sync', path), function() {
-            assertBufferIdentity(provider.readBinaryFileSync(path), new Buffer((fixtures as any)[key]));
+        test(util.format('%s as binary, sync', filePath), function() {
+            assertBufferIdentity(provider.readBinaryFileSync(filePath), new Buffer((fixtures as any)[key]));
         });
     }
 
-    function testDirectoryListing(path: string, content: Array<string>) {
-        test(util.format('directory listing %s, sync', path), function() {
-            assert.deepEqual(provider.readDirSync(path).sort(), content.sort());
+    function testDirectoryListing(filePath: string, content: Array<string>) {
+        test(util.format('directory listing %s, sync', filePath), function() {
+            assert.deepEqual(provider.readDirSync(filePath).sort(), content.sort());
         });
     }
 
