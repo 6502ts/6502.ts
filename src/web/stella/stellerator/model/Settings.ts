@@ -26,6 +26,7 @@ interface Settings {
     useWorker: boolean;
     mergeFrames: boolean;
     volume: number;
+    syncRendering: boolean;
 }
 
 namespace Settings {
@@ -40,7 +41,8 @@ namespace Settings {
             gamma: 1,
             useWorker: true,
             mergeFrames: false,
-            volume: 1
+            volume: 1,
+            syncRendering: true
         };
     }
 

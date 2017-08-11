@@ -30,8 +30,13 @@ export const types = {
     setUseWorker: 'settings/setUseWorker',
     setMergeFrames: 'settings/mergeFrames',
     setVolume: 'settings/setVolume',
+    setSyncRendering: 'settings/setSyncRendering',
     init: 'settings/init'
 };
+
+export function isSettingsChange(a: Action): boolean {
+    return a.type.indexOf('settings/') === 0 && a.type !== types.init;
+}
 
 export interface SetSmoothScalingAction extends Action {
     value: boolean;
@@ -99,10 +104,6 @@ export function setMergeFrames(value: boolean): SetMergeFramesAction {
     };
 }
 
-export function isSettingsChange(a: Action): boolean {
-    return a.type.indexOf('settings/') === 0 && a.type !== types.init;
-}
-
 export interface SetVolumeAction extends Action {
     volume: number;
 }
@@ -111,5 +112,16 @@ export function setVolume(volume: number): SetVolumeAction {
     return {
         type: types.setVolume,
         volume
+    };
+}
+
+export interface SetSyncRenderingAction extends Action {
+    syncRendering: boolean;
+}
+
+export function setSyncRendering(syncRendering: boolean): SetSyncRenderingAction {
+    return {
+        type: types.setSyncRendering,
+        syncRendering
     };
 }

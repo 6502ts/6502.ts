@@ -31,6 +31,10 @@ interface VideoDriverInterface {
 
     interpolationEnabled(): boolean;
 
+    enableSyncRendering(enable: boolean): this;
+
+    syncRenderingEnabled(): boolean;
+
     init(): this;
 
     unbind(): this;

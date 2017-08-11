@@ -33,6 +33,7 @@ export interface SettingsSchema {
     useWorker: boolean;
     mergeFrames: boolean;
     volume: number;
+    syncRendering: boolean;
 }
 
 export function fromModel(model: SettingsModel): SettingsSchema {
@@ -42,7 +43,7 @@ export function fromModel(model: SettingsModel): SettingsSchema {
     };
 }
 
-export function toState(record?: SettingsSchema): SettingsModel {
+export function toModel(record?: SettingsSchema): SettingsModel {
     if (!record) {
         return SettingsModel.create();
     }

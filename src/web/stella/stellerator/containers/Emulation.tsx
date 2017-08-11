@@ -48,7 +48,8 @@ function mapStateToProps(state: State): EmulationComponent.Props {
         smoothScaling: state.settings.smoothScaling,
         webGlRendering: state.settings.webGlRendering,
         gamma: state.settings.gamma,
-        pausedByUser: state.emulationState.pausedByUser
+        pausedByUser: state.emulationState.pausedByUser,
+        syncRendering: state.settings.syncRendering
     };
 }
 

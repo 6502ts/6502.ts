@@ -123,6 +123,24 @@ export default class WebglVideoDriver implements VideoDriverInterface {
         return this._interpolation;
     }
 
+    enableSyncRendering(syncRendering: boolean): this {
+        if (syncRendering === this._syncRendering) {
+            return;
+        }
+
+        if (!syncRendering) {
+            this._cancelDraw();
+        }
+
+        this._syncRendering = syncRendering;
+
+        return this;
+    }
+
+    syncRenderingEnabled(): boolean {
+        return this._syncRendering;
+    }
+
     private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: WebglVideoDriver): void {
         const oldImageData = self._imageData[self._currentFrameIndex];
 
@@ -133,7 +151,11 @@ export default class WebglVideoDriver implements VideoDriverInterface {
         if (self._frameCount < FRAME_COMPOSITING_COUNT) {
             self._frameCount++;
         } else {
-            self._scheduleDraw();
+            if (self._syncRendering) {
+                self._scheduleDraw();
+            } else {
+                self._draw();
+            }
             oldImageData.release();
         }
     }
@@ -375,6 +397,7 @@ export default class WebglVideoDriver implements VideoDriverInterface {
     private _frameCount = 0;
 
     private _animationFrameHandle = 0;
+    private _syncRendering = true;
 
     private _video: VideoEndpointInterface = null;
 

@@ -101,7 +101,8 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
 
             videoDriver
                 .init()
-                .enableInterpolation(this.props.smoothScaling);
+                .enableInterpolation(this.props.smoothScaling)
+                .enableSyncRendering(this.props.syncRendering);
 
             this._driverManager.addDriver(
                 videoDriver,
@@ -239,6 +240,7 @@ namespace Emulation {
         webGlRendering?: boolean;
         gamma?: number;
         pausedByUser?: boolean;
+        syncRendering?: boolean;
 
         navigateAway?: () => void;
         pauseEmulation?: () => void;
@@ -256,6 +258,7 @@ namespace Emulation {
         gamma: 1,
         emulationState: EmulationServiceInterface.State.stopped,
         pausedByUser: false,
+        syncRendering: true,
 
         navigateAway: (): void => undefined,
         pauseEmulation: (): void => undefined,

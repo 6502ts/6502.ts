@@ -73,14 +73,20 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
         return this;
     }
 
-    setThrottle(throttle: boolean) {
-        if (throttle === this._throttle) {
+    enableSyncRendering(syncRendering: boolean): this {
+        if (syncRendering === this._syncRendering) {
             return;
         }
 
         this._cancelPendingFrame();
 
-        this._throttle = throttle;
+        this._syncRendering = syncRendering;
+
+        return this;
+    }
+
+    syncRenderingEnabled(): boolean {
+        return this._syncRendering;
     }
 
     bind(video: VideoEndpointInterface): this {
@@ -142,7 +148,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
 
         self._pendingFrame = imageDataPoolMember;
 
-        if (self._throttle)  {
+        if (self._syncRendering)  {
             if (!self._animationFrameHandle) {
                 self._scheduleDraw();
             }
@@ -231,7 +237,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
         }
     }
 
-    private _throttle = true;
+    private _syncRendering = true;
     private _animationFrameHandle = 0;
     private _pendingFrame: PoolMemberInterface<ImageData> = null;
 

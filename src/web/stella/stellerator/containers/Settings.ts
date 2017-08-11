@@ -30,7 +30,8 @@ import {
     setGamma,
     setUseWorker,
     setMergeFrames,
-    setVolume
+    setVolume,
+    setSyncRendering
 } from '../actions/settings';
 
 function mapStateToProps(state: State): SettingsComponent.Props {
@@ -40,7 +41,8 @@ function mapStateToProps(state: State): SettingsComponent.Props {
         gamma: state.settings.gamma,
         useWorker: state.settings.useWorker,
         mergeFrames: state.settings.mergeFrames,
-        volume: state.settings.volume
+        volume: state.settings.volume,
+        syncRendering: state.settings.syncRendering
     };
 }
 
@@ -51,7 +53,8 @@ const SettingsContainer = connect(mapStateToProps, {
     onChangeGamma: setGamma,
     onToggleUseWorker: setUseWorker,
     onToggleMergeFrames: setMergeFrames,
-    onChangeVolume: setVolume
+    onChangeVolume: setVolume,
+    onChangeSyncRendering: setSyncRendering
 })(SettingsComponent);
 
 export default SettingsContainer;

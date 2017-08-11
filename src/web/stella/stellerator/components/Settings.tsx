@@ -123,6 +123,19 @@ function Settings(props: Settings.Props) {
                 />
             </Col>
         </Row>
+        <Row>
+            <Col sm={4}>
+                <ControlLabel>Sync rendering to browser redraw:</ControlLabel>
+            </Col>
+            <Col sm={8}>
+                <Switch
+                    labelTrue='On'
+                    labelFalse='Off'
+                    state={props.syncRendering}
+                    onSwitch={props.onChangeSyncRendering}
+                />
+            </Col>
+        </Row>
     </Grid>;
 }
 
@@ -135,6 +148,7 @@ namespace Settings {
         useWorker?: boolean;
         mergeFrames?: boolean;
         volume?: number;
+        syncRendering?: boolean;
 
         onToggleSmoothScaling?: (value: boolean) => void;
         onToggleWebGlRendering?: (value: boolean) => void;
@@ -142,6 +156,7 @@ namespace Settings {
         onToggleUseWorker?: (value: boolean) => void;
         onToggleMergeFrames?: (value: boolean) => void;
         onChangeVolume?: (value: number) => void;
+        onChangeSyncRendering?: (value: boolean) => void;
     }
 
     export const defaultProps: Props = {
@@ -156,7 +171,8 @@ namespace Settings {
         onChangeGamma: () => undefined,
         onToggleUseWorker: () => undefined,
         onToggleMergeFrames: () => undefined,
-        onChangeVolume: () => undefined
+        onChangeVolume: () => undefined,
+        onChangeSyncRendering: () => undefined
     };
 
 }

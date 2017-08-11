@@ -31,7 +31,7 @@ import {
 
 import {
     UNIQUE_ID as SETTINGS_UNIQUE_ID,
-    toState as settingsToState,
+    toModel as settingsToState,
     fromModel as settingsFromState
 } from './storage/Settings';
 

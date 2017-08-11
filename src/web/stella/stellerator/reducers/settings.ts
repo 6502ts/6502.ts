@@ -31,7 +31,8 @@ import {
     SetGammaAction,
     SetUseWorkerAction,
     SetMergeFramesAction,
-    SetVolumeAction
+    SetVolumeAction,
+    SetSyncRenderingAction
 } from '../actions/settings';
 
 export default function reducer(settings: Settings = Settings.create(), action: Action): Settings {
@@ -56,6 +57,9 @@ export default function reducer(settings: Settings = Settings.create(), action: 
 
         case types.setVolume:
             return setVolume(settings, action as SetVolumeAction);
+
+        case types.setSyncRendering:
+            return setSyncRendering(settings, action as SetSyncRenderingAction);
     }
 
     return settings;
@@ -106,5 +110,12 @@ function setVolume(settings: Settings, action: SetVolumeAction): Settings {
     return {
         ...settings,
         volume
+    };
+}
+
+function setSyncRendering(settings: Settings, action: SetSyncRenderingAction): Settings {
+    return {
+        ...settings,
+        syncRendering: action.syncRendering
     };
 }
