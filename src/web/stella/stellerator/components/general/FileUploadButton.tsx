@@ -46,7 +46,11 @@ class FileUploadButton extends React.Component<FileUploadButton.Props, State> {
         this.props.onFilesSelected((e.currentTarget as HTMLInputElement).files);
 
         // Recreate the input node in order to allow subsequent uploads of the same file
-        this.setState({index: this.state.index + 1});
+        this.setState(
+            (prevState: State) => ({
+                index: prevState.index + 1
+            })
+        );
     }
 
     state: State = {
