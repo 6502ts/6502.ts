@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react';
+import * as classnames from 'classnames';
 import {FormControl} from 'react-bootstrap';
 
 class ValidatingInput extends React.Component<ValidatingInput.Props, ValidatingInput.State> {
@@ -35,7 +36,10 @@ class ValidatingInput extends React.Component<ValidatingInput.Props, ValidatingI
     render() {
         return <FormControl
             type='text'
-            className={this.props.validator(this.state.rawValue) ? 'valid' : 'invalid'}
+            className={classnames(
+                this.props.className,
+                this.props.validator(this.state.rawValue) ? 'valid' : 'invalid'
+            )}
             value={this.state.rawValue}
             onChange={(e: React.FormEvent<any>) => this._onChange((e.target as HTMLInputElement).value)}
             onKeyDown={(e: React.KeyboardEvent<any>) => e.keyCode === 13 ? this.props.onKeyEnter() : undefined}
@@ -64,6 +68,7 @@ namespace ValidatingInput {
         value?: string;
         readOnly?: boolean;
         style?: {[key: string]: any};
+        className?: string;
 
         onChange?: (value: string) => void;
         onKeyEnter?: () => void;

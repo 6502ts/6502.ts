@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@types/classnames@^2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-2.2.2.tgz#035fdc82f30e5de5031db8cf90614fb6340a0ea5"
+
 "@types/commonmark@^0.27.0":
   version "0.27.0"
   resolved "https://registry.yarnpkg.com/@types/commonmark/-/commonmark-0.27.0.tgz#48e68555bc9d17a6901f3741f4f01a990e3e3d35"

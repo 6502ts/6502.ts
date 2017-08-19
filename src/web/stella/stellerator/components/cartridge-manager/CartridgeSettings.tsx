@@ -83,7 +83,12 @@ function CartridgeSettingsUnstyled(props: Props) {
         />
 
         <LabelStyled>RNG seed:</LabelStyled>
-        <RandomSeedEdit {...props as RandomSeedEdit.Props}/>
+        <RandomSeedEdit
+            rngSeedAuto={props.cartridge.rngSeedAuto}
+            rngSeedValue={props.cartridge.rngSeed}
+            onChangeSeedStrategy={props.onChangeSeedStrategy}
+            onChangeSeedValue={props.onChangeSeedValue}
+        />
 
         <LabelStyled>Volume:</LabelStyled>
         <Slider

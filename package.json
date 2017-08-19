@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "A 6502 emulator written in typescript",
   "dependencies": {
+    "@types/classnames": "^2.2.2",
     "@types/commonmark": "^0.27.0",
     "@types/jquery": "^3.2.11",
     "@types/jszip": "^0.0.33",
@@ -22,6 +23,7 @@
     "@types/seedrandom": "~2.4.27",
     "async-mutex": "^0.1.2",
     "brfs": "~1.4.3",
+    "classnames": "^2.2.5",
     "commonmark": "^0.28.1",
     "cssnano": "~3.10.0",
     "dexie": "~1.5.1",
