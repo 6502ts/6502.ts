@@ -42,6 +42,7 @@ namespace CartridgeInfo {
         bankswitch_32k_F4,
 
         bankswitch_64k_F0,
+        bankswitch_64k_EF,
 
         bankswitch_3E,
         bankswitch_supercharger,
@@ -67,6 +68,7 @@ namespace CartridgeInfo {
             CartridgeType.bankswitch_32k_F4,
             CartridgeType.bankswitch_3E,
             CartridgeType.bankswitch_64k_F0,
+            CartridgeType.bankswitch_64k_EF,
             CartridgeType.bankswitch_supercharger,
             CartridgeType.bankswitch_dpc_plus,
             CartridgeType.unknown
@@ -119,6 +121,9 @@ namespace CartridgeInfo {
 
             case CartridgeType.bankswitch_64k_F0:
                 return 'bankswitched 64k, F0 (Megaboy) scheme';
+
+            case CartridgeType.bankswitch_64k_EF:
+                return 'bankswitched 64k, EFSC (Homestar Runner) scheme';
 
             case CartridgeType.bankswitch_supercharger:
                 return 'bankswitched supercharger';
