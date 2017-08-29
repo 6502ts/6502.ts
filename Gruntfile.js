@@ -23,6 +23,8 @@ const path = require('path'),
     envify = require('envify/custom'),
     cp = require('child_process');
 
+const TSLINT_OPTIONS = `--project ./tsconfig.json --config ./tslint.json --exclude '**/*.js'`;
+
 module.exports = function(grunt) {
     'use strict';
 
@@ -34,12 +36,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-bower-install-simple');
     grunt.loadNpmTasks('grunt-notify');
-    grunt.loadNpmTasks('grunt-tslint');
     grunt.loadNpmTasks('grunt-template');
     grunt.loadNpmTasks('grunt-exorcise');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-postcss');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-exec');
 
     grunt.loadTasks('./grunt');
 
@@ -81,17 +83,10 @@ module.exports = function(grunt) {
             ]
         },
 
-        tslint: {
-            options: {
-                configuration: "tslint.json"
-            },
-            files: [
-                "bin/*.ts",
-                "src/**/*.ts",
-                "src/web/stella/stellerator/**/*.tsx",
-                "worker/**/src/*.ts",
-                "tests/ts/**/*.ts",
-            ]
+        exec: {
+            tslint: {
+                cmd: `${path.join(__dirname, 'node_modules', '.bin', 'tslint')} ${TSLINT_OPTIONS}`
+            }
         },
 
         browserify: {
@@ -421,6 +416,7 @@ module.exports = function(grunt) {
         'template:stellerator_build'
     ]);
 
+    grunt.registerTask('tslint', ['exec:tslint']);
     grunt.registerTask('dev', ['tslint', 'browserify_dev', 'template_dev', 'blobify:default', 'copy:stellerator_dev']);
     grunt.registerTask('build', ['stellerator:build']);
     grunt.registerTask('test', ['tslint', 'ts:main', 'copy:test_fixtures', 'blobify:tests', 'mochaTest:test']);

@@ -84,7 +84,7 @@ export default class WebglVideoDriver implements VideoDriverInterface {
 
     bind(video: VideoEndpointInterface): this {
         if (this._video) {
-            return;
+            return this;
         }
 
         this.resize();
@@ -99,7 +99,7 @@ export default class WebglVideoDriver implements VideoDriverInterface {
         this._cancelDraw();
 
         if (!this._video) {
-            return;
+            return this;
         }
 
         this._video.newFrame.removeHandler(WebglVideoDriver._frameHandler, this);
@@ -125,7 +125,7 @@ export default class WebglVideoDriver implements VideoDriverInterface {
 
     enableSyncRendering(syncRendering: boolean): this {
         if (syncRendering === this._syncRendering) {
-            return;
+            return this;
         }
 
         if (!syncRendering) {

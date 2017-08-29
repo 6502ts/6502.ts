@@ -16,7 +16,10 @@
         ],
         "types": [],
         "noImplicitThis": true,
-        "removeComments": true
+        "removeComments": true,
+        "plugins": [
+            { "name": "tslint-language-service"}
+        ]
     },
     "include": [
         "stella/**/*.ts",

@@ -75,7 +75,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
 
     enableSyncRendering(syncRendering: boolean): this {
         if (syncRendering === this._syncRendering) {
-            return;
+            return this;
         }
 
         this._cancelPendingFrame();
@@ -91,7 +91,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
 
     bind(video: VideoEndpointInterface): this {
         if (this._video) {
-            return;
+            return this;
         }
 
         this._video = video;
@@ -109,7 +109,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
 
     unbind(): this {
         if (!this._video) {
-            return;
+            return this;
         }
 
         this._video.newFrame.removeHandler(SimpleCanvasVideo._frameHandler, this);

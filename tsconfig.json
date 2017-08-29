@@ -18,7 +18,10 @@
         ],
         "noImplicitThis": true,
         "removeComments": true,
-        "outDir": "compiled"
+        "outDir": "compiled",
+        "plugins": [
+            { "name": "tslint-language-service"}
+        ]
     },
     "include": [
         "bin/*.ts",

@@ -109,7 +109,7 @@ class VideoDriver {
         }
     }
 
-    private _bind(video: VideoOutputInterface): void|Promise<any> {
+    private async _bind(video: VideoOutputInterface): Promise<void> {
         if (this._active) {
             return;
         }
@@ -129,40 +129,37 @@ class VideoDriver {
         this._managedSurfaces = new WeakMap<ArrayBufferSurface, ObjectPoolMember<ArrayBufferSurface>>();
         this._ids = new WeakMap<ObjectPoolMember<ArrayBufferSurface>, number>();
 
-        return this
-            ._videoPipelineClient
-            . configure(this._width, this._height, this._videoProcessingConfig)
-            .then(() => {
-                this._video.setSurfaceFactory(
-                    (): ArrayBufferSurface => {
-                        const managedSurface = this._surfacePool.get(),
-                            surface = managedSurface.get();
+        await this._videoPipelineClient.configure(this._width, this._height, this._videoProcessingConfig);
 
-                        const isNewSurface = !this._ids.has(managedSurface);
+        this._video.setSurfaceFactory(
+            (): ArrayBufferSurface => {
+                const managedSurface = this._surfacePool.get(),
+                    surface = managedSurface.get();
 
-                        if (isNewSurface) {
-                            const id = this._nextId++;
+                const isNewSurface = !this._ids.has(managedSurface);
 
-                            this._ids.set(managedSurface, id);
-                            this._managedSurfacesById.set(id, managedSurface);
-                            this._managedSurfaces.set(surface, managedSurface);
+                if (isNewSurface) {
+                    const id = this._nextId++;
 
-                            surface.fill(0xFF000000);
-                        }
+                    this._ids.set(managedSurface, id);
+                    this._managedSurfacesById.set(id, managedSurface);
+                    this._managedSurfaces.set(surface, managedSurface);
 
-                        return managedSurface.get();
-                    }
-                );
+                    surface.fill(0xFF000000);
+                }
 
-                this._video.newFrame.addHandler(VideoDriver._onNewFrame, this);
+                return managedSurface.get();
+            }
+        );
 
-                this._bypassProcessingPipeline =
-                    !this._videoProcessingConfig  || this._videoProcessingConfig.length === 0;
-                this._active = true;
-            });
+        this._video.newFrame.addHandler(VideoDriver._onNewFrame, this);
+
+        this._bypassProcessingPipeline =
+            !this._videoProcessingConfig  || this._videoProcessingConfig.length === 0;
+        this._active = true;
     }
 
-    private _unbind(): Promise<any> {
+    private async _unbind(): Promise<void> {
         if (!this._active) {
             return;
         }
@@ -171,14 +168,12 @@ class VideoDriver {
         this._video.setSurfaceFactory(null);
         this._video.newFrame.removeHandler(VideoDriver._onNewFrame, this);
 
-        return this
-            ._videoPipelineClient.flush()
-            .then(() => {
-                this._video = null;
-                this._surfacePool = null;
-                this._managedSurfacesById = null;
-                this._ids = null;
-            });
+        await this._videoPipelineClient.flush();
+
+        this._video = null;
+        this._surfacePool = null;
+        this._managedSurfacesById = null;
+        this._ids = null;
     }
 
     private _onReturnSurfaceFromHost(message: VideoReturnSurfaceMessage): void {

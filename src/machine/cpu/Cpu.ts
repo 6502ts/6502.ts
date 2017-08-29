@@ -639,7 +639,7 @@ class Cpu {
 
     cycle(): Cpu {
         if (this._halted) {
-            return;
+            return this;
         }
 
         switch (this.executionState) {

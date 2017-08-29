@@ -75,6 +75,7 @@
             false
         ],
         "no-empty": false,
-        "prefer-for-of": false
+        "prefer-for-of": false,
+        "return-undefined": true
     }
 }

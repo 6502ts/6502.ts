@@ -422,7 +422,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     CartridgeInterface.TrapReason.other,
                     `unaligned 16 bit ARM read from ${hex(address, 8, false)}`
                 );
-                return;
+                return 0;
             }
 
             const region = address >>> 28,
@@ -464,7 +464,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     CartridgeInterface.TrapReason.other,
                     `unaligned 32 bit ARM read from ${hex(address, 8, false)}`
                 );
-                return;
+                return 0;
             }
 
             const region = address >>> 28,

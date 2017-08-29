@@ -41,7 +41,7 @@ class ClockProbe {
 
     start(): ClockProbe {
         if (this._measurementTask) {
-            return;
+            return this;
         }
 
         this._timestamp = Date.now();
@@ -53,7 +53,7 @@ class ClockProbe {
 
     detach(): ClockProbe {
         if (!this._clock) {
-            return;
+            return this;
         }
 
         this._clock.removeHandler(this._clockHandler, this);
@@ -64,7 +64,7 @@ class ClockProbe {
 
     stop(): ClockProbe {
         if (!this._measurementTask) {
-            return;
+            return this;
         }
 
         this._measurementTask.stop();

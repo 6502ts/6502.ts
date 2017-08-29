@@ -33,7 +33,7 @@ abstract class AbstractFileSystemProvider {
 
     popd(): string {
         if (this._directoryStack.length === 0) {
-            return;
+            return undefined;
         }
 
         const targetDir = this._directoryStack.shift();

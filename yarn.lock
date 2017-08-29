@@ -1675,6 +1675,10 @@ grunt-contrib-watch@~1.0.0:
     lodash "^3.10.1"
     tiny-lr "^0.2.1"
 
+grunt-exec@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/grunt-exec/-/grunt-exec-3.0.0.tgz#881f868d64098788fddaf22fa25d8572a9d64dc7"
+
 grunt-exorcise@~2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/grunt-exorcise/-/grunt-exorcise-2.1.1.tgz#7dd2c897e505c0739554dae2a2c8d239b387ed27"
@@ -1769,10 +1773,6 @@ grunt-ts@^6.0.0-beta.16:
     rimraf "2.2.6"
     semver "^5.3.0"
     strip-bom "^2.0.0"
-
-grunt-tslint@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/grunt-tslint/-/grunt-tslint-5.0.1.tgz#7432bd1bd56e8a3a25000088d5c61fdcc342f0c2"
 
 grunt@~1.0.1:
   version "1.0.1"
@@ -4089,6 +4089,10 @@ tsify@~3.0.0:
 tslib@^1.7.1:
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.7.1.tgz#bc8004164691923a79fe8378bbeb3da2017538ec"
+
+tslint-language-service@^0.9.6:
+  version "0.9.6"
+  resolved "https://registry.yarnpkg.com/tslint-language-service/-/tslint-language-service-0.9.6.tgz#882bb0704cf8397b332ddc0af7168c7f22f279ea"
 
 tslint@^5.4.3, tslint@^5.6.0:
   version "5.6.0"

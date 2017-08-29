@@ -49,7 +49,7 @@ class Debugger {
 
     detach(): Debugger {
         if (!this._board) {
-            return;
+            return this;
         }
 
         this._board.cpuClock.removeHandler(this._cpuClockHandler);
