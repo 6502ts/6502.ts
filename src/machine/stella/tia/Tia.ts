@@ -851,6 +851,10 @@ class Tia implements VideoOutputInterface {
     }
 
     private _updateCollision() {
+        if (this._frameManager.vblank) {
+            return;
+        }
+
         this._collisionMask |= (
             ~this._player0.collision &
             ~this._player1.collision &
