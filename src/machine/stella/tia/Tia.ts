@@ -535,7 +535,7 @@ class Tia implements VideoOutputInterface {
                 this._tickHframe();
             }
 
-            if (this._collisionUpdateRequired) {
+            if (this._collisionUpdateRequired && !this._frameManager.vblank) {
                 this._updateCollision();
             }
         } else {
@@ -813,6 +813,11 @@ class Tia implements VideoOutputInterface {
     }
 
     private _renderPixel(x: number, y: number): void {
+        if (this._frameManager.vblank) {
+            this._frameManager.surfaceBuffer[y * 160 + x] = 0xFF000000;
+            return;
+        }
+
         let color = this._colorBk;
 
         switch (this._priority) {
@@ -847,14 +852,10 @@ class Tia implements VideoOutputInterface {
                 throw new Error('invalid priority');
         }
 
-        this._frameManager.surfaceBuffer[y * 160 + x] = this._frameManager.vblank ? 0xFF000000 : color;
+        this._frameManager.surfaceBuffer[y * 160 + x] = color;
     }
 
     private _updateCollision() {
-        if (this._frameManager.vblank) {
-            return;
-        }
-
         this._collisionMask |= (
             ~this._player0.collision &
             ~this._player1.collision &
