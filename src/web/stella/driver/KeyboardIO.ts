@@ -27,8 +27,7 @@ import ControlPanelInterface from '../../../machine/stella/ControlPanelInterface
 
 const enum DispatchType {
     swtch,
-    triggerDown,
-    triggerUp
+    triggerDown
 }
 
 interface SwitchDispatch {
@@ -37,7 +36,7 @@ interface SwitchDispatch {
 }
 
 interface TriggerDispatch {
-    type: DispatchType.triggerDown | DispatchType.triggerUp;
+    type: DispatchType.triggerDown;
     trigger: Event<void>;
 }
 
@@ -50,9 +49,9 @@ function mkSwitch(swtch: SwitchInterface): SwitchDispatch {
     };
 }
 
-function mkTrigger(event: Event<void>, onUp = false): TriggerDispatch {
+function mkTrigger(event: Event<void>): TriggerDispatch {
     return {
-        type: onUp ? DispatchType.triggerUp : DispatchType.triggerDown,
+        type: DispatchType.triggerDown,
         trigger: event
     };
 }
@@ -82,22 +81,22 @@ class KeyboardIO {
 
         this._updateActionTable();
 
-        const decodeAction = (e: KeyboardEvent): KeyboardIO.Action => {
-            if (this._compiledMappings[e.keyCode]) {
-                const modifiers = (
-                    (e.shiftKey ? KeyboardIO.Modifier.shift : 0) |
-                    (e.ctrlKey ? KeyboardIO.Modifier.ctrl : 0) |
-                    (e.altKey ? KeyboardIO.Modifier.alt : 0)
-                );
-
-                return this._compiledMappings[e.keyCode][modifiers];
+        this._keydownListener = e => {
+            if (!this._compiledMappings.has(e.keyCode)) {
+                return;
             }
 
-            return undefined;
-        };
+            const modifiers = (
+                (e.shiftKey ? KeyboardIO.Modifier.shift : 0) |
+                (e.ctrlKey ? KeyboardIO.Modifier.ctrl : 0) |
+                (e.altKey ? KeyboardIO.Modifier.alt : 0)
+            );
 
-        this._keydownListener = e => {
-            const action = decodeAction(e);
+            if (!this._compiledMappings.get(e.keyCode).get(modifiers)) {
+                return;
+            }
+
+            const action = this._compiledMappings.get(e.keyCode).get(modifiers);
 
             if (typeof(action) !== 'undefined') {
                 e.preventDefault();
@@ -118,9 +117,11 @@ class KeyboardIO {
         };
 
         this._keyupListener = e => {
-            const action = decodeAction(e);
+            if (!this._compiledMappings.has(e.keyCode)) {
+                return;
+            }
 
-            if (typeof(action) !== 'undefined') {
+            for (const action of this._compiledMappings.get(e.keyCode).values()) {
                 e.preventDefault();
 
                 const dispatch = this._dispatchTable[action];
@@ -130,13 +131,10 @@ class KeyboardIO {
                         dispatch.swtch.toggle(false);
                         break;
 
-                    case DispatchType.triggerUp:
-                        dispatch.trigger.dispatch(undefined);
-                        break;
-
                     default:
                 }
             }
+
         };
 
         this._target.addEventListener('keydown', this._keydownListener);
@@ -183,11 +181,11 @@ class KeyboardIO {
                 throw new Error(`invalid modifier set ${modifiers}`);
             }
 
-            if (!this._compiledMappings[keycode]) {
-                this._compiledMappings[keycode] = {};
+            if (!this._compiledMappings.has(keycode)) {
+                this._compiledMappings.set(keycode, new Map<number, KeyboardIO.Action>());
             }
 
-            this._compiledMappings[keycode][modifiers] = action;
+            this._compiledMappings.get(keycode).set(modifiers, action);
         };
 
         mappings.forEach(mapping => {
@@ -214,11 +212,7 @@ class KeyboardIO {
     private _controlPanel: ControlPanelInterface = null;
 
     private _dispatchTable: {[action: number]: Dispatch} = {};
-    private _compiledMappings: {
-        [keycode: number]: {
-            [modifier: number]: KeyboardIO.Action
-        }
-    } = {};
+    private _compiledMappings = new Map<number, Map<number, KeyboardIO.Action>>();
 }
 
 namespace KeyboardIO {
