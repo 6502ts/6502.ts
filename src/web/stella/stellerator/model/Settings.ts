@@ -22,6 +22,7 @@
 interface Settings {
     smoothScaling: boolean;
     webGlRendering: boolean;
+    povEmulation: boolean;
     gamma: number;
     useWorker: boolean;
     mergeFrames: boolean;
@@ -38,6 +39,7 @@ namespace Settings {
         return {
             smoothScaling: true,
             webGlRendering: true,
+            povEmulation: true,
             gamma: 1,
             useWorker: true,
             mergeFrames: false,

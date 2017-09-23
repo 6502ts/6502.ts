@@ -31,13 +31,15 @@ import {
     setUseWorker,
     setMergeFrames,
     setVolume,
-    setSyncRendering
+    setSyncRendering,
+    setPovEmulation
 } from '../actions/settings';
 
 function mapStateToProps(state: State): SettingsComponent.Props {
     return {
         smoothScaling: state.settings.smoothScaling,
         webGlRendering: state.settings.webGlRendering,
+        povEmulation: state.settings.povEmulation,
         gamma: state.settings.gamma,
         useWorker: state.settings.useWorker,
         mergeFrames: state.settings.mergeFrames,
@@ -54,7 +56,8 @@ const SettingsContainer = connect(mapStateToProps, {
     onToggleUseWorker: setUseWorker,
     onToggleMergeFrames: setMergeFrames,
     onChangeVolume: setVolume,
-    onChangeSyncRendering: setSyncRendering
+    onChangeSyncRendering: setSyncRendering,
+    onTogglePovEmulation: setPovEmulation
 })(SettingsComponent);
 
 export default SettingsContainer;

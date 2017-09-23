@@ -29,6 +29,7 @@ export interface SettingsSchema {
     id: number;
     smoothScaling: boolean;
     webGlRendering: boolean;
+    povEmulation: boolean;
     gamma: number;
     useWorker: boolean;
     mergeFrames: boolean;

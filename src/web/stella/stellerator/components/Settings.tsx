@@ -98,6 +98,19 @@ function Settings(props: Settings.Props) {
         </Row>
         <Row>
             <Col sm={4}>
+                <ControlLabel>POV / Phosphor emulation (WebGL only):</ControlLabel>
+            </Col>
+            <Col sm={8}>
+                <Switch
+                    labelTrue='On'
+                    labelFalse='Off'
+                    state={props.povEmulation}
+                    onSwitch={props.onTogglePovEmulation}
+                />
+            </Col>
+        </Row>
+        <Row>
+            <Col sm={4}>
                 <ControlLabel>Gamma correction (WebGL only):</ControlLabel>
             </Col>
             <Col sm={4}>
@@ -144,6 +157,7 @@ namespace Settings {
     export interface Props {
         smoothScaling?: boolean;
         webGlRendering?: boolean;
+        povEmulation?: boolean;
         gamma?: number;
         useWorker?: boolean;
         mergeFrames?: boolean;
@@ -152,6 +166,7 @@ namespace Settings {
 
         onToggleSmoothScaling?: (value: boolean) => void;
         onToggleWebGlRendering?: (value: boolean) => void;
+        onTogglePovEmulation?: (value: boolean) => void;
         onChangeGamma?: (value: number) => void;
         onToggleUseWorker?: (value: boolean) => void;
         onToggleMergeFrames?: (value: boolean) => void;
@@ -162,9 +177,12 @@ namespace Settings {
     export const defaultProps: Props = {
         smoothScaling: true,
         webGlRendering: true,
+        povEmulation: true,
         gamma: 1,
         useWorker: false,
         mergeFrames: false,
+        volume: 1,
+        syncRendering: true,
 
         onToggleSmoothScaling: () => undefined,
         onToggleWebGlRendering: () => undefined,

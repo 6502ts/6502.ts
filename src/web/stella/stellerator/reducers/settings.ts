@@ -32,7 +32,8 @@ import {
     SetUseWorkerAction,
     SetMergeFramesAction,
     SetVolumeAction,
-    SetSyncRenderingAction
+    SetSyncRenderingAction,
+    SetPovEmulationAction
 } from '../actions/settings';
 
 export default function reducer(settings: Settings = Settings.create(), action: Action): Settings {
@@ -42,6 +43,9 @@ export default function reducer(settings: Settings = Settings.create(), action: 
 
         case types.setWebGlRendering:
             return setWebGlRendering(settings, action as SetWebGlRenderingAction);
+
+        case types.setPovEmulation:
+            return setPovEmulation(settings, action as SetPovEmulationAction);
 
         case types.setGamma:
             return setGamma(settings, action as SetGammaAction);
@@ -80,6 +84,13 @@ function setWebGlRendering(settings: Settings, action: SetWebGlRenderingAction):
     return {
         ...settings,
         webGlRendering: action.value
+    };
+}
+
+function setPovEmulation(settings: Settings, action: SetPovEmulationAction): Settings {
+    return {
+        ...settings,
+        povEmulation: action.value
     };
 }
 

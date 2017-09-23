@@ -26,6 +26,7 @@ import Settings from '../model/Settings';
 export const types = {
     setSmoothScaling: 'settings/setSmoothScaling',
     setWebGlRendering: 'settings/setWebGlRendering',
+    setPovEmulation: 'settings/setPovEmulation',
     setGamma: 'settings/setGamma',
     setUseWorker: 'settings/setUseWorker',
     setMergeFrames: 'settings/mergeFrames',
@@ -67,6 +68,17 @@ export interface SetWebGlRenderingAction extends Action {
 export function setWebGlRendering(value: boolean): SetWebGlRenderingAction {
     return {
         type: types.setWebGlRendering,
+        value
+    };
+}
+
+export interface SetPovEmulationAction extends Action {
+    value: boolean;
+}
+
+export function setPovEmulation(value: boolean): SetPovEmulationAction {
+    return {
+        type: types.setPovEmulation,
         value
     };
 }

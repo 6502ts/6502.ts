@@ -25,23 +25,40 @@ import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
 import VideoEndpointInterface from '../VideoEndpointInterface';
 import VideoDriverInterface from '../VideoDriverInterface';
 
-const fragmentShaderSource = fs.readFileSync(__dirname + '/shader/render.fsh', 'utf-8');
+const fragmentShaderPovSource = fs.readFileSync(__dirname + '/shader/render_pov.fsh', 'utf-8');
+const fragmentSahderPlainSource = fs.readFileSync(__dirname + '/shader/render_plain.fsh', 'utf-8');
 const vertexShaderSource = fs.readFileSync(__dirname + '/shader/render.vsh', 'utf-8');
 
-const FRAME_COMPOSITING_COUNT = 3;
-
-export default class WebglVideoDriver implements VideoDriverInterface {
+class WebglVideoDriver implements VideoDriverInterface {
 
     constructor(
         private _canvas: HTMLCanvasElement,
-        private _gamma = 1,
-        private _aspect = 4 / 3
+        config: WebglVideoDriver.Config = {}
     ) {
+        if (typeof(config.aspect) !== 'undefined') {
+            this._aspect = config.aspect;
+        }
+
+        if (typeof(config.gamma) !== 'undefined') {
+            this._gamma = config.gamma;
+        }
+
+        if (typeof(config.povEmulation) !== 'undefined') {
+            this._povEmulation = config.povEmulation;
+        }
+
+        this._numberOfFramesToCompose = this._povEmulation ? 3 : 1;
+
+        this._textures = new Array<WebGLTexture>(this._numberOfFramesToCompose);
+        this._imageData = new Array<PoolMemberInterface<ImageData>>(this._numberOfFramesToCompose);
+        this._imageDataGeneration = new Array<number>(this._numberOfFramesToCompose);
+        this._textureGeneration = new Array<number>(this._numberOfFramesToCompose);
+
         this._gl = this._canvas.getContext('webgl', {
             alpha: false
         }) as WebGLRenderingContext;
 
-        for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
+        for (let i = 0; i < this._numberOfFramesToCompose; i++) {
             this._imageDataGeneration[i] = 0;
             this._textureGeneration[i] = -1;
         }
@@ -146,9 +163,9 @@ export default class WebglVideoDriver implements VideoDriverInterface {
 
         self._imageData[self._currentFrameIndex] = imageDataPoolMember;
         self._imageDataGeneration[self._currentFrameIndex]++;
-        self._currentFrameIndex = (self._currentFrameIndex + 1) % FRAME_COMPOSITING_COUNT;
+        self._currentFrameIndex = (self._currentFrameIndex + 1) % self._numberOfFramesToCompose;
 
-        if (self._frameCount < FRAME_COMPOSITING_COUNT) {
+        if (self._frameCount < self._numberOfFramesToCompose) {
             self._frameCount++;
         } else {
             if (self._syncRendering) {
@@ -180,14 +197,15 @@ export default class WebglVideoDriver implements VideoDriverInterface {
     }
 
     private _draw(): void {
-        if (this._frameCount < FRAME_COMPOSITING_COUNT) {
+        if (this._frameCount < this._numberOfFramesToCompose) {
             return;
         }
 
         const gl = this._gl;
 
-        for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
-            const frameIndex = (this._currentFrameIndex - i - 1 + FRAME_COMPOSITING_COUNT) % FRAME_COMPOSITING_COUNT;
+        for (let i = 0; i < this._numberOfFramesToCompose; i++) {
+            const frameIndex =
+                (this._currentFrameIndex - i - 1 + this._numberOfFramesToCompose) % this._numberOfFramesToCompose;
 
             if (this._textureGeneration[frameIndex] !== this._imageDataGeneration[frameIndex]) {
                 gl.activeTexture((gl as any)[`TEXTURE${frameIndex}`]);
@@ -205,10 +223,10 @@ export default class WebglVideoDriver implements VideoDriverInterface {
             }
         }
 
-        for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
+        for (let i = 0; i < this._numberOfFramesToCompose; i++) {
             gl.uniform1i(
                 this._getUniformLocation(`u_Sampler${i}`),
-                (this._currentFrameIndex + FRAME_COMPOSITING_COUNT - i - 1) % FRAME_COMPOSITING_COUNT
+                (this._currentFrameIndex + this._numberOfFramesToCompose - i - 1) % this._numberOfFramesToCompose
             );
         }
 
@@ -230,7 +248,10 @@ export default class WebglVideoDriver implements VideoDriverInterface {
             throw new Error(`failed to compile vertex shader: ${gl.getShaderInfoLog(vertexShader)}`);
         }
 
-        gl.shaderSource(fragmentShader, fragmentShaderSource);
+        gl.shaderSource(
+            fragmentShader,
+            this._povEmulation ? fragmentShaderPovSource : fragmentSahderPlainSource
+        );
         gl.compileShader(fragmentShader);
 
         if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
@@ -251,13 +272,13 @@ export default class WebglVideoDriver implements VideoDriverInterface {
     }
 
     private _allocateTextures(): void {
-        for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
+        for (let i = 0; i < this._numberOfFramesToCompose; i++) {
             this._allocateTexture(i);
         }
     }
 
     private _configureTextures(): void {
-        for (let i = 0; i < FRAME_COMPOSITING_COUNT; i++) {
+        for (let i = 0; i < this._numberOfFramesToCompose; i++) {
             this._configureTexture(i);
         }
     }
@@ -389,12 +410,17 @@ export default class WebglVideoDriver implements VideoDriverInterface {
     private _vertexBuffer: WebGLBuffer = null;
     private _textureCoordinateBuffer: WebGLBuffer = null;
 
-    private _textures = new Array<WebGLTexture>(FRAME_COMPOSITING_COUNT);
-    private _imageData = new Array<PoolMemberInterface<ImageData>>(FRAME_COMPOSITING_COUNT);
-    private _imageDataGeneration = new Array<number>(FRAME_COMPOSITING_COUNT);
-    private _textureGeneration = new Array<number>(FRAME_COMPOSITING_COUNT);
+    private _numberOfFramesToCompose: number;
+    private _textures: Array<WebGLTexture>;
+    private _imageData: Array<PoolMemberInterface<ImageData>>;
+    private _imageDataGeneration: Array<number>;
+    private _textureGeneration: Array<number>;
     private _currentFrameIndex = 0;
     private _frameCount = 0;
+
+    private _gamma = 1;
+    private _aspect = 4 / 3;
+    private _povEmulation = true;
 
     private _animationFrameHandle = 0;
     private _syncRendering = true;
@@ -403,3 +429,15 @@ export default class WebglVideoDriver implements VideoDriverInterface {
 
     private _interpolation = true;
 }
+
+namespace WebglVideoDriver {
+
+    export interface Config {
+        povEmulation?: boolean;
+        gamma?: number;
+        aspect?: number;
+    }
+
+}
+
+export default WebglVideoDriver;

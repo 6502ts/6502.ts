@@ -47,6 +47,7 @@ function mapStateToProps(state: State): EmulationComponent.Props {
         enforceRateLimit: state.emulationState.enforceRateLimit,
         smoothScaling: state.settings.smoothScaling,
         webGlRendering: state.settings.webGlRendering,
+        povEmulation: state.settings.povEmulation,
         gamma: state.settings.gamma,
         pausedByUser: state.emulationState.pausedByUser,
         syncRendering: state.settings.syncRendering

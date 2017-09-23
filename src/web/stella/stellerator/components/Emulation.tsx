@@ -94,7 +94,10 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
 
         try {
             if (this.props.webGlRendering) {
-                videoDriver = new WebglVideoDriver(this._canvasElt, this.props.gamma);
+                videoDriver = new WebglVideoDriver(this._canvasElt, {
+                    gamma: this.props.gamma,
+                    povEmulation: this.props.povEmulation
+                });
             } else {
                 videoDriver = new SimpleCanvasVideoDriver(this._canvasElt);
             }
@@ -238,6 +241,7 @@ namespace Emulation {
         emulationState?: EmulationServiceInterface.State;
         smoothScaling?: boolean;
         webGlRendering?: boolean;
+        povEmulation?: boolean;
         gamma?: number;
         pausedByUser?: boolean;
         syncRendering?: boolean;
@@ -255,6 +259,7 @@ namespace Emulation {
         initialViewportHeight: 192,
         smoothScaling: true,
         webGlRendering: true,
+        povEmulation: true,
         gamma: 1,
         emulationState: EmulationServiceInterface.State.stopped,
         pausedByUser: false,
