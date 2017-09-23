@@ -98,6 +98,10 @@
   version "16.0.2"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.0.2.tgz#0b31a73cdde6272b719e5b05a7df6d1e2654a804"
 
+"@types/screenfull@^3.3.1":
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/@types/screenfull/-/screenfull-3.3.1.tgz#9d9919025c47327c6012110ebd7880cae9e0913e"
+
 "@types/seedrandom@~2.4.27":
   version "2.4.27"
   resolved "https://registry.yarnpkg.com/@types/seedrandom/-/seedrandom-2.4.27.tgz#9db563937dd86915f69092bc43259d2f48578e41"

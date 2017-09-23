@@ -27,47 +27,60 @@ export default class FullscreenVideoDriver {
     constructor(private _videoDriver: VideoDriver) {}
 
     engage(): void {
-        screenfull.request(this._videoDriver.getCanvas());
-        this._adjustSize();
-    }
-
-    disengage(): void {
-        screenfull.exit();
-        this._adjustSize();
-    }
-
-    toggle(): void {
-        screenfull.toggle(this._videoDriver.getCanvas());
-        this._adjustSize();
-    }
-
-    isEngaged(): boolean {
-        return screenfull.isFullscreen;
-    }
-
-    private _adjustSize() {
-        if (!this.isEngaged()) {
+        if (this._engaged) {
             return;
         }
 
-        window.addEventListener('resize', this._resizeListener);
+        this._engaged = true;
 
-        this._adjustSizeForFullscreen();
+        screenfull.on('change', this._changeListener);
+        screenfull.request(this._videoDriver.getCanvas());
+    }
+
+    disengage(): void {
+        if (!this._engaged) {
+            return;
+        }
+
+        screenfull.exit();
+    }
+
+    toggle(): void {
+        if (this._engaged) {
+            this.disengage();
+        } else {
+            this.engage();
+        }
+    }
+
+    isEngaged(): boolean {
+        return this._engaged;
+    }
+
+    private _onChange(): void {
+        if (screenfull.isFullscreen) {
+            window.addEventListener('resize', this._resizeListener);
+            this._adjustSizeForFullscreen();
+        } else {
+            this._resetSize();
+            window.removeEventListener('resize', this._resizeListener);
+            screenfull.off('change', this._changeListener);
+
+            this._engaged = false;
+        }
+    }
+
+    private _resetSize() {
+        const element = this._videoDriver.getCanvas();
+
+        element.style.width = '';
+        element.style.height = '';
+
+        setTimeout(() => this._videoDriver.resize(), 0);
     }
 
     private _adjustSizeForFullscreen() {
         const element = this._videoDriver.getCanvas();
-
-        if (!this.isEngaged()) {
-            window.removeEventListener('resize', this._resizeListener);
-
-            element.style.width = '';
-            element.style.height = '';
-
-            setTimeout(() => this._videoDriver.resize(), 0);
-
-            return;
-        }
 
         this._videoDriver.resize(window.innerWidth, window.innerHeight);
         element.style.width = window.innerWidth + 'px';
@@ -75,5 +88,9 @@ export default class FullscreenVideoDriver {
     }
 
     private _resizeListener: () => void = this._adjustSizeForFullscreen.bind(this);
+
+    private _changeListener: () => void = this._onChange.bind(this);
+
+    private _engaged = false;
 
 }
