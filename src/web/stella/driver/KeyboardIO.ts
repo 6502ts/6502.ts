@@ -22,9 +22,40 @@
 import {Event} from 'microevent.ts';
 
 import SwitchInterface from '../../../machine/io/SwitchInterface';
-import Switch from '../../../machine/io/Switch';
 import JoystickInterface from '../../../machine/io/DigitalJoystickInterface';
 import ControlPanelInterface from '../../../machine/stella/ControlPanelInterface';
+
+const enum DispatchType {
+    swtch,
+    triggerDown,
+    triggerUp
+}
+
+interface SwitchDispatch {
+    type: DispatchType.swtch;
+    swtch: SwitchInterface;
+}
+
+interface TriggerDispatch {
+    type: DispatchType.triggerDown | DispatchType.triggerUp;
+    trigger: Event<void>;
+}
+
+type Dispatch = SwitchDispatch | TriggerDispatch;
+
+function mkSwitch(swtch: SwitchInterface): SwitchDispatch {
+    return {
+        type: DispatchType.swtch,
+        swtch
+    };
+}
+
+function mkTrigger(event: Event<void>, onUp = false): TriggerDispatch {
+    return {
+        type: onUp ? DispatchType.triggerUp : DispatchType.triggerDown,
+        trigger: event
+    };
+}
 
 class KeyboardIO {
 
@@ -34,18 +65,6 @@ class KeyboardIO {
         mappings: Array<KeyboardIO.Mapping> = KeyboardIO.defaultMappings
     ) {
         this._compileMappings(mappings);
-
-        this._fullscreenSwitch.stateChanged.addHandler(
-            state => state ? this.toggleFullscreen.dispatch(undefined) : true
-        );
-
-        this._resetSwitch.stateChanged.addHandler(
-            state => state ? this.hardReset.dispatch(undefined) : true
-        );
-
-        this._togglePauseSwitch.stateChanged.addHandler(
-            state => state ? this.togglePause.dispatch(undefined) : true
-        );
     }
 
     bind(
@@ -82,7 +101,19 @@ class KeyboardIO {
 
             if (typeof(action) !== 'undefined') {
                 e.preventDefault();
-                this._actionTable[action].toggle(true);
+
+                const dispatch = this._dispatchTable[action];
+                switch (dispatch.type) {
+                    case DispatchType.swtch:
+                        dispatch.swtch.toggle(true);
+                        break;
+
+                    case DispatchType.triggerDown:
+                        dispatch.trigger.dispatch(undefined);
+                        break;
+
+                    default:
+                }
             }
         };
 
@@ -91,7 +122,20 @@ class KeyboardIO {
 
             if (typeof(action) !== 'undefined') {
                 e.preventDefault();
-                this._actionTable[action].toggle(false);
+
+                const dispatch = this._dispatchTable[action];
+
+                switch (dispatch.type) {
+                    case DispatchType.swtch:
+                        dispatch.swtch.toggle(false);
+                        break;
+
+                    case DispatchType.triggerUp:
+                        dispatch.trigger.dispatch(undefined);
+                        break;
+
+                    default:
+                }
             }
         };
 
@@ -112,21 +156,21 @@ class KeyboardIO {
     }
 
     private _updateActionTable(): void {
-        this._actionTable[KeyboardIO.Action.fullscreen]     = this._fullscreenSwitch;
-        this._actionTable[KeyboardIO.Action.hardReset]      = this._resetSwitch;
-        this._actionTable[KeyboardIO.Action.togglePause]    = this._togglePauseSwitch;
-        this._actionTable[KeyboardIO.Action.select]         = this._controlPanel.getSelectSwitch();
-        this._actionTable[KeyboardIO.Action.reset]          = this._controlPanel.getResetButton();
-        this._actionTable[KeyboardIO.Action.left0]          = this._joystick0.getLeft();
-        this._actionTable[KeyboardIO.Action.right0]         = this._joystick0.getRight();
-        this._actionTable[KeyboardIO.Action.up0]            = this._joystick0.getUp();
-        this._actionTable[KeyboardIO.Action.down0]          = this._joystick0.getDown();
-        this._actionTable[KeyboardIO.Action.fire0]          = this._joystick0.getFire();
-        this._actionTable[KeyboardIO.Action.left1]          = this._joystick1.getLeft();
-        this._actionTable[KeyboardIO.Action.right1]         = this._joystick1.getRight();
-        this._actionTable[KeyboardIO.Action.up1]            = this._joystick1.getUp();
-        this._actionTable[KeyboardIO.Action.down1]          = this._joystick1.getDown();
-        this._actionTable[KeyboardIO.Action.fire1]          = this._joystick1.getFire();
+        this._dispatchTable[KeyboardIO.Action.fullscreen]     = mkTrigger(this.toggleFullscreen);
+        this._dispatchTable[KeyboardIO.Action.hardReset]      = mkTrigger(this.hardReset);
+        this._dispatchTable[KeyboardIO.Action.togglePause]    = mkTrigger(this.togglePause);
+        this._dispatchTable[KeyboardIO.Action.select]         = mkSwitch(this._controlPanel.getSelectSwitch());
+        this._dispatchTable[KeyboardIO.Action.reset]          = mkSwitch(this._controlPanel.getResetButton());
+        this._dispatchTable[KeyboardIO.Action.left0]          = mkSwitch(this._joystick0.getLeft());
+        this._dispatchTable[KeyboardIO.Action.right0]         = mkSwitch(this._joystick0.getRight());
+        this._dispatchTable[KeyboardIO.Action.up0]            = mkSwitch(this._joystick0.getUp());
+        this._dispatchTable[KeyboardIO.Action.down0]          = mkSwitch(this._joystick0.getDown());
+        this._dispatchTable[KeyboardIO.Action.fire0]          = mkSwitch(this._joystick0.getFire());
+        this._dispatchTable[KeyboardIO.Action.left1]          = mkSwitch(this._joystick1.getLeft());
+        this._dispatchTable[KeyboardIO.Action.right1]         = mkSwitch(this._joystick1.getRight());
+        this._dispatchTable[KeyboardIO.Action.up1]            = mkSwitch(this._joystick1.getUp());
+        this._dispatchTable[KeyboardIO.Action.down1]          = mkSwitch(this._joystick1.getDown());
+        this._dispatchTable[KeyboardIO.Action.fire1]          = mkSwitch(this._joystick1.getFire());
     }
 
     private _compileMappings(mappings: Array<KeyboardIO.Mapping>): void {
@@ -169,11 +213,7 @@ class KeyboardIO {
     private _joystick1: JoystickInterface = null;
     private _controlPanel: ControlPanelInterface = null;
 
-    private _fullscreenSwitch = new Switch();
-    private _resetSwitch = new Switch();
-    private _togglePauseSwitch = new Switch();
-
-    private _actionTable: {[action: number]: SwitchInterface} = {};
+    private _dispatchTable: {[action: number]: Dispatch} = {};
     private _compiledMappings: {
         [keycode: number]: {
             [modifier: number]: KeyboardIO.Action
