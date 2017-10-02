@@ -193,4 +193,21 @@ export function run() {
         );
     });
 
+    suite('ATX', function() {
+        test('immedaiate, flags', () => Runner
+            .create([0xAB, 0x0F])
+            .setState({
+                a: 0xF7,
+                x: 0x11,
+                flags: 0xFF & ~CpuInterface.Flags.n
+            })
+            .run()
+            .assertCycles(2)
+            .assertState({
+                x: 0x07,
+                a: 0x07,
+                flags: 0xFF & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)
+            })
+        );
+    });
 }

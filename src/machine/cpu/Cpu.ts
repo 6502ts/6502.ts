@@ -567,6 +567,12 @@ function opAac(state: CpuInterface.State, bus: BusInterface, operand: number): v
     state.flags = (state.flags & (~CpuInterface.Flags.c)) | ((state.a & 0x80) >>> 7);
 }
 
+function opAtx(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    state.a &= operand;
+    state.x = state.a;
+    setFlagsNZ(state, state.a);
+}
+
 class Cpu {
     constructor(
         private _bus: BusInterface,
@@ -1139,6 +1145,11 @@ class Cpu {
             case Instruction.Operation.aac:
                 this._opCycles = 0;
                 this._instructionCallback = opAac;
+                break;
+
+            case Instruction.Operation.atx:
+                this._opCycles = 0;
+                this._instructionCallback = opAtx;
                 break;
 
             default:
