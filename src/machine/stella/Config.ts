@@ -19,15 +19,34 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-class Config {
-    constructor(
-        public tvMode: Config.TvMode = Config.TvMode.ntsc,
-        public enableAudio = true,
-        public randomSeed = -1,
-        public emulatePaddles = true
-    ) {}
+interface Config {
+    tvMode: Config.TvMode;
+    enableAudio: boolean;
+    randomSeed: number;
+    emulatePaddles: boolean;
+    frameStart: number;
+}
 
-    public static getClockMhz(config: Config): number {
+namespace Config {
+    export const enum TvMode {
+        ntsc,
+        pal,
+        secam
+    }
+
+    export function create(config: Partial<Config> = {}): Config {
+        return {
+            tvMode: TvMode.ntsc,
+            enableAudio: true,
+            randomSeed: -1,
+            emulatePaddles: true,
+            frameStart: -1,
+
+            ...config
+        };
+    }
+
+    export function getClockMhz(config: Config): number {
         switch (config.tvMode) {
             case Config.TvMode.ntsc:
                 return 3.579545;
@@ -36,14 +55,6 @@ class Config {
             case Config.TvMode.secam:
                 return 3.546894;
         }
-    }
-}
-
-namespace Config {
-    export const enum TvMode {
-        ntsc,
-        pal,
-        secam
     }
 }
 

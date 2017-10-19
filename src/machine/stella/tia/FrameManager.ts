@@ -68,6 +68,7 @@ export default class FrameManager {
 
         this._frameLines = this._vblankLines + this._kernelLines + this._overscanLines + Metrics.vsync;
         this._maxLinesWithoutVsync = this._frameLines * Metrics.maxFramesWithoutVsync;
+        this._frameStart = this._config.frameStart;
 
         this.reset();
     }
@@ -100,15 +101,15 @@ export default class FrameManager {
                 break;
 
             case State.waitForFrameStart:
-                if (this._waitForVsync) {
+                if (this._frameStart >= 0) {
+                    if (this._lineInState > this._frameStart) {
+                        this._startFrame();
+                    }
+                } else {
                     if (
                         this._lineInState >=
                         (this.vblank ? this._vblankLines : this._vblankLines - Metrics.maxUnderscan)
                     ) {
-                        this._startFrame();
-                    }
-                } else {
-                    if (!this.vblank) {
                         this._startFrame();
                     }
                 }
@@ -253,4 +254,6 @@ export default class FrameManager {
 
     private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface = null;
     private _surface: RGBASurfaceInterface = null;
+
+    private _frameStart = -1;
 }

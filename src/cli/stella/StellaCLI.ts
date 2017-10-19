@@ -279,7 +279,7 @@ class StellaCLI extends DebuggerCLI {
     hardwareInitialized = new Event<void>();
     events: Events;
 
-    protected _stellaConfig = new StellaConfig();
+    protected _stellaConfig = StellaConfig.create();
     protected _board: Board;
     protected _cartridge: CartridgeInterface;
     protected _runModeCommandInterpreter: CommandInterpreter;

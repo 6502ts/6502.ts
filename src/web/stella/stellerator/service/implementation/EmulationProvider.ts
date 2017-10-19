@@ -144,12 +144,13 @@ class EmulationProvider implements EmulationProviderInterface {
 
         action.cartridge = cartridge;
 
-        const stellaConfig = new StellaConfig(
-            cartridge.tvMode,
-            cartridge.volume > 0,
-            cartridge.rngSeedAuto ? -1 : cartridge.rngSeed,
-            cartridge.emulatePaddles
-        );
+        const stellaConfig = StellaConfig.create({
+            tvMode: cartridge.tvMode,
+            enableAudio: cartridge.volume > 0,
+            randomSeed: cartridge.rngSeedAuto ? -1 : cartridge.rngSeed,
+            emulatePaddles: cartridge.emulatePaddles,
+            frameStart: cartridge.autodetectFrameStart ? -1 : cartridge.frameStart
+        });
 
         const buffer = await this._storage.getImage(cartridge.hash);
 
