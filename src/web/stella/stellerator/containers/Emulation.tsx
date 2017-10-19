@@ -66,6 +66,6 @@ const EmulationContainer = connect(mapStateToProps, {
     onSwitchDifficultyPlayer1: (state: boolean) => changeDifficulty(1, state),
     onSwitchTvMode: (state: boolean) => changeTvMode(state),
     onEnforceRateLimitChange: (enforce: boolean) => enforceRateLimit(enforce)
-})(EmulationComponent);
+})(EmulationComponent as any);
 
 export default EmulationContainer;

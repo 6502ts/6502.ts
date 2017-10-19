@@ -98,5 +98,5 @@ function mapDispatchToProps(dispatch: Dispatch<State>): HandlerProps {
     };
 }
 
-const CartridgeManager = connect(mapStateToProps, mapDispatchToProps)(CartridgeManagerComponent);
+const CartridgeManager = connect(mapStateToProps, mapDispatchToProps)(CartridgeManagerComponent as any);
 export default CartridgeManager;

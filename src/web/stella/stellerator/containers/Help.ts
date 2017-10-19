@@ -32,6 +32,6 @@ function mapStateToProps(state: State): HelpComponent.Props {
 }
 
 // tslint:disable-next-line:variable-name
-const HelpContainer = connect(mapStateToProps)(HelpComponent);
+const HelpContainer = connect(mapStateToProps)(HelpComponent as any);
 
 export default HelpContainer;

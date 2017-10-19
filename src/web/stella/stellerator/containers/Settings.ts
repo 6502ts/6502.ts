@@ -58,6 +58,6 @@ const SettingsContainer = connect(mapStateToProps, {
     onChangeVolume: setVolume,
     onChangeSyncRendering: setSyncRendering,
     onTogglePovEmulation: setPovEmulation
-})(SettingsComponent);
+})(SettingsComponent as any);
 
 export default SettingsContainer;
