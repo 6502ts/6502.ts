@@ -36,6 +36,8 @@ export interface CartridgeSchema {
     rngSeedAuto: boolean;
     rngSeed: number;
     volume: number;
+    frameStart: number;
+    autodetectFrameStart: boolean;
 }
 
 function tvModeToString(tvMode: StellaConfig.TvMode): tvModeString {

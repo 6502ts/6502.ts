@@ -61,6 +61,8 @@ export interface HandlerProps {
     onChangeSeedStrategy: (auto: boolean) => void;
     onChangeSeedValue: (seed: number) => void;
     onChangeVolume: (volume: number) => void;
+    onChangeFrameStart: (frameStart: number) => void;
+    onChangeFrameStartAuto: (frameStartAuto: boolean) => void;
 
     onSelectPendingChangesClose: () => void;
     onSelectPendingChangesSave: () => void;
@@ -100,6 +102,8 @@ export default function CartridgeManager(props: Props) {
                         onChangeSeedStrategy={props.onChangeSeedStrategy}
                         onChangeSeedValue={props.onChangeSeedValue}
                         onChangeVolume={props.onChangeVolume}
+                        onChangeFrameStart={props.onChangeFrameStart}
+                        onToggleFrameStartAuto={props.onChangeFrameStartAuto}
                     />
                 </Col>
             </Row>

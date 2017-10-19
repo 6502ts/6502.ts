@@ -86,7 +86,7 @@ const ListItemStyled = styled.li`
 type CartridgeListStyled = StyledComponent<Props, void>;
 
 const CartridgeListStyled: CartridgeListStyled = styled(CartridgeListUnstyled)`
-    height: 15rem;
+    height: 21rem;
     overflow-y: auto;
     margin-bottom: 1.5rem;
 `;

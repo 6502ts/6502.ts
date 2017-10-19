@@ -30,7 +30,7 @@ import StorageManager from './StorageManager';
 import CartridgManager from './CartridgManager';
 
 interface InjectableWithStore {
-    setStore(store: Store<State>): void;
+    setStore?(store: Store<State>): void;
 }
 
 class Container implements ContainerInterface {
@@ -48,16 +48,14 @@ class Container implements ContainerInterface {
     getEmulationProvider(): EmulationProvider {
         return this._getOrCreateSingetonService(
             'emulation-provider',
-            () => new EmulationProvider(this.getStorageManager()),
-            true
+            () => new EmulationProvider(this.getStorageManager())
         );
     }
 
     getPersistenceProvider(): PersistenceProvider {
         return this._getOrCreateSingetonService(
             'persistence-provider',
-            () => new PersistenceProvider(this.getStorageManager()),
-            true
+            () => new PersistenceProvider(this.getStorageManager())
         );
     }
 
@@ -68,12 +66,11 @@ class Container implements ContainerInterface {
     getCartridgeManager(): CartridgManager {
         return this._getOrCreateSingetonService(
             'cartridge-manager',
-            () => new CartridgManager(this.getStorageManager()),
-            true
+            () => new CartridgManager(this.getStorageManager())
         );
     }
 
-    private _getOrCreateSingetonService<T>(key: string, factory: () => T, injectStore = false) {
+    private _getOrCreateSingetonService<T>(key: string, factory: () => T) {
         if (this._services.has(key)) {
             return this._services.get(key);
         }
@@ -81,7 +78,7 @@ class Container implements ContainerInterface {
         const service = factory() as T & InjectableWithStore;
         this._services.set(key, service);
 
-        if (injectStore) {
+        if (service.setStore) {
             if (this._store) {
                 service.setStore(this._store);
             } else {

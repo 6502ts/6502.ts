@@ -153,6 +153,23 @@ export default class Database extends Dexie {
                     cursor.update(settings);
                 });
             });
+
+        this.version(9)
+            .stores({
+                cartridge: '++id, &hash',
+                settings: 'id',
+                image: '&hash'
+            })
+            .upgrade(transaction => {
+                transaction.table<Cartridge.CartridgeSchema, Settings.indexType>('cartridge').each((cartridge, c) => {
+                    const cursor: IDBCursor = c as any;
+
+                    cartridge.frameStart = 0;
+                    cartridge.autodetectFrameStart = true;
+
+                    cursor.update(cartridge);
+                });
+            });
     }
 
     cartridge: Dexie.Table<Cartridge.CartridgeSchema, Cartridge.indexType>;

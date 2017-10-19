@@ -34,7 +34,9 @@ import {
     changeTvMode,
     changeRngSeedStrategy,
     changeRngSeed,
-    changeVolume
+    changeVolume,
+    changeFrameStart,
+    changeFrameStartAuto
 } from '../actions/currentCartridge';
 import { closeSelectPendingChangesModal, closeLoadPendingChangesModal } from '../actions/guiState';
 import {
@@ -78,6 +80,8 @@ function mapDispatchToProps(dispatch: Dispatch<State>): HandlerProps {
         onChangeSeedStrategy: auto => dispatch(changeRngSeedStrategy(auto)),
         onChangeSeedValue: seed => dispatch(changeRngSeed(seed)),
         onChangeVolume: volume => dispatch(changeVolume(volume)),
+        onChangeFrameStart: frameStart => dispatch(changeFrameStart(frameStart)),
+        onChangeFrameStartAuto: isAuto => dispatch(changeFrameStartAuto(isAuto)),
 
         onSelectPendingChangesClose: () => dispatch(closeSelectPendingChangesModal()),
         onSelectPendingChangesSave: () => dispatch(confirmSelect()),

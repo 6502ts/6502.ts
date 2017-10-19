@@ -31,7 +31,9 @@ export const types = {
     changePaddleEmulation: 'current-cartridge/change-paddle-emulation',
     changeRngSeedStrategy: 'current-cartridge/change-rng-seed-strateg',
     changeRngSeed: 'current-cartridge/change-rng-seed',
-    changeVolume: 'current-cartridge/change-volume'
+    changeVolume: 'current-cartridge/change-volume',
+    changeFrameStart: 'current-cartridge/change-frame-start',
+    changeFrameStartAuto: 'current-cartridge/change-frame-start-auto'
 };
 Object.freeze(types);
 
@@ -109,5 +111,27 @@ export function changeVolume(volume: number): ChangeVolumeAction {
     return {
         type: types.changeVolume,
         volume
+    };
+}
+
+export interface ChangeFrameStartAction extends Action {
+    frameStart: number;
+}
+
+export function changeFrameStart(frameStart: number): ChangeFrameStartAction {
+    return {
+        type: types.changeFrameStart,
+        frameStart
+    };
+}
+
+export interface ChangeFrameStartAutoAction extends Action {
+    frameStartAuto: boolean;
+}
+
+export function changeFrameStartAuto(frameStartAuto: boolean): ChangeFrameStartAutoAction {
+    return {
+        type: types.changeFrameStartAuto,
+        frameStartAuto
     };
 }

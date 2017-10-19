@@ -29,6 +29,8 @@ import {
     ChangeRngSeedStrategyAction,
     ChangeTvModeAction,
     ChangeVolumeAction,
+    ChangeFrameStartAction,
+    ChangeFrameStartAutoAction,
     types as ActionType
 } from '../actions/currentCartridge';
 import Cartridge from '../model/Cartridge';
@@ -55,6 +57,12 @@ export default function reduce(cartridge: Cartridge, action: Action): Cartridge 
 
         case ActionType.changeVolume:
             return changeVolume(cartridge, action as ChangeVolumeAction);
+
+        case ActionType.changeFrameStart:
+            return changeFrameStart(cartridge, action as ChangeFrameStartAction);
+
+        case ActionType.changeFrameStartAuto:
+            return changeFrameStartAuto(cartridge, action as ChangeFrameStartAutoAction);
 
         default:
             return cartridge;
@@ -115,5 +123,22 @@ function changeVolume(cartridge: Cartridge = Cartridge.create(), action: ChangeV
     return {
         ...cartridge,
         volume
+    };
+}
+
+function changeFrameStart(cartridge: Cartridge = Cartridge.create(), action: ChangeFrameStartAction): Cartridge {
+    return {
+        ...cartridge,
+        frameStart: action.frameStart
+    };
+}
+
+function changeFrameStartAuto(
+    cartridge: Cartridge = Cartridge.create(),
+    action: ChangeFrameStartAutoAction
+): Cartridge {
+    return {
+        ...cartridge,
+        autodetectFrameStart: action.frameStartAuto
     };
 }

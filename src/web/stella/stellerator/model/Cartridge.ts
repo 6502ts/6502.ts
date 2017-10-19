@@ -31,6 +31,8 @@ interface Cartridge {
     rngSeedAuto: boolean;
     rngSeed: number;
     volume: number;
+    frameStart: number;
+    autodetectFrameStart: boolean;
 }
 
 namespace Cartridge {
@@ -43,7 +45,9 @@ namespace Cartridge {
             emulatePaddles: true,
             rngSeedAuto: true,
             rngSeed: 0,
-            volume: 1
+            volume: 1,
+            frameStart: 0,
+            autodetectFrameStart: true
         };
     }
 
@@ -58,7 +62,9 @@ namespace Cartridge {
             c1.emulatePaddles === c2.emulatePaddles &&
             c1.rngSeedAuto === c2.rngSeedAuto &&
             c1.rngSeed === c2.rngSeed &&
-            c1.volume === c2.volume
+            c1.volume === c2.volume &&
+            c1.frameStart === c2.frameStart &&
+            c1.autodetectFrameStart === c2.autodetectFrameStart
         );
     }
 }

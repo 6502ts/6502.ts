@@ -23,39 +23,36 @@ import * as React from 'react';
 
 import OptionalValueEdit from './OptionalValueEdit';
 
-function RandomSeedEdit(props: RandomSeedEdit.Props) {
+function FrameStartEdit(props: FrameStartEdit.Props) {
     return (
         <OptionalValueEdit
-            value={'' + props.rngSeedValue}
-            useValue={!props.rngSeedAuto}
+            value={'' + props.frameStart}
+            useValue={!props.frameStartAuto}
             labelUseValue="fixed"
             labelDontUseValue="auto"
             validator={(value: string): boolean => !!value.match(/^(0|([1-9]\d*))$/)}
-            onChangeValue={x => props.onChangeSeedValue(parseInt(x, 10))}
-            onToggle={useValue => props.onChangeSeedStrategy(!useValue)}
+            onChangeValue={x => props.onChange(parseInt(x, 10))}
+            onToggle={useValue => props.onToggleAuto(!useValue)}
             onKeyEnter={props.onKeyEnter}
         />
     );
 }
 
-namespace RandomSeedEdit {
+namespace FrameStartEdit {
     export interface Props {
-        rngSeedAuto?: boolean;
-        rngSeedValue?: number;
+        frameStart: number;
+        frameStartAuto: boolean;
 
-        onChangeSeedStrategy?: (auto: boolean) => void;
-        onChangeSeedValue?: (value: number) => void;
+        onChange?: (frameStart: number) => void;
+        onToggleAuto?: (isAuto: boolean) => void;
         onKeyEnter?: () => void;
     }
 
-    export const defaultProps: Props = {
-        rngSeedAuto: true,
-        rngSeedValue: 0,
-
-        onChangeSeedStrategy: () => undefined,
-        onChangeSeedValue: () => undefined,
+    export const defaultProps: Partial<Props> = {
+        onChange: () => undefined,
+        onToggleAuto: () => undefined,
         onKeyEnter: () => undefined
     };
 }
 
-export default RandomSeedEdit;
+export default FrameStartEdit;

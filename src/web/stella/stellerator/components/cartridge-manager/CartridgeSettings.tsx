@@ -33,6 +33,7 @@ import TvModeSelect from './TvModeSelect';
 import CartridgeTypeSelect from './CartridgeTypeSelect';
 import Switch from '../general/Switch';
 import RandomSeedEdit from './RandomSeedEdit';
+import FrameStartEdit from './FrameStartEdit';
 import Cartridge from '../../model/Cartridge';
 
 export interface Props {
@@ -47,6 +48,8 @@ export interface Props {
     onChangeSeedStrategy?: (auto: boolean) => void;
     onChangeSeedValue?: (seed: number) => void;
     onChangeVolume?: (volume: number) => void;
+    onChangeFrameStart?: (frameStart: number) => void;
+    onToggleFrameStartAuto?: (isAuto: boolean) => void;
 }
 
 function CartridgeSettingsUnstyled(props: Props) {
@@ -86,6 +89,16 @@ function CartridgeSettingsUnstyled(props: Props) {
                 rngSeedValue={props.cartridge.rngSeed}
                 onChangeSeedStrategy={props.onChangeSeedStrategy}
                 onChangeSeedValue={props.onChangeSeedValue}
+                onKeyEnter={props.onSave}
+            />
+
+            <LabelStyled>First visible frame line:</LabelStyled>
+            <FrameStartEdit
+                frameStart={props.cartridge.frameStart}
+                frameStartAuto={props.cartridge.autodetectFrameStart}
+                onChange={props.onChangeFrameStart}
+                onToggleAuto={props.onToggleFrameStartAuto}
+                onKeyEnter={props.onSave}
             />
 
             <LabelStyled>Volume:</LabelStyled>
@@ -105,7 +118,9 @@ namespace CartridgeSettingsUnstyled {
         onCartridgeTypeChange: () => undefined,
         onChangeSeedStrategy: () => undefined,
         onChangeSeedValue: () => undefined,
-        onChangeVolume: () => undefined
+        onChangeVolume: () => undefined,
+        onChangeFrameStart: () => undefined,
+        onToggleFrameStartAuto: () => undefined
     };
 }
 
