@@ -19,23 +19,19 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {decodesPlayer} from './drawCounterDecodes';
+import { decodesPlayer } from './drawCounterDecodes';
 
 const enum Count {
-    renderCounterOffset = -5,
+    renderCounterOffset = -5
 }
 
 export default class Player {
-
-    constructor(
-        private _collisionMask: number,
-        private _flushLineCache: () => void
-    ) {
+    constructor(private _collisionMask: number, private _flushLineCache: () => void) {
         this.reset();
     }
 
     reset(): void {
-        this.color = 0xFFFFFFFF;
+        this.color = 0xffffffff;
         this.collision = 0;
         this._hmmClocks = 0;
         this._counter = 0;
@@ -95,7 +91,7 @@ export default class Player {
         if (
             this._decodes !== oldDecodes &&
             this._rendering &&
-            (this._renderCounter - Count.renderCounterOffset) < 2 &&
+            this._renderCounter - Count.renderCounterOffset < 2 &&
             !this._decodes[(this._counter - this._renderCounter + Count.renderCounterOffset + 159) % 160]
         ) {
             this._rendering = false;
@@ -112,14 +108,14 @@ export default class Player {
 
         const delta = this._renderCounter - Count.renderCounterOffset;
 
-        switch (this._divider << 4 | this._dividerPending) {
+        switch ((this._divider << 4) | this._dividerPending) {
             case 0x12:
             case 0x14:
                 if (hblank) {
                     if (delta < 4) {
                         this._setDivider(this._dividerPending);
                     } else {
-                        this._dividerChangeCounter = (delta < 5 ? 1 : 0);
+                        this._dividerChangeCounter = delta < 5 ? 1 : 0;
                     }
                 } else {
                     if (delta < 3) {
@@ -139,17 +135,17 @@ export default class Player {
                     this._setDivider(this._dividerPending);
                     this._renderCounter--;
                 } else {
-                    this._dividerChangeCounter = (hblank ? 0 : 1);
+                    this._dividerChangeCounter = hblank ? 0 : 1;
                 }
 
                 break;
 
             case 0x42:
             case 0x24:
-                if (this._renderCounter < 1 || (hblank && (this._renderCounter % this._divider === 1))) {
+                if (this._renderCounter < 1 || (hblank && this._renderCounter % this._divider === 1)) {
                     this._setDivider(this._dividerPending);
                 } else {
-                    this._dividerChangeCounter = (this._divider - (this._renderCounter - 1) % this._divider);
+                    this._dividerChangeCounter = this._divider - (this._renderCounter - 1) % this._divider;
                 }
 
                 break;
@@ -162,7 +158,7 @@ export default class Player {
     resp(counter: number): void {
         this._counter = counter;
 
-        if (this._rendering && (this._renderCounter - Count.renderCounterOffset) < 4) {
+        if (this._rendering && this._renderCounter - Count.renderCounterOffset < 4) {
             this._renderCounter = Count.renderCounterOffset + (counter - 157);
         }
     }
@@ -207,11 +203,12 @@ export default class Player {
     }
 
     tick(): void {
-        this.collision = (
+        this.collision =
             this._rendering &&
             this._renderCounter >= this._renderCounterTripPoint &&
-            (this._pattern & (1 << this._sampleCounter))
-        ) ? 0 : this._collisionMask;
+            this._pattern & (1 << this._sampleCounter)
+                ? 0
+                : this._collisionMask;
 
         if (this._decodes[this._counter]) {
             this._rendering = true;
@@ -237,7 +234,7 @@ export default class Player {
                     break;
 
                 default:
-                    if (this._renderCounter > 1 && ((this._renderCounter - 1) % this._divider) === 0) {
+                    if (this._renderCounter > 1 && (this._renderCounter - 1) % this._divider === 0) {
                         this._sampleCounter++;
                     }
 
@@ -280,7 +277,7 @@ export default class Player {
     getRespClock(): number {
         switch (this._divider) {
             case 1:
-                return (this._counter - 5 + 160)  % 160;
+                return (this._counter - 5 + 160) % 160;
 
             case 2:
                 return (this._counter - 9 + 160) % 160;
@@ -306,10 +303,10 @@ export default class Player {
 
         if (!this._reflected) {
             this._pattern =
-                ((this._pattern & 0x01) << 7)  |
-                ((this._pattern & 0x02) << 5)  |
-                ((this._pattern & 0x04) << 3)  |
-                ((this._pattern & 0x08) << 1)  |
+                ((this._pattern & 0x01) << 7) |
+                ((this._pattern & 0x02) << 5) |
+                ((this._pattern & 0x04) << 3) |
+                ((this._pattern & 0x08) << 1) |
                 ((this._pattern & 0x10) >>> 1) |
                 ((this._pattern & 0x20) >>> 3) |
                 ((this._pattern & 0x40) >>> 5) |
@@ -322,7 +319,7 @@ export default class Player {
         this._renderCounterTripPoint = divider === 1 ? 0 : 1;
     }
 
-    color = 0xFFFFFFFF;
+    color = 0xffffffff;
     collision = 0;
 
     private _hmmClocks = 0;

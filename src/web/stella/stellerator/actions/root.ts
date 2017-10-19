@@ -19,22 +19,21 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Action} from 'redux';
+import { Action } from 'redux';
 
 import Cartridge from '../model/Cartridge';
 
 export const types = {
-    batch                       : 'batch',
-    deleteCurrentCartridge      : 'delete-current-cartridge',
-    initCartridges              : 'init-cartridges',
-    registerNewCartridge        : 'register-new-cartridge',
-    selectCartridge             : 'select-cartridge',
-    saveCurrentCartridge        : 'save-current-cartridge'
+    batch: 'batch',
+    deleteCurrentCartridge: 'delete-current-cartridge',
+    initCartridges: 'init-cartridges',
+    registerNewCartridge: 'register-new-cartridge',
+    selectCartridge: 'select-cartridge',
+    saveCurrentCartridge: 'save-current-cartridge'
 };
 Object.freeze(types);
 
-export interface DeleteCurrentCartridgeAction extends Action {
-}
+export interface DeleteCurrentCartridgeAction extends Action {}
 
 export function deleteCurrentCartridge(): DeleteCurrentCartridgeAction {
     return {
@@ -55,11 +54,11 @@ export function selectCartridge(hash: string = ''): SelectCartridgeAction {
 
 export interface BatchAction extends Action {
     // tslint:disable-next-line:ban-types
-    items: Array<Action|Function>;
+    items: Array<Action | Function>;
 }
 
 // tslint:disable-next-line:ban-types
-export function batch(...items: Array<Action|Function>): BatchAction {
+export function batch(...items: Array<Action | Function>): BatchAction {
     return {
         type: types.batch,
         items

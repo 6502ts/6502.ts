@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Store} from 'redux';
+import { Store } from 'redux';
 
 import EmulationProvider from './EmulationProvider';
 import PersistenceProvider from './PersistenceProvider';
@@ -28,7 +28,6 @@ import CartridgeManager from './CartridgeManager';
 import State from '../state/State';
 
 interface Container {
-
     getEmulationProvider(): EmulationProvider;
 
     getPersistenceProvider(): PersistenceProvider;
@@ -38,7 +37,6 @@ interface Container {
     getCartridgeManager(): CartridgeManager;
 
     setStore(store: Store<State>): this;
-
 }
 
 export default Container;

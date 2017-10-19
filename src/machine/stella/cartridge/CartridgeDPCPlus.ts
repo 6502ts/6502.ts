@@ -25,7 +25,7 @@ import Bus from '../Bus';
 import Thumbulator from './thumbulator/Thumbulator';
 import CartridgeInterface from './CartridgeInterface';
 import * as cartridgeUtil from './util';
-import {encode as hex} from '../../../tools/hex';
+import { encode as hex } from '../../../tools/hex';
 
 const enum CONST {
     returnAddress = 0x8004,
@@ -33,7 +33,6 @@ const enum CONST {
 }
 
 class CartridgeDPCPlus extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
@@ -57,7 +56,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
         this._frequencyRom = new Uint8Array(this._romBuffer, 0x8000 - 0x0400);
 
         for (let i = 0; i < 6; i++) {
-            this._banks[i] = new Uint8Array(this._romBuffer, 0x0C00 + i * 0x1000, 0x1000);
+            this._banks[i] = new Uint8Array(this._romBuffer, 0x0c00 + i * 0x1000, 0x1000);
         }
 
         // ARM RAM
@@ -71,7 +70,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
          *    * 4k display RAM
          *    * 1k frequency RAM
          */
-        this._imageRam = new Uint8Array(this._ramBuffer, 0x0C00, 0x1000);
+        this._imageRam = new Uint8Array(this._ramBuffer, 0x0c00, 0x1000);
         this._frequencyRam = new Uint8Array(this._ramBuffer, 0x2000 - 0x0400);
 
         const rom8 = new Uint8Array(this._romBuffer),
@@ -90,10 +89,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
     }
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        const signatureCounts = cartridgeUtil.searchForSignatures(
-            buffer,
-            ['DPC+'.split('').map(x => x.charCodeAt(0))]
-        );
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, ['DPC+'.split('').map(x => x.charCodeAt(0))]);
 
         return signatureCounts[0] === 2;
     }
@@ -119,7 +115,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
         this._fastFetch = this._ldaPending = false;
 
-        this._rng = 0x2B435044;
+        this._rng = 0x2b435044;
     }
 
     getType(): CartridgeInfo.CartridgeType {
@@ -137,7 +133,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
     }
 
     peek(address: number): number {
-        return this._currentBank[address & 0x0FFF];
+        return this._currentBank[address & 0x0fff];
     }
 
     write(address: number, value: number): void {
@@ -145,11 +141,11 @@ class CartridgeDPCPlus extends AbstractCartridge {
     }
 
     private _access(address: number, value: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         const readResult = this._currentBank[address];
 
-        if (this._fastFetch && this._ldaPending && address > 0x7F && address < 0x0FF6 && readResult < 0x28) {
+        if (this._fastFetch && this._ldaPending && address > 0x7f && address < 0x0ff6 && readResult < 0x28) {
             address = readResult;
         }
 
@@ -166,20 +162,20 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     switch (idx) {
                         case 0x00:
                             this._advanceRng();
-                            return this._rng & 0xFF;
+                            return this._rng & 0xff;
 
                         case 0x01:
                             this._rewindRng();
-                            return this._rng & 0xFF;
+                            return this._rng & 0xff;
 
                         case 0x02:
-                            return (this._rng >>> 8) & 0xFF;
+                            return (this._rng >>> 8) & 0xff;
 
                         case 0x03:
-                            return (this._rng >>> 16) & 0xFF;
+                            return (this._rng >>> 16) & 0xff;
 
                         case 0x04:
-                            return (this._rng >>> 24) & 0xFF;
+                            return (this._rng >>> 24) & 0xff;
                     }
 
                     return 0;
@@ -200,7 +196,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     return result;
 
                 case 0x04:
-                    return (idx < 4) ? fetcher.mask() : 0;
+                    return idx < 4 ? fetcher.mask() : 0;
 
                 default:
                     return 0;
@@ -210,7 +206,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
                 fetcher = this._fetchers[idx],
                 fractionalFetcher = this._fractionalFetchers[idx];
 
-            switch (((address - 0x28) >>> 3) & 0x0F) {
+            switch (((address - 0x28) >>> 3) & 0x0f) {
                 case 0x00:
                     fractionalFetcher.setPointerLo(value);
                     break;
@@ -236,9 +232,9 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     break;
 
                 case 0x06:
-                    switch (idx)  {
+                    switch (idx) {
                         case 0x00:
-                            this._fastFetch = (value === 0);
+                            this._fastFetch = value === 0;
                             break;
 
                         case 0x01:
@@ -249,8 +245,8 @@ class CartridgeDPCPlus extends AbstractCartridge {
                             break;
 
                         case 0x02:
-                             this._dispatchFunction(value);
-                             break;
+                            this._dispatchFunction(value);
+                            break;
                     }
 
                     break;
@@ -267,29 +263,29 @@ class CartridgeDPCPlus extends AbstractCartridge {
                 case 0x09:
                     switch (idx) {
                         case 0x00:
-                            this._rng = 0x2B435044;
+                            this._rng = 0x2b435044;
                             break;
 
                         case 0x01:
-                            this._rng = (this._rng & 0xFFFFFF00) | value;
+                            this._rng = (this._rng & 0xffffff00) | value;
                             break;
 
                         case 0x02:
-                            this._rng = (this._rng & 0xFFFF00FF) | (value << 8);
+                            this._rng = (this._rng & 0xffff00ff) | (value << 8);
                             break;
 
                         case 0x03:
-                            this._rng = (this._rng & 0xFF00FFFF) | (value << 16);
+                            this._rng = (this._rng & 0xff00ffff) | (value << 16);
                             break;
 
                         case 0x04:
-                            this._rng = (this._rng & 0x00FFFFFF) | (value << 24);
+                            this._rng = (this._rng & 0x00ffffff) | (value << 24);
                             break;
                     }
 
                     break;
 
-                case 0x0A:
+                case 0x0a:
                     this._imageRam[fetcher.pointer] = value;
                     fetcher.increment();
                     break;
@@ -297,13 +293,12 @@ class CartridgeDPCPlus extends AbstractCartridge {
                 default:
                     break;
             }
-
-        } else if (address > 0x0FF5 && address < 0x0FFC) {
-            this._currentBank = this._banks[address - 0x0FF6];
+        } else if (address > 0x0ff5 && address < 0x0ffc) {
+            this._currentBank = this._banks[address - 0x0ff6];
         }
 
-        if (this._fastFetch && address > 0x7F && address < 0x0FF6) {
-            this._ldaPending = (readResult === 0xA9);
+        if (this._fastFetch && address > 0x7f && address < 0x0ff6) {
+            this._ldaPending = readResult === 0xa9;
         }
 
         return readResult;
@@ -320,10 +315,8 @@ class CartridgeDPCPlus extends AbstractCartridge {
             case 1:
                 for (let i = 0; i < this._parameters[3]; i++) {
                     this._ram8[
-                        0x0C00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0FFF)
-                    ] = this._rom8[
-                        0x0C00 + ((romBase + i) % 0x7400)
-                    ];
+                        0x0c00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0fff)
+                    ] = this._rom8[0x0c00 + (romBase + i) % 0x7400];
                 }
 
                 this._parameterIndex = 0;
@@ -332,7 +325,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             case 2:
                 for (let i = 0; i < this._parameters[3]; i++) {
                     this._ram8[
-                        0x0C00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0FFF)
+                        0x0c00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0fff)
                     ] = this._parameters[0];
                 }
 
@@ -354,31 +347,28 @@ class CartridgeDPCPlus extends AbstractCartridge {
             this._thumbulator.writeRegister(i, 0);
         }
 
-        this._thumbulator.writeRegister(13, 0x40001FB4);
+        this._thumbulator.writeRegister(13, 0x40001fb4);
         this._thumbulator.writeRegister(14, CONST.returnAddress - 1);
-        this._thumbulator.writeRegister(15, 0x0C0B);
+        this._thumbulator.writeRegister(15, 0x0c0b);
 
         this._armMamcr = 0;
 
         const trap = this._thumbulator.run(500000);
 
         if (trap !== CONST.trapReturn) {
-            this.triggerTrap(
-                CartridgeInterface.TrapReason.other,
-                `ARM execution trapped: ${trap}`
-            );
+            this.triggerTrap(CartridgeInterface.TrapReason.other, `ARM execution trapped: ${trap}`);
         }
     }
 
     private _advanceRng(): void {
-        this._rng = ((this._rng & (1 << 10)) ? 0x10adab1e : 0x00) ^
-            ((this._rng >>> 11) | (this._rng << 21));
+        this._rng = (this._rng & (1 << 10) ? 0x10adab1e : 0x00) ^ ((this._rng >>> 11) | (this._rng << 21));
     }
 
     private _rewindRng(): void {
-        this._rng = ((this._rng & (1 << 31)) ?
-            ((0x10adab1e ^ this._rng) << 11) | ((0x10adab1e ^ this._rng) >>> 21) :
-            (this._rng << 11) | (this._rng >>> 21));
+        this._rng =
+            this._rng & (1 << 31)
+                ? ((0x10adab1e ^ this._rng) << 11) | ((0x10adab1e ^ this._rng) >>> 21)
+                : (this._rng << 11) | (this._rng >>> 21);
     }
 
     private _romBuffer = new ArrayBuffer(0x8000);
@@ -426,7 +416,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             }
 
             const region = address >>> 28,
-                addr = address & 0x0FFFFFFF;
+                addr = address & 0x0fffffff;
 
             switch (region) {
                 case 0x0:
@@ -441,9 +431,9 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     }
                     break;
 
-                case 0xE:
+                case 0xe:
                     switch (addr) {
-                        case 0x001FC000:
+                        case 0x001fc000:
                             return this._armMamcr;
                     }
 
@@ -468,7 +458,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             }
 
             const region = address >>> 28,
-                addr = address & 0x0FFFFFFF;
+                addr = address & 0x0fffffff;
 
             switch (region) {
                 case 0x0:
@@ -483,7 +473,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
                     }
                     break;
 
-                case 0xE:
+                case 0xe:
                     switch (addr) {
                         case 0x8004:
                         case 0x8008:
@@ -511,19 +501,19 @@ class CartridgeDPCPlus extends AbstractCartridge {
             }
 
             const region = address >>> 28,
-                addr = address & 0x0FFFFFFF;
+                addr = address & 0x0fffffff;
 
             switch (region) {
                 case 0x04:
                     if (addr < 0x2000) {
-                        this._ram16[addr >>> 1] = value & 0xFFFF;
+                        this._ram16[addr >>> 1] = value & 0xffff;
                         return;
                     }
                     break;
 
-                case 0xE:
-                    switch (addr)  {
-                        case 0x001FC000:
+                case 0xe:
+                    switch (addr) {
+                        case 0x001fc000:
                             this._armMamcr = value;
                             return;
                     }
@@ -547,7 +537,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             }
 
             const region = address >>> 28,
-                addr = address & 0x0FFFFFFF;
+                addr = address & 0x0fffffff;
 
             switch (region) {
                 case 0x4:
@@ -556,8 +546,8 @@ class CartridgeDPCPlus extends AbstractCartridge {
                         return;
                     }
 
-                case 0xE:
-                    switch (addr)  {
+                case 0xe:
+                    switch (addr) {
                         case 0x8004:
                         case 0x8008:
                             return;
@@ -576,13 +566,11 @@ class CartridgeDPCPlus extends AbstractCartridge {
     private _armMamcr = 0;
 
     private _thumbulator = new Thumbulator(this._thumbulatorBus, {
-        trapOnInstructionFetch: address => address === 0x8004 ? CONST.trapReturn : 0
+        trapOnInstructionFetch: address => (address === 0x8004 ? CONST.trapReturn : 0)
     });
-
 }
 
 class Fetcher {
-
     contructor() {
         this.reset();
     }
@@ -592,33 +580,31 @@ class Fetcher {
     }
 
     setPointerHi(value: number): void {
-        this.pointer = (this.pointer & 0xFF) | ((value & 0x0F) << 8);
+        this.pointer = (this.pointer & 0xff) | ((value & 0x0f) << 8);
     }
 
     setPointerLo(value: number): void {
-        this.pointer = (this.pointer & 0x0F00) | (value & 0xFF);
+        this.pointer = (this.pointer & 0x0f00) | (value & 0xff);
     }
 
     increment(): void {
-        this.pointer = (this.pointer + 1) & 0xFFF;
+        this.pointer = (this.pointer + 1) & 0xfff;
     }
 
     decrement(): void {
-        this.pointer = (this.pointer + 0xFFF) & 0xFFF;
+        this.pointer = (this.pointer + 0xfff) & 0xfff;
     }
 
     mask(): number {
-        return ((this.top - (this.pointer & 0xFF)) & 0xFF) > ((this.top - this.bottom) & 0xFF) ? 0xFF : 0;
+        return ((this.top - (this.pointer & 0xff)) & 0xff) > ((this.top - this.bottom) & 0xff) ? 0xff : 0;
     }
 
     pointer = 0;
     top = 0;
     bottom = 0;
-
 }
 
 class FractionalFetcher {
-
     contructor() {
         this.reset();
     }
@@ -628,25 +614,24 @@ class FractionalFetcher {
     }
 
     setPointerHi(value: number): void {
-        this.pointer = (this.pointer & 0x00FFFF) | ((value & 0x0F) << 16);
+        this.pointer = (this.pointer & 0x00ffff) | ((value & 0x0f) << 16);
     }
 
     setPointerLo(value: number): void {
-        this.pointer = (this.pointer & 0x0F00FF) | ((value & 0xFF) << 8);
+        this.pointer = (this.pointer & 0x0f00ff) | ((value & 0xff) << 8);
     }
 
     setFraction(value: number): void {
         this.fraction = value;
-        this.pointer &= 0x0FFF00;
+        this.pointer &= 0x0fff00;
     }
 
     increment(): void {
-        this.pointer = (this.pointer + this.fraction) & 0x0FFFFF;
+        this.pointer = (this.pointer + this.fraction) & 0x0fffff;
     }
 
     pointer = 0;
     fraction = 0;
-
 }
 
 export default CartridgeDPCPlus;

@@ -23,7 +23,6 @@ import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 import Cartridge from '../model/Cartridge';
 
 export default class EmulationState implements Changeset {
-
     constructor(changes?: Changeset, old?: EmulationState) {
         Object.assign(this, old, changes);
     }

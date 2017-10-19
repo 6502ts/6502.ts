@@ -19,14 +19,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Middleware} from 'redux';
+import { Middleware } from 'redux';
 
 interface PersistenceProvider {
-
     init(): Promise<any>;
 
     getMiddleware(): Middleware;
-
 }
 
 export default PersistenceProvider;

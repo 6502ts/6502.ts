@@ -24,7 +24,6 @@ import * as cartridgeUtil from './util';
 import CartridgeInfo from './CartridgeInfo';
 
 class CartridgeE0 extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
@@ -47,19 +46,16 @@ class CartridgeE0 extends AbstractCartridge {
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
         // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(
-            buffer,
-            [
-                [ 0x8D, 0xE0, 0x1F ],  // STA $1FE0
-                [ 0x8D, 0xE0, 0x5F ],  // STA $5FE0
-                [ 0x8D, 0xE9, 0xFF ],  // STA $FFE9
-                [ 0x0C, 0xE0, 0x1F ],  // NOP $1FE0
-                [ 0xAD, 0xE0, 0x1F ],  // LDA $1FE0
-                [ 0xAD, 0xE9, 0xFF ],  // LDA $FFE9
-                [ 0xAD, 0xED, 0xFF ],  // LDA $FFED
-                [ 0xAD, 0xF3, 0xBF ]   // LDA $BFF3
-            ]
-        );
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
+            [0x8d, 0xe0, 0x1f], // STA $1FE0
+            [0x8d, 0xe0, 0x5f], // STA $5FE0
+            [0x8d, 0xe9, 0xff], // STA $FFE9
+            [0x0c, 0xe0, 0x1f], // NOP $1FE0
+            [0xad, 0xe0, 0x1f], // LDA $1FE0
+            [0xad, 0xe9, 0xff], // LDA $FFE9
+            [0xad, 0xed, 0xff], // LDA $FFED
+            [0xad, 0xf3, 0xbf] // LDA $BFF3
+        ]);
 
         for (let i = 0; i < signatureCounts.length; i++) {
             if (signatureCounts[i] > 0) {
@@ -77,25 +73,25 @@ class CartridgeE0 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
-        if (address >= 0x0FE0 && address < 0x0FF8) {
+        if (address >= 0x0fe0 && address < 0x0ff8) {
             this._handleBankswitch(address);
         }
 
-        return this._activeBanks[(address >> 10)][address & 0x03FF];
+        return this._activeBanks[address >> 10][address & 0x03ff];
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
-        return this._activeBanks[(address >> 10)][address & 0x03FF];
+        return this._activeBanks[address >> 10][address & 0x03ff];
     }
 
     write(address: number, value: number): void {
-        const addressMasked = address & 0x0FFF;
+        const addressMasked = address & 0x0fff;
 
-        if (addressMasked >= 0x0FE0 && addressMasked < 0x0FF8) {
+        if (addressMasked >= 0x0fe0 && addressMasked < 0x0ff8) {
             this._handleBankswitch(addressMasked);
         }
 
@@ -107,14 +103,12 @@ class CartridgeE0 extends AbstractCartridge {
     }
 
     private _handleBankswitch(address: number): void {
-        if (address < 0x0FE8) {
-            this._activeBanks[0] = this._banks[address - 0x0FE0];
-        }
-        else if (address < 0x0FF0) {
-            this._activeBanks[1] = this._banks[address - 0x0FE8];
-        }
-        else {
-            this._activeBanks[2] = this._banks[address - 0x0FF0];
+        if (address < 0x0fe8) {
+            this._activeBanks[0] = this._banks[address - 0x0fe0];
+        } else if (address < 0x0ff0) {
+            this._activeBanks[1] = this._banks[address - 0x0fe8];
+        } else {
+            this._activeBanks[2] = this._banks[address - 0x0ff0];
         }
     }
 

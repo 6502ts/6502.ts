@@ -26,11 +26,7 @@ import AccessLog from './AccessLog';
 import * as hex from '../../../../src/tools/hex.js';
 import * as binary from '../../../../src/tools/binary';
 class Runner {
-
-    constructor(
-        private _code: {length: number, [address: number]: number},
-        private _base = 0xE000
-    ) {
+    constructor(private _code: { length: number; [address: number]: number }, private _base = 0xe000) {
         this._bus = new InstrumentedBus();
         this._cpu = new Cpu(this._bus);
 
@@ -38,8 +34,8 @@ class Runner {
             this._bus.write(this._base + i, this._code[i]);
         }
 
-        this._bus.write(0xFFFC, this._base & 0xFF);
-        this._bus.write(0xFFFD, this._base >> 8);
+        this._bus.write(0xfffc, this._base & 0xff);
+        this._bus.write(0xfffd, this._base >> 8);
 
         this._cpu.reset();
 
@@ -48,10 +44,7 @@ class Runner {
         }
     }
 
-    static create(
-        code?: {length: number, [address: number]: number},
-        base?: number
-    ): Runner {
+    static create(code?: { length: number; [address: number]: number }, base?: number): Runner {
         return new Runner(code, base);
     }
 
@@ -61,7 +54,7 @@ class Runner {
         return this;
     }
 
-    poke(pokes: {[address: string]: number}): this {
+    poke(pokes: { [address: string]: number }): this {
         Object.keys(pokes).forEach(address => {
             this._bus.write(hex.decode(address), pokes[address]);
         });
@@ -149,48 +142,43 @@ class Runner {
 
     assertState(state: Runner.State = {}): this {
         ['a', 'x', 'y', 's'].forEach(property => {
-
-            const referenceValue = state.hasOwnProperty(property) ?
-                    (state as any)[property] : (this._originalState as any)[property],
+            const referenceValue = state.hasOwnProperty(property)
+                    ? (state as any)[property]
+                    : (this._originalState as any)[property],
                 actual: number = (this._cpu.state as any)[property];
 
             if (referenceValue !== actual) {
                 throw new Error(
                     `expected ${property.toUpperCase()} to be ${hex.encode(referenceValue, 2)}, ` +
-                    `got ${hex.encode(actual, 2)}`
+                        `got ${hex.encode(actual, 2)}`
                 );
             }
         });
 
         const reference = state.hasOwnProperty('flags') ? state.flags : this._originalState.flags;
 
-        if (reference !== this._cpu.state.flags)
-        {
+        if (reference !== this._cpu.state.flags) {
             throw new Error(
                 `expected flags to be ${binary.encode(reference, 8)}, ` +
-                `got ${binary.encode(this._cpu.state.flags, 8)}`
+                    `got ${binary.encode(this._cpu.state.flags, 8)}`
             );
         }
 
         if (state.hasOwnProperty('p') && state.p !== this._cpu.state.p) {
-            throw new Error(
-                `expected P to be ${hex.encode(state.p, 4)}, ` +
-                `got ${hex.encode(this._cpu.state.p, 4)}`
-            );
+            throw new Error(`expected P to be ${hex.encode(state.p, 4)}, ` + `got ${hex.encode(this._cpu.state.p, 4)}`);
         }
 
         return this;
     }
 
-    assertMemory(checks: {[address: string]: number}): this {
+    assertMemory(checks: { [address: string]: number }): this {
         Object.keys(checks).forEach(address => {
-
             const actual = this._bus.read(hex.decode(address));
 
             if (checks[address] !== actual) {
                 throw new Error(
                     `memory corrupt at ${address}; expected ${hex.encode(checks[address], 2)}, ` +
-                    `got ${hex.encode(actual, 2)}`
+                        `got ${hex.encode(actual, 2)}`
                 );
             }
         });
@@ -221,7 +209,6 @@ class Runner {
 }
 
 namespace Runner {
-
     export interface State {
         a?: number;
         x?: number;
@@ -230,7 +217,6 @@ namespace Runner {
         p?: number;
         flags?: number;
     }
-
 }
 
 export default Runner;

@@ -29,10 +29,10 @@ import PrepackagedFilesystemProvider from '../../../src/fs/PrepackagedFilesystem
 import FilesystemProviderInterface from '../../../src/fs/FilesystemProviderInterface';
 
 const fixtures = {
-        foo: 'Балканская черепаха',
-        baz: 'foobar',
-        treeDir: ['bar', 'foo']
-    };
+    foo: 'Балканская черепаха',
+    baz: 'foobar',
+    treeDir: ['bar', 'foo']
+};
 
 interface BufferInterface {
     length: number;
@@ -40,12 +40,10 @@ interface BufferInterface {
 }
 
 function assertBufferIdentity(b1: BufferInterface, b2: BufferInterface): void {
-    assert.strictEqual(b1.length, b2.length, util.format('buffers differ in length, %s vs. %s',
-        b1.length, b2.length));
+    assert.strictEqual(b1.length, b2.length, util.format('buffers differ in length, %s vs. %s', b1.length, b2.length));
 
     for (let i = 0; i < b1.length; i++) {
-        assert.strictEqual(b1[i], b2[i], util.format('buffers differ at byte %s, %s vs. %s',
-            i, b1[i], b2[i]));
+        assert.strictEqual(b1[i], b2[i], util.format('buffers differ at byte %s, %s vs. %s', i, b1[i], b2[i]));
     }
 }
 
@@ -151,10 +149,8 @@ function runProviderTests(factory: () => FilesystemProviderInterface): void {
     });
 }
 
-suite('FS Providers', function()  {
-
+suite('FS Providers', function() {
     suite('NodeFileSystemProvider', function() {
-
         function factory(): FilesystemProviderInterface {
             const provider = new NodeFilesystemProvider();
 
@@ -164,11 +160,9 @@ suite('FS Providers', function()  {
         }
 
         runProviderTests(factory);
-
     });
 
     suite('PrepackagedFileSystemProvider', function() {
-
         let blob: PrepackagedFilesystemProvider.BlobInterface;
 
         function factory() {
@@ -180,7 +174,5 @@ suite('FS Providers', function()  {
         });
 
         runProviderTests(factory);
-
     });
-
 });

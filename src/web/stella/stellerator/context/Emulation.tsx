@@ -40,7 +40,6 @@ export interface Props {
 }
 
 export class Provider extends React.Component<Props, {}> {
-
     getChildContext(): Context {
         return {
             emulationService: this.props.emulationProvider.getService()
@@ -51,6 +50,5 @@ export class Provider extends React.Component<Props, {}> {
         return React.Children.only(this.props.children);
     }
 
-    static readonly childContextTypes = {...contextTypes};
-
+    static readonly childContextTypes = { ...contextTypes };
 }

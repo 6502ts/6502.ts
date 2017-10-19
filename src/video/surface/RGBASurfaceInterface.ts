@@ -30,7 +30,9 @@ interface RGBASurfaceInterface {
 }
 
 namespace RGBASurfaceInterface {
-    export const enum ByteOrder {rgba}
+    export const enum ByteOrder {
+        rgba
+    }
 
     export interface BufferInterface {
         [index: number]: number;

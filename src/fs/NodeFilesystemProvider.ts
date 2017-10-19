@@ -23,9 +23,7 @@ import * as fs from 'fs';
 import FilesystemProviderInterface from './FilesystemProviderInterface';
 import AbstractFileSystemProvider from './AbstractFileSystemProvider';
 
-class NodeFilesystemProvider extends AbstractFileSystemProvider
-    implements FilesystemProviderInterface
-{
+class NodeFilesystemProvider extends AbstractFileSystemProvider implements FilesystemProviderInterface {
     constructor() {
         super();
         this._cwd = process.cwd();

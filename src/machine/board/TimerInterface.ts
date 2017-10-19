@@ -22,7 +22,6 @@
 import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 
 interface TimerInterface {
-
     tick(clocks: number): number;
 
     start(scheduler: SchedulerInterface, sliceHint?: number): void;

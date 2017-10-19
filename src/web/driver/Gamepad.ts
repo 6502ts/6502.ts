@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import DigitalJoystickInterface from '../../machine/io/DigitalJoystickInterface';
 import SwitchInterface from '../../machine/io/SwitchInterface';
@@ -27,27 +27,26 @@ import SwitchInterface from '../../machine/io/SwitchInterface';
 const MIN_POLL_INTERVAL = 50;
 
 const enum MappingButton {
-    left    = 1,
-    right   = 2,
-    up      = 3,
-    down    = 4,
-    fire    = 5,
-    start   = 6,
-    select  = 7
+    left = 1,
+    right = 2,
+    up = 3,
+    down = 4,
+    fire = 5,
+    start = 6,
+    select = 7
 }
 
-const standardMappings: {[button: number]: Array<number>} = {
-    [MappingButton.up]:     [12],
-    [MappingButton.down]:   [13],
-    [MappingButton.left]:   [14],
-    [MappingButton.right]:  [15],
-    [MappingButton.fire]:   [0, 1, 2, 3, 10, 11],
+const standardMappings: { [button: number]: Array<number> } = {
+    [MappingButton.up]: [12],
+    [MappingButton.down]: [13],
+    [MappingButton.left]: [14],
+    [MappingButton.right]: [15],
+    [MappingButton.fire]: [0, 1, 2, 3, 10, 11],
     [MappingButton.select]: [8],
-    [MappingButton.start]:  [9]
+    [MappingButton.start]: [9]
 };
 
 export default class GamepadDriver {
-
     init(): void {
         if (!navigator.getGamepads) {
             throw new Error(`gamepad API not available`);
@@ -65,10 +64,14 @@ export default class GamepadDriver {
         window.removeEventListener('gamepaddisconnected', this._onGamepadDisconnect);
     }
 
-    bind({joysticks = null, start = null, select = null}: {
-        joysticks?: Array<DigitalJoystickInterface>,
-        start?: SwitchInterface,
-        select?: SwitchInterface
+    bind({
+        joysticks = null,
+        start = null,
+        select = null
+    }: {
+        joysticks?: Array<DigitalJoystickInterface>;
+        start?: SwitchInterface;
+        select?: SwitchInterface;
     }): void {
         if (this._bound) {
             return;
@@ -303,7 +306,6 @@ export default class GamepadDriver {
 }
 
 class ShadowSwitch {
-
     toggle(state: boolean): void {
         if (state === this._state) {
             return;

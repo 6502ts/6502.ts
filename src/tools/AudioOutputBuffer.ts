@@ -20,11 +20,7 @@
  */
 
 class AudioOutputBuffer {
-
-    constructor(
-        private _content: Float32Array,
-        private _sampleRate: number
-    ) {}
+    constructor(private _content: Float32Array, private _sampleRate: number) {}
 
     getLength(): number {
         return this._content.length;
@@ -37,7 +33,6 @@ class AudioOutputBuffer {
     getSampleRate(): number {
         return this._sampleRate;
     }
-
 }
 
 export default AudioOutputBuffer;

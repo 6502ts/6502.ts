@@ -23,7 +23,6 @@ import CartridgeModel from '../model/Cartridge';
 import SettingsModel from '../model/Settings';
 
 interface StorageManager {
-
     getAllCartridges(): Promise<Array<CartridgeModel>>;
 
     saveCartridge(cartridge: CartridgeModel): Promise<void>;
@@ -39,7 +38,6 @@ interface StorageManager {
     getSettings(): Promise<SettingsModel>;
 
     saveSettings(settings: SettingsModel): Promise<void>;
-
 }
 
 export default StorageManager;

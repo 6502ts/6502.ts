@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import BoardInterface from '../board/BoardInterface';
 import CpuInterface from '../cpu/CpuInterface';
@@ -31,13 +31,12 @@ import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 import TaskInterface from '../../tools/scheduler/TaskInterface';
 
 class Board implements BoardInterface {
-
     constructor(cpuFactory?: (bus: BusInterface) => CpuInterface) {
         this.cpuClock = this.clock;
 
         this._bus = this._createBus();
 
-        if (typeof(cpuFactory) === 'undefined') {
+        if (typeof cpuFactory === 'undefined') {
             cpuFactory = bus => new Cpu(bus);
         }
 
@@ -75,7 +74,7 @@ class Board implements BoardInterface {
             throw new Error('Already booted!');
         }
 
-        while (this._cpu.executionState as CpuInterface.ExecutionState !== CpuInterface.ExecutionState.fetch) {
+        while ((this._cpu.executionState as CpuInterface.ExecutionState) !== CpuInterface.ExecutionState.fetch) {
             this._cpu.cycle();
             clock++;
         }
@@ -130,7 +129,8 @@ class Board implements BoardInterface {
             this._cpu.cycle();
             clock++;
 
-            if (this._clockMode === BoardInterface.ClockMode.instruction &&
+            if (
+                this._clockMode === BoardInterface.ClockMode.instruction &&
                 this._cpu.executionState === CpuInterface.ExecutionState.fetch &&
                 this.clock.hasHandlers
             ) {

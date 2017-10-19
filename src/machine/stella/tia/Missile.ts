@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {decodesMissile} from './drawCounterDecodes';
+import { decodesMissile } from './drawCounterDecodes';
 
 import Player from './Player';
 
@@ -28,16 +28,12 @@ const enum Count {
 }
 
 class Missile {
-
-    constructor(
-        private _collisionMask: number,
-        private _flushLineCache: () => void
-    ) {
+    constructor(private _collisionMask: number, private _flushLineCache: () => void) {
         this.reset();
     }
 
     reset(): void {
-        this.color = 0xFFFFFFFF;
+        this.color = 0xffffffff;
         this._width = 1;
         this._enabled = false;
         this._counter = 0;
@@ -54,7 +50,7 @@ class Missile {
 
     enam(value: number): void {
         const enam = (value & 2) > 0,
-            enabled = enam && (this._resmp === 0);
+            enabled = enam && this._resmp === 0;
 
         if (enam !== this._enam || enabled !== this._enabled) {
             this._flushLineCache();
@@ -75,11 +71,10 @@ class Missile {
         if (this._rendering) {
             if (this._renderCounter < 0) {
                 this._renderCounter = Count.renderCounterOffset + (counter - 157);
-
             } else {
                 switch (this._width) {
                     case 8:
-                        this._renderCounter = (counter - 157) + ((this._renderCounter >= 4) ? 4 : 0);
+                        this._renderCounter = counter - 157 + (this._renderCounter >= 4 ? 4 : 0);
                         break;
 
                     case 4:
@@ -154,7 +149,7 @@ class Missile {
     }
 
     tick(isReceivingHclock: boolean): void {
-        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
+        this.collision = this._rendering && this._renderCounter >= 0 && this._enabled ? 0 : this._collisionMask;
 
         const starfieldEffect = this._moving && isReceivingHclock;
 
@@ -202,7 +197,7 @@ class Missile {
         this.color = color;
     }
 
-    color = 0xFFFFFFFF;
+    color = 0xffffffff;
     collision = 0;
 
     private _enabled = false;

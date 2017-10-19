@@ -24,7 +24,6 @@ import SwitchInterface from '../io/SwitchInterface';
 import ControlPanelInterface from './ControlPanelInterface';
 
 export default class ControlPanel implements ControlPanelInterface {
-
     getSelectSwitch(): SwitchInterface {
         return this._selectSwitch;
     }
@@ -50,5 +49,4 @@ export default class ControlPanel implements ControlPanelInterface {
     private _colorSwitch = new Switch();
     private _difficutlyP0 = new Switch();
     private _difficutlyP1 = new Switch();
-
 }

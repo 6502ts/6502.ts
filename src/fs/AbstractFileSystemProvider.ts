@@ -22,11 +22,10 @@
 import * as pathlib from 'path';
 
 abstract class AbstractFileSystemProvider {
-
     pushd(path?: string): void {
         this._directoryStack.unshift(this._cwd);
 
-        if (typeof(path) !== 'undefined') {
+        if (typeof path !== 'undefined') {
             this.chdir(path);
         }
     }

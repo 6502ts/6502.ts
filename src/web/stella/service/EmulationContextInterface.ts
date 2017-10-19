@@ -26,7 +26,6 @@ import PaddleInterface from '../../../machine/io/PaddleInterface';
 import Board from '../../../machine/stella/Board';
 
 interface EmulationContextInterface {
-
     getVideo(): VideoEndpointInterface;
 
     getJoystick(i: number): JoystickInterface;
@@ -36,7 +35,6 @@ interface EmulationContextInterface {
     getPaddle(i: number): PaddleInterface;
 
     getAudio(): Board.Audio;
-
 }
 
 export default EmulationContextInterface;

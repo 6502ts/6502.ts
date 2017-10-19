@@ -22,7 +22,6 @@
 import BusInterface from '../bus/BusInterface';
 
 class Memory implements BusInterface {
-
     constructor() {
         this.clear();
     }
@@ -44,7 +43,7 @@ class Memory implements BusInterface {
     }
 
     readWord(address: number): number {
-        return this._data[address] + (this._data[(address + 1) & 0xFFFF] << 8);
+        return this._data[address] + (this._data[(address + 1) & 0xffff] << 8);
     }
 
     write(address: number, value: number) {

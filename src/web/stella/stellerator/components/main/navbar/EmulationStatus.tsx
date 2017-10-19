@@ -20,7 +20,7 @@
  */
 
 import * as React from 'react';
-import {styled, StyledComponent} from '../../style';
+import { styled, StyledComponent } from '../../style';
 
 import EmulationServiceInterface from '../../../../service/EmulationServiceInterface';
 
@@ -31,11 +31,7 @@ export interface Props {
 }
 
 export function EmulationStatusUnstyled(props: Props) {
-    return (
-        <span className={props.className}>
-            {describeState(props.emulationState, props.frequency)}
-        </span>
-    );
+    return <span className={props.className}>{describeState(props.emulationState, props.frequency)}</span>;
 }
 
 function describeState(state: EmulationServiceInterface.State, frequency: number): string {
@@ -44,7 +40,7 @@ function describeState(state: EmulationServiceInterface.State, frequency: number
             return 'stopped';
 
         case EmulationServiceInterface.State.running:
-            return frequency > 0 ? `running: ${(frequency / 1E6).toFixed(2)} MHz` : 'running';
+            return frequency > 0 ? `running: ${(frequency / 1e6).toFixed(2)} MHz` : 'running';
 
         case EmulationServiceInterface.State.paused:
             return 'paused';
@@ -56,8 +52,6 @@ function describeState(state: EmulationServiceInterface.State, frequency: number
 
 type EmulationStatusStyled = StyledComponent<Props>;
 
-const EmulationStatusStyled: EmulationStatusStyled = styled(EmulationStatusUnstyled)`
-    margin-left: 1rem;
-`;
+const EmulationStatusStyled: EmulationStatusStyled = styled(EmulationStatusUnstyled)`margin-left: 1rem;`;
 
 export default EmulationStatusStyled;

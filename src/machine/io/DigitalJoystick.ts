@@ -24,7 +24,6 @@ import Switch from './Switch';
 import SwitchInterface from './SwitchInterface';
 
 export default class DigitalJoystick implements DigitalJoystickInterface {
-
     getLeft(): SwitchInterface {
         return this._left;
     }
@@ -51,5 +50,4 @@ export default class DigitalJoystick implements DigitalJoystickInterface {
     private _down = new Switch();
 
     private _fire = new Switch();
-
 }

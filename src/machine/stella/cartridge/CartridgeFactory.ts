@@ -43,13 +43,11 @@ import CartridgeDetector from './CartridgeDetector';
 import CartridgeInterface from './CartridgeInterface';
 
 export default class CartridgeFactory {
-
     createCartridge(
-        buffer: {[i: number]: number; length: number},
+        buffer: { [i: number]: number; length: number },
         cartridgeType?: CartridgeInfo.CartridgeType
     ): CartridgeInterface {
-
-        if (typeof(cartridgeType) === 'undefined') {
+        if (typeof cartridgeType === 'undefined') {
             const detector = new CartridgeDetector();
 
             cartridgeType = detector.detectCartridgeType(buffer);
@@ -114,5 +112,4 @@ export default class CartridgeFactory {
                 throw new Error(`invalid or unsupported cartridge image`);
         }
     }
-
 }

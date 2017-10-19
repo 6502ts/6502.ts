@@ -23,14 +23,12 @@ import Runner from './Runner';
 import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
 
 export function run() {
-
-        suite('software interrupts', function() {
-
-            test('BRK - RTI cycle', () => Runner
-                .create([0x00], 0xE000)
+    suite('software interrupts', function() {
+        test('BRK - RTI cycle', () =>
+            Runner.create([0x00], 0xe000)
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFF
+                    s: 0xff
                 })
                 .poke({
                     '0xFFFE': 0x12,
@@ -40,23 +38,20 @@ export function run() {
                 .runFor(13)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    p: 0xE002,
-                    s: 0xFF
+                    p: 0xe002,
+                    s: 0xff
                 })
                 .assertMemory({
                     '0x01FD': CpuInterface.Flags.z | CpuInterface.Flags.b | CpuInterface.Flags.e
-                })
-            );
+                }));
+    });
 
-        });
-
-        suite('IRQ', function() {
-
-            test('INT - RTI cycle', () => Runner
-                .create([0xEA, 0xEA, 0xEA], 0xE000) // NOP NOP NOP
+    suite('IRQ', function() {
+        test('INT - RTI cycle', () =>
+            Runner.create([0xea, 0xea, 0xea], 0xe000) // NOP NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFF
+                    s: 0xff
                 })
                 .poke({
                     '0xFFFE': 0x12,
@@ -68,7 +63,7 @@ export function run() {
                 .runFor(8)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFC,
+                    s: 0xfc,
                     p: 0x3412
                 })
                 .assertMemory({
@@ -78,15 +73,14 @@ export function run() {
                 .runFor(6)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFF,
-                    p: 0xE001
+                    s: 0xff,
+                    p: 0xe001
                 })
                 .run()
-                .assertCycles(4)
-            );
+                .assertCycles(4));
 
-            test('INT - RTI cycle, stack wrap', () => Runner
-                .create([0xEA, 0xEA, 0xEA], 0xE000) // NOP NOP NOP
+        test('INT - RTI cycle, stack wrap', () =>
+            Runner.create([0xea, 0xea, 0xea], 0xe000) // NOP NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0x01
@@ -101,7 +95,7 @@ export function run() {
                 .runFor(8)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFE,
+                    s: 0xfe,
                     p: 0x3412
                 })
                 .assertMemory({
@@ -112,17 +106,16 @@ export function run() {
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0x01,
-                    p: 0xE001
+                    p: 0xe001
                 })
                 .run()
-                .assertCycles(4)
-            );
+                .assertCycles(4));
 
-            test('CLI', () => Runner
-                .create([0xEA, 0xEA, 0xEA], 0xE000) // NOP NOP NOP
+        test('CLI', () =>
+            Runner.create([0xea, 0xea, 0xea], 0xe000) // NOP NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFF
+                    s: 0xff
                 })
                 .poke({
                     '0xFFFE': 0x12,
@@ -132,11 +125,10 @@ export function run() {
                 .runFor(1)
                 .configure(cpu => cpu.setInterrupt(true))
                 .run()
-                .assertCycles(5)
-            );
+                .assertCycles(5));
 
-            test('Interrupt during RTI', () => Runner
-                .create([0xEA, 0xEA, 0xEA], 0xE000) // NOP NOP NOP
+        test('Interrupt during RTI', () =>
+            Runner.create([0xea, 0xea, 0xea], 0xe000) // NOP NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0x01
@@ -151,7 +143,7 @@ export function run() {
                 .runFor(8)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFE,
+                    s: 0xfe,
                     p: 0x3412
                 })
                 .assertMemory({
@@ -164,24 +156,23 @@ export function run() {
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0x01,
-                    p: 0xE001
+                    p: 0xe001
                 })
                 .runFor(7)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFE,
+                    s: 0xfe,
                     p: 0x3412
                 })
                 .configure(cpu => cpu.setInterrupt(false))
                 .run()
-                .assertCycles(10)
-            );
+                .assertCycles(10));
 
-            test('Interrupt during CLI', () => Runner
-                .create([0x58, 0xEA, 0xEA], 0xE000) // CLI NOP NOP
+        test('Interrupt during CLI', () =>
+            Runner.create([0x58, 0xea, 0xea], 0xe000) // CLI NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFF
+                    s: 0xff
                 })
                 .poke({
                     '0xFFFE': 0x12,
@@ -191,20 +182,19 @@ export function run() {
                 .configure(cpu => cpu.setInterrupt(true))
                 .runFor(3)
                 .assertState({
-                    p: 0xE002,
+                    p: 0xe002,
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e
                 })
                 .runFor(2)
                 .configure(cpu => cpu.setInterrupt(false))
                 .run()
-                .assertCycles(14)
-            );
+                .assertCycles(14));
 
-            test('Interrupt during SEI', () => Runner
-                .create([0x78, 0xEA, 0xEA]) // SEI NOP NOP
+        test('Interrupt during SEI', () =>
+            Runner.create([0x78, 0xea, 0xea]) // SEI NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFF
+                    s: 0xff
                 })
                 .poke({
                     '0xFFFE': 0x12,
@@ -217,17 +207,16 @@ export function run() {
                 .assertState({
                     p: 0x3412,
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFC
+                    s: 0xfc
                 })
                 .run()
-                .assertCycles(10)
-            );
+                .assertCycles(10));
 
-            test('Interrupt during PLP: clear flag', () => Runner
-                .create([0x28, 0xEA, 0xEA], 0xE000) // PLP NOP NOP
+        test('Interrupt during PLP: clear flag', () =>
+            Runner.create([0x28, 0xea, 0xea], 0xe000) // PLP NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFE
+                    s: 0xfe
                 })
                 .poke({
                     '0xFFFE': 0x12,
@@ -238,21 +227,20 @@ export function run() {
                 .configure(cpu => cpu.setInterrupt(true))
                 .runFor(5)
                 .assertState({
-                    p: 0xE002,
+                    p: 0xe002,
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFF
+                    s: 0xff
                 })
                 .runFor(2)
                 .configure(cpu => cpu.setInterrupt(false))
                 .run()
-                .assertCycles(14)
-            );
+                .assertCycles(14));
 
-            test('Interrupt during PLP: set flag', () => Runner
-                .create([0x28, 0xEA, 0xEA]) // PLP NOP NodeFilesystemProvider
+        test('Interrupt during PLP: set flag', () =>
+            Runner.create([0x28, 0xea, 0xea]) // PLP NOP NodeFilesystemProvider
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFE
+                    s: 0xfe
                 })
                 .poke({
                     '0xFFFE': 0x12,
@@ -266,20 +254,18 @@ export function run() {
                 .assertState({
                     p: 0x3412,
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFC
+                    s: 0xfc
                 })
                 .run()
-                .assertCycles(10)
-            );
-        });
+                .assertCycles(10));
+    });
 
-        suite('NMI', function() {
-
-            test('NMI - RTI cycle', () => Runner
-                .create([0xEA, 0xEA, 0xEA], 0xE000) // NOP NOP NOP
+    suite('NMI', function() {
+        test('NMI - RTI cycle', () =>
+            Runner.create([0xea, 0xea, 0xea], 0xe000) // NOP NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFF
+                    s: 0xff
                 })
                 .poke({
                     '0xFFFA': 0x12,
@@ -291,7 +277,7 @@ export function run() {
                 .runFor(8)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFC,
+                    s: 0xfc,
                     p: 0x3412
                 })
                 .assertMemory({
@@ -300,15 +286,14 @@ export function run() {
                 .runFor(6)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFF,
-                    p: 0xE001
+                    s: 0xff,
+                    p: 0xe001
                 })
                 .run()
-                .assertCycles(4)
-            );
+                .assertCycles(4));
 
-            test('NMI - RTI cycle, stack wrap', () => Runner
-                .create([0xEA, 0xEA, 0xEA], 0xE000) // NOP NOP NOP
+        test('NMI - RTI cycle, stack wrap', () =>
+            Runner.create([0xea, 0xea, 0xea], 0xe000) // NOP NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0x01
@@ -323,7 +308,7 @@ export function run() {
                 .runFor(8)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFE,
+                    s: 0xfe,
                     p: 0x3412
                 })
                 .assertMemory({
@@ -333,14 +318,13 @@ export function run() {
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0x01,
-                    p: 0xE001
+                    p: 0xe001
                 })
                 .run()
-                .assertCycles(4)
-            );
+                .assertCycles(4));
 
-            test('CLI', () => Runner
-                .create([0xEA, 0xEA, 0xEA], 0xE000) // NOP NOP NOP
+        test('CLI', () =>
+            Runner.create([0xea, 0xea, 0xea], 0xe000) // NOP NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
                     s: 0x01
@@ -354,14 +338,13 @@ export function run() {
                 .configure(cpu => cpu.nmi())
                 .run()
                 .assertState({})
-                .assertCycles(18)
-            );
+                .assertCycles(18));
 
-            test('Hijack BRK', () => Runner
-                .create([0x00, 0x00, 0xEA, 0xEA], 0xE000) // NOP NOP NOP
+        test('Hijack BRK', () =>
+            Runner.create([0x00, 0x00, 0xea, 0xea], 0xe000) // NOP NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFF
+                    s: 0xff
                 })
                 .poke({
                     '0xFFFA': 0x12,
@@ -373,21 +356,20 @@ export function run() {
                 .runFor(5)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
-                    s: 0xFC,
+                    s: 0xfc,
                     p: 0x3412
                 })
                 .assertMemory({
                     '0x01FD': CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.b
                 })
                 .run()
-                .assertCycles(10)
-            );
+                .assertCycles(10));
 
-            test('Hijack IRQ', () => Runner
-                .create([0xEA, 0xEA, 0xEA], 0xE000)
+        test('Hijack IRQ', () =>
+            Runner.create([0xea, 0xea, 0xea], 0xe000)
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
-                    s: 0xFF
+                    s: 0xff
                 })
                 .poke({
                     '0xFFFA': 0x12,
@@ -400,7 +382,7 @@ export function run() {
                 .configure(cpu => cpu.nmi())
                 .runFor(6)
                 .assertState({
-                    s: 0xFC,
+                    s: 0xfc,
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
                     p: 0x3412
                 })
@@ -409,9 +391,6 @@ export function run() {
                 })
                 .configure(cpu => cpu.setInterrupt(false))
                 .run()
-                .assertCycles(10)
-            );
-
-        });
-
+                .assertCycles(10));
+    });
 }

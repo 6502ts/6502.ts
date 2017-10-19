@@ -24,10 +24,7 @@ import CartridgeModel from '../../model/Cartridge';
 import SettingsModel from '../../model/Settings';
 import Database from './storage/Database';
 
-import {
-    toState as cartridgeToState,
-    fromModel as cartridgeFromState
-} from './storage/Cartridge';
+import { toState as cartridgeToState, fromModel as cartridgeFromState } from './storage/Cartridge';
 
 import {
     UNIQUE_ID as SETTINGS_UNIQUE_ID,
@@ -36,77 +33,58 @@ import {
 } from './storage/Settings';
 
 export default class StorageManager implements StorageManagerInterface {
-
     getAllCartridges(): Promise<Array<CartridgeModel>> {
-        return Promise.resolve(this._database
-            .cartridge
-            .toArray()
-            .then(cartridges => cartridges.map(c => cartridgeToState(c)))
+        return Promise.resolve(
+            this._database.cartridge.toArray().then(cartridges => cartridges.map(c => cartridgeToState(c)))
         );
     }
 
     saveCartridge(cartridge: CartridgeModel): Promise<void> {
-        return Promise.resolve(this._database
-            .cartridge
-            .where('hash')
-            .equals(cartridge.hash)
-            .toArray()
-            .then(results => cartridgeFromState(cartridge, results.length > 0 ? results[0].id : undefined))
-            .then(c => void(this._database.cartridge.put(c)))
+        return Promise.resolve(
+            this._database.cartridge
+                .where('hash')
+                .equals(cartridge.hash)
+                .toArray()
+                .then(results => cartridgeFromState(cartridge, results.length > 0 ? results[0].id : undefined))
+                .then(c => void this._database.cartridge.put(c))
         );
     }
 
     deleteCartridge(cartridge: CartridgeModel): Promise<void> {
-        return Promise.resolve(this._database
-            .cartridge
-            .where('hash')
-            .equals(cartridge.hash)
-            .toArray()
-            .then(results => this._database.cartridge.bulkDelete(results.map(c => c.id)))
+        return Promise.resolve(
+            this._database.cartridge
+                .where('hash')
+                .equals(cartridge.hash)
+                .toArray()
+                .then(results => this._database.cartridge.bulkDelete(results.map(c => c.id)))
         );
     }
 
     getImage(hash: string): Promise<Uint8Array> {
-        return Promise.resolve(this._database
-            .image
-            .get(hash)
-            .then(image => image && image.buffer)
-        );
+        return Promise.resolve(this._database.image.get(hash).then(image => image && image.buffer));
     }
 
     saveImage(hash: string, buffer: Uint8Array): Promise<void> {
-        return Promise.resolve(this._database
-            .image
-            .put({hash, buffer})
-            .then(() => undefined)
-        );
+        return Promise.resolve(this._database.image.put({ hash, buffer }).then(() => undefined));
     }
 
     deleteImage(hash: string): Promise<void> {
-        return Promise.resolve(this._database
-            .image
-            .delete(hash)
-        );
+        return Promise.resolve(this._database.image.delete(hash));
     }
 
     getSettings(): Promise<SettingsModel> {
-        return Promise.resolve(this._database
-            .settings
-            .where('id')
-            .equals(SETTINGS_UNIQUE_ID)
-            .toArray()
-            .then(results => settingsToState(results.length > 0 ? results[0] : undefined))
+        return Promise.resolve(
+            this._database.settings
+                .where('id')
+                .equals(SETTINGS_UNIQUE_ID)
+                .toArray()
+                .then(results => settingsToState(results.length > 0 ? results[0] : undefined))
         );
     }
 
     saveSettings(settings: SettingsModel): Promise<void> {
-        return Promise.resolve(this._database
-            .settings
-            .put(settingsFromState(settings))
-            .then(() => undefined)
-        );
+        return Promise.resolve(this._database.settings.put(settingsFromState(settings)).then(() => undefined));
     }
 
     private _database = new Database();
-
 }

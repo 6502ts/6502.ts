@@ -19,19 +19,18 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {EventInterface} from 'microevent.ts';
+import { EventInterface } from 'microevent.ts';
 
 import StellaConfig from '../../../machine/stella/Config';
 import CartridgeInfo from '../../../machine/stella/cartridge/CartridgeInfo';
 import EmulationContextInterface from './EmulationContextInterface';
-import {ProcessorConfig as VideoProcessorConfig} from '../../../video/processing/config';
+import { ProcessorConfig as VideoProcessorConfig } from '../../../video/processing/config';
 
 interface EmulationServiceInterface {
-
     init(): Promise<void>;
 
     start(
-        buffer: {[i: number]: number, length: number},
+        buffer: { [i: number]: number; length: number },
         config: StellaConfig,
         cartridgeType?: CartridgeInfo.CartridgeType,
         videoProcessing?: Array<VideoProcessorConfig>
@@ -60,18 +59,15 @@ interface EmulationServiceInterface {
     stateChanged: EventInterface<EmulationServiceInterface.State>;
 
     frequencyUpdate: EventInterface<number>;
-
 }
 
 namespace EmulationServiceInterface {
-
     export enum State {
         stopped,
         running,
         paused,
         error
     }
-
 }
 
 export default EmulationServiceInterface;

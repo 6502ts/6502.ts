@@ -30,18 +30,18 @@ declare namespace window {
 }
 
 import * as React from 'react';
-import {render} from 'react-dom';
-import {createHashHistory} from 'history';
-import {applyMiddleware, compose, createStore} from 'redux';
-import {ThemeProvider} from 'styled-components';
-import {Provider as ReduxProvider} from 'react-redux';
-import {routerMiddleware, ConnectedRouter} from 'react-router-redux';
+import { render } from 'react-dom';
+import { createHashHistory } from 'history';
+import { applyMiddleware, compose, createStore } from 'redux';
+import { ThemeProvider } from 'styled-components';
+import { Provider as ReduxProvider } from 'react-redux';
+import { routerMiddleware, ConnectedRouter } from 'react-router-redux';
 
-import {Provider as EmulationProvider} from './context/Emulation';
-import {initialize as initializeEnvironment} from './actions/environment';
+import { Provider as EmulationProvider } from './context/Emulation';
+import { initialize as initializeEnvironment } from './actions/environment';
 import State from './state/State';
 import reducer from './reducers/root';
-import {batchMiddleware} from './middleware';
+import { batchMiddleware } from './middleware';
 import ServiceContainer from './service/implementation/Container';
 import Main from './containers/Main';
 import Routing from './Routing';
@@ -50,48 +50,42 @@ async function main() {
     const serviceContainer = new ServiceContainer(),
         history = createHashHistory();
 
-    const store = createStore<State>(
-            reducer,
-            new State(),
-            compose(
-                applyMiddleware(
-                    batchMiddleware,
-                    serviceContainer.getPersistenceProvider().getMiddleware(),
-                    serviceContainer.getEmulationProvider().getMiddleware(),
-                    serviceContainer.getCartridgeManager().getMiddleware(),
-                    routerMiddleware(history)
-                ),
-                (
-                    (process.env.NODE_ENV !== 'production' && window.devToolsExtension) ?
-                        window.devToolsExtension() :
-                        (x: any) => x
-                )
-            ) as any
-        );
+    const store = createStore<State>(reducer, new State(), compose(
+        applyMiddleware(
+            batchMiddleware,
+            serviceContainer.getPersistenceProvider().getMiddleware(),
+            serviceContainer.getEmulationProvider().getMiddleware(),
+            serviceContainer.getCartridgeManager().getMiddleware(),
+            routerMiddleware(history)
+        ),
+        process.env.NODE_ENV !== 'production' && window.devToolsExtension ? window.devToolsExtension() : (x: any) => x
+    ) as any);
 
     serviceContainer.setStore(store);
 
-    store.dispatch(initializeEnvironment({
-        helppageUrl: _stelleratorSettings.helppageUrl,
-        buildId: _stelleratorSettings.buildId
-    }));
+    store.dispatch(
+        initializeEnvironment({
+            helppageUrl: _stelleratorSettings.helppageUrl,
+            buildId: _stelleratorSettings.buildId
+        })
+    );
 
     await serviceContainer.getPersistenceProvider().init();
-    await serviceContainer.getEmulationProvider().init(
-        store.getState().settings.useWorker ? _stelleratorSettings.workerUrl : undefined
-    );
+    await serviceContainer
+        .getEmulationProvider()
+        .init(store.getState().settings.useWorker ? _stelleratorSettings.workerUrl : undefined);
 
     render(
         <ThemeProvider theme={{}}>
-        <ReduxProvider store={store}>
-        <EmulationProvider emulationProvider={serviceContainer.getEmulationProvider()}>
-        <ConnectedRouter history={history} store={store as any}>
-            <Main>
-                <Routing/>
-            </Main>
-        </ConnectedRouter>
-        </EmulationProvider>
-        </ReduxProvider>
+            <ReduxProvider store={store}>
+                <EmulationProvider emulationProvider={serviceContainer.getEmulationProvider()}>
+                    <ConnectedRouter history={history} store={store as any}>
+                        <Main>
+                            <Routing />
+                        </Main>
+                    </ConnectedRouter>
+                </EmulationProvider>
+            </ReduxProvider>
         </ThemeProvider>,
         document.getElementById('react-root')
     );

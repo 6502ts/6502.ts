@@ -23,42 +23,38 @@ import * as React from 'react';
 
 import CartridgeInfo from '../../../../../machine/stella/cartridge/CartridgeInfo';
 
-import {
-    DropdownButton,
-    MenuItem
-} from 'react-bootstrap';
+import { DropdownButton, MenuItem } from 'react-bootstrap';
 export interface State {
     id: string;
 }
 
 class CartridgeTypeSelect extends React.Component<CartridgeTypeSelect.Props, State> {
-
     render() {
-        return <DropdownButton
-            id={this.state.id}
-            title={CartridgeInfo.describeCartridgeType(this.props.cartridgeType)}
-            onSelect={this.props.onCartridgeTypeChange as any}
-        >
-            {CartridgeInfo.getAllTypes().map(cartridgeType =>
-                <MenuItem
-                    eventKey={cartridgeType}
-                    active={cartridgeType === this.props.cartridgeType}
-                    key={cartridgeType}
-                >
-                    {CartridgeInfo.describeCartridgeType(cartridgeType)}
-                </MenuItem>
-            )}
-        </DropdownButton>;
+        return (
+            <DropdownButton
+                id={this.state.id}
+                title={CartridgeInfo.describeCartridgeType(this.props.cartridgeType)}
+                onSelect={this.props.onCartridgeTypeChange as any}
+            >
+                {CartridgeInfo.getAllTypes().map(cartridgeType => (
+                    <MenuItem
+                        eventKey={cartridgeType}
+                        active={cartridgeType === this.props.cartridgeType}
+                        key={cartridgeType}
+                    >
+                        {CartridgeInfo.describeCartridgeType(cartridgeType)}
+                    </MenuItem>
+                ))}
+            </DropdownButton>
+        );
     }
 
     state: State = {
         id: `cartridge_type_select_${Math.floor(Math.random() * 10000000)}`
     };
-
 }
 
 namespace CartridgeTypeSelect {
-
     export interface Props {
         cartridgeType?: CartridgeInfo.CartridgeType;
         onCartridgeTypeChange?: (t: CartridgeInfo.CartridgeType) => void;
@@ -68,7 +64,6 @@ namespace CartridgeTypeSelect {
         cartridgeType: CartridgeInfo.CartridgeType.unknown,
         onCartridgeTypeChange: (): void => undefined
     };
-
 }
 
 export default CartridgeTypeSelect;

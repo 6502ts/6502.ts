@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import AudioOutputInterface from '../../io/AudioOutputInterface';
@@ -27,8 +27,7 @@ import Config from '../Config';
 import ToneGenerator from './ToneGenerator';
 
 export default class Audio implements AudioOutputInterface {
-
-    constructor(private _config: Config ) {
+    constructor(private _config: Config) {
         this._toneGenerator = new ToneGenerator(this._config);
 
         this.reset();
@@ -41,7 +40,7 @@ export default class Audio implements AudioOutputInterface {
     }
 
     audc(value: number): void {
-        value &= 0x0F;
+        value &= 0x0f;
 
         if (value === this._tone) {
             return;
@@ -52,7 +51,7 @@ export default class Audio implements AudioOutputInterface {
     }
 
     audf(value: number): void {
-        value &= 0x1F;
+        value &= 0x1f;
 
         if (value === this._frequency) {
             return;
@@ -63,7 +62,7 @@ export default class Audio implements AudioOutputInterface {
     }
 
     audv(value: number): void {
-        value &= 0x0F;
+        value &= 0x0f;
 
         if (value === this._volume) {
             return;
@@ -88,7 +87,6 @@ export default class Audio implements AudioOutputInterface {
     }
 
     getBuffer(key: number): AudioOutputBuffer {
-
         return this._toneGenerator.getBuffer(key);
     }
 
@@ -111,5 +109,4 @@ export default class Audio implements AudioOutputInterface {
     private _frequency = -1;
     private _active = false;
     private _toneGenerator: ToneGenerator = null;
-
 }

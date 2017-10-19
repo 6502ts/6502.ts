@@ -19,12 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {EventInterface} from 'microevent.ts';
+import { EventInterface } from 'microevent.ts';
 
 import AudioOutputBuffer from '../../tools/AudioOutputBuffer';
 
 interface AudioOutputInterface {
-
     getBuffer(key: number): AudioOutputBuffer;
 
     getVolume(): number;
@@ -34,7 +33,6 @@ interface AudioOutputInterface {
     volumeChanged: EventInterface<number>;
 
     stop: EventInterface<void>;
-
 }
 
 export default AudioOutputInterface;

@@ -19,13 +19,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import Switch from './Switch';
 import PaddleInterface from './PaddleInterface';
 
 export default class Paddle implements PaddleInterface {
-
     setValue(value: number): void {
         this._value = value;
         this.valueChanged.dispatch(value);
@@ -43,5 +42,4 @@ export default class Paddle implements PaddleInterface {
 
     protected _fireSwitch = new Switch();
     protected _value = 0.5;
-
 }

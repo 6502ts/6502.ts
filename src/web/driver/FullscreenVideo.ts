@@ -23,7 +23,6 @@ import * as screenfull from 'screenfull';
 import VideoDriver from './VideoDriverInterface';
 
 export default class FullscreenVideoDriver {
-
     constructor(private _videoDriver: VideoDriver) {}
 
     engage(): void {
@@ -92,5 +91,4 @@ export default class FullscreenVideoDriver {
     private _changeListener: () => void = this._onChange.bind(this);
 
     private _engaged = false;
-
 }

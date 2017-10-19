@@ -21,12 +21,12 @@
 
 import * as React from 'react';
 
-import {styled, StyledComponent} from '../style';
+import { styled, StyledComponent } from '../style';
 import Cartridge from '../../model/Cartridge';
 import BorderBox from '../general/BorderBox';
 
 export interface Props {
-    cartridges: {[key: string]: Cartridge};
+    cartridges: { [key: string]: Cartridge };
     selectedCartridgeKey: string;
     className?: string;
 
@@ -34,35 +34,32 @@ export interface Props {
 }
 
 function CartridgeListUnstyled(props: Props) {
-    return  <BorderBox className={props.className}>
-        <ListStyled>
-            {Object
-                .keys(props.cartridges)
-                .map(key => props.cartridges[key])
-                .sort((c1: Cartridge, c2: Cartridge) => c1.name === c2.name ? 0 : ((c1.name < c2.name) ? -1 : 1))
-                .map(
-                    cartridge =>
-                    <ListItemStyled
-                        onClick={() => props.onClick(cartridge.hash)}
-                        className={props.selectedCartridgeKey === cartridge.hash ? 'selected' : ''}
-                        key={cartridge.hash}
-                    >
-                        {cartridge.name}
-                    </ListItemStyled>
-                )
-            }
-        </ListStyled>
-    </BorderBox>;
+    return (
+        <BorderBox className={props.className}>
+            <ListStyled>
+                {Object.keys(props.cartridges)
+                    .map(key => props.cartridges[key])
+                    .sort((c1: Cartridge, c2: Cartridge) => (c1.name === c2.name ? 0 : c1.name < c2.name ? -1 : 1))
+                    .map(cartridge => (
+                        <ListItemStyled
+                            onClick={() => props.onClick(cartridge.hash)}
+                            className={props.selectedCartridgeKey === cartridge.hash ? 'selected' : ''}
+                            key={cartridge.hash}
+                        >
+                            {cartridge.name}
+                        </ListItemStyled>
+                    ))}
+            </ListStyled>
+        </BorderBox>
+    );
 }
 
 namespace CartridgeListUnstyled {
-
     export const defaultProps: Props = {
         cartridges: {},
         selectedCartridgeKey: '',
         onClick: () => undefined
     };
-
 }
 
 const ListStyled = styled.ul`
@@ -77,7 +74,7 @@ const ListItemStyled = styled.li`
     padding-right: 0.3rem;
 
     &:nth-child(odd) {
-       background-color: #444;
+        background-color: #444;
     }
 
     &.selected {

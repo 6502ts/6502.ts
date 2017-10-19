@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import BoardInterface from '../board/BoardInterface';
 import CpuInterface from '../cpu/CpuInterface';
@@ -44,10 +44,9 @@ import TimerInterface from '../board/TimerInterface';
 import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 import TaskInterface from '../../tools/scheduler/TaskInterface';
 import RngInterface from '../../tools/rng/GeneratorInterface';
-import {createRng} from '../../tools/rng/factory';
+import { createRng } from '../../tools/rng/factory';
 
 class Board implements BoardInterface {
-
     constructor(
         private _config: Config,
         cartridge: CartridgeInterface,
@@ -58,7 +57,7 @@ class Board implements BoardInterface {
 
         const bus = new Bus();
 
-        if (typeof(cpuFactory) === 'undefined') {
+        if (typeof cpuFactory === 'undefined') {
             cpuFactory = (_bus, rng) => new Cpu(_bus, rng);
         }
 
@@ -77,13 +76,9 @@ class Board implements BoardInterface {
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
 
-        tia
-            .setCpu(cpu)
-            .setBus(bus);
+        tia.setCpu(cpu).setBus(bus);
 
-        cartridge
-            .setCpu(cpu)
-            .setBus(bus);
+        cartridge.setCpu(cpu).setBus(bus);
 
         pia.setBus(bus);
 
@@ -102,8 +97,8 @@ class Board implements BoardInterface {
         this._joystick1 = joystick1;
         this._paddles = paddles;
 
-        this._bus.event.trap.addHandler(
-            (payload: Bus.TrapPayload) => this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
+        this._bus.event.trap.addHandler((payload: Bus.TrapPayload) =>
+            this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
         );
 
         this._clockMhz = Config.getClockMhz(_config);
@@ -162,7 +157,7 @@ class Board implements BoardInterface {
             throw new Error('Already booted!');
         }
 
-        while (this._cpu.executionState as CpuInterface.ExecutionState !== CpuInterface.ExecutionState.fetch) {
+        while ((this._cpu.executionState as CpuInterface.ExecutionState) !== CpuInterface.ExecutionState.fetch) {
             this._cycle();
 
             cycles++;
@@ -224,13 +219,17 @@ class Board implements BoardInterface {
     getBoardStateDebug(): string {
         const sep = '============';
 
-        return  'TIA:\n' +
-                sep + '\n' +
-                this._tia.getDebugState() + '\n' +
-                `\n` +
-                `PIA:\n` +
-                `${sep}\n` +
-                `${this._pia.getDebugState()}\n`;
+        return (
+            'TIA:\n' +
+            sep +
+            '\n' +
+            this._tia.getDebugState() +
+            '\n' +
+            `\n` +
+            `PIA:\n` +
+            `${sep}\n` +
+            `${this._pia.getDebugState()}\n`
+        );
     }
 
     setClockMode(clockMode: BoardInterface.ClockMode): Board {
@@ -250,7 +249,7 @@ class Board implements BoardInterface {
     private static _executeSlice(board: Board, _timeSlice?: number) {
         const slice = _timeSlice ? Math.round(_timeSlice * board._clockMhz * 1000) : board._sliceSize;
 
-        return board._tick(slice) / board._clockMhz  / 1000;
+        return board._tick(slice) / board._clockMhz / 1000;
     }
 
     private _cycle(): void {
@@ -285,7 +284,8 @@ class Board implements BoardInterface {
                 if (this._cpu.executionState === CpuInterface.ExecutionState.fetch) {
                     this._cartridge.notifyCpuCycleComplete();
 
-                    if (this._clockMode === BoardInterface.ClockMode.instruction &&
+                    if (
+                        this._clockMode === BoardInterface.ClockMode.instruction &&
                         cpuCycles > 0 &&
                         this.cpuClock.hasHandlers
                     ) {

@@ -20,7 +20,7 @@
  */
 
 import * as React from 'react';
-import {styled, StyledComponent} from '../../style';
+import { styled, StyledComponent } from '../../style';
 
 export interface Props {
     className?: string;
@@ -28,17 +28,13 @@ export interface Props {
 }
 
 export function GamepadStatusUnstyled(props: Props) {
-    return (
-        <span className={props.className}>
-            Gamepads: {props.gamepadCount < 2 ? 'A |' : 'AB |'}
-        </span>
-    );
+    return <span className={props.className}>Gamepads: {props.gamepadCount < 2 ? 'A |' : 'AB |'}</span>;
 }
 
 type GamepadStatusStyled = StyledComponent<Props>;
 
 const GamepadStatusStyled: GamepadStatusStyled = styled(GamepadStatusUnstyled)`
-    display: ${props => (props.gamepadCount > 0) ? 'inline' : 'none'}
+    display: ${props => (props.gamepadCount > 0 ? 'inline' : 'none')};
 `;
 
 export default GamepadStatusStyled;

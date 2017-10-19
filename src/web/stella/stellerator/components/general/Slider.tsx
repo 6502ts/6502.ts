@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {styled} from '../style';
+import { styled } from '../style';
 
 export interface Props {
     className?: string;
@@ -19,9 +19,7 @@ const Container = styled.div`
     align-items: center;
 `;
 
-const Label = styled.div`
-    padding-left: 1rem;
-`;
+const Label = styled.div`padding-left: 1rem;`;
 
 function Slider(props: Props) {
     return (
@@ -34,17 +32,15 @@ function Slider(props: Props) {
 
                 if (newValue < props.min) {
                     props.onChange(props.min);
-                }
-                else if (newValue > props.max) {
+                } else if (newValue > props.max) {
                     props.onChange(props.max);
-                }
-                else {
+                } else {
                     props.onChange(newValue);
                 }
             }}
         >
             <input
-                type='range'
+                type="range"
                 value={props.value.toString()}
                 min={props.min.toString()}
                 max={props.max.toString()}
@@ -57,7 +53,6 @@ function Slider(props: Props) {
 }
 
 namespace Slider {
-
     export const defaultProps: Props = {
         value: 0,
         max: 0,
@@ -67,7 +62,6 @@ namespace Slider {
 
         onChange: () => undefined
     };
-
 }
 
 export default Slider;

@@ -19,18 +19,17 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {setImmediate} from './setImmediate';
+import { setImmediate } from './setImmediate';
 
 import SchedulerInterface from './SchedulerInterface';
 import TaskInterface from './TaskInterface';
 
 class ImmediateScheduler implements SchedulerInterface {
-
     start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): TaskInterface {
         let terminate = false;
 
         function handler() {
-            if (terminate)  {
+            if (terminate) {
                 return;
             }
 
@@ -41,7 +40,7 @@ class ImmediateScheduler implements SchedulerInterface {
         setImmediate(handler);
 
         return {
-            stop: () => terminate = true
+            stop: () => (terminate = true)
         };
     }
 }

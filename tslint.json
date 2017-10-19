@@ -2,6 +2,7 @@
     "extends": "tslint:recommended",
     "rules": {
         "object-literal-sort-keys": false,
+        "object-literal-key-quotes": false,
         "callable-types": false,
         "interface-name": [
             false
@@ -9,7 +10,8 @@
         "no-bitwise": false,
         "quotemark": [
             true,
-            "single"
+            "single",
+            "jsx-double"
         ],
         "one-variable-per-declaration": [
             false
@@ -76,6 +78,8 @@
         ],
         "no-empty": false,
         "prefer-for-of": false,
-        "return-undefined": true
+        "return-undefined": true,
+        "semicolon": [true, "always", "ignore-bound-class-methods"],
+        "max-line-length": false
     }
 }

@@ -21,10 +21,7 @@
 
 import * as React from 'react';
 
-import {
-    Button,
-    Modal
-} from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 
 export interface Props {
     show: boolean;
@@ -42,9 +39,7 @@ function PendingChangesModal(props: Props) {
             <Modal.Header closeButton>
                 <Modal.Title>Unsaved changes</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                {props.children}
-            </Modal.Body>
+            <Modal.Body>{props.children}</Modal.Body>
             <Modal.Footer>
                 <Button onClick={props.onHide}>Cancel</Button>
                 <Button onClick={props.onContinueAndSave}>Continue &amp; Save</Button>
@@ -55,14 +50,12 @@ function PendingChangesModal(props: Props) {
 }
 
 namespace PendingChangesModal {
-
     export const defaultProps: Props = {
         show: false,
         onHide: () => undefined,
         onContinueAndDiscard: () => undefined,
         onContinueAndSave: () => undefined
     };
-
 }
 
 export default PendingChangesModal;

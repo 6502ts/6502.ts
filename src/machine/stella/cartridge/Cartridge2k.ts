@@ -23,8 +23,7 @@ import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 
 class Cartridge2k extends AbstractCartridge {
-
-    constructor(buffer: {[i: number]: number; length: number}) {
+    constructor(buffer: { [i: number]: number; length: number }) {
         super();
 
         if (buffer.length > 0x0800) {
@@ -32,13 +31,13 @@ class Cartridge2k extends AbstractCartridge {
         }
 
         for (let i = 0; i < buffer.length && i < 0x0800; i++) {
-            this._rom[0x07FF - i] = buffer[buffer.length - 1 - i];
+            this._rom[0x07ff - i] = buffer[buffer.length - 1 - i];
         }
     }
 
     read(address: number): number {
         // Mask out A11 - A15
-        return this._rom[address & 0x07FF];
+        return this._rom[address & 0x07ff];
     }
 
     getType(): CartridgeInfo.CartridgeType {

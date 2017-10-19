@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Action} from 'redux';
+import { Action } from 'redux';
 
 import {
     ChangeCartridgeTypeAction,
@@ -29,7 +29,7 @@ import {
     ChangeRngSeedStrategyAction,
     ChangeTvModeAction,
     ChangeVolumeAction,
-    types as ActionType,
+    types as ActionType
 } from '../actions/currentCartridge';
 import Cartridge from '../model/Cartridge';
 

@@ -43,13 +43,12 @@ interface EmModuleApi {
 }
 
 class Thumbulator {
-
     constructor(bus: Thumbulator.Bus, options: Thumbulator.Options = {}) {
         this._module = nativeThumbulator(this._getApi(bus, options));
         this.enableDebug(false);
     }
 
-    run(cycles: number): Thumbulator.TrapReason|number {
+    run(cycles: number): Thumbulator.TrapReason | number {
         return this._module._run(cycles);
     }
 
@@ -86,21 +85,19 @@ class Thumbulator {
             trapOnInstructionFetch: options.trapOnInstructionFetch || (() => 0),
 
             busRead16: bus.read16,
-            busRead32: bus.read32 || (address => (bus.read16(address) & 0xFFFF) | (bus.read16(address + 2) << 16)),
+            busRead32: bus.read32 || (address => (bus.read16(address) & 0xffff) | (bus.read16(address + 2) << 16)),
 
             busWrite16: bus.write16,
-            busWrite32: bus.write32 || (
-                (address, value) => (bus.write16(address, value & 0xFFFF), bus.write16(address + 2, value >>> 16))
-            )
+            busWrite32:
+                bus.write32 ||
+                ((address, value) => (bus.write16(address, value & 0xffff), bus.write16(address + 2, value >>> 16)))
         };
     }
 
     private _module: EmModule = null;
-
 }
 
 namespace Thumbulator {
-
     export const enum TrapReason {
         noTrap = 0,
         breakpoint = 1,
@@ -120,7 +117,6 @@ namespace Thumbulator {
         printer?: (data: string) => void;
         trapOnInstructionFetch?: (address: number) => number;
     }
-
 }
 
 export default Thumbulator;

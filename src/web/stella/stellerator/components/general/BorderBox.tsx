@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {styled} from '../style';
+import { styled } from '../style';
 
 const BorderBox = styled.div`
     border: 2px solid;

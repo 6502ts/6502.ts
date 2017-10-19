@@ -20,10 +20,7 @@
  */
 
 import * as React from 'react';
-import {
-    Button,
-    Modal
-} from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 
 export interface Props {
     errorMessage: string;
@@ -37,28 +34,20 @@ function ZipfileErrorModal(props: Props) {
             <Modal.Header closeButton>
                 <Modal.Title>Error reading archive</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                {props.errorMessage}
-            </Modal.Body>
+            <Modal.Body>{props.errorMessage}</Modal.Body>
             <Modal.Footer>
-                <Button
-                    onClick={props.onClose}
-                >
-                    Continue
-                </Button>
+                <Button onClick={props.onClose}>Continue</Button>
             </Modal.Footer>
         </Modal>
     );
 }
 
 namespace ZipfileErrorModal {
-
     export const defaultProps: Props = {
         errorMessage: '',
 
         onClose: () => undefined
     };
-
 }
 
 export default ZipfileErrorModal;

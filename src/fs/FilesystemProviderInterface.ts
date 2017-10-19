@@ -38,14 +38,15 @@ interface FileSystemProviderInterface {
 }
 
 namespace FileSystemProviderInterface {
-
     export interface FileBufferInterface {
         [index: number]: number;
         length: number;
     }
 
-    export const enum FileType {DIRECTORY, FILE}
-
+    export const enum FileType {
+        DIRECTORY,
+        FILE
+    }
 }
 
 export default FileSystemProviderInterface;

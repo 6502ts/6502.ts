@@ -21,18 +21,18 @@
 
 import * as React from 'react';
 
-import {default as Navbar, Props as NavbarProps} from './main/Navbar';
+import { default as Navbar, Props as NavbarProps } from './main/Navbar';
 
 export interface Props extends NavbarProps {
     children?: React.ReactNode;
 }
 
 function Main(props: Props) {
-    const p = ({children, ..._p}: Props) => _p;
+    const p = ({ children, ..._p }: Props) => _p;
 
     return (
         <div>
-            <Navbar {...p(props)}/>
+            <Navbar {...p(props)} />
             {props.children}
         </div>
     );

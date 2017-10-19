@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event, EventInterface} from 'microevent.ts';
+import { Event, EventInterface } from 'microevent.ts';
 
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
@@ -32,13 +32,12 @@ import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
 import SchedulerFactory from '../../../../tools/scheduler/Factory';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
-import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
-import {Mutex} from 'async-mutex';
+import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
+import { Mutex } from 'async-mutex';
 
 const CLOCK_UPDATE_INTERVAL = 2000;
 
 export default class EmulationService implements EmulationServiceInterface {
-
     constructor() {
         this.frequencyUpdate = this._clockProbe.frequencyUpdate;
         this._updateScheduler();
@@ -49,12 +48,11 @@ export default class EmulationService implements EmulationServiceInterface {
     }
 
     start(
-        buffer: {[i: number]: number, length: number},
+        buffer: { [i: number]: number; length: number },
         config: StellaConfig,
         cartridgeType?: CartridgeInfo.CartridgeType,
         videoProcessing?: Array<VideoProcessorConfig>
-    ): Promise<EmulationServiceInterface.State>
-    {
+    ): Promise<EmulationServiceInterface.State> {
         const factory = new CartridgeFactory();
 
         return this._mutex.runExclusive(() => {
@@ -72,8 +70,7 @@ export default class EmulationService implements EmulationServiceInterface {
                 this._board.trap.addHandler(EmulationService._trapHandler, this);
                 this._context = new EmulationContext(board, videoProcessing);
 
-                this._clockProbe
-                    .attach(this._board.clock);
+                this._clockProbe.attach(this._board.clock);
 
                 this._setState(EmulationServiceInterface.State.paused);
             } catch (e) {
@@ -114,7 +111,6 @@ export default class EmulationService implements EmulationServiceInterface {
                 } catch (e) {
                     this._setError(e);
                 }
-
             }
 
             return this._state;
@@ -203,9 +199,7 @@ export default class EmulationService implements EmulationServiceInterface {
                 this._board.suspend();
                 this._board.trap.removeHandler(EmulationService._trapHandler, this);
 
-                this._clockProbe
-                    .stop()
-                    .detach();
+                this._clockProbe.stop().detach();
             }
             this._board = null;
 
@@ -219,15 +213,15 @@ export default class EmulationService implements EmulationServiceInterface {
     }
 
     private _tryToResume(): void {
-            if (this._state === EmulationServiceInterface.State.running) {
-                return;
-            }
+        if (this._state === EmulationServiceInterface.State.running) {
+            return;
+        }
 
-            this._board.getTimer().start(this._scheduler);
-            this._board.resume();
-            this._setState(EmulationServiceInterface.State.running);
+        this._board.getTimer().start(this._scheduler);
+        this._board.resume();
+        this._setState(EmulationServiceInterface.State.running);
 
-            this._clockProbe.start();
+        this._clockProbe.start();
     }
 
     private _setError(e: Error): void {
@@ -245,9 +239,9 @@ export default class EmulationService implements EmulationServiceInterface {
     }
 
     private _updateScheduler(): void {
-        this._scheduler = this._enforceRateLimit ?
-            this._schedulerFactory.createLimitingScheduler() :
-            this._schedulerFactory.createImmediateScheduler();
+        this._scheduler = this._enforceRateLimit
+            ? this._schedulerFactory.createLimitingScheduler()
+            : this._schedulerFactory.createImmediateScheduler();
     }
 
     stateChanged = new Event<EmulationServiceInterface.State>();
@@ -263,5 +257,4 @@ export default class EmulationService implements EmulationServiceInterface {
     private _clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_UPDATE_INTERVAL));
     private _mutex = new Mutex();
     private _schedulerFactory = new SchedulerFactory();
-
 }

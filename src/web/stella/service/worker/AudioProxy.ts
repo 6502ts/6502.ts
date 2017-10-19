@@ -19,26 +19,18 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
-import {RpcProviderInterface} from 'worker-rpc';
+import { RpcProviderInterface } from 'worker-rpc';
 import AudioOutputInterface from '../../../../machine/io/AudioOutputInterface';
 import ToneGenerator from '../../../../machine/stella/tia/ToneGenerator';
 import StellaConfig from '../../../../machine/stella/Config';
 import AudioOutputBuffer from '../../../../tools/AudioOutputBuffer';
 
-import {
-    SIGNAL_TYPE,
-    AudioBufferChangeMessage,
-    AudioVolumeChangeMessage
-} from './messages';
+import { SIGNAL_TYPE, AudioBufferChangeMessage, AudioVolumeChangeMessage } from './messages';
 
 class AudioProxy implements AudioOutputInterface {
-
-    constructor(
-        private _index: number,
-        private _rpc: RpcProviderInterface
-    ) {}
+    constructor(private _index: number, private _rpc: RpcProviderInterface) {}
 
     init(): this {
         this._rpc
@@ -94,7 +86,6 @@ class AudioProxy implements AudioOutputInterface {
 
     private _toneGenerator = new ToneGenerator();
     private _volume = 0;
-
 }
 
 export default AudioProxy;

@@ -25,7 +25,6 @@ import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 
 class Cartridge3F extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
@@ -51,7 +50,7 @@ class Cartridge3F extends AbstractCartridge {
         // Signature shamelessly stolen from stella
         const signatureCounts = cartridgeUtil.searchForSignatures(
             buffer,
-            [[ 0x85, 0x3F ]]  // STA $3F
+            [[0x85, 0x3f]] // STA $3F
         );
 
         return signatureCounts[0] >= 2;
@@ -74,9 +73,9 @@ class Cartridge3F extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
-        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07FF];
+        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07ff];
     }
 
     getType(): CartridgeInfo.CartridgeType {
@@ -84,7 +83,7 @@ class Cartridge3F extends AbstractCartridge {
     }
 
     private static _onBusAccess(accessType: Bus.AccessType, self: Cartridge3F): void {
-        if (self._bus.getLastAddresBusValue() === 0x003F) {
+        if (self._bus.getLastAddresBusValue() === 0x003f) {
             self._bank0 = self._banks[self._bus.getLastDataBusValue() & 0x03];
         }
     }
@@ -93,7 +92,6 @@ class Cartridge3F extends AbstractCartridge {
     private _bank0: Uint8Array;
     private _bank1: Uint8Array;
     private _bus: Bus = null;
-
 }
 
 export default Cartridge3F;

@@ -23,7 +23,6 @@ import Config from '../../machine/stella/Config';
 import CommandInterpreter from '../CommandInterpreter';
 
 export default class SystemConfigSetupProvider {
-
     constructor(private _config: Config) {}
 
     getCommands(): CommandInterpreter.CommandTableInterface {
@@ -65,7 +64,7 @@ export default class SystemConfigSetupProvider {
 
     protected _setupPaddles(args?: Array<string>) {
         if (args && args.length !== 0) {
-            this._config.emulatePaddles = (this._isArgTruthy(args[0]));
+            this._config.emulatePaddles = this._isArgTruthy(args[0]);
         }
 
         return `paddle emulation: ${this._config.emulatePaddles ? 'enabled' : 'disabled'}`;
@@ -103,9 +102,8 @@ export default class SystemConfigSetupProvider {
 
     _commands: CommandInterpreter.CommandTableInterface = {
         'tv-mode': this._setupVideo.bind(this),
-        'audio': this._setupAudio.bind(this),
-        'paddles': this._setupPaddles.bind(this),
-        'seed': this._setRandomSeed.bind(this)
+        audio: this._setupAudio.bind(this),
+        paddles: this._setupPaddles.bind(this),
+        seed: this._setRandomSeed.bind(this)
     };
-
 }

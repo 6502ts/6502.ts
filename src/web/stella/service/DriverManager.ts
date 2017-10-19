@@ -23,7 +23,6 @@ import EmulationServiceInterface from './EmulationServiceInterface';
 import EmulationContextInterface from './EmulationContextInterface';
 
 class DriverManager {
-
     bind(emulationService: EmulationServiceInterface): this {
         if (this._driversBound) {
             return this;
@@ -87,9 +86,9 @@ class DriverManager {
     private _shouldBindDrivers(
         state = this._emulationService ? this._emulationService.getState() : undefined
     ): boolean {
-        return this._emulationService && (
-            state === EmulationServiceInterface.State.running ||
-            state === EmulationServiceInterface.State.paused
+        return (
+            this._emulationService &&
+            (state === EmulationServiceInterface.State.running || state === EmulationServiceInterface.State.paused)
         );
     }
 
@@ -98,11 +97,8 @@ class DriverManager {
             return;
         }
 
-        this._drivers.forEach(
-            driverContext => driverContext.binder(
-                this._emulationService.getEmulationContext(),
-                driverContext.driver
-            )
+        this._drivers.forEach(driverContext =>
+            driverContext.binder(this._emulationService.getEmulationContext(), driverContext.driver)
         );
 
         this._driversBound = true;
@@ -113,9 +109,7 @@ class DriverManager {
             return;
         }
 
-        this._drivers.forEach(
-            driverContext => driverContext.driver.unbind()
-        );
+        this._drivers.forEach(driverContext => driverContext.driver.unbind());
 
         this._driversBound = false;
     }
@@ -126,7 +120,6 @@ class DriverManager {
 }
 
 namespace DriverManager {
-
     export interface Driver {
         unbind(): void;
     }
@@ -136,12 +129,8 @@ namespace DriverManager {
     }
 
     export class DriverContext {
-        constructor(
-            public driver: Driver,
-            public binder: Binder
-        ) {}
+        constructor(public driver: Driver, public binder: Binder) {}
     }
-
 }
 
 export default DriverManager;

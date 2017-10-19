@@ -31,7 +31,6 @@ const enum IODelay {
 }
 
 class CartridgeFA2 extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
@@ -57,11 +56,11 @@ class CartridgeFA2 extends AbstractCartridge {
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
         // Signatures shamelessly stolen from Stella
         const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
-            [0xA0, 0xC1, 0x1F, 0xE0],
-            [0x00, 0x80, 0x02, 0xE0]
+            [0xa0, 0xc1, 0x1f, 0xe0],
+            [0x00, 0x80, 0x02, 0xe0]
         ]);
 
-        return (signatureCounts[0] > 0 || signatureCounts[1] > 0);
+        return signatureCounts[0] > 0 || signatureCounts[1] > 0;
     }
 
     reset(): void {
@@ -76,7 +75,7 @@ class CartridgeFA2 extends AbstractCartridge {
 
     randomize(rng: RngInterface): void {
         for (let i = 0; i < this._ram.length; i++) {
-            this._ram[i] = rng.int(0xFF);
+            this._ram[i] = rng.int(0xff);
         }
     }
 
@@ -87,29 +86,29 @@ class CartridgeFA2 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        this.write(address & 0x0FFF, this._bus.getLastDataBusValue());
+        this.write(address & 0x0fff, this._bus.getLastDataBusValue());
 
         return this.peek(address);
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (address >= 0x0100 && address < 0x0200) {
             return this._ram[address - 0x0100];
-        } else if (address === 0x0FF4) {
-            return this._accessCounter >= this._accessCounterLimit ?
-                // bit 6 zero: operation complete
-                (this._bank[address] & ~0x40) :
-                // bit 6 one: operation pending
-                (this._bank[address] | 0x40);
+        } else if (address === 0x0ff4) {
+            return this._accessCounter >= this._accessCounterLimit
+                ? // bit 6 zero: operation complete
+                  this._bank[address] & ~0x40
+                : // bit 6 one: operation pending
+                  this._bank[address] | 0x40;
         } else {
             return this._bank[address];
         }
     }
 
     write(address: number, value: number): void {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         this._accessCounter++;
 
@@ -118,12 +117,12 @@ class CartridgeFA2 extends AbstractCartridge {
             return;
         }
 
-        if (address === 0x0FF4) {
+        if (address === 0x0ff4) {
             return this._handleIo();
         }
 
-        if (address >= 0x0FF5 && address <= 0x0FFB) {
-            this._bank = this._banks[address - 0x0FF5];
+        if (address >= 0x0ff5 && address <= 0x0ffb) {
+            this._bank = this._banks[address - 0x0ff5];
         }
     }
 
@@ -132,26 +131,24 @@ class CartridgeFA2 extends AbstractCartridge {
             return;
         }
 
-        if (this._ram[0xFF] === 1) {
+        if (this._ram[0xff] === 1) {
             for (let i = 0; i < 0x100; i++) {
                 this._ram[i] = this._savedRam[i];
             }
 
             this._accessCounterLimit = IODelay.load;
-        }
-        else if (this._ram[0xFF] === 2) {
+        } else if (this._ram[0xff] === 2) {
             for (let i = 0; i < 0x100; i++) {
                 this._savedRam[i] = this._ram[i];
             }
 
             this._accessCounterLimit = IODelay.save;
-        }
-        else {
+        } else {
             return;
         }
 
         this._accessCounter = 0;
-        this._ram[0xFF] = 0;
+        this._ram[0xff] = 0;
     }
 
     private _bank: Uint8Array;

@@ -30,20 +30,16 @@ const fragmentSahderPlainSource = fs.readFileSync(__dirname + '/shader/render_pl
 const vertexShaderSource = fs.readFileSync(__dirname + '/shader/render.vsh', 'utf-8');
 
 class WebglVideoDriver implements VideoDriverInterface {
-
-    constructor(
-        private _canvas: HTMLCanvasElement,
-        config: WebglVideoDriver.Config = {}
-    ) {
-        if (typeof(config.aspect) !== 'undefined') {
+    constructor(private _canvas: HTMLCanvasElement, config: WebglVideoDriver.Config = {}) {
+        if (typeof config.aspect !== 'undefined') {
             this._aspect = config.aspect;
         }
 
-        if (typeof(config.gamma) !== 'undefined') {
+        if (typeof config.gamma !== 'undefined') {
             this._gamma = config.gamma;
         }
 
-        if (typeof(config.povEmulation) !== 'undefined') {
+        if (typeof config.povEmulation !== 'undefined') {
             this._povEmulation = config.povEmulation;
         }
 
@@ -78,7 +74,7 @@ class WebglVideoDriver implements VideoDriverInterface {
     }
 
     resize(width?: number, height?: number): this {
-        if (typeof(width) === 'undefined' || typeof(height) === 'undefined') {
+        if (typeof width === 'undefined' || typeof height === 'undefined') {
             width = this._canvas.clientWidth;
             height = this._canvas.clientHeight;
         }
@@ -182,9 +178,7 @@ class WebglVideoDriver implements VideoDriverInterface {
             return;
         }
 
-        this._animationFrameHandle = requestAnimationFrame(
-            () => (this._draw(), this._animationFrameHandle = 0)
-        );
+        this._animationFrameHandle = requestAnimationFrame(() => (this._draw(), (this._animationFrameHandle = 0)));
     }
 
     private _cancelDraw(): void {
@@ -210,14 +204,7 @@ class WebglVideoDriver implements VideoDriverInterface {
             if (this._textureGeneration[frameIndex] !== this._imageDataGeneration[frameIndex]) {
                 gl.activeTexture((gl as any)[`TEXTURE${frameIndex}`]);
                 gl.bindTexture(gl.TEXTURE_2D, this._textures[frameIndex]);
-                gl.texImage2D(
-                    gl.TEXTURE_2D,
-                    0,
-                    gl.RGBA,
-                    gl.RGBA,
-                    gl.UNSIGNED_BYTE,
-                    this._imageData[frameIndex].get()
-                );
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._imageData[frameIndex].get());
 
                 this._textureGeneration[frameIndex] = this._imageDataGeneration[frameIndex];
             }
@@ -248,10 +235,7 @@ class WebglVideoDriver implements VideoDriverInterface {
             throw new Error(`failed to compile vertex shader: ${gl.getShaderInfoLog(vertexShader)}`);
         }
 
-        gl.shaderSource(
-            fragmentShader,
-            this._povEmulation ? fragmentShaderPovSource : fragmentSahderPlainSource
-        );
+        gl.shaderSource(fragmentShader, this._povEmulation ? fragmentShaderPovSource : fragmentSahderPlainSource);
         gl.compileShader(fragmentShader);
 
         if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
@@ -312,7 +296,7 @@ class WebglVideoDriver implements VideoDriverInterface {
             vertexBuffer = gl.createBuffer(),
             textureCoordinateBuffer = gl.createBuffer();
 
-        const textureCoordinateData = [1, 1,   0, 1,   1, 0,   0, 0];
+        const textureCoordinateData = [1, 1, 0, 1, 1, 0, 0, 0];
 
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordinateBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinateData), gl.STATIC_DRAW);
@@ -325,13 +309,10 @@ class WebglVideoDriver implements VideoDriverInterface {
         const gl = this._gl,
             targetWidth = this._canvas.width,
             targetHeight = this._canvas.height,
-            scaleX = (targetWidth > 0) ?  2 / targetWidth : 1,
-            scaleY = (targetHeight > 0 ) ? 2 / targetHeight : 1;
+            scaleX = targetWidth > 0 ? 2 / targetWidth : 1,
+            scaleY = targetHeight > 0 ? 2 / targetHeight : 1;
 
-        let width: number,
-            height: number,
-            west: number,
-            north: number;
+        let width: number, height: number, west: number, north: number;
 
         if (this._aspect * targetHeight <= targetWidth) {
             height = 2;
@@ -345,12 +326,7 @@ class WebglVideoDriver implements VideoDriverInterface {
             west = -1;
         }
 
-        const vertexData = [
-            west + width, north,
-            west, north,
-            west + width, north - height,
-            west, north - height
-        ];
+        const vertexData = [west + width, north, west, north, west + width, north - height, west, north - height];
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
@@ -383,25 +359,11 @@ class WebglVideoDriver implements VideoDriverInterface {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
         gl.enableVertexAttribArray(this._getAttribLocation('a_VertexPosition'));
-        gl.vertexAttribPointer(
-            this._getAttribLocation('a_VertexPosition'),
-            2,
-            gl.FLOAT,
-            false,
-            0,
-            0
-        );
+        gl.vertexAttribPointer(this._getAttribLocation('a_VertexPosition'), 2, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._textureCoordinateBuffer);
         gl.enableVertexAttribArray(this._getAttribLocation('a_TextureCoordinate'));
-        gl.vertexAttribPointer(
-            this._getAttribLocation('a_TextureCoordinate'),
-            2,
-            gl.FLOAT,
-            false,
-            0,
-            0
-        );
+        gl.vertexAttribPointer(this._getAttribLocation('a_TextureCoordinate'), 2, gl.FLOAT, false, 0, 0);
     }
 
     private _gl: WebGLRenderingContext = null;
@@ -431,13 +393,11 @@ class WebglVideoDriver implements VideoDriverInterface {
 }
 
 namespace WebglVideoDriver {
-
     export interface Config {
         povEmulation?: boolean;
         gamma?: number;
         aspect?: number;
     }
-
 }
 
 export default WebglVideoDriver;

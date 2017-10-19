@@ -27,13 +27,12 @@ import Environment from './Environment';
 import Zipfile from './Zipfile';
 
 export default class State implements Changeset {
-
     constructor(changes?: Changeset, old?: State) {
         Object.assign(this, old, changes);
     }
 
     routing: any;
-    cartridges: {[hash: string]: Cartridge} = {};
+    cartridges: { [hash: string]: Cartridge } = {};
     currentCartridge: Cartridge = null;
 
     guiState: GuiState;
@@ -45,7 +44,7 @@ export default class State implements Changeset {
 
 interface Changeset {
     routing?: any;
-    cartridges?: {[hash: string]: Cartridge};
+    cartridges?: { [hash: string]: Cartridge };
     currentCartridge?: Cartridge;
     guiState?: GuiState;
     emulationState?: EmulationState;

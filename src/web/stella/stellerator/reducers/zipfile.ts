@@ -19,14 +19,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Action} from 'redux';
+import { Action } from 'redux';
 
 import State from '../state/Zipfile';
-import {
-    actions,
-    SetAction,
-    SetErrorAction
-} from '../actions/zipfile';
+import { actions, SetAction, SetErrorAction } from '../actions/zipfile';
 
 export default function reducer(state: State = new State(), action: Action): State {
     switch (action.type) {
@@ -34,7 +30,7 @@ export default function reducer(state: State = new State(), action: Action): Sta
             return set(state, action as SetAction);
 
         case actions.clear:
-            return clear(state) ;
+            return clear(state);
 
         case actions.setError:
             return setError(state, action as SetErrorAction);
@@ -48,23 +44,29 @@ export default function reducer(state: State = new State(), action: Action): Sta
 }
 
 function set(state: State, action: SetAction): State {
-    return new State({
-        content: action.content,
-        candidateNames: action.candidates
-    }, state);
+    return new State(
+        {
+            content: action.content,
+            candidateNames: action.candidates
+        },
+        state
+    );
 }
 
 function clear(state: State): State {
-    return new State({
-        content: null,
-        candidateNames: []
-    }, state);
+    return new State(
+        {
+            content: null,
+            candidateNames: []
+        },
+        state
+    );
 }
 
 function setError(state: State, action: SetErrorAction): State {
-    return new State({error: action.message}, state);
+    return new State({ error: action.message }, state);
 }
 
 function clearError(state: State): State {
-    return new State({error: ''}, state);
+    return new State({ error: '' }, state);
 }

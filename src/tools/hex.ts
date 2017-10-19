@@ -21,13 +21,17 @@
 
 function encodeWithPrefix(value: number, width?: number, signed = true, prefix = ''): string {
     if (!signed && value < 0) {
-        return encodeWithPrefix(value >>> 16, (width && width > 8) ? width - 4 : 4, false, prefix) +
-            encodeWithPrefix(value & 0xFFFF, 4);
+        return (
+            encodeWithPrefix(value >>> 16, width && width > 8 ? width - 4 : 4, false, prefix) +
+            encodeWithPrefix(value & 0xffff, 4)
+        );
     }
 
-    let result = Math.abs(value).toString(16).toUpperCase();
+    let result = Math.abs(value)
+        .toString(16)
+        .toUpperCase();
 
-    if (typeof(width) !== 'undefined') {
+    if (typeof width !== 'undefined') {
         while (result.length < width) {
             result = '0' + result;
         }

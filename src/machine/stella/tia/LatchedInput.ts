@@ -22,7 +22,6 @@
 import SwitchInterface from '../../io/SwitchInterface';
 
 export default class LatchedInput {
-
     constructor(private _switch: SwitchInterface) {
         this.reset();
     }
@@ -54,5 +53,4 @@ export default class LatchedInput {
 
     private _modeLatched = false;
     private _latchedValue = 0;
-
 }

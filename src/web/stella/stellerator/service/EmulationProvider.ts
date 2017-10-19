@@ -19,18 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Middleware} from 'redux';
+import { Middleware } from 'redux';
 
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 
 interface EmulationProvider {
-
     getService(): EmulationServiceInterface;
 
     getMiddleware(): Middleware;
 
     init(workerUrl?: string): Promise<void>;
-
 }
 
 export default EmulationProvider;

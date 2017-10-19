@@ -19,13 +19,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event, EventInterface} from 'microevent.ts';
+import { Event, EventInterface } from 'microevent.ts';
 
 import SchedulerInterface from './scheduler/SchedulerInterface';
 import TaskInterface from './scheduler/TaskInterface';
 
 class ClockProbe {
-
     constructor(private _scheduler: SchedulerInterface) {}
 
     attach(clock: EventInterface<any>): ClockProbe {

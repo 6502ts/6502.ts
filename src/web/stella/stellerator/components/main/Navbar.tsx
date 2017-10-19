@@ -20,20 +20,20 @@
  */
 
 import * as React from 'react';
-import {Navbar as BootstrapNavbar} from 'react-bootstrap';
+import { Navbar as BootstrapNavbar } from 'react-bootstrap';
 
-import {default as Header, Props as HeaderProps} from './navbar/Header';
-import {default as Navigation, Props as NavigationProps} from './navbar/Navigation';
-import {default as StatusWidget, Props as StatusWidgetProps} from './navbar/StatusWidget';
+import { default as Header, Props as HeaderProps } from './navbar/Header';
+import { default as Navigation, Props as NavigationProps } from './navbar/Navigation';
+import { default as StatusWidget, Props as StatusWidgetProps } from './navbar/StatusWidget';
 
 export interface Props extends HeaderProps, NavigationProps, StatusWidgetProps {}
 
 function Navbar(props: Props) {
     return (
         <BootstrapNavbar fixedTop inverse fluid>
-            <Header {...props as HeaderProps}/>
-            <Navigation {...props as NavigationProps}/>
-            <StatusWidget {...props as StatusWidgetProps}/>
+            <Header {...props as HeaderProps} />
+            <Navigation {...props as NavigationProps} />
+            <StatusWidget {...props as StatusWidgetProps} />
         </BootstrapNavbar>
     );
 }

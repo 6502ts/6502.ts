@@ -33,7 +33,7 @@ import ZipfileErrorModal from './cartridge-manager/ZipfileErrorModal';
 import ZipfileSelectModal from './cartridge-manager/ZipfileSelectModal';
 
 export interface DataProps {
-    cartridges: {[key: string]: Cartridge};
+    cartridges: { [key: string]: Cartridge };
     pendingChanges: boolean;
     currentCartridge: Cartridge;
 
@@ -86,14 +86,12 @@ export default function CartridgeManager(props: Props) {
                     <CartridgeList
                         cartridges={props.cartridges}
                         selectedCartridgeKey={props.currentCartridge && props.currentCartridge.hash}
-
                         onClick={props.onCartridgeSelected}
                     />
                 </Col>
                 <Col md={5} mdOffset={1}>
                     <CartridgeSettings
                         cartridge={props.currentCartridge}
-
                         onCartridgeNameChange={props.onCartridgeNameChange}
                         onTvModeChanged={props.onTvModeChanged}
                         onSave={props.onSave}
@@ -110,7 +108,6 @@ export default function CartridgeManager(props: Props) {
                     <CartridgeControls
                         active={!!props.currentCartridge}
                         changes={props.pendingChanges}
-
                         onDelete={props.onDelete}
                         onSave={props.onSave}
                         onRun={props.onRun}
@@ -120,33 +117,27 @@ export default function CartridgeManager(props: Props) {
             </Row>
             <PendingChangesModal
                 show={props.showSelectPendingChangesModel}
-
                 onHide={props.onSelectPendingChangesClose}
                 onContinueAndSave={props.onSelectPendingChangesSave}
                 onContinueAndDiscard={props.onSelectPendingChangesDiscard}
             >
                 <p>
-                    There are unsaved changes in the currently selected cartridge.
-                    Selecting another cartridge will discard these changes.
+                    There are unsaved changes in the currently selected cartridge. Selecting another cartridge will
+                    discard these changes.
                 </p>
-                <p>
-                    Do you want to continue?
-                </p>
+                <p>Do you want to continue?</p>
             </PendingChangesModal>
             <PendingChangesModal
                 show={props.showLoadPendingChangesModel}
-
                 onHide={props.onLoadPendingChangesClose}
                 onContinueAndSave={props.onLoadPendingChangesSave}
                 onContinueAndDiscard={props.onLoadPendingChangesDiscard}
             >
                 <p>
-                    There are unsaved changes in the currently selected cartridge.
-                    Loading a cartridge will discard these changes.
+                    There are unsaved changes in the currently selected cartridge. Loading a cartridge will discard
+                    these changes.
                 </p>
-                <p>
-                    Do you want to continue?
-                </p>
+                <p>Do you want to continue?</p>
             </PendingChangesModal>
             <ZipfileSelectModal
                 show={props.showZipfileModal}
@@ -154,10 +145,7 @@ export default function CartridgeManager(props: Props) {
                 onCancel={props.onZipfileModalClose}
                 onSelect={props.onZipfileModalSelect}
             />
-            <ZipfileErrorModal
-                errorMessage={props.zipfileErrorMessage}
-                onClose={props.onZipfileErrorModalClose}
-            />
+            <ZipfileErrorModal errorMessage={props.zipfileErrorMessage} onClose={props.onZipfileErrorModalClose} />
         </Grid>
     );
 }

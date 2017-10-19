@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import VideoOutputInterface from '../../io/VideoOutputInterface';
 import AudioOutputInterface from '../../io/AudioOutputInterface';
@@ -42,8 +42,8 @@ import DelayQueue from './DelayQueue';
 import * as palette from './palette';
 
 const enum Metrics {
-    frameLinesPAL        = 312,
-    frameLinesNTSC       = 262
+    frameLinesPAL = 312,
+    frameLinesNTSC = 262
 }
 
 const enum Delay {
@@ -74,19 +74,25 @@ const enum ResxCounter {
 
 // Each bit in the collision mask identifies a single collision pair
 const enum CollisionMask {
-    player0 =       0b0111110000000000,
-    player1 =       0b0100001111000000,
-    missile0 =      0b0010001000111000,
-    missile1 =      0b0001000100100110,
-    ball =          0b0000100010010101,
-    playfield =     0b0000010001001011
+    player0 = 0b0111110000000000,
+    player1 = 0b0100001111000000,
+    missile0 = 0b0010001000111000,
+    missile1 = 0b0001000100100110,
+    ball = 0b0000100010010101,
+    playfield = 0b0000010001001011
 }
 
-const enum HState {blank, frame}
-const enum Priority {normal, pfp, score}
+const enum HState {
+    blank,
+    frame
+}
+const enum Priority {
+    normal,
+    pfp,
+    score
+}
 
 class Tia implements VideoOutputInterface {
-
     constructor(
         private _config: Config,
         joystick0: DigitalJoystickInterface,
@@ -121,10 +127,10 @@ class Tia implements VideoOutputInterface {
         this._priority = Priority.normal;
         this._hstate = HState.blank;
         this._collisionMask = 0;
-        this._colorBk = 0xFF000000;
+        this._colorBk = 0xff000000;
         this._linesSinceChange = 0;
         this._collisionUpdateRequired = false;
-        this._clock = 0.;
+        this._clock = 0;
         this._maxLinesTotal = 0;
         this._xDelta = 0;
 
@@ -192,7 +198,7 @@ class Tia implements VideoOutputInterface {
         let result: number;
 
         // Only keep the lowest four bits
-        switch (address & 0x0F) {
+        switch (address & 0x0f) {
             case Tia.Registers.inpt0:
                 result = this._config.emulatePaddles ? this._paddles[0].inpt() : 0;
                 break;
@@ -218,56 +224,49 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.cxm0p:
-                result = (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player0) ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.player1) ? 0x80 : 0)
-                );
+                result =
+                    (this._collisionMask & CollisionMask.missile0 & CollisionMask.player0 ? 0x40 : 0) |
+                    (this._collisionMask & CollisionMask.missile0 & CollisionMask.player1 ? 0x80 : 0);
                 break;
 
             case Tia.Registers.cxm1p:
-                result = (
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player1) ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.player0) ? 0x80 : 0)
-                );
+                result =
+                    (this._collisionMask & CollisionMask.missile1 & CollisionMask.player1 ? 0x40 : 0) |
+                    (this._collisionMask & CollisionMask.missile1 & CollisionMask.player0 ? 0x80 : 0);
                 break;
 
             case Tia.Registers.cxp0fb:
-                result = (
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.ball) ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.playfield) ? 0x80 : 0)
-                );
+                result =
+                    (this._collisionMask & CollisionMask.player0 & CollisionMask.ball ? 0x40 : 0) |
+                    (this._collisionMask & CollisionMask.player0 & CollisionMask.playfield ? 0x80 : 0);
                 break;
 
             case Tia.Registers.cxp1fb:
-                result = (
-                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.ball) ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player1 & CollisionMask.playfield) ? 0x80 : 0)
-                );
+                result =
+                    (this._collisionMask & CollisionMask.player1 & CollisionMask.ball ? 0x40 : 0) |
+                    (this._collisionMask & CollisionMask.player1 & CollisionMask.playfield ? 0x80 : 0);
                 break;
 
             case Tia.Registers.cxm0fb:
-                result = (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.ball) ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield) ? 0x80 : 0)
-                );
+                result =
+                    (this._collisionMask & CollisionMask.missile0 & CollisionMask.ball ? 0x40 : 0) |
+                    (this._collisionMask & CollisionMask.missile0 & CollisionMask.playfield ? 0x80 : 0);
                 break;
 
             case Tia.Registers.cxm1fb:
-                result = (
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.ball) ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield) ? 0x80 : 0)
-                );
+                result =
+                    (this._collisionMask & CollisionMask.missile1 & CollisionMask.ball ? 0x40 : 0) |
+                    (this._collisionMask & CollisionMask.missile1 & CollisionMask.playfield ? 0x80 : 0);
                 break;
 
             case Tia.Registers.cxppmm:
-                result = (
-                    ((this._collisionMask & CollisionMask.missile0 & CollisionMask.missile1) ? 0x40 : 0) |
-                    ((this._collisionMask & CollisionMask.player0 & CollisionMask.player1) ? 0x80 : 0)
-                );
+                result =
+                    (this._collisionMask & CollisionMask.missile0 & CollisionMask.missile1 ? 0x40 : 0) |
+                    (this._collisionMask & CollisionMask.player0 & CollisionMask.player1 ? 0x80 : 0);
                 break;
 
             case Tia.Registers.cxblpf:
-                result = (this._collisionMask & CollisionMask.ball & CollisionMask.playfield) ? 0x80 : 0;
+                result = this._collisionMask & CollisionMask.ball & CollisionMask.playfield ? 0x80 : 0;
                 break;
 
             default:
@@ -275,7 +274,7 @@ class Tia implements VideoOutputInterface {
                 break;
         }
 
-        return (result & 0xC0) | (lastDataBusValue & 0x3F);
+        return (result & 0xc0) | (lastDataBusValue & 0x3f);
     }
 
     peek(address: number): number {
@@ -286,7 +285,7 @@ class Tia implements VideoOutputInterface {
         let v = 0;
 
         // Mask out A6 - A15
-        switch (address & 0x3F) {
+        switch (address & 0x3f) {
             case Tia.Registers.wsync:
                 this._cpu.halt();
                 break;
@@ -367,11 +366,11 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.colubk:
                 this._flushLineCache();
-                this._colorBk = this._palette[(value & 0xFF) >>> 1];
+                this._colorBk = this._palette[(value & 0xff) >>> 1];
                 break;
 
             case Tia.Registers.colup0:
-                v = this._palette[(value & 0xFF) >>> 1];
+                v = this._palette[(value & 0xff) >>> 1];
                 this._missile0.setColor(v);
                 this._player0.setColor(v);
                 this._playfield.setColorP0(v);
@@ -379,7 +378,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.colup1:
-                v = this._palette[(value & 0xFF) >>> 1];
+                v = this._palette[(value & 0xff) >>> 1];
                 this._missile1.setColor(v);
                 this._player1.setColor(v);
                 this._playfield.setColorP1(v);
@@ -406,7 +405,7 @@ class Tia implements VideoOutputInterface {
 
             case Tia.Registers.colupf:
                 this._flushLineCache();
-                v = this._palette[(value & 0xFF) >>> 1];
+                v = this._palette[(value & 0xff) >>> 1];
                 this._playfield.setColor(v);
                 this._ball.color = v;
                 break;
@@ -506,13 +505,14 @@ class Tia implements VideoOutputInterface {
                 this._audio1.audv(value);
                 break;
         }
-
     }
 
     getDebugState(): string {
-        return '' +
+        return (
+            '' +
             `hclock: ${this._hctr}   line: ${this._frameManager.getCurrentLine()}\n` +
-            this._frameManager.getDebugState();
+            this._frameManager.getDebugState()
+        );
     }
 
     setBus(bus: Bus): this {
@@ -675,7 +675,7 @@ class Tia implements VideoOutputInterface {
                 boundary = self._maxLinesTotal * 160;
 
             for (let i = base; i < boundary; i++) {
-                buffer[i] = 0xFF000000;
+                buffer[i] = 0xff000000;
             }
         }
 
@@ -807,14 +807,14 @@ class Tia implements VideoOutputInterface {
     }
 
     private _getClockFreq(config: Config) {
-        return (config.tvMode === Config.TvMode.ntsc) ?
-            60 * 228 * Metrics.frameLinesNTSC :
-            50 * 228 * Metrics.frameLinesPAL;
+        return config.tvMode === Config.TvMode.ntsc
+            ? 60 * 228 * Metrics.frameLinesNTSC
+            : 50 * 228 * Metrics.frameLinesPAL;
     }
 
     private _renderPixel(x: number, y: number): void {
         if (this._frameManager.vblank) {
-            this._frameManager.surfaceBuffer[y * 160 + x] = 0xFF000000;
+            this._frameManager.surfaceBuffer[y * 160 + x] = 0xff000000;
             return;
         }
 
@@ -856,14 +856,13 @@ class Tia implements VideoOutputInterface {
     }
 
     private _updateCollision() {
-        this._collisionMask |= (
+        this._collisionMask |=
             ~this._player0.collision &
             ~this._player1.collision &
             ~this._missile0.collision &
             ~this._missile1.collision &
             ~this._ball.collision &
-            ~this._playfield.collision
-        );
+            ~this._playfield.collision;
     }
 
     private _clearHmoveComb(): void {
@@ -871,15 +870,15 @@ class Tia implements VideoOutputInterface {
             const offset = this._frameManager.getCurrentLine() * 160;
 
             for (let i = 0; i < 8; i++) {
-                this._frameManager.surfaceBuffer[offset + i] = 0xFF000000;
+                this._frameManager.surfaceBuffer[offset + i] = 0xff000000;
             }
         }
     }
 
     private _resxCounter(): number {
-        return this._hstate === HState.blank ?
-            (this._hctr >= ResxCounter.lateHblankThreshold ? ResxCounter.lateHblank : ResxCounter.hblank) :
-            ResxCounter.frame;
+        return this._hstate === HState.blank
+            ? this._hctr >= ResxCounter.lateHblankThreshold ? ResxCounter.lateHblank : ResxCounter.hblank
+            : ResxCounter.frame;
     }
 
     private _rsync(): void {
@@ -893,7 +892,7 @@ class Tia implements VideoOutputInterface {
                 boundary = base + (y + 1) * 160;
 
             for (let i = base; i < boundary; i++) {
-                this._frameManager.surfaceBuffer[i] = 0xFF000000;
+                this._frameManager.surfaceBuffer[i] = 0xff000000;
             }
         }
 
@@ -901,8 +900,7 @@ class Tia implements VideoOutputInterface {
     }
 
     private _setPriority(value: number): void {
-        const priority = (value & 0x04) ? Priority.pfp :
-                        ((value & 0x02) ? Priority.score : Priority.normal);
+        const priority = value & 0x04 ? Priority.pfp : value & 0x02 ? Priority.score : Priority.normal;
 
         if (priority !== this._priority) {
             this._flushLineCache();
@@ -957,7 +955,7 @@ class Tia implements VideoOutputInterface {
     // Delta during x calculation. Can become temporarily nonzero aftern a rsync.
     private _xDelta = 0;
 
-    private _clock = 0.;
+    private _clock = 0;
 
     // Lines since the last cache-invalidating change. If this is > 1 we can safely use the linecache
     private _linesSinceChange = 0;
@@ -965,17 +963,17 @@ class Tia implements VideoOutputInterface {
     // Max total lines. Used to clear garbage lines.
     private _maxLinesTotal = 0;
 
-    private _colorBk = 0xFF000000;
+    private _colorBk = 0xff000000;
     private _priority = Priority.normal;
     // bitfield with collision latches
     private _collisionMask = 0;
 
-    private _player0 =   new Player(CollisionMask.player0, () => this._flushLineCache());
-    private _player1 =   new Player(CollisionMask.player1, () => this._flushLineCache());
-    private _missile0 =  new Missile(CollisionMask.missile0, () => this._flushLineCache());
-    private _missile1 =  new Missile(CollisionMask.missile1, () => this._flushLineCache());
+    private _player0 = new Player(CollisionMask.player0, () => this._flushLineCache());
+    private _player1 = new Player(CollisionMask.player1, () => this._flushLineCache());
+    private _missile0 = new Missile(CollisionMask.missile0, () => this._flushLineCache());
+    private _missile1 = new Missile(CollisionMask.missile1, () => this._flushLineCache());
     private _playfield = new Playfield(CollisionMask.playfield, () => this._flushLineCache());
-    private _ball =      new Ball(CollisionMask.ball, () => this._flushLineCache());
+    private _ball = new Ball(CollisionMask.ball, () => this._flushLineCache());
 
     private _audio0: Audio;
     private _audio1: Audio;
@@ -987,83 +985,81 @@ class Tia implements VideoOutputInterface {
 }
 
 namespace Tia {
-
     export const enum Registers {
-        vsync   = 0x00,
-        vblank  = 0x01,
-        wsync   = 0x02,
-        rsync   = 0x03,
-        nusiz0  = 0x04,
-        nusiz1  = 0x05,
-        colup0  = 0x06,
-        colup1  = 0x07,
-        colupf  = 0x08,
-        colubk  = 0x09,
-        ctrlpf  = 0x0A,
-        refp0   = 0x0B,
-        refp1   = 0x0C,
-        pf0     = 0x0D,
-        pf1     = 0x0E,
-        pf2     = 0x0F,
-        resp0   = 0x10,
-        resp1   = 0x11,
-        resm0   = 0x12,
-        resm1   = 0x13,
-        resbl   = 0x14,
-        audc0   = 0x15,
-        audc1   = 0x16,
-        audf0   = 0x17,
-        audf1   = 0x18,
-        audv0   = 0x19,
-        audv1   = 0x1A,
-        grp0    = 0x1B,
-        grp1    = 0x1C,
-        enam0   = 0x1D,
-        enam1   = 0x1E,
-        enabl   = 0x1F,
-        hmp0    = 0x20,
-        hmp1    = 0x21,
-        hmm0    = 0x22,
-        hmm1    = 0x23,
-        hmbl    = 0x24,
-        vdelp0  = 0x25,
-        vdelp1  = 0x26,
-        vdelbl  = 0x27,
-        resmp0  = 0x28,
-        resmp1  = 0x29,
-        hmove   = 0x2A,
-        hmclr   = 0x2B,
-        cxclr   = 0x2C,
-        cxm0p   = 0x00,
-        cxm1p   = 0x01,
-        cxp0fb  = 0x02,
-        cxp1fb  = 0x03,
-        cxm0fb  = 0x04,
-        cxm1fb  = 0x05,
-        cxblpf  = 0x06,
-        cxppmm  = 0x07,
-        inpt0   = 0x08,
-        inpt1   = 0x09,
-        inpt2   = 0x0A,
-        inpt3   = 0x0B,
-        inpt4   = 0x0C,
-        inpt5   = 0x0D,
+        vsync = 0x00,
+        vblank = 0x01,
+        wsync = 0x02,
+        rsync = 0x03,
+        nusiz0 = 0x04,
+        nusiz1 = 0x05,
+        colup0 = 0x06,
+        colup1 = 0x07,
+        colupf = 0x08,
+        colubk = 0x09,
+        ctrlpf = 0x0a,
+        refp0 = 0x0b,
+        refp1 = 0x0c,
+        pf0 = 0x0d,
+        pf1 = 0x0e,
+        pf2 = 0x0f,
+        resp0 = 0x10,
+        resp1 = 0x11,
+        resm0 = 0x12,
+        resm1 = 0x13,
+        resbl = 0x14,
+        audc0 = 0x15,
+        audc1 = 0x16,
+        audf0 = 0x17,
+        audf1 = 0x18,
+        audv0 = 0x19,
+        audv1 = 0x1a,
+        grp0 = 0x1b,
+        grp1 = 0x1c,
+        enam0 = 0x1d,
+        enam1 = 0x1e,
+        enabl = 0x1f,
+        hmp0 = 0x20,
+        hmp1 = 0x21,
+        hmm0 = 0x22,
+        hmm1 = 0x23,
+        hmbl = 0x24,
+        vdelp0 = 0x25,
+        vdelp1 = 0x26,
+        vdelbl = 0x27,
+        resmp0 = 0x28,
+        resmp1 = 0x29,
+        hmove = 0x2a,
+        hmclr = 0x2b,
+        cxclr = 0x2c,
+        cxm0p = 0x00,
+        cxm1p = 0x01,
+        cxp0fb = 0x02,
+        cxp1fb = 0x03,
+        cxm0fb = 0x04,
+        cxm1fb = 0x05,
+        cxblpf = 0x06,
+        cxppmm = 0x07,
+        inpt0 = 0x08,
+        inpt1 = 0x09,
+        inpt2 = 0x0a,
+        inpt3 = 0x0b,
+        inpt4 = 0x0c,
+        inpt5 = 0x0d,
 
         // These "registers" are not exposed to the system and only used in delaying
         // internal processes.
-        _shuffleP0      = 0xF0,
-        _shuffleP1      = 0xF1,
-        _shuffleBL      = 0xF2
+        _shuffleP0 = 0xf0,
+        _shuffleP1 = 0xf1,
+        _shuffleBL = 0xf2
     }
 
-    export const enum TrapReason {invalidRead, invalidWrite}
+    export const enum TrapReason {
+        invalidRead,
+        invalidWrite
+    }
 
     export class TrapPayload {
-        constructor(
-            public reason: TrapReason,
-            public tia: Tia,
-            public message?: string
-        ) {}
+        constructor(public reason: TrapReason, public tia: Tia, public message?: string) {}
     }
 }
 

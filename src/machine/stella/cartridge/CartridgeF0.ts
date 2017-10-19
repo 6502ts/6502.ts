@@ -24,7 +24,6 @@ import * as cartridgeUtil from './util';
 import CartridgeInfo from './CartridgeInfo';
 
 class CartridgeF0 extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
@@ -51,7 +50,7 @@ class CartridgeF0 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         this._handleBankswitch(address);
 
@@ -59,11 +58,11 @@ class CartridgeF0 extends AbstractCartridge {
     }
 
     peek(address: number): number {
-        return this._currentBank[address & 0x0FFF];
+        return this._currentBank[address & 0x0fff];
     }
 
     write(address: number, value: number) {
-        address &= 0xFFF;
+        address &= 0xfff;
 
         this._handleBankswitch(address);
 
@@ -75,8 +74,8 @@ class CartridgeF0 extends AbstractCartridge {
     }
 
     private _handleBankswitch(address: number): void {
-        if (address === 0x0FF0) {
-            this._bankIdx = (this._bankIdx + 1) & 0x0F;
+        if (address === 0x0ff0) {
+            this._bankIdx = (this._bankIdx + 1) & 0x0f;
             this._currentBank = this._banks[this._bankIdx];
         }
     }

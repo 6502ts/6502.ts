@@ -38,7 +38,6 @@ try {
         cartridgeType = detector.detectCartridgeType(buffer);
 
     console.log(CartridgeInfo.describeCartridgeType(cartridgeType));
-
 } catch (e) {
     console.log(e.message);
     process.exit(1);

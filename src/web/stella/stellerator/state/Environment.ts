@@ -20,7 +20,6 @@
  */
 
 export default class Environment implements Changeset {
-
     constructor(changes?: Changeset, old?: Environment) {
         Object.assign(this, old, changes);
     }

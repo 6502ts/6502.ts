@@ -19,11 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {connect} from 'react-redux';
-import {push} from 'react-router-redux';
+import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 
 import State from '../state/State';
-import {GuiMode} from '../model/types';
+import { GuiMode } from '../model/types';
 
 import {
     pause as pauseEmulation,

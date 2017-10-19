@@ -20,7 +20,6 @@
  */
 
 class Zipfile implements Changeset {
-
     constructor(changes?: Changeset, old?: Zipfile) {
         Object.assign(this, old, changes);
     }
@@ -28,7 +27,6 @@ class Zipfile implements Changeset {
     candidateNames: Array<string> = [];
     content: Uint8Array = null;
     error = '';
-
 }
 
 interface Changeset {

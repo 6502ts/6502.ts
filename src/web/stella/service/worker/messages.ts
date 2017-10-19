@@ -21,7 +21,7 @@
 
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
-import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
+import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 
 export const RPC_TYPE = {
     emulationPause: 'emulation/pause',
@@ -53,7 +53,7 @@ export interface SetupMessage {
 }
 
 export interface EmulationStartMessage {
-    buffer: {[i: number]: number, length: number};
+    buffer: { [i: number]: number; length: number };
     config: StellaConfig;
     cartridgeType?: CartridgeInfo.CartridgeType;
     videoProcessing?: Array<VideoProcessorConfig>;

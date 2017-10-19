@@ -25,7 +25,6 @@ import * as cartridgeUtil from './util';
 import Bus from '../Bus';
 
 class CartridgeUA extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
@@ -43,13 +42,11 @@ class CartridgeUA extends AbstractCartridge {
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
         // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(buffer,
-            [
-                [0x8D, 0x40, 0x02],  // STA $240
-                [0xAD, 0x40, 0x02],  // LDA $240
-                [0xBD, 0x1F, 0x02]   // LDA $21F,X
-            ]
-        );
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
+            [0x8d, 0x40, 0x02], // STA $240
+            [0xad, 0x40, 0x02], // LDA $240
+            [0xbd, 0x1f, 0x02] // LDA $21F,X
+        ]);
 
         for (let i = 0; i < signatureCounts.length; i++) {
             if (signatureCounts[i] > 0) {
@@ -65,7 +62,7 @@ class CartridgeUA extends AbstractCartridge {
     }
 
     read(address: number): number {
-        return this._bank[address & 0x0FFF];
+        return this._bank[address & 0x0fff];
     }
 
     setBus(bus: Bus): this {
@@ -98,7 +95,6 @@ class CartridgeUA extends AbstractCartridge {
     private _bank: Uint8Array = null;
     private _bank0 = new Uint8Array(0x1000);
     private _bank1 = new Uint8Array(0x1000);
-
 }
 
 export default CartridgeUA;

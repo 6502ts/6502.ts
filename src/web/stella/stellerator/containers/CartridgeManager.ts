@@ -19,21 +19,14 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {connect} from 'react-redux';
-import {Dispatch} from 'redux';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 
-import {
-    default as CartridgeManagerComponent,
-    DataProps,
-    HandlerProps
-} from '../components/CartridgeManager';
+import { default as CartridgeManagerComponent, DataProps, HandlerProps } from '../components/CartridgeManager';
 import Cartridge from '../model/Cartridge';
 import State from '../state/State';
 
-import {
-    deleteCurrentCartridge,
-    saveCurrentCartride
-} from '../actions/root';
+import { deleteCurrentCartridge, saveCurrentCartride } from '../actions/root';
 import {
     changeCartridgeType,
     changePaddleEmulation,
@@ -43,10 +36,7 @@ import {
     changeRngSeed,
     changeVolume
 } from '../actions/currentCartridge';
-import {
-    closeSelectPendingChangesModal,
-    closeLoadPendingChangesModal
-} from '../actions/guiState';
+import { closeSelectPendingChangesModal, closeLoadPendingChangesModal } from '../actions/guiState';
 import {
     runCurrentCartridge,
     uploadNewCartridge,
@@ -55,19 +45,15 @@ import {
     confirmSelect,
     selectRomFromZipfile
 } from '../actions/cartridgeManager';
-import {
-    clear as clearZipfile,
-    clearError as clearZipfileError
-} from '../actions/zipfile';
+import { clear as clearZipfile, clearError as clearZipfileError } from '../actions/zipfile';
 
 function mapStateToProps(state: State): DataProps {
     return {
         cartridges: state.cartridges,
         currentCartridge: state.currentCartridge,
-        pendingChanges: state.currentCartridge && !Cartridge.equals(
-            state.currentCartridge,
-            state.cartridges[state.currentCartridge.hash]
-        ),
+        pendingChanges:
+            state.currentCartridge &&
+            !Cartridge.equals(state.currentCartridge, state.cartridges[state.currentCartridge.hash]),
         showLoadPendingChangesModel: state.guiState.showLoadPendingChangesModal,
         showSelectPendingChangesModel: state.guiState.showSelectPendingChangesModal,
         showZipfileModal: !!state.zipfile.content,

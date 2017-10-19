@@ -19,12 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import SwitchInterface from './SwitchInterface';
 
 export default class Switch implements SwitchInterface {
-
     constructor(private _state: boolean = false) {}
 
     read(): boolean {

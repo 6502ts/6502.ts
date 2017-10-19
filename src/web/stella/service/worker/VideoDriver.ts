@@ -19,33 +19,27 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Mutex} from 'async-mutex';
-import {RpcProviderInterface, RpcProvider} from 'worker-rpc';
+import { Mutex } from 'async-mutex';
+import { RpcProviderInterface, RpcProvider } from 'worker-rpc';
 
 import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
 import ObjectPool from '../../../../tools/pool/Pool';
 import ObjectPoolMember from '../../../../tools/pool/PoolMember';
 import ArrayBufferSurface from '../../../../video/surface/ArrayBufferSurface';
 import VideoPipelineClient from '../../../../video/processing/worker/PipelineClient';
-import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
+import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 
-import {
-    SIGNAL_TYPE,
-    VideoNewFrameMessage,
-    VideoReturnSurfaceMessage
-} from './messages';
+import { SIGNAL_TYPE, VideoNewFrameMessage, VideoReturnSurfaceMessage } from './messages';
 
 class VideoDriver {
-
-    constructor(
-        private _rpc: RpcProviderInterface
-    ) {}
+    constructor(private _rpc: RpcProviderInterface) {}
 
     init(videoPipelinePort: MessagePort): void {
         this._rpc.registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurfaceFromHost.bind(this));
 
-        const videoPipelineRpc =
-            new RpcProvider((data: any, transfer?: any) => videoPipelinePort.postMessage(data, transfer));
+        const videoPipelineRpc = new RpcProvider((data: any, transfer?: any) =>
+            videoPipelinePort.postMessage(data, transfer)
+        );
         videoPipelinePort.onmessage = (e: MessageEvent) => videoPipelineRpc.dispatch(e.data);
 
         this._videoPipelineClient = new VideoPipelineClient(videoPipelineRpc);
@@ -118,8 +112,8 @@ class VideoDriver {
         this._height = video.getHeight();
         this._video = video;
 
-        this._surfacePool = new ObjectPool<ArrayBufferSurface>(
-            () => ArrayBufferSurface.createFromArrayBuffer(
+        this._surfacePool = new ObjectPool<ArrayBufferSurface>(() =>
+            ArrayBufferSurface.createFromArrayBuffer(
                 this._width,
                 this._height,
                 new ArrayBuffer(4 * this._width * this._height)
@@ -131,31 +125,28 @@ class VideoDriver {
 
         await this._videoPipelineClient.configure(this._width, this._height, this._videoProcessingConfig);
 
-        this._video.setSurfaceFactory(
-            (): ArrayBufferSurface => {
-                const managedSurface = this._surfacePool.get(),
-                    surface = managedSurface.get();
+        this._video.setSurfaceFactory((): ArrayBufferSurface => {
+            const managedSurface = this._surfacePool.get(),
+                surface = managedSurface.get();
 
-                const isNewSurface = !this._ids.has(managedSurface);
+            const isNewSurface = !this._ids.has(managedSurface);
 
-                if (isNewSurface) {
-                    const id = this._nextId++;
+            if (isNewSurface) {
+                const id = this._nextId++;
 
-                    this._ids.set(managedSurface, id);
-                    this._managedSurfacesById.set(id, managedSurface);
-                    this._managedSurfaces.set(surface, managedSurface);
+                this._ids.set(managedSurface, id);
+                this._managedSurfacesById.set(id, managedSurface);
+                this._managedSurfaces.set(surface, managedSurface);
 
-                    surface.fill(0xFF000000);
-                }
-
-                return managedSurface.get();
+                surface.fill(0xff000000);
             }
-        );
+
+            return managedSurface.get();
+        });
 
         this._video.newFrame.addHandler(VideoDriver._onNewFrame, this);
 
-        this._bypassProcessingPipeline =
-            !this._videoProcessingConfig  || this._videoProcessingConfig.length === 0;
+        this._bypassProcessingPipeline = !this._videoProcessingConfig || this._videoProcessingConfig.length === 0;
         this._active = true;
     }
 

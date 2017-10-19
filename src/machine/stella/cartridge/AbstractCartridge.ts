@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import CartridgeInterface from './CartridgeInterface';
 import CartridgeInfo from './CartridgeInfo';
@@ -29,7 +29,6 @@ import Bus from '../Bus';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class AbstractCartridge implements CartridgeInterface {
-
     reset(): void {}
 
     read(address: number): number {
@@ -40,8 +39,7 @@ class AbstractCartridge implements CartridgeInterface {
         return this.read(address);
     }
 
-    write(address: number, value: number) {
-    }
+    write(address: number, value: number) {}
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.unknown;
@@ -55,11 +53,9 @@ class AbstractCartridge implements CartridgeInterface {
         return this;
     }
 
-    notifyCpuCycleComplete(): void {
-    }
+    notifyCpuCycleComplete(): void {}
 
-    randomize(rng: RngInterface): void {
-    }
+    randomize(rng: RngInterface): void {}
 
     protected triggerTrap(reason: CartridgeInterface.TrapReason, message: string) {
         if (this.trap.hasHandlers) {
@@ -70,7 +66,6 @@ class AbstractCartridge implements CartridgeInterface {
     }
 
     trap = new Event<CartridgeInterface.TrapPayload>();
-
 }
 
 export default AbstractCartridge;

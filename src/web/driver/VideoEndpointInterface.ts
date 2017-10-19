@@ -19,18 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {EventInterface} from 'microevent.ts';
+import { EventInterface } from 'microevent.ts';
 
 import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 
 interface VideoEndpointInterface {
-
     getWidth(): number;
 
     getHeight(): number;
 
     newFrame: EventInterface<PoolMemberInterface<ImageData>>;
-
 }
 
 export default VideoEndpointInterface;

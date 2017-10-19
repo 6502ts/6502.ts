@@ -22,16 +22,12 @@
 import TaskInterface from './TaskInterface';
 
 interface SchedulerInterface {
-    start<T>(
-        worker: SchedulerInterface.WorkerInterface<T>,
-        context?: T,
-        timeSlice?: number
-    ): TaskInterface;
+    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T, timeSlice?: number): TaskInterface;
 }
 
 namespace SchedulerInterface {
     export interface WorkerInterface<T> {
-        (context: T, timeSlice?: number): number|void;
+        (context: T, timeSlice?: number): number | void;
     }
 }
 

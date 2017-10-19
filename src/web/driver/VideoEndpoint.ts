@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import VideoOutputInterface from '../..//machine/io/VideoOutputInterface';
 import ObjectPool from '../../tools/pool/Pool';
@@ -34,52 +34,39 @@ import * as VideoProcessorConfig from '../../video/processing/config';
 import VideoProcessorInterface from '../../video/processing/ProcessorInterface';
 
 class VideoEndpoint implements VideoEndpointInterface {
-
-    constructor(
-        private _video: VideoOutputInterface,
-        videoProcessing?: Array<VideoProcessorConfig.ProcessorConfig>
-    ) {
+    constructor(private _video: VideoOutputInterface, videoProcessing?: Array<VideoProcessorConfig.ProcessorConfig>) {
         this._videoProcessor = new VideoProcessorPipeline(videoProcessing);
         this._videoProcessor.init(this._video.getWidth(), this._video.getHeight());
 
-        this._pool = new ObjectPool<ImageData>(
-            () => new ImageData(this._video.getWidth(), this._video.getHeight())
-        );
+        this._pool = new ObjectPool<ImageData>(() => new ImageData(this._video.getWidth(), this._video.getHeight()));
 
-        this._video.setSurfaceFactory(
-            (): RGBASurfaceInterface => {
-                const poolMember = this._pool.get(),
-                    imageData = poolMember.get();
+        this._video.setSurfaceFactory((): RGBASurfaceInterface => {
+            const poolMember = this._pool.get(),
+                imageData = poolMember.get();
 
-                if (!this._surfaces.has(imageData)) {
-                    const newSurface = ArrayBufferSurface.createFromArrayBuffer(
-                        imageData.width,
-                        imageData.height,
-                        imageData.data.buffer
-                    );
+            if (!this._surfaces.has(imageData)) {
+                const newSurface = ArrayBufferSurface.createFromArrayBuffer(
+                    imageData.width,
+                    imageData.height,
+                    imageData.data.buffer
+                );
 
-                    this._surfaces.set(
-                        imageData,
-                        newSurface.fill(0xFF000000)
-                    );
-                }
-
-                const surface = this._surfaces.get(imageData);
-
-                this._poolMembers.set(surface, poolMember);
-
-                return surface;
+                this._surfaces.set(imageData, newSurface.fill(0xff000000));
             }
+
+            const surface = this._surfaces.get(imageData);
+
+            this._poolMembers.set(surface, poolMember);
+
+            return surface;
+        });
+
+        this._video.newFrame.addHandler(imageData =>
+            this._videoProcessor.processSurface(this._surfacePool.get(this._poolMembers.get(imageData)))
         );
 
-        this._video.newFrame.addHandler(
-            imageData => this._videoProcessor.processSurface(
-                this._surfacePool.get(this._poolMembers.get(imageData))
-            )
-        );
-
-        this._videoProcessor.emit.addHandler(
-            wrappedSurface => this.newFrame.dispatch(this._poolMembers.get(wrappedSurface.get()))
+        this._videoProcessor.emit.addHandler(wrappedSurface =>
+            this.newFrame.dispatch(this._poolMembers.get(wrappedSurface.get()))
         );
     }
 
@@ -96,9 +83,7 @@ class VideoEndpoint implements VideoEndpointInterface {
     private _pool: ObjectPool<ImageData>;
     private _poolMembers = new WeakMap<RGBASurfaceInterface, PoolMemberInterface<ImageData>>();
     private _surfaces = new WeakMap<ImageData, RGBASurfaceInterface>();
-    private _surfacePool = new InducedPool<ImageData, RGBASurfaceInterface>(
-        imageData => this._surfaces.get(imageData)
-    );
+    private _surfacePool = new InducedPool<ImageData, RGBASurfaceInterface>(imageData => this._surfaces.get(imageData));
 
     private _videoProcessor: VideoProcessorInterface;
 }

@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Action} from 'redux';
+import { Action } from 'redux';
 
 export const actions = {
     set: 'zipfile/set',

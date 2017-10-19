@@ -23,10 +23,7 @@ import InducedMember from './InducedMember';
 import PoolMemberInterface from './PoolMemberInterface';
 
 class InducedPool<T, U> {
-
-    constructor(
-        private _mapper: (value: T) => U
-    ) {}
+    constructor(private _mapper: (value: T) => U) {}
 
     get(original: PoolMemberInterface<T>): InducedMember<T, U> {
         if (!this._map.has(original)) {
@@ -37,7 +34,6 @@ class InducedPool<T, U> {
     }
 
     private _map = new WeakMap<PoolMemberInterface<T>, InducedMember<T, U>>();
-
 }
 
 export default InducedPool;

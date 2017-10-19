@@ -23,16 +23,11 @@ import CLIInterface from './CLIInterface';
 import Completer from './Completer';
 
 class JqtermCLIRunner {
-    constructor(
-        private _cli: CLIInterface,
-        terminalElt: JQuery,
-        options: JqtermCLIRunner.Options = {}
-    ) {
+    constructor(private _cli: CLIInterface, terminalElt: JQuery, options: JqtermCLIRunner.Options = {}) {
         this._updateCompleter();
 
         this._terminal = terminalElt.terminal(
-            (input: string, terminal: JQueryTerminal): void =>
-                this._cli.pushInput(input),
+            (input: string, terminal: JQueryTerminal): void => this._cli.pushInput(input),
             {
                 greetings: 'Ready.',
                 completion: this._getCompletionHandler(),
@@ -60,8 +55,7 @@ class JqtermCLIRunner {
     }
 
     private _updateCompleter() {
-        this._completer = new Completer(
-            this._cli.availableCommands(), this._cli.getFilesystemProvider());
+        this._completer = new Completer(this._cli.availableCommands(), this._cli.getFilesystemProvider());
     }
 
     private _onCLIOutputAvailable(payload: void, ctx: JqtermCLIRunner): void {
@@ -75,11 +69,7 @@ class JqtermCLIRunner {
     private _getCompletionHandler() {
         const me = this;
 
-        return function(
-            this: JQueryTerminal,
-            cmd: string,
-            handler: (candidates: Array<string>) => void
-        ) {
+        return function(this: JQueryTerminal, cmd: string, handler: (candidates: Array<string>) => void) {
             handler(me._completer.complete(this.get_command()).candidates);
         };
     }

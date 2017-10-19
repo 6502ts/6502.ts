@@ -20,16 +20,14 @@
  */
 
 import * as React from 'react';
-import {Navbar as BootstrapNavbar} from 'react-bootstrap';
+import { Navbar as BootstrapNavbar } from 'react-bootstrap';
 
 export interface Props {}
 
 function Header(props: Props) {
     return (
         <BootstrapNavbar.Header>
-            <BootstrapNavbar.Brand>
-                6502.ts Stellerator
-            </BootstrapNavbar.Brand>
+            <BootstrapNavbar.Brand>6502.ts Stellerator</BootstrapNavbar.Brand>
         </BootstrapNavbar.Header>
     );
 }

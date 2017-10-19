@@ -22,7 +22,6 @@
 import VideoEndpointInterface from './VideoEndpointInterface';
 
 interface VideoDriverInterface {
-
     resize(width?: number, height?: number): this;
 
     getCanvas(): HTMLCanvasElement;
@@ -40,7 +39,6 @@ interface VideoDriverInterface {
     unbind(): this;
 
     bind(video: VideoEndpointInterface): this;
-
 }
 
 export default VideoDriverInterface;

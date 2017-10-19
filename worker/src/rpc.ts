@@ -21,7 +21,7 @@
 
 declare function postMessage(message: any, transfer?: any): void;
 
-import {RpcProviderInterface, RpcProvider} from 'worker-rpc';
+import { RpcProviderInterface, RpcProvider } from 'worker-rpc';
 
 let rpcProvider: RpcProvider = null,
     port: MessagePort = null,

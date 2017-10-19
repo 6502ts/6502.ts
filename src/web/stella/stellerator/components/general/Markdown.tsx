@@ -23,7 +23,6 @@ import * as React from 'react';
 import * as commonmark from 'commonmark';
 
 class Markdown extends React.Component<Markdown.Props, Markdown.State> {
-
     constructor(props?: Markdown.Props, context?: any) {
         super(props, context);
 
@@ -46,19 +45,18 @@ class Markdown extends React.Component<Markdown.Props, Markdown.State> {
     }
 
     render() {
-        return <div
-            dangerouslySetInnerHTML={{__html: this.state.content}}
-            className={this.props.className}
-        />;
+        return <div dangerouslySetInnerHTML={{ __html: this.state.content }} className={this.props.className} />;
     }
 
     private _loadSource(): Promise<string> {
-        return (this.props.useCache && Markdown._cache[this.props.url]) ?
-            Promise.resolve(Markdown._cache[this.props.url]) :
-            Promise.resolve($.ajax({
-                url: this.props.url,
-                dataType: 'text'
-            })).then(source => Markdown._cache[this.props.url] = source);
+        return this.props.useCache && Markdown._cache[this.props.url]
+            ? Promise.resolve(Markdown._cache[this.props.url])
+            : Promise.resolve(
+                  $.ajax({
+                      url: this.props.url,
+                      dataType: 'text'
+                  })
+              ).then(source => (Markdown._cache[this.props.url] = source));
     }
 
     static defaultProps: Markdown.Props = {
@@ -67,12 +65,10 @@ class Markdown extends React.Component<Markdown.Props, Markdown.State> {
         onMarkdownError: (e: Error): void => console.error(e.message)
     };
 
-    private static _cache: {[url: string]: string} = {};
-
+    private static _cache: { [url: string]: string } = {};
 }
 
 namespace Markdown {
-
     export interface Props extends React.HTMLProps<any> {
         url?: string;
         useCache?: boolean;
@@ -83,7 +79,6 @@ namespace Markdown {
     export interface State {
         content: string;
     }
-
 }
 
 export default Markdown;

@@ -19,21 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {RpcProviderInterface} from 'worker-rpc';
+import { RpcProviderInterface } from 'worker-rpc';
 import AudioOutputInterface from '../../../../machine/io/AudioOutputInterface';
 
-import {
-    SIGNAL_TYPE,
-    AudioBufferChangeMessage,
-    AudioVolumeChangeMessage
-} from './messages';
+import { SIGNAL_TYPE, AudioBufferChangeMessage, AudioVolumeChangeMessage } from './messages';
 
 class AudioDriver {
-
-    constructor(
-        private _index: number,
-        private _rpc: RpcProviderInterface
-    ) {
+    constructor(private _index: number, private _rpc: RpcProviderInterface) {
         this._handlerContext = {
             index: this._index,
             self: this
@@ -84,7 +76,6 @@ class AudioDriver {
 
     private _audio: AudioOutputInterface = null;
     private _handlerContext: HandlerContext = null;
-
 }
 
 interface HandlerContext {

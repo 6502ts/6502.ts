@@ -20,7 +20,6 @@
  */
 
 interface GeneratorInterface {
-
     single(): number;
 
     double(): number;
@@ -30,7 +29,6 @@ interface GeneratorInterface {
     int(max: number): number;
 
     saveState(): any;
-
 }
 
 export default GeneratorInterface;

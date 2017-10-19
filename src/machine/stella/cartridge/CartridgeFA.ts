@@ -25,7 +25,6 @@ import RngInterface from '../../../tools/rng/GeneratorInterface';
 import * as cartridgeUtil from './util';
 
 class CartridgeFA extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
@@ -48,33 +47,33 @@ class CartridgeFA extends AbstractCartridge {
 
     randomize(rng: RngInterface): void {
         for (let i = 0; i < this._ram.length; i++) {
-            this._ram[i] = rng.int(0xFF);
+            this._ram[i] = rng.int(0xff);
         }
     }
 
     read(address: number): number {
-        this._handleBankswitch(address & 0x0FFF);
+        this._handleBankswitch(address & 0x0fff);
 
         return this.peek(address);
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (address >= 0x0100 && address < 0x0200) {
-            return this._ram[address & 0xFF];
+            return this._ram[address & 0xff];
         } else {
             return this._bank[address];
         }
     }
 
     write(address: number, value: number): void {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         this._handleBankswitch(address);
 
         if (address < 0x0100) {
-            this._ram[address] = value & 0xFF;
+            this._ram[address] = value & 0xff;
         } else {
             super.write(address, value);
         }
@@ -86,15 +85,15 @@ class CartridgeFA extends AbstractCartridge {
 
     private _handleBankswitch(address: number): void {
         switch (address) {
-            case 0x0FF8:
+            case 0x0ff8:
                 this._bank = this._bank0;
                 break;
 
-            case 0x0FF9:
+            case 0x0ff9:
                 this._bank = this._bank1;
                 break;
 
-            case 0x0FFA:
+            case 0x0ffa:
                 this._bank = this._bank2;
                 break;
         }

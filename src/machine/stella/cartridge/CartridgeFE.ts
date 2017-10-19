@@ -26,7 +26,6 @@ import CartridgeInfo from './CartridgeInfo';
 import * as cartridgeUtil from './util';
 
 class CartridgeFE extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
@@ -44,14 +43,12 @@ class CartridgeFE extends AbstractCartridge {
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
         // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(buffer,
-            [
-                [0x20, 0x00, 0xD0, 0xC6, 0xC5],  // JSR $D000; DEC $C5
-                [0x20, 0xC3, 0xF8, 0xA5, 0x82],  // JSR $F8C3; LDA $82
-                [0xD0, 0xFB, 0x20, 0x73, 0xFE],  // BNE $FB; JSR $FE73
-                [0x20, 0x00, 0xF0, 0x84, 0xD6]   // JSR $F000; STY $D6
-            ]
-        );
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
+            [0x20, 0x00, 0xd0, 0xc6, 0xc5], // JSR $D000; DEC $C5
+            [0x20, 0xc3, 0xf8, 0xa5, 0x82], // JSR $F8C3; LDA $82
+            [0xd0, 0xfb, 0x20, 0x73, 0xfe], // BNE $FB; JSR $FE73
+            [0x20, 0x00, 0xf0, 0x84, 0xd6] // JSR $F000; STY $D6
+        ]);
 
         for (let i = 0; i < signatureCounts.length; i++) {
             if (signatureCounts[i] > 0) {
@@ -69,7 +66,7 @@ class CartridgeFE extends AbstractCartridge {
     }
 
     read(address: number): number {
-        return this._bank[address & 0x0FFF];
+        return this._bank[address & 0x0fff];
     }
 
     write(address: number, value: number): void {
@@ -107,7 +104,7 @@ class CartridgeFE extends AbstractCartridge {
             self._bank = (self._bus.getLastDataBusValue() & 0x20) > 0 ? self._bank0 : self._bank1;
         }
 
-        self._lastAccessWasFE = self._bus.getLastAddresBusValue() === 0x01FE;
+        self._lastAccessWasFE = self._bus.getLastAddresBusValue() === 0x01fe;
     }
 
     private _cpu: CpuInterface;

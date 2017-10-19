@@ -122,7 +122,8 @@ module.exports = function(grunt) {
                 options: {
                     alias: {
                         stellaCLI: './src/web/stellaCLI.ts'
-                    }
+                    },
+                    cacheFile: 'foo.json'
                 }
             },
             stella_worker: {

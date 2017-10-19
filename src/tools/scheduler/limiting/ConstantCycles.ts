@@ -22,13 +22,12 @@
 import SchedulerInterface from '../SchedulerInterface';
 import TaskInterface from '../TaskInterface';
 import getTimestamp from '../getTimestamp';
-import {setImmediate} from '../setImmediate';
+import { setImmediate } from '../setImmediate';
 
 const CORRECTION_THESHOLD = 3,
     MAX_ACCUMULATED_DELTA = 100;
 
 class ConstantCyclesScheduler implements SchedulerInterface {
-
     start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T): TaskInterface {
         let terminate = false,
             targetSleepInterval = -1,
@@ -47,13 +46,13 @@ class ConstantCyclesScheduler implements SchedulerInterface {
             let delay = targetDuration - timestamp1 + timestamp0;
 
             if (targetSleepInterval >= 0) {
-                accumulatedDelta += (targetSleepInterval - timestamp0 + lastYieldTimestamp);
+                accumulatedDelta += targetSleepInterval - timestamp0 + lastYieldTimestamp;
             }
 
             if (accumulatedDelta > MAX_ACCUMULATED_DELTA) {
                 accumulatedDelta = MAX_ACCUMULATED_DELTA;
-            } else if (accumulatedDelta < - MAX_ACCUMULATED_DELTA) {
-                accumulatedDelta = - MAX_ACCUMULATED_DELTA;
+            } else if (accumulatedDelta < -MAX_ACCUMULATED_DELTA) {
+                accumulatedDelta = -MAX_ACCUMULATED_DELTA;
             }
 
             if (Math.abs(accumulatedDelta) > CORRECTION_THESHOLD) {
@@ -79,7 +78,7 @@ class ConstantCyclesScheduler implements SchedulerInterface {
         setImmediate(handler);
 
         return {
-            stop: () => terminate = true
+            stop: () => (terminate = true)
         };
     }
 }

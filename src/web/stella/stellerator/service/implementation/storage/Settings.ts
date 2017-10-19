@@ -49,7 +49,7 @@ export function toModel(record?: SettingsSchema): SettingsModel {
         return SettingsModel.create();
     }
 
-    const {id, ...settings} = record;
+    const { id, ...settings } = record;
 
     return settings;
 }

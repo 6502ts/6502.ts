@@ -19,14 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-const enum ColorMode {normal, score}
+const enum ColorMode {
+    normal,
+    score
+}
 
 class Playfield {
-
-    constructor(
-        private _collisionMask: number,
-        private _flushLineCache: () => void
-    ) {
+    constructor(private _collisionMask: number, private _flushLineCache: () => void) {
         this.reset();
     }
 
@@ -47,14 +46,14 @@ class Playfield {
     }
 
     pf0(value: number) {
-        if (this._pf0 === (value >>> 4)) {
+        if (this._pf0 === value >>> 4) {
             return;
         }
 
         this._flushLineCache();
         this._pf0 = value >>> 4;
 
-        this._pattern = (this._pattern & 0x000FFFF0) | this._pf0;
+        this._pattern = (this._pattern & 0x000ffff0) | this._pf0;
     }
 
     pf1(value: number) {
@@ -65,15 +64,16 @@ class Playfield {
         this._flushLineCache();
         this._pf1 = value;
 
-        this._pattern = (this._pattern & 0x000FF00F)
-            | ((value & 0x80) >>> 3)
-            | ((value & 0x40) >>> 1)
-            | ((value & 0x20) <<  1)
-            | ((value & 0x10) <<  3)
-            | ((value & 0x08) <<  5)
-            | ((value & 0x04) <<  7)
-            | ((value & 0x02) <<  9)
-            | ((value & 0x01) <<  11);
+        this._pattern =
+            (this._pattern & 0x000ff00f) |
+            ((value & 0x80) >>> 3) |
+            ((value & 0x40) >>> 1) |
+            ((value & 0x20) << 1) |
+            ((value & 0x10) << 3) |
+            ((value & 0x08) << 5) |
+            ((value & 0x04) << 7) |
+            ((value & 0x02) << 9) |
+            ((value & 0x01) << 11);
     }
 
     pf2(value: number) {
@@ -84,7 +84,7 @@ class Playfield {
         this._flushLineCache();
         this._pf2 = value;
 
-        this._pattern = (this._pattern & 0x00000FFF) | ((value & 0xFF) << 12);
+        this._pattern = (this._pattern & 0x00000fff) | ((value & 0xff) << 12);
     }
 
     ctrlpf(value: number): void {

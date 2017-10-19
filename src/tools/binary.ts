@@ -22,7 +22,7 @@
 export function encode(value: number, width?: number): string {
     let result = Math.abs(value).toString(2);
 
-    if (typeof(width) !== 'undefined') {
+    if (typeof width !== 'undefined') {
         while (result.length < width) {
             result = '0' + result;
         }

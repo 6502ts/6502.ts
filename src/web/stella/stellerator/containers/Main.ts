@@ -19,11 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 
-import {default as MainComponent, Props} from '../components/Main';
+import { default as MainComponent, Props } from '../components/Main';
 import State from '../state/State';
-import {GuiMode} from '../model/types';
+import { GuiMode } from '../model/types';
 
 function mapStateToProps(state: State): Props {
     return {
@@ -34,6 +34,6 @@ function mapStateToProps(state: State): Props {
     };
 }
 
-const Navbar = connect(mapStateToProps, {}, undefined, {pure: false})(MainComponent);
+const Navbar = connect(mapStateToProps, {}, undefined, { pure: false })(MainComponent);
 
 export default Navbar;

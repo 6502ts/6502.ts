@@ -21,24 +21,18 @@
 
 import EmulationContextInterface from '../EmulationContextInterface';
 import ControlState from './ControlState';
-import {RpcProviderInterface} from 'worker-rpc';
+import { RpcProviderInterface } from 'worker-rpc';
 import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';
 
-import {
-    SIGNAL_TYPE
-} from './messages';
+import { SIGNAL_TYPE } from './messages';
 
 class ControlDriver {
-
-    constructor(
-        private _rpc: RpcProviderInterface
-    ) {}
+    constructor(private _rpc: RpcProviderInterface) {}
 
     init(): void {
-        this._rpc
-            .registerSignalHandler(SIGNAL_TYPE.controlStateUpdate, this._onControlStateUpdate.bind(this));
+        this._rpc.registerSignalHandler(SIGNAL_TYPE.controlStateUpdate, this._onControlStateUpdate.bind(this));
     }
 
     bind(emulationContext: EmulationContextInterface): void {
@@ -98,7 +92,6 @@ class ControlDriver {
 
     private _active = false;
     private _emulationContext: EmulationContextInterface = null;
-
 }
 
 export default ControlDriver;

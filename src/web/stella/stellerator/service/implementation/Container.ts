@@ -19,8 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Store} from 'redux';
-import {Event} from 'microevent.ts';
+import { Store } from 'redux';
+import { Event } from 'microevent.ts';
 
 import State from '../../state/State';
 import ContainerInterface from '../Container';
@@ -34,7 +34,6 @@ interface InjectableWithStore {
 }
 
 class Container implements ContainerInterface {
-
     setStore(store: Store<State>): this {
         if (this._store) {
             throw new Error('store already configured');
@@ -63,10 +62,7 @@ class Container implements ContainerInterface {
     }
 
     getStorageManager(): StorageManager {
-        return this._getOrCreateSingetonService(
-            'storage-manager',
-            () => new StorageManager()
-        );
+        return this._getOrCreateSingetonService('storage-manager', () => new StorageManager());
     }
 
     getCartridgeManager(): CartridgManager {
@@ -77,25 +73,19 @@ class Container implements ContainerInterface {
         );
     }
 
-    private _getOrCreateSingetonService<T>(
-        key: string,
-        factory: () => T,
-        injectStore = false
-    ) {
+    private _getOrCreateSingetonService<T>(key: string, factory: () => T, injectStore = false) {
         if (this._services.has(key)) {
             return this._services.get(key);
         }
 
-        const service = factory() as (T & InjectableWithStore);
+        const service = factory() as T & InjectableWithStore;
         this._services.set(key, service);
 
         if (injectStore) {
             if (this._store) {
                 service.setStore(this._store);
             } else {
-                this._storeConfigured.addHandler(
-                    store => service.setStore(store)
-                );
+                this._storeConfigured.addHandler(store => service.setStore(store));
             }
         }
 

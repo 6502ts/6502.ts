@@ -39,22 +39,22 @@ import TaskInterface from '../tools/scheduler/TaskInterface';
 import ClockProbe from '../tools/ClockProbe';
 
 const enum State {
-    debug, run, quit
+    debug,
+    run,
+    quit
 }
 
 const OUTPUT_FLUSH_INTERVAL = 100;
 const CLOCK_PROBE_INTERVAL = 1000;
 
 class EhBasicCLI extends AbstractCLI implements CLIInterface {
-    constructor(
-            private _fsProvider: FileSystemProviderInterface
-    ) {
+    constructor(private _fsProvider: FileSystemProviderInterface) {
         super();
 
         const board = new Board(),
             dbg = new Debugger(),
             commandInterpreter = new CommandInterpreter(),
-            debuggerFrontend = new  DebuggerFrontend(dbg, this._fsProvider, commandInterpreter),
+            debuggerFrontend = new DebuggerFrontend(dbg, this._fsProvider, commandInterpreter),
             clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_PROBE_INTERVAL));
 
         dbg.attach(board);
@@ -65,23 +65,23 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         board.trap.addHandler(this._onTrap, this);
 
         commandInterpreter.registerCommands({
-            'quit': (): string => {
+            quit: (): string => {
                 if (this._allowQuit) {
                     this._setState(State.quit);
                 }
 
                 return 'bye';
             },
-            'run': (): string => {
+            run: (): string => {
                 this._setState(State.run);
                 return 'running, press ctl-c to interrupt...';
             },
-            'input': (args: Array<string>, cmd: string): string => {
+            input: (args: Array<string>, cmd: string): string => {
                 const data = cmd.replace(/^\s*input\s*/, '').replace(/\\n/, '\n'),
                     length = data.length;
 
                 for (let i = 0; i < length; i++) {
-                    this._inputBuffer.push(data[i] === '\n' ? 0x0D : data.charCodeAt(i) & 0xFF);
+                    this._inputBuffer.push(data[i] === '\n' ? 0x0d : data.charCodeAt(i) & 0xff);
                 }
 
                 return '';
@@ -104,7 +104,8 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
             }
         });
 
-        board.getSerialIO()
+        board
+            .getSerialIO()
             .setOutCallback((value: number) => this._serialOutHandler(value))
             .setInCallback(() => this._serialInHandler());
 
@@ -120,7 +121,8 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         this._fsProvider.pushd(path.dirname(filename));
 
         try {
-            this._fsProvider.readTextFileSync(path.basename(filename))
+            this._fsProvider
+                .readTextFileSync(path.basename(filename))
                 .split('\n')
                 .forEach((line: string): void => {
                     this.pushInput(line);
@@ -134,14 +136,15 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     }
 
     readBasicProgram(filename: string): void {
-        this._fsProvider.readTextFileSync(filename)
+        this._fsProvider
+            .readTextFileSync(filename)
             .split('\n')
             .forEach((line: string): void => {
                 const length = line.length;
                 for (let i = 0; i < length; i++) {
-                    this._inputBuffer.push(line.charCodeAt(i) & 0xFF);
+                    this._inputBuffer.push(line.charCodeAt(i) & 0xff);
                 }
-                this._inputBuffer.push(0x0D);
+                this._inputBuffer.push(0x0d);
             });
     }
 
@@ -199,9 +202,9 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
                 const size = data.length;
 
                 for (let i = 0; i < size; i++) {
-                    this._inputBuffer.push(data.charCodeAt(i) & 0xFF);
+                    this._inputBuffer.push(data.charCodeAt(i) & 0xff);
                 }
-                this._inputBuffer.push(0x0D);
+                this._inputBuffer.push(0x0d);
                 break;
 
             case State.debug:
@@ -220,8 +223,8 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     }
 
     getPrompt(): string {
-        let prompt = this._clockProbe.getFrequency() > 0 ?
-            (this._clockProbe.getFrequency() / 1000000).toFixed(2) + ' MHz ' : '';
+        let prompt =
+            this._clockProbe.getFrequency() > 0 ? (this._clockProbe.getFrequency() / 1000000).toFixed(2) + ' MHz ' : '';
 
         switch (this._state) {
             case State.run:
@@ -282,10 +285,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         switch (this._state) {
             case State.debug:
                 this._outputBuffer += String.fromCharCode(value);
-                this._outputLine('output event, buffer now\n' +
-                    this._outputBuffer +
-                    '\n'
-                );
+                this._outputLine('output event, buffer now\n' + this._outputBuffer + '\n');
                 break;
 
             case State.run:
@@ -314,7 +314,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     }
 
     private _outputLine(output: string = '') {
-        this._cliOutputBuffer += (output + '\n');
+        this._cliOutputBuffer += output + '\n';
     }
 
     private _flushOutput(): void {

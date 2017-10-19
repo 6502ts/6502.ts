@@ -19,29 +19,24 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {EventInterface} from 'microevent.ts';
+import { EventInterface } from 'microevent.ts';
 
 import RGBASurfaceInterface from '../../video/surface/RGBASurfaceInterface';
 
 interface VideoOutputInterface {
-
     getWidth(): number;
 
     getHeight(): number;
 
-    setSurfaceFactory(factory: VideoOutputInterface.SurfaceFactoryInterface):
-        VideoOutputInterface;
+    setSurfaceFactory(factory: VideoOutputInterface.SurfaceFactoryInterface): VideoOutputInterface;
 
     newFrame: EventInterface<RGBASurfaceInterface>;
-
 }
 
 namespace VideoOutputInterface {
-
     export interface SurfaceFactoryInterface {
         (): RGBASurfaceInterface;
     }
-
 }
 
 export default VideoOutputInterface;

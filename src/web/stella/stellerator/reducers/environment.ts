@@ -19,27 +19,28 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Action} from 'redux';
+import { Action } from 'redux';
 
 import Environment from '../state/Environment';
 
-import {
-    types as Actions,
-    InitializeAction
-} from '../actions/environment';
+import { types as Actions, InitializeAction } from '../actions/environment';
 
 export default function reducer(state: Environment = new Environment(), action: Action): Environment {
     switch (action.type) {
         case Actions.initialize:
             return initialize(state, action as InitializeAction);
 
-        default: return state;
+        default:
+            return state;
     }
 }
 
 function initialize(state: Environment, action: InitializeAction): Environment {
-    return new Environment({
-        helppageUrl: action.helppageUrl,
-        buildId: action.buildId
-    }, state);
+    return new Environment(
+        {
+            helppageUrl: action.helppageUrl,
+            buildId: action.buildId
+        },
+        state
+    );
 }

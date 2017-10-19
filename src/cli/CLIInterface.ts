@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {EventInterface} from 'microevent.ts';
+import { EventInterface } from 'microevent.ts';
 
 import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
 

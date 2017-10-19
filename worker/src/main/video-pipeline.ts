@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {getRpc} from '../rpc';
+import { getRpc } from '../rpc';
 import PipelineHost from '../../../src/video/processing/worker/PipelineHost';
 
 export const pipelineHost = new PipelineHost(getRpc());

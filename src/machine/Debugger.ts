@@ -30,7 +30,6 @@ import * as binary from '../tools/binary';
 import * as util from 'util';
 
 class Debugger {
-
     constructor(private _traceSize: number = 2048, private _stepMaxCycles = 10000000) {}
 
     attach(board: BoardInterface): Debugger {
@@ -86,21 +85,14 @@ class Debugger {
 
         for (let address = 0; address < 0x10000; address++) {
             if (this._breakpoints[address]) {
-                result += (
-                    hex.encode(address, 4) + ': ' +
-                    this._breakpointDescriptions[address] + '\n');
+                result += hex.encode(address, 4) + ': ' + this._breakpointDescriptions[address] + '\n';
             }
         }
 
         return result.replace(/\n$/, '');
     }
 
-    loadBlock(
-        block: Debugger.MemoryBlockInterface,
-        at: number,
-        from: number = 0,
-        to: number = block.length - 1
-    ) {
+    loadBlock(block: Debugger.MemoryBlockInterface, at: number, from: number = 0, to: number = block.length - 1) {
         for (let i = 0; i <= to - from; i++) {
             this._poke(at + i, block[i]);
         }
@@ -116,11 +108,12 @@ class Debugger {
             address = (start + i) % 0x10000;
 
             instruction = Instruction.opcodes[this._peek(address)];
-            result += (
+            result +=
                 (this._breakpoints[address] ? '(B) ' : '    ') +
-                hex.encode(address, 4) + ':   ' +
-                this._disassembler.disassembleAt(address) + '\n'
-            );
+                hex.encode(address, 4) +
+                ':   ' +
+                this._disassembler.disassembleAt(address) +
+                '\n';
 
             i += instruction.getSize();
         }
@@ -137,11 +130,11 @@ class Debugger {
         length = Math.min(length, this._traceLength);
 
         for (let i = 0; i < length; i++) {
-            result += (
+            result +=
                 this.disassembleAt(
                     this._trace[(this._traceSize + this._traceIndex - length + i) % this._traceSize],
                     1
-                ) + '\n');
+                ) + '\n';
         }
 
         return result + this.disassemble(1);
@@ -154,8 +147,7 @@ class Debugger {
         for (let i = 0; i < length; i++) {
             address = (start + i) % 0x10000;
 
-            result += (hex.encode(address, 4) + ':   ' +
-                hex.encode(this._peek(address), 2) + '\n');
+            result += hex.encode(address, 4) + ':   ' + hex.encode(this._peek(address), 2) + '\n';
         }
 
         return result.replace(/\n$/, '');
@@ -168,23 +160,33 @@ class Debugger {
             case CpuInterface.ExecutionState.boot:
         }
 
-        let result = '' +
-                'A = ' + hex.encode(state.a, 2) + '   ' +
-                'X = ' + hex.encode(state.x, 2) + '   ' +
-                'Y = ' + hex.encode(state.y, 2) + '   ' +
-                'S = ' + hex.encode(state.s, 2) + '   ' +
-                'P = ' + hex.encode(state.p, 4) + '\n' +
-                'flags = ' + binary.encode(state.flags, 8) + '\n' +
-                'state: ' + this._humanReadableExecutionState();
+        let result =
+            '' +
+            'A = ' +
+            hex.encode(state.a, 2) +
+            '   ' +
+            'X = ' +
+            hex.encode(state.x, 2) +
+            '   ' +
+            'Y = ' +
+            hex.encode(state.y, 2) +
+            '   ' +
+            'S = ' +
+            hex.encode(state.s, 2) +
+            '   ' +
+            'P = ' +
+            hex.encode(state.p, 4) +
+            '\n' +
+            'flags = ' +
+            binary.encode(state.flags, 8) +
+            '\n' +
+            'state: ' +
+            this._humanReadableExecutionState();
 
         const boardState = this._board.getBoardStateDebug();
 
         if (boardState) {
-            result += (
-                '\n' +
-                '\n' +
-                boardState
-            );
+            result += '\n' + '\n' + boardState;
         }
 
         return result;
@@ -194,14 +196,14 @@ class Debugger {
         return this.dumpAt(0x0100 + this._cpu.state.s, 0x100 - this._cpu.state.s);
     }
 
-    step(instructions: number): {cycles: number, cpuCycles: number} {
+    step(instructions: number): { cycles: number; cpuCycles: number } {
         let instruction = 0,
             cycles = 0,
             lastExecutionState = this._cpu.executionState,
             cpuCycles = 0;
         const timer = this._board.getTimer();
 
-        const cpuClockHandler = (c: number) => cpuCycles += c;
+        const cpuClockHandler = (c: number) => (cpuCycles += c);
         this._board.cpuClock.addHandler(cpuClockHandler);
 
         this._lastTrap = undefined;
@@ -224,7 +226,7 @@ class Debugger {
         this._board.cpuClock.removeHandler(cpuClockHandler);
         this._board.suspend();
 
-        return {cycles, cpuCycles};
+        return { cycles, cpuCycles };
     }
 
     stepClock(cycles: number): number {
@@ -294,7 +296,8 @@ class Debugger {
     private _cpuClockHandler(clocks: number, ctx: Debugger): void {
         const lastInstructionPointer = ctx._cpu.getLastInstructionPointer();
 
-        if (ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch ||
+        if (
+            ctx._cpu.executionState !== CpuInterface.ExecutionState.fetch ||
             lastInstructionPointer === ctx._lastInstructionPointer
         ) {
             return;
@@ -311,8 +314,10 @@ class Debugger {
         }
 
         if (ctx._breakpointsEnabled && ctx._breakpoints[ctx._cpu.state.p]) {
-            ctx._board.triggerTrap(BoardInterface.TrapReason.debug,
-                util.format('breakpoint "%s" at %s',
+            ctx._board.triggerTrap(
+                BoardInterface.TrapReason.debug,
+                util.format(
+                    'breakpoint "%s" at %s',
                     ctx._breakpointDescriptions[ctx._cpu.state.p] || '',
                     hex.encode(ctx._cpu.state.p)
                 )
@@ -329,7 +334,7 @@ class Debugger {
     }
 
     private _poke(address: number, value: number) {
-        this._bus.poke(address % 0x10000, value & 0xFF);
+        this._bus.poke(address % 0x10000, value & 0xff);
     }
 
     private _disassembler: Disassembler;

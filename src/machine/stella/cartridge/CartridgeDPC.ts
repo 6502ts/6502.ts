@@ -25,7 +25,6 @@ import Bus from '../Bus';
 import * as cartridgeUtil from './util';
 
 class CartridgeDPC extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
@@ -70,7 +69,7 @@ class CartridgeDPC extends AbstractCartridge {
     }
 
     peek(address: number): number {
-        return this._bank[address & 0x0FFF];
+        return this._bank[address & 0x0fff];
     }
 
     write(address: number, value: number): void {
@@ -78,15 +77,15 @@ class CartridgeDPC extends AbstractCartridge {
     }
 
     private _access(address: number, value: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
-        if (address > 0x7F) {
+        if (address > 0x7f) {
             switch (address) {
-                case 0x0FF8:
+                case 0x0ff8:
                     this._bank = this._bank0;
                     break;
 
-                case 0x0FF9:
+                case 0x0ff9:
                     this._bank = this._bank1;
                     break;
 
@@ -98,14 +97,14 @@ class CartridgeDPC extends AbstractCartridge {
         }
 
         if (address < 0x08) {
-            return (address & 0x04) ? 0 : this._randomNext();
+            return address & 0x04 ? 0 : this._randomNext();
         }
 
         if (address < 0x40) {
             const fetcher = this._fetchers[(address - 8) & 0x07],
                 mask = fetcher.mask;
 
-            let fetchedData = this._fetcherData[0x07FF - fetcher.pointer];
+            let fetchedData = this._fetcherData[0x07ff - fetcher.pointer];
 
             fetcher.next();
 
@@ -118,19 +117,21 @@ class CartridgeDPC extends AbstractCartridge {
 
                 case 2:
                     fetchedData &= mask;
-                    return ((fetchedData << 4) | (fetchedData >>> 4)) & 0xFF;
+                    return ((fetchedData << 4) | (fetchedData >>> 4)) & 0xff;
 
                 case 3:
                     fetchedData &= mask;
 
-                    return  ((fetchedData & 0x01) <<  7) |
-                            ((fetchedData & 0x02) <<  5) |
-                            ((fetchedData & 0x04) <<  3) |
-                            ((fetchedData & 0x08) <<  1) |
-                            ((fetchedData & 0x10) >>> 1) |
-                            ((fetchedData & 0x20) >>> 3) |
-                            ((fetchedData & 0x40) >>> 5) |
-                            ((fetchedData & 0x80) >>> 7);
+                    return (
+                        ((fetchedData & 0x01) << 7) |
+                        ((fetchedData & 0x02) << 5) |
+                        ((fetchedData & 0x04) << 3) |
+                        ((fetchedData & 0x08) << 1) |
+                        ((fetchedData & 0x10) >>> 1) |
+                        ((fetchedData & 0x20) >>> 3) |
+                        ((fetchedData & 0x40) >>> 5) |
+                        ((fetchedData & 0x80) >>> 7)
+                    );
 
                 case 4:
                     return (fetchedData & mask) >>> 1;
@@ -162,7 +163,7 @@ class CartridgeDPC extends AbstractCartridge {
                 case 3:
                     fetcher.setHigh(value);
 
-                    if (address > 0x5C) {
+                    if (address > 0x5c) {
                         fetcher.setMusicMode(value);
                     }
 
@@ -181,13 +182,13 @@ class CartridgeDPC extends AbstractCartridge {
         return this._bank[address];
     }
 
-    private _randomNext(): number  {
+    private _randomNext(): number {
         const oldRng = this._rng;
 
         this._rng =
             ((this._rng << 1) |
-            (~(((this._rng >>> 7) ^ (this._rng >>> 5)) ^ ((this._rng >>> 4) ^ (this._rng >>> 3))) & 0x01)) &
-            0xFF;
+                (~((this._rng >>> 7) ^ (this._rng >>> 5) ^ ((this._rng >>> 4) ^ (this._rng >>> 3))) & 0x01)) &
+            0xff;
 
         return oldRng;
     }
@@ -203,11 +204,9 @@ class CartridgeDPC extends AbstractCartridge {
     private _rng = 1;
 
     private _bus: Bus;
-
 }
 
 class Fetcher {
-
     contructor() {
         this.reset();
     }
@@ -218,7 +217,7 @@ class Fetcher {
     }
 
     next(): void {
-        this.pointer = (this.pointer + 0x07FF) & 0x07FF;
+        this.pointer = (this.pointer + 0x07ff) & 0x07ff;
 
         this._updateMask();
     }
@@ -243,7 +242,7 @@ class Fetcher {
     }
 
     setHigh(value: number): void {
-        this.pointer = (this.pointer & 0xFF) | ((value & 0x07) << 8);
+        this.pointer = (this.pointer & 0xff) | ((value & 0x07) << 8);
 
         this._updateMask();
     }
@@ -253,11 +252,11 @@ class Fetcher {
     }
 
     private _updateMask(): void {
-        if ((this.pointer & 0xFF)  === this.start) {
-            this.mask = 0xFF;
+        if ((this.pointer & 0xff) === this.start) {
+            this.mask = 0xff;
         }
 
-        if ((this.pointer & 0xFF)  === this.end) {
+        if ((this.pointer & 0xff) === this.end) {
             this.mask = 0x00;
         }
     }

@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {EventInterface} from 'microevent.ts';
+import { EventInterface } from 'microevent.ts';
 
 import CartridgeInfo from './CartridgeInfo';
 import Cpuinterface from '../../cpu/CpuInterface';
@@ -28,7 +28,6 @@ import BusInterface from '../../bus/BusInterface';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 interface CartridgeInterface {
-
     reset(): void;
 
     read(address: number): number;
@@ -48,19 +47,17 @@ interface CartridgeInterface {
     randomize(rng: RngInterface): void;
 
     trap: EventInterface<CartridgeInterface.TrapPayload>;
-
 }
 
 namespace CartridgeInterface {
-
-    export const enum TrapReason {invalidRead, invalidWrite, other}
+    export const enum TrapReason {
+        invalidRead,
+        invalidWrite,
+        other
+    }
 
     export class TrapPayload {
-        constructor(
-            public reason: TrapReason,
-            public cartridge: CartridgeInterface,
-            public message?: string
-        ) {}
+        constructor(public reason: TrapReason, public cartridge: CartridgeInterface, public message?: string) {}
     }
 }
 

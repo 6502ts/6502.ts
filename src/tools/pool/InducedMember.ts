@@ -22,11 +22,7 @@
 import PoolMemberInterface from './PoolMemberInterface';
 
 class InducedMember<T, U> implements PoolMemberInterface<U> {
-
-    constructor(
-        private _value: PoolMemberInterface<T>,
-        private _mapper: (value: T) => U
-    ) {}
+    constructor(private _value: PoolMemberInterface<T>, private _mapper: (value: T) => U) {}
 
     get(): U {
         return this._mapper(this._value.get());
@@ -39,7 +35,6 @@ class InducedMember<T, U> implements PoolMemberInterface<U> {
     dispose(): void {
         this._value.dispose();
     }
-
 }
 
 export default InducedMember;

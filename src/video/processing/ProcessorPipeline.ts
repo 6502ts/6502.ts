@@ -19,19 +19,18 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {EventInterface} from 'microevent.ts';
+import { EventInterface } from 'microevent.ts';
 
 import RGBASurfaceInterface from '../surface/RGBASurfaceInterface';
 import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 import ProcessorInterface from './ProcessorInterface';
 import ProcessorFactory from './ProcessorFactory';
-import {ProcessorConfig, Type} from './config';
+import { ProcessorConfig, Type } from './config';
 
 class ProcessorPipeline implements ProcessorInterface {
-
     constructor(config?: Array<ProcessorConfig>) {
         if (!config || config.length === 0) {
-            config = [{type: Type.passthrough}];
+            config = [{ type: Type.passthrough }];
         }
 
         const factory = new ProcessorFactory();
@@ -60,7 +59,6 @@ class ProcessorPipeline implements ProcessorInterface {
     emit: EventInterface<PoolMemberInterface<RGBASurfaceInterface>>;
 
     private _processors: Array<ProcessorInterface>;
-
 }
 
 export default ProcessorPipeline;

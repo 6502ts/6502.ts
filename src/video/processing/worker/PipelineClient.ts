@@ -19,19 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {RpcProviderInterface, RpcProvider} from 'worker-rpc';
-import {Event} from 'microevent.ts';
+import { RpcProviderInterface, RpcProvider } from 'worker-rpc';
+import { Event } from 'microevent.ts';
 
 import * as messages from './messages';
 import ArrayBufferSurface from '../../surface/ArrayBufferSurface';
 import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
-import {ProcessorConfig} from '../config';
+import { ProcessorConfig } from '../config';
 
 class PipelineClient {
-
-    constructor(
-        private _rpc: RpcProviderInterface
-    ) {
+    constructor(private _rpc: RpcProviderInterface) {
         this._rpc
             .registerSignalHandler(messages.messageIds.emit, this._onMessageEmit.bind(this))
             .registerSignalHandler(messages.messageIds.release, this._onMessageRelease.bind(this));
@@ -39,9 +36,7 @@ class PipelineClient {
 
     static spawn(workerUrl = 'video-pipeline.js'): PipelineClient {
         const worker = new Worker(workerUrl),
-            rpc = new RpcProvider(
-                (message: any, transfer: Array<any>) => worker.postMessage(message, transfer)
-            );
+            rpc = new RpcProvider((message: any, transfer: Array<any>) => worker.postMessage(message, transfer));
 
         worker.onmessage = messageEvent => rpc.dispatch(messageEvent.data);
 
@@ -67,12 +62,16 @@ class PipelineClient {
 
         this._surfaces.set(id, managedSurface);
 
-        this._rpc.signal(messages.messageIds.process, {
-            id,
-            width: surface.getWidth(),
-            height: surface.getHeight(),
-            buffer
-        } as messages.ProcessMessage, [buffer]);
+        this._rpc.signal(
+            messages.messageIds.process,
+            {
+                id,
+                width: surface.getWidth(),
+                height: surface.getHeight(),
+                buffer
+            } as messages.ProcessMessage,
+            [buffer]
+        );
     }
 
     private _onMessageEmit(msg: messages.EmitMessage): void {
@@ -107,7 +106,6 @@ class PipelineClient {
 
     private _nextId = 0;
     private _surfaces = new Map<number, PoolMemberInterface<ArrayBufferSurface>>();
-
 }
 
 export default PipelineClient;

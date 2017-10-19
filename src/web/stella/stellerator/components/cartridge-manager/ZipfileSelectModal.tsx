@@ -20,14 +20,9 @@
  */
 
 import * as React from 'react';
-import {
-    Button,
-    Modal,
-    DropdownButton,
-    MenuItem
-} from 'react-bootstrap';
+import { Button, Modal, DropdownButton, MenuItem } from 'react-bootstrap';
 
-import {styled} from '../style';
+import { styled } from '../style';
 
 export interface Props {
     show: boolean;
@@ -43,15 +38,12 @@ interface State {
 
 let index = 0;
 
-const Container = styled.div`
-    margin-bottom: 1rem;
-`;
+const Container = styled.div`margin-bottom: 1rem;`;
 
 class ZipfileSelectModal extends React.PureComponent<Props, State> {
-
     componentWillReceiveProps(newProps: Props) {
         if (this.props.show && !newProps.show) {
-            this.setState({selectedIndex: 0});
+            this.setState({ selectedIndex: 0 });
         }
     }
 
@@ -62,36 +54,25 @@ class ZipfileSelectModal extends React.PureComponent<Props, State> {
                     <Modal.Title>Multiple ROM images</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <Container>This archive contains multiple ROM images.</Container>
                     <Container>
-                        This archive contains multiple ROM images.
-                    </Container><Container>
                         Select one:{' '}
                         <DropdownButton
                             id={this._id}
-                            title={
-                                this.props.files.length > 0 ? this.props.files[this.state.selectedIndex] : ''
-                            }
-                            onSelect={(idx: any) => this.setState({selectedIndex: idx})}
+                            title={this.props.files.length > 0 ? this.props.files[this.state.selectedIndex] : ''}
+                            onSelect={(idx: any) => this.setState({ selectedIndex: idx })}
                         >
-                            {
-                                this.props.files.map((file: string, i: number) =>
-                                    <MenuItem key={i} eventKey={i} active={i === this.state.selectedIndex}>
-                                        {this.props.files[i]}
-                                    </MenuItem>
-                                )
-                            }
+                            {this.props.files.map((file: string, i: number) => (
+                                <MenuItem key={i} eventKey={i} active={i === this.state.selectedIndex}>
+                                    {this.props.files[i]}
+                                </MenuItem>
+                            ))}
                         </DropdownButton>
                     </Container>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button
-                        onClick={this.props.onCancel}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={() => this.props.onSelect(this.props.files[this.state.selectedIndex])}
-                    >
+                    <Button onClick={this.props.onCancel}>Cancel</Button>
+                    <Button onClick={() => this.props.onSelect(this.props.files[this.state.selectedIndex])}>
                         Continue
                     </Button>
                 </Modal.Footer>
@@ -111,7 +92,6 @@ class ZipfileSelectModal extends React.PureComponent<Props, State> {
     };
 
     private _id = `zipfile-dropdown-${index++}`;
-
 }
 
 export default ZipfileSelectModal;

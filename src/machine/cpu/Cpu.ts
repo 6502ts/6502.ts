@@ -31,12 +31,13 @@ const enum InterruptCheck {
 }
 
 function restoreFlagsFromStack(state: CpuInterface.State, bus: BusInterface): void {
-    state.s = (state.s + 0x01) & 0xFF;
-    state.flags = (bus.read(0x0100 + state.s) | CpuInterface.Flags.e) & (~CpuInterface.Flags.b);
+    state.s = (state.s + 0x01) & 0xff;
+    state.flags = (bus.read(0x0100 + state.s) | CpuInterface.Flags.e) & ~CpuInterface.Flags.b;
 }
 
 function setFlagsNZ(state: CpuInterface.State, operand: number): void {
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)) |
         (operand & 0x80) |
         (operand ? 0 : CpuInterface.Flags.z);
 }
@@ -45,58 +46,59 @@ function dispatchInterrupt(state: CpuInterface.State, bus: BusInterface, vector:
     const nextOpAddr = state.p;
 
     if (state.nmi) {
-        vector = 0xFFFA;
+        vector = 0xfffa;
     }
 
     state.nmi = state.irq = false;
 
-    bus.write(state.s + 0x0100, (nextOpAddr >>> 8) & 0xFF);
-    state.s = (state.s + 0xFF) & 0xFF;
-    bus.write(state.s + 0x0100, nextOpAddr & 0xFF);
-    state.s = (state.s + 0xFF) & 0xFF;
+    bus.write(state.s + 0x0100, (nextOpAddr >>> 8) & 0xff);
+    state.s = (state.s + 0xff) & 0xff;
+    bus.write(state.s + 0x0100, nextOpAddr & 0xff);
+    state.s = (state.s + 0xff) & 0xff;
 
-    bus.write(state.s + 0x0100, state.flags & (~CpuInterface.Flags.b));
-    state.s = (state.s + 0xFF) & 0xFF;
+    bus.write(state.s + 0x0100, state.flags & ~CpuInterface.Flags.b);
+    state.s = (state.s + 0xff) & 0xff;
 
     state.flags |= CpuInterface.Flags.i;
 
-    state.p = (bus.readWord(vector));
+    state.p = bus.readWord(vector);
 }
 
 function opIrq(state: CpuInterface.State, bus: BusInterface) {
-    dispatchInterrupt(state, bus, 0xFFFE);
+    dispatchInterrupt(state, bus, 0xfffe);
 }
 
 function opNmi(state: CpuInterface.State, bus: BusInterface) {
-    dispatchInterrupt(state, bus, 0xFFFA);
+    dispatchInterrupt(state, bus, 0xfffa);
 }
 
 function opBoot(state: CpuInterface.State, bus: BusInterface): void {
-    state.p = bus.readWord(0xFFFC);
+    state.p = bus.readWord(0xfffc);
 }
 
 function opAdc(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     if (state.flags & CpuInterface.Flags.d) {
-        const d0 = (operand & 0x0F) + (state.a & 0x0F) + (state.flags & CpuInterface.Flags.c),
+        const d0 = (operand & 0x0f) + (state.a & 0x0f) + (state.flags & CpuInterface.Flags.c),
             d1 = (operand >>> 4) + (state.a >>> 4) + (d0 > 9 ? 1 : 0);
 
         state.a = (d0 % 10) | ((d1 % 10) << 4);
 
-        state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
-            (state.a & 0x80) |  // negative
-            (state.a ? 0 : CpuInterface.Flags.z) |   // zero
-            (d1 > 9 ? CpuInterface.Flags.c : 0);     // carry
+        state.flags =
+            (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+            (state.a & 0x80) | // negative
+            (state.a ? 0 : CpuInterface.Flags.z) | // zero
+            (d1 > 9 ? CpuInterface.Flags.c : 0); // carry
     } else {
         const sum = state.a + operand + (state.flags & CpuInterface.Flags.c),
-            result = sum & 0xFF;
+            result = sum & 0xff;
 
         state.flags =
             (state.flags &
                 ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c | CpuInterface.Flags.v)) |
-            (result & 0x80) |  // negative
-            (result ? 0 : CpuInterface.Flags.z) |   // zero
-            (sum >>> 8) |         // carry
-            (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >>> 1); // overflow
+            (result & 0x80) | // negative
+            (result ? 0 : CpuInterface.Flags.z) | // zero
+            (sum >>> 8) | // carry
+            ((~(operand ^ state.a) & (result ^ operand) & 0x80) >>> 1); // overflow
 
         state.a = result;
     }
@@ -109,9 +111,10 @@ function opAnd(state: CpuInterface.State, bus: BusInterface, operand: number): v
 
 function opAslAcc(state: CpuInterface.State): void {
     const old = state.a;
-    state.a = (state.a << 1) & 0xFF;
+    state.a = (state.a << 1) & 0xff;
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (state.a & 0x80) |
         (state.a ? 0 : CpuInterface.Flags.z) |
         (old >>> 7);
@@ -119,10 +122,11 @@ function opAslAcc(state: CpuInterface.State): void {
 
 function opAslMem(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     const old = bus.read(operand),
-        value = (old << 1) & 0xFF;
+        value = (old << 1) & 0xff;
     bus.write(operand, value);
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (value & 0x80) |
         (value ? 0 : CpuInterface.Flags.z) |
         (old >>> 7);
@@ -132,31 +136,31 @@ function opBit(state: CpuInterface.State, bus: BusInterface, operand: number): v
     state.flags =
         (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.v | CpuInterface.Flags.z)) |
         (operand & (CpuInterface.Flags.n | CpuInterface.Flags.v)) |
-        ((operand & state.a) ? 0 : CpuInterface.Flags.z);
+        (operand & state.a ? 0 : CpuInterface.Flags.z);
 }
 
 function opBrk(state: CpuInterface.State, bus: BusInterface): void {
-    const nextOpAddr = (state.p + 1) & 0xFFFF;
-    let vector = 0xFFFE;
+    const nextOpAddr = (state.p + 1) & 0xffff;
+    let vector = 0xfffe;
 
     if (state.nmi) {
-        vector = 0xFFFA;
+        vector = 0xfffa;
         state.nmi = false;
     }
 
     state.nmi = state.irq = false;
 
-    bus.write(state.s + 0x0100, (nextOpAddr >>> 8) & 0xFF);
-    state.s = (state.s + 0xFF) & 0xFF;
-    bus.write(state.s + 0x0100, nextOpAddr & 0xFF);
-    state.s = (state.s + 0xFF) & 0xFF;
+    bus.write(state.s + 0x0100, (nextOpAddr >>> 8) & 0xff);
+    state.s = (state.s + 0xff) & 0xff;
+    bus.write(state.s + 0x0100, nextOpAddr & 0xff);
+    state.s = (state.s + 0xff) & 0xff;
 
     bus.write(state.s + 0x0100, state.flags | CpuInterface.Flags.b);
-    state.s = (state.s + 0xFF) & 0xFF;
+    state.s = (state.s + 0xff) & 0xff;
 
     state.flags |= CpuInterface.Flags.i;
 
-    state.p = (bus.readWord(vector));
+    state.p = bus.readWord(vector);
 }
 
 function opClc(state: CpuInterface.State): void {
@@ -176,40 +180,43 @@ function opClv(state: CpuInterface.State): void {
 }
 
 function opCmp(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    const diff = state.a + (~operand & 0xFF) + 1;
+    const diff = state.a + (~operand & 0xff) + 1;
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (diff & 0x80) |
-        ((diff & 0xFF) ? 0 : CpuInterface.Flags.z) |
+        (diff & 0xff ? 0 : CpuInterface.Flags.z) |
         (diff >>> 8);
 }
 
 function opCpx(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-     const diff = state.x + (~operand & 0xFF) + 1;
+    const diff = state.x + (~operand & 0xff) + 1;
 
-     state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (diff & 0x80) |
-        ((diff & 0xFF) ? 0 : CpuInterface.Flags.z) |
+        (diff & 0xff ? 0 : CpuInterface.Flags.z) |
         (diff >>> 8);
 }
 
 function opCpy(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-     const diff = state.y + (~operand & 0xFF) + 1;
+    const diff = state.y + (~operand & 0xff) + 1;
 
-     state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (diff & 0x80) |
-        ((diff & 0xFF) ? 0 : CpuInterface.Flags.z) |
+        (diff & 0xff ? 0 : CpuInterface.Flags.z) |
         (diff >>> 8);
 }
 
 function opDec(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    const value = (bus.read(operand) + 0xFF) & 0xFF;
+    const value = (bus.read(operand) + 0xff) & 0xff;
     bus.write(operand, value);
     setFlagsNZ(state, value);
 }
 
 function opDex(state: CpuInterface.State): void {
-    state.x = (state.x + 0xFF) & 0xFF;
+    state.x = (state.x + 0xff) & 0xff;
     setFlagsNZ(state, state.x);
 }
 
@@ -219,23 +226,23 @@ function opEor(state: CpuInterface.State, bus: BusInterface, operand: number): v
 }
 
 function opDey(state: CpuInterface.State): void {
-    state.y = (state.y + 0xFF) & 0xFF;
+    state.y = (state.y + 0xff) & 0xff;
     setFlagsNZ(state, state.y);
 }
 
 function opInc(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    const value = (bus.read(operand) + 1) & 0xFF;
+    const value = (bus.read(operand) + 1) & 0xff;
     bus.write(operand, value);
     setFlagsNZ(state, value);
 }
 
 function opInx(state: CpuInterface.State): void {
-    state.x = (state.x + 0x01) & 0xFF;
+    state.x = (state.x + 0x01) & 0xff;
     setFlagsNZ(state, state.x);
 }
 
 function opIny(state: CpuInterface.State): void {
-    state.y = (state.y + 0x01) & 0xFF;
+    state.y = (state.y + 0x01) & 0xff;
     setFlagsNZ(state, state.y);
 }
 
@@ -244,16 +251,16 @@ function opJmp(state: CpuInterface.State, bus: BusInterface, operand: number): v
 }
 
 function opJsr(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    const returnPtr = (state.p + 1) & 0xFFFF,
+    const returnPtr = (state.p + 1) & 0xffff,
         addrLo = bus.read(state.p);
 
     bus.read(0x0100 + state.s);
     bus.write(0x0100 + state.s, returnPtr >>> 8);
-    state.s = (state.s + 0xFF) & 0xFF;
-    bus.write(0x0100 + state.s, returnPtr & 0xFF);
-    state.s = (state.s + 0xFF) & 0xFF;
+    state.s = (state.s + 0xff) & 0xff;
+    bus.write(0x0100 + state.s, returnPtr & 0xff);
+    state.s = (state.s + 0xff) & 0xff;
 
-    state.p = addrLo | (bus.read((state.p + 1) & 0xFFFF) << 8);
+    state.p = addrLo | (bus.read((state.p + 1) & 0xffff) << 8);
 }
 
 function opLda(
@@ -290,7 +297,8 @@ function opLsrAcc(state: CpuInterface.State): void {
     const old = state.a;
     state.a = state.a >>> 1;
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (state.a & 0x80) |
         (state.a ? 0 : CpuInterface.Flags.z) |
         (old & CpuInterface.Flags.c);
@@ -301,7 +309,8 @@ function opLsrMem(state: CpuInterface.State, bus: BusInterface, operand: number)
         value = old >>> 1;
     bus.write(operand, value);
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (value & 0x80) |
         (value ? 0 : CpuInterface.Flags.z) |
         (old & CpuInterface.Flags.c);
@@ -316,7 +325,7 @@ function opOra(state: CpuInterface.State, bus: BusInterface, operand: number): v
 
 function opPhp(state: CpuInterface.State, bus: BusInterface): void {
     bus.write(0x0100 + state.s, state.flags | CpuInterface.Flags.b);
-    state.s = (state.s + 0xFF) & 0xFF;
+    state.s = (state.s + 0xff) & 0xff;
 }
 
 function opPlp(state: CpuInterface.State, bus: BusInterface): void {
@@ -325,20 +334,21 @@ function opPlp(state: CpuInterface.State, bus: BusInterface): void {
 
 function opPha(state: CpuInterface.State, bus: BusInterface): void {
     bus.write(0x0100 + state.s, state.a);
-    state.s = (state.s + 0xFF) & 0xFF;
+    state.s = (state.s + 0xff) & 0xff;
 }
 
 function opPla(state: CpuInterface.State, bus: BusInterface): void {
-    state.s = (state.s + 0x01) & 0xFF;
+    state.s = (state.s + 0x01) & 0xff;
     state.a = bus.read(0x0100 + state.s);
     setFlagsNZ(state, state.a);
 }
 
 function opRolAcc(state: CpuInterface.State): void {
     const old = state.a;
-    state.a = ((state.a << 1) & 0xFF) | (state.flags & CpuInterface.Flags.c);
+    state.a = ((state.a << 1) & 0xff) | (state.flags & CpuInterface.Flags.c);
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (state.a & 0x80) |
         (state.a ? 0 : CpuInterface.Flags.z) |
         (old >>> 7);
@@ -346,10 +356,11 @@ function opRolAcc(state: CpuInterface.State): void {
 
 function opRolMem(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     const old = bus.read(operand),
-        value = ((old << 1) & 0xFF) | (state.flags & CpuInterface.Flags.c);
+        value = ((old << 1) & 0xff) | (state.flags & CpuInterface.Flags.c);
     bus.write(operand, value);
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (value & 0x80) |
         (value ? 0 : CpuInterface.Flags.z) |
         (old >>> 7);
@@ -359,7 +370,8 @@ function opRorAcc(state: CpuInterface.State): void {
     const old = state.a;
     state.a = (state.a >>> 1) | ((state.flags & CpuInterface.Flags.c) << 7);
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (state.a & 0x80) |
         (state.a ? 0 : CpuInterface.Flags.z) |
         (old & CpuInterface.Flags.c);
@@ -370,7 +382,8 @@ function opRorMem(state: CpuInterface.State, bus: BusInterface, operand: number)
         value = (old >>> 1) | ((state.flags & CpuInterface.Flags.c) << 7);
     bus.write(operand, value);
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (value & 0x80) |
         (value ? 0 : CpuInterface.Flags.z) |
         (old & CpuInterface.Flags.c);
@@ -381,10 +394,10 @@ function opRti(state: CpuInterface.State, bus: BusInterface): void {
 
     restoreFlagsFromStack(state, bus);
 
-    state.s = (state.s + 1) & 0xFF;
+    state.s = (state.s + 1) & 0xff;
     returnPtr = bus.read(0x0100 + state.s);
-    state.s = (state.s + 1) & 0xFF;
-    returnPtr |= (bus.read(0x0100 + state.s) << 8);
+    state.s = (state.s + 1) & 0xff;
+    returnPtr |= bus.read(0x0100 + state.s) << 8;
 
     state.p = returnPtr;
 }
@@ -393,37 +406,39 @@ function opRts(state: CpuInterface.State, bus: BusInterface): void {
     let returnPtr: number;
 
     bus.read(0x0100 + state.s);
-    state.s = (state.s + 1) & 0xFF;
+    state.s = (state.s + 1) & 0xff;
     returnPtr = bus.read(0x0100 + state.s);
-    state.s = (state.s + 1) & 0xFF;
-    returnPtr += (bus.read(0x0100 + state.s) << 8);
+    state.s = (state.s + 1) & 0xff;
+    returnPtr += bus.read(0x0100 + state.s) << 8;
 
-    state.p = (returnPtr + 1) & 0xFFFF;
+    state.p = (returnPtr + 1) & 0xffff;
 }
 
 function opSbc(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     if (state.flags & CpuInterface.Flags.d) {
-        const d0 = ((state.a & 0x0F) - (operand & 0x0F) - (~state.flags & CpuInterface.Flags.c)),
-            d1 = ((state.a >>> 4) - (operand >>> 4) - (d0 < 0 ? 1 : 0));
+        const d0 = (state.a & 0x0f) - (operand & 0x0f) - (~state.flags & CpuInterface.Flags.c),
+            d1 = (state.a >>> 4) - (operand >>> 4) - (d0 < 0 ? 1 : 0);
 
         state.a = (d0 < 0 ? 10 + d0 : d0) | ((d1 < 0 ? 10 + d1 : d1) << 4);
 
-        state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
-            (state.a & 0x80) |  // negative
-            (state.a ? 0 : CpuInterface.Flags.z) |   // zero
-            (d1 < 0 ? 0 : CpuInterface.Flags.c);     // carry / borrow
+        state.flags =
+            (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+            (state.a & 0x80) | // negative
+            (state.a ? 0 : CpuInterface.Flags.z) | // zero
+            (d1 < 0 ? 0 : CpuInterface.Flags.c); // carry / borrow
     } else {
-        operand = (~operand & 0xFF);
+        operand = ~operand & 0xff;
 
         const sum = state.a + operand + (state.flags & CpuInterface.Flags.c),
-            result = sum & 0xFF;
+            result = sum & 0xff;
 
-        state.flags = (state.flags &
+        state.flags =
+            (state.flags &
                 ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c | CpuInterface.Flags.v)) |
-            (result & 0x80) |  // negative
-            (result ? 0 : CpuInterface.Flags.z) |   // zero
-            (sum >>> 8) |         // carry / borrow
-            (((~(operand ^ state.a) & (result ^ operand)) & 0x80) >>> 1); // overflow
+            (result & 0x80) | // negative
+            (result ? 0 : CpuInterface.Flags.z) | // zero
+            (sum >>> 8) | // carry / borrow
+            ((~(operand ^ state.a) & (result ^ operand) & 0x80) >>> 1); // overflow
 
         state.a = result;
     }
@@ -486,32 +501,35 @@ function opAlr(state: CpuInterface.State, bus: BusInterface, operand: number): v
     const i = state.a & operand;
     state.a = i >>> 1;
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (state.a & 0x80) |
         (state.a ? 0 : CpuInterface.Flags.z) |
         (i & CpuInterface.Flags.c);
 }
 
 function opAxs(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    const value = (state.a & state.x) + (~operand & 0xFF) + 1;
+    const value = (state.a & state.x) + (~operand & 0xff) + 1;
 
-    state.x = value & 0xFF;
+    state.x = value & 0xff;
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (state.x & 0x80) |
-        ((state.x & 0xFF) ? 0 : CpuInterface.Flags.z) |
+        (state.x & 0xff ? 0 : CpuInterface.Flags.z) |
         (value >>> 8);
 }
 
 function opDcp(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    const value = (bus.read(operand) + 0xFF) & 0xFF;
+    const value = (bus.read(operand) + 0xff) & 0xff;
     bus.write(operand, value);
 
-    const diff = state.a + (~value & 0xFF) + 1;
+    const diff = state.a + (~value & 0xff) + 1;
 
-    state.flags = (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
         (diff & 0x80) |
-        ((diff & 0xFF) ? 0 : CpuInterface.Flags.z) |
+        (diff & 0xff ? 0 : CpuInterface.Flags.z) |
         (diff >>> 8);
 }
 
@@ -522,7 +540,7 @@ function opLax(state: CpuInterface.State, bus: BusInterface, operand: number): v
 }
 
 function opArr(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    state.a = ((state.a & operand) >>> 1) | ((state.flags & CpuInterface.Flags.c) ? 0x80 : 0);
+    state.a = ((state.a & operand) >>> 1) | (state.flags & CpuInterface.Flags.c ? 0x80 : 0);
 
     state.flags =
         (state.flags & ~(CpuInterface.Flags.c | CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.v)) |
@@ -534,7 +552,7 @@ function opArr(state: CpuInterface.State, bus: BusInterface, operand: number): v
 
 function opSlo(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     let value = bus.read(operand);
-    state.flags = state.flags & ~CpuInterface.Flags.c | value >>> 7;
+    state.flags = (state.flags & ~CpuInterface.Flags.c) | (value >>> 7);
     value = value << 1;
 
     bus.write(operand, value);
@@ -564,7 +582,7 @@ function opIsc(state: CpuInterface.State, bus: BusInterface, operand: number): v
 function opAac(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     state.a &= operand;
     setFlagsNZ(state, state.a);
-    state.flags = (state.flags & (~CpuInterface.Flags.c)) | ((state.a & 0x80) >>> 7);
+    state.flags = (state.flags & ~CpuInterface.Flags.c) | ((state.a & 0x80) >>> 7);
 }
 
 function opAtx(state: CpuInterface.State, bus: BusInterface, operand: number): void {
@@ -574,10 +592,7 @@ function opAtx(state: CpuInterface.State, bus: BusInterface, operand: number): v
 }
 
 class Cpu {
-    constructor(
-        private _bus: BusInterface,
-        private _rng?: RngInterface
-    ) {
+    constructor(private _bus: BusInterface, private _rng?: RngInterface) {
         this.reset();
     }
 
@@ -623,13 +638,13 @@ class Cpu {
     }
 
     reset(): Cpu {
-        this.state.a = this._rng ? this._rng.int(0xFF) : 0;
-        this.state.x = this._rng ? this._rng.int(0xFF) : 0;
-        this.state.y = this._rng ? this._rng.int(0xFF) : 0;
-        this.state.s = 0xFD;
-        this.state.p = this._rng ? this._rng.int(0xFFFF) : 0;
-        this.state.flags = (this._rng ? this._rng.int(0xFF) : 0) |
-            CpuInterface.Flags.i | CpuInterface.Flags.e | CpuInterface.Flags.b;
+        this.state.a = this._rng ? this._rng.int(0xff) : 0;
+        this.state.x = this._rng ? this._rng.int(0xff) : 0;
+        this.state.y = this._rng ? this._rng.int(0xff) : 0;
+        this.state.s = 0xfd;
+        this.state.p = this._rng ? this._rng.int(0xffff) : 0;
+        this.state.flags =
+            (this._rng ? this._rng.int(0xff) : 0) | CpuInterface.Flags.i | CpuInterface.Flags.e | CpuInterface.Flags.b;
         this.state.irq = false;
         this.state.nmi = false;
 
@@ -733,7 +748,7 @@ class Cpu {
                 if (this.state.flags & CpuInterface.Flags.c) {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this.state.p = (this.state.p + 1) & 0xffff;
                     this._opCycles = 1;
                 } else {
                     this._instructionCallback = opJmp;
@@ -748,7 +763,7 @@ class Cpu {
                 } else {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this.state.p = (this.state.p + 1) & 0xffff;
                     this._opCycles = 1;
                 }
                 break;
@@ -760,7 +775,7 @@ class Cpu {
                 } else {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this.state.p = (this.state.p + 1) & 0xffff;
                     this._opCycles = 1;
                 }
                 break;
@@ -778,7 +793,7 @@ class Cpu {
                 } else {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this.state.p = (this.state.p + 1) & 0xffff;
                     this._opCycles = 1;
                 }
                 break;
@@ -787,7 +802,7 @@ class Cpu {
                 if (this.state.flags & CpuInterface.Flags.z) {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this.state.p = (this.state.p + 1) & 0xffff;
                     this._opCycles = 1;
                 } else {
                     this._instructionCallback = opJmp;
@@ -799,7 +814,7 @@ class Cpu {
                 if (this.state.flags & CpuInterface.Flags.n) {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this.state.p = (this.state.p + 1) & 0xffff;
                     this._opCycles = 1;
                 } else {
                     this._instructionCallback = opJmp;
@@ -811,7 +826,7 @@ class Cpu {
                 if (this.state.flags & CpuInterface.Flags.v) {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this.state.p = (this.state.p + 1) & 0xffff;
                     this._opCycles = 1;
                 } else {
                     this._instructionCallback = opJmp;
@@ -826,7 +841,7 @@ class Cpu {
                 } else {
                     addressingMode = Instruction.AddressingMode.implied;
                     this._instructionCallback = opNop;
-                    this.state.p = (this.state.p + 1) & 0xFFFF;
+                    this.state.p = (this.state.p + 1) & 0xffff;
                     this._opCycles = 1;
                 }
                 break;
@@ -1159,126 +1174,124 @@ class Cpu {
                 return;
         }
 
-        this.state.p = (this.state.p + 1) & 0xFFFF;
+        this.state.p = (this.state.p + 1) & 0xffff;
 
-        let value: number,
-            base: number;
+        let value: number, base: number;
 
         switch (addressingMode) {
             case Instruction.AddressingMode.immediate:
                 this._operand = this._bus.read(this.state.p);
                 dereference = false;
-                this.state.p = (this.state.p + 1) & 0xFFFF;
+                this.state.p = (this.state.p + 1) & 0xffff;
                 this._opCycles++;
                 break;
 
             case Instruction.AddressingMode.zeroPage:
                 this._operand = this._bus.read(this.state.p);
-                this.state.p = (this.state.p + 1) & 0xFFFF;
+                this.state.p = (this.state.p + 1) & 0xffff;
                 this._opCycles++;
                 break;
 
             case Instruction.AddressingMode.absolute:
                 this._operand = this._bus.readWord(this.state.p);
-                this.state.p = (this.state.p + 2) & 0xFFFF;
+                this.state.p = (this.state.p + 2) & 0xffff;
                 this._opCycles += 2;
                 break;
 
             case Instruction.AddressingMode.indirect:
                 value = this._bus.readWord(this.state.p);
-                if ((value & 0xFF) === 0xFF) {
-                    this._operand = this._bus.read(value) + (this._bus.read(value & 0xFF00) << 8);
-                }
-                else {
+                if ((value & 0xff) === 0xff) {
+                    this._operand = this._bus.read(value) + (this._bus.read(value & 0xff00) << 8);
+                } else {
                     this._operand = this._bus.readWord(value);
                 }
-                this.state.p = (this.state.p + 2) & 0xFFFF;
+                this.state.p = (this.state.p + 2) & 0xffff;
                 this._opCycles += 4;
                 break;
 
             case Instruction.AddressingMode.relative:
                 value = this._bus.read(this.state.p);
-                value = (value & 0x80) ? -(~(value - 1) & 0xFF) : value;
-                this._operand = (this.state.p + value + 0x10001) & 0xFFFF;
-                this.state.p = (this.state.p + 1) & 0xFFFF;
-                this._opCycles += (((this._operand & 0xFF00) !== (this.state.p & 0xFF00)) ? 3 : 2);
+                value = value & 0x80 ? -(~(value - 1) & 0xff) : value;
+                this._operand = (this.state.p + value + 0x10001) & 0xffff;
+                this.state.p = (this.state.p + 1) & 0xffff;
+                this._opCycles += (this._operand & 0xff00) !== (this.state.p & 0xff00) ? 3 : 2;
                 break;
 
             case Instruction.AddressingMode.zeroPageX:
                 base = this._bus.read(this.state.p);
                 this._bus.read(base);
 
-                this._operand = (base + this.state.x) & 0xFF;
-                this.state.p = (this.state.p + 1) & 0xFFFF;
+                this._operand = (base + this.state.x) & 0xff;
+                this.state.p = (this.state.p + 1) & 0xffff;
                 this._opCycles += 2;
                 break;
 
             case Instruction.AddressingMode.absoluteX:
                 value = this._bus.readWord(this.state.p);
-                this._operand = (value + this.state.x) & 0xFFFF;
+                this._operand = (value + this.state.x) & 0xffff;
 
-                if ((this._operand & 0xFF00) !== (value & 0xFF00)) {
-                    this._bus.read((value & 0xFF00) | (this._operand & 0xFF));
+                if ((this._operand & 0xff00) !== (value & 0xff00)) {
+                    this._bus.read((value & 0xff00) | (this._operand & 0xff));
                 }
 
-                this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value & 0xFF00)) ? 3 : 2);
-                this.state.p = (this.state.p + 2) & 0xFFFF;
+                this._opCycles += slowIndexedAccess || (this._operand & 0xff00) !== (value & 0xff00) ? 3 : 2;
+                this.state.p = (this.state.p + 2) & 0xffff;
                 break;
 
             case Instruction.AddressingMode.zeroPageY:
                 base = this._bus.read(this.state.p);
                 this._bus.read(base);
 
-                this._operand = (base + this.state.y) & 0xFF;
-                this.state.p = (this.state.p + 1) & 0xFFFF;
+                this._operand = (base + this.state.y) & 0xff;
+                this.state.p = (this.state.p + 1) & 0xffff;
                 this._opCycles += 2;
                 break;
 
             case Instruction.AddressingMode.absoluteY:
                 value = this._bus.readWord(this.state.p);
-                this._operand = (value + this.state.y) & 0xFFFF;
+                this._operand = (value + this.state.y) & 0xffff;
 
-                if ((this._operand & 0xFF00) !== (value & 0xFF00)) {
-                    this._bus.read((value & 0xFF00) | (this._operand & 0xFF));
+                if ((this._operand & 0xff00) !== (value & 0xff00)) {
+                    this._bus.read((value & 0xff00) | (this._operand & 0xff));
                 }
 
-                this._opCycles += ((slowIndexedAccess || (this._operand & 0xFF00) !== (value & 0xFF00)) ? 3 : 2);
-                this.state.p = (this.state.p + 2) & 0xFFFF;
+                this._opCycles += slowIndexedAccess || (this._operand & 0xff00) !== (value & 0xff00) ? 3 : 2;
+                this.state.p = (this.state.p + 2) & 0xffff;
                 break;
 
             case Instruction.AddressingMode.indexedIndirectX:
                 base = this._bus.read(this.state.p);
                 this._bus.read(base);
 
-                value = (base + this.state.x) & 0xFF;
+                value = (base + this.state.x) & 0xff;
 
-                if (value === 0xFF) {
-                    this._operand = this._bus.read(0xFF) + (this._bus.read(0x00) << 8);
+                if (value === 0xff) {
+                    this._operand = this._bus.read(0xff) + (this._bus.read(0x00) << 8);
                 } else {
                     this._operand = this._bus.readWord(value);
                 }
 
                 this._opCycles += 4;
-                this.state.p = (this.state.p + 1) & 0xFFFF;
+                this.state.p = (this.state.p + 1) & 0xffff;
                 break;
 
             case Instruction.AddressingMode.indirectIndexedY:
                 value = this._bus.read(this.state.p);
 
-                if (value === 0xFF) {
-                    value = this._bus.read(0xFF) + (this._bus.read(0x00) << 8);
+                if (value === 0xff) {
+                    value = this._bus.read(0xff) + (this._bus.read(0x00) << 8);
                 } else {
                     value = this._bus.readWord(value);
                 }
 
-                this._operand = (value + this.state.y) & 0xFFFF;
+                this._operand = (value + this.state.y) & 0xffff;
 
-                if ((this._operand & 0xFF00) !== (value & 0xFF00)) {
-                    this._bus.read((value & 0xFF00) | (this._operand & 0xFF));
+                if ((this._operand & 0xff00) !== (value & 0xff00)) {
+                    this._bus.read((value & 0xff00) | (this._operand & 0xff));
                 }
 
-                this._opCycles += ((slowIndexedAccess || (value & 0xFF00) !== (this._operand & 0xFF00)) ? 4 : 3);
-                this.state.p = (this.state.p + 1) & 0xFFFF;
+                this._opCycles += slowIndexedAccess || (value & 0xff00) !== (this._operand & 0xff00) ? 4 : 3;
+                this.state.p = (this.state.p + 1) & 0xffff;
                 break;
         }
 

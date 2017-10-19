@@ -24,33 +24,37 @@ import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
 import * as util from './util';
 
 export function run() {
-
     suite('ARR', function() {
-        util.testImmediate(0x6B, 0x40, 2,
-        {
-            a: 0xC0,
-            flags: CpuInterface.Flags.e | CpuInterface.Flags.c
-        }, {
-            a: 0xA0,
-            flags: CpuInterface.Flags.e | CpuInterface.Flags.n | CpuInterface.Flags.v
-        });
+        util.testImmediate(
+            0x6b,
+            0x40,
+            2,
+            {
+                a: 0xc0,
+                flags: CpuInterface.Flags.e | CpuInterface.Flags.c
+            },
+            {
+                a: 0xa0,
+                flags: CpuInterface.Flags.e | CpuInterface.Flags.n | CpuInterface.Flags.v
+            }
+        );
     });
 
     suite('NOP', function() {
-        util.testImplied(0x1A, 2, {}, {});
-        util.testImplied(0x3A, 2, {}, {});
-        util.testImplied(0x5A, 2, {}, {});
-        util.testImplied(0x7A, 2, {}, {});
-        util.testImplied(0xDA, 2, {}, {});
-        util.testImplied(0xFA, 2, {}, {});
+        util.testImplied(0x1a, 2, {}, {});
+        util.testImplied(0x3a, 2, {}, {});
+        util.testImplied(0x5a, 2, {}, {});
+        util.testImplied(0x7a, 2, {}, {});
+        util.testImplied(0xda, 2, {}, {});
+        util.testImplied(0xfa, 2, {}, {});
     });
 
     suite('DOP', function() {
         util.testImmediate(0x80, 0x00, 2, {}, {});
         util.testImmediate(0x82, 0x00, 2, {}, {});
         util.testImmediate(0x89, 0x00, 2, {}, {});
-        util.testImmediate(0xC2, 0x00, 2, {}, {});
-        util.testImmediate(0xE2, 0x00, 2, {}, {});
+        util.testImmediate(0xc2, 0x00, 2, {}, {});
+        util.testImmediate(0xe2, 0x00, 2, {}, {});
 
         util.testDereferencingZeropage(0x04, 0x00, 3, {}, {});
         util.testDereferencingZeropage(0x44, 0x00, 3, {}, {});
@@ -60,154 +64,158 @@ export function run() {
         util.testDereferencingZeropageX(0x34, 0x00, 4, {}, {});
         util.testDereferencingZeropageX(0x54, 0x00, 4, {}, {});
         util.testDereferencingZeropageX(0x74, 0x00, 4, {}, {});
-        util.testDereferencingZeropageX(0xD4, 0x00, 4, {}, {});
-        util.testDereferencingZeropageX(0xF4, 0x00, 4, {}, {});
+        util.testDereferencingZeropageX(0xd4, 0x00, 4, {}, {});
+        util.testDereferencingZeropageX(0xf4, 0x00, 4, {}, {});
     });
 
     suite('TOP', function() {
-        util.testDereferencingAbsolute(0x0C, 0x00, 4, {}, {});
-        util.testDereferencingAbsoluteX(0x1C, 0x00, 4, 5, {}, {});
-        util.testDereferencingAbsoluteX(0x3C, 0x00, 4, 5, {}, {});
-        util.testDereferencingAbsoluteX(0x5C, 0x00, 4, 5, {}, {});
-        util.testDereferencingAbsoluteX(0x7C, 0x00, 4, 5, {}, {});
-        util.testDereferencingAbsoluteX(0xDC, 0x00, 4, 5, {}, {});
-        util.testDereferencingAbsoluteX(0xFC, 0x00, 4, 5, {}, {});
+        util.testDereferencingAbsolute(0x0c, 0x00, 4, {}, {});
+        util.testDereferencingAbsoluteX(0x1c, 0x00, 4, 5, {}, {});
+        util.testDereferencingAbsoluteX(0x3c, 0x00, 4, 5, {}, {});
+        util.testDereferencingAbsoluteX(0x5c, 0x00, 4, 5, {}, {});
+        util.testDereferencingAbsoluteX(0x7c, 0x00, 4, 5, {}, {});
+        util.testDereferencingAbsoluteX(0xdc, 0x00, 4, 5, {}, {});
+        util.testDereferencingAbsoluteX(0xfc, 0x00, 4, 5, {}, {});
     });
 
     suite('LAX', function() {
-        util.testDereferencingZeropage(0xA7, 0xFF, 3,
+        util.testDereferencingZeropage(
+            0xa7,
+            0xff,
+            3,
             {
-                flags: 0xFF & ~CpuInterface.Flags.n
+                flags: 0xff & ~CpuInterface.Flags.n
             },
             {
-                a: 0xFF,
-                x: 0xFF,
-                flags: 0xFF & ~CpuInterface.Flags.z
+                a: 0xff,
+                x: 0xff,
+                flags: 0xff & ~CpuInterface.Flags.z
             },
             '0xFF, flags'
         );
 
-        const operand = 0xBF,
+        const operand = 0xbf,
             stateBefore = {
-                flags: 0xFF & ~CpuInterface.Flags.n
+                flags: 0xff & ~CpuInterface.Flags.n
             },
             stateAfter = {
-                a: 0xBF,
-                x: 0xBF,
-                flags: 0xFF & ~CpuInterface.Flags.z
+                a: 0xbf,
+                x: 0xbf,
+                flags: 0xff & ~CpuInterface.Flags.z
             },
             extra = ', 0xBF, flags';
 
-        util.testDereferencingZeropageY(0xB7, operand, 4, stateBefore, stateAfter, extra);
+        util.testDereferencingZeropageY(0xb7, operand, 4, stateBefore, stateAfter, extra);
 
-        util.testDereferencingAbsolute(0xAF, operand, 4, stateBefore, stateAfter, extra);
+        util.testDereferencingAbsolute(0xaf, operand, 4, stateBefore, stateAfter, extra);
 
-        util.testDereferencingAbsoluteY(0xBF, operand, 4, 5, stateBefore, stateAfter, extra);
+        util.testDereferencingAbsoluteY(0xbf, operand, 4, 5, stateBefore, stateAfter, extra);
 
-        util.testDereferencingIndirectX(0xA3, operand, 6, stateBefore, stateAfter, extra);
+        util.testDereferencingIndirectX(0xa3, operand, 6, stateBefore, stateAfter, extra);
 
-        util.testDereferencingIndirectY(0xB3, operand, 5, 6, stateBefore, stateAfter, extra);
+        util.testDereferencingIndirectY(0xb3, operand, 5, 6, stateBefore, stateAfter, extra);
     });
 
     suite('ALR', function() {
-        test('immediate, 0xF0, flags', () => Runner
-                .create([0x4B, 0xFF])
+        test('immediate, 0xF0, flags', () =>
+            Runner.create([0x4b, 0xff])
                 .setState({
-                    a: 0xF0,
-                    flags: 0xFF & ~CpuInterface.Flags.n
+                    a: 0xf0,
+                    flags: 0xff & ~CpuInterface.Flags.n
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
                     a: 0x78,
-                    flags: 0xFF & ~CpuInterface.Flags.n & ~CpuInterface.Flags.z & ~CpuInterface.Flags.c
-                })
-        );
+                    flags: 0xff & ~CpuInterface.Flags.n & ~CpuInterface.Flags.z & ~CpuInterface.Flags.c
+                }));
 
-        test('immediate, 0x5F, flags', () => Runner
-                .create([0x4B, 0x77])
+        test('immediate, 0x5F, flags', () =>
+            Runner.create([0x4b, 0x77])
                 .setState({
-                    a: 0x5F,
-                    flags: 0xFF & ~CpuInterface.Flags.n
+                    a: 0x5f,
+                    flags: 0xff & ~CpuInterface.Flags.n
                 })
                 .run()
                 .assertCycles(2)
                 .assertState({
-                    a: 0x2B,
-                    flags: 0xFF & ~CpuInterface.Flags.n & ~CpuInterface.Flags.z
-                })
-        );
+                    a: 0x2b,
+                    flags: 0xff & ~CpuInterface.Flags.n & ~CpuInterface.Flags.z
+                }));
     });
 
     suite('DCP', function() {
-        util.testMutatingZeropage(0xC7, 0xFF, 0xFE, 5,
+        util.testMutatingZeropage(
+            0xc7,
+            0xff,
+            0xfe,
+            5,
             {
-                a: 0xFE,
-                flags: 0xFF & ~CpuInterface.Flags.n & ~CpuInterface.Flags.c
-            }, {
-                flags: 0xFF & ~CpuInterface.Flags.n
+                a: 0xfe,
+                flags: 0xff & ~CpuInterface.Flags.n & ~CpuInterface.Flags.c
+            },
+            {
+                flags: 0xff & ~CpuInterface.Flags.n
             },
             ', OxFE, flags'
         );
 
-        const operand = 0xFF,
-            result = 0xFE,
+        const operand = 0xff,
+            result = 0xfe,
             stateBefore = {
-                a: 0xFF,
-                flags: 0xFF & ~CpuInterface.Flags.n & ~CpuInterface.Flags.c
+                a: 0xff,
+                flags: 0xff & ~CpuInterface.Flags.n & ~CpuInterface.Flags.c
             },
             stateAfter = {
-                flags: 0xFF & ~CpuInterface.Flags.n & ~CpuInterface.Flags.z
+                flags: 0xff & ~CpuInterface.Flags.n & ~CpuInterface.Flags.z
             },
             extra = ', OxFF, flags';
 
-        util.testMutatingZeropage(0xC7, operand, result, 5, stateBefore, stateAfter, extra);
+        util.testMutatingZeropage(0xc7, operand, result, 5, stateBefore, stateAfter, extra);
 
-        util.testMutatingZeropageX(0xD7, operand, result, 6, stateBefore, stateAfter, extra);
+        util.testMutatingZeropageX(0xd7, operand, result, 6, stateBefore, stateAfter, extra);
 
-        util.testMutatingAbsolute(0xCF, operand, result, 6, stateBefore, stateAfter, extra);
+        util.testMutatingAbsolute(0xcf, operand, result, 6, stateBefore, stateAfter, extra);
 
-        util.testMutatingAbsoluteX(0xDF, operand, result, 7, 7, stateBefore, stateAfter, extra);
+        util.testMutatingAbsoluteX(0xdf, operand, result, 7, 7, stateBefore, stateAfter, extra);
 
-        util.testMutatingAbsoluteY(0xDB, operand, result, 7, 7, stateBefore, stateAfter, extra);
+        util.testMutatingAbsoluteY(0xdb, operand, result, 7, 7, stateBefore, stateAfter, extra);
 
-        util.testMutatingIndirectX(0xC3, operand, result, 8, stateBefore, stateAfter, extra);
+        util.testMutatingIndirectX(0xc3, operand, result, 8, stateBefore, stateAfter, extra);
 
-        util.testMutatingIndirectY(0xD3, operand, result, 8, 8, stateBefore, stateAfter, extra);
+        util.testMutatingIndirectY(0xd3, operand, result, 8, 8, stateBefore, stateAfter, extra);
     });
 
     suite('AXS', function() {
-        test('immediate, 0xF0, flags', () => Runner
-            .create([0xCB, 0x02])
-            .setState({
-                a: 0xF0,
-                x: 0xBF,
-                flags: 0xFF & ~CpuInterface.Flags.n
-            })
-            .run()
-            .assertCycles(2)
-            .assertState({
-                x: 0xAE,
-                flags: 0xFF & ~CpuInterface.Flags.z
-            })
-        );
+        test('immediate, 0xF0, flags', () =>
+            Runner.create([0xcb, 0x02])
+                .setState({
+                    a: 0xf0,
+                    x: 0xbf,
+                    flags: 0xff & ~CpuInterface.Flags.n
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    x: 0xae,
+                    flags: 0xff & ~CpuInterface.Flags.z
+                }));
     });
 
     suite('ATX', function() {
-        test('immedaiate, flags', () => Runner
-            .create([0xAB, 0x0F])
-            .setState({
-                a: 0xF7,
-                x: 0x11,
-                flags: 0xFF & ~CpuInterface.Flags.n
-            })
-            .run()
-            .assertCycles(2)
-            .assertState({
-                x: 0x07,
-                a: 0x07,
-                flags: 0xFF & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)
-            })
-        );
+        test('immedaiate, flags', () =>
+            Runner.create([0xab, 0x0f])
+                .setState({
+                    a: 0xf7,
+                    x: 0x11,
+                    flags: 0xff & ~CpuInterface.Flags.n
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    x: 0x07,
+                    a: 0x07,
+                    flags: 0xff & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)
+                }));
     });
 }

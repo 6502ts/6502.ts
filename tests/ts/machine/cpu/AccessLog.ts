@@ -21,27 +21,24 @@
 
 import * as hex from '../../../../src/tools/hex';
 
-const enum AccessType {read, write}
+const enum AccessType {
+    read,
+    write
+}
 
 class Entry {
-
-    constructor(
-        public type: AccessType,
-        public address: number
-    ) {}
+    constructor(public type: AccessType, public address: number) {}
 
     equals(anotherEntry: Entry): boolean {
-        return (this.type === anotherEntry.type) && (this.address === anotherEntry.address);
+        return this.type === anotherEntry.type && this.address === anotherEntry.address;
     }
 
     toString(): string {
         return `${this.type === AccessType.read ? 'read' : 'write'} @ ${hex.encode(this.address, 4)}`;
     }
-
 }
 
 class AccessLog {
-
     static create() {
         return new AccessLog();
     }
@@ -60,9 +57,7 @@ class AccessLog {
 
     assertEqual(otherLog: AccessLog): this {
         if (this._entries.length !== otherLog._entries.length) {
-            throw new Error(
-                `access count differs: ${this._entries.length} vs. ${otherLog._entries.length}`
-            );
+            throw new Error(`access count differs: ${this._entries.length} vs. ${otherLog._entries.length}`);
         }
 
         for (let i = 0; i < this._entries.length; i++) {
@@ -81,7 +76,6 @@ class AccessLog {
     }
 
     private _entries = new Array<Entry>();
-
 }
 
 export default AccessLog;

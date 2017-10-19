@@ -26,7 +26,6 @@ import PassthroughProcessor from './PassthroughProcessor';
 import FrameMergeProcessor from './FrameMergeProcessor';
 
 class ProcessorFactory {
-
     create(config: Config.ProcessorConfig): ProcessorInterface {
         switch (config.type) {
             case Config.Type.passthrough:
@@ -39,7 +38,6 @@ class ProcessorFactory {
                 throw new Error('cannot happen: invalid processor type');
         }
     }
-
 }
 
 export default ProcessorFactory;

@@ -27,21 +27,14 @@ import Board from '../../../../machine/stella/Board';
 import VideoEndpoint from '../../../driver/VideoEndpoint';
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
-import {ProcessorConfig as VideoProcessorConfig} from '../../../../video/processing/config';
+import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 
 export default class EmulationContext implements EmulationContextInterface {
-
-    constructor(
-        private _board: Board,
-        private _videoProcessing?: Array<VideoProcessorConfig>
-    ) {}
+    constructor(private _board: Board, private _videoProcessing?: Array<VideoProcessorConfig>) {}
 
     getVideo(): VideoEndpointInterface {
         if (!this._videoEndpoint) {
-            this._videoEndpoint = new VideoEndpoint(
-                this._board.getVideoOutput(),
-                this._videoProcessing
-            );
+            this._videoEndpoint = new VideoEndpoint(this._board.getVideoOutput(), this._videoProcessing);
         }
 
         return this._videoEndpoint;
@@ -85,5 +78,4 @@ export default class EmulationContext implements EmulationContextInterface {
     }
 
     private _videoEndpoint: VideoEndpoint = null;
-
 }

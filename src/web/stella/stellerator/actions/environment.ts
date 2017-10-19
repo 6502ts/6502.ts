@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Action} from 'redux';
+import { Action } from 'redux';
 
 export const types = {
     initialize: 'environment/initialize'
@@ -31,16 +31,7 @@ export interface InitializeAction extends Action {
     buildId: string;
 }
 
-export function initialize(
-    {
-        helppageUrl,
-        buildId
-    }:
-    {
-        helppageUrl: string,
-        buildId: string
-    }
-): InitializeAction {
+export function initialize({ helppageUrl, buildId }: { helppageUrl: string; buildId: string }): InitializeAction {
     return {
         type: types.initialize,
         helppageUrl,

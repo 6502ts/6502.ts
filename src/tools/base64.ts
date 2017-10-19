@@ -39,19 +39,19 @@ function decodeChar(data: string, idx: number): number {
     const value = encodings[data.charCodeAt(idx)];
 
     if (value > 63) {
-        throw new Error(
-            'invalid base64 character "' + data[idx] + '" at index ' + idx
-        );
+        throw new Error('invalid base64 character "' + data[idx] + '" at index ' + idx);
     }
 
     return value;
 }
 
 function decodeNibble(data: string, idx: number): number {
-    return  (decodeChar(data, idx)   << 18) +
-            (decodeChar(data, idx + 1) << 12) +
-            (decodeChar(data, idx + 2) << 6) +
-             decodeChar(data, idx + 3);
+    return (
+        (decodeChar(data, idx) << 18) +
+        (decodeChar(data, idx + 1) << 12) +
+        (decodeChar(data, idx + 2) << 6) +
+        decodeChar(data, idx + 3)
+    );
 }
 
 function getPadding(data: string): number {
@@ -67,9 +67,7 @@ function getPadding(data: string): number {
 
 export function decode(data: string): Uint8Array {
     if (data.length % 4 !== 0) {
-        throw new Error(
-            'invalid base64 data --- char count mismatch'
-        );
+        throw new Error('invalid base64 data --- char count mismatch');
     }
 
     const nibbles = data.length / 4,
@@ -82,7 +80,7 @@ export function decode(data: string): Uint8Array {
         const nibble = decodeNibble(data, i * 4);
 
         for (let j = 0; j < 3 && idx < decodedSize; j++) {
-            decoded[idx++] = (nibble >>> (8 * (2 - j))) & 0xFF;
+            decoded[idx++] = (nibble >>> (8 * (2 - j))) & 0xff;
         }
     }
 

@@ -22,9 +22,8 @@
 import RGBASurfaceInterface from './RGBASurfaceInterface';
 
 class ArrayBufferSurface implements RGBASurfaceInterface {
-
     static createFromArrayBuffer(width: number, height: number, buffer: ArrayBuffer): ArrayBufferSurface {
-        return (new ArrayBufferSurface()).replaceUnderlyingBuffer(width, height, buffer);
+        return new ArrayBufferSurface().replaceUnderlyingBuffer(width, height, buffer);
     }
 
     replaceUnderlyingBuffer(width: number, height: number, buffer: ArrayBuffer): ArrayBufferSurface {

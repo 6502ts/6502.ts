@@ -24,7 +24,6 @@ import * as util from 'util';
 import PeriodicScheduler from '../../../src/tools/scheduler/PeriodicScheduler';
 
 suite('Periodic Scheduler', function() {
-
     test('Preset period', function(callback: (e?: any) => void) {
         const scheduler = new PeriodicScheduler(50);
         let counter = 0,

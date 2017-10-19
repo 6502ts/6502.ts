@@ -19,16 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import PoolMember from './PoolMember';
 import PoolInterface from './PoolInterface';
 
 class Pool<T> implements PoolInterface<T> {
-
-    constructor(
-        private _factory: Pool.FactoryInterface<T>
-    ) {}
+    constructor(private _factory: Pool.FactoryInterface<T>) {}
 
     get(): PoolMember<T> {
         let member: PoolMember<T>;
@@ -36,11 +33,13 @@ class Pool<T> implements PoolInterface<T> {
         if (this._poolSize === 0) {
             const newItem = this._factory();
 
-            member = newItem && new PoolMember<T>(
-                newItem,
-                (victim: PoolMember<T>) => this._releaseMember(victim),
-                (victim: PoolMember<T>) => this._disposeMember(victim)
-            );
+            member =
+                newItem &&
+                new PoolMember<T>(
+                    newItem,
+                    (victim: PoolMember<T>) => this._releaseMember(victim),
+                    (victim: PoolMember<T>) => this._disposeMember(victim)
+                );
         } else {
             member = this._pool[--this._poolSize];
             member._isAvailable = false;
@@ -91,7 +90,7 @@ class Pool<T> implements PoolInterface<T> {
         dispose: new Event<T>()
     };
 
-    private _pool: Array<PoolMember<T> > = [];
+    private _pool: Array<PoolMember<T>> = [];
 
     private _poolSize = 0;
 }

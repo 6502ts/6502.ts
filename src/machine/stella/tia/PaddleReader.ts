@@ -21,20 +21,15 @@
 
 import Paddle from '../../io/Paddle';
 
-const C = 68e-9,            // capacitor
-    RPOT = 1e6,             // total paddle resistance
-    R0 = 1.8e3,             // series resistor
-    U = 5,                  // supply voltage
-    LINES_FULL = 380;       // treshold voltage in terms of scanline count
+const C = 68e-9, // capacitor
+    RPOT = 1e6, // total paddle resistance
+    R0 = 1.8e3, // series resistor
+    U = 5, // supply voltage
+    LINES_FULL = 380; // treshold voltage in terms of scanline count
 
 export default class PaddleReader {
-
-    constructor(
-        private _clockFreq: number,
-        private _timestampRef: () => number,
-        private _paddle: Paddle
-    ) {
-        this._uThresh = U * (1 - Math.exp(-LINES_FULL * 228 / this._clockFreq  / (RPOT + R0) / C));
+    constructor(private _clockFreq: number, private _timestampRef: () => number, private _paddle: Paddle) {
+        this._uThresh = U * (1 - Math.exp(-LINES_FULL * 228 / this._clockFreq / (RPOT + R0) / C));
 
         this._paddle.valueChanged.addHandler((value: number) => {
             this._updateValue();
@@ -61,7 +56,6 @@ export default class PaddleReader {
             this._dumped = false;
             this._timestamp = this._timestampRef();
         }
-
     }
 
     inpt(): number {
@@ -80,8 +74,11 @@ export default class PaddleReader {
         const timestamp = this._timestampRef();
 
         // Update the voltage with the integral between the two timestamps
-        this._u = U * (1 - (1 - this._u / U) *
-            Math.exp(-(timestamp - this._timestamp) / (this._value * RPOT + R0) / C / this._clockFreq));
+        this._u =
+            U *
+            (1 -
+                (1 - this._u / U) *
+                    Math.exp(-(timestamp - this._timestamp) / (this._value * RPOT + R0) / C / this._clockFreq));
 
         this._timestamp = timestamp;
     }
@@ -91,5 +88,4 @@ export default class PaddleReader {
     private _dumped = false;
     private _value = 0.5;
     private _timestamp = 0;
-
 }

@@ -23,7 +23,6 @@ import VanillaDriver from '../../driver/WebAudio';
 import Board from '../../../machine/stella/Board';
 
 export default class WebAudioDriver {
-
     init(): void {
         this._driver.init();
     }

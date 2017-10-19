@@ -26,10 +26,7 @@ import CartridgeInfo from './CartridgeInfo';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class CartrdigeE7 extends AbstractCartridge {
-
-    constructor(
-        buffer: cartridgeUtil.BufferInterface
-    ) {
+    constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
         if (buffer.length !== 0x4000) {
@@ -55,18 +52,15 @@ class CartrdigeE7 extends AbstractCartridge {
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
         // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(
-            buffer,
-            [
-                [0xAD, 0xE2, 0xFF],  // LDA $FFE2
-                [0xAD, 0xE5, 0xFF],  // LDA $FFE5
-                [0xAD, 0xE5, 0x1F],  // LDA $1FE5
-                [0xAD, 0xE7, 0x1F],  // LDA $1FE7
-                [0x0C, 0xE7, 0x1F],  // NOP $1FE7
-                [0x8D, 0xE7, 0xFF],  // STA $FFE7
-                [0x8D, 0xE7, 0x1F]   // STA $1FE7
-            ]
-        );
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
+            [0xad, 0xe2, 0xff], // LDA $FFE2
+            [0xad, 0xe5, 0xff], // LDA $FFE5
+            [0xad, 0xe5, 0x1f], // LDA $1FE5
+            [0xad, 0xe7, 0x1f], // LDA $1FE7
+            [0x0c, 0xe7, 0x1f], // NOP $1FE7
+            [0x8d, 0xe7, 0xff], // STA $FFE7
+            [0x8d, 0xe7, 0x1f] // STA $1FE7
+        ]);
 
         for (let i = 0; i < signatureCounts.length; i++) {
             if (signatureCounts[i] > 0) {
@@ -84,13 +78,13 @@ class CartrdigeE7 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        this._handleBankswitch(address & 0x0FFF);
+        this._handleBankswitch(address & 0x0fff);
 
         return this.peek(address);
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         // 0 -> 0x07FF: bank 0 - 6 or RAM
         if (address < 0x0800) {
@@ -105,17 +99,17 @@ class CartrdigeE7 extends AbstractCartridge {
         }
 
         // 0x0800 -> 0x9FF is RAM
-        if (address <= 0x09FF) {
+        if (address <= 0x09ff) {
             // 0x0800 - 0x08FF is write, 0x0900 - 0x09FF is read
             return address >= 0x0900 ? this._ram1[address - 0x0900] : 0;
         }
 
         // Higher address are the remaining 1.5k of bank 7
-        return this._banks[7][0x07FF - (0x0FFF - address)];
+        return this._banks[7][0x07ff - (0x0fff - address)];
     }
 
     write(address: number, value: number) {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         this._handleBankswitch(address);
 
@@ -125,14 +119,11 @@ class CartrdigeE7 extends AbstractCartridge {
             } else {
                 super.write(address, value);
             }
-        }
-        else if (address < 0x0800) {
+        } else if (address < 0x0800) {
             super.write(address, value);
-        }
-        else if (address < 0x08FF) {
+        } else if (address < 0x08ff) {
             this._ram1[address - 0x0800] = value;
-        }
-        else {
+        } else {
             super.write(address, value);
         }
     }
@@ -144,29 +135,27 @@ class CartrdigeE7 extends AbstractCartridge {
     randomize(rng: RngInterface): void {
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < this._ram1Banks[i].length; j++) {
-                this._ram1Banks[i][j] = rng.int(0xFF);
+                this._ram1Banks[i][j] = rng.int(0xff);
             }
         }
 
         for (let i = 0; i < this._ram0.length; i++) {
-            this._ram0[i] = rng.int(0xFF);
+            this._ram0[i] = rng.int(0xff);
         }
     }
 
     private _handleBankswitch(address: number): void {
-        if (address < 0x0FE0) {
+        if (address < 0x0fe0) {
             return;
         }
 
-        if (address <= 0x0FE6) {
-            this._bank0 = this._banks[address & 0x000F];
+        if (address <= 0x0fe6) {
+            this._bank0 = this._banks[address & 0x000f];
             this._ram0Enabled = false;
-        }
-        else if (address === 0x0FE7) {
+        } else if (address === 0x0fe7) {
             this._ram0Enabled = true;
-        }
-        else if (address <= 0x0FEB) {
-            this._ram1 = this._ram1Banks[address - 0x0FE8];
+        } else if (address <= 0x0feb) {
+            this._ram1 = this._ram1Banks[address - 0x0fe8];
         }
     }
 
@@ -177,7 +166,6 @@ class CartrdigeE7 extends AbstractCartridge {
     private _ram1Banks = new Array<Uint8Array>(4);
     private _ram1: Uint8Array;
     private _ram0Enabled = false;
-
 }
 
 export default CartrdigeE7;

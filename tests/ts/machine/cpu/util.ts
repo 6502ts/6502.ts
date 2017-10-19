@@ -28,13 +28,12 @@ export function testImplied(
     stateAfter: Runner.State,
     extra = ''
 ): void {
-    test(`implied ${extra}`, () => Runner
-        .create([opcode])
-        .setState(stateBefore)
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`implied ${extra}`, () =>
+        Runner.create([opcode])
+            .setState(stateBefore)
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 }
 
 export function testImmediate(
@@ -45,13 +44,12 @@ export function testImmediate(
     stateAfter: Runner.State,
     extra = ''
 ): void {
-    test(`immediate: ${extra}`, () => Runner
-        .create([opcode, operand])
-        .setState(stateBefore)
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`immediate: ${extra}`, () =>
+        Runner.create([opcode, operand])
+            .setState(stateBefore)
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 }
 
 export function testDereferencingZeropage(
@@ -62,16 +60,15 @@ export function testDereferencingZeropage(
     stateAfter: Runner.State,
     extra = ''
 ): void {
-    test(`zeropage ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0034': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`zeropage ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0034': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 }
 
 export function testDereferencingZeropageX(
@@ -84,16 +81,15 @@ export function testDereferencingZeropageX(
 ): void {
     stateBefore.x = 0x12;
 
-    test(`zeropage,X ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0046': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`zeropage,X ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0046': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 }
 
 export function testDereferencingZeropageY(
@@ -106,16 +102,15 @@ export function testDereferencingZeropageY(
 ): void {
     stateBefore.y = 0x12;
 
-    test(`zeropage,Y ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0046': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`zeropage,Y ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0046': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 }
 
 export function testDereferencingAbsolute(
@@ -126,16 +121,15 @@ export function testDereferencingAbsolute(
     stateAfter: Runner.State,
     extra = ''
 ): void {
-    test(`absolute ${extra}`, () => Runner
-        .create([opcode, 0x34, 0x56])
-        .setState(stateBefore)
-        .poke({
-            '0x5634': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`absolute ${extra}`, () =>
+        Runner.create([opcode, 0x34, 0x56])
+            .setState(stateBefore)
+            .poke({
+                '0x5634': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 }
 
 export function testDereferencingAbsoluteX(
@@ -149,27 +143,25 @@ export function testDereferencingAbsoluteX(
 ): void {
     stateBefore.x = 0x12;
 
-    test(`absolute,X ${extra}`, () => Runner
-        .create([opcode, 0x34, 0x55])
-        .setState(stateBefore)
-        .poke({
-            '0x5546': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`absolute,X ${extra}`, () =>
+        Runner.create([opcode, 0x34, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5546': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 
-    test(`absolute,X (page crossing) ${extra}`, () => Runner
-        .create([opcode, 0xEE, 0x55])
-        .setState(stateBefore)
-        .poke({
-            '0x5600': operand
-        })
-        .run()
-        .assertCycles(cyclesCross)
-        .assertState(stateAfter)
-    );
+    test(`absolute,X (page crossing) ${extra}`, () =>
+        Runner.create([opcode, 0xee, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5600': operand
+            })
+            .run()
+            .assertCycles(cyclesCross)
+            .assertState(stateAfter));
 }
 
 export function testDereferencingAbsoluteY(
@@ -183,27 +175,25 @@ export function testDereferencingAbsoluteY(
 ): void {
     stateBefore.y = 0x12;
 
-    test(`absolute,Y ${extra}`, () => Runner
-        .create([opcode, 0x34, 0x55])
-        .setState(stateBefore)
-        .poke({
-            '0x5546': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`absolute,Y ${extra}`, () =>
+        Runner.create([opcode, 0x34, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5546': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 
-    test(`absolute,Y (page crossing) ${extra}`, () => Runner
-        .create([opcode, 0xEE, 0x55])
-        .setState(stateBefore)
-        .poke({
-            '0x5600': operand
-        })
-        .run()
-        .assertCycles(cyclesCross)
-        .assertState(stateAfter)
-    );
+    test(`absolute,Y (page crossing) ${extra}`, () =>
+        Runner.create([opcode, 0xee, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5600': operand
+            })
+            .run()
+            .assertCycles(cyclesCross)
+            .assertState(stateAfter));
 }
 
 export function testDereferencingIndirectX(
@@ -216,18 +206,17 @@ export function testDereferencingIndirectX(
 ): void {
     stateBefore.x = 0x12;
 
-    test(`indirect,X ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0046': 0x87,
-            '0x0047': 0x6E,
-            '0x6E87': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`indirect,X ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0046': 0x87,
+                '0x0047': 0x6e,
+                '0x6E87': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 }
 
 export function testDereferencingIndirectY(
@@ -241,31 +230,29 @@ export function testDereferencingIndirectY(
 ): void {
     stateBefore.y = 0x12;
 
-    test(`indirect,Y ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0034': 0x87,
-            '0x0035': 0x6E,
-            '0x6E99': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-    );
+    test(`indirect,Y ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0034': 0x87,
+                '0x0035': 0x6e,
+                '0x6E99': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter));
 
-    test(`indirect,Y (page crossing) ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0034': 0xFF,
-            '0x0035': 0x6E,
-            '0x6F11': operand
-        })
-        .run()
-        .assertCycles(cyclesCross)
-        .assertState(stateAfter)
-    );
+    test(`indirect,Y (page crossing) ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0034': 0xff,
+                '0x0035': 0x6e,
+                '0x6F11': operand
+            })
+            .run()
+            .assertCycles(cyclesCross)
+            .assertState(stateAfter));
 }
 
 export function testMutatingZeropage(
@@ -277,19 +264,18 @@ export function testMutatingZeropage(
     stateAfter: Runner.State,
     extra = ''
 ): void {
-    test(`zeropage ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0034': before
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x0034': after
-        })
-    );
+    test(`zeropage ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0034': before
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x0034': after
+            }));
 }
 
 export function testMutatingZeropageX(
@@ -303,19 +289,18 @@ export function testMutatingZeropageX(
 ): void {
     stateBefore.x = 0x12;
 
-    test(`zeropage,X ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0046': before
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x0046': after
-        })
-    );
+    test(`zeropage,X ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0046': before
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x0046': after
+            }));
 }
 
 export function testMutatingAbsolute(
@@ -327,19 +312,18 @@ export function testMutatingAbsolute(
     stateAfter: Runner.State,
     extra = ''
 ): void {
-    test(`absolute ${extra}`, () => Runner
-        .create([opcode, 0x34, 0x56])
-        .setState(stateBefore)
-        .poke({
-            '0x5634': before
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x5634': after
-        })
-    );
+    test(`absolute ${extra}`, () =>
+        Runner.create([opcode, 0x34, 0x56])
+            .setState(stateBefore)
+            .poke({
+                '0x5634': before
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x5634': after
+            }));
 }
 
 export function testMutatingAbsoluteX(
@@ -354,33 +338,31 @@ export function testMutatingAbsoluteX(
 ): void {
     stateBefore.x = 0x12;
 
-    test(`absolute,X ${extra}`, () => Runner
-        .create([opcode, 0x34, 0x55])
-        .setState(stateBefore)
-        .poke({
-            '0x5546': before
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x5546': after
-        })
-    );
+    test(`absolute,X ${extra}`, () =>
+        Runner.create([opcode, 0x34, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5546': before
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x5546': after
+            }));
 
-    test(`absolute,X (page crossing) ${extra}`, () => Runner
-        .create([opcode, 0xEE, 0x55])
-        .setState(stateBefore)
-        .poke({
-            '0x5600': before
-        })
-        .run()
-        .assertCycles(cyclesCross)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x5600': after
-        })
-    );
+    test(`absolute,X (page crossing) ${extra}`, () =>
+        Runner.create([opcode, 0xee, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5600': before
+            })
+            .run()
+            .assertCycles(cyclesCross)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x5600': after
+            }));
 }
 
 export function testMutatingAbsoluteY(
@@ -395,33 +377,31 @@ export function testMutatingAbsoluteY(
 ): void {
     stateBefore.y = 0x12;
 
-    test(`absolute,Y ${extra}`, () => Runner
-        .create([opcode, 0x34, 0x55])
-        .setState(stateBefore)
-        .poke({
-            '0x5546': before
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x5546': after
-        })
-    );
+    test(`absolute,Y ${extra}`, () =>
+        Runner.create([opcode, 0x34, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5546': before
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x5546': after
+            }));
 
-    test(`absolute,Y (page crossing) ${extra}`, () => Runner
-        .create([opcode, 0xEE, 0x55])
-        .setState(stateBefore)
-        .poke({
-            '0x5600': before
-        })
-        .run()
-        .assertCycles(cyclesCross)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x5600': after
-        })
-    );
+    test(`absolute,Y (page crossing) ${extra}`, () =>
+        Runner.create([opcode, 0xee, 0x55])
+            .setState(stateBefore)
+            .poke({
+                '0x5600': before
+            })
+            .run()
+            .assertCycles(cyclesCross)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x5600': after
+            }));
 }
 
 export function testMutatingIndirectX(
@@ -435,21 +415,20 @@ export function testMutatingIndirectX(
 ): void {
     stateBefore.x = 0x12;
 
-    test(`indirect,X ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0046': 0x87,
-            '0x0047': 0x6E,
-            '0x6E87': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x6E87': after
-        })
-    );
+    test(`indirect,X ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0046': 0x87,
+                '0x0047': 0x6e,
+                '0x6E87': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x6E87': after
+            }));
 }
 
 export function testMutatingIndirectY(
@@ -464,35 +443,33 @@ export function testMutatingIndirectY(
 ): void {
     stateBefore.y = 0x12;
 
-    test(`indirect,Y ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0034': 0x87,
-            '0x0035': 0x6E,
-            '0x6E99': operand
-        })
-        .run()
-        .assertCycles(cycles)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x6E99': after
-        })
-    );
+    test(`indirect,Y ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0034': 0x87,
+                '0x0035': 0x6e,
+                '0x6E99': operand
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x6E99': after
+            }));
 
-    test(`indirect,Y (page crossing) ${extra}`, () => Runner
-        .create([opcode, 0x34])
-        .setState(stateBefore)
-        .poke({
-            '0x0034': 0xFF,
-            '0x0035': 0x6E,
-            '0x6F11': operand
-        })
-        .run()
-        .assertCycles(cyclesCross)
-        .assertState(stateAfter)
-        .assertMemory({
-            '0x6F11': after
-        })
-    );
+    test(`indirect,Y (page crossing) ${extra}`, () =>
+        Runner.create([opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0034': 0xff,
+                '0x0035': 0x6e,
+                '0x6F11': operand
+            })
+            .run()
+            .assertCycles(cyclesCross)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x6F11': after
+            }));
 }

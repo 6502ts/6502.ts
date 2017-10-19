@@ -40,25 +40,24 @@ interface PageConfig {
 }
 
 export function run({
-        fileBlob,
-        terminalElt,
-        interruptButton,
-        clearButton,
-        canvas,
-        pageConfig,
-        cartridgeFileInput,
-        cartridgeFileInputLabel
-    }: {
-        fileBlob: PrepackagedFilesystemProvider.BlobInterface,
-        terminalElt: JQuery,
-        interruptButton: JQuery,
-        clearButton: JQuery,
-        canvas: JQuery
-        pageConfig: PageConfig,
-        cartridgeFileInput?: JQuery
-        cartridgeFileInputLabel?: JQuery
-    }
-) {
+    fileBlob,
+    terminalElt,
+    interruptButton,
+    clearButton,
+    canvas,
+    pageConfig,
+    cartridgeFileInput,
+    cartridgeFileInputLabel
+}: {
+    fileBlob: PrepackagedFilesystemProvider.BlobInterface;
+    terminalElt: JQuery;
+    interruptButton: JQuery;
+    clearButton: JQuery;
+    canvas: JQuery;
+    pageConfig: PageConfig;
+    cartridgeFileInput?: JQuery;
+    cartridgeFileInputLabel?: JQuery;
+}) {
     const fsProvider = new PrepackagedFilesystemProvider(fileBlob),
         cli = new StellaCLI(fsProvider),
         runner = new JqtermCLIRunner(cli, terminalElt, {
@@ -80,11 +79,7 @@ export function run({
             fullscreenDriver = new FullscreenVideoDriver(videoDriver);
 
         setupAudio(board);
-        setupKeyboardControls(
-            canvas,
-            board,
-            fullscreenDriver
-        );
+        setupKeyboardControls(canvas, board, fullscreenDriver);
         setupPaddles(board.getPaddle(0));
 
         board.setAudioEnabled(true);
@@ -119,20 +114,11 @@ export function run({
     }
 }
 
-function setupCartridgeReader(
-    cli: StellaCLI,
-    cartridgeFileInput: JQuery,
-    cartridgeFileInputLabel?: JQuery
-): void {
-
-    const onCliStateChange: () => void =
-        cartridgeFileInputLabel ?
-            ()  => (
-                cli.getState() === StellaCLI.State.setup ?
-                cartridgeFileInputLabel.show() :
-                cartridgeFileInputLabel.hide())
-            :
-            () => undefined;
+function setupCartridgeReader(cli: StellaCLI, cartridgeFileInput: JQuery, cartridgeFileInputLabel?: JQuery): void {
+    const onCliStateChange: () => void = cartridgeFileInputLabel
+        ? () =>
+              cli.getState() === StellaCLI.State.setup ? cartridgeFileInputLabel.show() : cartridgeFileInputLabel.hide()
+        : () => undefined;
 
     cli.events.stateChanged.addHandler(onCliStateChange);
     onCliStateChange();
@@ -178,11 +164,7 @@ function setupAudio(board: Board) {
     driver.bind(board.getAudioOutput());
 }
 
-function setupKeyboardControls(
-    element: JQuery,
-    board: Board,
-    fullscreenDriver: FullscreenVideoDriver
-) {
+function setupKeyboardControls(element: JQuery, board: Board, fullscreenDriver: FullscreenVideoDriver) {
     const ioDriver = new KeyboardIoDriver(element.get(0));
     ioDriver.bind(board.getJoystick0(), board.getJoystick1(), board.getControlPanel());
 

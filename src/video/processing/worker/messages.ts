@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {ProcessorConfig} from '../config';
+import { ProcessorConfig } from '../config';
 
 export const messageIds = {
     configure: 'pipeline/configure',

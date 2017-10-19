@@ -32,7 +32,6 @@ import ControlProxy from './ControlProxy';
 import AudioProxy from './AudioProxy';
 
 class EmulationContext implements EmulationContextInterface {
-
     constructor(
         private _videoProxy: VideoProxy,
         private _controlProxy: ControlProxy,

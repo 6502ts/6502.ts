@@ -21,10 +21,9 @@
 
 import * as React from 'react';
 import * as classnames from 'classnames';
-import {FormControl} from 'react-bootstrap';
+import { FormControl } from 'react-bootstrap';
 
 class ValidatingInput extends React.Component<ValidatingInput.Props, ValidatingInput.State> {
-
     constructor(props?: ValidatingInput.Props, context?: any) {
         super(props, context);
 
@@ -34,40 +33,40 @@ class ValidatingInput extends React.Component<ValidatingInput.Props, ValidatingI
     }
 
     render() {
-        return <FormControl
-            type='text'
-            className={classnames(
-                this.props.className,
-                this.props.validator(this.state.rawValue) ? 'valid' : 'invalid'
-            )}
-            value={this.state.rawValue}
-            onChange={(e: React.FormEvent<any>) => this._onChange((e.target as HTMLInputElement).value)}
-            onKeyDown={(e: React.KeyboardEvent<any>) => e.keyCode === 13 ? this.props.onKeyEnter() : undefined}
-            readOnly={this.props.readOnly}
-            style={this.props.style}
-        />;
+        return (
+            <FormControl
+                type="text"
+                className={classnames(
+                    this.props.className,
+                    this.props.validator(this.state.rawValue) ? 'valid' : 'invalid'
+                )}
+                value={this.state.rawValue}
+                onChange={(e: React.FormEvent<any>) => this._onChange((e.target as HTMLInputElement).value)}
+                onKeyDown={(e: React.KeyboardEvent<any>) => (e.keyCode === 13 ? this.props.onKeyEnter() : undefined)}
+                readOnly={this.props.readOnly}
+                style={this.props.style}
+            />
+        );
     }
 
     componentWillReceiveProps(props: ValidatingInput.Props): void {
-        this.setState({rawValue: props.value});
+        this.setState({ rawValue: props.value });
     }
 
     private _onChange(newValue: string): void {
-        this.setState({rawValue: newValue});
+        this.setState({ rawValue: newValue });
 
         if (this.props.validator(newValue)) {
             this.props.onChange(newValue);
         }
     }
-
 }
 
 namespace ValidatingInput {
-
     export interface Props {
         value?: string;
         readOnly?: boolean;
-        style?: {[key: string]: any};
+        style?: { [key: string]: any };
         className?: string;
 
         onChange?: (value: string) => void;
@@ -85,9 +84,8 @@ namespace ValidatingInput {
 
         onChange: () => undefined,
         onKeyEnter: () => undefined,
-        validator: () => true,
+        validator: () => true
     };
-
 }
 
 export default ValidatingInput;

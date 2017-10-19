@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import FilesystemProviderInterface from '../../fs/FilesystemProviderInterface';
 import DebuggerCLI from '../DebuggerCLI';
@@ -43,12 +43,14 @@ import ClockProbe from '../../tools/ClockProbe';
 import SystemConfigSetupProvider from './SystemConfigSetupProvider';
 import ControlPanelManagementProvider from './ControlPanelManagementProvider';
 
-const enum RunMode {limited, unlimited}
+const enum RunMode {
+    limited,
+    unlimited
+}
 
 const CLOCK_PROBE_INTERVAL = 1000;
 
 class StellaCLI extends DebuggerCLI {
-
     constructor(fsProvider: FilesystemProviderInterface, protected _cartridgeFile?: string) {
         super(fsProvider);
 
@@ -104,7 +106,6 @@ class StellaCLI extends DebuggerCLI {
 
             case StellaCLI.State.run:
                 return this._setState(StellaCLI.State.debug);
-
         }
     }
 
@@ -116,7 +117,7 @@ class StellaCLI extends DebuggerCLI {
         return this._state;
     }
 
-    loadCartridgeFromBuffer(buffer: {[idx: number]: number, length: number}, name: string): void {
+    loadCartridgeFromBuffer(buffer: { [idx: number]: number; length: number }, name: string): void {
         const factory = new CartridgeFactory();
 
         try {
@@ -297,7 +298,11 @@ interface Events extends AbstractCLI.Events {
 }
 
 namespace StellaCLI {
-    export const enum State {setup, debug, run}
+    export const enum State {
+        setup,
+        debug,
+        run
+    }
 }
 
 export default StellaCLI;

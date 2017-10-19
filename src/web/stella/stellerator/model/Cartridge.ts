@@ -34,7 +34,6 @@ interface Cartridge {
 }
 
 namespace Cartridge {
-
     export function create(): Cartridge {
         return {
             name: '',
@@ -50,7 +49,8 @@ namespace Cartridge {
 
     export function equals(c1: Cartridge, c2: Cartridge) {
         return (
-            !!c1 && !!c2 &&
+            !!c1 &&
+            !!c2 &&
             c1.name === c2.name &&
             c1.hash === c2.hash &&
             c1.tvMode === c2.tvMode &&
@@ -61,7 +61,6 @@ namespace Cartridge {
             c1.volume === c2.volume
         );
     }
-
 }
 
 export default Cartridge;

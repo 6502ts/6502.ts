@@ -31,7 +31,6 @@ interface Settings {
 }
 
 namespace Settings {
-
     export const MAX_GAMMA = 5;
     export const MIN_GAMMA = 0.1;
 
@@ -49,7 +48,7 @@ namespace Settings {
     }
 
     export function clampGamma(settings: Settings): Settings {
-        if (settings.gamma < MIN_GAMMA)  {
+        if (settings.gamma < MIN_GAMMA) {
             settings.gamma = MIN_GAMMA;
         }
 
@@ -59,7 +58,6 @@ namespace Settings {
 
         return settings;
     }
-
 }
 
 export default Settings;

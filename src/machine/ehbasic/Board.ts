@@ -26,7 +26,6 @@ import CpuInterface from '../cpu/CpuInterface';
 import BusInterface from '../bus/BusInterface';
 
 class Board extends VanillaBoard {
-
     constructor(cpuFactory?: (bus: BusInterface) => CpuInterface) {
         super(cpuFactory);
 

@@ -27,11 +27,10 @@ import Bus from '../Bus';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class Cartridge3E extends AbstractCartridge {
-
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
-        if ((buffer.length & 0x07FF) !== 0) {
+        if ((buffer.length & 0x07ff) !== 0) {
             throw new Error(`buffer length ${buffer.length} is not a multiple of 2k`);
         }
 
@@ -46,7 +45,7 @@ class Cartridge3E extends AbstractCartridge {
             this._banks[i] = new Uint8Array(0x0800);
         }
 
-        for (let i = 0; i <= 0xFF; i++) {
+        for (let i = 0; i <= 0xff; i++) {
             this._ramBanks[i] = new Uint8Array(0x0400);
         }
 
@@ -65,7 +64,7 @@ class Cartridge3E extends AbstractCartridge {
         // Signature shamelessly stolen from stella
         const signatureCounts = cartridgeUtil.searchForSignatures(
             buffer,
-            [[ 0x85, 0x3E, 0xA9, 0x00 ]]  // STA $3E, LDA #0
+            [[0x85, 0x3e, 0xa9, 0x00]] // STA $3E, LDA #0
         );
 
         return signatureCounts[0] >= 1;
@@ -78,7 +77,7 @@ class Cartridge3E extends AbstractCartridge {
     randomize(rng: RngInterface): void {
         for (let i = 0; i < this._ramBanks.length; i++) {
             for (let j = 0; j < 0x0400; j++) {
-                this._ramBanks[i][j] = rng.int(0xFF);
+                this._ramBanks[i][j] = rng.int(0xff);
             }
         }
     }
@@ -96,7 +95,7 @@ class Cartridge3E extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (this._ramSelect) {
             if (address < 0x0400) {
@@ -104,17 +103,17 @@ class Cartridge3E extends AbstractCartridge {
             }
 
             if (address < 0x0800) {
-                return this._ramBank[address & 0x03FF] = this._bus.getLastDataBusValue();
+                return (this._ramBank[address & 0x03ff] = this._bus.getLastDataBusValue());
             }
 
-            return this._bank1[address & 0x07FF];
+            return this._bank1[address & 0x07ff];
         }
 
-        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07FF];
+        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07ff];
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (this._ramSelect) {
             if (address < 0x0400) {
@@ -125,10 +124,10 @@ class Cartridge3E extends AbstractCartridge {
                 return this._bus.getLastDataBusValue();
             }
 
-            return this._bank1[address & 0x07FF];
+            return this._bank1[address & 0x07ff];
         }
 
-        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07FF];
+        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07ff];
     }
 
     write(address: number, value: number): void {
@@ -136,10 +135,10 @@ class Cartridge3E extends AbstractCartridge {
             return;
         }
 
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (address >= 0x0400 && address < 0x0800) {
-            this._ramBank[address & 0x03FF] = value;
+            this._ramBank[address & 0x03ff] = value;
         }
     }
 
@@ -149,12 +148,12 @@ class Cartridge3E extends AbstractCartridge {
 
     private static _onBusAccess(accessType: Bus.AccessType, self: Cartridge3E): void {
         switch (self._bus.getLastAddresBusValue()) {
-            case 0x003F:
+            case 0x003f:
                 self._ramSelect = false;
                 self._bank0 = self._banks[self._bus.getLastDataBusValue() % self._banks.length];
                 break;
 
-            case 0x003E:
+            case 0x003e:
                 self._ramSelect = true;
                 self._ramBank = self._ramBanks[self._bus.getLastDataBusValue() % 32];
                 break;
@@ -170,7 +169,6 @@ class Cartridge3E extends AbstractCartridge {
     private _ramBank: Uint8Array;
 
     private _bus: Bus = null;
-
 }
 
 export default Cartridge3E;

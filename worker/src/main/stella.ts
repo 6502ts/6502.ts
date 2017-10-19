@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {getRpc} from '../rpc';
+import { getRpc } from '../rpc';
 import EmulationBackend from '../../../src/web/stella/service/worker/EmulationBackend';
 
 const emulationBackend = new EmulationBackend(getRpc());

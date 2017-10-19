@@ -22,82 +22,71 @@
 import Runner from './Runner';
 import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
 
-function branchSuite(
-    mnemonic: string,
-    opcode: number,
-    jumpCondition: number,
-    noJumpCondition: number
-): void {
+function branchSuite(mnemonic: string, opcode: number, jumpCondition: number, noJumpCondition: number): void {
     suite(mnemonic, function() {
-        test('immediate, no branch', () => Runner
-            .create([opcode, 0x0F], 0xE000)
-            .setState({
-                flags: noJumpCondition
-            })
-            .run()
-            .assertCycles(2)
-            .assertState({
-                p: 0xE000 + 2
-            })
-        );
+        test('immediate, no branch', () =>
+            Runner.create([opcode, 0x0f], 0xe000)
+                .setState({
+                    flags: noJumpCondition
+                })
+                .run()
+                .assertCycles(2)
+                .assertState({
+                    p: 0xe000 + 2
+                }));
 
-        test('immediate, forward branch', () => Runner
-            .create([opcode, 0x0F], 0xE000)
-            .setState({
-                flags: jumpCondition
-            })
-            .run()
-            .assertCycles(3)
-            .assertState({
-                p: 0xE000 + 2 + 0x0F
-            })
-        );
+        test('immediate, forward branch', () =>
+            Runner.create([opcode, 0x0f], 0xe000)
+                .setState({
+                    flags: jumpCondition
+                })
+                .run()
+                .assertCycles(3)
+                .assertState({
+                    p: 0xe000 + 2 + 0x0f
+                }));
 
-        test('immediate, backward branch, page crossing', () => Runner
-            .create([opcode, (~0x0A & 0xFF) + 1], 0xE000)
-            .setState({
-                flags: jumpCondition
-            })
-            .run()
-            .assertCycles(4)
-            .assertState({
-                p: 0xE000 + 2 - 0x0A
-            })
-        );
+        test('immediate, backward branch, page crossing', () =>
+            Runner.create([opcode, (~0x0a & 0xff) + 1], 0xe000)
+                .setState({
+                    flags: jumpCondition
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    p: 0xe000 + 2 - 0x0a
+                }));
 
-        test('immediate, backward branch, page crossing @ 0xFE', () => Runner
-            .create([opcode, (~0x0A & 0xFF) + 1], 0xE0FE)
-            .setState({
-                flags: jumpCondition
-            })
-            .run()
-            .assertCycles(4)
-            .assertState({
-                p: 0xE0FE + 2 - 0x0A
-            })
-        );
+        test('immediate, backward branch, page crossing @ 0xFE', () =>
+            Runner.create([opcode, (~0x0a & 0xff) + 1], 0xe0fe)
+                .setState({
+                    flags: jumpCondition
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    p: 0xe0fe + 2 - 0x0a
+                }));
 
-        test('immediate, backward branch, page crossing @ 0xFF', () => Runner
-            .create([opcode, (~0x0A & 0xFF) + 1], 0xE0FF)
-            .setState({
-                flags: jumpCondition
-            })
-            .run()
-            .assertCycles(4)
-            .assertState({
-                p: 0xE0FF + 2 - 0x0A
-            })
-        );
-
+        test('immediate, backward branch, page crossing @ 0xFF', () =>
+            Runner.create([opcode, (~0x0a & 0xff) + 1], 0xe0ff)
+                .setState({
+                    flags: jumpCondition
+                })
+                .run()
+                .assertCycles(4)
+                .assertState({
+                    p: 0xe0ff + 2 - 0x0a
+                }));
     });
 }
 
 export function run(): void {
     branchSuite('BCC', 0x90, 0, CpuInterface.Flags.c);
 
-    branchSuite('BNE', 0xD0, 0, CpuInterface.Flags.z);
+    branchSuite('BNE', 0xd0, 0, CpuInterface.Flags.z);
 
-    branchSuite('BEQ', 0xF0, CpuInterface.Flags.z, 0);
+    branchSuite('BEQ', 0xf0, CpuInterface.Flags.z, 0);
 
     branchSuite('BPL', 0x10, 0, CpuInterface.Flags.n);
 

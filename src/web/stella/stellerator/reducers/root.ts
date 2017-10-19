@@ -19,8 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Action} from 'redux';
-import {routerReducer, RouterAction} from 'react-router-redux';
+import { Action } from 'redux';
+import { routerReducer, RouterAction } from 'react-router-redux';
 
 import {
     InitCartridgesAction,
@@ -29,7 +29,7 @@ import {
     types as ActionType
 } from '../actions/root';
 
-import {calculateFromUint8Array as md5sum} from '../../../../tools/hash/md5';
+import { calculateFromUint8Array as md5sum } from '../../../../tools/hash/md5';
 
 import reduceGuiState from './guiState';
 import reduceCurrentCartridge from './currentCartridge';
@@ -84,21 +84,24 @@ function reduce(state: State, a: Action): State {
 }
 
 function deleteCurrentCartridge(state: State): State {
-    const cartridges: {[key: string]: Cartridge} = {};
+    const cartridges: { [key: string]: Cartridge } = {};
 
     Object.keys(state.cartridges).forEach(
         hash => hash !== state.currentCartridge.hash && (cartridges[hash] = state.cartridges[hash])
     );
 
-    return new State({
-        cartridges,
-        currentCartridge: null
-    }, state);
+    return new State(
+        {
+            cartridges,
+            currentCartridge: null
+        },
+        state
+    );
 }
 
 function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): State {
-    const buffer = typeof(a.buffer) === 'undefined' ? state.guiState.pendingLoad : a.buffer,
-        name = typeof(a.name) === 'undefined' ? state.guiState.pendingLoadName : a.name,
+    const buffer = typeof a.buffer === 'undefined' ? state.guiState.pendingLoad : a.buffer,
+        name = typeof a.name === 'undefined' ? state.guiState.pendingLoadName : a.name,
         hash = md5sum(buffer),
         detector = new CartridgeDetector(),
         cartridgeType = detector.detectCartridgeType(buffer);
@@ -107,11 +110,9 @@ function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): Stat
 
     if (name.match(/\Wpal\W/i)) {
         tvMode = StellaConfig.TvMode.pal;
-    }
-    else if (name.match(/\Wsecam\W/i)) {
+    } else if (name.match(/\Wsecam\W/i)) {
         tvMode = StellaConfig.TvMode.secam;
-    }
-    else {
+    } else {
         tvMode = StellaConfig.TvMode.ntsc;
     }
 
@@ -123,16 +124,19 @@ function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): Stat
         cartridgeType
     };
 
-    return new State({
-        currentCartridge: newCartridge
-    }, state);
+    return new State(
+        {
+            currentCartridge: newCartridge
+        },
+        state
+    );
 }
 
 function initCartridges(state: State, a: InitCartridgesAction): State {
-    const cartridges: {[key: string]: Cartridge} = {};
-    a.cartridges.forEach(cartridge => cartridges[cartridge.hash] = cartridge);
+    const cartridges: { [key: string]: Cartridge } = {};
+    a.cartridges.forEach(cartridge => (cartridges[cartridge.hash] = cartridge));
 
-    return new State({cartridges}, state);
+    return new State({ cartridges }, state);
 }
 
 function selectCartridge(state: State, a: SelectCartridgeAction): State {
@@ -142,17 +146,15 @@ function selectCartridge(state: State, a: SelectCartridgeAction): State {
         throw new Error(`no cartridge with hash ${a.hash}`);
     }
 
-    return new State({currentCartridge: cartridge}, state);
+    return new State({ currentCartridge: cartridge }, state);
 }
 
 function saveCurrentCartride(state: State): State {
-    const cartridges: {[key: string]: Cartridge} = {};
+    const cartridges: { [key: string]: Cartridge } = {};
 
-    Object.keys(state.cartridges).forEach(
-        key => cartridges[key] = state.cartridges[key]
-    );
+    Object.keys(state.cartridges).forEach(key => (cartridges[key] = state.cartridges[key]));
 
     cartridges[state.currentCartridge.hash] = state.currentCartridge;
 
-    return new State({cartridges}, state);
+    return new State({ cartridges }, state);
 }

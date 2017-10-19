@@ -27,41 +27,38 @@ interface State {
 }
 
 class FileUploadButton extends React.Component<FileUploadButton.Props, State> {
-
     render() {
-        return <div className='btn btn-default' style={{display: 'inline-block'}}>
-            <label htmlFor={this.state.id}>{this.props.children}</label>
-            <input
-                accept={this.props.accept}
-                type='file'
-                id={this.state.id}
-                style={{display: 'none'}}
-                onChange={this._onChange.bind(this)}
-                key={this.state.index}
-            />
-        </div>;
+        return (
+            <div className="btn btn-default" style={{ display: 'inline-block' }}>
+                <label htmlFor={this.state.id}>{this.props.children}</label>
+                <input
+                    accept={this.props.accept}
+                    type="file"
+                    id={this.state.id}
+                    style={{ display: 'none' }}
+                    onChange={this._onChange.bind(this)}
+                    key={this.state.index}
+                />
+            </div>
+        );
     }
 
     private _onChange(e: Event) {
         this.props.onFilesSelected((e.currentTarget as HTMLInputElement).files);
 
         // Recreate the input node in order to allow subsequent uploads of the same file
-        this.setState(
-            (prevState: State) => ({
-                index: prevState.index + 1
-            })
-        );
+        this.setState((prevState: State) => ({
+            index: prevState.index + 1
+        }));
     }
 
     state: State = {
         id: `file_upload_${Math.floor(Math.random() * 10000000)}`,
         index: 1
     };
-
 }
 
 namespace FileUploadButton {
-
     export interface Props {
         accept?: string;
         onFilesSelected?: (files: FileList) => void;
@@ -70,7 +67,6 @@ namespace FileUploadButton {
     export const defaultProps: Props = {
         onFilesSelected: () => undefined
     };
-
 }
 
 export default FileUploadButton;

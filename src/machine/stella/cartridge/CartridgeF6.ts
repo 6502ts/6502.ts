@@ -26,12 +26,7 @@ import Bus from '../Bus';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class CartridgeF6 extends AbstractCartridge {
-
-    constructor(
-        buffer: {[i: number]: number, length: number},
-        private _supportSC: boolean = true
-
-    ) {
+    constructor(buffer: { [i: number]: number; length: number }, private _supportSC: boolean = true) {
         super();
 
         if (buffer.length !== 0x4000) {
@@ -54,13 +49,13 @@ class CartridgeF6 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        this._access(address & 0x0FFF, this._bus.getLastDataBusValue());
+        this._access(address & 0x0fff, this._bus.getLastDataBusValue());
 
         return this.peek(address);
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (this._hasSC && address >= 0x0080 && address < 0x0100) {
             return this._saraRAM[address - 0x80];
@@ -70,7 +65,7 @@ class CartridgeF6 extends AbstractCartridge {
     }
 
     write(address: number, value: number): void {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (address < 0x80 && this._supportSC) {
             this._hasSC = true;
@@ -85,7 +80,7 @@ class CartridgeF6 extends AbstractCartridge {
 
     randomize(rng: RngInterface): void {
         for (let i = 0; i < this._saraRAM.length; i++) {
-            this._saraRAM[i] = rng.int(0xFF);
+            this._saraRAM[i] = rng.int(0xff);
         }
     }
 
@@ -97,24 +92,24 @@ class CartridgeF6 extends AbstractCartridge {
 
     private _access(address: number, value: number): void {
         if (address < 0x80 && this._hasSC) {
-            this._saraRAM[address] = value & 0xFF;
+            this._saraRAM[address] = value & 0xff;
             return;
         }
 
         switch (address) {
-            case 0x0FF6:
+            case 0x0ff6:
                 this._bank = this._bank0;
                 break;
 
-            case 0x0FF7:
+            case 0x0ff7:
                 this._bank = this._bank1;
                 break;
 
-            case 0x0FF8:
+            case 0x0ff8:
                 this._bank = this._bank2;
                 break;
 
-            case 0x0FF9:
+            case 0x0ff9:
                 this._bank = this._bank3;
                 break;
         }

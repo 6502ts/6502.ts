@@ -20,19 +20,20 @@
  */
 
 import * as React from 'react';
-import {FormControl} from 'react-bootstrap';
+import { FormControl } from 'react-bootstrap';
 
 function CartridgeNameInput(props: CartridgeNameInput.Props) {
-    return <FormControl
-        type='text'
-        value={props.name}
-        onChange={(e: React.FormEvent<any>) => props.onNameChange((e.target as HTMLInputElement).value)}
-        onKeyDown={(e: React.KeyboardEvent<any>) => e.keyCode === 13 ? props.onKeyEnter() : undefined}
-    />;
+    return (
+        <FormControl
+            type="text"
+            value={props.name}
+            onChange={(e: React.FormEvent<any>) => props.onNameChange((e.target as HTMLInputElement).value)}
+            onKeyDown={(e: React.KeyboardEvent<any>) => (e.keyCode === 13 ? props.onKeyEnter() : undefined)}
+        />
+    );
 }
 
 namespace CartridgeNameInput {
-
     export interface Props {
         name: string;
         onNameChange?: (value: string) => void;
@@ -40,11 +41,10 @@ namespace CartridgeNameInput {
     }
 
     export const defaultProps: Props = {
-        name : '',
+        name: '',
         onNameChange: () => undefined,
-        onKeyEnter: () => undefined,
+        onKeyEnter: () => undefined
     };
-
 }
 
 export default CartridgeNameInput;

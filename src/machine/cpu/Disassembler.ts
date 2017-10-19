@@ -25,8 +25,7 @@ import BusInterface from '../bus/BusInterface';
 import * as hex from '../../tools/hex';
 
 class Disassembler {
-    constructor(private _bus?: BusInterface)
-    {}
+    constructor(private _bus?: BusInterface) {}
 
     setBus(bus: BusInterface): Disassembler {
         this._bus = bus;
@@ -41,14 +40,11 @@ class Disassembler {
         const instruction = Instruction.opcodes[this._peek(address)],
             operation = Instruction.OperationMap[instruction.operation].toUpperCase();
 
-        const read8 =  (a: number = address + 1) =>
-            hex.encode(this._peek(a), 2);
+        const read8 = (a: number = address + 1) => hex.encode(this._peek(a), 2);
 
-        const read16 = (a: number = address + 1) =>
-            hex.encode(
-                this._peek(a) + (this._peek(a + 1) << 8), 4);
+        const read16 = (a: number = address + 1) => hex.encode(this._peek(a) + (this._peek(a + 1) << 8), 4);
 
-        const decodeSint8 = (value: number) => (value & 0x80) ? (-(~(value - 1) & 0xFF)) : value;
+        const decodeSint8 = (value: number) => (value & 0x80 ? -(~(value - 1) & 0xff) : value);
 
         switch (instruction.addressingMode) {
             case Instruction.AddressingMode.implied:
@@ -69,9 +65,13 @@ class Disassembler {
             case Instruction.AddressingMode.relative:
                 const distance = decodeSint8(this._peek(address + 1));
 
-                return operation + ' ' +
-                    hex.encode(distance, 2) + ' ; -> '
-                    + hex.encode((0x10002 + address + distance) % 0x10000, 4);
+                return (
+                    operation +
+                    ' ' +
+                    hex.encode(distance, 2) +
+                    ' ; -> ' +
+                    hex.encode((0x10002 + address + distance) % 0x10000, 4)
+                );
 
             case Instruction.AddressingMode.zeroPageX:
                 return operation + ' ' + read8() + ',X';
@@ -99,7 +99,6 @@ class Disassembler {
     private _peek(address: number) {
         return this._bus.peek(address % 0x10000);
     }
-
 }
 
 export default Disassembler;

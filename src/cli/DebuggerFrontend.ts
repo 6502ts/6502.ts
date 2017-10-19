@@ -41,37 +41,37 @@ function decodeNumber(value: string): number {
 
 class DebuggerFrontend {
     constructor(
-            private _debugger: Debugger,
-            private _fileSystemProvider: FileSystemProviderInterface,
-            private _commandInterpreter: CommandInterpreter
+        private _debugger: Debugger,
+        private _fileSystemProvider: FileSystemProviderInterface,
+        private _commandInterpreter: CommandInterpreter
     ) {
         this._commandInterpreter.registerCommands({
-            'disassemble':        this._disassemble.bind(this),
-            'dump':               this._dump.bind(this),
-            'load':               this._load.bind(this),
-            'hex2dec':            this._hex2dec.bind(this),
-            'dec2hex':            this._dec2hex.bind(this),
-            'state':              this._state.bind(this),
-            'boot':               this._boot.bind(this),
-            'stack':              this._stack.bind(this),
-            'step':             this._step.bind(this),
-            'step-clock':       this._stepClock.bind(this),
-            'reset':            () => this._reset(false),
-            'reset-hard':       () => this._reset(true),
-            'break-on':         this._enableBreakpoints.bind(this),
-            'break-off':        this._disableBreakpoints.bind(this),
-            'break':            this._setBreakpoint.bind(this),
-            'break-clear':      this._clearBreakpoint.bind(this),
-            'break-dump':       this._showBreakpoints.bind(this),
-            'break-clear-all':  this._clearAllBreakpoints.bind(this),
-            'trace-on':         this._enableTrace.bind(this),
-            'trace-off':        this._disableTrace.bind(this),
-            'trace':            this._trace.bind(this)
+            disassemble: this._disassemble.bind(this),
+            dump: this._dump.bind(this),
+            load: this._load.bind(this),
+            hex2dec: this._hex2dec.bind(this),
+            dec2hex: this._dec2hex.bind(this),
+            state: this._state.bind(this),
+            boot: this._boot.bind(this),
+            stack: this._stack.bind(this),
+            step: this._step.bind(this),
+            'step-clock': this._stepClock.bind(this),
+            reset: () => this._reset(false),
+            'reset-hard': () => this._reset(true),
+            'break-on': this._enableBreakpoints.bind(this),
+            'break-off': this._disableBreakpoints.bind(this),
+            break: this._setBreakpoint.bind(this),
+            'break-clear': this._clearBreakpoint.bind(this),
+            'break-dump': this._showBreakpoints.bind(this),
+            'break-clear-all': this._clearAllBreakpoints.bind(this),
+            'trace-on': this._enableTrace.bind(this),
+            'trace-off': this._disableTrace.bind(this),
+            trace: this._trace.bind(this)
         });
     }
 
     describeTrap(trap?: BoardInterface.TrapPayload): string {
-        if (typeof(trap) === 'undefined') {
+        if (typeof trap === 'undefined') {
             trap = this._debugger.getLastTrap();
         }
 
@@ -102,8 +102,7 @@ class DebuggerFrontend {
                 return this._debugger.disassemble(decodeNumber(args[0]));
 
             default:
-                return this._debugger.disassembleAt(
-                    decodeNumber(args[0]), decodeNumber(args[1]));
+                return this._debugger.disassembleAt(decodeNumber(args[0]), decodeNumber(args[1]));
         }
     }
 
@@ -150,7 +149,7 @@ class DebuggerFrontend {
         const board = this._debugger.getBoard();
         let cycles = 0;
 
-        const clockHandler = (clock: number) => cycles += clock;
+        const clockHandler = (clock: number) => (cycles += clock);
 
         board.cpuClock.addHandler(clockHandler);
 
@@ -164,7 +163,7 @@ class DebuggerFrontend {
         board.cpuClock.removeHandler(clockHandler);
 
         if (exception) {
-            throw (exception);
+            throw exception;
         }
 
         return util.format('Boot successful in %s cycles', cycles);
@@ -179,10 +178,11 @@ class DebuggerFrontend {
     private _step(args: Array<string>): string {
         const timestamp = Date.now(),
             instructionCount = args.length > 0 ? decodeNumber(args[0]) : 1,
-            {cycles, cpuCycles} = this._debugger.step(instructionCount),
+            { cycles, cpuCycles } = this._debugger.step(instructionCount),
             trap = this._debugger.getLastTrap();
 
-        return util.format('Used %s cycles (CPU: %s) in %s milliseconds, now at\n%s\n%s\n',
+        return util.format(
+            'Used %s cycles (CPU: %s) in %s milliseconds, now at\n%s\n%s\n',
             cycles,
             cpuCycles,
             Date.now() - timestamp,
@@ -265,8 +265,10 @@ class DebuggerFrontend {
         const time = Date.now() - timestamp,
             trap = this._debugger.getLastTrap();
 
-        return  `clock stepped ${cycles} cycles in ${time} msec; ` +
-                `now at ${this._debugger.disassemble(1)}\n${trap ? this.describeTrap(trap) : ''}`;
+        return (
+            `clock stepped ${cycles} cycles in ${time} msec; ` +
+            `now at ${this._debugger.disassemble(1)}\n${trap ? this.describeTrap(trap) : ''}`
+        );
     }
 }
 

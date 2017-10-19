@@ -19,13 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Action} from 'redux';
+import { Action } from 'redux';
 
 import {
     SetModeAction,
     OpenSelectPendingChangesModalAction,
     types as ActionType,
-    OpenLoadPendingChangesModalAction,
+    OpenLoadPendingChangesModalAction
 } from '../actions/guiState';
 
 import GuiState from '../state/GuiState';
@@ -53,35 +53,47 @@ export default function reduce(state: GuiState = new GuiState(), action: Action)
 }
 
 function setMode(state: GuiState, action: SetModeAction): GuiState {
-    return new GuiState({mode: action.guiMode}, state);
+    return new GuiState({ mode: action.guiMode }, state);
 }
 
 function selectOpenPendingChangesModal(state: GuiState, action: OpenSelectPendingChangesModalAction): GuiState {
-    return new GuiState({
-        showSelectPendingChangesModal: true,
-        pendingSelectHash: action.pendingSelectHash
-    }, state);
+    return new GuiState(
+        {
+            showSelectPendingChangesModal: true,
+            pendingSelectHash: action.pendingSelectHash
+        },
+        state
+    );
 }
 
 function selectClosePendingChangesModal(state: GuiState): GuiState {
-    return new GuiState({
-        showSelectPendingChangesModal: false,
-        pendingSelectHash: ''
-    }, state);
+    return new GuiState(
+        {
+            showSelectPendingChangesModal: false,
+            pendingSelectHash: ''
+        },
+        state
+    );
 }
 
 function loadOpenPendingChangesModal(state: GuiState, action: OpenLoadPendingChangesModalAction): GuiState {
-    return new GuiState({
-        showLoadPendingChangesModal: true,
-        pendingLoad: action.pendingLoad,
-        pendingLoadName: action.pendingLoadName
-    }, state);
+    return new GuiState(
+        {
+            showLoadPendingChangesModal: true,
+            pendingLoad: action.pendingLoad,
+            pendingLoadName: action.pendingLoadName
+        },
+        state
+    );
 }
 
 function loadClosePendingChangesModal(state: GuiState): GuiState {
-    return new GuiState({
-        showLoadPendingChangesModal: false,
-        pendingLoad: null,
-        pendingLoadName: ''
-    }, state);
+    return new GuiState(
+        {
+            showLoadPendingChangesModal: false,
+            pendingLoad: null,
+            pendingLoadName: ''
+        },
+        state
+    );
 }

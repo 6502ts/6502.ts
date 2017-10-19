@@ -20,18 +20,14 @@
  */
 
 class CommandInterpreter {
-    constructor(
-        commandTable?: CommandInterpreter.CommandTableInterface
-    ) {
-        if (typeof(commandTable) !== 'undefined') {
+    constructor(commandTable?: CommandInterpreter.CommandTableInterface) {
+        if (typeof commandTable !== 'undefined') {
             this.registerCommands(commandTable);
         }
     }
 
     public registerCommands(commandTable: CommandInterpreter.CommandTableInterface) {
-        Object.keys(commandTable).forEach(
-            (command: string) => this._commandTable[command] = commandTable[command]
-        );
+        Object.keys(commandTable).forEach((command: string) => (this._commandTable[command] = commandTable[command]));
     }
 
     public execute(cmd: string): string {
@@ -59,21 +55,20 @@ class CommandInterpreter {
             return this._aliasTable[name];
         }
 
-        const candidates = Object.keys(this._commandTable).filter(
-            (candidate: string) => candidate.indexOf(name) === 0
-        );
+        const candidates = Object.keys(this._commandTable).filter((candidate: string) => candidate.indexOf(name) === 0);
         const nCandidates = candidates.length;
 
         if (nCandidates > 1) {
-            throw new Error('ambiguous command ' + name + ', candidates are ' +
-                candidates.join(', ').replace(/, $/, ''));
+            throw new Error(
+                'ambiguous command ' + name + ', candidates are ' + candidates.join(', ').replace(/, $/, '')
+            );
         }
 
         if (nCandidates === 0) {
             throw new Error('invalid command ' + name);
         }
 
-        return this._aliasTable[name] = this._commandTable[candidates[0]];
+        return (this._aliasTable[name] = this._commandTable[candidates[0]]);
     }
 
     private _commandTable: CommandInterpreter.CommandTableInterface = {};

@@ -26,7 +26,6 @@ interface ControlState {
 }
 
 namespace ControlState {
-
     export interface JoystickState {
         left: boolean;
         right: boolean;
@@ -47,7 +46,6 @@ namespace ControlState {
         reset: boolean;
         color: boolean;
     }
-
 }
 
 export default ControlState;

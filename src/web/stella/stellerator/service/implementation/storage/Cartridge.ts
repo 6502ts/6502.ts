@@ -24,7 +24,7 @@ import CartridgeInfo from '../../../../../../machine/stella/cartridge/CartridgeI
 
 import CartridgeModel from '../../../model/Cartridge';
 
-type tvModeString = 'pal'|'secam'|'ntsc';
+type tvModeString = 'pal' | 'secam' | 'ntsc';
 
 export interface CartridgeSchema {
     id?: number;
@@ -71,7 +71,7 @@ function tvModeFromString(modeString: tvModeString): StellaConfig.TvMode {
 }
 
 export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
-    const {tvMode, cartridgeType, ...c} = model;
+    const { tvMode, cartridgeType, ...c } = model;
 
     const cartridge: CartridgeSchema = {
         ...c,
@@ -79,7 +79,7 @@ export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
         cartridgeType: CartridgeInfo.CartridgeType[cartridgeType]
     };
 
-    if (typeof(id) !== 'undefined') {
+    if (typeof id !== 'undefined') {
         cartridge.id = id;
     }
 
@@ -87,7 +87,7 @@ export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
 }
 
 export function toState(cartridge: CartridgeSchema): CartridgeModel {
-    const {tvMode, cartridgeType, id, ...c} = cartridge;
+    const { tvMode, cartridgeType, id, ...c } = cartridge;
 
     return {
         ...c,

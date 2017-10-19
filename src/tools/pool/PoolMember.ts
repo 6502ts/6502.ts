@@ -22,7 +22,6 @@
 import PoolMemberInterface from './PoolMemberInterface';
 
 class PoolMember<T> implements PoolMemberInterface<T> {
-
     constructor(
         private _value: T,
         private _releaseCB: (victim: PoolMember<T>) => void,

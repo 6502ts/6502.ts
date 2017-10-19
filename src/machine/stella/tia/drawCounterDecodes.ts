@@ -19,8 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-const
-    decodes0 = new Uint8Array(160),
+const decodes0 = new Uint8Array(160),
     decodes1 = new Uint8Array(160),
     decodes2 = new Uint8Array(160),
     decodes3 = new Uint8Array(160),
@@ -49,14 +48,7 @@ export const decodesPlayer: Array<Uint8Array> = [
     decodes0
 ];
 
-[
-    decodes0,
-    decodes1,
-    decodes2,
-    decodes3,
-    decodes4,
-    decodes6
-].forEach(decodes => {
+[decodes0, decodes1, decodes2, decodes3, decodes4, decodes6].forEach(decodes => {
     for (let i = 0; i < 160; i++) {
         decodes[i] = 0;
     }

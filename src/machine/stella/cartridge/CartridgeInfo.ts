@@ -20,7 +20,6 @@
  */
 
 namespace CartridgeInfo {
-
     export enum CartridgeType {
         vanilla_2k,
         vanilla_4k,
@@ -135,7 +134,6 @@ namespace CartridgeInfo {
                 return 'unknown';
         }
     }
-
 }
 
 export default CartridgeInfo;

@@ -19,14 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import RGBASurfaceInterface from '../surface/RGBASurfaceInterface';
 import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 import ProcessorInterface from './ProcessorInterface';
 
 class PassthroughProcessor implements ProcessorInterface {
-
     init(): void {}
 
     flush(): void {}
@@ -36,7 +35,6 @@ class PassthroughProcessor implements ProcessorInterface {
     }
 
     emit = new Event<PoolMemberInterface<RGBASurfaceInterface>>();
-
 }
 
 export default PassthroughProcessor;

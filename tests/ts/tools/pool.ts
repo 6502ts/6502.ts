@@ -30,9 +30,7 @@ let releaseCtr = 0,
 class Probe {}
 
 suite('Object Pool', function() {
-
-    let pool: Pool<Probe>,
-        factoryInvocations: number;
+    let pool: Pool<Probe>, factoryInvocations: number;
 
     setup(function() {
         factoryInvocations = 0;
@@ -50,14 +48,27 @@ suite('Object Pool', function() {
     });
 
     function assertCallCount(factoryReference: number, releaseReference: number, disposeReference: number) {
-        assert.equal(factoryReference, factoryInvocations, util.format(
-            'factory should have been called %s times, was called %s times', factoryReference, factoryInvocations));
+        assert.equal(
+            factoryReference,
+            factoryInvocations,
+            util.format(
+                'factory should have been called %s times, was called %s times',
+                factoryReference,
+                factoryInvocations
+            )
+        );
 
-        assert.equal(releaseReference, releaseCtr, util.format(
-            'release should have been called %s times, was called %s times', releaseReference, releaseCtr));
+        assert.equal(
+            releaseReference,
+            releaseCtr,
+            util.format('release should have been called %s times, was called %s times', releaseReference, releaseCtr)
+        );
 
-        assert.equal(disposeReference, disposeCtr, util.format(
-            'dispose should have been called %s times, was called %s times', disposeReference, disposeCtr));
+        assert.equal(
+            disposeReference,
+            disposeCtr,
+            util.format('dispose should have been called %s times, was called %s times', disposeReference, disposeCtr)
+        );
     }
 
     test('get - get', function() {

@@ -19,17 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {run as testBranches} from './testBranches';
-import {run as testFlagToggles} from './testFlagToggles';
-import {run as testArithmetics} from './testArithmetics';
-import {run as testOtherOpcodes} from './testOtherOpcodes';
-import {run as testAccessPatterns} from './testAccessPatterns';
-import {run as testUndocumentedOpcodes} from './testUndocumentedOpcodes';
+import { run as testBranches } from './testBranches';
+import { run as testFlagToggles } from './testFlagToggles';
+import { run as testArithmetics } from './testArithmetics';
+import { run as testOtherOpcodes } from './testOtherOpcodes';
+import { run as testAccessPatterns } from './testAccessPatterns';
+import { run as testUndocumentedOpcodes } from './testUndocumentedOpcodes';
 
-import {run as testInterrupt} from './testInterrupt';
+import { run as testInterrupt } from './testInterrupt';
 
 suite('CPU', function() {
-
     suite('opcodes', function() {
         testBranches();
 
@@ -51,5 +50,4 @@ suite('CPU', function() {
     suite('interrupt handling', function() {
         testInterrupt();
     });
-
 });

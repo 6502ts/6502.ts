@@ -19,14 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {EventInterface} from 'microevent.ts';
+import { EventInterface } from 'microevent.ts';
 
 import BusInterface from '../bus/BusInterface';
 import CpuInterface from '../cpu/CpuInterface';
 import TimerInterface from './TimerInterface';
 
 interface BoardInterface {
-
     getBus(): BusInterface;
 
     getCpu(): CpuInterface;
@@ -54,21 +53,23 @@ interface BoardInterface {
     cpuClock: EventInterface<number>;
 
     clock: EventInterface<number>;
-
 }
 
 namespace BoardInterface {
+    export const enum TrapReason {
+        cpu,
+        bus,
+        debug,
+        board
+    }
 
-    export const enum TrapReason {cpu, bus, debug, board}
-
-    export const enum ClockMode {instruction, lazy}
+    export const enum ClockMode {
+        instruction,
+        lazy
+    }
 
     export class TrapPayload {
-        constructor(
-            public reason: TrapReason,
-            public board: BoardInterface,
-            public message?: string
-        ) {}
+        constructor(public reason: TrapReason, public board: BoardInterface, public message?: string) {}
     }
 }
 

@@ -21,8 +21,8 @@
 
 import * as React from 'react';
 import styled from '../../style';
-import {NavItem, Nav} from 'react-bootstrap';
-import {LinkContainer} from 'react-router-bootstrap';
+import { NavItem, Nav } from 'react-bootstrap';
+import { LinkContainer } from 'react-router-bootstrap';
 
 export interface Props {
     className?: string;
@@ -31,28 +31,28 @@ export interface Props {
 
 function EmulationLinkUnstyled(props: Props) {
     return (
-        <LinkContainer to='/emulation' className={props.className}>
-                <NavItem>Emulation</NavItem>
+        <LinkContainer to="/emulation" className={props.className}>
+            <NavItem>Emulation</NavItem>
         </LinkContainer>
     );
 }
 
 // tslint:disable-next-line:variable-name
 const EmulationLinkStyled = styled(EmulationLinkUnstyled)`
-    display: ${props => props.emulationActive ? 'block' : 'none'} !important;
+    display: ${props => (props.emulationActive ? 'block' : 'none')} !important;
 `;
 
 function Navigation(props: Props) {
     return (
-       <Nav>
-            <LinkContainer to='/cartridge-manager'>
+        <Nav>
+            <LinkContainer to="/cartridge-manager">
                 <NavItem>Cartridges</NavItem>
             </LinkContainer>
-            <LinkContainer to='/settings'>
+            <LinkContainer to="/settings">
                 <NavItem>Settings</NavItem>
             </LinkContainer>
-            <EmulationLinkStyled {...props}/>
-            <LinkContainer to='/help'>
+            <EmulationLinkStyled {...props} />
+            <LinkContainer to="/help">
                 <NavItem>Help</NavItem>
             </LinkContainer>
         </Nav>

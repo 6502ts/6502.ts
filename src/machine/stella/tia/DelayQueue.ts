@@ -20,9 +20,8 @@
  */
 
 class DelayQueue {
-
     constructor(private _length: number, size: number) {
-        this._queue  = new Array<QueueEntry>(this._length);
+        this._queue = new Array<QueueEntry>(this._length);
 
         for (let i = 0; i < this._length; i++) {
             this._queue[i] = new QueueEntry(size);
@@ -60,7 +59,7 @@ class DelayQueue {
 
         for (let i = 0; i < entry.nextIndex; i++) {
             handler(entry.addresses[i], entry.values[i], scope);
-            this._indices[entry.addresses[i]] = 0xFF;
+            this._indices[entry.addresses[i]] = 0xff;
         }
 
         entry.nextIndex = 0;
@@ -68,12 +67,10 @@ class DelayQueue {
 
     private _queue: Array<QueueEntry>;
     private _nextIndex = 0;
-    private _indices = new Uint8Array(0xFF);
-
+    private _indices = new Uint8Array(0xff);
 }
 
 class QueueEntry {
-
     constructor(public size: number) {
         this.addresses = new Uint8Array(size);
         this.values = new Uint8Array(size);
@@ -109,7 +106,6 @@ class QueueEntry {
     addresses: Uint8Array;
     values: Uint8Array;
     nextIndex = 0;
-
 }
 
 export default DelayQueue;

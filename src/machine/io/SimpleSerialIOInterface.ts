@@ -20,7 +20,6 @@
  */
 
 interface SimpleSerialIOInterface {
-
     setOutCallback(callback: SimpleSerialIOInterface.OutCallbackInterface): SimpleSerialIOInterface;
 
     getOutCallback(): SimpleSerialIOInterface.OutCallbackInterface;
@@ -31,7 +30,6 @@ interface SimpleSerialIOInterface {
 }
 
 namespace SimpleSerialIOInterface {
-
     export interface OutCallbackInterface {
         (data: number, source: SimpleSerialIOInterface): void;
     }

@@ -19,23 +19,23 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import VideoOutputInterface from '../../io/VideoOutputInterface';
 import RGBASurfaceInterface from '../../../video/surface/RGBASurfaceInterface';
 import Config from '../Config';
 
 const enum Metrics {
-    vblankNTSC                  = 40,
-    vblankPAL                   = 48,
-    kernelNTSC                  = 192,
-    kernelPAL                   = 228,
-    overscanNTSC                = 30,
-    overscanPAL                 = 36,
-    vsync                       = 3,
-    visibleOverscan             = 20,
-    maxUnderscan                = 10,
-    maxFramesWithoutVsync       = 50
+    vblankNTSC = 40,
+    vblankPAL = 48,
+    kernelNTSC = 192,
+    kernelPAL = 228,
+    overscanNTSC = 30,
+    overscanPAL = 36,
+    vsync = 3,
+    visibleOverscan = 20,
+    maxUnderscan = 10,
+    maxFramesWithoutVsync = 50
 }
 
 const enum State {
@@ -43,11 +43,10 @@ const enum State {
     waitForVsyncEnd,
     waitForFrameStart,
     frame,
-    overscan,
+    overscan
 }
 
 export default class FrameManager {
-
     constructor(private _config: Config) {
         switch (this._config.tvMode) {
             case Config.TvMode.ntsc:
@@ -102,7 +101,8 @@ export default class FrameManager {
 
             case State.waitForFrameStart:
                 if (this._waitForVsync) {
-                    if (this._lineInState >=
+                    if (
+                        this._lineInState >=
                         (this.vblank ? this._vblankLines : this._vblankLines - Metrics.maxUnderscan)
                     ) {
                         this._startFrame();
@@ -188,8 +188,10 @@ export default class FrameManager {
     }
 
     getDebugState(): string {
-        return `${this._getReadableState()}, line = ${this._lineInState}, ` +
-            `vblank = ${this.vblank ? '1' : '0'}, ${this._waitForVsync ? '' : 'given up on vsync'}`;
+        return (
+            `${this._getReadableState()}, line = ${this._lineInState}, ` +
+            `vblank = ${this.vblank ? '1' : '0'}, ${this._waitForVsync ? '' : 'given up on vsync'}`
+        );
     }
 
     private _getReadableState(): string {
@@ -251,5 +253,4 @@ export default class FrameManager {
 
     private _surfaceFactory: VideoOutputInterface.SurfaceFactoryInterface = null;
     private _surface: RGBASurfaceInterface = null;
-
 }

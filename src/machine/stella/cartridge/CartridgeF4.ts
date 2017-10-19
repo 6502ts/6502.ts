@@ -26,12 +26,7 @@ import Bus from '../Bus';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class CartridgeF4 extends AbstractCartridge {
-
-    constructor(
-        buffer: {[i: number]: number, length: number},
-        private _supportSC: boolean = true
-
-    ) {
+    constructor(buffer: { [i: number]: number; length: number }, private _supportSC: boolean = true) {
         super();
 
         if (buffer.length !== 0x8000) {
@@ -62,7 +57,7 @@ class CartridgeF4 extends AbstractCartridge {
 
     randomize(rng: RngInterface): void {
         for (let i = 0; i < this._ram.length; i++) {
-            this._ram[i] = rng.int(0xFF);
+            this._ram[i] = rng.int(0xff);
         }
     }
 
@@ -73,13 +68,13 @@ class CartridgeF4 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        this._access(address & 0x0FFF, this._bus.getLastDataBusValue());
+        this._access(address & 0x0fff, this._bus.getLastDataBusValue());
 
         return this.peek(address);
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (this._hasSC && address >= 0x0080 && address < 0x0100) {
             return this._ram[address - 0x80];
@@ -89,7 +84,7 @@ class CartridgeF4 extends AbstractCartridge {
     }
 
     write(address: number, value: number): void {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (address < 0x80 && this._supportSC) {
             this._hasSC = true;
@@ -104,8 +99,8 @@ class CartridgeF4 extends AbstractCartridge {
             return;
         }
 
-        if (address >= 0x0FF4 && address <= 0x0FFB) {
-            this._bank = this._banks[address - 0x0FF4];
+        if (address >= 0x0ff4 && address <= 0x0ffb) {
+            this._bank = this._banks[address - 0x0ff4];
         }
     }
 
@@ -115,7 +110,6 @@ class CartridgeF4 extends AbstractCartridge {
     private _banks = new Array<Uint8Array>(8);
     private _ram = new Uint8Array(0x80);
     private _hasSC = false;
-
 }
 
 export default CartridgeF4;

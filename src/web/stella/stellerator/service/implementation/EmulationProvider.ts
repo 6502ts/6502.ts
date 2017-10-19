@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Action, MiddlewareAPI, Middleware, Store} from 'redux';
+import { Action, MiddlewareAPI, Middleware, Store } from 'redux';
 
 import State from '../../state/State';
 import Cartridge from '../../model/Cartridge';
@@ -32,7 +32,7 @@ import {
     StartAction,
     SetEnforceRateLimitAction
 } from '../../actions/emulation';
-import {types as settingsActions} from '../../actions/settings';
+import { types as settingsActions } from '../../actions/settings';
 
 import EmulationServiceInterface from '../../../service/EmulationServiceInterface';
 import WorkerEmulationService from '../../../service/worker/EmulationService';
@@ -46,17 +46,14 @@ import StellaConfig from '../../../../../machine/stella/Config';
 import * as VideoProcessorConfig from '../../../../../video/processing/config';
 
 class EmulationProvider implements EmulationProviderInterface {
-
-    constructor(
-        private _storage: StorageManager
-    ) {}
+    constructor(private _storage: StorageManager) {}
 
     setStore(store: Store<State>): void {
         this._store = store;
     }
 
     async init(workerUrl?: string): Promise<void> {
-        this._service = workerUrl ? new WorkerEmulationService(workerUrl) :  new VanillaEmulationService();
+        this._service = workerUrl ? new WorkerEmulationService(workerUrl) : new VanillaEmulationService();
 
         await this._service.init();
 
@@ -84,9 +81,8 @@ class EmulationProvider implements EmulationProviderInterface {
         try {
             audioDriver.init();
 
-            this._driverManager.addDriver(
-                audioDriver,
-                (context: EmulationContextInterface, driver: WebAudioDriver) => driver.bind(context.getAudio())
+            this._driverManager.addDriver(audioDriver, (context: EmulationContextInterface, driver: WebAudioDriver) =>
+                driver.bind(context.getAudio())
             );
 
             this._audioDriver = audioDriver;
@@ -101,14 +97,12 @@ class EmulationProvider implements EmulationProviderInterface {
         try {
             gamepadDriver.init();
 
-            this._driverManager.addDriver(
-                gamepadDriver,
-                (context: EmulationContextInterface, driver: GamepadDriver) =>
-                    driver.bind({
-                        joysticks: [context.getJoystick(0), context.getJoystick(1)],
-                        start: context.getControlPanel().getResetButton(),
-                        select: context.getControlPanel().getSelectSwitch()
-                    })
+            this._driverManager.addDriver(gamepadDriver, (context: EmulationContextInterface, driver: GamepadDriver) =>
+                driver.bind({
+                    joysticks: [context.getJoystick(0), context.getJoystick(1)],
+                    start: context.getControlPanel().getResetButton(),
+                    select: context.getControlPanel().getSelectSwitch()
+                })
             );
 
             this._gamepadDriver = gamepadDriver;
@@ -119,18 +113,14 @@ class EmulationProvider implements EmulationProviderInterface {
 
     private _startDispatch(): void {
         if (this._gamepadDriver) {
-            this._gamepadDriver.gamepadCountChanged.addHandler(
-                gamepadCount => this._store.dispatch(updateGamepadCount(gamepadCount))
+            this._gamepadDriver.gamepadCountChanged.addHandler(gamepadCount =>
+                this._store.dispatch(updateGamepadCount(gamepadCount))
             );
         }
 
-        this._service.stateChanged.addHandler(
-            newState => this._store.dispatch(stateChange(newState))
-        );
+        this._service.stateChanged.addHandler(newState => this._store.dispatch(stateChange(newState)));
 
-        this._service.frequencyUpdate.addHandler(
-            frequency => this._store.dispatch(updateFrequency(frequency))
-        );
+        this._service.frequencyUpdate.addHandler(frequency => this._store.dispatch(updateFrequency(frequency)));
     }
 
     private _updateControlPanelState(state = this._store.getState().emulationState) {
@@ -173,7 +163,7 @@ class EmulationProvider implements EmulationProviderInterface {
             buffer,
             stellaConfig,
             cartridge.cartridgeType,
-            state.settings.mergeFrames ? [{type: VideoProcessorConfig.Type.merge}] : undefined
+            state.settings.mergeFrames ? [{ type: VideoProcessorConfig.Type.merge }] : undefined
         );
 
         this._updateControlPanelState(state.emulationState);
@@ -186,14 +176,12 @@ class EmulationProvider implements EmulationProviderInterface {
 
         const state = this._store.getState();
 
-        this._audioDriver.setMasterVolume(
-            state.settings.volume * cartridge.volume
-        );
+        this._audioDriver.setMasterVolume(state.settings.volume * cartridge.volume);
     }
 
-    private _middleware = (
-        (api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (a: Action): Promise<any> =>
-    {
+    private _middleware = ((api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (
+        a: Action
+    ): Promise<any> => {
         if (!a || !this._service) {
             return next(a);
         }
@@ -244,7 +232,6 @@ class EmulationProvider implements EmulationProviderInterface {
     private _service: EmulationServiceInterface;
     private _audioDriver: WebAudioDriver;
     private _gamepadDriver: GamepadDriver;
-
 }
 
 export default EmulationProvider;

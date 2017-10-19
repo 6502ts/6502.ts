@@ -21,14 +21,10 @@
 
 import * as React from 'react';
 
-import {
-    Grid,
-    Row,
-    Col
-} from 'react-bootstrap';
+import { Grid, Row, Col } from 'react-bootstrap';
 
 import ControlPanel from './emulation/ControlPanel';
-import {Context as EmulationContext, contextTypes as emulationContextTypes} from '../context/Emulation';
+import { Context as EmulationContext, contextTypes as emulationContextTypes } from '../context/Emulation';
 
 import EmulationServiceInterface from '../../service/EmulationServiceInterface';
 import EmulationContextInterface from '../../service/EmulationContextInterface';
@@ -41,7 +37,6 @@ import FullscreenVideoDriver from '../../../driver/FullscreenVideo';
 import MouseAsPaddleDriver from '../../../driver/MouseAsPaddle';
 
 class Emulation extends React.Component<Emulation.Props, Emulation.State> {
-
     constructor(props?: Emulation.Props, context?: any) {
         super(props, context);
 
@@ -52,9 +47,9 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
 
     componentWillReceiveProps(nextProps: Emulation.Props): void {
         const initialPause =
-                this.state.initialPause &&
-                nextProps.pausedByUser &&
-                nextProps.emulationState === EmulationServiceInterface.State.paused;
+            this.state.initialPause &&
+            nextProps.pausedByUser &&
+            nextProps.emulationState === EmulationServiceInterface.State.paused;
 
         if (initialPause !== this.state.initialPause) {
             this.setState({
@@ -68,10 +63,7 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
             return this.props.navigateAway();
         }
 
-        if (
-            this.props.emulationState === EmulationServiceInterface.State.paused &&
-            !this.props.pausedByUser
-        ) {
+        if (this.props.emulationState === EmulationServiceInterface.State.paused && !this.props.pausedByUser) {
             this.props.resumeEmulation();
         }
     }
@@ -109,7 +101,7 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
 
             this._driverManager.addDriver(
                 videoDriver,
-                (context: EmulationContextInterface, driver: WebglVideoDriver|WebglVideoDriver) =>
+                (context: EmulationContextInterface, driver: WebglVideoDriver | WebglVideoDriver) =>
                     driver.bind(context.getVideo())
             );
 
@@ -122,15 +114,11 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         this._fullscreenDriver = new FullscreenVideoDriver(videoDriver);
 
         this._driverManager
-            .addDriver(
-                new MouseAsPaddleDriver(),
-                (context: EmulationContextInterface, driver: MouseAsPaddleDriver) =>
-                    driver.bind(context.getPaddle(0))
+            .addDriver(new MouseAsPaddleDriver(), (context: EmulationContextInterface, driver: MouseAsPaddleDriver) =>
+                driver.bind(context.getPaddle(0))
             )
-            .addDriver(
-                keyboardDriver,
-                (context: EmulationContextInterface, driver: KeyboardIoDriver) =>
-                    driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+            .addDriver(keyboardDriver, (context: EmulationContextInterface, driver: KeyboardIoDriver) =>
+                driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
             );
 
         keyboardDriver.toggleFullscreen.addHandler(() => this._fullscreenDriver.toggle());
@@ -140,8 +128,7 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         keyboardDriver.togglePause.addHandler(() => {
             if (this.props.emulationState === EmulationServiceInterface.State.running) {
                 this.props.userPauseEmulation();
-            }
-            else if (this.props.emulationState === EmulationServiceInterface.State.paused) {
+            } else if (this.props.emulationState === EmulationServiceInterface.State.paused) {
                 this.props.resumeEmulation();
             }
         });
@@ -161,45 +148,43 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
     }
 
     render() {
-        return <Grid fluid>
-            <Row>
-                <Col md={11}>
-                    wasd / arrows + v/space = left joystick , ijkl + b = right joystick
-                    <br/>
-                    shift-enter = reset, shift-space = select, enter = toggle fullscreen
-                    <br/>
-                    shift-r = hard reset, p = pause
-                </Col>
-            </Row>
-            <Row style={{marginTop: '1rem'}}>
-                <Col md={6}>
-                    <div
-                        className={`emulation-viewport error-display ${this._showErrorMessage() ? '' : 'hidden'}`}
-                    >
-                        {this._errorMessage()}
-                    </div>
-                    <div
-                        className={`emulation-viewport placeholder ${this._showPlaceholder() ? '' : 'hidden'}`}
-                    >
-                        paused
-                    </div>
-                    <canvas
-                        className={`emulation-viewport ${this._showCanvas() ? '' : 'hidden'}`}
-                        width={this.props.initialViewportWidth}
-                        height={this.props.initialViewportHeight}
-                        ref={(elt) => this._canvasElt = elt as HTMLCanvasElement}
-                    ></canvas>
-                </Col>
-                <Col md={5}>
-                    <ControlPanel
-                        {...this.props as ControlPanel.Props}
-                        onReset={this.props.resetEmulation}
-                        onPause={this.props.userPauseEmulation}
-                        onResume={this.props.resumeEmulation}
-                    ></ControlPanel>
-                </Col>
-            </Row>
-        </Grid>;
+        return (
+            <Grid fluid>
+                <Row>
+                    <Col md={11}>
+                        wasd / arrows + v/space = left joystick , ijkl + b = right joystick
+                        <br />
+                        shift-enter = reset, shift-space = select, enter = toggle fullscreen
+                        <br />
+                        shift-r = hard reset, p = pause
+                    </Col>
+                </Row>
+                <Row style={{ marginTop: '1rem' }}>
+                    <Col md={6}>
+                        <div className={`emulation-viewport error-display ${this._showErrorMessage() ? '' : 'hidden'}`}>
+                            {this._errorMessage()}
+                        </div>
+                        <div className={`emulation-viewport placeholder ${this._showPlaceholder() ? '' : 'hidden'}`}>
+                            paused
+                        </div>
+                        <canvas
+                            className={`emulation-viewport ${this._showCanvas() ? '' : 'hidden'}`}
+                            width={this.props.initialViewportWidth}
+                            height={this.props.initialViewportHeight}
+                            ref={elt => (this._canvasElt = elt as HTMLCanvasElement)}
+                        />
+                    </Col>
+                    <Col md={5}>
+                        <ControlPanel
+                            {...this.props as ControlPanel.Props}
+                            onReset={this.props.resetEmulation}
+                            onPause={this.props.userPauseEmulation}
+                            onResume={this.props.resumeEmulation}
+                        />
+                    </Col>
+                </Row>
+            </Grid>
+        );
     }
 
     private _showErrorMessage(): boolean {
@@ -220,7 +205,7 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         return error && error.message ? error.message : '[unknown]';
     }
 
-    static readonly contextTypes = {...emulationContextTypes};
+    static readonly contextTypes = { ...emulationContextTypes };
 
     context: EmulationContext;
 
@@ -233,7 +218,6 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
 }
 
 namespace Emulation {
-
     export interface Props extends ControlPanel.Props {
         enabled?: boolean;
         initialViewportWidth?: number;
@@ -277,7 +261,6 @@ namespace Emulation {
     export interface State {
         initialPause: boolean;
     }
-
 }
 
 export default Emulation;

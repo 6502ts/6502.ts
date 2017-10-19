@@ -19,9 +19,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {ComponentClass, Ref} from 'react';
+import { ComponentClass, Ref } from 'react';
 import * as styledComponents from 'styled-components';
-import {ThemedStyledComponentsModule} from 'styled-components';
+import { ThemedStyledComponentsModule } from 'styled-components';
 
 import Theme from './style/Theme';
 
@@ -40,6 +40,6 @@ const {
     ThemeProvider
 } = styledComponents as ThemedStyledComponentsModule<Theme>;
 
-export {styled, css, injectGlobal, keyframes, ThemeProvider};
+export { styled, css, injectGlobal, keyframes, ThemeProvider };
 
 export default styled;

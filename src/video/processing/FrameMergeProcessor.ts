@@ -19,14 +19,13 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import ProcessorInterface from './ProcessorInterface';
 import RGBASurfaceInterface from '../surface/RGBASurfaceInterface';
 import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 
 class FrameMergeProcessor implements ProcessorInterface {
-
     init(width: number, height: number) {
         this.flush();
 
@@ -63,10 +62,10 @@ class FrameMergeProcessor implements ProcessorInterface {
 
         for (let i = 0; i < this._width * this._height; i++) {
             buffer0[i] =
-                0xFF000000                                                               |
-                ((((buffer0[i] & 0xFF0000) + (buffer1[i] & 0xFF0000)) >>> 1) & 0xFF0000) |
-                ((((buffer0[i] & 0xFF00) + (buffer1[i] & 0xFF00)) >>> 1) & 0xFF00)       |
-                ((((buffer0[i] & 0xFF) + (buffer1[i] & 0xFF)) >>> 1) & 0xFF);
+                0xff000000 |
+                ((((buffer0[i] & 0xff0000) + (buffer1[i] & 0xff0000)) >>> 1) & 0xff0000) |
+                ((((buffer0[i] & 0xff00) + (buffer1[i] & 0xff00)) >>> 1) & 0xff00) |
+                ((((buffer0[i] & 0xff) + (buffer1[i] & 0xff)) >>> 1) & 0xff);
         }
 
         this.emit.dispatch(this._framesOnHold[0]);
@@ -82,7 +81,6 @@ class FrameMergeProcessor implements ProcessorInterface {
 
     private _width = 0;
     private _height = 0;
-
 }
 
 export default FrameMergeProcessor;

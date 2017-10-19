@@ -23,7 +23,6 @@ import SchedulerInterface from './SchedulerInterface';
 import TaskInterface from './TaskInterface';
 
 class PeriodicScheduler implements SchedulerInterface {
-
     constructor(private _period: number) {}
 
     setPeriod(period: number): PeriodicScheduler {
@@ -52,7 +51,7 @@ class PeriodicScheduler implements SchedulerInterface {
         setTimeout(handler, this._period);
 
         return {
-            stop: () => terminate = true
+            stop: () => (terminate = true)
         };
     }
 }

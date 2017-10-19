@@ -27,11 +27,7 @@ import * as cartridgeUtil from './util';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class CartridgeF8 extends AbstractCartridge {
-
-    constructor(
-        buffer: cartridgeUtil.BufferInterface,
-        private _supportSC = true
-    ) {
+    constructor(buffer: cartridgeUtil.BufferInterface, private _supportSC = true) {
         super();
 
         if (buffer.length !== 0x2000) {
@@ -48,8 +44,9 @@ class CartridgeF8 extends AbstractCartridge {
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
         // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(buffer,
-            [[0x8D, 0xF9, 0x1F]]  // STA $1FF9
+        const signatureCounts = cartridgeUtil.searchForSignatures(
+            buffer,
+            [[0x8d, 0xf9, 0x1f]] // STA $1FF9
         );
 
         return signatureCounts[0] >= 2;
@@ -61,13 +58,13 @@ class CartridgeF8 extends AbstractCartridge {
     }
 
     read(address: number): number {
-        this._access(address & 0x0FFF, this._bus.getLastDataBusValue());
+        this._access(address & 0x0fff, this._bus.getLastDataBusValue());
 
         return this.peek(address);
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (this._hasSC && address >= 0x0080 && address < 0x0100) {
             return this._saraRAM[address - 0x80];
@@ -77,7 +74,7 @@ class CartridgeF8 extends AbstractCartridge {
     }
 
     write(address: number, value: number): void {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (address < 0x80 && this._supportSC) {
             this._hasSC = true;
@@ -92,7 +89,7 @@ class CartridgeF8 extends AbstractCartridge {
 
     randomize(rng: RngInterface): void {
         for (let i = 0; i < this._saraRAM.length; i++) {
-            this._saraRAM[i] = rng.int(0xFF);
+            this._saraRAM[i] = rng.int(0xff);
         }
     }
 
@@ -104,16 +101,16 @@ class CartridgeF8 extends AbstractCartridge {
 
     private _access(address: number, value: number): void {
         if (address < 0x80 && this._hasSC) {
-            this._saraRAM[address] = value & 0xFF;
+            this._saraRAM[address] = value & 0xff;
             return;
         }
 
         switch (address) {
-            case 0x0FF8:
+            case 0x0ff8:
                 this._bank = this._bank0;
                 break;
 
-            case 0x0FF9:
+            case 0x0ff9:
                 this._bank = this._bank1;
                 break;
         }

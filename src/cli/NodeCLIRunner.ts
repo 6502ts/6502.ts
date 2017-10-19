@@ -90,8 +90,7 @@ class NodeCLIRunner {
     }
 
     private _updateCompleter() {
-        this._completer = new Completer(
-            this._cli.availableCommands(), this._cli.getFilesystemProvider());
+        this._completer = new Completer(this._cli.availableCommands(), this._cli.getFilesystemProvider());
     }
 
     private _closed = false;

@@ -24,18 +24,15 @@ import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 
 import Header from './supercharger/Header';
-import {bios} from './supercharger/blob';
+import { bios } from './supercharger/blob';
 
 const enum BankType {
-    ram, rom
+    ram,
+    rom
 }
 
 class CartridgeSupercharger extends AbstractCartridge {
-
-    constructor(
-        buffer: {[i: number]: number, length: number},
-        private _showLoadingBars = true
-    ) {
+    constructor(buffer: { [i: number]: number; length: number }, private _showLoadingBars = true) {
         super();
 
         if (buffer.length % 8448 !== 0) {
@@ -93,7 +90,7 @@ class CartridgeSupercharger extends AbstractCartridge {
     }
 
     read(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (address === 0x0850 && this._bank1Type === BankType.rom) {
             this._loadIntoRam(this._bus.peek(0x80));
@@ -104,17 +101,17 @@ class CartridgeSupercharger extends AbstractCartridge {
             return value;
         }
 
-        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07FF];
+        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07ff];
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (this._pendingWrite && this._writeRamEnabled && this._transitionCount === 5) {
             return this._pendingWriteData;
         }
 
-        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07FF];
+        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07ff];
     }
 
     write(address: number, value: number): void {
@@ -138,17 +135,17 @@ class CartridgeSupercharger extends AbstractCartridge {
     }
 
     private _access(address: number, value: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
-        if ((address & 0x0F00) === 0 && (!this._pendingWrite || !this._writeRamEnabled)) {
-            this._pendingWriteData = address & 0x00FF;
+        if ((address & 0x0f00) === 0 && (!this._pendingWrite || !this._writeRamEnabled)) {
+            this._pendingWriteData = address & 0x00ff;
             this._transitionCount = 0;
             this._pendingWrite = true;
 
             return -1;
         }
 
-        if (address === 0x0FF8) {
+        if (address === 0x0ff8) {
             this._setBankswitchMode((this._pendingWriteData & 28) >>> 2);
             this._writeRamEnabled = (this._pendingWriteData & 0x02) > 0;
 
@@ -161,7 +158,7 @@ class CartridgeSupercharger extends AbstractCartridge {
             if (address < 0x0800) {
                 this._bank0[address] = this._pendingWriteData;
             } else if (this._bank1Type === BankType.ram) {
-                this._bank1[address & 0x07FF] = this._pendingWriteData;
+                this._bank1[address & 0x07ff] = this._pendingWriteData;
             }
 
             this._pendingWrite = false;
@@ -214,10 +211,10 @@ class CartridgeSupercharger extends AbstractCartridge {
             this._rom[i] = i < bios.length ? bios[i] : 0x02;
         }
 
-        this._rom[109] = this._showLoadingBars ? 0 : 0xFF;
+        this._rom[109] = this._showLoadingBars ? 0 : 0xff;
 
-        this._rom[0x07FF] = this._rom[0x07FD] = 0xF8;
-        this._rom[0x07FE] = this._rom[0x07FC] = 0x0A;
+        this._rom[0x07ff] = this._rom[0x07fd] = 0xf8;
+        this._rom[0x07fe] = this._rom[0x07fc] = 0x0a;
     }
 
     private _loadIntoRam(loadId: number) {
@@ -254,7 +251,7 @@ class CartridgeSupercharger extends AbstractCartridge {
                 this._ramBanks[bank][base + i] = load[256 * blockIdx + i];
             }
 
-            if ((checksum & 0xFF) !== 0x55) {
+            if ((checksum & 0xff) !== 0x55) {
                 console.log(`load ${loadIndex}, block ${blockIdx}: invalid checksum`);
             }
         }

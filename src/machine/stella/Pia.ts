@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import ControlPanelInterface from './ControlPanelInterface';
 import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
@@ -28,7 +28,6 @@ import Bus from './Bus';
 import RngInterface from '../../tools/rng/GeneratorInterface';
 
 class Pia {
-
     constructor(
         private _controlPanel: ControlPanelInterface,
         private _joystick0: DigitalJoystickInterface,
@@ -39,8 +38,8 @@ class Pia {
     }
 
     reset(): void {
-        for (let i = 0; i < 128; i++)  {
-            this.ram[i] = this._rng ? this._rng.int(0xFF) : 0;
+        for (let i = 0; i < 128; i++) {
+            this.ram[i] = this._rng ? this._rng.int(0xff) : 0;
         }
 
         this._interruptFlag = 0;
@@ -48,7 +47,7 @@ class Pia {
 
         this._timerDivide = 1024;
         this._subTimer = 0;
-        this._rng.int(0xFF);
+        this._rng.int(0xff);
         this._timerValue = 0;
         this._timerWrapped = false;
     }
@@ -63,7 +62,7 @@ class Pia {
             }
         } else {
             // Mask out A7 - A15
-            return this.ram[address & 0x7F];
+            return this.ram[address & 0x7f];
         }
     }
 
@@ -77,7 +76,7 @@ class Pia {
             }
         } else {
             // Mask out A7 - A15
-            return this.ram[address & 0x7F];
+            return this.ram[address & 0x7f];
         }
     }
 
@@ -91,7 +90,7 @@ class Pia {
             }
         } else {
             // Mask out A7 - A15
-            this.ram[address & 0x7F] = value;
+            this.ram[address & 0x7f] = value;
         }
     }
 
@@ -109,8 +108,7 @@ class Pia {
         return this;
     }
 
-    private _writeIo(address: number, value: number): void {
-    }
+    private _writeIo(address: number, value: number): void {}
 
     private _writeTimer(address: number, value: number): void {
         this._interruptFlag = 0;
@@ -142,23 +140,23 @@ class Pia {
         switch (address & 0x0283) {
             case Pia.Registers.swcha:
                 return (
-                    (this._joystick1.getUp().read()      ? 0 : 0x01) |
-                    (this._joystick1.getDown().read()    ? 0 : 0x02) |
-                    (this._joystick1.getLeft().read()    ? 0 : 0x04) |
-                    (this._joystick1.getRight().read()   ? 0 : 0x08) |
-                    (this._joystick0.getUp().read()      ? 0 : 0x10) |
-                    (this._joystick0.getDown().read()    ? 0 : 0x20) |
-                    (this._joystick0.getLeft().read()    ? 0 : 0x40) |
-                    (this._joystick0.getRight().read()   ? 0 : 0x80)
+                    (this._joystick1.getUp().read() ? 0 : 0x01) |
+                    (this._joystick1.getDown().read() ? 0 : 0x02) |
+                    (this._joystick1.getLeft().read() ? 0 : 0x04) |
+                    (this._joystick1.getRight().read() ? 0 : 0x08) |
+                    (this._joystick0.getUp().read() ? 0 : 0x10) |
+                    (this._joystick0.getDown().read() ? 0 : 0x20) |
+                    (this._joystick0.getLeft().read() ? 0 : 0x40) |
+                    (this._joystick0.getRight().read() ? 0 : 0x80)
                 );
 
             case Pia.Registers.swchb:
                 return (
-                    (this._controlPanel.getResetButton().read()         ? 0 : 0x01) |
-                    (this._controlPanel.getSelectSwitch().read()        ? 0 : 0x02) |
-                    (this._controlPanel.getColorSwitch().read()         ? 0 : 0x08) |
-                    (this._controlPanel.getDifficultySwitchP0().read()  ? 0 : 0x40) |
-                    (this._controlPanel.getDifficultySwitchP1().read()  ? 0 : 0x80)
+                    (this._controlPanel.getResetButton().read() ? 0 : 0x01) |
+                    (this._controlPanel.getSelectSwitch().read() ? 0 : 0x02) |
+                    (this._controlPanel.getColorSwitch().read() ? 0 : 0x08) |
+                    (this._controlPanel.getDifficultySwitchP0().read() ? 0 : 0x40) |
+                    (this._controlPanel.getDifficultySwitchP1().read() ? 0 : 0x80)
                 );
         }
 
@@ -181,18 +179,18 @@ class Pia {
     }
 
     private _peekTimer(address: number): number {
-        return (address & 0x01) ? (this._interruptFlag & 0x80) : this._timerValue;
+        return address & 0x01 ? this._interruptFlag & 0x80 : this._timerValue;
     }
 
     private _cycleTimer(): void {
         this._flagSetDuringThisCycle = false;
 
         if (this._timerWrapped) {
-            this._timerValue = (this._timerValue + 0xFF) & 0xFF;
+            this._timerValue = (this._timerValue + 0xff) & 0xff;
         } else if (this._subTimer === 0 && --this._timerValue < 0) {
-            this._timerValue = 0xFF;
+            this._timerValue = 0xff;
             this._flagSetDuringThisCycle = true;
-            this._interruptFlag = 0xFF;
+            this._interruptFlag = 0xff;
             this._timerWrapped = true;
         }
 
@@ -217,26 +215,25 @@ class Pia {
 
 namespace Pia {
     export const enum Registers {
-        swcha   = 0x280,
-        swacnt  = 0x281,
-        swchb   = 0x282,
-        swncnt  = 0x283,
-        intim   = 0x284,
-        instat  = 0x285,
-        tim1t   = 0x294,
-        tim8t   = 0x295,
-        tim64t  = 0x296,
-        t1024t  = 0x297
+        swcha = 0x280,
+        swacnt = 0x281,
+        swchb = 0x282,
+        swncnt = 0x283,
+        intim = 0x284,
+        instat = 0x285,
+        tim1t = 0x294,
+        tim8t = 0x295,
+        tim64t = 0x296,
+        t1024t = 0x297
     }
 
-    export const enum TrapReason {invalidRead, invalidWrite}
+    export const enum TrapReason {
+        invalidRead,
+        invalidWrite
+    }
 
     export class TrapPayload {
-        constructor(
-            public reason: TrapReason,
-            public pia: Pia,
-            public message?: string
-        ) {}
+        constructor(public reason: TrapReason, public pia: Pia, public message?: string) {}
     }
 }
 

@@ -21,10 +21,8 @@
 
 import * as React from 'react';
 
-import {styled, StyledComponent} from '../style';
-import {
-    Button
-} from 'react-bootstrap';
+import { styled, StyledComponent } from '../style';
+import { Button } from 'react-bootstrap';
 
 import FileUploadButton from '../general/FileUploadButton';
 
@@ -40,32 +38,28 @@ export interface Props {
 }
 
 function CartridgeControlsUnstyled(props: Props) {
-    return <div className={props.className}>
-        <FileUploadButton
-            accept='.bin, .a26, .zip'
-            onFilesSelected={
-                files => files.length === 1 ? props.onCartridgeUploaded(files[0]) : undefined
-            }
-        >Load</FileUploadButton>
-        <Button
-            disabled={!props.active}
-            onClick={props.onDelete}
-        >Delete</Button>
-        <Button
-            disabled={!props.active || !props.changes}
-            onClick={props.onSave}
-        >Save</Button>
-        <Button
-            disabled={!props.active}
-            onClick={props.onRun}
-        >
-            {props.changes ? 'Save & Run' : 'Run'}
-        </Button>
-    </div>;
+    return (
+        <div className={props.className}>
+            <FileUploadButton
+                accept=".bin, .a26, .zip"
+                onFilesSelected={files => (files.length === 1 ? props.onCartridgeUploaded(files[0]) : undefined)}
+            >
+                Load
+            </FileUploadButton>
+            <Button disabled={!props.active} onClick={props.onDelete}>
+                Delete
+            </Button>
+            <Button disabled={!props.active || !props.changes} onClick={props.onSave}>
+                Save
+            </Button>
+            <Button disabled={!props.active} onClick={props.onRun}>
+                {props.changes ? 'Save & Run' : 'Run'}
+            </Button>
+        </div>
+    );
 }
 
 namespace CartridgeControlsUnstyled {
-
     export const defaultProps: Props = {
         active: false,
         changes: false,
@@ -74,7 +68,6 @@ namespace CartridgeControlsUnstyled {
         onRun: (): void => undefined,
         onCartridgeUploaded: (): void => undefined
     };
-
 }
 
 type CartridgeControlsStyled = StyledComponent<Props, void>;

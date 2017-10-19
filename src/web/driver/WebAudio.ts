@@ -30,7 +30,6 @@ declare namespace window {
 import AudioOutputInterface from '../../machine/io/AudioOutputInterface';
 
 export default class WebAudioDriver {
-
     constructor(channels: number) {
         this._channels = new Array<Channel>(channels);
 
@@ -95,14 +94,10 @@ export default class WebAudioDriver {
     private _channels: Array<Channel> = null;
     private _sources: Array<AudioOutputInterface> = null;
     private _cache: BufferCache = {};
-
 }
 
 class Channel {
-
-    constructor(
-        private _cache: BufferCache
-    ) {}
+    constructor(private _cache: BufferCache) {}
 
     init(context: AudioContext, target: AudioNode): void {
         this._context = context;
@@ -194,7 +189,6 @@ class Channel {
 
     private _volume = 0;
     private _masterVolume = 1;
-
 }
 
 interface BufferCache {

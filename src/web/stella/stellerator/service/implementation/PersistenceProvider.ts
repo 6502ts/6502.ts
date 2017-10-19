@@ -19,21 +19,18 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Middleware, MiddlewareAPI, Action, Store} from 'redux';
+import { Middleware, MiddlewareAPI, Action, Store } from 'redux';
 
-import {initCartridges} from '../../actions/root';
-import {initSettings} from '../../actions/settings';
+import { initCartridges } from '../../actions/root';
+import { initSettings } from '../../actions/settings';
 import PersistenceProviderInterface from '../PersistenceProvider';
 import StorageManager from '../StorageManager';
-import {types as ActionType} from '../../actions/root';
-import {isSettingsChange} from '../../actions/settings';
+import { types as ActionType } from '../../actions/root';
+import { isSettingsChange } from '../../actions/settings';
 import State from '../../state/State';
 
 class PersistenceProvider implements PersistenceProviderInterface {
-
-    constructor(
-        private _manager: StorageManager
-    ) {}
+    constructor(private _manager: StorageManager) {}
 
     setStore(store: Store<State>): void {
         this._store = store;
@@ -53,9 +50,9 @@ class PersistenceProvider implements PersistenceProviderInterface {
         await this._store.dispatch(initSettings(settings));
     }
 
-    private _middleware = (
-        (api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (a: Action): Promise<any> =>
-    {
+    private _middleware = ((api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (
+        a: Action
+    ): Promise<any> => {
         if (!a) {
             return next(a);
         }
@@ -80,7 +77,6 @@ class PersistenceProvider implements PersistenceProviderInterface {
     }) as Middleware;
 
     private _store: Store<State>;
-
 }
 
 export default PersistenceProvider;

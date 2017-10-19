@@ -23,11 +23,7 @@ import FilesystemProviderInterface from '../fs/FilesystemProviderInterface';
 import * as pathlib from 'path';
 
 class Completer {
-
-    constructor(
-        private _availableCommands: Array<string>,
-        private _fsProvider: FilesystemProviderInterface
-    ) {}
+    constructor(private _availableCommands: Array<string>, private _fsProvider: FilesystemProviderInterface) {}
 
     complete(cmd: string): Completer.CompletionResult {
         const chunks = cmd.split(/\s+/);
@@ -62,7 +58,7 @@ class Completer {
             return [];
         }
 
-        if (path && path[path.length - 1] === pathlib.sep || path[path.length - 1] === '/') {
+        if ((path && path[path.length - 1] === pathlib.sep) || path[path.length - 1] === '/') {
             dirname = path;
             basename = '';
         }
@@ -72,9 +68,7 @@ class Completer {
 
             return this._appendSlashesToDirectories(
                 directory
-                    .filter(
-                        (candidate: string) => candidate.search(basename) === 0
-                    )
+                    .filter((candidate: string) => candidate.search(basename) === 0)
                     .map(entry => pathlib.join(dirname, entry))
             );
         } catch (e) {}
@@ -85,8 +79,9 @@ class Completer {
     private _appendSlashesToDirectories(paths: Array<string>) {
         return paths.map((path: string): string => {
             try {
-                return (this._fsProvider.getTypeSync(path) === FilesystemProviderInterface.FileType.DIRECTORY ?
-                    pathlib.join(path, pathlib.sep) : path);
+                return this._fsProvider.getTypeSync(path) === FilesystemProviderInterface.FileType.DIRECTORY
+                    ? pathlib.join(path, pathlib.sep)
+                    : path;
             } catch (e) {
                 return path;
             }
@@ -95,14 +90,9 @@ class Completer {
 }
 
 namespace Completer {
-
     export class CompletionResult {
-        constructor(
-            public candidates: Array<string>,
-            public match: string
-        ) {}
+        constructor(public candidates: Array<string>, public match: string) {}
     }
-
 }
 
 export default Completer;

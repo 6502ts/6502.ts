@@ -24,7 +24,6 @@ import SimpleSerialIOInterface from '../io/SimpleSerialIOInterface';
 import CpuInterface from '../cpu/CpuInterface';
 
 class Memory extends VanillaMemory implements SimpleSerialIOInterface {
-
     reset(): void {
         super.reset();
 
@@ -39,10 +38,10 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
 
     read(address: number): number {
         switch (address) {
-            case 0xF002:
+            case 0xf002:
                 return this._feedbackRegister;
 
-            case 0xF004:
+            case 0xf004:
                 return this._inCallback(this);
 
             default:
@@ -51,22 +50,22 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
     }
 
     readWord(address: number): number {
-        if ((address & 0xFFF0) === 0xF000) {
-            return this.read(address) + (this.read((address + 1) & 0xFFFF) << 8);
+        if ((address & 0xfff0) === 0xf000) {
+            return this.read(address) + (this.read((address + 1) & 0xffff) << 8);
         }
 
-        return this._data[address] + (this._data[(address + 1) & 0xFFFF] << 8);
+        return this._data[address] + (this._data[(address + 1) & 0xffff] << 8);
     }
 
     write(address: number, value: number) {
         switch (address) {
-            case 0xF001:
+            case 0xf001:
                 this._outCallback(value, this);
                 break;
 
-            case 0xF002:
+            case 0xf002:
                 this._cpu.setInterrupt(!!(value & 0x01));
-                if ((value & 0x02) && (!(this._feedbackRegister & 0x02))) {
+                if (value & 0x02 && !(this._feedbackRegister & 0x02)) {
                     this._cpu.nmi();
                 }
 
@@ -74,7 +73,7 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
                 break;
 
             default:
-                if (address < 0xC000) {
+                if (address < 0xc000) {
                     this._data[address] = value;
                 }
                 break;
@@ -99,10 +98,8 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
         return this._outCallback;
     }
 
-    private _inCallback: SimpleSerialIOInterface.InCallbackInterface =
-        (): number => 0x00
-    private _outCallback: SimpleSerialIOInterface.OutCallbackInterface =
-        (): void => undefined
+    private _inCallback: SimpleSerialIOInterface.InCallbackInterface = (): number => 0x00;
+    private _outCallback: SimpleSerialIOInterface.OutCallbackInterface = (): void => undefined;
 
     private _cpu: CpuInterface;
     private _feedbackRegister = 0;

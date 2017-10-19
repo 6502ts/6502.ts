@@ -28,7 +28,6 @@ import ConstantCyclesScheduler from './limiting/ConstantCycles';
 import ConstantTimesliceScheduler from './limiting/ConstantTimeslice';
 
 class Factory {
-
     createPeriodicScheduler(period: number): PeriodicScheduler {
         return new PeriodicScheduler(period);
     }
@@ -76,17 +75,14 @@ class Factory {
                 throw new Error('invalid limiting scheduling strategy');
         }
     }
-
 }
 
 namespace Factory {
-
     export const enum LimitingSchedulingStrategy {
         busyWait,
         constantCycles,
         constantTimeslice
     }
-
 }
 
 export default Factory;

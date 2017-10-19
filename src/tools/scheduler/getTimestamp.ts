@@ -19,8 +19,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-const getTimestamp = ((self as any).performance && (self as any).performance.now) ?
-    () => (self as any).performance.now() :
-    () => Date.now();
+const getTimestamp =
+    (self as any).performance && (self as any).performance.now
+        ? () => (self as any).performance.now()
+        : () => Date.now();
 
 export default getTimestamp;

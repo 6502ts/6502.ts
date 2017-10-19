@@ -19,10 +19,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 abstract class AbstractCLI {
-
     events: AbstractCLI.Events = {
         outputAvailable: new Event<void>(),
         quit: new Event<void>(),
@@ -30,7 +29,6 @@ abstract class AbstractCLI {
         prompt: new Event<void>(),
         availableCommandsChanged: new Event<void>()
     };
-
 }
 
 namespace AbstractCLI {

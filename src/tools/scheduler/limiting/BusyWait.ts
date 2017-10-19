@@ -22,17 +22,12 @@
 import SchedulerInterface from '../SchedulerInterface';
 import TaskInterface from '../TaskInterface';
 import getTimestamp from '../getTimestamp';
-import {setImmediate} from '../setImmediate';
+import { setImmediate } from '../setImmediate';
 
 const THRESHOLD = 1;
 
 class ConstantTimesliceScheduler implements SchedulerInterface {
-
-    start<T>(
-        worker: SchedulerInterface.WorkerInterface<T>,
-        context?: T,
-        _timeSlice?: number
-    ): TaskInterface {
+    start<T>(worker: SchedulerInterface.WorkerInterface<T>, context?: T, _timeSlice?: number): TaskInterface {
         const timeSlice = _timeSlice || 50;
 
         let running = true;
@@ -66,10 +61,8 @@ class ConstantTimesliceScheduler implements SchedulerInterface {
 
         setImmediate(handler);
 
-        return {stop: () => running = false};
-
+        return { stop: () => (running = false) };
     }
-
 }
 
 export default ConstantTimesliceScheduler;

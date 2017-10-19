@@ -27,12 +27,7 @@ import * as cartridgeUtil from './util';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class CartridgeEF extends AbstractCartridge {
-
-    constructor(
-        buffer: {[i: number]: number, length: number},
-        private _supportSC: boolean = true
-
-    ) {
+    constructor(buffer: { [i: number]: number; length: number }, private _supportSC: boolean = true) {
         super();
 
         if (buffer.length !== 0x10000) {
@@ -57,7 +52,7 @@ class CartridgeEF extends AbstractCartridge {
             const magic = magicString.split('').map(x => x.charCodeAt(0));
 
             for (let i = 0; i < magic.length; i++) {
-                if (magic[i] !== buffer[0xFFF8 + i]) {
+                if (magic[i] !== buffer[0xfff8 + i]) {
                     return false;
                 }
             }
@@ -74,15 +69,12 @@ class CartridgeEF extends AbstractCartridge {
         }
 
         // Signatures shamelessly stolen from stella
-        const signatureCounts = cartridgeUtil.searchForSignatures(
-            buffer,
-            [
-                [0x0C, 0xE0, 0xFF],  // NOP $FFE0
-                [0xAD, 0xE0, 0xFF],  // LDA $FFE0
-                [0x0C, 0xE0, 0x1F],  // NOP $1FE0
-                [0xAD, 0xE0, 0x1F]   // LDA $1FE0
-            ]
-        );
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
+            [0x0c, 0xe0, 0xff], // NOP $FFE0
+            [0xad, 0xe0, 0xff], // LDA $FFE0
+            [0x0c, 0xe0, 0x1f], // NOP $1FE0
+            [0xad, 0xe0, 0x1f] // LDA $1FE0
+        ]);
 
         for (let i = 0; i < 4; i++) {
             if (signatureCounts[i] > 0) {
@@ -104,7 +96,7 @@ class CartridgeEF extends AbstractCartridge {
 
     randomize(rng: RngInterface): void {
         for (let i = 0; i < this._ram.length; i++) {
-            this._ram[i] = rng.int(0xFF);
+            this._ram[i] = rng.int(0xff);
         }
     }
 
@@ -115,13 +107,13 @@ class CartridgeEF extends AbstractCartridge {
     }
 
     read(address: number): number {
-        this._access(address & 0x0FFF, this._bus.getLastDataBusValue());
+        this._access(address & 0x0fff, this._bus.getLastDataBusValue());
 
         return this.peek(address);
     }
 
     peek(address: number): number {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (this._hasSC && address >= 0x0080 && address < 0x0100) {
             return this._ram[address - 0x80];
@@ -131,7 +123,7 @@ class CartridgeEF extends AbstractCartridge {
     }
 
     write(address: number, value: number): void {
-        address &= 0x0FFF;
+        address &= 0x0fff;
 
         if (address < 0x80 && this._supportSC) {
             this._hasSC = true;
@@ -146,8 +138,8 @@ class CartridgeEF extends AbstractCartridge {
             return;
         }
 
-        if (address >= 0x0FE0 && address <= 0x0FEF) {
-            this._bank = this._banks[address - 0x0FE0];
+        if (address >= 0x0fe0 && address <= 0x0fef) {
+            this._bank = this._banks[address - 0x0fe0];
         }
     }
 
@@ -157,7 +149,6 @@ class CartridgeEF extends AbstractCartridge {
     private _banks = new Array<Uint8Array>(16);
     private _ram = new Uint8Array(0x80);
     private _hasSC = false;
-
 }
 
 export default CartridgeEF;

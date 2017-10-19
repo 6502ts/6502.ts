@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {RpcProviderInterface} from 'worker-rpc';
+import { RpcProviderInterface } from 'worker-rpc';
 
 import ArrayBufferSurface from '../../surface/ArrayBufferSurface';
 import Pool from '../../../tools/pool/Pool';
@@ -28,10 +28,7 @@ import * as messages from './messages';
 import ProcessorPipeline from '../ProcessorPipeline';
 
 class PipelineHost {
-
-    constructor(
-        private _rpc: RpcProviderInterface
-    ) {
+    constructor(private _rpc: RpcProviderInterface) {
         this._rpc
             .registerRpcHandler(messages.messageIds.configure, this._onConfigure.bind(this))
             .registerRpcHandler(messages.messageIds.flush, this._onFlush.bind(this))
@@ -54,10 +51,14 @@ class PipelineHost {
         const id = self._bufferIds.get(buffer);
         self._bufferIds.delete(buffer);
 
-        self._rpc.signal(messages.messageIds.release, {
-            id,
-            buffer
-        } as messages.ReleaseMessage, [buffer]);
+        self._rpc.signal(
+            messages.messageIds.release,
+            {
+                id,
+                buffer
+            } as messages.ReleaseMessage,
+            [buffer]
+        );
     }
 
     private static _onEmitSurface(managedSurface: PoolMemberInterface<ArrayBufferSurface>, self: PipelineHost): void {
@@ -70,10 +71,14 @@ class PipelineHost {
         const id = self._bufferIds.get(buffer);
         self._bufferIds.delete(buffer);
 
-        self._rpc.signal(messages.messageIds.emit, {
-            id,
-            buffer
-        } as messages.EmitMessage, [buffer]);
+        self._rpc.signal(
+            messages.messageIds.emit,
+            {
+                id,
+                buffer
+            } as messages.EmitMessage,
+            [buffer]
+        );
 
         managedSurface.get().resetUnderlyingBuffer();
         managedSurface.release();
@@ -112,7 +117,6 @@ class PipelineHost {
     private _pipeline: ProcessorPipeline = null;
     private _surfacePool = new Pool<ArrayBufferSurface>(() => new ArrayBufferSurface());
     private _bufferIds = new WeakMap<ArrayBuffer, number>();
-
 }
 
 export default PipelineHost;

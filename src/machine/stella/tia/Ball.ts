@@ -24,16 +24,12 @@ const enum Count {
 }
 
 export default class Ball {
-
-    constructor(
-        private _collisionMask: number,
-        private _flushLineCache: () => void
-    ) {
+    constructor(private _collisionMask: number, private _flushLineCache: () => void) {
         this.reset();
     }
 
     reset(): void {
-        this.color = 0xFFFFFFFF;
+        this.color = 0xffffffff;
         this.collision = 0;
         this._width = 1;
         this._enabledOld = false;
@@ -113,7 +109,7 @@ export default class Ball {
     }
 
     tick(isReceivingHclock: boolean): void {
-        this.collision = (this._rendering && this._renderCounter >= 0 && this._enabled) ? 0 : this._collisionMask;
+        this.collision = this._rendering && this._renderCounter >= 0 && this._enabled ? 0 : this._collisionMask;
 
         const starfieldEffect = this._moving && isReceivingHclock;
 
@@ -176,7 +172,7 @@ export default class Ball {
         this._enabled = this._delaying ? this._enabledOld : this._enabledNew;
     }
 
-    color = 0xFFFFFFFF;
+    color = 0xffffffff;
     collision = 0;
 
     private _enabledOld = false;

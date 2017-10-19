@@ -32,13 +32,12 @@ import Board from '../machine/vanilla/Board';
 import BoardInterface from '../machine/board/BoardInterface';
 
 class DebuggerCLI extends AbstractCLI implements CLIInterface {
-
     constructor(protected _fsProvider: FilesystemProviderInterface) {
         super();
 
         const dbg = new Debugger(),
             commandInterpreter = new CommandInterpreter(),
-            debuggerFrontend = new  DebuggerFrontend(dbg, this._fsProvider, commandInterpreter);
+            debuggerFrontend = new DebuggerFrontend(dbg, this._fsProvider, commandInterpreter);
 
         this._debugger = dbg;
         this._commandInterpreter = commandInterpreter;
@@ -50,7 +49,8 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
         this._fsProvider.pushd(path.dirname(filename));
 
         try {
-            this._fsProvider.readTextFileSync(path.basename(filename))
+            this._fsProvider
+                .readTextFileSync(path.basename(filename))
                 .split('\n')
                 .forEach((line: string): void => {
                     this.pushInput(line);
@@ -121,7 +121,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
 
     protected _extendCommandInterpreter(): void {
         this._commandInterpreter.registerCommands({
-            'quit': (): string => {
+            quit: (): string => {
                 this._quit();
                 return 'bye';
             },
@@ -147,7 +147,7 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
     }
 
     protected _outputLine(line: string): void {
-        this._output += (line + '\n');
+        this._output += line + '\n';
         this.events.outputAvailable.dispatch(undefined);
     }
 

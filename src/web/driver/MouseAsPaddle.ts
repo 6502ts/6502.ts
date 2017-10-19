@@ -22,7 +22,6 @@
 import PaddleInterface from '../../machine/io/PaddleInterface';
 
 export default class MouseAsPaddleDriver {
-
     bind(paddle: PaddleInterface): void {
         if (this._paddle) {
             return;
@@ -65,5 +64,4 @@ export default class MouseAsPaddleDriver {
     private _paddle: PaddleInterface;
     private _x = -1;
     private _listener: (e: MouseEvent) => void = this._onDocumentMouseMove.bind(this);
-
 }

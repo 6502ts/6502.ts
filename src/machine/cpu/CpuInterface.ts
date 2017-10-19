@@ -32,9 +32,7 @@ interface CpuInterface {
 
     isHalt(): boolean;
 
-    setInvalidInstructionCallback(
-            callback: CpuInterface.InvalidInstructionCallbackInterface
-        ): CpuInterface;
+    setInvalidInstructionCallback(callback: CpuInterface.InvalidInstructionCallbackInterface): CpuInterface;
 
     getInvalidInstructionCallback(): CpuInterface.InvalidInstructionCallbackInterface;
 
@@ -50,7 +48,9 @@ interface CpuInterface {
 
 namespace CpuInterface {
     export const enum ExecutionState {
-        boot, fetch, execute
+        boot,
+        fetch,
+        execute
     }
 
     export class State {
@@ -66,14 +66,14 @@ namespace CpuInterface {
     }
 
     export const enum Flags {
-        c = 0x01,   // carry
-        z = 0x02,   // zero
-        i = 0x04,   // interrupt
-        d = 0x08,   // decimal mode
-        b = 0x10,   // break
-        e = 0x20,   // reserved
-        v = 0x40,   // overflow
-        n = 0x80    // sign
+        c = 0x01, // carry
+        z = 0x02, // zero
+        i = 0x04, // interrupt
+        d = 0x08, // decimal mode
+        b = 0x10, // break
+        e = 0x20, // reserved
+        v = 0x40, // overflow
+        n = 0x80 // sign
     }
 
     export interface InvalidInstructionCallbackInterface {

@@ -19,23 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Event} from 'microevent.ts';
+import { Event } from 'microevent.ts';
 
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
-import {RpcProviderInterface} from 'worker-rpc';
+import { RpcProviderInterface } from 'worker-rpc';
 import PoolMemberInterface from '../../../../tools/pool/PoolMemberInterface';
 
-import {
-    SIGNAL_TYPE,
-    VideoNewFrameMessage,
-    VideoReturnSurfaceMessage
-} from './messages';
+import { SIGNAL_TYPE, VideoNewFrameMessage, VideoReturnSurfaceMessage } from './messages';
 
 class VideoProxy implements VideoEndpointInterface {
-
-    constructor(
-        private _rpc: RpcProviderInterface
-    ) {}
+    constructor(private _rpc: RpcProviderInterface) {}
 
     init(): void {
         this._rpc.registerSignalHandler(SIGNAL_TYPE.videoNewFrame, this._onNewFrame.bind(this));
@@ -78,11 +71,7 @@ class VideoProxy implements VideoEndpointInterface {
 
         this._ids.add(message.id);
 
-        const imageData = new ImageData(
-            new Uint8ClampedArray(message.buffer),
-            message.width,
-            message.height
-        );
+        const imageData = new ImageData(new Uint8ClampedArray(message.buffer), message.width, message.height);
 
         this.newFrame.dispatch({
             get: () => imageData,
@@ -110,7 +99,6 @@ class VideoProxy implements VideoEndpointInterface {
     private _width = 0;
     private _height = 0;
     private _ids: Set<number> = null;
-
 }
 
 export default VideoProxy;

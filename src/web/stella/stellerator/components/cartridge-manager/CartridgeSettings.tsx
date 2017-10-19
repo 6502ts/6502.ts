@@ -21,12 +21,12 @@
 
 import * as React from 'react';
 
-import {ControlLabel} from 'react-bootstrap';
+import { ControlLabel } from 'react-bootstrap';
 
 import StellaConfig from '../../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../../machine/stella/cartridge/CartridgeInfo';
 
-import {styled, StyledComponent} from '../style';
+import { styled, StyledComponent } from '../style';
 import CartridgeNameInput from './CartridgeNameInput';
 import Slider from '../general/Slider';
 import TvModeSelect from './TvModeSelect';
@@ -54,55 +54,47 @@ function CartridgeSettingsUnstyled(props: Props) {
         return null;
     }
 
-    return <div className={props.className}>
-        <LabelStyled>Name:</LabelStyled>
-        <CartridgeNameInput
-            name={props.cartridge.name}
-            onNameChange={props.onCartridgeNameChange}
-            onKeyEnter={props.onSave}
-        />
+    return (
+        <div className={props.className}>
+            <LabelStyled>Name:</LabelStyled>
+            <CartridgeNameInput
+                name={props.cartridge.name}
+                onNameChange={props.onCartridgeNameChange}
+                onKeyEnter={props.onSave}
+            />
 
-        <LabelStyled>TV mode:</LabelStyled>
-        <TvModeSelect
-            tvMode={props.cartridge.tvMode}
-            onTvModeChange={props.onTvModeChanged}
-        />
+            <LabelStyled>TV mode:</LabelStyled>
+            <TvModeSelect tvMode={props.cartridge.tvMode} onTvModeChange={props.onTvModeChanged} />
 
-        <LabelStyled>Cartridge type:</LabelStyled>
-        <CartridgeTypeSelect
-            cartridgeType={props.cartridge.cartridgeType}
-            onCartridgeTypeChange={props.onCartridgeTypeChange}
-        />
+            <LabelStyled>Cartridge type:</LabelStyled>
+            <CartridgeTypeSelect
+                cartridgeType={props.cartridge.cartridgeType}
+                onCartridgeTypeChange={props.onCartridgeTypeChange}
+            />
 
-        <LabelStyled>Emulate paddles:</LabelStyled>
-        <Switch
-            state={props.cartridge.emulatePaddles}
-            labelTrue='yes'
-            labelFalse='no'
-            onSwitch={props.onTogglePaddleEmulation}
-        />
+            <LabelStyled>Emulate paddles:</LabelStyled>
+            <Switch
+                state={props.cartridge.emulatePaddles}
+                labelTrue="yes"
+                labelFalse="no"
+                onSwitch={props.onTogglePaddleEmulation}
+            />
 
-        <LabelStyled>RNG seed:</LabelStyled>
-        <RandomSeedEdit
-            rngSeedAuto={props.cartridge.rngSeedAuto}
-            rngSeedValue={props.cartridge.rngSeed}
-            onChangeSeedStrategy={props.onChangeSeedStrategy}
-            onChangeSeedValue={props.onChangeSeedValue}
-        />
+            <LabelStyled>RNG seed:</LabelStyled>
+            <RandomSeedEdit
+                rngSeedAuto={props.cartridge.rngSeedAuto}
+                rngSeedValue={props.cartridge.rngSeed}
+                onChangeSeedStrategy={props.onChangeSeedStrategy}
+                onChangeSeedValue={props.onChangeSeedValue}
+            />
 
-        <LabelStyled>Volume:</LabelStyled>
-        <Slider
-            value={props.cartridge.volume}
-            min={0}
-            max={1}
-            step={0.01}
-            onChange={props.onChangeVolume}
-        />
-    </div>;
+            <LabelStyled>Volume:</LabelStyled>
+            <Slider value={props.cartridge.volume} min={0} max={1} step={0.01} onChange={props.onChangeVolume} />
+        </div>
+    );
 }
 
 namespace CartridgeSettingsUnstyled {
-
     export const defaultProps: Props = {
         cartridge: null,
 
@@ -115,7 +107,6 @@ namespace CartridgeSettingsUnstyled {
         onChangeSeedValue: () => undefined,
         onChangeVolume: () => undefined
     };
-
 }
 
 const LabelStyled = styled(ControlLabel)`
@@ -129,7 +120,7 @@ const LabelStyled = styled(ControlLabel)`
 type CartridgeSettingsStyled = StyledComponent<Props, void>;
 
 const CartridgeSettingsStyled: CartridgeSettingsStyled = styled(CartridgeSettingsUnstyled)`
-    ${p => p.cartridge ? '' : 'display: none;'}
+    ${p => (p.cartridge ? '' : 'display: none;')};
 `;
 
 export default CartridgeSettingsStyled;

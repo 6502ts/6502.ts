@@ -19,10 +19,9 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {GuiMode} from '../model/types';
+import { GuiMode } from '../model/types';
 
 class GuiState implements Changeset {
-
     constructor(changes?: Changeset, old?: GuiState) {
         Object.assign(this, old, changes);
     }
@@ -34,7 +33,6 @@ class GuiState implements Changeset {
     showLoadPendingChangesModal = false;
     pendingLoad: Uint8Array;
     pendingLoadName: string;
-
 }
 
 interface Changeset {

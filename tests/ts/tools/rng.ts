@@ -21,10 +21,7 @@
 
 import * as assert from 'assert';
 
-import {
-    createRng,
-    restoreRng
-} from '../../../src/tools/rng/factory';
+import { createRng, restoreRng } from '../../../src/tools/rng/factory';
 
 import GeneratorInterface from '../../../src/tools/rng/GeneratorInterface';
 
@@ -39,7 +36,6 @@ function sequence(length: number, generator: GeneratorInterface): Array<number> 
 }
 
 suite('Random Nuber Generator', function() {
-
     test('identical seeds produce identical sequences', function() {
         const rng1 = createRng(1),
             rng2 = createRng(1),
@@ -87,5 +83,4 @@ suite('Random Nuber Generator', function() {
 
         assert.deepEqual(seq1, seq2);
     });
-
 });

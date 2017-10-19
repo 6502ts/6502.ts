@@ -33,7 +33,6 @@ import CartridgeDPCPlus from './CartridgeDPCPlus';
 import * as cartridgeUtil from './util';
 
 class CartridgeDetector {
-
     detectCartridgeType(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
         if (buffer.length % 8448 === 0) {
             return CartridgeInfo.CartridgeType.bankswitch_supercharger;
@@ -134,7 +133,6 @@ class CartridgeDetector {
 
         return CartridgeInfo.CartridgeType.bankswitch_64k_F0;
     }
-
 }
 
 export default CartridgeDetector;

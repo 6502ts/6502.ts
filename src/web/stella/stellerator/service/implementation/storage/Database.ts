@@ -26,7 +26,6 @@ import * as Settings from './Settings';
 import * as Image from './Image';
 
 export default class Database extends Dexie {
-
     constructor() {
         super('stellerator');
 
@@ -49,29 +48,30 @@ export default class Database extends Dexie {
                 cartridge: '++id, &hash',
                 settings: 'id'
             })
-            .upgrade(transaction => transaction
-                .table<Cartridge.CartridgeSchema & {audioEnabled: boolean}, Cartridge.indexType>('cartridge')
-                .each((cartridge, c) => {
-                    const cursor: IDBCursor = (c as any);
+            .upgrade(transaction =>
+                transaction
+                    .table<Cartridge.CartridgeSchema & { audioEnabled: boolean }, Cartridge.indexType>('cartridge')
+                    .each((cartridge, c) => {
+                        const cursor: IDBCursor = c as any;
 
-                    if (typeof(cartridge.emulatePaddles) === 'undefined') {
-                        cartridge.emulatePaddles = true;
-                    }
+                        if (typeof cartridge.emulatePaddles === 'undefined') {
+                            cartridge.emulatePaddles = true;
+                        }
 
-                    if (typeof(cartridge.rngSeed) === 'undefined') {
-                        cartridge.rngSeed = 0;
-                    }
+                        if (typeof cartridge.rngSeed === 'undefined') {
+                            cartridge.rngSeed = 0;
+                        }
 
-                    if (typeof(cartridge.rngSeedAuto) === 'undefined') {
-                        cartridge.rngSeedAuto = true;
-                    }
+                        if (typeof cartridge.rngSeedAuto === 'undefined') {
+                            cartridge.rngSeedAuto = true;
+                        }
 
-                    if (typeof(cartridge.audioEnabled) === 'undefined') {
-                        cartridge.audioEnabled = true;
-                    }
+                        if (typeof cartridge.audioEnabled === 'undefined') {
+                            cartridge.audioEnabled = true;
+                        }
 
-                    cursor.update(cartridge);
-                })
+                        cursor.update(cartridge);
+                    })
             );
 
         this.version(5)
@@ -84,9 +84,9 @@ export default class Database extends Dexie {
                 const images = transaction.table<Image.ImageSchema, Image.indexType>('image');
 
                 transaction
-                    .table<Cartridge.CartridgeSchema & {buffer: Uint8Array}, Cartridge.indexType>('cartridge')
+                    .table<Cartridge.CartridgeSchema & { buffer: Uint8Array }, Cartridge.indexType>('cartridge')
                     .each((cartridge, c) => {
-                        const cursor: IDBCursor = (c as any);
+                        const cursor: IDBCursor = c as any;
 
                         images.add({
                             hash: cartridge.hash,
@@ -106,24 +106,22 @@ export default class Database extends Dexie {
             })
             .upgrade(transaction => {
                 transaction
-                    .table<Cartridge.CartridgeSchema & {audioEnabled: boolean}, Cartridge.indexType>('cartridge')
+                    .table<Cartridge.CartridgeSchema & { audioEnabled: boolean }, Cartridge.indexType>('cartridge')
                     .each((cartridge, c) => {
-                        const cursor: IDBCursor = (c as any);
+                        const cursor: IDBCursor = c as any;
 
                         cartridge.volume = cartridge.audioEnabled ? 1 : 0;
 
                         cursor.update(cartridge);
                     });
 
-                transaction
-                    .table<Settings.SettingsSchema, Settings.indexType>('settings')
-                    .each((settings, c) => {
-                        const cursor: IDBCursor = (c as any);
+                transaction.table<Settings.SettingsSchema, Settings.indexType>('settings').each((settings, c) => {
+                    const cursor: IDBCursor = c as any;
 
-                        settings.volume = 1;
+                    settings.volume = 1;
 
-                        cursor.update(settings);
-                    });
+                    cursor.update(settings);
+                });
             });
 
         this.version(7)
@@ -132,15 +130,13 @@ export default class Database extends Dexie {
                 settings: 'id'
             })
             .upgrade(transaction => {
-                transaction
-                    .table<Settings.SettingsSchema, Settings.indexType>('settings')
-                    .each((settings, c) => {
-                        const cursor: IDBCursor = (c as any);
+                transaction.table<Settings.SettingsSchema, Settings.indexType>('settings').each((settings, c) => {
+                    const cursor: IDBCursor = c as any;
 
-                        settings.syncRendering = true;
+                    settings.syncRendering = true;
 
-                        cursor.update(settings);
-                    });
+                    cursor.update(settings);
+                });
             });
 
         this.version(8)
@@ -149,15 +145,13 @@ export default class Database extends Dexie {
                 settings: 'id'
             })
             .upgrade(transaction => {
-                transaction
-                    .table<Settings.SettingsSchema, Settings.indexType>('settings')
-                    .each((settings, c) => {
-                        const cursor: IDBCursor = (c as any);
+                transaction.table<Settings.SettingsSchema, Settings.indexType>('settings').each((settings, c) => {
+                    const cursor: IDBCursor = c as any;
 
-                        settings.povEmulation = true;
+                    settings.povEmulation = true;
 
-                        cursor.update(settings);
-                    });
+                    cursor.update(settings);
+                });
             });
     }
 

@@ -23,35 +23,36 @@ import * as React from 'react';
 
 import ValidatingInput from '../general/ValidatingInput';
 import Switch from '../general/Switch';
-import {styled} from '../style';
+import { styled } from '../style';
 
-const StyledSeedInput = styled<ValidatingInput.Props & {rngSeedAuto?: boolean}>(ValidatingInput)`
+const StyledSeedInput = styled<ValidatingInput.Props & { rngSeedAuto?: boolean }>(ValidatingInput)`
     margin-left: 1rem;
     width: 6rem;
-    display: ${p => p.rngSeedAuto ? 'none' : 'inline-block'}
+    display: ${p => (p.rngSeedAuto ? 'none' : 'inline-block')};
 `;
 
 function RandomSeedEdit(props: RandomSeedEdit.Props) {
-    return <div>
-        <Switch
-            state={props.rngSeedAuto}
-            labelTrue='auto'
-            labelFalse='fixed'
-            onSwitch={props.onChangeSeedStrategy}
-        />
-        <StyledSeedInput
-            value={'' + props.rngSeedValue}
-            readOnly={props.rngSeedAuto}
-            validator={(value: string): boolean => !!value.match(/^(0|([1-9]\d*))$/)}
-            onChange={(value: string) => props.onChangeSeedValue(parseInt(value, 10))}
-            onKeyEnter={props.onKeyEnter}
-            rngSeedAuto={props.rngSeedAuto}
-        />
-    </div>;
+    return (
+        <div>
+            <Switch
+                state={props.rngSeedAuto}
+                labelTrue="auto"
+                labelFalse="fixed"
+                onSwitch={props.onChangeSeedStrategy}
+            />
+            <StyledSeedInput
+                value={'' + props.rngSeedValue}
+                readOnly={props.rngSeedAuto}
+                validator={(value: string): boolean => !!value.match(/^(0|([1-9]\d*))$/)}
+                onChange={(value: string) => props.onChangeSeedValue(parseInt(value, 10))}
+                onKeyEnter={props.onKeyEnter}
+                rngSeedAuto={props.rngSeedAuto}
+            />
+        </div>
+    );
 }
 
 namespace RandomSeedEdit {
-
     export interface Props {
         rngSeedAuto?: boolean;
         rngSeedValue?: number;
@@ -69,7 +70,6 @@ namespace RandomSeedEdit {
         onChangeSeedValue: () => undefined,
         onKeyEnter: () => undefined
     };
-
 }
 
 export default RandomSeedEdit;

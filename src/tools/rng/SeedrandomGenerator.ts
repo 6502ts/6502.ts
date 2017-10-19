@@ -22,17 +22,14 @@
 import GeneratorInterface from './GeneratorInterface';
 
 interface SeedrandomPrng {
-  quick(): number;
-  int32(): number;
-  double(): number;
-  state(): any;
+    quick(): number;
+    int32(): number;
+    double(): number;
+    state(): any;
 }
 
 class SeedrandomGenerator implements GeneratorInterface {
-
-    constructor(
-        private _rng: SeedrandomPrng
-    ) {}
+    constructor(private _rng: SeedrandomPrng) {}
 
     single(): number {
         return this._rng.quick();
@@ -53,7 +50,6 @@ class SeedrandomGenerator implements GeneratorInterface {
     saveState(): any {
         return this._rng.state();
     }
-
 }
 
 export default SeedrandomGenerator;

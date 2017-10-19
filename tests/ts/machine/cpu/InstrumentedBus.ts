@@ -23,9 +23,8 @@ import BusInterface from '../../../../src/machine/bus/BusInterface';
 import AccessLog from './AccessLog';
 
 class InstrumentedBus implements BusInterface {
-
     readWord(address: number): number {
-        return this.read(address) | (this.read((address + 1) & 0xFFFF) << 8);
+        return this.read(address) | (this.read((address + 1) & 0xffff) << 8);
     }
 
     read(address: number): number {
@@ -54,7 +53,6 @@ class InstrumentedBus implements BusInterface {
 
     private _accessLog = new AccessLog();
     private _memory = new Uint8Array(0x10000);
-
 }
 
 export default InstrumentedBus;

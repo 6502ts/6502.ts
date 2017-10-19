@@ -24,11 +24,7 @@ export interface BufferInterface {
     length: number;
 }
 
-export function searchForSignatures(
-    buffer: BufferInterface,
-    signatures: Array<Array<number>>
-): Array<number> {
-
+export function searchForSignatures(buffer: BufferInterface, signatures: Array<Array<number>>): Array<number> {
     interface Candidate {
         signature: number;
         nextIndex: number;
@@ -68,7 +64,6 @@ export function searchForSignatures(
                 }
             }
         }
-
     }
 
     return counts;

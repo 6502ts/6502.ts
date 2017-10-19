@@ -23,17 +23,12 @@ import Joystick from '../../../../machine/io/DigitalJoystick';
 import ControlPanel from '../../../../machine/stella/ControlPanel';
 import Paddle from '../../../../machine/io/Paddle';
 import ControlState from './ControlState';
-import {RpcProviderInterface} from 'worker-rpc';
+import { RpcProviderInterface } from 'worker-rpc';
 
-import {
-    SIGNAL_TYPE
-} from './messages';
+import { SIGNAL_TYPE } from './messages';
 
 class ControlProxy {
-
-    constructor(
-        private _rpc: RpcProviderInterface
-    ) {
+    constructor(private _rpc: RpcProviderInterface) {
         for (let i = 0; i < 2; i++) {
             this._joysticks[i] = new Joystick();
         }
@@ -44,14 +39,11 @@ class ControlProxy {
     }
 
     sendUpdate(): void {
-        this._rpc.signal<ControlState>(
-            SIGNAL_TYPE.controlStateUpdate,
-            {
-                joystickState: this._joysticks.map(ControlProxy._joystickState),
-                paddleState: this._paddles.map(ControlProxy._paddleState),
-                controlPanelState: ControlProxy._controlPanelState(this._controlPanel)
-            }
-        );
+        this._rpc.signal<ControlState>(SIGNAL_TYPE.controlStateUpdate, {
+            joystickState: this._joysticks.map(ControlProxy._joystickState),
+            paddleState: this._paddles.map(ControlProxy._paddleState),
+            controlPanelState: ControlProxy._controlPanelState(this._controlPanel)
+        });
     }
 
     getJoystick(i: number): Joystick {
@@ -104,7 +96,6 @@ class ControlProxy {
     private _joysticks = new Array<Joystick>(2);
     private _paddles = new Array<Paddle>(4);
     private _controlPanel = new ControlPanel();
-
 }
 
 export default ControlProxy;

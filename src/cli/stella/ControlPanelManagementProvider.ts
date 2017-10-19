@@ -24,7 +24,6 @@ import CommandInterpreter from '../CommandInterpreter';
 import SwitchInterface from '../../machine/io/SwitchInterface';
 
 class CotrolPanelManagementProvider {
-
     constructor(protected _controlPanel: ControlPanelInterface) {}
 
     getCommands(): CommandInterpreter.CommandTableInterface {
@@ -86,9 +85,8 @@ class CotrolPanelManagementProvider {
         'switch-difficulty-player-0': (args?: Array<string>) =>
             this._changeDifficultySwitch(this._controlPanel.getDifficultySwitchP0(), 0, args),
         'switch-difficulty-player-1': (args?: Array<string>) =>
-            this._changeDifficultySwitch(this._controlPanel.getDifficultySwitchP1(), 1, args),
+            this._changeDifficultySwitch(this._controlPanel.getDifficultySwitchP1(), 1, args)
     };
-
 }
 
 export default CotrolPanelManagementProvider;

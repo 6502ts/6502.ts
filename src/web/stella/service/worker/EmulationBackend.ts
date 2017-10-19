@@ -21,26 +21,17 @@
 
 import EmulationService from '../vanilla/EmulationService';
 import EmulationServiceInterface from '../EmulationServiceInterface';
-import {RpcProviderInterface} from 'worker-rpc';
+import { RpcProviderInterface } from 'worker-rpc';
 import DriverManager from '../DriverManager';
 import VideoDriver from './VideoDriver';
 import ControlDriver from './ControlDriver';
 import AudioDriver from './AudioDriver';
 import EmulationContext from '../vanilla/EmulationContext';
 
-import {
-    RPC_TYPE,
-    SIGNAL_TYPE,
-    EmulationStartMessage,
-    EmulationParametersResponse,
-    SetupMessage
-} from './messages';
+import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, EmulationParametersResponse, SetupMessage } from './messages';
 
 class EmulationBackend {
-
-    constructor(
-        private _rpc: RpcProviderInterface
-    ) {
+    constructor(private _rpc: RpcProviderInterface) {
         this._service = new EmulationService();
     }
 
@@ -68,21 +59,15 @@ class EmulationBackend {
         controlDriver.init();
 
         driverManager
-            .addDriver(
-                videoDriver,
-                (context: EmulationContext, driver: VideoDriver) => driver.bind(context.getRawVideo())
+            .addDriver(videoDriver, (context: EmulationContext, driver: VideoDriver) =>
+                driver.bind(context.getRawVideo())
             )
-            .addDriver(
-                controlDriver,
-                (context: EmulationContext, driver: ControlDriver) => driver.bind(context)
-            )
+            .addDriver(controlDriver, (context: EmulationContext, driver: ControlDriver) => driver.bind(context))
             .bind(this._service);
 
         for (let i = 0; i < 2; i++) {
-            driverManager.addDriver(
-                audioDrivers[i],
-                (context: EmulationContext, driver: AudioDriver) =>
-                    driver.bind(i === 0 ? context.getAudio().channel0 : context.getAudio().channel1)
+            driverManager.addDriver(audioDrivers[i], (context: EmulationContext, driver: AudioDriver) =>
+                driver.bind(i === 0 ? context.getAudio().channel0 : context.getAudio().channel1)
             );
         }
     }
@@ -139,16 +124,12 @@ class EmulationBackend {
         return Promise.resolve({
             width: video ? video.getWidth() : 0,
             height: video ? video.getHeight() : 0,
-            volume: [
-                audio.channel0.getVolume(),
-                audio.channel1.getVolume()
-            ]
+            volume: [audio.channel0.getVolume(), audio.channel1.getVolume()]
         });
     }
 
     private _service: EmulationService;
     private _videoDriver: VideoDriver = null;
-
 }
 
 export default EmulationBackend;

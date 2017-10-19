@@ -33,11 +33,7 @@ const SMOOTHING_PROPS = [
 const INITIAL_RENDER_CANVAS_SIZE = 100;
 
 export default class SimpleCanvasVideo implements VideoDriverInterface {
-
-    constructor(
-        private _canvas: HTMLCanvasElement,
-        private _aspect = 4 / 3
-    ) {
+    constructor(private _canvas: HTMLCanvasElement, private _aspect = 4 / 3) {
         this._context = this._canvas.getContext('2d');
 
         this._renderCanvas = document.createElement('canvas');
@@ -46,7 +42,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
     }
 
     resize(width?: number, height?: number): this {
-        if (typeof(width) === 'undefined' || typeof(height) === 'undefined') {
+        if (typeof width === 'undefined' || typeof height === 'undefined') {
             width = this._canvas.clientWidth;
             height = this._canvas.clientHeight;
         }
@@ -148,7 +144,7 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
 
         self._pendingFrame = imageDataPoolMember;
 
-        if (self._syncRendering)  {
+        if (self._syncRendering) {
             if (!self._animationFrameHandle) {
                 self._scheduleDraw();
             }

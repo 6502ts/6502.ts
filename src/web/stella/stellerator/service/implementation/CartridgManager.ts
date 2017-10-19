@@ -19,8 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import {Middleware, MiddlewareAPI, Action, Store} from 'redux';
-import {push} from 'react-router-redux';
+import { Middleware, MiddlewareAPI, Action, Store } from 'redux';
+import { push } from 'react-router-redux';
 import * as JsZip from 'jszip';
 
 import CartridgeManagerInterface from '../CartridgeManager';
@@ -33,12 +33,7 @@ import {
     ConfirmSelectAction,
     SelectRomFromZipfileAction
 } from '../../actions/cartridgeManager';
-import {
-    saveCurrentCartride,
-    registerNewCartridge,
-    selectCartridge,
-    types as rootActions
-} from '../../actions/root';
+import { saveCurrentCartride, registerNewCartridge, selectCartridge, types as rootActions } from '../../actions/root';
 import {
     setMode,
     openLoadPendingChangesModal,
@@ -46,22 +41,15 @@ import {
     closeLoadPendingChangesModal,
     closeSelectPendingChangesModal
 } from '../../actions/guiState';
-import {
-    set as setZipfile,
-    clear as clearZipfile,
-    setError as setZipfileError
-} from '../../actions/zipfile';
-import {start as startEmulation} from '../../actions/emulation';
-import {GuiMode} from '../../model/types';
+import { set as setZipfile, clear as clearZipfile, setError as setZipfileError } from '../../actions/zipfile';
+import { start as startEmulation } from '../../actions/emulation';
+import { GuiMode } from '../../model/types';
 import State from '../../state/State';
 import Cartride from '../../model/Cartridge';
-import {calculateFromUint8Array as md5sum} from '../../../../../tools/hash/md5';
+import { calculateFromUint8Array as md5sum } from '../../../../../tools/hash/md5';
 
 class CartridgeManager implements CartridgeManagerInterface {
-
-    constructor(
-        private _storage: StorageManager
-    ) {}
+    constructor(private _storage: StorageManager) {}
 
     setStore(store: Store<State>): void {
         this._store = store;
@@ -80,12 +68,10 @@ class CartridgeManager implements CartridgeManagerInterface {
 
     private async _onUpload(action: UploadNewCartridgeAction): Promise<void> {
         const reader = new FileReader(),
-            fileContent = await new Promise<Uint8Array>(
-                r => {
-                    reader.addEventListener('load', () => r(new Uint8Array(reader.result)));
-                    reader.readAsArrayBuffer(action.file);
-                }
-            );
+            fileContent = await new Promise<Uint8Array>(r => {
+                reader.addEventListener('load', () => r(new Uint8Array(reader.result)));
+                reader.readAsArrayBuffer(action.file);
+            });
 
         if (action.file.name.match(/\.zip$/)) {
             return this._handleZipfile(action.file.name, fileContent);
@@ -96,7 +82,8 @@ class CartridgeManager implements CartridgeManagerInterface {
 
     private async _handleCartridge(name: string, content: Uint8Array) {
         const state = this._store.getState(),
-            changes = !!state.currentCartridge &&
+            changes =
+                !!state.currentCartridge &&
                 !Cartride.equals(state.currentCartridge, state.cartridges[state.currentCartridge.hash]);
 
         if (changes) {
@@ -117,17 +104,13 @@ class CartridgeManager implements CartridgeManagerInterface {
 
             if (files.length === 0) {
                 this._store.dispatch(setZipfileError('No ROM images in ZIP file.'));
-            }
-            else if (files.length === 1) {
+            } else if (files.length === 1) {
                 const file = files[0],
                     deflatedImage = await file.async('uint8array');
 
                 this._handleCartridge(file.name.replace(/^.*\//, ''), deflatedImage);
             } else {
-                await this._store.dispatch(setZipfile(
-                    content,
-                    files.map(f => f.name).sort()
-                ));
+                await this._store.dispatch(setZipfile(content, files.map(f => f.name).sort()));
             }
         } catch (e) {
             await this._store.dispatch(clearZipfile());
@@ -172,7 +155,8 @@ class CartridgeManager implements CartridgeManagerInterface {
 
     private async _onSelectCartridge(action: SelectCartridgeAction): Promise<void> {
         const state = this._store.getState(),
-            changes = !!state.currentCartridge &&
+            changes =
+                !!state.currentCartridge &&
                 !Cartride.equals(state.currentCartridge, state.cartridges[state.currentCartridge.hash]);
 
         if (changes) {
@@ -192,14 +176,12 @@ class CartridgeManager implements CartridgeManagerInterface {
     }
 
     private _onDeleteCurrentCartridge(): Promise<void> {
-        return this._storage.deleteImage(
-            this._store.getState().currentCartridge.hash
-        );
+        return this._storage.deleteImage(this._store.getState().currentCartridge.hash);
     }
 
-    private _middleware = (
-        (api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (action: Action): Promise<void> =>
-    {
+    private _middleware = ((api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (
+        action: Action
+    ): Promise<void> => {
         switch (action.type) {
             case actions.runCurrentCartridge:
                 await next(action);
@@ -234,7 +216,6 @@ class CartridgeManager implements CartridgeManagerInterface {
     }) as Middleware;
 
     private _store: Store<State>;
-
 }
 
 export default CartridgeManager;
