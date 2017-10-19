@@ -50,6 +50,7 @@ export interface Props {
     onChangeVolume?: (volume: number) => void;
     onChangeFrameStart?: (frameStart: number) => void;
     onToggleFrameStartAuto?: (isAuto: boolean) => void;
+    onChangeUsePcmAudio?: (usePcmAudio: boolean) => void;
 }
 
 function CartridgeSettingsUnstyled(props: Props) {
@@ -101,6 +102,14 @@ function CartridgeSettingsUnstyled(props: Props) {
                 onKeyEnter={props.onSave}
             />
 
+            <LabelStyled>Use PCM audio emulation:</LabelStyled>
+            <Switch
+                state={props.cartridge.pcmAudio}
+                labelTrue="yes"
+                labelFalse="no"
+                onSwitch={props.onChangeUsePcmAudio}
+            />
+
             <LabelStyled>Volume:</LabelStyled>
             <Slider value={props.cartridge.volume} min={0} max={1} step={0.01} onChange={props.onChangeVolume} />
         </div>
@@ -120,7 +129,8 @@ namespace CartridgeSettingsUnstyled {
         onChangeSeedValue: () => undefined,
         onChangeVolume: () => undefined,
         onChangeFrameStart: () => undefined,
-        onToggleFrameStartAuto: () => undefined
+        onToggleFrameStartAuto: () => undefined,
+        onChangeUsePcmAudio: () => undefined
     };
 }
 

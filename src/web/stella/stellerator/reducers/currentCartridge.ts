@@ -31,6 +31,7 @@ import {
     ChangeVolumeAction,
     ChangeFrameStartAction,
     ChangeFrameStartAutoAction,
+    ChangeUsePcmAudioAction,
     types as ActionType
 } from '../actions/currentCartridge';
 import Cartridge from '../model/Cartridge';
@@ -63,6 +64,9 @@ export default function reduce(cartridge: Cartridge, action: Action): Cartridge 
 
         case ActionType.changeFrameStartAuto:
             return changeFrameStartAuto(cartridge, action as ChangeFrameStartAutoAction);
+
+        case ActionType.changeUsePcmAudio:
+            return changeUsePcmAudio(cartridge, action as ChangeUsePcmAudioAction);
 
         default:
             return cartridge;
@@ -140,5 +144,12 @@ function changeFrameStartAuto(
     return {
         ...cartridge,
         autodetectFrameStart: action.frameStartAuto
+    };
+}
+
+function changeUsePcmAudio(cartridge: Cartridge = Cartridge.create(), action: ChangeUsePcmAudioAction): Cartridge {
+    return {
+        ...cartridge,
+        pcmAudio: action.usePcmAudio
     };
 }

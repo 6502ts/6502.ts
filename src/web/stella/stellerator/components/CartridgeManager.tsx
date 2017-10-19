@@ -63,6 +63,7 @@ export interface HandlerProps {
     onChangeVolume: (volume: number) => void;
     onChangeFrameStart: (frameStart: number) => void;
     onChangeFrameStartAuto: (frameStartAuto: boolean) => void;
+    onChangeUsePcmAudio: (usePcmAudio: boolean) => void;
 
     onSelectPendingChangesClose: () => void;
     onSelectPendingChangesSave: () => void;
@@ -104,6 +105,7 @@ export default function CartridgeManager(props: Props) {
                         onChangeVolume={props.onChangeVolume}
                         onChangeFrameStart={props.onChangeFrameStart}
                         onToggleFrameStartAuto={props.onChangeFrameStartAuto}
+                        onChangeUsePcmAudio={props.onChangeUsePcmAudio}
                     />
                 </Col>
             </Row>

@@ -27,7 +27,7 @@ declare namespace window {
     const AudioContext: AudioContextType;
 }
 
-import AudioOutputInterface from '../../machine/io/AudioOutputInterface';
+import WaveformAudioOutputInterface from '../../machine/io/WaveformAudioOutputInterface';
 
 export default class WebAudioDriver {
     constructor(channels: number) {
@@ -59,7 +59,7 @@ export default class WebAudioDriver {
         this._channels.forEach(channel => channel.init(this._context, this._merger));
     }
 
-    bind(...sources: Array<AudioOutputInterface>): void {
+    bind(...sources: Array<WaveformAudioOutputInterface>): void {
         if (this._sources) {
             return;
         }
@@ -92,7 +92,7 @@ export default class WebAudioDriver {
     private _context: AudioContext = null;
     private _merger: ChannelMergerNode = null;
     private _channels: Array<Channel> = null;
-    private _sources: Array<AudioOutputInterface> = null;
+    private _sources: Array<WaveformAudioOutputInterface> = null;
     private _cache: BufferCache = {};
 }
 
@@ -106,7 +106,7 @@ class Channel {
         this._gain.connect(target);
     }
 
-    bind(target: AudioOutputInterface): void {
+    bind(target: WaveformAudioOutputInterface): void {
         if (this._audio) {
             return;
         }
@@ -185,7 +185,7 @@ class Channel {
     private _context: AudioContext = null;
     private _source: AudioBufferSourceNode = null;
     private _gain: GainNode = null;
-    private _audio: AudioOutputInterface = null;
+    private _audio: WaveformAudioOutputInterface = null;
 
     private _volume = 0;
     private _masterVolume = 1;

@@ -32,7 +32,7 @@ import CartridgeInterface from './cartridge/CartridgeInterface';
 import Config from './Config';
 
 import VideoOutputInterface from '../io/VideoOutputInterface';
-import AudioOutputInterface from '../io/AudioOutputInterface';
+import WaveformAudioOutputInterface from '../io/WaveformAudioOutputInterface';
 import ControlPanel from './ControlPanel';
 import ControlPanelInterface from './ControlPanelInterface';
 import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
@@ -373,8 +373,8 @@ class Board implements BoardInterface {
 
 namespace Board {
     export interface Audio {
-        channel0: AudioOutputInterface;
-        channel1: AudioOutputInterface;
+        channel0: WaveformAudioOutputInterface;
+        channel1: WaveformAudioOutputInterface;
     }
 }
 

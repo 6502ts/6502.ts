@@ -22,7 +22,7 @@
 import { Event } from 'microevent.ts';
 
 import VideoOutputInterface from '../../io/VideoOutputInterface';
-import AudioOutputInterface from '../../io/AudioOutputInterface';
+import WaveformAudioOutputInterface from '../../io/WaveformAudioOutputInterface';
 import DigitalJoystickInterface from '../../io/DigitalJoystickInterface';
 import RGBASurfaceInterface from '../../../video/surface/RGBASurfaceInterface';
 import Config from '../Config';
@@ -179,11 +179,11 @@ class Tia implements VideoOutputInterface {
         return this;
     }
 
-    getAudioChannel0(): AudioOutputInterface {
+    getAudioChannel0(): WaveformAudioOutputInterface {
         return this._audio0;
     }
 
-    getAudioChannel1(): AudioOutputInterface {
+    getAudioChannel1(): WaveformAudioOutputInterface {
         return this._audio1;
     }
 

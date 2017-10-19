@@ -38,6 +38,7 @@ export interface CartridgeSchema {
     volume: number;
     frameStart: number;
     autodetectFrameStart: boolean;
+    pcmAudio: boolean;
 }
 
 function tvModeToString(tvMode: StellaConfig.TvMode): tvModeString {

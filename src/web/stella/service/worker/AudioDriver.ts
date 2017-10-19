@@ -20,7 +20,7 @@
  */
 
 import { RpcProviderInterface } from 'worker-rpc';
-import AudioOutputInterface from '../../../../machine/io/AudioOutputInterface';
+import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOutputInterface';
 
 import { SIGNAL_TYPE, AudioBufferChangeMessage, AudioVolumeChangeMessage } from './messages';
 
@@ -32,7 +32,7 @@ class AudioDriver {
         };
     }
 
-    bind(audio: AudioOutputInterface): void {
+    bind(audio: WaveformAudioOutputInterface): void {
         if (this._audio) {
             return;
         }
@@ -74,7 +74,7 @@ class AudioDriver {
         context.self._rpc.signal<number>(SIGNAL_TYPE.audioStop, context.self._index);
     }
 
-    private _audio: AudioOutputInterface = null;
+    private _audio: WaveformAudioOutputInterface = null;
     private _handlerContext: HandlerContext = null;
 }
 

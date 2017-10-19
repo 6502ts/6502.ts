@@ -36,7 +36,8 @@ import {
     changeRngSeed,
     changeVolume,
     changeFrameStart,
-    changeFrameStartAuto
+    changeFrameStartAuto,
+    changeUsePcmAudio
 } from '../actions/currentCartridge';
 import { closeSelectPendingChangesModal, closeLoadPendingChangesModal } from '../actions/guiState';
 import {
@@ -82,6 +83,7 @@ function mapDispatchToProps(dispatch: Dispatch<State>): HandlerProps {
         onChangeVolume: volume => dispatch(changeVolume(volume)),
         onChangeFrameStart: frameStart => dispatch(changeFrameStart(frameStart)),
         onChangeFrameStartAuto: isAuto => dispatch(changeFrameStartAuto(isAuto)),
+        onChangeUsePcmAudio: usePcmAudio => dispatch(changeUsePcmAudio(usePcmAudio)),
 
         onSelectPendingChangesClose: () => dispatch(closeSelectPendingChangesModal()),
         onSelectPendingChangesSave: () => dispatch(confirmSelect()),

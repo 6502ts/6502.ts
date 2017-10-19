@@ -19,6 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import deepEqual = require('deep-equal');
+
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
@@ -33,6 +35,7 @@ interface Cartridge {
     volume: number;
     frameStart: number;
     autodetectFrameStart: boolean;
+    pcmAudio: boolean;
 }
 
 namespace Cartridge {
@@ -47,25 +50,13 @@ namespace Cartridge {
             rngSeed: 0,
             volume: 1,
             frameStart: 0,
-            autodetectFrameStart: true
+            autodetectFrameStart: true,
+            pcmAudio: false
         };
     }
 
     export function equals(c1: Cartridge, c2: Cartridge) {
-        return (
-            !!c1 &&
-            !!c2 &&
-            c1.name === c2.name &&
-            c1.hash === c2.hash &&
-            c1.tvMode === c2.tvMode &&
-            c1.cartridgeType === c2.cartridgeType &&
-            c1.emulatePaddles === c2.emulatePaddles &&
-            c1.rngSeedAuto === c2.rngSeedAuto &&
-            c1.rngSeed === c2.rngSeed &&
-            c1.volume === c2.volume &&
-            c1.frameStart === c2.frameStart &&
-            c1.autodetectFrameStart === c2.autodetectFrameStart
-        );
+        return !!c1 && !!c2 && deepEqual(c1, c2, { strict: true });
     }
 }
 

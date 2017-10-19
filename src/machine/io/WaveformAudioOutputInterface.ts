@@ -23,7 +23,7 @@ import { EventInterface } from 'microevent.ts';
 
 import AudioOutputBuffer from '../../tools/AudioOutputBuffer';
 
-interface AudioOutputInterface {
+interface WaveformAudioOutputInterface {
     getBuffer(key: number): AudioOutputBuffer;
 
     getVolume(): number;
@@ -35,4 +35,4 @@ interface AudioOutputInterface {
     stop: EventInterface<void>;
 }
 
-export default AudioOutputInterface;
+export default WaveformAudioOutputInterface;

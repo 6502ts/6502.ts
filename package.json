@@ -5,6 +5,7 @@
   "dependencies": {
     "@types/classnames": "^2.2.3",
     "@types/commonmark": "^0.27.0",
+    "@types/deep-equal": "^1.0.1",
     "@types/jquery": "^3.2.15",
     "@types/jszip": "^3.1.1",
     "@types/lodash": "^4.14.78",
@@ -27,6 +28,7 @@
     "classnames": "^2.2.5",
     "commonmark": "^0.28.1",
     "cssnano": "~3.10.0",
+    "deep-equal": "^1.0.1",
     "dexie": "~2.0.1",
     "envify": "^4.1.0",
     "grunt": "~1.0.1",

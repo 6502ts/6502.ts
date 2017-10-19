@@ -23,7 +23,7 @@ import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
-import AudioOutputInterface from '../../../../machine/io/AudioOutputInterface';
+import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOutputInterface';
 import Board from '../../../../machine/stella/Board';
 
 import EmulationContextInterface from '../EmulationContextInterface';
@@ -72,8 +72,8 @@ class EmulationContext implements EmulationContextInterface {
     }
 
     private _audioChannels: {
-        channel0: AudioOutputInterface;
-        channel1: AudioOutputInterface;
+        channel0: WaveformAudioOutputInterface;
+        channel1: WaveformAudioOutputInterface;
     };
 }
 

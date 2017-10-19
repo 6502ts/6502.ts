@@ -22,14 +22,14 @@
 import { Event } from 'microevent.ts';
 
 import { RpcProviderInterface } from 'worker-rpc';
-import AudioOutputInterface from '../../../../machine/io/AudioOutputInterface';
+import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOutputInterface';
 import ToneGenerator from '../../../../machine/stella/tia/ToneGenerator';
 import StellaConfig from '../../../../machine/stella/Config';
 import AudioOutputBuffer from '../../../../tools/AudioOutputBuffer';
 
 import { SIGNAL_TYPE, AudioBufferChangeMessage, AudioVolumeChangeMessage } from './messages';
 
-class AudioProxy implements AudioOutputInterface {
+class AudioProxy implements WaveformAudioOutputInterface {
     constructor(private _index: number, private _rpc: RpcProviderInterface) {}
 
     init(): this {

@@ -33,7 +33,8 @@ export const types = {
     changeRngSeed: 'current-cartridge/change-rng-seed',
     changeVolume: 'current-cartridge/change-volume',
     changeFrameStart: 'current-cartridge/change-frame-start',
-    changeFrameStartAuto: 'current-cartridge/change-frame-start-auto'
+    changeFrameStartAuto: 'current-cartridge/change-frame-start-auto',
+    changeUsePcmAudio: 'current-cartridge/change-use-pcm-audio'
 };
 Object.freeze(types);
 
@@ -133,5 +134,16 @@ export function changeFrameStartAuto(frameStartAuto: boolean): ChangeFrameStartA
     return {
         type: types.changeFrameStartAuto,
         frameStartAuto
+    };
+}
+
+export interface ChangeUsePcmAudioAction extends Action {
+    usePcmAudio: boolean;
+}
+
+export function changeUsePcmAudio(usePcmAudio: boolean): ChangeUsePcmAudioAction {
+    return {
+        type: types.changeUsePcmAudio,
+        usePcmAudio
     };
 }

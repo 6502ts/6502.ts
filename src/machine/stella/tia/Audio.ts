@@ -22,11 +22,11 @@
 import { Event } from 'microevent.ts';
 
 import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
-import AudioOutputInterface from '../../io/AudioOutputInterface';
+import WaveformAudioOutputInterface from '../../io/WaveformAudioOutputInterface';
 import Config from '../Config';
 import ToneGenerator from './ToneGenerator';
 
-export default class Audio implements AudioOutputInterface {
+export default class Audio implements WaveformAudioOutputInterface {
     constructor(private _config: Config) {
         this._toneGenerator = new ToneGenerator(this._config);
 
