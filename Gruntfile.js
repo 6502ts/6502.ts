@@ -34,7 +34,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-http-server');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-bower-install-simple');
     grunt.loadNpmTasks('grunt-notify');
     grunt.loadNpmTasks('grunt-template');
     grunt.loadNpmTasks('grunt-exorcise');
@@ -47,15 +46,12 @@ module.exports = function(grunt) {
 
     let buildId;
     try {
-        buildId = cp.execFileSync(
-            'git',
-            ['rev-parse', '--short=6', 'HEAD'],
-            {
+        buildId = cp
+            .execFileSync('git', ['rev-parse', '--short=6', 'HEAD'], {
                 encoding: 'utf-8'
-            }
-        ).replace(/\s/, '');
-    }
-    catch (e) {
+            })
+            .replace(/\s/, '');
+    } catch (e) {
         buildId = '[unknown]';
     }
 
@@ -73,14 +69,13 @@ module.exports = function(grunt) {
             base: [
                 '.tscache',
                 'web/js/compiled',
+                'web/js/installed',
                 'tests/fixtures/fs_provider/blob.json',
                 'web/stellerator.html',
                 'build',
                 'compiled'
             ],
-            mrproper: [
-                'web/bower'
-            ]
+            mrproper: ['web/js/installed', 'web/css/installed']
         },
 
         exec: {
@@ -91,9 +86,7 @@ module.exports = function(grunt) {
 
         browserify: {
             options: {
-                configure: b => b
-                    .plugin('tsify', {project: __dirname})
-                    .transform('brfs'),
+                configure: b => b.plugin('tsify', { project: __dirname }).transform('brfs'),
                 browserifyOptions: {
                     debug: true
                 }
@@ -128,18 +121,14 @@ module.exports = function(grunt) {
             },
             stella_worker: {
                 options: {
-                    configure: b => b
-                        .plugin('tsify', {project: path.join(__dirname, 'worker')})
-                        .transform('brfs'),
+                    configure: b => b.plugin('tsify', { project: path.join(__dirname, 'worker') }).transform('brfs')
                 },
                 dest: 'web/js/compiled/worker/stella.js',
                 src: ['worker/src/main/stella.ts']
             },
             video_pipeline_worker: {
                 options: {
-                    configure: b => b
-                        .plugin('tsify', {project: path.join(__dirname, 'worker')})
-                        .transform('brfs'),
+                    configure: b => b.plugin('tsify', { project: path.join(__dirname, 'worker') }).transform('brfs')
                 },
                 dest: 'web/js/compiled/worker/video-pipeline.js',
                 src: ['worker/src/main/video-pipeline.ts']
@@ -152,12 +141,16 @@ module.exports = function(grunt) {
                 dest: 'web/js/compiled/stellerator.prod.js',
                 src: ['src/web/stella/stellerator/main.tsx'],
                 options: {
-                    configure: b => b
-                        .plugin('tsify', {project: __dirname})
-                        .transform(envify({
-                            NODE_ENV: 'production'
-                        }), {global: true})
-                        .transform('brfs'),
+                    configure: b =>
+                        b
+                            .plugin('tsify', { project: __dirname })
+                            .transform(
+                                envify({
+                                    NODE_ENV: 'production'
+                                }),
+                                { global: true }
+                            )
+                            .transform('brfs'),
                     browserifyOptions: {
                         debug: true
                     }
@@ -199,7 +192,7 @@ module.exports = function(grunt) {
             stellerator: {
                 dest: 'build/stellerator/js/app.js',
                 src: [
-                    'web/bower/jquery/dist/jquery.min.js',
+                    'web/js/installed/jquery.min.js',
                     'web/js/bootstrap.min.js',
                     'web/js/compiled/stellerator.prod.js'
                 ]
@@ -217,10 +210,7 @@ module.exports = function(grunt) {
         postcss: {
             options: {
                 map: false,
-                processors: [
-                    require('postcss-import')(),
-                    require('cssnano')()
-                ]
+                processors: [require('postcss-import')(), require('cssnano')()]
             },
             stellerator: {
                 dest: 'build/stellerator/css/app.css',
@@ -267,14 +257,6 @@ module.exports = function(grunt) {
             }
         },
 
-        "bower-install-simple": {
-            install: {
-                options: {
-                    directory: 'web/bower'
-                }
-            }
-        },
-
         blobify: {
             default: {
                 options: {
@@ -300,11 +282,7 @@ module.exports = function(grunt) {
                 options: {
                     data: {
                         stylesheets: ['css/stellerator.css'],
-                        scripts: [
-                            'bower/jquery/dist/jquery.min.js',
-                            'js/bootstrap.min.js',
-                            'js/compiled/stellerator.js'
-                        ],
+                        scripts: ['js/installed/jquery.min.js', 'js/bootstrap.min.js', 'js/compiled/stellerator.js'],
                         workerUrl: 'js/compiled/worker/',
                         buildId
                     }
@@ -332,7 +310,8 @@ module.exports = function(grunt) {
                         cwd: 'web',
                         src: ['css/fonts/**/*'],
                         dest: 'build/stellerator'
-                    }, {
+                    },
+                    {
                         expand: true,
                         src: ['doc/**/*'],
                         dest: 'build/stellerator'
@@ -357,6 +336,15 @@ module.exports = function(grunt) {
                         dest: 'compiled/tests'
                     }
                 ]
+            },
+            install: {
+                files: {
+                    'web/js/installed/jquery.min.js': 'node_modules/jquery/dist/jquery.min.js',
+                    'web/js/installed/jquery.terminal.min.js': 'node_modules/jquery.terminal/js/jquery.terminal.min.js',
+                    'web/js/installed/jquery.mousewheel.min.js':
+                        'node_modules/jquery.terminal/js/jquery.mousewheel-min.js',
+                    'web/css/installed/jquery.terminal.min.css': 'node_modules/jquery.terminal/css/jquery.terminal.css'
+                }
             }
         },
 
@@ -374,8 +362,6 @@ module.exports = function(grunt) {
             }
         }
     });
-
-    grunt.registerTask('bower', ['bower-install-simple']);
 
     grunt.registerTask('browserify_dev', [
         'browserify:debuggerCLI',
@@ -422,7 +408,7 @@ module.exports = function(grunt) {
     grunt.registerTask('build', ['stellerator:build']);
     grunt.registerTask('test', ['tslint', 'ts:main', 'copy:test_fixtures', 'blobify:tests', 'mochaTest:test']);
     grunt.registerTask('test:debug', ['tslint', 'ts:main', 'copy:test_fixtures', 'blobify:tests', 'mochaTest:debug']);
-    grunt.registerTask('initial', ['clean', 'bower', 'test']);
+    grunt.registerTask('initial', ['clean', 'copy:install', 'test']);
 
     grunt.registerTask('cleanup', ['clean:base', 'clean:worker']);
     grunt.registerTask('mrproper', ['clean']);

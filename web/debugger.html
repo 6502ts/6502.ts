@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
@@ -14,7 +15,10 @@
             height: 370px;
         }
 
-       .terminal, .cmd, .terminal .terminal-output div div, .cmd .prompt {
+        .terminal,
+        .cmd,
+        .terminal .terminal-output div div,
+        .cmd .prompt {
             font-family: DOS, Monaco, Menlo, Consolas, 'Courier New', monospace !important;
             font-size: 16px !important;
         }
@@ -32,11 +36,12 @@
     <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
     <link href="css/fixes.css" rel="stylesheet">
-    <link href="bower/jquery.terminal/css/jquery.terminal.css" rel="stylesheet" media="screen">
+    <link href="css/installed/jquery.terminal.min.css" rel="stylesheet" media="screen">
 
-    <script>_386 = {fastLoad: true}</script>
-  </head>
-  <body>
+    <script>_386 = { fastLoad: true }</script>
+</head>
+
+<body>
 
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
@@ -61,19 +66,19 @@
     </div>
 
 
-    <script src="bower/jquery/dist/jquery.min.js"></script>
+    <script src="js/installed/jquery.min.js"></script>
+    <script src="js/installed/jquery.mousewheel.min.js"></script>
+    <script src="js/installed/jquery.terminal.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="bower/jquery-mousewheel/jquery.mousewheel.min.js"></script>
-    <script src="bower/jquery.terminal/js/jquery.terminal.min.js"></script>
 
     <script src="js/compiled/debuggerCLI.js"></script>
 
     <script>
-        $(function() {
+        $(function () {
             $.ajax({
                 dataType: 'json',
                 url: 'js/compiled/files.json'
-            }).then(function(fileBlob) {
+            }).then(function (fileBlob) {
                 require('debuggerCLI').run(
                     fileBlob,
                     $('#term'),
@@ -83,5 +88,6 @@
             });
         });
     </script>
-  </body>
+</body>
+
 </html>

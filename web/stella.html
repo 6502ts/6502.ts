@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
@@ -45,7 +46,10 @@
             margin-bottom: 1rem;
         }
 
-       .terminal, .cmd, .terminal .terminal-output div div, .cmd .prompt {
+        .terminal,
+        .cmd,
+        .terminal .terminal-output div div,
+        .cmd .prompt {
             font-family: DOS, Monaco, Menlo, Consolas, 'Courier New', monospace !important;
             font-size: 16px !important;
         }
@@ -54,11 +58,12 @@
     <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
     <link href="css/fixes.css" rel="stylesheet">
-    <link href="bower/jquery.terminal/css/jquery.terminal.css" rel="stylesheet" media="screen">
+    <link href="css/installed/jquery.terminal.min.css" rel="stylesheet" media="screen">
 
-    <script>_386 = {fastLoad: true}</script>
-  </head>
-  <body>
+    <script>_386 = { fastLoad: true }</script>
+</head>
+
+<body>
 
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
@@ -72,8 +77,7 @@
         <div class="row keybindings">
             <div class="col-md-10">
                 wasd / arrows + v/space = left joystick , ijkl + b = right joystick
-                <br/>
-                shift-enter = reset, shift-enter = select, enter = toggle fullscreen
+                <br/> shift-enter = reset, shift-enter = select, enter = toggle fullscreen
             </div>
         </div>
         <div class="row">
@@ -89,21 +93,21 @@
                 <button id="interrupt-btn" class="btn btn-default">Interrupt</button>
                 <button id="clear-btn" class="btn btn-default">Clear</button>
                 <label for="cartridge-file-input" class="btn btn-default" id="cartridge-file-input-label">Load ROM</label>
-                <input type="file" id="cartridge-file-input"/>
+                <input type="file" id="cartridge-file-input" />
             </div>
         </div>
     </div>
 
 
-    <script src="bower/jquery/dist/jquery.min.js"></script>
+    <script src="js/installed/jquery.min.js"></script>
+    <script src="js/installed/jquery.mousewheel.min.js"></script>
+    <script src="js/installed/jquery.terminal.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="bower/jquery-mousewheel/jquery.mousewheel.min.js"></script>
-    <script src="bower/jquery.terminal/js/jquery.terminal.min.js"></script>
 
     <script src="js/compiled/stellaCLI.js"></script>
 
     <script>
-        $(function() {
+        $(function () {
             function getUrlParameter(sParam) {
                 var sPageURL = decodeURIComponent(window.location.search.substring(1)),
                     sURLVariables = sPageURL.split('&'),
@@ -122,7 +126,7 @@
             $.ajax({
                 dataType: 'json',
                 url: 'js/compiled/files.json'
-            }).then(function(fileBlob) {
+            }).then(function (fileBlob) {
                 require('stellaCLI').run({
                     fileBlob: fileBlob,
                     terminalElt: $('#term'),
@@ -143,5 +147,6 @@
         });
     </script>
 
-  </body>
+</body>
+
 </html>

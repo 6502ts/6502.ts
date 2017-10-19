@@ -3,8 +3,10 @@ node_modules
 .tscache
 web/bower
 web/js/compiled
+web/js/installed
 tests/fixtures/fs_provider/blob.json
 web/stellerator.html
+web/css/installed
 web/doc
 compiled
 build
