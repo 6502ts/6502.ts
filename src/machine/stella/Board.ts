@@ -33,6 +33,7 @@ import Config from './Config';
 
 import VideoOutputInterface from '../io/VideoOutputInterface';
 import WaveformAudioOutputInterface from '../io/WaveformAudioOutputInterface';
+import PCMAudioOutputInterface from '../io/PCMAudioOutputInterface';
 import ControlPanel from './ControlPanel';
 import ControlPanelInterface from './ControlPanelInterface';
 import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
@@ -121,8 +122,8 @@ class Board implements BoardInterface {
 
     getAudioOutput(): Board.Audio {
         return {
-            channel0: this._tia.getAudioChannel0(),
-            channel1: this._tia.getAudioChannel1()
+            waveform: this._config.pcmAudio ? null : [0, 1].map(i => this._tia.getWaveformChannel(i)),
+            pcm: this._config.pcmAudio ? [0, 1].map(i => this._tia.getPCMChannel(i)) : null
         };
     }
 
@@ -373,8 +374,8 @@ class Board implements BoardInterface {
 
 namespace Board {
     export interface Audio {
-        channel0: WaveformAudioOutputInterface;
-        channel1: WaveformAudioOutputInterface;
+        waveform: Array<WaveformAudioOutputInterface>;
+        pcm: Array<PCMAudioOutputInterface>;
     }
 }
 

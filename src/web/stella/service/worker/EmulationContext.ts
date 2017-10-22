@@ -23,7 +23,6 @@ import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
-import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOutputInterface';
 import Board from '../../../../machine/stella/Board';
 
 import EmulationContextInterface from '../EmulationContextInterface';
@@ -42,8 +41,8 @@ class EmulationContext implements EmulationContextInterface {
         }
 
         this._audioChannels = {
-            channel0: audioChannels[0],
-            channel1: audioChannels[1]
+            waveform: [audioChannels[0], audioChannels[1]],
+            pcm: null
         };
     }
 
@@ -71,10 +70,7 @@ class EmulationContext implements EmulationContextInterface {
         return this._videoProxy;
     }
 
-    private _audioChannels: {
-        channel0: WaveformAudioOutputInterface;
-        channel1: WaveformAudioOutputInterface;
-    };
+    private _audioChannels: Board.Audio;
 }
 
 export default EmulationContext;

@@ -23,11 +23,14 @@ import { Event } from 'microevent.ts';
 
 import VideoOutputInterface from '../../io/VideoOutputInterface';
 import WaveformAudioOutputInterface from '../../io/WaveformAudioOutputInterface';
+import PCMAudioOutputInterface from '../../io/PCMAudioOutputInterface';
 import DigitalJoystickInterface from '../../io/DigitalJoystickInterface';
 import RGBASurfaceInterface from '../../../video/surface/RGBASurfaceInterface';
 import Config from '../Config';
 import CpuInterface from '../../cpu/CpuInterface';
-import Audio from './Audio';
+import WaveformAudio from './WaveformAudio';
+import PCMAudio from './PCMAudio';
+import AudioInterface from './AudioInterface';
 import Paddle from '../../io/Paddle';
 import Bus from '../Bus';
 
@@ -105,8 +108,20 @@ class Tia implements VideoOutputInterface {
         this._palette = this._getPalette(this._config);
         this._input0 = new LatchedInput(joystick0.getFire());
         this._input1 = new LatchedInput(joystick1.getFire());
-        this._audio0 = new Audio(this._config);
-        this._audio1 = new Audio(this._config);
+
+        if (this._config.pcmAudio) {
+            this._pcmAudio = new Array<PCMAudio>(2);
+        } else {
+            this._waveformAudio = new Array<WaveformAudio>(2);
+        }
+
+        for (let i = 0; i < 2; i++) {
+            if (this._config.pcmAudio) {
+                this._pcmAudio[i] = this._audio[i] = new PCMAudio(this._config);
+            } else {
+                this._waveformAudio[i] = this._audio[i] = new WaveformAudio(this._config);
+            }
+        }
 
         const clockFreq = this._getClockFreq(this._config);
 
@@ -144,8 +159,8 @@ class Tia implements VideoOutputInterface {
         this._playfield.reset();
         this._ball.reset();
 
-        this._audio0.reset();
-        this._audio1.reset();
+        this._audio[0].reset();
+        this._audio[1].reset();
 
         this._input0.reset();
         this._input1.reset();
@@ -179,17 +194,17 @@ class Tia implements VideoOutputInterface {
         return this;
     }
 
-    getAudioChannel0(): WaveformAudioOutputInterface {
-        return this._audio0;
+    getWaveformChannel(i: number): WaveformAudioOutputInterface {
+        return this._waveformAudio[i];
     }
 
-    getAudioChannel1(): WaveformAudioOutputInterface {
-        return this._audio1;
+    getPCMChannel(i: number): PCMAudioOutputInterface {
+        return this._pcmAudio[i];
     }
 
     setAudioEnabled(state: boolean): void {
-        this._audio0.setActive(state && this._config.enableAudio);
-        this._audio1.setActive(state && this._config.enableAudio);
+        this._audio[0].setActive(state && this._config.enableAudio);
+        this._audio[1].setActive(state && this._config.enableAudio);
     }
 
     read(address: number): number {
@@ -482,27 +497,27 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.audc0:
-                this._audio0.audc(value);
+                this._audio[0].audc(value);
                 break;
 
             case Tia.Registers.audc1:
-                this._audio1.audc(value);
+                this._audio[1].audc(value);
                 break;
 
             case Tia.Registers.audf0:
-                this._audio0.audf(value);
+                this._audio[0].audf(value);
                 break;
 
             case Tia.Registers.audf1:
-                this._audio1.audf(value);
+                this._audio[1].audf(value);
                 break;
 
             case Tia.Registers.audv0:
-                this._audio0.audv(value);
+                this._audio[0].audv(value);
                 break;
 
             case Tia.Registers.audv1:
-                this._audio1.audv(value);
+                this._audio[1].audv(value);
                 break;
         }
     }
@@ -546,6 +561,11 @@ class Tia implements VideoOutputInterface {
 
         if (++this._hctr >= 228) {
             this._nextLine();
+        }
+
+        if (this._pcmAudio) {
+            this._pcmAudio[0].tick();
+            this._pcmAudio[1].tick();
         }
 
         this._clock++;
@@ -975,8 +995,9 @@ class Tia implements VideoOutputInterface {
     private _playfield = new Playfield(CollisionMask.playfield, () => this._flushLineCache());
     private _ball = new Ball(CollisionMask.ball, () => this._flushLineCache());
 
-    private _audio0: Audio;
-    private _audio1: Audio;
+    private _waveformAudio: Array<WaveformAudio> = null;
+    private _pcmAudio: Array<PCMAudio> = null;
+    private _audio = new Array<AudioInterface>(2);
 
     private _input0: LatchedInput;
     private _input1: LatchedInput;

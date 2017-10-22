@@ -25,8 +25,9 @@ import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import WaveformAudioOutputInterface from '../../io/WaveformAudioOutputInterface';
 import Config from '../Config';
 import ToneGenerator from './ToneGenerator';
+import AudioInterface from './AudioInterface';
 
-export default class Audio implements WaveformAudioOutputInterface {
+export default class WaveformAudio implements WaveformAudioOutputInterface, AudioInterface {
     constructor(private _config: Config) {
         this._toneGenerator = new ToneGenerator(this._config);
 

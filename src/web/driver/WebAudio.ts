@@ -19,7 +19,15 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import ChannelInterface from './audio/ChannelInterface';
+import WaveformChannel from './audio/WaveformChannel';
+import PCMChannel from './audio/PCMChannel';
+
+import WaveformAudioOutputInterface from '../../machine/io/WaveformAudioOutputInterface';
+import PCMAudioOutputInterface from '../../machine/io/PCMAudioOutputInterface';
+
 type AudioContextType = typeof AudioContext;
+type AudioOutputInterface = WaveformAudioOutputInterface | PCMAudioOutputInterface;
 
 declare namespace window {
     const webkitAudioContext: AudioContextType;
@@ -27,14 +35,15 @@ declare namespace window {
     const AudioContext: AudioContextType;
 }
 
-import WaveformAudioOutputInterface from '../../machine/io/WaveformAudioOutputInterface';
-
-export default class WebAudioDriver {
-    constructor(channels: number) {
-        this._channels = new Array<Channel>(channels);
+class WebAudioDriver {
+    constructor(channels: number, private _channelTypes: Array<WebAudioDriver.ChannelType>) {
+        this._channels = new Array<ChannelInterface>(channels);
 
         for (let i = 0; i < channels; i++) {
-            this._channels[i] = new Channel(this._cache);
+            this._channels[i] =
+                this._channelTypes[i] === WebAudioDriver.ChannelType.pcm
+                    ? new PCMChannel()
+                    : new WaveformChannel(this._cache);
         }
     }
 
@@ -59,7 +68,7 @@ export default class WebAudioDriver {
         this._channels.forEach(channel => channel.init(this._context, this._merger));
     }
 
-    bind(...sources: Array<WaveformAudioOutputInterface>): void {
+    bind(sources: Array<AudioOutputInterface>): void {
         if (this._sources) {
             return;
         }
@@ -91,106 +100,16 @@ export default class WebAudioDriver {
 
     private _context: AudioContext = null;
     private _merger: ChannelMergerNode = null;
-    private _channels: Array<Channel> = null;
-    private _sources: Array<WaveformAudioOutputInterface> = null;
-    private _cache: BufferCache = {};
+    private _channels: Array<ChannelInterface> = null;
+    private _sources: Array<AudioOutputInterface> = null;
+    private _cache = new Map<number, AudioBuffer>();
 }
 
-class Channel {
-    constructor(private _cache: BufferCache) {}
-
-    init(context: AudioContext, target: AudioNode): void {
-        this._context = context;
-
-        this._gain = this._context.createGain();
-        this._gain.connect(target);
+namespace WebAudioDriver {
+    export const enum ChannelType {
+        waveform,
+        pcm
     }
-
-    bind(target: WaveformAudioOutputInterface): void {
-        if (this._audio) {
-            return;
-        }
-
-        this._audio = target;
-        this._volume = this._audio.getVolume();
-        this._updateGain();
-
-        this._audio.volumeChanged.addHandler(Channel._onVolumeChanged, this);
-        this._audio.bufferChanged.addHandler(Channel._onBufferChanged, this);
-        this._audio.stop.addHandler(Channel._onStop, this);
-    }
-
-    unbind(): void {
-        if (!this._audio) {
-            return;
-        }
-
-        this._audio.volumeChanged.removeHandler(Channel._onVolumeChanged, this);
-        this._audio.bufferChanged.removeHandler(Channel._onBufferChanged, this);
-        this._audio.stop.removeHandler(Channel._onStop, this);
-
-        if (this._source) {
-            this._source.stop();
-            this._source = null;
-        }
-
-        this._audio = null;
-    }
-
-    setMasterVolume(volume: number): void {
-        this._masterVolume = volume;
-        this._updateGain();
-    }
-
-    private static _onVolumeChanged(volume: number, self: Channel): void {
-        self._volume = volume;
-        self._updateGain();
-    }
-
-    private static _onBufferChanged(key: number, self: Channel): void {
-        if (!self._cache[key]) {
-            const sampleBuffer = self._audio.getBuffer(key),
-                audioBuffer = self._context.createBuffer(1, sampleBuffer.getLength(), sampleBuffer.getSampleRate());
-
-            audioBuffer.getChannelData(0).set(sampleBuffer.getContent());
-            self._cache[key] = audioBuffer;
-        }
-
-        const buffer = self._cache[key],
-            source = self._context.createBufferSource();
-
-        if (self._source) {
-            self._source.stop();
-        }
-
-        source.loop = true;
-        source.buffer = buffer;
-        source.connect(self._gain);
-        source.start();
-
-        self._source = source;
-    }
-
-    private static _onStop(payload: void, self: Channel): void {
-        if (self._source) {
-            self._source.stop();
-            self._source = null;
-        }
-    }
-
-    private _updateGain(): void {
-        this._gain.gain.value = this._volume * this._masterVolume;
-    }
-
-    private _context: AudioContext = null;
-    private _source: AudioBufferSourceNode = null;
-    private _gain: GainNode = null;
-    private _audio: WaveformAudioOutputInterface = null;
-
-    private _volume = 0;
-    private _masterVolume = 1;
 }
 
-interface BufferCache {
-    [key: number]: AudioBuffer;
-}
+export default WebAudioDriver;

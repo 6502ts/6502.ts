@@ -19,45 +19,26 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-interface Config {
-    tvMode: Config.TvMode;
-    enableAudio: boolean;
-    randomSeed: number;
-    emulatePaddles: boolean;
-    frameStart: number;
-    pcmAudio: false;
+import { EventInterface } from 'microevent.ts';
+
+import AudioOutputBuffer from '../../tools/AudioOutputBuffer';
+
+interface PCMAudioOutputInterface {
+    getSampleRate(): number;
+
+    getFrameSize(): number;
+
+    setFrameBufferFactory(factory: PCMAudioOutputInterface.FrameBufferFactory): void;
+
+    isPaused(): boolean;
+
+    newFrame: EventInterface<AudioOutputBuffer>;
 }
 
-namespace Config {
-    export const enum TvMode {
-        ntsc,
-        pal,
-        secam
-    }
-
-    export function create(config: Partial<Config> = {}): Config {
-        return {
-            tvMode: TvMode.ntsc,
-            enableAudio: true,
-            randomSeed: -1,
-            emulatePaddles: true,
-            frameStart: -1,
-            pcmAudio: false,
-
-            ...config
-        };
-    }
-
-    export function getClockMhz(config: Config): number {
-        switch (config.tvMode) {
-            case Config.TvMode.ntsc:
-                return 262 * 228 * 60 / 1000000;
-
-            case Config.TvMode.pal:
-            case Config.TvMode.secam:
-                return 312 * 228 * 50 / 1000000;
-        }
+namespace PCMAudioOutputInterface {
+    export interface FrameBufferFactory {
+        (): AudioOutputBuffer;
     }
 }
 
-export default Config;
+export default PCMAudioOutputInterface;

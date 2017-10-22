@@ -23,9 +23,7 @@ import VanillaDriver from '../../driver/WebAudio';
 import Board from '../../../machine/stella/Board';
 
 export default class WebAudioDriver {
-    init(): void {
-        this._driver.init();
-    }
+    init(): void {}
 
     bind(audio: Board.Audio): void {
         if (this._audio) {
@@ -33,7 +31,13 @@ export default class WebAudioDriver {
         }
         this._audio = audio;
 
-        this._driver.bind(this._audio.channel0, this._audio.channel1);
+        const channelType = audio.pcm ? VanillaDriver.ChannelType.pcm : VanillaDriver.ChannelType.waveform;
+        this._driver = new VanillaDriver(2, [channelType, channelType]);
+        this._driver.init();
+
+        this._driver.bind(audio.pcm || audio.waveform);
+        this._driver.setMasterVolume(0, this._volume);
+        this._driver.setMasterVolume(1, this._volume);
     }
 
     unbind(): void {
@@ -43,14 +47,20 @@ export default class WebAudioDriver {
 
         this._driver.unbind();
 
+        this._driver = null;
         this._audio = null;
     }
 
     setMasterVolume(volume: number): void {
-        this._driver.setMasterVolume(0, volume);
-        this._driver.setMasterVolume(1, volume);
+        this._volume = volume;
+
+        if (this._driver) {
+            this._driver.setMasterVolume(0, volume);
+            this._driver.setMasterVolume(1, volume);
+        }
     }
 
-    private _driver = new VanillaDriver(2);
+    private _driver: VanillaDriver;
+    private _volume = 1;
     private _audio: Board.Audio = null;
 }
