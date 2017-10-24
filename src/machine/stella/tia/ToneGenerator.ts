@@ -99,6 +99,12 @@ class ToneGenerator {
     }
 
     getKey(tone: number, frequency: number): number {
+        // Hack: this is at the boundary of hearing anyway and causes nasty artifacts during
+        // resampling, so we kill it right away.
+        if (POLYS[tone] === POLY1 && FREQUENCY_DIVISIORS[tone] * (frequency + 1) === 1) {
+            return 0;
+        }
+
         return (tone << 5) | frequency;
     }
 

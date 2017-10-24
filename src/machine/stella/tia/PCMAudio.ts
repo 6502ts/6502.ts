@@ -147,7 +147,7 @@ class PCMAudio implements PCMAudioInterface, AudioInterface {
     private _sampleRate = 0;
     private _frameSize: number;
     private _counter = 0;
-    private _isActive = true;
+    private _isActive = false;
 
     private _bufferFactory: PCMAudioInterface.FrameBufferFactory;
     private _toneGenerator: ToneGenerator;

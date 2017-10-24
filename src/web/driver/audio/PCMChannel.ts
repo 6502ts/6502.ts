@@ -42,11 +42,6 @@ class PCMChannel implements ChannelInterface {
 
         const buffer = context.createBuffer(1, 1, context.sampleRate);
         buffer.getChannelData(0).set([0]);
-
-        this._source = context.createBufferSource();
-        this._source.buffer = buffer;
-        this._source.loop = true;
-        this._source.connect(this._processor);
     }
 
     bind(audio: PCMAudioOutputInterface): void {
@@ -62,8 +57,6 @@ class PCMChannel implements ChannelInterface {
         );
 
         this._audio.newFrame.addHandler(PCMChannel._onNewFragment, this);
-
-        this._source.start();
     }
 
     unbind() {
@@ -71,7 +64,7 @@ class PCMChannel implements ChannelInterface {
             return;
         }
 
-        this._source.stop();
+        this._audio.newFrame.removeHandler(PCMChannel._onNewFragment, this);
 
         if (this._lastFragment) {
             this.releaseFragment.dispatch(this._lastFragment);
@@ -92,7 +85,7 @@ class PCMChannel implements ChannelInterface {
         this._volume = volume;
     }
 
-    private static _onNewFragment(fragment: AudioOutputBuffer, self: PCMChannel) {
+    private static _onNewFragment(fragment: AudioOutputBuffer, self: PCMChannel): void {
         self._fragmentRing.push(fragment);
 
         if (!self._currentFragment) {
@@ -102,6 +95,10 @@ class PCMChannel implements ChannelInterface {
     }
 
     private _processAudio(e: AudioProcessingEvent): void {
+        if (!this._audio) {
+            return;
+        }
+
         const outputBuffer = e.outputBuffer.getChannelData(0),
             previousFragmentBuffer = this._lastFragment && this._lastFragment.getContent();
 
@@ -150,7 +147,6 @@ class PCMChannel implements ChannelInterface {
     private _volume = 1;
 
     private _gain: GainNode = null;
-    private _source: AudioBufferSourceNode;
     private _processor: ScriptProcessorNode = null;
 
     private _fragmentRing: RingBuffer<AudioOutputBuffer> = null;
