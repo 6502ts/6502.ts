@@ -94,6 +94,14 @@ export default class SystemConfigSetupProvider {
         }
     }
 
+    protected _setupPcmAUdio(args?: Array<string>) {
+        if (args && args.length !== 0) {
+            this._config.pcmAudio = this._isArgTruthy(args[0]);
+        }
+
+        return `PCM audio emulation: ${this._config.emulatePaddles ? 'enabled' : 'disabled'}`;
+    }
+
     protected _isArgTruthy(arg: string): boolean {
         const normalizedArg = arg.toLocaleLowerCase();
 
@@ -104,6 +112,7 @@ export default class SystemConfigSetupProvider {
         'tv-mode': this._setupVideo.bind(this),
         audio: this._setupAudio.bind(this),
         paddles: this._setupPaddles.bind(this),
-        seed: this._setRandomSeed.bind(this)
+        seed: this._setRandomSeed.bind(this),
+        pcm: this._setupPcmAUdio.bind(this)
     };
 }

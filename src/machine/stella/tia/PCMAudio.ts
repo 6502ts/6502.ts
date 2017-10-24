@@ -123,14 +123,14 @@ class PCMAudio implements PCMAudioInterface, AudioInterface {
     }
 
     private _updatePattern(): void {
-        const key = this._toneGenerator.getKey(this._tone, this._volume);
+        const key = this._toneGenerator.getKey(this._tone, this._frequency);
 
         if (!this._patterns.has(key)) {
             this._patterns.set(key, this._toneGenerator.getBuffer(key).getContent());
         }
 
         this._currentPattern = this._patterns.get(key);
-        this._bufferIndex = 0;
+        this._patternIndex = 0;
     }
 
     newFrame = new Event<AudioOutputBuffer>();

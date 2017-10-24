@@ -25,7 +25,7 @@ interface Config {
     randomSeed: number;
     emulatePaddles: boolean;
     frameStart: number;
-    pcmAudio: false;
+    pcmAudio: boolean;
 }
 
 namespace Config {

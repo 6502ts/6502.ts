@@ -26,6 +26,7 @@ import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 import SimpleCanvasVideoDriver from './driver/SimpleCanvasVideo';
 import KeyboardIoDriver from './stella/driver/KeyboardIO';
 import WebAudioDriver from './stella/driver/WebAudio';
+import AudioOutputBuffer from '../tools/AudioOutputBuffer';
 import FullscreenVideoDriver from './driver/FullscreenVideo';
 import PaddleInterface from '../machine/io/PaddleInterface';
 import MouseAsPaddleDriver from './driver/MouseAsPaddle';
@@ -37,6 +38,7 @@ interface PageConfig {
     audio?: string;
     paddles?: string;
     seed?: string;
+    pcm?: string;
 }
 
 export function run({
@@ -100,16 +102,20 @@ export function run({
             cli.pushInput(`audio ${pageConfig.audio}\n`);
         }
 
-        if (pageConfig.cartridge) {
-            cli.pushInput(`load-cartridge ${pageConfig.cartridge}\n`);
-        }
-
         if (pageConfig.paddles) {
             cli.pushInput(`paddles ${pageConfig.paddles}\n`);
         }
 
         if (pageConfig.seed) {
             cli.pushInput(`seed ${pageConfig.seed}\n`);
+        }
+
+        if (pageConfig.pcm) {
+            cli.pushInput(`pcm ${pageConfig.pcm}\n`);
+        }
+
+        if (pageConfig.cartridge) {
+            cli.pushInput(`load-cartridge ${pageConfig.cartridge}\n`);
         }
     }
 }
@@ -159,6 +165,13 @@ function setupAudio(board: Board) {
         driver.init();
     } catch (e) {
         console.log(`audio unavailable: ${e.message}`);
+    }
+
+    const audio = board.getAudioOutput();
+    if (audio.pcm) {
+        audio.pcm.forEach(i =>
+            i.setFrameBufferFactory(() => new AudioOutputBuffer(new Float32Array(i.getFrameSize()), i.getSampleRate()))
+        );
     }
 
     driver.bind(board.getAudioOutput());

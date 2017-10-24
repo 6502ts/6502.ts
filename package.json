@@ -67,6 +67,7 @@
     "screenfull": "^3.3.1",
     "seedrandom": "~2.4.2",
     "setimmediate2": "^3.0.0",
+    "source-map-support": "^0.5.0",
     "styled-components": "^2.2.1",
     "tsify": "~3.0.3",
     "tslib": "^1.8.0",

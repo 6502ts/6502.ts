@@ -34,14 +34,17 @@ class PCMChannel implements ChannelInterface {
         this._gain.gain.value = this._volume;
         this._gain.connect(target);
 
-        this._processor = context.createScriptProcessor(4096);
+        this._processor = context.createScriptProcessor(1024, 1, 1);
         this._bufferSize = this._processor.bufferSize;
 
         this._processor.connect(this._gain);
         this._processor.onaudioprocess = e => this._processAudio(e);
 
+        const buffer = context.createBuffer(1, 1, context.sampleRate);
+        buffer.getChannelData(0).set([0]);
+
         this._source = context.createBufferSource();
-        this._source.buffer = null;
+        this._source.buffer = buffer;
         this._source.loop = true;
         this._source.connect(this._processor);
     }
@@ -123,13 +126,20 @@ class PCMChannel implements ChannelInterface {
             }
         }
 
+        if (bufferIndex < this._bufferSize && this._audio.isPaused()) {
+            console.log(`audio underrun: ${this._bufferSize - bufferIndex}`);
+        }
+
         while (bufferIndex < this._bufferSize) {
             outputBuffer[bufferIndex++] =
-                this._audio.isPaused() || !previousFragmentBuffer
+                (this._audio && this._audio.isPaused()) || !previousFragmentBuffer
                     ? 0
                     : previousFragmentBuffer[Math.floor(this._fragmentIndex)] * this._volume;
 
             this._fragmentIndex += this._inputSampleRate / this._outputSampleRate;
+            if (this._fragmentIndex >= this._fragmentSize) {
+                this._fragmentIndex -= this._fragmentSize;
+            }
         }
     }
 

@@ -223,7 +223,8 @@ module.exports = function(grunt) {
                 options: {
                     reporter: 'nyan',
                     ui: 'tdd',
-                    bail: false
+                    bail: false,
+                    require: 'source-map-support/register'
                 },
                 src: ['compiled/tests/ts/**/*.js']
             },
