@@ -27,6 +27,8 @@ import Board from '../../../../machine/stella/Board';
 import VideoEndpoint from '../../../driver/VideoEndpoint';
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
+import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOutputInterface';
+import PCMAudioEndpointInterface from '../../../driver/PCMAudioEndpointInterface';
 import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 
 export default class EmulationContext implements EmulationContextInterface {
@@ -65,8 +67,12 @@ export default class EmulationContext implements EmulationContextInterface {
         }
     }
 
-    getAudio(): Board.Audio {
-        return this._board.getAudioOutput();
+    getWaveformChannels(): Array<WaveformAudioOutputInterface> {
+        return this._board.getWaveformChannels();
+    }
+
+    getPCMChannels(): Array<PCMAudioEndpointInterface> {
+        return [];
     }
 
     getRawVideo(): VideoOutputInterface {

@@ -23,7 +23,8 @@ import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
-import Board from '../../../../machine/stella/Board';
+import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOutputInterface';
+import PCMAudioEndpointInterface from '../../../driver/PCMAudioEndpointInterface';
 
 import EmulationContextInterface from '../EmulationContextInterface';
 import VideoProxy from './VideoProxy';
@@ -34,16 +35,11 @@ class EmulationContext implements EmulationContextInterface {
     constructor(
         private _videoProxy: VideoProxy,
         private _controlProxy: ControlProxy,
-        audioChannels: Array<AudioProxy>
+        private _audioChannels: Array<AudioProxy>
     ) {
-        if (audioChannels.length !== 2) {
-            throw new Error(`invalid channel count ${audioChannels.length}`);
+        if (this._audioChannels.length !== 2) {
+            throw new Error(`invalid channel count ${this._audioChannels.length}`);
         }
-
-        this._audioChannels = {
-            waveform: [audioChannels[0], audioChannels[1]],
-            pcm: null
-        };
     }
 
     getVideo(): VideoEndpointInterface {
@@ -62,15 +58,17 @@ class EmulationContext implements EmulationContextInterface {
         return this._controlProxy.getPaddle(i);
     }
 
-    getAudio(): Board.Audio {
+    getWaveformChannels(): Array<WaveformAudioOutputInterface> {
         return this._audioChannels;
+    }
+
+    getPCMChannels(): Array<PCMAudioEndpointInterface> {
+        return [];
     }
 
     getVideoProxy(): VideoProxy {
         return this._videoProxy;
     }
-
-    private _audioChannels: Board.Audio;
 }
 
 export default EmulationContext;

@@ -19,25 +19,18 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import VideoEndpointInterface from '../../driver/VideoEndpointInterface';
-import ControlPanelInterface from '../../../machine/stella/ControlPanelInterface';
-import JoystickInterface from '../../../machine/io/DigitalJoystickInterface';
-import PaddleInterface from '../../../machine/io/PaddleInterface';
-import WaveformAudioOutputInterface from '../../../machine/io/WaveformAudioOutputInterface';
-import PCMAudioEndpointInterface from '../../driver/PCMAudioEndpointInterface';
+import { EventInterface } from 'microevent.ts';
 
-interface EmulationContextInterface {
-    getVideo(): VideoEndpointInterface;
+import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 
-    getJoystick(i: number): JoystickInterface;
+interface PCMAudioEndpointInterface {
+    getSampleRate(): number;
 
-    getControlPanel(): ControlPanelInterface;
+    getFrameSize(): number;
 
-    getPaddle(i: number): PaddleInterface;
+    isPaused(): boolean;
 
-    getWaveformChannels(): Array<WaveformAudioOutputInterface>;
-
-    getPCMChannels(): Array<PCMAudioEndpointInterface>;
+    newFrame: EventInterface<PoolMemberInterface<Float32Array>>;
 }
 
-export default EmulationContextInterface;
+export default PCMAudioEndpointInterface;

@@ -20,35 +20,52 @@
  */
 
 import VanillaDriver from '../../driver/WebAudio';
-import Board from '../../../machine/stella/Board';
+import WaveformAudioOutputInterface from '../../../machine/io/WaveformAudioOutputInterface';
+import PCMAudioEndpointInterface from '../../driver/PCMAudioEndpointInterface';
 
-export default class WebAudioDriver {
+class WebAudioDriver {
+    constructor(private _fragmentSize?: number) {}
+
     init(): void {}
 
-    bind(audio: Board.Audio): void {
-        if (this._audio) {
+    bind(pcmAudio: boolean, channels: WebAudioDriver.Channels): void {
+        if (this._channels) {
             return;
         }
-        this._audio = audio;
+        this._channels = [...channels] as any;
 
-        const channelType = audio.pcm ? VanillaDriver.ChannelType.pcm : VanillaDriver.ChannelType.waveform;
-        this._driver = new VanillaDriver(2, [channelType, channelType]);
-        this._driver.init();
+        if (!this._driver || this._pcmAudio !== pcmAudio) {
+            if (this._driver) {
+                this._driver.close();
+            }
 
-        this._driver.bind(audio.pcm || audio.waveform);
+            this._driver = pcmAudio
+                ? new VanillaDriver(0, 2, this._fragmentSize)
+                : new VanillaDriver(2, 0, this._fragmentSize);
+            this._driver.init();
+        }
+
+        if (pcmAudio) {
+            this._driver.bind([], this._channels as Array<PCMAudioEndpointInterface>);
+        } else {
+            this._driver.bind(this._channels as Array<WaveformAudioOutputInterface>, []);
+        }
+
         this._driver.setMasterVolume(0, this._volume);
         this._driver.setMasterVolume(1, this._volume);
+
+        this._pcmAudio = pcmAudio;
     }
 
     unbind(): void {
-        if (!this._audio) {
+        if (!this._channels) {
             return;
         }
 
         this._driver.unbind();
 
         this._driver = null;
-        this._audio = null;
+        this._channels = null;
     }
 
     setMasterVolume(volume: number): void {
@@ -60,7 +77,26 @@ export default class WebAudioDriver {
         }
     }
 
+    pause(): void {
+        if (this._driver) {
+            this._driver.pause();
+        }
+    }
+
+    resume(): void {
+        if (this._driver) {
+            this._driver.resume();
+        }
+    }
+
     private _driver: VanillaDriver;
+    private _pcmAudio = false;
     private _volume = 1;
-    private _audio: Board.Audio = null;
+    private _channels: WebAudioDriver.Channels;
 }
+
+namespace WebAudioDriver {
+    export type Channels = Array<WaveformAudioOutputInterface> | Array<PCMAudioEndpointInterface>;
+}
+
+export default WebAudioDriver;

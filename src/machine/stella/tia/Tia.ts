@@ -109,18 +109,11 @@ class Tia implements VideoOutputInterface {
         this._input0 = new LatchedInput(joystick0.getFire());
         this._input1 = new LatchedInput(joystick1.getFire());
 
-        if (this._config.pcmAudio) {
-            this._pcmAudio = new Array<PCMAudio>(2);
-        } else {
-            this._waveformAudio = new Array<WaveformAudio>(2);
-        }
-
         for (let i = 0; i < 2; i++) {
-            if (this._config.pcmAudio) {
-                this._pcmAudio[i] = this._audio[i] = new PCMAudio(this._config);
-            } else {
-                this._waveformAudio[i] = this._audio[i] = new WaveformAudio(this._config);
-            }
+            this._pcmAudio[i] = new PCMAudio(this._config);
+            this._waveformAudio[i] = new WaveformAudio(this._config);
+
+            this._audio[i] = this._config.pcmAudio ? this._pcmAudio[i] : this._waveformAudio[i];
         }
 
         const clockFreq = this._getClockFreq(this._config);
@@ -995,8 +988,8 @@ class Tia implements VideoOutputInterface {
     private _playfield = new Playfield(CollisionMask.playfield, () => this._flushLineCache());
     private _ball = new Ball(CollisionMask.ball, () => this._flushLineCache());
 
-    private _waveformAudio: Array<WaveformAudio> = null;
-    private _pcmAudio: Array<PCMAudio> = null;
+    private _waveformAudio = new Array<WaveformAudio>(2);
+    private _pcmAudio = new Array<PCMAudio>(2);
     private _audio = new Array<AudioInterface>(2);
 
     private _input0: LatchedInput;

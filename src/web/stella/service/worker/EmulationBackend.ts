@@ -67,7 +67,7 @@ class EmulationBackend {
 
         for (let i = 0; i < 2; i++) {
             driverManager.addDriver(audioDrivers[i], (context: EmulationContext, driver: AudioDriver) =>
-                driver.bind(context.getAudio().waveform[i])
+                driver.bind(context.getWaveformChannels()[i])
             );
         }
     }
@@ -118,13 +118,13 @@ class EmulationBackend {
 
     private _onEmulationGetParameters(): Promise<EmulationParametersResponse> {
         const context = this._service.getEmulationContext(),
-            audio = context.getAudio(),
+            channels = context.getWaveformChannels(),
             video = context && context.getRawVideo();
 
         return Promise.resolve({
             width: video ? video.getWidth() : 0,
             height: video ? video.getHeight() : 0,
-            volume: [audio.waveform[0].getVolume(), audio.waveform[1].getVolume()]
+            volume: [channels[0].getVolume(), channels[1].getVolume()]
         });
     }
 

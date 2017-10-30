@@ -26,11 +26,11 @@ import PrepackagedFilesystemProvider from '../fs/PrepackagedFilesystemProvider';
 import SimpleCanvasVideoDriver from './driver/SimpleCanvasVideo';
 import KeyboardIoDriver from './stella/driver/KeyboardIO';
 import WebAudioDriver from './stella/driver/WebAudio';
-import AudioOutputBuffer from '../tools/AudioOutputBuffer';
 import FullscreenVideoDriver from './driver/FullscreenVideo';
 import PaddleInterface from '../machine/io/PaddleInterface';
 import MouseAsPaddleDriver from './driver/MouseAsPaddle';
 import VideoEndpoint from './driver/VideoEndpoint';
+import PCMAudioEndpoint from './driver/PCMAudioEndpoint';
 
 interface PageConfig {
     cartridge?: string;
@@ -80,7 +80,7 @@ export function run({
             videoDriver = setupVideo(canvas.get(0) as HTMLCanvasElement, board),
             fullscreenDriver = new FullscreenVideoDriver(videoDriver);
 
-        setupAudio(board);
+        setupAudio(board, cli);
         setupKeyboardControls(canvas, board, fullscreenDriver);
         setupPaddles(board.getPaddle(0));
 
@@ -158,7 +158,7 @@ function setupVideo(canvas: HTMLCanvasElement, board: Board): SimpleCanvasVideoD
     return driver;
 }
 
-function setupAudio(board: Board) {
+function setupAudio(board: Board, cli: StellaCLI) {
     const driver = new WebAudioDriver();
 
     try {
@@ -167,14 +167,25 @@ function setupAudio(board: Board) {
         console.log(`audio unavailable: ${e.message}`);
     }
 
-    const audio = board.getAudioOutput();
-    if (audio.pcm) {
-        audio.pcm.forEach(i =>
-            i.setFrameBufferFactory(() => new AudioOutputBuffer(new Float32Array(i.getFrameSize()), i.getSampleRate()))
-        );
-    }
+    const config = board.getConfig();
+    driver.bind(
+        config.pcmAudio,
+        config.pcmAudio
+            ? board.getPCMChannels().map(channel => new PCMAudioEndpoint(channel))
+            : board.getWaveformChannels()
+    );
 
-    driver.bind(board.getAudioOutput());
+    cli.events.stateChanged.addHandler(newState => {
+        switch (newState) {
+            case StellaCLI.State.run:
+                driver.resume();
+                break;
+
+            case StellaCLI.State.debug:
+                driver.pause();
+                break;
+        }
+    });
 }
 
 function setupKeyboardControls(element: JQuery, board: Board, fullscreenDriver: FullscreenVideoDriver) {

@@ -84,7 +84,7 @@ class EmulationService implements EmulationServiceInterface {
             this._rpc
                 .rpc<EmulationStartMessage, EmulationServiceInterface.State>(RPC_TYPE.emulationStart, {
                     buffer,
-                    config,
+                    config: { ...config, pcmAudio: false },
                     cartridgeType,
                     videoProcessing
                 })

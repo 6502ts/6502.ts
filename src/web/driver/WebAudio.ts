@@ -19,15 +19,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import { Mutex } from 'async-mutex';
+
 import ChannelInterface from './audio/ChannelInterface';
 import WaveformChannel from './audio/WaveformChannel';
 import PCMChannel from './audio/PCMChannel';
 
 import WaveformAudioOutputInterface from '../../machine/io/WaveformAudioOutputInterface';
-import PCMAudioOutputInterface from '../../machine/io/PCMAudioOutputInterface';
+import PCMAudioEndpointInterface from './PCMAudioEndpointInterface';
 
 type AudioContextType = typeof AudioContext;
-type AudioOutputInterface = WaveformAudioOutputInterface | PCMAudioOutputInterface;
 
 declare namespace window {
     const webkitAudioContext: AudioContextType;
@@ -36,15 +37,19 @@ declare namespace window {
 }
 
 class WebAudioDriver {
-    constructor(channels: number, private _channelTypes: Array<WebAudioDriver.ChannelType>) {
-        this._channels = new Array<ChannelInterface>(channels);
+    constructor(waveformChannels = 0, pcmChannels = 0, fragmentSize?: number) {
+        this._waveformChannels = new Array<WaveformChannel>(waveformChannels);
+        this._pcmChannels = new Array<PCMChannel>(pcmChannels);
 
-        for (let i = 0; i < channels; i++) {
-            this._channels[i] =
-                this._channelTypes[i] === WebAudioDriver.ChannelType.pcm
-                    ? new PCMChannel()
-                    : new WaveformChannel(this._cache);
+        for (let i = 0; i < waveformChannels; i++) {
+            this._waveformChannels[i] = new WaveformChannel(this._cache);
         }
+
+        for (let i = 0; i < pcmChannels; i++) {
+            this._pcmChannels[i] = new PCMChannel(fragmentSize);
+        }
+
+        this._channels = [...this._waveformChannels, ...this._pcmChannels];
     }
 
     init(): void {
@@ -68,48 +73,72 @@ class WebAudioDriver {
         this._channels.forEach(channel => channel.init(this._context, this._merger));
     }
 
-    bind(sources: Array<AudioOutputInterface>): void {
-        if (this._sources) {
+    bind(
+        waveformSources: Array<WaveformAudioOutputInterface> = [],
+        pcmSources: Array<PCMAudioEndpointInterface> = []
+    ): void {
+        if (this._isBound) {
             return;
         }
 
-        if (sources.length !== this._channels.length) {
-            throw new Error(`invalid number of sources: got ${sources.length}, expected ${this._channels.length}`);
+        if (waveformSources.length !== this._waveformChannels.length) {
+            throw new Error(
+                `invalid number of waveform sources: expected ${this._waveformChannels
+                    .length}, got ${waveformSources.length}`
+            );
         }
 
-        this._sources = sources;
-
-        for (let i = 0; i < this._sources.length; i++) {
-            this._channels[i].bind(this._sources[i]);
+        if (pcmSources.length !== this._pcmChannels.length) {
+            throw new Error(
+                `invalid number of waveform sources: expected ${this._pcmChannels.length}, got ${pcmSources.length}`
+            );
         }
+
+        this._waveformChannels.forEach((channel, i) => channel.bind(waveformSources[i]));
+        this._pcmChannels.forEach((channel, i) => channel.bind(pcmSources[i]));
+
+        this._isBound = true;
+
+        this.resume();
     }
 
     unbind(): void {
-        if (!this._sources) {
+        if (!this._isBound) {
             return;
         }
 
         this._channels.forEach(channel => channel.unbind());
 
-        this._sources = null;
+        this._isBound = false;
+
+        this.pause();
     }
 
     setMasterVolume(channel: number, volume: number): void {
         this._channels[channel].setMasterVolume(volume);
     }
 
+    pause(): void {
+        this._mutex.runExclusive(() => this._context.suspend());
+    }
+
+    resume(): void {
+        this._mutex.runExclusive(() => this._context.resume());
+    }
+
+    close(): void {
+        this._mutex.runExclusive(() => this._context.close());
+    }
+
     private _context: AudioContext = null;
     private _merger: ChannelMergerNode = null;
+    private _waveformChannels: Array<WaveformChannel> = null;
+    private _pcmChannels: Array<PCMChannel> = null;
     private _channels: Array<ChannelInterface> = null;
-    private _sources: Array<AudioOutputInterface> = null;
     private _cache = new Map<number, AudioBuffer>();
-}
+    private _mutex = new Mutex();
 
-namespace WebAudioDriver {
-    export const enum ChannelType {
-        waveform,
-        pcm
-    }
+    private _isBound = false;
 }
 
 export default WebAudioDriver;

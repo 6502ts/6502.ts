@@ -120,15 +120,20 @@ class Board implements BoardInterface {
         return this._tia;
     }
 
-    getAudioOutput(): Board.Audio {
-        return {
-            waveform: this._config.pcmAudio ? null : [0, 1].map(i => this._tia.getWaveformChannel(i)),
-            pcm: this._config.pcmAudio ? [0, 1].map(i => this._tia.getPCMChannel(i)) : null
-        };
+    getWaveformChannels(): Array<WaveformAudioOutputInterface> {
+        return [0, 1].map(i => this._tia.getWaveformChannel(i));
+    }
+
+    getPCMChannels(): Array<PCMAudioOutputInterface> {
+        return [0, 1].map(i => this._tia.getPCMChannel(i));
     }
 
     getTimer(): TimerInterface {
         return this._timer;
+    }
+
+    getConfig(): Config {
+        return this._config;
     }
 
     reset(): Board {
@@ -185,10 +190,6 @@ class Board implements BoardInterface {
     setAudioEnabled(state: boolean) {
         this._audioEnabled = state;
         this._updateAudioState();
-    }
-
-    _updateAudioState(): void {
-        this._tia.setAudioEnabled(this._audioEnabled && !this._suspended);
     }
 
     triggerTrap(reason: BoardInterface.TrapReason, message?: string): Board {
@@ -251,6 +252,10 @@ class Board implements BoardInterface {
         const slice = _timeSlice ? Math.round(_timeSlice * board._clockMhz * 1000) : board._sliceSize;
 
         return board._tick(slice) / board._clockMhz / 1000;
+    }
+
+    private _updateAudioState(): void {
+        this._tia.setAudioEnabled(this._audioEnabled && !this._suspended);
     }
 
     private _cycle(): void {
@@ -370,13 +375,6 @@ class Board implements BoardInterface {
     };
 
     private _rng: RngInterface;
-}
-
-namespace Board {
-    export interface Audio {
-        waveform: Array<WaveformAudioOutputInterface>;
-        pcm: Array<PCMAudioOutputInterface>;
-    }
 }
 
 export default Board;

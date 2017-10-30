@@ -35,7 +35,8 @@ import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 
 import CommandInterpreter from '../CommandInterpreter';
 import ImmedateScheduler from '../../tools/scheduler/ImmedateScheduler';
-import LimitedScheduler from '../../tools/scheduler/limiting/ConstantTimeslice';
+import ConstantTimesliceScheduler from '../../tools/scheduler/limiting/ConstantTimeslice';
+import ConstantCyclesScheduler from '../../tools/scheduler/limiting/ConstantCycles';
 import PeriodicScheduler from '../../tools/scheduler/PeriodicScheduler';
 import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 import ClockProbe from '../../tools/ClockProbe';
@@ -212,6 +213,10 @@ class StellaCLI extends DebuggerCLI {
         controlPanel.getDifficultySwitchP0().toggle(true);
         controlPanel.getDifficultySwitchP0().toggle(true);
 
+        this._limitingScheduler = this._stellaConfig.pcmAudio
+            ? new ConstantTimesliceScheduler()
+            : new ConstantCyclesScheduler();
+
         this.hardwareInitialized.dispatch(undefined);
     }
 
@@ -285,7 +290,7 @@ class StellaCLI extends DebuggerCLI {
     protected _runModeCommandInterpreter: CommandInterpreter;
     protected _setupModeCommandInterpreter: CommandInterpreter;
 
-    protected _limitingScheduler = new LimitedScheduler();
+    protected _limitingScheduler: SchedulerInterface = null;
     protected _nonLimitingScheduler = new ImmedateScheduler();
     protected _clockProbe: ClockProbe;
 

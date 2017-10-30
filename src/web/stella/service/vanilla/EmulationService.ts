@@ -64,7 +64,7 @@ export default class EmulationService implements EmulationServiceInterface {
                 }
 
                 const cartridge = factory.createCartridge(buffer, cartridgeType),
-                    board = new Board(config, cartridge);
+                    board = new Board({ ...config, pcmAudio: false }, cartridge);
 
                 this._board = board;
                 this._board.trap.addHandler(EmulationService._trapHandler, this);

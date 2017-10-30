@@ -20,14 +20,14 @@
  */
 
 import WaveformAudioOutputInterface from '../../../machine/io/WaveformAudioOutputInterface';
-import PCMAudioOutputInterface from '../../../machine/io/PCMAudioOutputInterface';
+import PCMAudioEndpointInterface from '../PCMAudioEndpointInterface';
 
 interface ChannelInterface {
     init(context: AudioContext, target: AudioNode): void;
 
     unbind(): void;
 
-    bind(source: WaveformAudioOutputInterface | PCMAudioOutputInterface): void;
+    bind(source: WaveformAudioOutputInterface | PCMAudioEndpointInterface): void;
 
     setMasterVolume(volume: number): void;
 }

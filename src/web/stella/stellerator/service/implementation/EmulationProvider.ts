@@ -82,7 +82,7 @@ class EmulationProvider implements EmulationProviderInterface {
             audioDriver.init();
 
             this._driverManager.addDriver(audioDriver, (context: EmulationContextInterface, driver: WebAudioDriver) =>
-                driver.bind(context.getAudio())
+                driver.bind(false, context.getWaveformChannels())
             );
 
             this._audioDriver = audioDriver;
