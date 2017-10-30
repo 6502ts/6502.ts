@@ -118,12 +118,12 @@ class WebAudioDriver {
         this._channels[channel].setMasterVolume(volume);
     }
 
-    pause(): void {
-        this._mutex.runExclusive(() => this._context.suspend());
+    pause(): Promise<void> {
+        return this._mutex.runExclusive(() => this._context.suspend());
     }
 
-    resume(): void {
-        this._mutex.runExclusive(() => this._context.resume());
+    resume(): Promise<void> {
+        return this._mutex.runExclusive(() => this._context.resume());
     }
 
     close(): void {

@@ -25,8 +25,11 @@ import JoystickInterface from '../../../machine/io/DigitalJoystickInterface';
 import PaddleInterface from '../../../machine/io/PaddleInterface';
 import WaveformAudioOutputInterface from '../../../machine/io/WaveformAudioOutputInterface';
 import PCMAudioEndpointInterface from '../../driver/PCMAudioEndpointInterface';
+import Config from '../../../machine/stella/Config';
 
 interface EmulationContextInterface {
+    getConfig(): Config;
+
     getVideo(): VideoEndpointInterface;
 
     getJoystick(i: number): JoystickInterface;

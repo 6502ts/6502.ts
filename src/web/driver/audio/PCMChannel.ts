@@ -76,9 +76,11 @@ class PCMChannel implements ChannelInterface {
             this._currentFragment = null;
         }
 
-        this._fragmentRing.forEach(b => b.release());
-        this._fragmentRing.clear();
-        this._fragmentRing = null;
+        if (this._fragmentRing) {
+            this._fragmentRing.forEach(b => b.release());
+            this._fragmentRing.clear();
+            this._fragmentRing = null;
+        }
     }
 
     setMasterVolume(volume: number): void {

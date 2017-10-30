@@ -24,15 +24,21 @@ import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterf
 import JoystickInterface from '../../../../machine/io/DigitalJoystickInterface';
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
 import Board from '../../../../machine/stella/Board';
+import Config from '../../../../machine/stella/Config';
 import VideoEndpoint from '../../../driver/VideoEndpoint';
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
 import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOutputInterface';
 import PCMAudioEndpointInterface from '../../../driver/PCMAudioEndpointInterface';
+import PCMAudioEndpoint from '../../../driver/PCMAudioEndpoint';
 import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 
 export default class EmulationContext implements EmulationContextInterface {
     constructor(private _board: Board, private _videoProcessing?: Array<VideoProcessorConfig>) {}
+
+    getConfig(): Config {
+        return this._board.getConfig();
+    }
 
     getVideo(): VideoEndpointInterface {
         if (!this._videoEndpoint) {
@@ -72,7 +78,11 @@ export default class EmulationContext implements EmulationContextInterface {
     }
 
     getPCMChannels(): Array<PCMAudioEndpointInterface> {
-        return [];
+        if (!this._audioEndpoints) {
+            this._audioEndpoints = this._board.getPCMChannels().map(channel => new PCMAudioEndpoint(channel));
+        }
+
+        return this._audioEndpoints;
     }
 
     getRawVideo(): VideoOutputInterface {
@@ -84,4 +94,5 @@ export default class EmulationContext implements EmulationContextInterface {
     }
 
     private _videoEndpoint: VideoEndpoint = null;
+    private _audioEndpoints: Array<PCMAudioEndpointInterface> = null;
 }

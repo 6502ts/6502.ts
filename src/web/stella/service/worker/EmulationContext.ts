@@ -25,6 +25,7 @@ import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterf
 import PaddleInterface from '../../../../machine/io/PaddleInterface';
 import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOutputInterface';
 import PCMAudioEndpointInterface from '../../../driver/PCMAudioEndpointInterface';
+import Config from '../../../../machine/stella/Config';
 
 import EmulationContextInterface from '../EmulationContextInterface';
 import VideoProxy from './VideoProxy';
@@ -40,6 +41,14 @@ class EmulationContext implements EmulationContextInterface {
         if (this._audioChannels.length !== 2) {
             throw new Error(`invalid channel count ${this._audioChannels.length}`);
         }
+    }
+
+    setConfig(config: Config): void {
+        this._config = config;
+    }
+
+    getConfig(): Config {
+        return this._config;
     }
 
     getVideo(): VideoEndpointInterface {
@@ -69,6 +78,8 @@ class EmulationContext implements EmulationContextInterface {
     getVideoProxy(): VideoProxy {
         return this._videoProxy;
     }
+
+    private _config: Config = null;
 }
 
 export default EmulationContext;

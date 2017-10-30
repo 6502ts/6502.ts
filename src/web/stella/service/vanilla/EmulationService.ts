@@ -59,12 +59,17 @@ export default class EmulationService implements EmulationServiceInterface {
             try {
                 this._stop();
 
+                this._limitingStrategy = config.pcmAudio
+                    ? SchedulerFactory.LimitingSchedulingStrategy.constantTimeslice
+                    : SchedulerFactory.LimitingSchedulingStrategy.constantCycles;
+                this._updateScheduler();
+
                 if (this._state === EmulationServiceInterface.State.error) {
                     return this._state;
                 }
 
                 const cartridge = factory.createCartridge(buffer, cartridgeType),
-                    board = new Board({ ...config, pcmAudio: false }, cartridge);
+                    board = new Board(config, cartridge);
 
                 this._board = board;
                 this._board.trap.addHandler(EmulationService._trapHandler, this);
@@ -240,7 +245,7 @@ export default class EmulationService implements EmulationServiceInterface {
 
     private _updateScheduler(): void {
         this._scheduler = this._enforceRateLimit
-            ? this._schedulerFactory.createLimitingScheduler()
+            ? this._schedulerFactory.createLimitingScheduler(this._limitingStrategy)
             : this._schedulerFactory.createImmediateScheduler();
     }
 
@@ -257,4 +262,5 @@ export default class EmulationService implements EmulationServiceInterface {
     private _clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_UPDATE_INTERVAL));
     private _mutex = new Mutex();
     private _schedulerFactory = new SchedulerFactory();
+    private _limitingStrategy = SchedulerFactory.LimitingSchedulingStrategy.constantCycles;
 }

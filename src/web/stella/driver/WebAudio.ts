@@ -64,7 +64,6 @@ class WebAudioDriver {
 
         this._driver.unbind();
 
-        this._driver = null;
         this._channels = null;
     }
 
@@ -77,15 +76,15 @@ class WebAudioDriver {
         }
     }
 
-    pause(): void {
+    async pause(): Promise<void> {
         if (this._driver) {
-            this._driver.pause();
+            await this._driver.pause();
         }
     }
 
-    resume(): void {
+    async resume(): Promise<void> {
         if (this._driver) {
-            this._driver.resume();
+            await this._driver.resume();
         }
     }
 

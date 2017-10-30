@@ -100,6 +100,7 @@ class EmulationService implements EmulationServiceInterface {
                         this._saveConfig = config;
                         this._savedParameters = emulationParameters;
 
+                        this._emulationContext.setConfig(config);
                         this._startProxies(emulationParameters, config);
                     } else {
                         this._saveConfig = null;

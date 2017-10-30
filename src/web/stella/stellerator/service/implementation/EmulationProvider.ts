@@ -82,7 +82,10 @@ class EmulationProvider implements EmulationProviderInterface {
             audioDriver.init();
 
             this._driverManager.addDriver(audioDriver, (context: EmulationContextInterface, driver: WebAudioDriver) =>
-                driver.bind(false, context.getWaveformChannels())
+                driver.bind(
+                    context.getConfig().pcmAudio,
+                    context.getConfig().pcmAudio ? context.getPCMChannels() : context.getWaveformChannels()
+                )
             );
 
             this._audioDriver = audioDriver;
@@ -149,7 +152,8 @@ class EmulationProvider implements EmulationProviderInterface {
             enableAudio: cartridge.volume > 0,
             randomSeed: cartridge.rngSeedAuto ? -1 : cartridge.rngSeed,
             emulatePaddles: cartridge.emulatePaddles,
-            frameStart: cartridge.autodetectFrameStart ? -1 : cartridge.frameStart
+            frameStart: cartridge.autodetectFrameStart ? -1 : cartridge.frameStart,
+            pcmAudio: cartridge.pcmAudio
         });
 
         const buffer = await this._storage.getImage(cartridge.hash);
@@ -197,10 +201,12 @@ class EmulationProvider implements EmulationProviderInterface {
 
             case emulationActions.pause:
             case emulationActions.userPause:
+                await this._audioDriver.pause();
                 await this._service.pause();
                 return next(a);
 
             case emulationActions.resume:
+                await this._audioDriver.resume();
                 await this._service.resume();
                 return next(a);
 
