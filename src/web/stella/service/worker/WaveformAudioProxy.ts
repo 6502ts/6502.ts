@@ -27,24 +27,33 @@ import ToneGenerator from '../../../../machine/stella/tia/ToneGenerator';
 import StellaConfig from '../../../../machine/stella/Config';
 import AudioOutputBuffer from '../../../../tools/AudioOutputBuffer';
 
-import { SIGNAL_TYPE, AudioBufferChangeMessage, AudioVolumeChangeMessage } from './messages';
+import {
+    SIGNAL_TYPE,
+    RPC_TYPE,
+    WaveformAudioBufferChangeMessage,
+    WaveformAudioVolumeChangeMessage,
+    WaveformAudioParametersResponse
+} from './messages';
 
-class AudioProxy implements WaveformAudioOutputInterface {
+class WaveformAudioProxy implements WaveformAudioOutputInterface {
     constructor(private _index: number, private _rpc: RpcProviderInterface) {}
 
     init(): this {
         this._rpc
-            .registerSignalHandler(SIGNAL_TYPE.audioBufferChange, this._onBufferChangeSignal.bind(this))
-            .registerSignalHandler(SIGNAL_TYPE.audioVolumeChange, this._onVolumeChangeSignal.bind(this))
+            .registerSignalHandler(SIGNAL_TYPE.waveformAudioBufferChange, this._onBufferChangeSignal.bind(this))
+            .registerSignalHandler(SIGNAL_TYPE.waveformAudioVolumeChange, this._onVolumeChangeSignal.bind(this))
             .registerSignalHandler(SIGNAL_TYPE.audioStop, this._onStopSignal.bind(this));
 
         return this;
     }
 
-    setConfig(config: StellaConfig): this {
-        this._toneGenerator.setConfig(config);
+    async start(config: StellaConfig): Promise<void> {
+        const parameters = await this._rpc.rpc<void, WaveformAudioParametersResponse>(
+            RPC_TYPE.getWaveformAudioParameters(this._index)
+        );
 
-        return this;
+        this._toneGenerator.setConfig(config);
+        this.setVolume(parameters.volume);
     }
 
     setVolume(value: number): this {
@@ -61,14 +70,14 @@ class AudioProxy implements WaveformAudioOutputInterface {
         return this._toneGenerator.getBuffer(key);
     }
 
-    private _onVolumeChangeSignal(message: AudioVolumeChangeMessage): void {
+    private _onVolumeChangeSignal(message: WaveformAudioVolumeChangeMessage): void {
         if (message.index === this._index) {
             this._volume = message.value;
             this.volumeChanged.dispatch(this._volume);
         }
     }
 
-    private _onBufferChangeSignal(message: AudioBufferChangeMessage): void {
+    private _onBufferChangeSignal(message: WaveformAudioBufferChangeMessage): void {
         if (message.index === this._index) {
             this.bufferChanged.dispatch(message.key);
         }
@@ -88,4 +97,4 @@ class AudioProxy implements WaveformAudioOutputInterface {
     private _volume = 0;
 }
 
-export default AudioProxy;
+export default WaveformAudioProxy;

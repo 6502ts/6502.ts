@@ -33,6 +33,10 @@ class AudioOutputBuffer {
     getSampleRate(): number {
         return this._sampleRate;
     }
+
+    replaceUnderlyingBuffer(buffer: Float32Array): void {
+        this._content = buffer;
+    }
 }
 
 export default AudioOutputBuffer;

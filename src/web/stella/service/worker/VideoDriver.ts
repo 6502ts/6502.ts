@@ -29,13 +29,21 @@ import ArrayBufferSurface from '../../../../video/surface/ArrayBufferSurface';
 import VideoPipelineClient from '../../../../video/processing/worker/PipelineClient';
 import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 
-import { SIGNAL_TYPE, VideoNewFrameMessage, VideoReturnSurfaceMessage } from './messages';
+import {
+    SIGNAL_TYPE,
+    RPC_TYPE,
+    VideoNewFrameMessage,
+    VideoReturnSurfaceMessage,
+    VideoParametersResponse
+} from './messages';
 
 class VideoDriver {
     constructor(private _rpc: RpcProviderInterface) {}
 
     init(videoPipelinePort: MessagePort): void {
-        this._rpc.registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurfaceFromHost.bind(this));
+        this._rpc
+            .registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurfaceFromHost.bind(this))
+            .registerRpcHandler(RPC_TYPE.getVideoParameters, this._onGetVideoParameters.bind(this));
 
         const videoPipelineRpc = new RpcProvider((data: any, transfer?: any) =>
             videoPipelinePort.postMessage(data, transfer)
@@ -182,6 +190,13 @@ class VideoDriver {
 
         surface.get().replaceUnderlyingBuffer(this._width, this._height, message.buffer);
         surface.release();
+    }
+
+    private _onGetVideoParameters(): VideoParametersResponse {
+        return {
+            width: this._width,
+            height: this._height
+        };
     }
 
     private _active = false;

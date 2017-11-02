@@ -25,7 +25,13 @@ import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import { RpcProviderInterface } from 'worker-rpc';
 import PoolMemberInterface from '../../../../tools/pool/PoolMemberInterface';
 
-import { SIGNAL_TYPE, VideoNewFrameMessage, VideoReturnSurfaceMessage } from './messages';
+import {
+    SIGNAL_TYPE,
+    RPC_TYPE,
+    VideoNewFrameMessage,
+    VideoReturnSurfaceMessage,
+    VideoParametersResponse
+} from './messages';
 
 class VideoProxy implements VideoEndpointInterface {
     constructor(private _rpc: RpcProviderInterface) {}
@@ -34,18 +40,20 @@ class VideoProxy implements VideoEndpointInterface {
         this._rpc.registerSignalHandler(SIGNAL_TYPE.videoNewFrame, this._onNewFrame.bind(this));
     }
 
-    enable(width: number, height: number): void {
+    async start(): Promise<void> {
         if (this._active) {
-            this.disable();
+            this.stop();
         }
 
+        const videoParameters = await this._rpc.rpc<void, VideoParametersResponse>(RPC_TYPE.getVideoParameters);
+
         this._active = true;
-        this._width = width;
-        this._height = height;
+        this._width = videoParameters.width;
+        this._height = videoParameters.height;
         this._ids = new Set<number>();
     }
 
-    disable(): void {
+    stop(): void {
         this._active = false;
         this._ids = null;
     }
@@ -89,7 +97,11 @@ class VideoProxy implements VideoEndpointInterface {
                 }
             },
 
-            dispose: () => undefined
+            dispose: () => undefined,
+
+            adopt: () => {
+                throw new Error('adopt is not implemented');
+            }
         });
     }
 

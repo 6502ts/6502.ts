@@ -30,8 +30,10 @@ export const RPC_TYPE = {
     emulationSetRateLimit: 'emulation/setRateLimit',
     emulationStart: 'emulation/start',
     emulationStop: 'emulation/stop',
-    emulationGetParameters: 'emulation/getParameters',
     emulationFetchLastError: 'emulation/fetchLastError',
+    getVideoParameters: 'video/getParameters',
+    getWaveformAudioParameters: (index: number) => `audio/waveform/getParameters/${index}`,
+    getPCMAudioParameters: (index: number) => `audio/pcm/getParameters/${index}`,
     setup: '/setup'
 };
 Object.freeze(RPC_TYPE);
@@ -42,8 +44,11 @@ export const SIGNAL_TYPE = {
     videoNewFrame: 'video/newFrame',
     videoReturnSurface: 'video/returnSurface',
     controlStateUpdate: 'control/stateUpdate',
-    audioVolumeChange: 'audio/volumeChange',
-    audioBufferChange: 'audio/bufferChange',
+    waveformAudioVolumeChange: 'audio/waveform/volumeChange',
+    waveformAudioBufferChange: 'audio/waveform/bufferChange',
+    pcmAudioNewFrame: (index: number) => `audio/pcm/newFrame/${index}`,
+    pcmAudioTogglePause: (index: number) => `audio/pcm/togglePause/${index}`,
+    pcmAudioReturnFrame: (index: number) => `audio/pcm/returnFrame/${index}`,
     audioStop: 'audio/stop'
 };
 Object.freeze(SIGNAL_TYPE);
@@ -59,10 +64,13 @@ export interface EmulationStartMessage {
     videoProcessing?: Array<VideoProcessorConfig>;
 }
 
-export interface EmulationParametersResponse {
+export interface VideoParametersResponse {
     width: number;
     height: number;
-    volume: Array<number>;
+}
+
+export interface WaveformAudioParametersResponse {
+    volume: number;
 }
 
 export interface VideoNewFrameMessage {
@@ -77,12 +85,32 @@ export interface VideoReturnSurfaceMessage {
     buffer: ArrayBuffer;
 }
 
-export interface AudioVolumeChangeMessage {
+export interface WaveformAudioVolumeChangeMessage {
     index: number;
     value: number;
 }
 
-export interface AudioBufferChangeMessage {
+export interface WaveformAudioBufferChangeMessage {
     index: number;
     key: number;
+}
+
+export interface PCMAudioParametersResponse {
+    sampleRate: number;
+    frameSize: number;
+    paused: boolean;
+}
+
+export interface PCMAudioNewFrameMessage {
+    buffer: ArrayBuffer;
+    id: number;
+}
+
+export interface PCMAudioTogglePauseMessage {
+    paused: boolean;
+}
+
+export interface PCMAudioReturnFrameMessage {
+    id: number;
+    buffer: ArrayBuffer;
 }

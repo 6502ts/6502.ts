@@ -22,7 +22,15 @@
 import PoolMemberInterface from './PoolMemberInterface';
 
 class InducedMember<T, U> implements PoolMemberInterface<U> {
-    constructor(private _value: PoolMemberInterface<T>, private _mapper: (value: T) => U) {}
+    constructor(
+        private _value: PoolMemberInterface<T>,
+        private _mapper: (value: T) => U,
+        private _adopter: (value: PoolMemberInterface<T>, target: U) => void
+    ) {}
+
+    adopt(target: U): void {
+        this._adopter(this._value, target);
+    }
 
     get(): U {
         return this._mapper(this._value.get());

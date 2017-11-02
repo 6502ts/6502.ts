@@ -31,6 +31,8 @@ interface PCMAudioEndpointInterface {
     isPaused(): boolean;
 
     newFrame: EventInterface<PoolMemberInterface<Float32Array>>;
+
+    togglePause: EventInterface<boolean>;
 }
 
 export default PCMAudioEndpointInterface;

@@ -33,13 +33,11 @@ class Pool<T> implements PoolInterface<T> {
         if (this._poolSize === 0) {
             const newItem = this._factory();
 
-            member =
-                newItem &&
-                new PoolMember<T>(
-                    newItem,
-                    (victim: PoolMember<T>) => this._releaseMember(victim),
-                    (victim: PoolMember<T>) => this._disposeMember(victim)
-                );
+            member = new PoolMember<T>(
+                newItem,
+                (victim: PoolMember<T>) => this._releaseMember(victim),
+                (victim: PoolMember<T>) => this._disposeMember(victim)
+            );
         } else {
             member = this._pool[--this._poolSize];
             member._isAvailable = false;

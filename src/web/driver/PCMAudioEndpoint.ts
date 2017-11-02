@@ -34,6 +34,8 @@ class PCMAudioEndpoint implements PCMAudioEndpointInterface {
             this.newFrame.dispatch(this._pcmDataPool.get(this._audioBufferMap.get(buffer)))
         );
 
+        this._output.togglePause.addHandler((paused: boolean) => this.togglePause.dispatch(paused));
+
         this._output.setFrameBufferFactory(() => {
             const wrappedBuffer = this._audioBufferPool.get();
 
@@ -59,13 +61,19 @@ class PCMAudioEndpoint implements PCMAudioEndpointInterface {
 
     newFrame = new Event<PoolMemberInterface<Float32Array>>();
 
+    togglePause = new Event<boolean>();
+
     private _audioBufferPool = new Pool<AudioOutputBuffer>(
         () => new AudioOutputBuffer(new Float32Array(this.getFrameSize()), this.getSampleRate())
     );
 
     private _audioBufferMap = new WeakMap<AudioOutputBuffer, PoolMemberInterface<AudioOutputBuffer>>();
 
-    private _pcmDataPool = new InducedPool((buffer: AudioOutputBuffer) => buffer.getContent());
+    private _pcmDataPool = new InducedPool(
+        (buffer: AudioOutputBuffer) => buffer.getContent(),
+        (value: PoolMemberInterface<AudioOutputBuffer>, target: Float32Array) =>
+            value.get().replaceUnderlyingBuffer(target)
+    );
 }
 
 export default PCMAudioEndpoint;

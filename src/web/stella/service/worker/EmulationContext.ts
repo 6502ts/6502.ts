@@ -30,16 +30,18 @@ import Config from '../../../../machine/stella/Config';
 import EmulationContextInterface from '../EmulationContextInterface';
 import VideoProxy from './VideoProxy';
 import ControlProxy from './ControlProxy';
-import AudioProxy from './AudioProxy';
+import WaveformAudioProxy from './WaveformAudioProxy';
+import PCMAudioProxy from './PCMAudioProxy';
 
 class EmulationContext implements EmulationContextInterface {
     constructor(
         private _videoProxy: VideoProxy,
         private _controlProxy: ControlProxy,
-        private _audioChannels: Array<AudioProxy>
+        private _waveformChannels: Array<WaveformAudioProxy>,
+        private _pcmChannels: Array<PCMAudioProxy>
     ) {
-        if (this._audioChannels.length !== 2) {
-            throw new Error(`invalid channel count ${this._audioChannels.length}`);
+        if (this._waveformChannels.length !== 2) {
+            throw new Error(`invalid channel count ${this._waveformChannels.length}`);
         }
     }
 
@@ -68,11 +70,11 @@ class EmulationContext implements EmulationContextInterface {
     }
 
     getWaveformChannels(): Array<WaveformAudioOutputInterface> {
-        return this._audioChannels;
+        return this._waveformChannels;
     }
 
     getPCMChannels(): Array<PCMAudioEndpointInterface> {
-        return [];
+        return this._pcmChannels;
     }
 
     getVideoProxy(): VideoProxy {

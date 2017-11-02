@@ -23,11 +23,16 @@ import InducedMember from './InducedMember';
 import PoolMemberInterface from './PoolMemberInterface';
 
 class InducedPool<T, U> {
-    constructor(private _mapper: (value: T) => U) {}
+    constructor(
+        private _mapper: (value: T) => U,
+        private _adopter: (value: PoolMemberInterface<T>, target: U) => void = () => {
+            throw new Error('adopt is not supported');
+        }
+    ) {}
 
     get(original: PoolMemberInterface<T>): InducedMember<T, U> {
         if (!this._map.has(original)) {
-            this._map.set(original, new InducedMember(original, this._mapper));
+            this._map.set(original, new InducedMember(original, this._mapper, this._adopter));
         }
 
         return this._map.get(original);

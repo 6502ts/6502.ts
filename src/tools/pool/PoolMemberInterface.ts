@@ -22,6 +22,8 @@
 interface PoolMemberInterface<T> {
     get(): T;
 
+    adopt(target: T): void;
+
     release(): void;
 
     dispose(): void;

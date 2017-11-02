@@ -33,6 +33,8 @@ interface PCMAudioOutputInterface {
     isPaused(): boolean;
 
     newFrame: EventInterface<AudioOutputBuffer>;
+
+    togglePause: EventInterface<boolean>;
 }
 
 namespace PCMAudioOutputInterface {

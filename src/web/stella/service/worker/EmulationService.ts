@@ -28,14 +28,15 @@ import EmulationContextInterface from '../EmulationContextInterface';
 import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 import VideoProxy from './VideoProxy';
 import ControlProxy from './ControlProxy';
-import AudioProxy from './AudioProxy';
+import WaveformAudioProxy from './WaveformAudioProxy';
+import PCMAudioProxy from './PCMAudioProxy';
 
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
 import { Mutex } from 'async-mutex';
 
-import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, EmulationParametersResponse, SetupMessage } from './messages';
+import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, SetupMessage } from './messages';
 
 const CONTROL_PROXY_UPDATE_INTERVAL = 25;
 
@@ -52,14 +53,22 @@ class EmulationService implements EmulationServiceInterface {
         this._worker = new Worker(`${this._workerUrl}/stella.js`);
         this._rpc = new RpcProvider((message, transfer?) => this._worker.postMessage(message, transfer));
 
-        this._audioChannels = [new AudioProxy(0, this._rpc).init(), new AudioProxy(1, this._rpc).init()];
+        for (let i = 0; i < 2; i++) {
+            this._waveformChannels[i] = new WaveformAudioProxy(i, this._rpc).init();
+            this._pcmChannels[i] = new PCMAudioProxy(i, this._rpc).init();
+        }
 
         const videoProxy = new VideoProxy(this._rpc),
             controlProxy = new ControlProxy(this._rpc);
 
         videoProxy.init();
 
-        this._emulationContext = new EmulationContext(videoProxy, controlProxy, this._audioChannels);
+        this._emulationContext = new EmulationContext(
+            videoProxy,
+            controlProxy,
+            this._waveformChannels,
+            this._pcmChannels
+        );
 
         this._worker.onmessage = messageEvent => this._rpc.dispatch(messageEvent.data);
 
@@ -72,44 +81,36 @@ class EmulationService implements EmulationServiceInterface {
         return this._startVideoProcessingPipeline().then(() => this.setRateLimit(this._rateLimitEnforced));
     }
 
-    start(
+    async start(
         buffer: { [i: number]: number; length: number },
         config: StellaConfig,
         cartridgeType?: CartridgeInfo.CartridgeType,
         videoProcessing?: Array<VideoProcessorConfig>
     ): Promise<EmulationServiceInterface.State> {
-        let state: EmulationServiceInterface.State;
+        await this.stop();
 
-        return this._mutex.runExclusive(() =>
-            this._rpc
-                .rpc<EmulationStartMessage, EmulationServiceInterface.State>(RPC_TYPE.emulationStart, {
-                    buffer,
-                    config: { ...config, pcmAudio: false },
-                    cartridgeType,
-                    videoProcessing
-                })
-                .then(_state => {
-                    state = _state;
+        return this._mutex.runExclusive(async () => {
+            const state = await this._rpc.rpc<
+                EmulationStartMessage,
+                EmulationServiceInterface.State
+            >(RPC_TYPE.emulationStart, {
+                buffer,
+                config,
+                cartridgeType,
+                videoProcessing
+            });
 
-                    return state === EmulationServiceInterface.State.paused
-                        ? this._rpc.rpc<void, EmulationParametersResponse>(RPC_TYPE.emulationGetParameters)
-                        : undefined;
-                })
-                .then(emulationParameters => {
-                    if (emulationParameters) {
-                        this._saveConfig = config;
-                        this._savedParameters = emulationParameters;
+            if (state === EmulationServiceInterface.State.paused) {
+                this._saveConfig = config;
+                this._emulationContext.setConfig(config);
 
-                        this._emulationContext.setConfig(config);
-                        this._startProxies(emulationParameters, config);
-                    } else {
-                        this._saveConfig = null;
-                        this._savedParameters = null;
-                    }
+                await this._startProxies(config);
+            } else {
+                this._saveConfig = null;
+            }
 
-                    return this._applyState(state);
-                })
-        );
+            return this._applyState(state);
+        });
     }
 
     pause(): Promise<EmulationServiceInterface.State> {
@@ -131,22 +132,21 @@ class EmulationService implements EmulationServiceInterface {
     }
 
     reset(): Promise<EmulationServiceInterface.State> {
-        return this._mutex.runExclusive(() =>
-            this._rpc.rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationReset).then(state => {
-                // Try to restart the proxies if the reset recovered from an an error
-                if (
-                    this._state === EmulationServiceInterface.State.error &&
-                    (state === EmulationServiceInterface.State.running ||
-                        state === EmulationServiceInterface.State.paused) &&
-                    this._saveConfig &&
-                    this._savedParameters
-                ) {
-                    this._startProxies(this._savedParameters, this._saveConfig);
-                }
+        return this._mutex.runExclusive(async () => {
+            const state = await this._rpc.rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationReset);
 
-                return this._applyState(state);
-            })
-        );
+            // Try to restart the proxies if the reset recovered from an an error
+            if (
+                this._state === EmulationServiceInterface.State.error &&
+                (state === EmulationServiceInterface.State.running ||
+                    state === EmulationServiceInterface.State.paused) &&
+                this._saveConfig
+            ) {
+                await this._startProxies(this._saveConfig);
+            }
+
+            return this._applyState(state);
+        });
     }
 
     resume(): Promise<EmulationServiceInterface.State> {
@@ -232,15 +232,17 @@ class EmulationService implements EmulationServiceInterface {
         this.stateChanged.dispatch(this._state);
     }
 
-    private _startProxies(parameters: EmulationParametersResponse, config: StellaConfig): void {
-        this._emulationContext.getVideoProxy().enable(parameters.width, parameters.height);
+    private async _startProxies(config: StellaConfig): Promise<void> {
+        await this._emulationContext.getVideoProxy().start();
 
-        for (let i = 0; i < this._audioChannels.length; i++) {
-            this._audioChannels[i].setConfig(config);
-            this._audioChannels[i].setVolume(parameters.volume[i]);
+        for (let i = 0; i < this._waveformChannels.length; i++) {
+            await this._waveformChannels[i].start(config);
+            await this._pcmChannels[i].start();
         }
 
         this._startControlUpdates();
+
+        this._proxyState = ProxyState.running;
     }
 
     private _stopProxies(): void {
@@ -248,8 +250,8 @@ class EmulationService implements EmulationServiceInterface {
             return;
         }
 
-        this._emulationContext.getVideoProxy().disable();
-
+        this._emulationContext.getVideoProxy().stop();
+        this._pcmChannels.forEach(channel => channel.stop());
         this._stopControlUpdates();
 
         this._proxyState = ProxyState.stopped;
@@ -327,13 +329,13 @@ class EmulationService implements EmulationServiceInterface {
     private _emulationContext: EmulationContext = null;
     private _frequency = 0;
 
-    private _audioChannels: Array<AudioProxy>;
+    private _waveformChannels = new Array<WaveformAudioProxy>(2);
+    private _pcmChannels = new Array<PCMAudioProxy>(2);
 
     private _controlProxy: ControlProxy = null;
     private _controlProxyUpdateHandle: any = null;
     private _proxyState = ProxyState.stopped;
 
-    private _savedParameters: EmulationParametersResponse = null;
     private _saveConfig: StellaConfig = null;
 }
 

@@ -25,10 +25,11 @@ import { RpcProviderInterface } from 'worker-rpc';
 import DriverManager from '../DriverManager';
 import VideoDriver from './VideoDriver';
 import ControlDriver from './ControlDriver';
-import AudioDriver from './AudioDriver';
+import WaveformAudioDriver from './WaveformAudioDriver';
+import PCMAudioDriver from './PCMAudioDriver';
 import EmulationContext from '../vanilla/EmulationContext';
 
-import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, EmulationParametersResponse, SetupMessage } from './messages';
+import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, SetupMessage } from './messages';
 
 class EmulationBackend {
     constructor(private _rpc: RpcProviderInterface) {
@@ -39,7 +40,6 @@ class EmulationBackend {
         this._rpc
             .registerRpcHandler(RPC_TYPE.setup, this._onSetup.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationFetchLastError, this._onFetchLastError.bind(this))
-            .registerRpcHandler(RPC_TYPE.emulationGetParameters, this._onEmulationGetParameters.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationPause, this._onEmulationPause.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationReset, this._onEmulationReset.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationResume, this._onEmulationResume.bind(this))
@@ -53,7 +53,8 @@ class EmulationBackend {
         const driverManager = new DriverManager(),
             videoDriver = new VideoDriver(this._rpc),
             controlDriver = new ControlDriver(this._rpc),
-            audioDrivers = [new AudioDriver(0, this._rpc), new AudioDriver(1, this._rpc)];
+            waveformAduioDrivers = [0, 1].map(i => new WaveformAudioDriver(i, this._rpc)),
+            pcmAudioDriver = [0, 1].map(i => new PCMAudioDriver(i, this._rpc));
 
         this._videoDriver = videoDriver;
         controlDriver.init();
@@ -66,9 +67,13 @@ class EmulationBackend {
             .bind(this._service);
 
         for (let i = 0; i < 2; i++) {
-            driverManager.addDriver(audioDrivers[i], (context: EmulationContext, driver: AudioDriver) =>
-                driver.bind(context.getWaveformChannels()[i])
-            );
+            driverManager
+                .addDriver(waveformAduioDrivers[i], (context: EmulationContext, driver: WaveformAudioDriver) =>
+                    driver.bind(context.getWaveformChannels()[i])
+                )
+                .addDriver(pcmAudioDriver[i], (context: EmulationContext, driver: PCMAudioDriver) =>
+                    driver.bind(context.getPCMChannels()[i])
+                );
         }
     }
 
@@ -114,18 +119,6 @@ class EmulationBackend {
 
     private _onEmulationSetRateLimit(message: boolean): Promise<void> {
         return this._service.setRateLimit(message);
-    }
-
-    private _onEmulationGetParameters(): Promise<EmulationParametersResponse> {
-        const context = this._service.getEmulationContext(),
-            channels = context.getWaveformChannels(),
-            video = context && context.getRawVideo();
-
-        return Promise.resolve({
-            width: video ? video.getWidth() : 0,
-            height: video ? video.getHeight() : 0,
-            volume: [channels[0].getVolume(), channels[1].getVolume()]
-        });
     }
 
     private _service: EmulationService;

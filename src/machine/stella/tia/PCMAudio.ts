@@ -96,7 +96,13 @@ class PCMAudio implements PCMAudioInterface, AudioInterface {
     }
 
     setActive(isActive: boolean): void {
+        if (isActive === this._isActive) {
+            return;
+        }
+
         this._isActive = isActive;
+
+        this.togglePause.dispatch(!isActive);
     }
 
     getSampleRate(): number {
@@ -134,6 +140,8 @@ class PCMAudio implements PCMAudioInterface, AudioInterface {
     }
 
     newFrame = new Event<AudioOutputBuffer>();
+
+    togglePause = new Event<boolean>();
 
     private _patterns = new Map<number, Float32Array>();
     private _currentPattern: Float32Array = null;
