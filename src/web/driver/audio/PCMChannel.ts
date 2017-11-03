@@ -23,6 +23,8 @@ import ChannelInterface from './ChannelInterface';
 import PCMAudioEndpointInterface from '../PCMAudioEndpointInterface';
 import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
 import RingBuffer from '../../../tools/RingBuffer';
+import ResamplerInterface from './ResamplerInterface';
+import LinearReasmpler from './LinearResampler';
 
 class PCMChannel implements ChannelInterface {
     constructor(private _hostFragmentSize = 1024) {}
@@ -57,6 +59,8 @@ class PCMChannel implements ChannelInterface {
         );
 
         this._audio.newFrame.addHandler(PCMChannel._onNewFragment, this);
+
+        this._resampler.reset(this._inputSampleRate, this._outputSampleRate);
     }
 
     unbind() {
@@ -107,21 +111,24 @@ class PCMChannel implements ChannelInterface {
             bufferIndex = 0;
 
         while (bufferIndex < this._bufferSize && this._currentFragment) {
-            outputBuffer[bufferIndex++] = fragmentBuffer[Math.floor(this._fragmentIndex)] * this._volume;
-            this._fragmentIndex += this._inputSampleRate / this._outputSampleRate;
+            if (this._resampler.needsData()) {
+                this._resampler.push(fragmentBuffer[this._fragmentIndex++] * this._volume);
 
-            if (this._fragmentIndex >= this._fragmentSize) {
-                this._fragmentIndex -= this._fragmentSize;
+                if (this._fragmentIndex >= this._fragmentSize) {
+                    this._fragmentIndex = 0;
 
-                if (this._lastFragment) {
-                    this._lastFragment.release();
+                    if (this._lastFragment) {
+                        this._lastFragment.release();
+                    }
+
+                    this._lastFragment = this._currentFragment;
+                    this._currentFragment = this._fragmentRing.pop();
+
+                    fragmentBuffer = this._currentFragment && this._currentFragment.get();
                 }
-
-                this._lastFragment = this._currentFragment;
-                this._currentFragment = this._fragmentRing.pop();
-
-                fragmentBuffer = this._currentFragment && this._currentFragment.get();
             }
+
+            outputBuffer[bufferIndex++] = this._resampler.get();
         }
 
         if (bufferIndex < this._bufferSize && this._audio.isPaused()) {
@@ -131,15 +138,19 @@ class PCMChannel implements ChannelInterface {
         const previousFragmentBuffer = this._lastFragment && this._lastFragment.get();
 
         while (bufferIndex < this._bufferSize) {
-            outputBuffer[bufferIndex++] =
-                (this._audio && this._audio.isPaused()) || !previousFragmentBuffer
-                    ? 0
-                    : previousFragmentBuffer[Math.floor(this._fragmentIndex)] * this._volume;
+            if (this._resampler.needsData()) {
+                this._resampler.push(
+                    (this._audio && this._audio.isPaused()) || !previousFragmentBuffer
+                        ? 0
+                        : previousFragmentBuffer[this._fragmentIndex++] * this._volume
+                );
 
-            this._fragmentIndex += this._inputSampleRate / this._outputSampleRate;
-            if (this._fragmentIndex >= this._fragmentSize) {
-                this._fragmentIndex -= this._fragmentSize;
+                if (this._fragmentIndex >= this._fragmentSize) {
+                    this._fragmentIndex = 0;
+                }
             }
+
+            outputBuffer[bufferIndex++] = this._resampler.get();
         }
     }
 
@@ -159,6 +170,8 @@ class PCMChannel implements ChannelInterface {
     private _lastFragment: PoolMemberInterface<Float32Array> = null;
 
     private _audio: PCMAudioEndpointInterface;
+
+    private _resampler: ResamplerInterface = new LinearReasmpler();
 }
 
 export default PCMChannel;

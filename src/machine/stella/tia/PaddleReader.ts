@@ -28,8 +28,8 @@ const C = 68e-9, // capacitor
     LINES_FULL = 380; // treshold voltage in terms of scanline count
 
 export default class PaddleReader {
-    constructor(private _clockFreq: number, private _timestampRef: () => number, private _paddle: Paddle) {
-        this._uThresh = U * (1 - Math.exp(-LINES_FULL * 228 / this._clockFreq / (RPOT + R0) / C));
+    constructor(clockFreq: number, private _paddle: Paddle) {
+        this._uThresh = U * (1 - Math.exp(-LINES_FULL * 228 / clockFreq / (RPOT + R0) / C));
 
         this._paddle.valueChanged.addHandler((value: number) => {
             this._updateValue();
@@ -39,11 +39,16 @@ export default class PaddleReader {
         this.reset();
     }
 
+    setCpuTimeProvider(provider: () => number): void {
+        this._cpuTimeProvider = provider;
+        this._timestamp = this._cpuTimeProvider();
+    }
+
     reset(): void {
         this._u = 0;
         this._value = this._paddle.getValue();
         this._dumped = false;
-        this._timestamp = this._timestampRef();
+        this._timestamp = this._cpuTimeProvider ? this._cpuTimeProvider() : 0;
     }
 
     vblank(value: number): void {
@@ -54,7 +59,7 @@ export default class PaddleReader {
             this._u = 0;
         } else if (oldValue) {
             this._dumped = false;
-            this._timestamp = this._timestampRef();
+            this._timestamp = this._cpuTimeProvider();
         }
     }
 
@@ -71,14 +76,11 @@ export default class PaddleReader {
             return;
         }
 
-        const timestamp = this._timestampRef();
+        const timestamp = this._cpuTimeProvider();
 
         // Update the voltage with the integral between the two timestamps
         this._u =
-            U *
-            (1 -
-                (1 - this._u / U) *
-                    Math.exp(-(timestamp - this._timestamp) / (this._value * RPOT + R0) / C / this._clockFreq));
+            U * (1 - (1 - this._u / U) * Math.exp(-(timestamp - this._timestamp) / (this._value * RPOT + R0) / C));
 
         this._timestamp = timestamp;
     }
@@ -88,4 +90,6 @@ export default class PaddleReader {
     private _dumped = false;
     private _value = 0.5;
     private _timestamp = 0;
+
+    private _cpuTimeProvider: () => number = null;
 }

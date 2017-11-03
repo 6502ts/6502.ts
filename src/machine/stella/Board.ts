@@ -77,7 +77,10 @@ class Board implements BoardInterface {
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
 
-        tia.setCpu(cpu).setBus(bus);
+        tia
+            .setCpu(cpu)
+            .setBus(bus)
+            .setCpuTimeProvider(() => this.getCpuTime());
 
         cartridge
             .setCpu(cpu)

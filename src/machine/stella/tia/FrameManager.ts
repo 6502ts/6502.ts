@@ -35,7 +35,7 @@ const enum Metrics {
     vsync = 3,
     visibleOverscan = 20,
     maxUnderscan = 10,
-    maxFramesWithoutVsync = 50
+    maxLinesWithoutVsync = 50
 }
 
 const enum State {
@@ -67,7 +67,6 @@ export default class FrameManager {
         }
 
         this._frameLines = this._vblankLines + this._kernelLines + this._overscanLines + Metrics.vsync;
-        this._maxLinesWithoutVsync = this._frameLines * Metrics.maxFramesWithoutVsync;
         this._frameStart = this._config.frameStart;
 
         this.reset();
@@ -76,7 +75,6 @@ export default class FrameManager {
     reset(): void {
         this.vblank = false;
         this.surfaceBuffer = null;
-        this._waitForVsync = true;
         this._linesWithoutVsync = 0;
         this._state = State.waitForVsyncStart;
         this._vsync = false;
@@ -94,10 +92,10 @@ export default class FrameManager {
         switch (this._state) {
             case State.waitForVsyncStart:
             case State.waitForVsyncEnd:
-                if (this._linesWithoutVsync > this._maxLinesWithoutVsync) {
-                    this._waitForVsync = false;
+                if (++this._linesWithoutVsync > Metrics.maxUnderscan) {
                     this._setState(State.waitForFrameStart);
                 }
+
                 break;
 
             case State.waitForFrameStart:
@@ -124,13 +122,9 @@ export default class FrameManager {
 
             case State.overscan:
                 if (this._lineInState >= this._overscanLines - Metrics.visibleOverscan) {
-                    this._setState(this._waitForVsync ? State.waitForVsyncStart : State.waitForFrameStart);
+                    this._setState(State.waitForVsyncStart);
                 }
                 break;
-        }
-
-        if (this._waitForVsync) {
-            this._linesWithoutVsync++;
         }
     }
 
@@ -145,7 +139,7 @@ export default class FrameManager {
     }
 
     setVsync(vsync: boolean): void {
-        if (!this._surfaceFactory || !this._waitForVsync || vsync === this._vsync) {
+        if (!this._surfaceFactory || vsync === this._vsync) {
             return;
         }
 
@@ -153,6 +147,7 @@ export default class FrameManager {
 
         switch (this._state) {
             case State.waitForVsyncStart:
+                this._linesWithoutVsync = 0;
             case State.waitForFrameStart:
             case State.overscan:
                 if (vsync) {
@@ -163,7 +158,6 @@ export default class FrameManager {
             case State.waitForVsyncEnd:
                 if (!vsync) {
                     this._setState(State.waitForFrameStart);
-                    this._linesWithoutVsync = 0;
                 }
                 break;
 
@@ -189,10 +183,7 @@ export default class FrameManager {
     }
 
     getDebugState(): string {
-        return (
-            `${this._getReadableState()}, line = ${this._lineInState}, ` +
-            `vblank = ${this.vblank ? '1' : '0'}, ${this._waitForVsync ? '' : 'given up on vsync'}`
-        );
+        return `${this._getReadableState()}, line = ${this._lineInState}, ` + `vblank = ${this.vblank ? '1' : '0'}`;
     }
 
     private _getReadableState(): string {
@@ -243,9 +234,7 @@ export default class FrameManager {
     private _kernelLines = 0;
     private _overscanLines = 0;
     private _frameLines = 0;
-    private _maxLinesWithoutVsync = 0;
 
-    private _waitForVsync = true;
     private _linesWithoutVsync = 0;
     private _state = State.waitForVsyncStart;
 

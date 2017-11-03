@@ -120,7 +120,7 @@ class Tia implements VideoOutputInterface {
 
         this._paddles = new Array(4);
         for (let i = 0; i < 4; i++) {
-            this._paddles[i] = new PaddleReader(clockFreq, () => this._clock, paddles[i]);
+            this._paddles[i] = new PaddleReader(clockFreq, paddles[i]);
         }
 
         this.reset();
@@ -138,7 +138,6 @@ class Tia implements VideoOutputInterface {
         this._colorBk = 0xff000000;
         this._linesSinceChange = 0;
         this._collisionUpdateRequired = false;
-        this._clock = 0;
         this._maxLinesTotal = 0;
         this._xDelta = 0;
 
@@ -169,6 +168,14 @@ class Tia implements VideoOutputInterface {
 
     setCpu(cpu: CpuInterface): Tia {
         this._cpu = cpu;
+
+        return this;
+    }
+
+    setCpuTimeProvider(provider: () => number): this {
+        for (let i = 0; i < 4; i++) {
+            this._paddles[i].setCpuTimeProvider(provider);
+        }
 
         return this;
     }
@@ -560,8 +567,6 @@ class Tia implements VideoOutputInterface {
             this._pcmAudio[0].tick();
             this._pcmAudio[1].tick();
         }
-
-        this._clock++;
     }
 
     private static _delayedWrite(address: number, value: number, self: Tia): void {
@@ -967,8 +972,6 @@ class Tia implements VideoOutputInterface {
     private _extendedHblank = false;
     // Delta during x calculation. Can become temporarily nonzero aftern a rsync.
     private _xDelta = 0;
-
-    private _clock = 0;
 
     // Lines since the last cache-invalidating change. If this is > 1 we can safely use the linecache
     private _linesSinceChange = 0;
