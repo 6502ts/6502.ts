@@ -53,6 +53,8 @@ class AbstractCartridge implements CartridgeInterface {
         return this;
     }
 
+    setCpuTimeProvider(provider: () => number) {}
+
     notifyCpuCycleComplete(): void {}
 
     randomize(rng: RngInterface): void {}

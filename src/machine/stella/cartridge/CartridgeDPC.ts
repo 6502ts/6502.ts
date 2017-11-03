@@ -24,6 +24,8 @@ import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 import * as cartridgeUtil from './util';
 
+const mixerTable = new Uint8Array([0x0, 0x4, 0x5, 0x9, 0x6, 0xa, 0xb, 0xf]);
+
 class CartridgeDPC extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
@@ -52,6 +54,8 @@ class CartridgeDPC extends AbstractCartridge {
         this._bank = this._bank1;
         this._rng = 1;
         this._fetchers.forEach(fetcher => fetcher.reset());
+        this._lastCpuTime = 0;
+        this._clockAccumulator = 0;
     }
 
     getType(): CartridgeInfo.CartridgeType {
@@ -62,6 +66,10 @@ class CartridgeDPC extends AbstractCartridge {
         this._bus = bus;
 
         return this;
+    }
+
+    setCpuTimeProvider(provider: () => number): void {
+        this._cpuTimeProvider = provider;
     }
 
     read(address: number): number {
@@ -97,7 +105,15 @@ class CartridgeDPC extends AbstractCartridge {
         }
 
         if (address < 0x08) {
-            return address & 0x04 ? 0 : this._randomNext();
+            if (address & 0x04) {
+                this._clockMusicFetchers();
+
+                return mixerTable[
+                    (this._fetchers[5].mask & 0x4) | (this._fetchers[6].mask & 0x2) | (this._fetchers[7].mask & 0x1)
+                ];
+            } else {
+                return this._randomNext();
+            }
         }
 
         if (address < 0x40) {
@@ -149,10 +165,12 @@ class CartridgeDPC extends AbstractCartridge {
 
             switch ((address - 0x40) >>> 3) {
                 case 0:
+                    this._clockMusicFetchers();
                     fetcher.setStart(value);
                     break;
 
                 case 1:
+                    this._clockMusicFetchers();
                     fetcher.setEnd(value);
                     break;
 
@@ -193,6 +211,23 @@ class CartridgeDPC extends AbstractCartridge {
         return oldRng;
     }
 
+    private _clockMusicFetchers(): void {
+        const cpuTime = this._cpuTimeProvider();
+        this._clockAccumulator += (cpuTime - this._lastCpuTime) * 21000;
+        this._lastCpuTime = cpuTime;
+
+        const clocks = Math.floor(this._clockAccumulator);
+        this._clockAccumulator -= clocks;
+
+        if (clocks === 0) {
+            return;
+        }
+
+        for (let i = 5; i < 8; i++) {
+            this._fetchers[i].forwardClock(clocks);
+        }
+    }
+
     private _bank0 = new Uint8Array(0x1000);
     private _bank1 = new Uint8Array(0x1000);
 
@@ -204,6 +239,10 @@ class CartridgeDPC extends AbstractCartridge {
     private _rng = 1;
 
     private _bus: Bus;
+
+    private _cpuTimeProvider: () => number = null;
+    private _lastCpuTime = 0;
+    private _clockAccumulator = 0;
 }
 
 class Fetcher {
@@ -217,6 +256,10 @@ class Fetcher {
     }
 
     next(): void {
+        if (this.musicMode) {
+            return;
+        }
+
         this.pointer = (this.pointer + 0x07ff) & 0x07ff;
 
         this._updateMask();
@@ -249,6 +292,21 @@ class Fetcher {
 
     setMusicMode(value: number): void {
         this.musicMode = (value & 0x10) !== 0;
+    }
+
+    forwardClock(clocks: number) {
+        if (!this.musicMode) {
+            return;
+        }
+
+        const period = this.start + 1,
+            newPointerLow = ((this.pointer & 0xff) + period - clocks % period) % period,
+            distanceStart = (256 + this.start - newPointerLow) & 0xff,
+            distanceEnd = (256 + this.end - newPointerLow) & 0xff;
+
+        this.pointer = (this.pointer & 0x0700) | newPointerLow;
+
+        this.mask = distanceStart > distanceEnd ? 0 : 0xff;
     }
 
     private _updateMask(): void {

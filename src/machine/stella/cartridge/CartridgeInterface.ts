@@ -42,6 +42,8 @@ interface CartridgeInterface {
 
     setBus(bus: BusInterface): this;
 
+    setCpuTimeProvider(provider: () => number): void;
+
     notifyCpuCycleComplete(): void;
 
     randomize(rng: RngInterface): void;

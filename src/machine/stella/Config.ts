@@ -48,14 +48,14 @@ namespace Config {
         };
     }
 
-    export function getClockMhz(config: Config): number {
+    export function getClockHz(config: Config): number {
         switch (config.tvMode) {
             case Config.TvMode.ntsc:
-                return 262 * 228 * 60 / 1000000;
+                return 262 * 228 * 60;
 
             case Config.TvMode.pal:
             case Config.TvMode.secam:
-                return 312 * 228 * 50 / 1000000;
+                return 312 * 228 * 50;
         }
     }
 }

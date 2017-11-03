@@ -79,7 +79,10 @@ class Board implements BoardInterface {
 
         tia.setCpu(cpu).setBus(bus);
 
-        cartridge.setCpu(cpu).setBus(bus);
+        cartridge
+            .setCpu(cpu)
+            .setBus(bus)
+            .setCpuTimeProvider(() => this.getCpuTime());
 
         pia.setBus(bus);
 
@@ -102,7 +105,7 @@ class Board implements BoardInterface {
             this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
         );
 
-        this._clockMhz = Config.getClockMhz(_config);
+        this._clockHz = Config.getClockHz(_config);
         this._sliceSize = 228 * (_config.tvMode === Config.TvMode.ntsc ? 262 : 312);
 
         this.reset();
@@ -149,6 +152,7 @@ class Board implements BoardInterface {
         this._controlPanel.getDifficultySwitchP1().toggle(true);
 
         this._subClock = 0;
+        this._cpuCycles = 0;
 
         return this;
     }
@@ -248,10 +252,14 @@ class Board implements BoardInterface {
         return this._paddles[idx];
     }
 
-    private static _executeSlice(board: Board, _timeSlice?: number) {
-        const slice = _timeSlice ? Math.round(_timeSlice * board._clockMhz * 1000) : board._sliceSize;
+    getCpuTime(): number {
+        return this._cpuCycles / Config.getClockHz(this._config) * 3;
+    }
 
-        return board._tick(slice) / board._clockMhz / 1000;
+    private static _executeSlice(board: Board, _timeSlice?: number) {
+        const slice = _timeSlice ? Math.round(_timeSlice * board._clockHz / 1000) : board._sliceSize;
+
+        return board._tick(slice) / board._clockHz * 1000;
     }
 
     private _updateAudioState(): void {
@@ -282,6 +290,7 @@ class Board implements BoardInterface {
 
             if (this._subClock === 0) {
                 cpuCycles++;
+                this._cpuCycles++;
             }
 
             if (lastExecutionState !== this._cpu.executionState) {
@@ -357,6 +366,7 @@ class Board implements BoardInterface {
 
     private _runTask: TaskInterface;
     private _clockMode = BoardInterface.ClockMode.lazy;
+    private _cpuCycles = 0;
     private _trap = false;
 
     private _audioEnabled = true;
@@ -364,7 +374,7 @@ class Board implements BoardInterface {
 
     private _subClock = 0;
 
-    private _clockMhz = 0;
+    private _clockHz = 0;
     private _sliceSize = 0;
 
     private _timer = {
