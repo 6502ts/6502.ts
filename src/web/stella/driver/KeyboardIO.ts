@@ -86,7 +86,7 @@ class KeyboardIO {
                 (e.ctrlKey ? KeyboardIO.Modifier.ctrl : 0) |
                 (e.altKey ? KeyboardIO.Modifier.alt : 0);
 
-            if (!this._compiledMappings.get(e.keyCode).get(modifiers)) {
+            if (!this._compiledMappings.get(e.keyCode).has(modifiers)) {
                 return;
             }
 

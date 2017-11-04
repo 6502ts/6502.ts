@@ -213,7 +213,7 @@ class CartridgeDPC extends AbstractCartridge {
 
     private _clockMusicFetchers(): void {
         const cpuTime = this._cpuTimeProvider();
-        this._clockAccumulator += (cpuTime - this._lastCpuTime) * 21000;
+        this._clockAccumulator += (cpuTime - this._lastCpuTime) * 20000;
         this._lastCpuTime = cpuTime;
 
         const clocks = Math.floor(this._clockAccumulator);

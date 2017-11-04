@@ -85,6 +85,10 @@ class CartridgeDPCPlus extends AbstractCartridge {
             this._fractionalFetchers[i] = new FractionalFetcher();
         }
 
+        for (let i = 0; i < 3; i++) {
+            this._musicFetchers[i] = new MusicFetcher();
+        }
+
         this.reset();
     }
 
@@ -111,11 +115,23 @@ class CartridgeDPCPlus extends AbstractCartridge {
             this._parameters[i] = 0;
         }
 
+        for (let i = 0; i < 8; i++) {
+            this._fetchers[i].reset();
+            this._fractionalFetchers[i].reset();
+        }
+
+        for (let i = 0; i < 3; i++) {
+            this._musicFetchers[i].reset();
+        }
+
         this._parameterIndex = 0;
 
         this._fastFetch = this._ldaPending = false;
 
         this._rng = 0x2b435044;
+
+        this._lastCpuTime = 0;
+        this._clockAccumulator = 0;
     }
 
     getType(): CartridgeInfo.CartridgeType {
@@ -126,6 +142,10 @@ class CartridgeDPCPlus extends AbstractCartridge {
         this._bus = bus;
 
         return this;
+    }
+
+    setCpuTimeProvider(provider: () => number): void {
+        this._cpuTimeProvider = provider;
     }
 
     read(address: number): number {
@@ -176,6 +196,19 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
                         case 0x04:
                             return (this._rng >>> 24) & 0xff;
+
+                        case 0x05: {
+                            this._clockMusicFetchers();
+
+                            let acc = 0;
+                            for (let i = 0; i < 3; i++) {
+                                acc += this._imageRam[
+                                    (this._musicFetchers[i].waveform << 5) + this._musicFetchers[i].waveformSample
+                                ];
+                            }
+
+                            return acc & 0xff;
+                        }
                     }
 
                     return 0;
@@ -247,6 +280,12 @@ class CartridgeDPCPlus extends AbstractCartridge {
                         case 0x02:
                             this._dispatchFunction(value);
                             break;
+
+                        case 0x05:
+                        case 0x06:
+                        case 0x07:
+                            this._musicFetchers[idx - 0x05].waveform = value & 0x7f;
+                            break;
                     }
 
                     break;
@@ -281,6 +320,17 @@ class CartridgeDPCPlus extends AbstractCartridge {
                         case 0x04:
                             this._rng = (this._rng & 0x00ffffff) | (value << 24);
                             break;
+
+                        case 0x05:
+                        case 0x06:
+                        case 0x07:
+                            this._musicFetchers[idx - 0x05].frequency =
+                                this._frequencyRam[value << 2] +
+                                (this._frequencyRam[(value << 2) + 1] << 8) +
+                                (this._frequencyRam[(value << 2) + 2] << 16) +
+                                (this._frequencyRam[(value << 2) + 3] << 24);
+
+                            break;
                     }
 
                     break;
@@ -302,6 +352,24 @@ class CartridgeDPCPlus extends AbstractCartridge {
         }
 
         return readResult;
+    }
+
+    private _clockMusicFetchers(): void {
+        const cpuTime = this._cpuTimeProvider();
+
+        this._clockAccumulator += (cpuTime - this._lastCpuTime) * 20000;
+        this._lastCpuTime = cpuTime;
+
+        const clocks = Math.floor(this._clockAccumulator);
+        this._clockAccumulator -= clocks;
+
+        if (clocks === 0) {
+            return;
+        }
+
+        for (let i = 0; i < 3; i++) {
+            this._musicFetchers[i].increment(clocks);
+        }
     }
 
     private _dispatchFunction(index: number) {
@@ -394,16 +462,21 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
     private _fetchers = new Array<Fetcher>(8);
     private _fractionalFetchers = new Array<FractionalFetcher>(8);
+    private _musicFetchers = new Array<MusicFetcher>(3);
 
     private _parameters = new Uint8Array(8);
     private _parameterIndex = 0;
 
     private _rng = 0;
 
+    private _clockAccumulator = 0;
+    private _lastCpuTime = 0;
+
     private _fastFetch = false;
     private _ldaPending = false;
 
     private _bus: Bus;
+    private _cpuTimeProvider: () => number = null;
 
     private _thumbulatorBus: Thumbulator.Bus = {
         read16: (address: number): number => {
@@ -632,6 +705,31 @@ class FractionalFetcher {
 
     pointer = 0;
     fraction = 0;
+}
+
+class MusicFetcher {
+    constructor() {
+        this.reset();
+    }
+
+    reset(): void {
+        this.frequency = 0;
+        this.waveformSample = 0;
+        this.waveform = 0;
+        this.counter = 0;
+    }
+
+    increment(clocks: number): void {
+        this.counter += clocks * this.frequency;
+        this.waveformSample += this.counter >>> 27;
+        this.waveformSample &= 0x1f;
+        this.counter &= 0x7ffffff;
+    }
+
+    frequency = 0;
+    waveformSample = 0;
+    waveform = 0;
+    counter = 0;
 }
 
 export default CartridgeDPCPlus;
