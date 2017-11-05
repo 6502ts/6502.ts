@@ -32,6 +32,13 @@ const enum CONST {
     trapReturn = 255
 }
 
+function hostIsLittleEndian(): boolean {
+    const buffer8 = new Uint8Array([1, 2, 3, 4]),
+        buffer32 = new Uint32Array(buffer8.buffer);
+
+    return buffer32[0] === 0x04030201;
+}
+
 class CartridgeDPCPlus extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
@@ -71,7 +78,6 @@ class CartridgeDPCPlus extends AbstractCartridge {
          *    * 1k frequency RAM
          */
         this._imageRam = new Uint8Array(this._ramBuffer, 0x0c00, 0x1000);
-        this._frequencyRam = new Uint8Array(this._ramBuffer, 0x2000 - 0x0400);
 
         const rom8 = new Uint8Array(this._romBuffer),
             offset = 0x8000 - buffer.length;
@@ -87,6 +93,25 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
         for (let i = 0; i < 3; i++) {
             this._musicFetchers[i] = new MusicFetcher();
+        }
+
+        if (hostIsLittleEndian()) {
+            this._getRom16 = address => this._rom16[address >>> 1];
+            this._getRom32 = address => this._rom32[address >>> 2];
+            this._getRam16 = address => this._ram16[address >>> 1];
+            this._getRam32 = address => this._ram32[address >>> 2];
+            this._setRam16 = (address, value) => (this._ram16[address >>> 1] = value);
+            this._setRam32 = (address, value) => (this._ram32[address >>> 2] = value);
+        } else {
+            this._romView = new DataView(this._romBuffer);
+            this._ramView = new DataView(this._ramBuffer);
+
+            this._getRom16 = address => this._romView.getUint16(address, true);
+            this._getRom32 = address => this._romView.getUint32(address, true);
+            this._getRam16 = address => this._ramView.getUint16(address, true);
+            this._getRam32 = address => this._ramView.getUint32(address, true);
+            this._setRam16 = (address, value) => this._ramView.setUint16(address, value, true);
+            this._setRam32 = (address, value) => this._ramView.setUint32(address, value, true);
         }
 
         this.reset();
@@ -203,7 +228,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
                             let acc = 0;
                             for (let i = 0; i < 3; i++) {
                                 acc += this._imageRam[
-                                    (this._musicFetchers[i].waveform << 5) + this._musicFetchers[i].waveformSample
+                                    (this._musicFetchers[i].waveform << 5) + this._musicFetchers[i].waveformSample()
                                 ];
                             }
 
@@ -324,12 +349,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
                         case 0x05:
                         case 0x06:
                         case 0x07:
-                            this._musicFetchers[idx - 0x05].frequency =
-                                this._frequencyRam[value << 2] +
-                                (this._frequencyRam[(value << 2) + 1] << 8) +
-                                (this._frequencyRam[(value << 2) + 2] << 16) +
-                                (this._frequencyRam[(value << 2) + 3] << 24);
-
+                            this._musicFetchers[idx - 0x05].frequency = this._getRam32(0x2000 - 0x400 + (value << 2));
                             break;
                     }
 
@@ -439,11 +459,19 @@ class CartridgeDPCPlus extends AbstractCartridge {
                 : (this._rng << 11) | (this._rng >>> 21);
     }
 
+    private _getRom16: (address: number) => number;
+    private _getRom32: (address: number) => number;
+    private _getRam16: (address: number) => number;
+    private _getRam32: (address: number) => number;
+    private _setRam16: (address: number, value: number) => void;
+    private _setRam32: (address: number, value: number) => void;
+
     private _romBuffer = new ArrayBuffer(0x8000);
 
     private _rom8: Uint8Array;
     private _rom16: Uint16Array;
     private _rom32: Uint32Array;
+    private _romView: DataView = null;
 
     private _imageRom: Uint8Array;
     private _frequencyRom: Uint8Array;
@@ -456,9 +484,9 @@ class CartridgeDPCPlus extends AbstractCartridge {
     private _ram8: Uint8Array;
     private _ram16: Uint16Array;
     private _ram32: Uint32Array;
+    private _ramView: DataView = null;
 
     private _imageRam: Uint8Array;
-    private _frequencyRam: Uint8Array;
 
     private _fetchers = new Array<Fetcher>(8);
     private _fractionalFetchers = new Array<FractionalFetcher>(8);
@@ -494,13 +522,13 @@ class CartridgeDPCPlus extends AbstractCartridge {
             switch (region) {
                 case 0x0:
                     if (addr < 0x8000) {
-                        return this._rom16[addr >>> 1];
+                        return this._getRom16(addr);
                     }
                     break;
 
                 case 0x4:
                     if (addr < 0x2000) {
-                        return this._ram16[addr >>> 1];
+                        return this._getRam16(addr);
                     }
                     break;
 
@@ -536,13 +564,13 @@ class CartridgeDPCPlus extends AbstractCartridge {
             switch (region) {
                 case 0x0:
                     if (addr < 0x8000) {
-                        return this._rom32[addr >>> 2];
+                        return this._getRom32(addr);
                     }
                     break;
 
                 case 0x4:
                     if (addr < 0x2000) {
-                        return this._ram32[addr >>> 2];
+                        return this._getRam32(addr);
                     }
                     break;
 
@@ -579,7 +607,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             switch (region) {
                 case 0x04:
                     if (addr < 0x2000) {
-                        this._ram16[addr >>> 1] = value & 0xffff;
+                        this._setRam16(addr, value & 0xffff);
                         return;
                     }
                     break;
@@ -615,7 +643,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             switch (region) {
                 case 0x4:
                     if (addr < 0x2000) {
-                        this._ram32[addr >>> 2] = value;
+                        this._setRam32(addr, value);
                         return;
                     }
 
@@ -714,22 +742,21 @@ class MusicFetcher {
 
     reset(): void {
         this.frequency = 0;
-        this.waveformSample = 0;
         this.waveform = 0;
         this.counter = 0;
     }
 
     increment(clocks: number): void {
-        this.counter += clocks * this.frequency;
-        this.waveformSample += this.counter >>> 27;
-        this.waveformSample &= 0x1f;
-        this.counter &= 0x7ffffff;
+        this.counter = (this.counter + clocks * this.frequency) & 0xffffffff;
     }
 
-    frequency = 0;
-    waveformSample = 0;
+    waveformSample(): number {
+        return this.counter >>> 27;
+    }
+
+    frequency = 0xffffffff;
+    counter = 0xffffffff;
     waveform = 0;
-    counter = 0;
 }
 
 export default CartridgeDPCPlus;
