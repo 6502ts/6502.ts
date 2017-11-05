@@ -63,6 +63,10 @@ input[type='text'].invalid {
     margin-bottom: 1rem;
 }
 
+button {
+    border-radius: 0;
+}
+
 input[type=range] {
     -webkit-appearance: none;
     width: 100%;
