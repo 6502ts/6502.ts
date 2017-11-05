@@ -7,7 +7,8 @@ enum trap_reason {
     trap_no_trap = 0,
     trap_breakpoint = 1,
     trap_blx_leave_thumb = 2,
-    trap_bx_leave_thumb = 3
+    trap_bx_leave_thumb = 3,
+    trap_abort = 10
 };
 
 unsigned int read32 ( unsigned int );
@@ -37,15 +38,27 @@ unsigned int cpsr;
 unsigned int handler_mode;
 unsigned int reg_norm[16]; //normal execution mode, do not have a thread mode
 
+unsigned int trap_flag;
+
 //-----------------------------------------------------------------
 int run(unsigned int max_cycles)
 {
+    trap_flag = 0;
+
     for (unsigned int i = 0; i < max_cycles; i++) {
         int trap = execute();
+
+        if (trap_flag) return trap_abort;
+
         if (trap) return trap;
     }
 
     return trap_no_trap;
+}
+//-----------------------------------------------------------------
+void abort_run()
+{
+    trap_flag = 1;
 }
 //-----------------------------------------------------------------
 void enable_debug ( unsigned char enable )

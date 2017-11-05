@@ -28,6 +28,7 @@ interface EmModule {
     _reset(): void;
     _read_register(register: number): number;
     _write_register(register: number, value: number): void;
+    _abort_run(): void;
 }
 
 interface EmModuleApi {
@@ -50,6 +51,10 @@ class Thumbulator {
 
     run(cycles: number): Thumbulator.TrapReason | number {
         return this._module._run(cycles);
+    }
+
+    abort(): void {
+        this._module._abort_run();
     }
 
     enableDebug(enable: boolean) {

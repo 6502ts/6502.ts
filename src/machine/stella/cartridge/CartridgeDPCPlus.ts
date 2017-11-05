@@ -29,7 +29,8 @@ import { encode as hex } from '../../../tools/hex';
 
 const enum CONST {
     returnAddress = 0x8004,
-    trapReturn = 255
+    trapReturn = 255,
+    trapAbort = 10
 }
 
 function hostIsLittleEndian(): boolean {
@@ -199,6 +200,12 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
     write(address: number, value: number): void {
         this._access(address, value);
+    }
+
+    protected triggerTrap(reason: CartridgeInterface.TrapReason, message: string) {
+        this._thumbulator.abort();
+
+        super.triggerTrap(reason, message);
     }
 
     private _access(address: number, value: number): number {
@@ -459,7 +466,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
         const trap = this._thumbulator.run(500000);
 
-        if (trap !== CONST.trapReturn) {
+        if (trap !== CONST.trapReturn && trap !== CONST.trapAbort) {
             this.triggerTrap(CartridgeInterface.TrapReason.other, `ARM execution trapped: ${trap}`);
         }
     }
