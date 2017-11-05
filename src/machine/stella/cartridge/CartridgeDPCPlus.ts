@@ -96,6 +96,8 @@ class CartridgeDPCPlus extends AbstractCartridge {
         }
 
         if (hostIsLittleEndian()) {
+            // If we are on a little endian host, we use typed arrays to take advantage of
+            // hardware word access
             this._getRom16 = address => this._rom16[address >>> 1];
             this._getRom32 = address => this._rom32[address >>> 2];
             this._getRam16 = address => this._ram16[address >>> 1];
@@ -103,15 +105,29 @@ class CartridgeDPCPlus extends AbstractCartridge {
             this._setRam16 = (address, value) => (this._ram16[address >>> 1] = value);
             this._setRam32 = (address, value) => (this._ram32[address >>> 2] = value);
         } else {
-            this._romView = new DataView(this._romBuffer);
-            this._ramView = new DataView(this._ramBuffer);
-
-            this._getRom16 = address => this._romView.getUint16(address, true);
-            this._getRom32 = address => this._romView.getUint32(address, true);
-            this._getRam16 = address => this._ramView.getUint16(address, true);
-            this._getRam32 = address => this._ramView.getUint32(address, true);
-            this._setRam16 = (address, value) => this._ramView.setUint16(address, value, true);
-            this._setRam32 = (address, value) => this._ramView.setUint32(address, value, true);
+            // On big endian, we dance the endianness shuffle ourselves (DataView is dead slow)
+            this._getRom16 = address => this._rom8[address] | (this._rom8[address + 1] << 8);
+            this._getRom32 = address =>
+                this._rom8[address] |
+                (this._rom8[address + 1] << 8) |
+                (this._rom8[address + 2] << 16) |
+                (this._rom8[address + 3] << 24);
+            this._getRam16 = address => this._ram8[address] | (this._ram8[address + 1] << 8);
+            this._getRam32 = address =>
+                this._ram8[address] |
+                (this._ram8[address + 1] << 8) |
+                (this._ram8[address + 2] << 16) |
+                (this._ram8[address + 3] << 24);
+            this._setRam16 = (address, value) => {
+                this._ram8[address] = value & 0xff;
+                this._ram8[address + 1] = (value >>> 8) & 0xff;
+            };
+            this._setRam32 = (address, value) => {
+                this._ram8[address] = value & 0xff;
+                this._ram8[address + 1] = (value >>> 8) & 0xff;
+                this._ram8[address + 2] = (value >>> 16) & 0xff;
+                this._ram8[address + 3] = (value >>> 24) & 0xff;
+            };
         }
 
         this.reset();
@@ -471,7 +487,6 @@ class CartridgeDPCPlus extends AbstractCartridge {
     private _rom8: Uint8Array;
     private _rom16: Uint16Array;
     private _rom32: Uint32Array;
-    private _romView: DataView = null;
 
     private _imageRom: Uint8Array;
     private _frequencyRom: Uint8Array;
@@ -484,7 +499,6 @@ class CartridgeDPCPlus extends AbstractCartridge {
     private _ram8: Uint8Array;
     private _ram16: Uint16Array;
     private _ram32: Uint32Array;
-    private _ramView: DataView = null;
 
     private _imageRam: Uint8Array;
 
@@ -747,15 +761,15 @@ class MusicFetcher {
     }
 
     increment(clocks: number): void {
-        this.counter = (this.counter + clocks * this.frequency) & 0xffffffff;
+        this.counter = (this.counter + clocks * this.frequency) | 0;
     }
 
     waveformSample(): number {
         return this.counter >>> 27;
     }
 
-    frequency = 0xffffffff;
-    counter = 0xffffffff;
+    frequency = ~0;
+    counter = ~0;
     waveform = 0;
 }
 
