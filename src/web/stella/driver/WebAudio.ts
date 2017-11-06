@@ -40,8 +40,8 @@ class WebAudioDriver {
             }
 
             this._driver = pcmAudio
-                ? new VanillaDriver(0, 2, this._fragmentSize)
-                : new VanillaDriver(2, 0, this._fragmentSize);
+                ? new VanillaDriver(0, this._channels.length, this._fragmentSize)
+                : new VanillaDriver(this._channels.length, 0, this._fragmentSize);
             this._driver.init();
         }
 
@@ -51,8 +51,9 @@ class WebAudioDriver {
             this._driver.bind(this._channels as Array<WaveformAudioOutputInterface>, []);
         }
 
-        this._driver.setMasterVolume(0, this._volume);
-        this._driver.setMasterVolume(1, this._volume);
+        for (let i = 0; i < this._channels.length; i++) {
+            this._driver.setMasterVolume(i, this._volume);
+        }
 
         this._pcmAudio = pcmAudio;
     }
@@ -71,8 +72,9 @@ class WebAudioDriver {
         this._volume = volume;
 
         if (this._driver) {
-            this._driver.setMasterVolume(0, volume);
-            this._driver.setMasterVolume(1, volume);
+            for (let i = 0; i < this._channels.length; i++) {
+                this._driver.setMasterVolume(i, this._volume);
+            }
         }
     }
 

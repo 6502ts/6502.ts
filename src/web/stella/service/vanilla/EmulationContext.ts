@@ -77,12 +77,12 @@ export default class EmulationContext implements EmulationContextInterface {
         return this._board.getWaveformChannels();
     }
 
-    getPCMChannels(): Array<PCMAudioEndpointInterface> {
-        if (!this._audioEndpoints) {
-            this._audioEndpoints = this._board.getPCMChannels().map(channel => new PCMAudioEndpoint(channel));
+    getPCMChannel(): PCMAudioEndpointInterface {
+        if (!this._audioEndpoint) {
+            this._audioEndpoint = new PCMAudioEndpoint(this._board.getPCMChannel());
         }
 
-        return this._audioEndpoints;
+        return this._audioEndpoint;
     }
 
     getRawVideo(): VideoOutputInterface {
@@ -94,5 +94,5 @@ export default class EmulationContext implements EmulationContextInterface {
     }
 
     private _videoEndpoint: VideoEndpoint = null;
-    private _audioEndpoints: Array<PCMAudioEndpointInterface> = null;
+    private _audioEndpoint: PCMAudioEndpointInterface = null;
 }

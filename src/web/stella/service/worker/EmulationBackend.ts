@@ -54,7 +54,7 @@ class EmulationBackend {
             videoDriver = new VideoDriver(this._rpc),
             controlDriver = new ControlDriver(this._rpc),
             waveformAduioDrivers = [0, 1].map(i => new WaveformAudioDriver(i, this._rpc)),
-            pcmAudioDriver = [0, 1].map(i => new PCMAudioDriver(i, this._rpc));
+            pcmAudioDriver = new PCMAudioDriver(0, this._rpc);
 
         this._videoDriver = videoDriver;
         controlDriver.init();
@@ -64,16 +64,15 @@ class EmulationBackend {
                 driver.bind(context.getRawVideo())
             )
             .addDriver(controlDriver, (context: EmulationContext, driver: ControlDriver) => driver.bind(context))
+            .addDriver(pcmAudioDriver, (context: EmulationContext, driver: PCMAudioDriver) =>
+                driver.bind(context.getPCMChannel())
+            )
             .bind(this._service);
 
         for (let i = 0; i < 2; i++) {
-            driverManager
-                .addDriver(waveformAduioDrivers[i], (context: EmulationContext, driver: WaveformAudioDriver) =>
-                    driver.bind(context.getWaveformChannels()[i])
-                )
-                .addDriver(pcmAudioDriver[i], (context: EmulationContext, driver: PCMAudioDriver) =>
-                    driver.bind(context.getPCMChannels()[i])
-                );
+            driverManager.addDriver(waveformAduioDrivers[i], (context: EmulationContext, driver: WaveformAudioDriver) =>
+                driver.bind(context.getWaveformChannels()[i])
+            );
         }
     }
 

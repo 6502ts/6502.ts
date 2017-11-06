@@ -170,9 +170,7 @@ function setupAudio(board: Board, cli: StellaCLI) {
     const config = board.getConfig();
     driver.bind(
         config.pcmAudio,
-        config.pcmAudio
-            ? board.getPCMChannels().map(channel => new PCMAudioEndpoint(channel))
-            : board.getWaveformChannels()
+        config.pcmAudio ? [new PCMAudioEndpoint(board.getPCMChannel())] : board.getWaveformChannels()
     );
 
     cli.events.stateChanged.addHandler(newState => {

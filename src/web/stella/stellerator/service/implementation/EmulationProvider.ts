@@ -84,7 +84,7 @@ class EmulationProvider implements EmulationProviderInterface {
             this._driverManager.addDriver(audioDriver, (context: EmulationContextInterface, driver: WebAudioDriver) =>
                 driver.bind(
                     context.getConfig().pcmAudio,
-                    context.getConfig().pcmAudio ? context.getPCMChannels() : context.getWaveformChannels()
+                    context.getConfig().pcmAudio ? [context.getPCMChannel()] : context.getWaveformChannels()
                 )
             );
 

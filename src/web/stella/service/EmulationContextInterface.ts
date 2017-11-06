@@ -40,7 +40,7 @@ interface EmulationContextInterface {
 
     getWaveformChannels(): Array<WaveformAudioOutputInterface>;
 
-    getPCMChannels(): Array<PCMAudioEndpointInterface>;
+    getPCMChannel(): PCMAudioEndpointInterface;
 }
 
 export default EmulationContextInterface;

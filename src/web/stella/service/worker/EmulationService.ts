@@ -53,9 +53,10 @@ class EmulationService implements EmulationServiceInterface {
         this._worker = new Worker(`${this._workerUrl}/stella.js`);
         this._rpc = new RpcProvider((message, transfer?) => this._worker.postMessage(message, transfer));
 
+        this._pcmChannel = new PCMAudioProxy(0, this._rpc).init();
+
         for (let i = 0; i < 2; i++) {
             this._waveformChannels[i] = new WaveformAudioProxy(i, this._rpc).init();
-            this._pcmChannels[i] = new PCMAudioProxy(i, this._rpc).init();
         }
 
         const videoProxy = new VideoProxy(this._rpc),
@@ -67,7 +68,7 @@ class EmulationService implements EmulationServiceInterface {
             videoProxy,
             controlProxy,
             this._waveformChannels,
-            this._pcmChannels
+            this._pcmChannel
         );
 
         this._worker.onmessage = messageEvent => this._rpc.dispatch(messageEvent.data);
@@ -237,8 +238,8 @@ class EmulationService implements EmulationServiceInterface {
 
         for (let i = 0; i < this._waveformChannels.length; i++) {
             await this._waveformChannels[i].start(config);
-            await this._pcmChannels[i].start();
         }
+        await this._pcmChannel.start();
 
         this._startControlUpdates();
 
@@ -251,7 +252,7 @@ class EmulationService implements EmulationServiceInterface {
         }
 
         this._emulationContext.getVideoProxy().stop();
-        this._pcmChannels.forEach(channel => channel.stop());
+        this._pcmChannel.stop();
         this._stopControlUpdates();
 
         this._proxyState = ProxyState.stopped;
@@ -330,7 +331,7 @@ class EmulationService implements EmulationServiceInterface {
     private _frequency = 0;
 
     private _waveformChannels = new Array<WaveformAudioProxy>(2);
-    private _pcmChannels = new Array<PCMAudioProxy>(2);
+    private _pcmChannel: PCMAudioProxy = null;
 
     private _controlProxy: ControlProxy = null;
     private _controlProxyUpdateHandle: any = null;

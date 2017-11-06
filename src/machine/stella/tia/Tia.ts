@@ -109,11 +109,13 @@ class Tia implements VideoOutputInterface {
         this._input0 = new LatchedInput(joystick0.getFire());
         this._input1 = new LatchedInput(joystick1.getFire());
 
+        this._pcmAudio = new PCMAudio(this._config);
+        const pcmChannels = this._pcmAudio.getChannels();
+
         for (let i = 0; i < 2; i++) {
-            this._pcmAudio[i] = new PCMAudio(this._config);
             this._waveformAudio[i] = new WaveformAudio(this._config);
 
-            this._audio[i] = this._config.pcmAudio ? this._pcmAudio[i] : this._waveformAudio[i];
+            this._audio[i] = this._config.pcmAudio ? pcmChannels[i] : this._waveformAudio[i];
         }
 
         const clockFreq = this._getClockFreq(this._config);
@@ -198,8 +200,8 @@ class Tia implements VideoOutputInterface {
         return this._waveformAudio[i];
     }
 
-    getPCMChannel(i: number): PCMAudioOutputInterface {
-        return this._pcmAudio[i];
+    getPCMChannel(): PCMAudioOutputInterface {
+        return this._pcmAudio;
     }
 
     setAudioEnabled(state: boolean): void {
@@ -563,9 +565,8 @@ class Tia implements VideoOutputInterface {
             this._nextLine();
         }
 
-        if (this._pcmAudio) {
-            this._pcmAudio[0].tick();
-            this._pcmAudio[1].tick();
+        if (this._config.pcmAudio) {
+            this._pcmAudio.tick();
         }
     }
 
@@ -992,7 +993,7 @@ class Tia implements VideoOutputInterface {
     private _ball = new Ball(CollisionMask.ball, () => this._flushLineCache());
 
     private _waveformAudio = new Array<WaveformAudio>(2);
-    private _pcmAudio = new Array<PCMAudio>(2);
+    private _pcmAudio: PCMAudio = null;
     private _audio = new Array<AudioInterface>(2);
 
     private _input0: LatchedInput;

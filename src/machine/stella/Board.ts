@@ -130,8 +130,8 @@ class Board implements BoardInterface {
         return [0, 1].map(i => this._tia.getWaveformChannel(i));
     }
 
-    getPCMChannels(): Array<PCMAudioOutputInterface> {
-        return [0, 1].map(i => this._tia.getPCMChannel(i));
+    getPCMChannel(): PCMAudioOutputInterface {
+        return this._tia.getPCMChannel();
     }
 
     getTimer(): TimerInterface {

@@ -38,7 +38,7 @@ class EmulationContext implements EmulationContextInterface {
         private _videoProxy: VideoProxy,
         private _controlProxy: ControlProxy,
         private _waveformChannels: Array<WaveformAudioProxy>,
-        private _pcmChannels: Array<PCMAudioProxy>
+        private _pcmChannel: PCMAudioProxy
     ) {
         if (this._waveformChannels.length !== 2) {
             throw new Error(`invalid channel count ${this._waveformChannels.length}`);
@@ -73,8 +73,8 @@ class EmulationContext implements EmulationContextInterface {
         return this._waveformChannels;
     }
 
-    getPCMChannels(): Array<PCMAudioEndpointInterface> {
-        return this._pcmChannels;
+    getPCMChannel(): PCMAudioEndpointInterface {
+        return this._pcmChannel;
     }
 
     getVideoProxy(): VideoProxy {

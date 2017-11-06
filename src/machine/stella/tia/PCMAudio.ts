@@ -22,77 +22,66 @@
 import { Event } from 'microevent.ts';
 
 import PCMAudioInterface from '../../io/PCMAudioOutputInterface';
-import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import AudioInterface from './AudioInterface';
+import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import ToneGenerator from './ToneGenerator';
 import StellaConfig from '../Config';
+import PCMChannel from './PCMChannel';
 
-class PCMAudio implements PCMAudioInterface, AudioInterface {
+class PCMAudio implements PCMAudioInterface {
     constructor(private _config: StellaConfig) {
         this._toneGenerator = new ToneGenerator(this._config);
+        this._channel0 = new PCMChannel(this._patternCache, this._toneGenerator);
+        this._channel1 = new PCMChannel(this._patternCache, this._toneGenerator);
+
         this._sampleRate = (this._config.tvMode === StellaConfig.TvMode.ntsc ? 60 * 262 : 50 * 312) * 2;
-        this._frameSize = (this._config.tvMode === StellaConfig.TvMode.ntsc ? 262 : 312) * 2;
+        this._frameSize = (this._config.tvMode === StellaConfig.TvMode.ntsc ? 262 : 312) * 4;
 
         this.reset();
     }
 
+    getChannels(): Array<AudioInterface> {
+        return [
+            {
+                audv: value => this._channel0.audv(value),
+                audc: value => this._channel0.audc(value),
+                audf: value => this._channel0.audf(value),
+                reset: () => this.reset(),
+                setActive: active => this.setActive(active)
+            },
+            {
+                audv: value => this._channel1.audv(value),
+                audc: value => this._channel1.audc(value),
+                audf: value => this._channel1.audf(value),
+                reset: () => undefined,
+                setActive: () => undefined
+            }
+        ];
+    }
+
     reset() {
         this._bufferIndex = 0;
-        this._tone = 0;
-        this._frequency = 0;
-        this._tone = 0;
         this._counter = 0;
 
-        this._updatePattern();
+        this._channel0.reset();
+        this._channel1.reset();
     }
 
     tick(): void {
-        if (this._isActive && this._currentOutputBuffer && (this._counter === 0 || this._counter === 113)) {
+        if (this._isActive && this._currentOutputBuffer && this._counter++ === 113) {
             this._currentOutputBuffer.getContent()[this._bufferIndex++] =
-                this._currentPattern[this._patternIndex++] * this._volume;
+                0.5 * (this._channel0.nextSample() + this._channel1.nextSample());
 
             if (this._bufferIndex === this._currentOutputBuffer.getLength()) {
                 this._dispatchBuffer();
             }
 
-            if (this._patternIndex === this._currentPattern.length) {
-                this._patternIndex = 0;
-            }
-        }
-
-        if (++this._counter === 228) {
             this._counter = 0;
         }
     }
 
     isPaused(): boolean {
         return !this._isActive;
-    }
-
-    audc(value: number): void {
-        value &= 0x0f;
-
-        if (value === this._tone) {
-            return;
-        }
-
-        this._tone = value;
-        this._updatePattern();
-    }
-
-    audf(value: number): void {
-        value &= 0x1f;
-
-        if (value === this._frequency) {
-            return;
-        }
-
-        this._frequency = value;
-        this._updatePattern();
-    }
-
-    audv(value: number): void {
-        this._volume = (value & 0x0f) / 15;
     }
 
     setActive(isActive: boolean): void {
@@ -128,29 +117,13 @@ class PCMAudio implements PCMAudioInterface, AudioInterface {
         this._bufferIndex = 0;
     }
 
-    private _updatePattern(): void {
-        const key = this._toneGenerator.getKey(this._tone, this._frequency);
-
-        if (!this._patterns.has(key)) {
-            this._patterns.set(key, this._toneGenerator.getBuffer(key).getContent());
-        }
-
-        this._currentPattern = this._patterns.get(key);
-        this._patternIndex = 0;
-    }
-
     newFrame = new Event<AudioOutputBuffer>();
 
     togglePause = new Event<boolean>();
 
-    private _patterns = new Map<number, Float32Array>();
-    private _currentPattern: Float32Array = null;
+    private _patternCache = new Map<number, Float32Array>();
     private _currentOutputBuffer: AudioOutputBuffer = null;
 
-    private _frequency = 0;
-    private _volume = 0;
-    private _tone = 0;
-    private _patternIndex = 0;
     private _bufferIndex = 0;
     private _sampleRate = 0;
     private _frameSize: number;
@@ -159,6 +132,9 @@ class PCMAudio implements PCMAudioInterface, AudioInterface {
 
     private _bufferFactory: PCMAudioInterface.FrameBufferFactory;
     private _toneGenerator: ToneGenerator;
+
+    private _channel0: PCMChannel = null;
+    private _channel1: PCMChannel = null;
 }
 
 export default PCMAudio;
