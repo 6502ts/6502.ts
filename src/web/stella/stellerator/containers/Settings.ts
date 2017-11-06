@@ -32,7 +32,8 @@ import {
     setMergeFrames,
     setVolume,
     setSyncRendering,
-    setPovEmulation
+    setPovEmulation,
+    changeAudioDriver
 } from '../actions/settings';
 
 function mapStateToProps(state: State): SettingsComponent.Props {
@@ -44,7 +45,8 @@ function mapStateToProps(state: State): SettingsComponent.Props {
         useWorker: state.settings.useWorker,
         mergeFrames: state.settings.mergeFrames,
         volume: state.settings.volume,
-        syncRendering: state.settings.syncRendering
+        syncRendering: state.settings.syncRendering,
+        audioDriver: state.settings.audioDriver
     };
 }
 
@@ -57,7 +59,8 @@ const SettingsContainer = connect(mapStateToProps, {
     onToggleMergeFrames: setMergeFrames,
     onChangeVolume: setVolume,
     onChangeSyncRendering: setSyncRendering,
-    onTogglePovEmulation: setPovEmulation
+    onTogglePovEmulation: setPovEmulation,
+    onChangeAudioDriver: changeAudioDriver
 })(SettingsComponent as any);
 
 export default SettingsContainer;

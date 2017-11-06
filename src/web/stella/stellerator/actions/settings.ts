@@ -32,6 +32,7 @@ export const types = {
     setMergeFrames: 'settings/mergeFrames',
     setVolume: 'settings/setVolume',
     setSyncRendering: 'settings/setSyncRendering',
+    changeAudioDriver: 'settings/changeAudioDriver',
     init: 'settings/init'
 };
 
@@ -135,5 +136,16 @@ export function setSyncRendering(syncRendering: boolean): SetSyncRenderingAction
     return {
         type: types.setSyncRendering,
         syncRendering
+    };
+}
+
+export interface ChangeAudioDriverAction extends Action {
+    driver: Settings.AudioDriver;
+}
+
+export function changeAudioDriver(driver: Settings.AudioDriver): ChangeAudioDriverAction {
+    return {
+        type: types.changeAudioDriver,
+        driver
     };
 }

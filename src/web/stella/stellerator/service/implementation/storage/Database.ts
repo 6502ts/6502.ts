@@ -178,12 +178,36 @@ export default class Database extends Dexie {
                 image: '&hash'
             })
             .upgrade(transaction => {
-                transaction.table<Cartridge.CartridgeSchema, Settings.indexType>('cartridge').each((cartridge, c) => {
+                transaction.table<{ pcmAudio: boolean }, Settings.indexType>('cartridge').each((cartridge, c) => {
                     const cursor: IDBCursor = c as any;
 
                     cartridge.pcmAudio = false;
 
                     cursor.update(cartridge);
+                });
+            });
+
+        this.version(11)
+            .stores({
+                cartridge: '++id, &hash',
+                settings: 'id',
+                image: '&hash'
+            })
+            .upgrade(transaction => {
+                transaction.table<Cartridge.CartridgeSchema, Settings.indexType>('cartridge').each((cartridge, c) => {
+                    const cursor: IDBCursor = c as any;
+
+                    cartridge.audioDriver = 'default';
+
+                    cursor.update(cartridge);
+                });
+
+                transaction.table<Settings.SettingsSchema, Settings.indexType>('settings').each((settings, c) => {
+                    const cursor: IDBCursor = c as any;
+
+                    settings.audioDriver = 'pcm';
+
+                    cursor.update(settings);
                 });
             });
     }

@@ -28,11 +28,17 @@ interface Settings {
     mergeFrames: boolean;
     volume: number;
     syncRendering: boolean;
+    audioDriver: Settings.AudioDriver;
 }
 
 namespace Settings {
     export const MAX_GAMMA = 5;
     export const MIN_GAMMA = 0.1;
+
+    export const enum AudioDriver {
+        waveform,
+        pcm
+    }
 
     export function create(): Settings {
         return {
@@ -43,7 +49,8 @@ namespace Settings {
             useWorker: true,
             mergeFrames: false,
             volume: 1,
-            syncRendering: true
+            syncRendering: true,
+            audioDriver: AudioDriver.pcm
         };
     }
 

@@ -26,6 +26,7 @@ import Settings from '../model/Settings';
 import {
     types,
     InitSettingsAction,
+    ChangeAudioDriverAction,
     SetSmoothScalingAction,
     SetWebGlRenderingAction,
     SetGammaAction,
@@ -64,6 +65,9 @@ export default function reducer(settings: Settings = Settings.create(), action: 
 
         case types.setSyncRendering:
             return setSyncRendering(settings, action as SetSyncRenderingAction);
+
+        case types.changeAudioDriver:
+            return changeAudioDriver(settings, action as ChangeAudioDriverAction);
     }
 
     return settings;
@@ -128,5 +132,12 @@ function setSyncRendering(settings: Settings, action: SetSyncRenderingAction): S
     return {
         ...settings,
         syncRendering: action.syncRendering
+    };
+}
+
+function changeAudioDriver(settings: Settings, action: ChangeAudioDriverAction): Settings {
+    return {
+        ...settings,
+        audioDriver: action.driver
     };
 }

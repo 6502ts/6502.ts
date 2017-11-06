@@ -31,11 +31,13 @@ import CartridgeSettings from './cartridge-manager/CartridgeSettings';
 import PendingChangesModal from './cartridge-manager/PendingChangesModal';
 import ZipfileErrorModal from './cartridge-manager/ZipfileErrorModal';
 import ZipfileSelectModal from './cartridge-manager/ZipfileSelectModal';
+import Settings from '../model/Settings';
 
 export interface DataProps {
     cartridges: { [key: string]: Cartridge };
     pendingChanges: boolean;
     currentCartridge: Cartridge;
+    defaultAudioDriver: Settings.AudioDriver;
 
     showSelectPendingChangesModel: boolean;
     showLoadPendingChangesModel: boolean;
@@ -63,7 +65,7 @@ export interface HandlerProps {
     onChangeVolume: (volume: number) => void;
     onChangeFrameStart: (frameStart: number) => void;
     onChangeFrameStartAuto: (frameStartAuto: boolean) => void;
-    onChangeUsePcmAudio: (usePcmAudio: boolean) => void;
+    onChangeAudioDriver: (driver: Cartridge.AudioDriver) => void;
 
     onSelectPendingChangesClose: () => void;
     onSelectPendingChangesSave: () => void;
@@ -95,6 +97,7 @@ export default function CartridgeManager(props: Props) {
                 <Col md={5} mdOffset={1}>
                     <CartridgeSettings
                         cartridge={props.currentCartridge}
+                        defaultAudioDriver={props.defaultAudioDriver}
                         onCartridgeNameChange={props.onCartridgeNameChange}
                         onTvModeChanged={props.onTvModeChanged}
                         onSave={props.onSave}
@@ -105,7 +108,7 @@ export default function CartridgeManager(props: Props) {
                         onChangeVolume={props.onChangeVolume}
                         onChangeFrameStart={props.onChangeFrameStart}
                         onToggleFrameStartAuto={props.onChangeFrameStartAuto}
-                        onChangeUsePcmAudio={props.onChangeUsePcmAudio}
+                        onChangeAudioDriver={props.onChangeAudioDriver}
                     />
                 </Col>
             </Row>

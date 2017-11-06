@@ -25,6 +25,7 @@ import CartridgeInfo from '../../../../../../machine/stella/cartridge/CartridgeI
 import CartridgeModel from '../../../model/Cartridge';
 
 type tvModeString = 'pal' | 'secam' | 'ntsc';
+type AudioDriverString = 'default' | 'waveform' | 'pcm';
 
 export interface CartridgeSchema {
     id?: number;
@@ -38,7 +39,7 @@ export interface CartridgeSchema {
     volume: number;
     frameStart: number;
     autodetectFrameStart: boolean;
-    pcmAudio: boolean;
+    audioDriver: AudioDriverString;
 }
 
 function tvModeToString(tvMode: StellaConfig.TvMode): tvModeString {
@@ -73,13 +74,46 @@ function tvModeFromString(modeString: tvModeString): StellaConfig.TvMode {
     }
 }
 
+function audioDriverToString(audioDriver: CartridgeModel.AudioDriver): AudioDriverString {
+    switch (audioDriver) {
+        case CartridgeModel.AudioDriver.default:
+            return 'default';
+
+        case CartridgeModel.AudioDriver.waveform:
+            return 'waveform';
+
+        case CartridgeModel.AudioDriver.pcm:
+            return 'pcm';
+
+        default:
+            throw new Error(`invalid audio driver ${audioDriver}`);
+    }
+}
+
+function audioDriverFromString(driverString: AudioDriverString): CartridgeModel.AudioDriver {
+    switch (driverString) {
+        case 'default':
+            return CartridgeModel.AudioDriver.default;
+
+        case 'waveform':
+            return CartridgeModel.AudioDriver.waveform;
+
+        case 'pcm':
+            return CartridgeModel.AudioDriver.pcm;
+
+        default:
+            throw new Error(`invalid audio driver string ${driverString}`);
+    }
+}
+
 export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
-    const { tvMode, cartridgeType, ...c } = model;
+    const { tvMode, cartridgeType, audioDriver, ...c } = model;
 
     const cartridge: CartridgeSchema = {
         ...c,
         tvMode: tvModeToString(tvMode),
-        cartridgeType: CartridgeInfo.CartridgeType[cartridgeType]
+        cartridgeType: CartridgeInfo.CartridgeType[cartridgeType],
+        audioDriver: audioDriverToString(model.audioDriver)
     };
 
     if (typeof id !== 'undefined') {
@@ -90,12 +124,13 @@ export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
 }
 
 export function toState(cartridge: CartridgeSchema): CartridgeModel {
-    const { tvMode, cartridgeType, id, ...c } = cartridge;
+    const { tvMode, cartridgeType, id, audioDriver, ...c } = cartridge;
 
     return {
         ...c,
         tvMode: tvModeFromString(tvMode),
-        cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridgeType]
+        cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridgeType],
+        audioDriver: audioDriverFromString(cartridge.audioDriver)
     };
 }
 

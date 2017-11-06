@@ -23,6 +23,7 @@ import { Action } from 'redux';
 
 import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
+import CartridgeModel from '../model/Cartridge';
 
 export const types = {
     changeCartridgeType: 'current-cartridge/change-cartridge-type',
@@ -34,7 +35,7 @@ export const types = {
     changeVolume: 'current-cartridge/change-volume',
     changeFrameStart: 'current-cartridge/change-frame-start',
     changeFrameStartAuto: 'current-cartridge/change-frame-start-auto',
-    changeUsePcmAudio: 'current-cartridge/change-use-pcm-audio'
+    changeAudioDriver: 'current-cartridge/change-audio-driver'
 };
 Object.freeze(types);
 
@@ -137,13 +138,13 @@ export function changeFrameStartAuto(frameStartAuto: boolean): ChangeFrameStartA
     };
 }
 
-export interface ChangeUsePcmAudioAction extends Action {
-    usePcmAudio: boolean;
+export interface ChangeAudioDriverAction extends Action {
+    driver: CartridgeModel.AudioDriver;
 }
 
-export function changeUsePcmAudio(usePcmAudio: boolean): ChangeUsePcmAudioAction {
+export function changeAudioDriver(driver: CartridgeModel.AudioDriver): ChangeAudioDriverAction {
     return {
-        type: types.changeUsePcmAudio,
-        usePcmAudio
+        type: types.changeAudioDriver,
+        driver
     };
 }

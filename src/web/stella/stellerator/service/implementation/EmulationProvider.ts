@@ -43,6 +43,7 @@ import DriverManager from '../../../service/DriverManager';
 import WebAudioDriver from '../../../driver/WebAudio';
 import GamepadDriver from '../../../../driver/Gamepad';
 import StellaConfig from '../../../../../machine/stella/Config';
+import Settings from '../../model/Settings';
 import * as VideoProcessorConfig from '../../../../../video/processing/config';
 
 class EmulationProvider implements EmulationProviderInterface {
@@ -147,13 +148,18 @@ class EmulationProvider implements EmulationProviderInterface {
 
         action.cartridge = cartridge;
 
+        let pcm = state.settings.audioDriver === Settings.AudioDriver.pcm;
+        if (cartridge.audioDriver !== Cartridge.AudioDriver.default) {
+            pcm = cartridge.audioDriver === Cartridge.AudioDriver.pcm;
+        }
+
         const stellaConfig = StellaConfig.create({
             tvMode: cartridge.tvMode,
             enableAudio: cartridge.volume > 0,
             randomSeed: cartridge.rngSeedAuto ? -1 : cartridge.rngSeed,
             emulatePaddles: cartridge.emulatePaddles,
             frameStart: cartridge.autodetectFrameStart ? -1 : cartridge.frameStart,
-            pcmAudio: cartridge.pcmAudio
+            pcmAudio: pcm
         });
 
         const buffer = await this._storage.getImage(cartridge.hash);

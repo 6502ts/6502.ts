@@ -35,9 +35,12 @@ import Switch from '../general/Switch';
 import RandomSeedEdit from './RandomSeedEdit';
 import FrameStartEdit from './FrameStartEdit';
 import Cartridge from '../../model/Cartridge';
+import Settings from '../../model/Settings';
+import AudioDriverSelect from './AudioDriverSelect';
 
 export interface Props {
     cartridge: Cartridge;
+    defaultAudioDriver: Settings.AudioDriver;
     className?: string;
 
     onCartridgeNameChange?: (value: string) => void;
@@ -50,7 +53,7 @@ export interface Props {
     onChangeVolume?: (volume: number) => void;
     onChangeFrameStart?: (frameStart: number) => void;
     onToggleFrameStartAuto?: (isAuto: boolean) => void;
-    onChangeUsePcmAudio?: (usePcmAudio: boolean) => void;
+    onChangeAudioDriver?: (driver: Cartridge.AudioDriver) => void;
 }
 
 function CartridgeSettingsUnstyled(props: Props) {
@@ -102,12 +105,11 @@ function CartridgeSettingsUnstyled(props: Props) {
                 onKeyEnter={props.onSave}
             />
 
-            <LabelStyled>Use PCM audio emulation:</LabelStyled>
-            <Switch
-                state={props.cartridge.pcmAudio}
-                labelTrue="yes"
-                labelFalse="no"
-                onSwitch={props.onChangeUsePcmAudio}
+            <LabelStyled>Audio Driver:</LabelStyled>
+            <AudioDriverSelect
+                driver={props.cartridge.audioDriver}
+                defaultDriver={props.defaultAudioDriver}
+                onDriverChange={props.onChangeAudioDriver}
             />
 
             <LabelStyled>Volume:</LabelStyled>
@@ -117,7 +119,7 @@ function CartridgeSettingsUnstyled(props: Props) {
 }
 
 namespace CartridgeSettingsUnstyled {
-    export const defaultProps: Props = {
+    export const defaultProps: Partial<Props> = {
         cartridge: null,
 
         onCartridgeNameChange: () => undefined,
@@ -130,7 +132,7 @@ namespace CartridgeSettingsUnstyled {
         onChangeVolume: () => undefined,
         onChangeFrameStart: () => undefined,
         onToggleFrameStartAuto: () => undefined,
-        onChangeUsePcmAudio: () => undefined
+        onChangeAudioDriver: () => undefined
     };
 }
 

@@ -25,6 +25,8 @@ import { Col, ControlLabel, Grid, Row } from 'react-bootstrap';
 
 import Slider from './general/Slider';
 import Switch from './general/Switch';
+import AudioDriverSelect from './settings/AudioDriverSelect';
+import SettingsModel from '../model/Settings';
 
 function Settings(props: Settings.Props) {
     return (
@@ -47,12 +49,25 @@ function Settings(props: Settings.Props) {
                     />
                 </Col>
             </Row>
+            <Row style={{ marginTop: '1rem' }}>
+                <Col md={12}>
+                    <h1>Audio Settings</h1>
+                </Col>
+            </Row>
             <Row>
                 <Col sm={4}>
                     <ControlLabel>Volume:</ControlLabel>
                 </Col>
                 <Col sm={4}>
                     <Slider value={props.volume} min={0} max={1} step={0.01} onChange={props.onChangeVolume} />
+                </Col>
+            </Row>
+            <Row>
+                <Col sm={4}>
+                    <ControlLabel>Default Audio Driver:</ControlLabel>
+                </Col>
+                <Col sm={8}>
+                    <AudioDriverSelect driver={props.audioDriver} onDriverChange={props.onChangeAudioDriver} />
                 </Col>
             </Row>
             <Row style={{ marginTop: '1rem' }}>
@@ -147,6 +162,7 @@ namespace Settings {
         mergeFrames?: boolean;
         volume?: number;
         syncRendering?: boolean;
+        audioDriver?: SettingsModel.AudioDriver;
 
         onToggleSmoothScaling?: (value: boolean) => void;
         onToggleWebGlRendering?: (value: boolean) => void;
@@ -156,6 +172,7 @@ namespace Settings {
         onToggleMergeFrames?: (value: boolean) => void;
         onChangeVolume?: (value: number) => void;
         onChangeSyncRendering?: (value: boolean) => void;
+        onChangeAudioDriver?: (newDriver: SettingsModel.AudioDriver) => void;
     }
 
     export const defaultProps: Props = {
@@ -167,6 +184,7 @@ namespace Settings {
         mergeFrames: false,
         volume: 1,
         syncRendering: true,
+        audioDriver: SettingsModel.AudioDriver.pcm,
 
         onToggleSmoothScaling: () => undefined,
         onToggleWebGlRendering: () => undefined,
@@ -174,7 +192,8 @@ namespace Settings {
         onToggleUseWorker: () => undefined,
         onToggleMergeFrames: () => undefined,
         onChangeVolume: () => undefined,
-        onChangeSyncRendering: () => undefined
+        onChangeSyncRendering: () => undefined,
+        onChangeAudioDriver: () => undefined
     };
 }
 

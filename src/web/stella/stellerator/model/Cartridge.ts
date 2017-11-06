@@ -35,10 +35,16 @@ interface Cartridge {
     volume: number;
     frameStart: number;
     autodetectFrameStart: boolean;
-    pcmAudio: boolean;
+    audioDriver: Cartridge.AudioDriver;
 }
 
 namespace Cartridge {
+    export const enum AudioDriver {
+        default,
+        waveform,
+        pcm
+    }
+
     export function create(): Cartridge {
         return {
             name: '',
@@ -51,7 +57,7 @@ namespace Cartridge {
             volume: 1,
             frameStart: 0,
             autodetectFrameStart: true,
-            pcmAudio: false
+            audioDriver: AudioDriver.default
         };
     }
 

@@ -25,6 +25,8 @@ export const UNIQUE_ID = 0;
 
 export type indexType = number;
 
+type AudioDriverString = 'pcm' | 'waveform';
+
 export interface SettingsSchema {
     id: number;
     smoothScaling: boolean;
@@ -35,12 +37,42 @@ export interface SettingsSchema {
     mergeFrames: boolean;
     volume: number;
     syncRendering: boolean;
+    audioDriver: AudioDriverString;
+}
+
+function audioDriverToString(driver: SettingsModel.AudioDriver): AudioDriverString {
+    switch (driver) {
+        case SettingsModel.AudioDriver.pcm:
+            return 'pcm';
+
+        case SettingsModel.AudioDriver.waveform:
+            return 'waveform';
+
+        default:
+            throw new Error(`invalid audio driver ${driver}`);
+    }
+}
+
+function audioDriverFromString(driver: AudioDriverString): SettingsModel.AudioDriver {
+    switch (driver) {
+        case 'pcm':
+            return SettingsModel.AudioDriver.pcm;
+
+        case 'waveform':
+            return SettingsModel.AudioDriver.waveform;
+
+        default:
+            throw new Error(`invalid audio driver string ${driver}`);
+    }
 }
 
 export function fromModel(model: SettingsModel): SettingsSchema {
+    const { audioDriver, ...m } = model;
+
     return {
-        ...model,
-        id: UNIQUE_ID
+        ...m,
+        id: UNIQUE_ID,
+        audioDriver: audioDriverToString(audioDriver)
     };
 }
 
@@ -49,7 +81,10 @@ export function toModel(record?: SettingsSchema): SettingsModel {
         return SettingsModel.create();
     }
 
-    const { id, ...settings } = record;
+    const { id, audioDriver, ...settings } = record;
 
-    return settings;
+    return {
+        ...settings,
+        audioDriver: audioDriverFromString(audioDriver)
+    };
 }

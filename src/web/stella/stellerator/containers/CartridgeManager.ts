@@ -37,7 +37,7 @@ import {
     changeVolume,
     changeFrameStart,
     changeFrameStartAuto,
-    changeUsePcmAudio
+    changeAudioDriver
 } from '../actions/currentCartridge';
 import { closeSelectPendingChangesModal, closeLoadPendingChangesModal } from '../actions/guiState';
 import {
@@ -53,6 +53,7 @@ import { clear as clearZipfile, clearError as clearZipfileError } from '../actio
 function mapStateToProps(state: State): DataProps {
     return {
         cartridges: state.cartridges,
+        defaultAudioDriver: state.settings.audioDriver,
         currentCartridge: state.currentCartridge,
         pendingChanges:
             state.currentCartridge &&
@@ -83,7 +84,7 @@ function mapDispatchToProps(dispatch: Dispatch<State>): HandlerProps {
         onChangeVolume: volume => dispatch(changeVolume(volume)),
         onChangeFrameStart: frameStart => dispatch(changeFrameStart(frameStart)),
         onChangeFrameStartAuto: isAuto => dispatch(changeFrameStartAuto(isAuto)),
-        onChangeUsePcmAudio: usePcmAudio => dispatch(changeUsePcmAudio(usePcmAudio)),
+        onChangeAudioDriver: driver => dispatch(changeAudioDriver(driver)),
 
         onSelectPendingChangesClose: () => dispatch(closeSelectPendingChangesModal()),
         onSelectPendingChangesSave: () => dispatch(confirmSelect()),

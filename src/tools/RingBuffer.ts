@@ -21,7 +21,6 @@
 
 class RingBuffer<T> {
     constructor(private _capacity: number) {
-        console.log(this._capacity);
         this._buffer = new Array<T>(this._capacity);
 
         for (let i = 0; i < this._capacity; i++) {
