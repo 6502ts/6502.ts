@@ -1592,13 +1592,13 @@ grunt-contrib-copy@~1.0.0:
     chalk "^1.1.1"
     file-sync-cmp "^0.1.0"
 
-grunt-contrib-uglify@^3.1.0:
+"grunt-contrib-uglify@https://github.com/gruntjs/grunt-contrib-uglify.git#5251b6f":
   version "3.1.0"
-  resolved "https://registry.yarnpkg.com/grunt-contrib-uglify/-/grunt-contrib-uglify-3.1.0.tgz#10d1e4849210ec92bf0b08247e24186354d5e9ee"
+  resolved "https://github.com/gruntjs/grunt-contrib-uglify.git#5251b6fc6404592e02aa3ca0b4f00814e33f11db"
   dependencies:
     chalk "^1.0.0"
     maxmin "^1.1.0"
-    uglify-js "~3.0.4"
+    uglify-js "~3.1.0"
     uri-path "^1.0.0"
 
 grunt-contrib-watch@~1.0.0:
@@ -3679,11 +3679,11 @@ source-map-support@^0.5.0:
   dependencies:
     source-map "^0.6.0"
 
-"source-map@>= 0.1.2", source-map@^0.6.0, source-map@^0.6.1:
+"source-map@>= 0.1.2", source-map@^0.6.0, source-map@^0.6.1, source-map@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
 
-source-map@^0.5.3, source-map@^0.5.6, source-map@~0.5.1, source-map@~0.5.3:
+source-map@^0.5.3, source-map@^0.5.6, source-map@~0.5.3:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
 
@@ -4083,12 +4083,12 @@ ua-parser-js@^0.7.9:
   version "0.7.17"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.17.tgz#e9ec5f9498b9ec910e7ae3ac626a805c4d09ecac"
 
-uglify-js@~3.0.4:
-  version "3.0.28"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.0.28.tgz#96b8495f0272944787b5843a1679aa326640d5f7"
+uglify-js@~3.1.0:
+  version "3.1.7"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.1.7.tgz#13379168b7fcf132ed977254a7802e0a294b1ffb"
   dependencies:
     commander "~2.11.0"
-    source-map "~0.5.1"
+    source-map "~0.6.1"
 
 uid-number@^0.0.6:
   version "0.0.6"
