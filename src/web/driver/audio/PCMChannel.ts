@@ -54,6 +54,7 @@ class PCMChannel implements ChannelInterface {
         this._inputSampleRate = audio.getSampleRate();
         this._fragmentIndex = 0;
         this._lastFragment = null;
+        this._bufferUnderrun = true;
         this._fragmentRing = new RingBuffer<PoolMemberInterface<Float32Array>>(
             Math.ceil(4 * this._bufferSize / this._outputSampleRate / this._fragmentSize * this._inputSampleRate)
         );
@@ -106,9 +107,35 @@ class PCMChannel implements ChannelInterface {
         }
 
         const outputBuffer = e.outputBuffer.getChannelData(0);
+        let bufferIndex = 0;
 
-        let fragmentBuffer = this._currentFragment && this._currentFragment.get(),
-            bufferIndex = 0;
+        const fillBuffer = (until: number) => {
+            const previousFragmentBuffer = this._lastFragment && this._lastFragment.get();
+
+            while (bufferIndex < until) {
+                if (this._resampler.needsData()) {
+                    this._resampler.push(
+                        (this._audio && this._audio.isPaused()) || !previousFragmentBuffer
+                            ? 0
+                            : previousFragmentBuffer[this._fragmentIndex++] * this._volume
+                    );
+
+                    if (this._fragmentIndex >= this._fragmentSize) {
+                        this._fragmentIndex = 0;
+                    }
+                }
+
+                outputBuffer[bufferIndex++] = this._resampler.get();
+            }
+        };
+
+        // Give the emulation half a fragment of head start when recovering from an underrun
+        if (this._currentFragment && this._bufferUnderrun) {
+            fillBuffer(this._bufferSize >>> 1);
+            this._bufferUnderrun = false;
+        }
+
+        let fragmentBuffer = this._currentFragment && this._currentFragment.get();
 
         while (bufferIndex < this._bufferSize && this._currentFragment) {
             if (this._resampler.needsData()) {
@@ -131,27 +158,11 @@ class PCMChannel implements ChannelInterface {
             outputBuffer[bufferIndex++] = this._resampler.get();
         }
 
-        if (bufferIndex < this._bufferSize && this._audio.isPaused()) {
-            console.log(`audio underrun: ${this._bufferSize - bufferIndex}`);
+        if (bufferIndex < this._bufferSize) {
+            this._bufferUnderrun = true;
         }
 
-        const previousFragmentBuffer = this._lastFragment && this._lastFragment.get();
-
-        while (bufferIndex < this._bufferSize) {
-            if (this._resampler.needsData()) {
-                this._resampler.push(
-                    (this._audio && this._audio.isPaused()) || !previousFragmentBuffer
-                        ? 0
-                        : previousFragmentBuffer[this._fragmentIndex++] * this._volume
-                );
-
-                if (this._fragmentIndex >= this._fragmentSize) {
-                    this._fragmentIndex = 0;
-                }
-            }
-
-            outputBuffer[bufferIndex++] = this._resampler.get();
-        }
+        fillBuffer(this._bufferSize);
     }
 
     private _outputSampleRate = 0;
@@ -160,6 +171,7 @@ class PCMChannel implements ChannelInterface {
 
     private _gain: GainNode = null;
     private _processor: ScriptProcessorNode = null;
+    private _bufferUnderrun = false;
 
     private _fragmentRing: RingBuffer<PoolMemberInterface<Float32Array>> = null;
 
