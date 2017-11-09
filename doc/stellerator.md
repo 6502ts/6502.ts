@@ -136,7 +136,7 @@ music (e.g. Pitfall II, Stay Frosty 2).
 The downside is that a browser is a very bad environment for anything realtime,
 and even small lags will lead to popping noises. Stellerator attempts to
 mitigate this by buffering audio data, but the price is a small lag of ~3 frames
-between audio and video. Still, PCM provides the most accurate emulation and should
+between audio and video. Still, PCM provides highly accurate emulation and should
 work fine for most people, although the mileage might vary on slower systems and
 with certain OS / browser combinations.
 
