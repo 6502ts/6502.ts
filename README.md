@@ -85,7 +85,9 @@ mostly were written by folks other than me. Specifically:
    [here](http://alienbill.com/2600/flapping/).
 
 2600 cartridge type detection code (and some of the more exotic cartridge types)
-were modelled after the excellent [Stella](https://stella-emu.github.io) emulator.
-Initial 2600 audio code was contributed by Martin Schröder. ARM support in DPC+ is powered by
-David Welch's [thumbulator](https://github.com/dwelch67/thumbulator), transpiled to JS
-with [emscripten](http://kripken.github.io/emscripten-site/).
+were modelled after the excellent [Stella](https://stella-emu.github.io)
+emulator. Initial 2600 audio code was contributed by Martin Schröder. ARM
+support in DPC+ is powered by David Welch's
+[thumbulator](https://github.com/dwelch67/thumbulator), transpiled to JS with
+[emscripten](http://kripken.github.io/emscripten-site/). Cycle-accurate PCM
+audio is derives from work done by Chris Brenner.
