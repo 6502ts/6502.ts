@@ -32,7 +32,7 @@ const mixingTable = new Float32Array(32);
 
 export namespace __init {
     for (let i = 0; i < 32; i++) {
-        mixingTable[i] = 2 * i * (30000 / 0x1f + 1) / (30000 + i) - 1;
+        mixingTable[i] = 2 * i / 0x01f * (30 + 0x01f) / (30 + i) - 1;
     }
 }
 
@@ -76,14 +76,16 @@ class PCMAudio implements PCMAudioInterface {
     }
 
     tick(): void {
-        if (this._isActive && this._currentOutputBuffer && this._counter++ === 113) {
+        if (this._isActive && this._currentOutputBuffer && (this._counter === 36 || this._counter === 148)) {
             this._currentOutputBuffer.getContent()[this._bufferIndex++] =
                 mixingTable[this._channel0.nextSample() + this._channel1.nextSample()];
 
             if (this._bufferIndex === this._currentOutputBuffer.getLength()) {
                 this._dispatchBuffer();
             }
+        }
 
+        if (++this._counter === 228) {
             this._counter = 0;
         }
     }
