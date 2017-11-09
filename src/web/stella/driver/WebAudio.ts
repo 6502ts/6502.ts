@@ -71,7 +71,7 @@ class WebAudioDriver {
     setMasterVolume(volume: number): void {
         this._volume = volume;
 
-        if (this._driver) {
+        if (this._channels) {
             for (let i = 0; i < this._channels.length; i++) {
                 this._driver.setMasterVolume(i, this._volume);
             }
