@@ -24,7 +24,6 @@ import { Event } from 'microevent.ts';
 import PCMAudioInterface from '../../io/PCMAudioOutputInterface';
 import AudioInterface from './AudioInterface';
 import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
-import ToneGenerator from './ToneGenerator';
 import StellaConfig from '../Config';
 import PCMChannel from './PCMChannel';
 
@@ -38,10 +37,6 @@ export namespace __init {
 
 class PCMAudio implements PCMAudioInterface {
     constructor(private _config: StellaConfig) {
-        this._toneGenerator = new ToneGenerator(this._config);
-        this._channel0 = new PCMChannel(this._patternCache, this._toneGenerator);
-        this._channel1 = new PCMChannel(this._patternCache, this._toneGenerator);
-
         this._sampleRate = (this._config.tvMode === StellaConfig.TvMode.ntsc ? 60 * 262 : 50 * 312) * 2;
         this._frameSize = (this._config.tvMode === StellaConfig.TvMode.ntsc ? 262 : 312) * 4;
 
@@ -76,13 +71,23 @@ class PCMAudio implements PCMAudioInterface {
     }
 
     tick(): void {
-        if (this._isActive && this._currentOutputBuffer && (this._counter === 36 || this._counter === 148)) {
-            this._currentOutputBuffer.getContent()[this._bufferIndex++] =
-                mixingTable[this._channel0.nextSample() + this._channel1.nextSample()];
+        switch (this._counter) {
+            case 9:
+            case 81:
+                this._channel0.phase0();
+                this._channel1.phase0();
+                break;
 
-            if (this._bufferIndex === this._currentOutputBuffer.getLength()) {
-                this._dispatchBuffer();
-            }
+            case 37:
+            case 149:
+                this._currentOutputBuffer.getContent()[this._bufferIndex++] =
+                    mixingTable[this._channel0.phase1() + this._channel1.phase1()];
+
+                if (this._bufferIndex === this._currentOutputBuffer.getLength()) {
+                    this._dispatchBuffer();
+                }
+
+                break;
         }
 
         if (++this._counter === 228) {
@@ -131,7 +136,6 @@ class PCMAudio implements PCMAudioInterface {
 
     togglePause = new Event<boolean>();
 
-    private _patternCache = new Map<number, Uint8Array>();
     private _currentOutputBuffer: AudioOutputBuffer = null;
 
     private _bufferIndex = 0;
@@ -141,10 +145,9 @@ class PCMAudio implements PCMAudioInterface {
     private _isActive = false;
 
     private _bufferFactory: PCMAudioInterface.FrameBufferFactory;
-    private _toneGenerator: ToneGenerator;
 
-    private _channel0: PCMChannel = null;
-    private _channel1: PCMChannel = null;
+    private _channel0 = new PCMChannel();
+    private _channel1 = new PCMChannel();
 }
 
 export default PCMAudio;
