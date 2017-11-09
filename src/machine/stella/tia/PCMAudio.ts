@@ -28,6 +28,14 @@ import ToneGenerator from './ToneGenerator';
 import StellaConfig from '../Config';
 import PCMChannel from './PCMChannel';
 
+const mixingTable = new Float32Array(32);
+
+export namespace __init {
+    for (let i = 0; i < 32; i++) {
+        mixingTable[i] = 2 * i * (30000 / 0x1f + 1) / (30000 + i) - 1;
+    }
+}
+
 class PCMAudio implements PCMAudioInterface {
     constructor(private _config: StellaConfig) {
         this._toneGenerator = new ToneGenerator(this._config);
@@ -70,7 +78,7 @@ class PCMAudio implements PCMAudioInterface {
     tick(): void {
         if (this._isActive && this._currentOutputBuffer && this._counter++ === 113) {
             this._currentOutputBuffer.getContent()[this._bufferIndex++] =
-                0.5 * (this._channel0.nextSample() + this._channel1.nextSample());
+                mixingTable[this._channel0.nextSample() + this._channel1.nextSample()];
 
             if (this._bufferIndex === this._currentOutputBuffer.getLength()) {
                 this._dispatchBuffer();
@@ -121,7 +129,7 @@ class PCMAudio implements PCMAudioInterface {
 
     togglePause = new Event<boolean>();
 
-    private _patternCache = new Map<number, Float32Array>();
+    private _patternCache = new Map<number, Uint8Array>();
     private _currentOutputBuffer: AudioOutputBuffer = null;
 
     private _bufferIndex = 0;

@@ -22,7 +22,7 @@
 import ToneGenerator from './ToneGenerator';
 
 class PCMChannel {
-    constructor(private _patternCache: Map<number, Float32Array>, private _toneGenerator: ToneGenerator) {
+    constructor(private _patternCache: Map<number, Uint8Array>, private _toneGenerator: ToneGenerator) {
         this.reset();
     }
 
@@ -68,21 +68,21 @@ class PCMChannel {
     }
 
     audv(value: number): void {
-        this._volume = (value & 0x0f) / 15;
+        this._volume = value & 0x0f;
     }
 
     private _updatePattern(): void {
         const key = this._toneGenerator.getKey(this._tone, this._frequency);
 
         if (!this._patternCache.has(key)) {
-            this._patternCache.set(key, this._toneGenerator.getBuffer(key).getContent());
+            this._patternCache.set(key, this._toneGenerator.getSquareWave(key));
         }
 
         this._currentPattern = this._patternCache.get(key);
         this._patternIndex = 0;
     }
 
-    private _currentPattern: Float32Array = null;
+    private _currentPattern: Uint8Array = null;
 
     private _frequency = 0;
     private _volume = 0;

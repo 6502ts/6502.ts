@@ -108,7 +108,7 @@ class ToneGenerator {
         return (tone << 5) | frequency;
     }
 
-    getBuffer(key: number): AudioOutputBuffer {
+    getSquareWave(key: number): Uint8Array {
         const tone = (key >>> 5) & 0x0f,
             frequency = key & 0x1f;
 
@@ -121,9 +121,7 @@ class ToneGenerator {
 
         length = length * FREQUENCY_DIVISIORS[tone] * (frequency + 1);
 
-        const content = new Float32Array(length);
-
-        const sampleRate = Config.getClockHz(this._config) / 114;
+        const content = new Uint8Array(length);
 
         let f = 0;
         let count = 0;
@@ -149,7 +147,19 @@ class ToneGenerator {
                 state = !(offset & 0x01);
             }
 
-            content[i] = state ? 1 : -1;
+            content[i] = state ? 1 : 0;
+        }
+
+        return content;
+    }
+
+    getBuffer(key: number): AudioOutputBuffer {
+        const squareWave = this.getSquareWave(key),
+            content = new Float32Array(squareWave.length),
+            sampleRate = Config.getClockHz(this._config) / 114;
+
+        for (let i = 0; i < squareWave.length; i++) {
+            content[i] = 2 * squareWave[i] - 1;
         }
 
         return new AudioOutputBuffer(content, sampleRate);
