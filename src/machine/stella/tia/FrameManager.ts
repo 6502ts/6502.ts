@@ -35,7 +35,7 @@ const enum Metrics {
     vsync = 3,
     visibleOverscan = 20,
     maxUnderscan = 10,
-    maxLinesWithoutVsync = 50
+    maxLinesWithoutVsync = 150
 }
 
 const enum State {
@@ -66,7 +66,6 @@ export default class FrameManager {
                 throw new Error(`invalid tv mode ${this._config.tvMode}`);
         }
 
-        this._frameLines = this._vblankLines + this._kernelLines + this._overscanLines + Metrics.vsync;
         this._frameStart = this._config.frameStart;
 
         this.reset();
@@ -92,7 +91,7 @@ export default class FrameManager {
         switch (this._state) {
             case State.waitForVsyncStart:
             case State.waitForVsyncEnd:
-                if (++this._linesWithoutVsync > Metrics.maxUnderscan) {
+                if (++this._linesWithoutVsync > Metrics.maxLinesWithoutVsync) {
                     this._setState(State.waitForFrameStart);
                 }
 
@@ -233,7 +232,6 @@ export default class FrameManager {
     private _vblankLines = 0;
     private _kernelLines = 0;
     private _overscanLines = 0;
-    private _frameLines = 0;
 
     private _linesWithoutVsync = 0;
     private _state = State.waitForVsyncStart;
