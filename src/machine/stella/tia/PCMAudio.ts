@@ -30,8 +30,8 @@ import PCMChannel from './PCMChannel';
 const mixingTable = new Float32Array(32);
 
 export namespace __init {
-    for (let i = 0; i < 32; i++) {
-        mixingTable[i] = 2 * i / 0x01f * (30 + 0x01f) / (30 + i) - 1;
+    for (let i = 0; i < 31; i++) {
+        mixingTable[i] = i / 0x01e * (30 + 0x01f) / (30 + i);
     }
 }
 
