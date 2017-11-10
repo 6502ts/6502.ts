@@ -27,11 +27,21 @@ import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import StellaConfig from '../Config';
 import PCMChannel from './PCMChannel';
 
-const mixingTable = new Float32Array(0x1f);
+// The highest resistance in the resistor network is 30kOhms, the others follow from division
+// by powers of two: 30 -> 15 -> 7.5 -> 3.75
+const R_MAX = 30;
+
+// The second resistor in the divider (1kOhms)
+const R = 1;
+
+// The maximum sum of the individual volume of the two channels: 0x1e = 0xf + 0xf
+const VOL_MAX = 0x1e;
+
+const mixingTable = new Float32Array(VOL_MAX + 1);
 
 export namespace __init {
-    for (let i = 0; i < 0x1f; i++) {
-        mixingTable[i] = i / 0x1e * (30 + 0x1e) / (30 + i);
+    for (let vol = 0; vol <= VOL_MAX; vol++) {
+        mixingTable[vol] = vol / VOL_MAX * (R_MAX + R * VOL_MAX) / (R_MAX + R * vol);
     }
 }
 
