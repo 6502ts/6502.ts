@@ -27,11 +27,11 @@ import AudioOutputBuffer from '../../../tools/AudioOutputBuffer';
 import StellaConfig from '../Config';
 import PCMChannel from './PCMChannel';
 
-const mixingTable = new Float32Array(32);
+const mixingTable = new Float32Array(0x1f);
 
 export namespace __init {
-    for (let i = 0; i < 31; i++) {
-        mixingTable[i] = i / 0x01e * (30 + 0x01f) / (30 + i);
+    for (let i = 0; i < 0x1f; i++) {
+        mixingTable[i] = i / 0x1e * (30 + 0x1e) / (30 + i);
     }
 }
 
