@@ -54,7 +54,9 @@ class EmulationProvider implements EmulationProviderInterface {
     }
 
     async init(workerUrl?: string): Promise<void> {
-        this._service = workerUrl ? new WorkerEmulationService(workerUrl) : new VanillaEmulationService();
+        this._service = workerUrl
+            ? new WorkerEmulationService(`${workerUrl}/stella.js`, `${workerUrl}/video-pipeline.js`)
+            : new VanillaEmulationService();
 
         await this._service.init();
 

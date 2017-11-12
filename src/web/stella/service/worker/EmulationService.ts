@@ -47,10 +47,10 @@ const enum ProxyState {
 }
 
 class EmulationService implements EmulationServiceInterface {
-    constructor(private _workerUrl: string) {}
+    constructor(private _stellaWorkerUri: string, private _videoWorkerUri?: string) {}
 
     init(): Promise<void> {
-        this._worker = new Worker(`${this._workerUrl}/stella.js`);
+        this._worker = new Worker(this._stellaWorkerUri);
         this._rpc = new RpcProvider((message, transfer?) => this._worker.postMessage(message, transfer));
 
         this._pcmChannel = new PCMAudioProxy(0, this._rpc).init();
@@ -294,23 +294,26 @@ class EmulationService implements EmulationServiceInterface {
         }
     }
 
-    private _startVideoProcessingPipeline(): Promise<any> {
-        const channel = new MessageChannel(),
-            worker = new Worker(`${this._workerUrl}/video-pipeline.js`),
-            rpc = new RpcProvider((payload: any, transfer?: any) => worker.postMessage(payload, transfer));
+    private async _startVideoProcessingPipeline(): Promise<void> {
+        let channel: MessageChannel = null;
 
-        worker.onmessage = (e: MessageEvent) => rpc.dispatch(e.data);
+        if (this._videoWorkerUri) {
+            channel = new MessageChannel();
 
-        this._videoProcessingWorker = worker;
+            const worker = new Worker(this._videoWorkerUri),
+                rpc = new RpcProvider((payload: any, transfer?: any) => worker.postMessage(payload, transfer));
 
-        return rpc.rpc('/use-port', channel.port1, [channel.port1]).then(() =>
-            this._rpc.rpc<SetupMessage, any>(
-                RPC_TYPE.setup,
-                {
-                    videoProcessorPort: channel.port2
-                },
-                [channel.port2]
-            )
+            worker.onmessage = (e: MessageEvent) => rpc.dispatch(e.data);
+
+            await rpc.rpc('/use-port', channel.port1, [channel.port1]);
+        }
+
+        await this._rpc.rpc<SetupMessage, any>(
+            RPC_TYPE.setup,
+            {
+                videoProcessorPort: channel && channel.port2
+            },
+            channel ? [channel.port2] : []
         );
     }
 
@@ -321,7 +324,6 @@ class EmulationService implements EmulationServiceInterface {
 
     private _mutex = new Mutex();
     private _worker: Worker = null;
-    private _videoProcessingWorker: Worker = null;
     private _rpc: RpcProvider = null;
 
     private _state = EmulationServiceInterface.State.stopped;

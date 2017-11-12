@@ -40,19 +40,21 @@ import {
 class VideoDriver {
     constructor(private _rpc: RpcProviderInterface) {}
 
-    init(videoPipelinePort: MessagePort): void {
+    init(videoPipelinePort?: MessagePort): void {
         this._rpc
             .registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurfaceFromHost.bind(this))
             .registerRpcHandler(RPC_TYPE.getVideoParameters, this._onGetVideoParameters.bind(this));
 
-        const videoPipelineRpc = new RpcProvider((data: any, transfer?: any) =>
-            videoPipelinePort.postMessage(data, transfer)
-        );
-        videoPipelinePort.onmessage = (e: MessageEvent) => videoPipelineRpc.dispatch(e.data);
+        if (videoPipelinePort) {
+            const videoPipelineRpc = new RpcProvider((data: any, transfer?: any) =>
+                videoPipelinePort.postMessage(data, transfer)
+            );
+            videoPipelinePort.onmessage = (e: MessageEvent) => videoPipelineRpc.dispatch(e.data);
 
-        this._videoPipelineClient = new VideoPipelineClient(videoPipelineRpc);
+            this._videoPipelineClient = new VideoPipelineClient(videoPipelineRpc);
 
-        this._videoPipelineClient.emit.addHandler(VideoDriver._onEmitFromPipeline, this);
+            this._videoPipelineClient.emit.addHandler(VideoDriver._onEmitFromPipeline, this);
+        }
     }
 
     setVideoProcessingConfig(config: Array<VideoProcessorConfig>): void {
@@ -104,7 +106,7 @@ class VideoDriver {
             return;
         }
 
-        if (self._bypassProcessingPipeline) {
+        if (self._bypassProcessingPipeline || !self._videoPipelineClient) {
             VideoDriver._onEmitFromPipeline(self._managedSurfaces.get(surface), self);
         } else {
             self._videoPipelineClient.processSurface(self._managedSurfaces.get(surface));
@@ -131,7 +133,9 @@ class VideoDriver {
         this._managedSurfaces = new WeakMap<ArrayBufferSurface, ObjectPoolMember<ArrayBufferSurface>>();
         this._ids = new WeakMap<ObjectPoolMember<ArrayBufferSurface>, number>();
 
-        await this._videoPipelineClient.configure(this._width, this._height, this._videoProcessingConfig);
+        if (this._videoPipelineClient) {
+            await this._videoPipelineClient.configure(this._width, this._height, this._videoProcessingConfig);
+        }
 
         this._video.setSurfaceFactory((): ArrayBufferSurface => {
             const managedSurface = this._surfacePool.get(),
@@ -167,7 +171,9 @@ class VideoDriver {
         this._video.setSurfaceFactory(null);
         this._video.newFrame.removeHandler(VideoDriver._onNewFrame, this);
 
-        await this._videoPipelineClient.flush();
+        if (this._videoPipelineClient) {
+            await this._videoPipelineClient.flush();
+        }
 
         this._video = null;
         this._surfacePool = null;
