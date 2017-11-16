@@ -117,6 +117,7 @@ namespace Instruction {
         isc,
         aac,
         atx,
+        rra,
         invalid
     }
 
@@ -191,6 +192,7 @@ namespace Instruction {
         isc,
         aac,
         atx,
+        rra,
         invalid
     }
 
@@ -486,5 +488,13 @@ namespace Instruction {
         set(0x2b, Operation.aac, AddressingMode.immediate);
 
         set(0xab, Operation.atx, AddressingMode.immediate);
+
+        set(0x67, Operation.rra, AddressingMode.zeroPage);
+        set(0x77, Operation.rra, AddressingMode.zeroPageX);
+        set(0x6f, Operation.rra, AddressingMode.absolute);
+        set(0x7f, Operation.rra, AddressingMode.absoluteX);
+        set(0x7b, Operation.rra, AddressingMode.absoluteY);
+        set(0x63, Operation.rra, AddressingMode.indexedIndirectX);
+        set(0x73, Operation.rra, AddressingMode.indirectIndexedY);
     }
 }

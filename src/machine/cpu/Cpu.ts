@@ -444,6 +444,16 @@ function opSbc(state: CpuInterface.State, bus: BusInterface, operand: number): v
     }
 }
 
+function opRra(state: CpuInterface.State, bus: BusInterface, operand: number): void {
+    const old = bus.read(operand),
+        value = (old >>> 1) | ((state.flags & CpuInterface.Flags.c) << 7);
+    bus.write(operand, value);
+
+    state.flags = (state.flags & ~CpuInterface.Flags.c) | (old & CpuInterface.Flags.c);
+
+    opAdc(state, bus, value);
+}
+
 function opSec(state: CpuInterface.State): void {
     state.flags |= CpuInterface.Flags.c;
 }
@@ -1165,6 +1175,13 @@ class Cpu {
             case Instruction.Operation.atx:
                 this._opCycles = 0;
                 this._instructionCallback = opAtx;
+                break;
+
+            case Instruction.Operation.rra:
+                this._opCycles = 3;
+                dereference = false;
+                slowIndexedAccess = true;
+                this._instructionCallback = opRra;
                 break;
 
             default:
