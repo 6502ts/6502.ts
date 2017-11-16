@@ -244,4 +244,30 @@ export function run() {
         util.testMutatingIndirectX(0x63, operand, result, 8, stateBefore, stateAfter, extra);
         util.testMutatingIndirectY(0x73, operand, result, 8, 8, stateBefore, stateAfter, extra);
     });
+
+    suite('RLA', function() {
+        util.testMutatingZeropage(
+            0x27,
+            0x7f,
+            0xfe,
+            5,
+            { a: 0x0f, flags: CpuInterface.Flags.e },
+            { a: 0x0e },
+            'mem = 0x7f, a = 0x01, no carry'
+        );
+
+        const operand = 0x7f,
+            result = 0xff,
+            stateBefore = { a: 0x0f, flags: CpuInterface.Flags.e | CpuInterface.Flags.c },
+            stateAfter = { a: 0x0f, flags: CpuInterface.Flags.e },
+            extra = 'mem = 0x7f, a = 0x01, carry';
+
+        util.testMutatingZeropage(0x27, operand, result, 5, stateBefore, stateAfter, extra);
+        util.testMutatingZeropageX(0x37, operand, result, 6, stateBefore, stateAfter, extra);
+        util.testMutatingAbsolute(0x2f, operand, result, 6, stateBefore, stateAfter, extra);
+        util.testMutatingAbsoluteX(0x3f, operand, result, 7, 7, stateBefore, stateAfter, extra);
+        util.testMutatingAbsoluteY(0x3b, operand, result, 7, 7, stateBefore, stateAfter, extra);
+        util.testMutatingIndirectX(0x23, operand, result, 8, stateBefore, stateAfter, extra);
+        util.testMutatingIndirectY(0x33, operand, result, 8, 8, stateBefore, stateAfter, extra);
+    });
 }
