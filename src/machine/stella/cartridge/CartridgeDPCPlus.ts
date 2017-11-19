@@ -19,10 +19,11 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import Thumbulator from 'thumbulator.ts';
+
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
-import Thumbulator from './thumbulator/Thumbulator';
 import CartridgeInterface from './CartridgeInterface';
 import * as cartridgeUtil from './util';
 import { encode as hex } from '../../../tools/hex';
@@ -48,11 +49,6 @@ class CartridgeDPCPlus extends AbstractCartridge {
             throw new Error(`not a DPC+ image: invalid lenght ${buffer.length}`);
         }
 
-        // ARM ROM: the whole ROM image, suitable for 16bit and 32bit access
-        this._rom8 = new Uint8Array(this._romBuffer);
-        this._rom16 = new Uint16Array(this._romBuffer);
-        this._rom32 = new Uint32Array(this._romBuffer);
-
         /* ROM layout:
          *
          *    3k ARM driver
@@ -60,8 +56,11 @@ class CartridgeDPCPlus extends AbstractCartridge {
          *    4k image ROM
          *    1k frequency ROM
          */
-        this._imageRom = new Uint8Array(this._romBuffer, 0x8000 - 0x1400, 0x1000);
-        this._frequencyRom = new Uint8Array(this._romBuffer, 0x8000 - 0x0400);
+
+        // ARM ROM: the whole ROM image, suitable for 16bit and 32bit access
+        this._rom8 = new Uint8Array(this._romBuffer);
+        this._rom16 = new Uint16Array(this._romBuffer);
+        this._rom32 = new Uint32Array(this._romBuffer);
 
         for (let i = 0; i < 6; i++) {
             this._banks[i] = new Uint8Array(this._romBuffer, 0x0c00 + i * 0x1000, 0x1000);
@@ -466,7 +465,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
         const trap = this._thumbulator.run(500000);
 
-        if (trap !== CONST.trapReturn && trap !== CONST.trapAbort) {
+        if (trap !== CONST.trapReturn && trap !== Thumbulator.TrapReason.abort) {
             this.triggerTrap(CartridgeInterface.TrapReason.other, `ARM execution trapped: ${trap}`);
         }
     }
@@ -494,9 +493,6 @@ class CartridgeDPCPlus extends AbstractCartridge {
     private _rom8: Uint8Array;
     private _rom16: Uint16Array;
     private _rom32: Uint32Array;
-
-    private _imageRom: Uint8Array;
-    private _frequencyRom: Uint8Array;
 
     private _banks = new Array<Uint8Array>(6);
     private _currentBank: Uint8Array;
