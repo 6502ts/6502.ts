@@ -21,33 +21,33 @@
 
 namespace CartridgeInfo {
     export enum CartridgeType {
-        vanilla_2k,
-        vanilla_4k,
+        vanilla_2k = 'vanilla_2k',
+        vanilla_4k = 'vanilla_4k',
 
-        bankswitch_8k_F8,
-        bankswitch_8k_E0,
-        bankswitch_8k_3F,
-        bankswitch_8k_FE,
-        bankswitch_8k_UA,
-        bankswitch_8k_DPC,
+        bankswitch_8k_F8 = 'bankswitch_8k_F8',
+        bankswitch_8k_E0 = 'bankswitch_8k_E0',
+        bankswitch_8k_3F = 'bankswitch_8k_3F',
+        bankswitch_8k_FE = 'bankswitch_8k_FE',
+        bankswitch_8k_UA = 'bankswitch_8k_UA',
+        bankswitch_8k_DPC = 'bankswitch_8k_DPC',
 
-        bankswitch_12k_FA,
+        bankswitch_12k_FA = 'bankswitch_12k_FA',
 
-        bankswitch_16k_F6,
-        bankswitch_16k_E7,
+        bankswitch_16k_F6 = 'bankswitch_16k_F6',
+        bankswitch_16k_E7 = 'bankswitch_16k_E7',
 
-        bankswitch_FA2,
+        bankswitch_FA2 = 'bankswitch_FA2',
 
-        bankswitch_32k_F4,
+        bankswitch_32k_F4 = 'bankswitch_32k_F4',
 
-        bankswitch_64k_F0,
-        bankswitch_64k_EF,
+        bankswitch_64k_F0 = 'bankswitch_64k_F0',
+        bankswitch_64k_EF = 'bankswitch_64k_EF',
 
-        bankswitch_3E,
-        bankswitch_supercharger,
-        bankswitch_dpc_plus,
+        bankswitch_3E = 'bankswitch_3E',
+        bankswitch_supercharger = 'bankswitch_supercharger',
+        bankswitch_dpc_plus = 'bankswitch_dpc_plus',
 
-        unknown
+        unknown = 'unknown'
     }
 
     export function getAllTypes(): Array<CartridgeType> {

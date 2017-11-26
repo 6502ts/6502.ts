@@ -69,6 +69,10 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
         return this;
     }
 
+    close(): this {
+        return this;
+    }
+
     enableSyncRendering(syncRendering: boolean): this {
         if (syncRendering === this._syncRendering) {
             return this;

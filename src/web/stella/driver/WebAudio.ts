@@ -78,6 +78,10 @@ class WebAudioDriver {
         }
     }
 
+    getMasterVolume(): number {
+        return this._volume;
+    }
+
     async pause(): Promise<void> {
         if (this._driver) {
             await this._driver.pause();

@@ -112,7 +112,7 @@ export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
     const cartridge: CartridgeSchema = {
         ...c,
         tvMode: tvModeToString(tvMode),
-        cartridgeType: CartridgeInfo.CartridgeType[cartridgeType],
+        cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridgeType],
         audioDriver: audioDriverToString(model.audioDriver)
     };
 

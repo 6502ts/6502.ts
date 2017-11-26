@@ -77,6 +77,8 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         this._driverManager = null;
 
         this._fullscreenDriver.disengage();
+
+        this._videoDriver.close();
     }
 
     componentDidMount(): void {

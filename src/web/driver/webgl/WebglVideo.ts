@@ -43,21 +43,11 @@ class WebglVideoDriver implements VideoDriverInterface {
             this._povEmulation = config.povEmulation;
         }
 
-        this._numberOfFramesToCompose = this._povEmulation ? 3 : 1;
-
-        this._textures = new Array<WebGLTexture>(this._numberOfFramesToCompose);
-        this._imageData = new Array<PoolMemberInterface<ImageData>>(this._numberOfFramesToCompose);
-        this._imageDataGeneration = new Array<number>(this._numberOfFramesToCompose);
-        this._textureGeneration = new Array<number>(this._numberOfFramesToCompose);
-
         this._gl = this._canvas.getContext('webgl', {
             alpha: false
         }) as WebGLRenderingContext;
 
-        for (let i = 0; i < this._numberOfFramesToCompose; i++) {
-            this._imageDataGeneration[i] = 0;
-            this._textureGeneration[i] = -1;
-        }
+        this._createTextureArrays();
     }
 
     init(): this {
@@ -69,6 +59,38 @@ class WebglVideoDriver implements VideoDriverInterface {
         this._setupAttribs();
 
         this.enableInterpolation(true);
+
+        return this;
+    }
+
+    close(): this {
+        if (this._program) {
+            this._gl.deleteProgram(this._program);
+        }
+
+        if (this._vertexShader) {
+            this._gl.deleteShader(this._vertexShader);
+        }
+
+        if (this._fragmentShader) {
+            this._gl.deleteShader(this._fragmentShader);
+        }
+
+        if (this._textures) {
+            this._textures.forEach(t => t && this._gl.deleteTexture(t));
+        }
+
+        if (this._imageData) {
+            this._imageData.forEach(i => i && i.release());
+        }
+
+        if (this._vertexBuffer) {
+            this._gl.deleteBuffer(this._vertexBuffer);
+        }
+
+        if (this._textureCoordinateBuffer) {
+            this._gl.deleteBuffer(this._textureCoordinateBuffer);
+        }
 
         return this;
     }
@@ -154,6 +176,29 @@ class WebglVideoDriver implements VideoDriverInterface {
         return this._syncRendering;
     }
 
+    setGamma(gamma: number): this {
+        this._gamma = gamma;
+
+        return this;
+    }
+
+    getGamma(): number {
+        return this._gamma;
+    }
+
+    enablePovEmulation(emulatePov: boolean): this {
+        if (emulatePov === this._povEmulation) {
+            return this;
+        }
+
+        this._povEmulation = emulatePov;
+        this._reinit();
+    }
+
+    povEmulationEnabled(): boolean {
+        return this._povEmulation;
+    }
+
     private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: WebglVideoDriver): void {
         const oldImageData = self._imageData[self._currentFrameIndex];
 
@@ -171,6 +216,36 @@ class WebglVideoDriver implements VideoDriverInterface {
             }
             oldImageData.release();
         }
+    }
+
+    private _createTextureArrays(): void {
+        this._numberOfFramesToCompose = this._povEmulation ? 3 : 1;
+
+        if (this._textures) {
+            this._textures.forEach(t => t && this._gl.deleteTexture(t));
+        }
+
+        if (this._imageData) {
+            this._imageData.forEach(i => i && i.release());
+        }
+
+        this._textures = new Array<WebGLTexture>(this._numberOfFramesToCompose);
+        this._imageData = new Array<PoolMemberInterface<ImageData>>(this._numberOfFramesToCompose);
+        this._imageDataGeneration = new Array<number>(this._numberOfFramesToCompose);
+        this._textureGeneration = new Array<number>(this._numberOfFramesToCompose);
+
+        for (let i = 0; i < this._numberOfFramesToCompose; i++) {
+            this._imageDataGeneration[i] = 0;
+            this._textureGeneration[i] = -1;
+        }
+    }
+
+    private _reinit(): void {
+        this._createTextureArrays();
+        this._createProgram();
+        this._allocateTextures();
+        this._configureTextures();
+        this._setupAttribs();
     }
 
     private _scheduleDraw(): void {
@@ -252,7 +327,21 @@ class WebglVideoDriver implements VideoDriverInterface {
 
         gl.useProgram(program);
 
+        if (this._program) {
+            gl.deleteProgram(this._program);
+        }
+
+        if (this._vertexShader) {
+            gl.deleteShader(this._vertexShader);
+        }
+
+        if (this._fragmentShader) {
+            gl.deleteShader(this._fragmentShader);
+        }
+
         this._program = program;
+        this._vertexShader = vertexShader;
+        this._fragmentShader = fragmentShader;
     }
 
     private _allocateTextures(): void {
@@ -368,6 +457,8 @@ class WebglVideoDriver implements VideoDriverInterface {
 
     private _gl: WebGLRenderingContext = null;
 
+    private _vertexShader: WebGLShader;
+    private _fragmentShader: WebGLShader;
     private _program: WebGLProgram = null;
     private _vertexBuffer: WebGLBuffer = null;
     private _textureCoordinateBuffer: WebGLBuffer = null;

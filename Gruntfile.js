@@ -155,6 +155,16 @@ module.exports = function(grunt) {
                         debug: true
                     }
                 }
+            },
+            stellerator_embedded: {
+                dest: 'web/js/compiled/stellerator_embedded.js',
+                src: ['src/web/embedded/stellerator/index.ts'],
+                options: {
+                    browserifyOptions: {
+                        standalone: '$6502',
+                        debug: true
+                    }
+                }
             }
         },
 
@@ -182,6 +192,10 @@ module.exports = function(grunt) {
             stellaCLI: {
                 src: 'web/js/compiled/stellaCLI.js',
                 dest: 'web/js/compiled/stellaCLI.js.map'
+            },
+            stellerator_embedded: {
+                src: 'web/js/compiled/stellerator_embedded.js',
+                dest: 'web/js/compiled/stellerator_embedded.js.map'
             }
         },
 
@@ -204,6 +218,10 @@ module.exports = function(grunt) {
             video_pipeline_worker: {
                 dest: 'build/stellerator/js/worker/video-pipeline.js',
                 src: 'web/js/compiled/worker/video-pipeline.js'
+            },
+            stellerator_embedded: {
+                src: 'web/js/compiled/stellerator_embedded.js',
+                dest: 'web/js/compiled/stellerator_embedded.min.js'
             }
         },
 
@@ -371,6 +389,7 @@ module.exports = function(grunt) {
         'browserify:stellerator_dev',
         'browserify:stella_worker',
         'browserify:video_pipeline_worker',
+        'browesrify:stellerator_embedded',
         'exorcise'
     ]);
     grunt.registerTask('browserify_prod', ['browserify:stellerator_prod']);
@@ -404,9 +423,16 @@ module.exports = function(grunt) {
         'template:stellerator_build'
     ]);
 
+    grunt.registerTask('stellerator_embedded:build', [
+        'tslint',
+        'browserify:stellerator_embedded',
+        'exorcise:stellerator_embedded',
+        'uglify:stellerator_embedded'
+    ]);
+
     grunt.registerTask('tslint', ['exec:tslint']);
     grunt.registerTask('dev', ['tslint', 'browserify_dev', 'template_dev', 'blobify:default', 'copy:stellerator_dev']);
-    grunt.registerTask('build', ['stellerator:build']);
+    grunt.registerTask('build', ['stellerator:build', 'stellerator_embedded:build']);
     grunt.registerTask('test', ['tslint', 'ts:main', 'copy:test_fixtures', 'blobify:tests', 'mochaTest:test']);
     grunt.registerTask('test:debug', ['tslint', 'ts:main', 'copy:test_fixtures', 'blobify:tests', 'mochaTest:debug']);
     grunt.registerTask('initial', ['clean', 'copy:install', 'test']);

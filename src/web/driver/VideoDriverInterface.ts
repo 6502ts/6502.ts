@@ -36,6 +36,8 @@ interface VideoDriverInterface {
 
     init(): this;
 
+    close(): this;
+
     unbind(): this;
 
     bind(video: VideoEndpointInterface): this;
