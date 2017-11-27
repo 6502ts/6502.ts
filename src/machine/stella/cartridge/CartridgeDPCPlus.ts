@@ -19,27 +19,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import Thumbulator from 'thumbulator.ts';
-
+import HarmonySoc from './harmony/Soc';
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 import CartridgeInterface from './CartridgeInterface';
 import * as cartridgeUtil from './util';
-import { encode as hex } from '../../../tools/hex';
-
-const enum CONST {
-    returnAddress = 0x8004,
-    trapReturn = 255,
-    trapAbort = 10
-}
-
-function hostIsLittleEndian(): boolean {
-    const buffer8 = new Uint8Array([1, 2, 3, 4]),
-        buffer32 = new Uint32Array(buffer8.buffer);
-
-    return buffer32[0] === 0x04030201;
-}
 
 class CartridgeDPCPlus extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -57,19 +42,16 @@ class CartridgeDPCPlus extends AbstractCartridge {
          *    1k frequency ROM
          */
 
-        // ARM ROM: the whole ROM image, suitable for 16bit and 32bit access
-        this._rom8 = new Uint8Array(this._romBuffer);
-        this._rom16 = new Uint16Array(this._romBuffer);
-        this._rom32 = new Uint32Array(this._romBuffer);
+        this._rom8 = this._soc.getRom();
 
         for (let i = 0; i < 6; i++) {
-            this._banks[i] = new Uint8Array(this._romBuffer, 0x0c00 + i * 0x1000, 0x1000);
+            this._banks[i] = new Uint8Array(this._rom8.buffer, 0x0c00 + i * 0x1000, 0x1000);
         }
 
         // ARM RAM
-        this._ram8 = new Uint8Array(this._ramBuffer);
-        this._ram16 = new Uint16Array(this._ramBuffer);
-        this._ram32 = new Uint32Array(this._ramBuffer);
+        this._ram8 = this._soc.getRam();
+
+        this._imageRam = new Uint8Array(this._ram8.buffer, 0x0c00, 0x1000);
 
         /* RAM layout
          *
@@ -77,13 +59,11 @@ class CartridgeDPCPlus extends AbstractCartridge {
          *    * 4k display RAM
          *    * 1k frequency RAM
          */
-        this._imageRam = new Uint8Array(this._ramBuffer, 0x0c00, 0x1000);
 
-        const rom8 = new Uint8Array(this._romBuffer),
-            offset = 0x8000 - buffer.length;
+        const offset = 0x8000 - buffer.length;
 
         for (let i = 0; i < buffer.length; i++) {
-            rom8[offset + i] = buffer[i];
+            this._rom8[offset + i] = buffer[i];
         }
 
         for (let i = 0; i < 8; i++) {
@@ -95,40 +75,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
             this._musicFetchers[i] = new MusicFetcher();
         }
 
-        if (hostIsLittleEndian()) {
-            // If we are on a little endian host, we use typed arrays to take advantage of
-            // hardware word access
-            this._getRom16 = address => this._rom16[address >>> 1];
-            this._getRom32 = address => this._rom32[address >>> 2];
-            this._getRam16 = address => this._ram16[address >>> 1];
-            this._getRam32 = address => this._ram32[address >>> 2];
-            this._setRam16 = (address, value) => (this._ram16[address >>> 1] = value);
-            this._setRam32 = (address, value) => (this._ram32[address >>> 2] = value);
-        } else {
-            // On big endian, we dance the endianness shuffle ourselves (DataView is dead slow)
-            this._getRom16 = address => this._rom8[address] | (this._rom8[address + 1] << 8);
-            this._getRom32 = address =>
-                this._rom8[address] |
-                (this._rom8[address + 1] << 8) |
-                (this._rom8[address + 2] << 16) |
-                (this._rom8[address + 3] << 24);
-            this._getRam16 = address => this._ram8[address] | (this._ram8[address + 1] << 8);
-            this._getRam32 = address =>
-                this._ram8[address] |
-                (this._ram8[address + 1] << 8) |
-                (this._ram8[address + 2] << 16) |
-                (this._ram8[address + 3] << 24);
-            this._setRam16 = (address, value) => {
-                this._ram8[address] = value & 0xff;
-                this._ram8[address + 1] = (value >>> 8) & 0xff;
-            };
-            this._setRam32 = (address, value) => {
-                this._ram8[address] = value & 0xff;
-                this._ram8[address + 1] = (value >>> 8) & 0xff;
-                this._ram8[address + 2] = (value >>> 16) & 0xff;
-                this._ram8[address + 3] = (value >>> 24) & 0xff;
-            };
-        }
+        this._soc.trap.addHandler(message => this.triggerTrap(CartridgeInterface.TrapReason.other, message));
 
         this.reset();
     }
@@ -140,14 +87,16 @@ class CartridgeDPCPlus extends AbstractCartridge {
     }
 
     reset() {
+        this._soc.reset();
+
         this._currentBank = this._banks[5];
 
         for (let i = 0; i < 0x0300; i++) {
-            this._ram32[i] = this._rom32[i];
+            this._soc.setRam32(i << 2, this._soc.getRom32(i << 2));
         }
 
         for (let i = 0x1b00; i < 0x2000; i++) {
-            this._ram32[0x0300 + i - 0x1b00] = this._rom32[i];
+            this._soc.setRam32((0x0300 + i - 0x1b00) << 2, this._soc.getRom32(i << 2));
         }
 
         this._currentBank = this._banks[5];
@@ -202,8 +151,6 @@ class CartridgeDPCPlus extends AbstractCartridge {
     }
 
     protected triggerTrap(reason: CartridgeInterface.TrapReason, message: string) {
-        this._thumbulator.abort();
-
         super.triggerTrap(reason, message);
     }
 
@@ -371,7 +318,9 @@ class CartridgeDPCPlus extends AbstractCartridge {
                         case 0x05:
                         case 0x06:
                         case 0x07:
-                            this._musicFetchers[idx - 0x05].frequency = this._getRam32(0x2000 - 0x400 + (value << 2));
+                            this._musicFetchers[idx - 0x05].frequency = this._soc.getRam32(
+                                0x2000 - 0x400 + (value << 2)
+                            );
                             break;
                     }
 
@@ -444,29 +393,8 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             case 254:
             case 255:
-                this._dispatchArm();
+                this._soc.run();
                 break;
-        }
-    }
-
-    private _dispatchArm(): void {
-        this._thumbulator.reset();
-        this._thumbulator.enableDebug(false);
-
-        for (let i = 0; i <= 12; i++) {
-            this._thumbulator.writeRegister(i, 0);
-        }
-
-        this._thumbulator.writeRegister(13, 0x40001fb4);
-        this._thumbulator.writeRegister(14, CONST.returnAddress - 1);
-        this._thumbulator.writeRegister(15, 0x0c0b);
-
-        this._armMamcr = 0;
-
-        const trap = this._thumbulator.run(500000);
-
-        if (trap !== CONST.trapReturn && trap !== Thumbulator.TrapReason.abort) {
-            this.triggerTrap(CartridgeInterface.TrapReason.other, `ARM execution trapped: ${trap}`);
         }
     }
 
@@ -481,28 +409,11 @@ class CartridgeDPCPlus extends AbstractCartridge {
                 : (this._rng << 11) | (this._rng >>> 21);
     }
 
-    private _getRom16: (address: number) => number;
-    private _getRom32: (address: number) => number;
-    private _getRam16: (address: number) => number;
-    private _getRam32: (address: number) => number;
-    private _setRam16: (address: number, value: number) => void;
-    private _setRam32: (address: number, value: number) => void;
-
-    private _romBuffer = new ArrayBuffer(0x8000);
-
     private _rom8: Uint8Array;
-    private _rom16: Uint16Array;
-    private _rom32: Uint32Array;
-
     private _banks = new Array<Uint8Array>(6);
     private _currentBank: Uint8Array;
 
-    private _ramBuffer = new ArrayBuffer(0x2000);
-
     private _ram8: Uint8Array;
-    private _ram16: Uint16Array;
-    private _ram32: Uint32Array;
-
     private _imageRam: Uint8Array;
 
     private _fetchers = new Array<Fetcher>(8);
@@ -523,169 +434,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
     private _bus: Bus;
     private _cpuTimeProvider: () => number = null;
 
-    private _thumbulatorBus: Thumbulator.Bus = {
-        read16: (address: number): number => {
-            if (address & 0x01) {
-                this.triggerTrap(
-                    CartridgeInterface.TrapReason.other,
-                    `unaligned 16 bit ARM read from ${hex(address, 8, false)}`
-                );
-                return 0;
-            }
-
-            const region = address >>> 28,
-                addr = address & 0x0fffffff;
-
-            switch (region) {
-                case 0x0:
-                    if (addr < 0x8000) {
-                        return this._getRom16(addr);
-                    }
-                    break;
-
-                case 0x4:
-                    if (addr < 0x2000) {
-                        return this._getRam16(addr);
-                    }
-                    break;
-
-                case 0xe:
-                    switch (addr) {
-                        case 0x001fc000:
-                            return this._armMamcr;
-                    }
-
-                    break;
-
-                default:
-            }
-
-            this.triggerTrap(
-                CartridgeInterface.TrapReason.other,
-                `invalid 16 bit ARM read from ${hex(address, 8, false)}`
-            );
-        },
-
-        read32: (address: number): number => {
-            if (address & 0x03) {
-                this.triggerTrap(
-                    CartridgeInterface.TrapReason.other,
-                    `unaligned 32 bit ARM read from ${hex(address, 8, false)}`
-                );
-                return 0;
-            }
-
-            const region = address >>> 28,
-                addr = address & 0x0fffffff;
-
-            switch (region) {
-                case 0x0:
-                    if (addr < 0x8000) {
-                        return this._getRom32(addr);
-                    }
-                    break;
-
-                case 0x4:
-                    if (addr < 0x2000) {
-                        return this._getRam32(addr);
-                    }
-                    break;
-
-                case 0xe:
-                    switch (addr) {
-                        case 0x8004:
-                        case 0x8008:
-                            return 0;
-                    }
-
-                    break;
-
-                default:
-            }
-
-            this.triggerTrap(
-                CartridgeInterface.TrapReason.other,
-                `invalid 32 bit ARM read from ${hex(address, 8, false)}`
-            );
-        },
-
-        write16: (address: number, value: number): void => {
-            if (address & 0x01) {
-                this.triggerTrap(
-                    CartridgeInterface.TrapReason.other,
-                    `unaligned 16 bit ARM write: ${hex(value, 4)} -> ${hex(address, 8, false)}`
-                );
-                return;
-            }
-
-            const region = address >>> 28,
-                addr = address & 0x0fffffff;
-
-            switch (region) {
-                case 0x04:
-                    if (addr < 0x2000) {
-                        this._setRam16(addr, value & 0xffff);
-                        return;
-                    }
-                    break;
-
-                case 0xe:
-                    switch (addr) {
-                        case 0x001fc000:
-                            this._armMamcr = value;
-                            return;
-                    }
-
-                    break;
-            }
-
-            this.triggerTrap(
-                CartridgeInterface.TrapReason.other,
-                `invalid 16 bit ARM write: ${hex(value, 4)} -> ${hex(address, 8, false)}`
-            );
-        },
-
-        write32: (address: number, value: number): void => {
-            if (address & 0x03) {
-                this.triggerTrap(
-                    CartridgeInterface.TrapReason.other,
-                    `unaligned 32 bit ARM write: ${hex(value, 8, false)} -> ${hex(address, 8, false)}`
-                );
-                return;
-            }
-
-            const region = address >>> 28,
-                addr = address & 0x0fffffff;
-
-            switch (region) {
-                case 0x4:
-                    if (addr < 0x2000) {
-                        this._setRam32(addr, value);
-                        return;
-                    }
-
-                case 0xe:
-                    switch (addr) {
-                        case 0x8004:
-                        case 0x8008:
-                            return;
-                    }
-
-                    break;
-            }
-
-            this.triggerTrap(
-                CartridgeInterface.TrapReason.other,
-                `invalid 32 bit ARM write: ${hex(value, 8, false)} -> ${hex(address, 8, false)}`
-            );
-        }
-    };
-
-    private _armMamcr = 0;
-
-    private _thumbulator = new Thumbulator(this._thumbulatorBus, {
-        trapOnInstructionFetch: address => (address === 0x8004 ? CONST.trapReturn : 0)
-    });
+    private _soc = new HarmonySoc();
 }
 
 class Fetcher {
