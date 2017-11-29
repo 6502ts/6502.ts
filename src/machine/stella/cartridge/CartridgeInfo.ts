@@ -46,6 +46,7 @@ namespace CartridgeInfo {
         bankswitch_3E = 'bankswitch_3E',
         bankswitch_supercharger = 'bankswitch_supercharger',
         bankswitch_dpc_plus = 'bankswitch_dpc_plus',
+        bankswitch_cdf = 'bankswitch_cdf',
 
         unknown = 'unknown'
     }
@@ -70,6 +71,7 @@ namespace CartridgeInfo {
             CartridgeType.bankswitch_64k_EF,
             CartridgeType.bankswitch_supercharger,
             CartridgeType.bankswitch_dpc_plus,
+            CartridgeType.bankswitch_cdf,
             CartridgeType.unknown
         ];
     }
@@ -129,6 +131,9 @@ namespace CartridgeInfo {
 
             case CartridgeType.bankswitch_dpc_plus:
                 return 'bankswitched DPC+';
+
+            case CartridgeType.bankswitch_cdf:
+                return 'bankswitched CDF';
 
             case CartridgeType.unknown:
                 return 'unknown';

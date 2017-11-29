@@ -26,8 +26,7 @@ import { encode as hex } from '../../../../tools/hex';
 
 const enum CONST {
     returnAddress = 0x8004,
-    trapReturn = 255,
-    trapAbort = 10
+    trapReturn = 255
 }
 
 function hostIsLittleEndian(): boolean {
@@ -38,7 +37,7 @@ function hostIsLittleEndian(): boolean {
 }
 
 class Soc {
-    constructor() {
+    constructor(blx32Handler: Soc.Blx32Handler = () => Thumbulator.TrapReason.bxLeaveThumb) {
         if (hostIsLittleEndian()) {
             // If we are on a little endian host, we use typed arrays to take advantage of
             // hardware word access
@@ -85,7 +84,8 @@ class Soc {
         this._ram32 = new Uint32Array(this._ramBuffer);
 
         this._thumbulator = new Thumbulator(this._thumbulatorBus, {
-            trapOnInstructionFetch: address => (address === 0x8004 ? CONST.trapReturn : 0)
+            trapOnInstructionFetch: address => (address === CONST.returnAddress ? CONST.trapReturn : 0),
+            trapOnBx32: blx32Handler
         });
 
         this.reset();
@@ -101,7 +101,7 @@ class Soc {
         return this._ram8;
     }
 
-    run(): void {
+    run(entry: number): void {
         this._thumbulator.reset();
         this._thumbulator.enableDebug(false);
 
@@ -110,8 +110,8 @@ class Soc {
         }
 
         this._thumbulator.writeRegister(13, 0x40001fb4);
-        this._thumbulator.writeRegister(14, CONST.returnAddress - 1);
-        this._thumbulator.writeRegister(15, 0x0c0b);
+        this._thumbulator.writeRegister(14, CONST.returnAddress + 1);
+        this._thumbulator.writeRegister(15, entry);
 
         this._armMamcr = 0;
 
@@ -120,6 +120,10 @@ class Soc {
         if (trap !== CONST.trapReturn && trap !== Thumbulator.TrapReason.abort) {
             this._triggerTrap(`ARM execution trapped: ${trap}`);
         }
+    }
+
+    getThumbulator(): Thumbulator {
+        return this._thumbulator;
     }
 
     private _triggerTrap(message: string): void {
@@ -285,6 +289,12 @@ class Soc {
     private _armMamcr = 0;
 
     private _thumbulator: Thumbulator = null;
+}
+
+namespace Soc {
+    export interface Blx32Handler {
+        (address: number, targetAddress: number): number;
+    }
 }
 
 export default Soc;

@@ -3970,9 +3970,9 @@ through@~2.2.7:
   version "2.2.7"
   resolved "https://registry.yarnpkg.com/through/-/through-2.2.7.tgz#6e8e21200191d4eb6a99f6f010df46aa1c6eb2bd"
 
-thumbulator.ts@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/thumbulator.ts/-/thumbulator.ts-0.1.2.tgz#2a6742ff2e4540ae8135abe1bc155831965282b6"
+thumbulator.ts@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/thumbulator.ts/-/thumbulator.ts-0.2.0.tgz#12fd2d84a60112a38283535874c8fa959c8e8599"
   dependencies:
     tslib "^1.8.0"
 

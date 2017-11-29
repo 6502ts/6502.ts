@@ -30,6 +30,7 @@ import CartridgeE7 from './CartridgeE7';
 import CartridgeFA2 from './CartridgeFA2';
 import CartridgeEF from './CartridgeEF';
 import CartridgeDPCPlus from './CartridgeDPCPlus';
+import CartridgeCDF from './CartridgeCDF';
 import * as cartridgeUtil from './util';
 
 class CartridgeDetector {
@@ -121,6 +122,10 @@ class CartridgeDetector {
 
         if (CartridgeDPCPlus.matchesBuffer(buffer)) {
             return CartridgeInfo.CartridgeType.bankswitch_dpc_plus;
+        }
+
+        if (CartridgeCDF.matchesBuffer(buffer)) {
+            return CartridgeInfo.CartridgeType.bankswitch_cdf;
         }
 
         return CartridgeInfo.CartridgeType.bankswitch_32k_F4;

@@ -42,16 +42,16 @@ class CartridgeDPCPlus extends AbstractCartridge {
          *    1k frequency ROM
          */
 
-        this._rom8 = this._soc.getRom();
+        this._rom = this._soc.getRom();
 
         for (let i = 0; i < 6; i++) {
-            this._banks[i] = new Uint8Array(this._rom8.buffer, 0x0c00 + i * 0x1000, 0x1000);
+            this._banks[i] = new Uint8Array(this._rom.buffer, 0x0c00 + i * 0x1000, 0x1000);
         }
 
         // ARM RAM
-        this._ram8 = this._soc.getRam();
+        this._ram = this._soc.getRam();
 
-        this._imageRam = new Uint8Array(this._ram8.buffer, 0x0c00, 0x1000);
+        this._imageRam = new Uint8Array(this._ram.buffer, 0x0c00, 0x1000);
 
         /* RAM layout
          *
@@ -63,7 +63,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
         const offset = 0x8000 - buffer.length;
 
         for (let i = 0; i < buffer.length; i++) {
-            this._rom8[offset + i] = buffer[i];
+            this._rom[offset + i] = buffer[i];
         }
 
         for (let i = 0; i < 8; i++) {
@@ -373,9 +373,9 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             case 1:
                 for (let i = 0; i < this._parameters[3]; i++) {
-                    this._ram8[
-                        0x0c00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0fff)
-                    ] = this._rom8[0x0c00 + (romBase + i) % 0x7400];
+                    this._ram[0x0c00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0fff)] = this._rom[
+                        0x0c00 + (romBase + i) % 0x7400
+                    ];
                 }
 
                 this._parameterIndex = 0;
@@ -383,7 +383,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             case 2:
                 for (let i = 0; i < this._parameters[3]; i++) {
-                    this._ram8[
+                    this._ram[
                         0x0c00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0fff)
                     ] = this._parameters[0];
                 }
@@ -393,7 +393,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             case 254:
             case 255:
-                this._soc.run();
+                this._soc.run(0x0c0b);
                 break;
         }
     }
@@ -409,11 +409,11 @@ class CartridgeDPCPlus extends AbstractCartridge {
                 : (this._rng << 11) | (this._rng >>> 21);
     }
 
-    private _rom8: Uint8Array;
+    private _rom: Uint8Array;
     private _banks = new Array<Uint8Array>(6);
     private _currentBank: Uint8Array;
 
-    private _ram8: Uint8Array;
+    private _ram: Uint8Array;
     private _imageRam: Uint8Array;
 
     private _fetchers = new Array<Fetcher>(8);

@@ -389,7 +389,7 @@ module.exports = function(grunt) {
         'browserify:stellerator_dev',
         'browserify:stella_worker',
         'browserify:video_pipeline_worker',
-        'browesrify:stellerator_embedded',
+        'browserify:stellerator_embedded',
         'exorcise'
     ]);
     grunt.registerTask('browserify_prod', ['browserify:stellerator_prod']);
