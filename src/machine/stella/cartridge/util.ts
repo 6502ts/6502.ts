@@ -68,3 +68,17 @@ export function searchForSignatures(buffer: BufferInterface, signatures: Array<A
 
     return counts;
 }
+
+export function searchForSignature(buffer: BufferInterface, signature: Array<number>): number {
+    for (let i = 0; i < buffer.length; i++) {
+        let j: number;
+
+        for (j = 0; j < signature.length && (buffer[i + j] === signature[j] || signature[j] < 0); j++) {}
+
+        if (j === signature.length) {
+            return i;
+        }
+    }
+
+    return -1;
+}

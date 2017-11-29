@@ -42,6 +42,16 @@ class CartridgeCDF extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
+        this._version = CartridgeCDF.getVersion(buffer);
+
+        if (buffer.length !== 0x8000) {
+            throw new Error(`not a CDF image: invalid lenght ${buffer.length}`);
+        }
+
+        if (this._version < 0) {
+            throw new Error('not a CDF image: missing signature');
+        }
+
         this._soc = new HarmonySoc(this._version > 0 ? this._handleBxCDF1 : this._handleBxCDF0);
         this._soc.trap.addHandler(message => this.triggerTrap(CartridgeInterface.TrapReason.other, message));
 
@@ -83,10 +93,19 @@ class CartridgeCDF extends AbstractCartridge {
         this.reset();
     }
 
-    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, ['CDF'.split('').map(x => x.charCodeAt(0))]);
+    static getVersion(buffer: cartridgeUtil.BufferInterface): number {
+        const sig = 'CDF'.split('').map(x => x.charCodeAt(0)),
+            startAddress = cartridgeUtil.searchForSignature(buffer, [...sig, -1, ...sig, -1, ...sig]);
 
-        return signatureCounts[0] === 3;
+        if (startAddress < 0) {
+            return -1;
+        }
+
+        return buffer[startAddress + 3] > 0 ? 1 : 0;
+    }
+
+    static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
+        return CartridgeCDF.getVersion(buffer) >= 0;
     }
 
     reset() {
@@ -337,7 +356,7 @@ class CartridgeCDF extends AbstractCartridge {
                 return 0;
         }
 
-        return Thumbulator.TrapReason.blxLeaveThumb;
+        return Thumbulator.TrapReason.bxLeaveThumb;
     };
 
     private _handleBxCDF1 = (address: number): number => {
@@ -363,7 +382,7 @@ class CartridgeCDF extends AbstractCartridge {
                 return 0;
         }
 
-        return Thumbulator.TrapReason.blxLeaveThumb;
+        return Thumbulator.TrapReason.bxLeaveThumb;
     };
 
     private _version = 1;
