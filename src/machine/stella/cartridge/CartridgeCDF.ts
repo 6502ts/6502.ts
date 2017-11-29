@@ -55,10 +55,6 @@ class CartridgeCDF extends AbstractCartridge {
         this._soc = new HarmonySoc(this._version > 0 ? this._handleBxCDF1 : this._handleBxCDF0);
         this._soc.trap.addHandler(message => this.triggerTrap(CartridgeInterface.TrapReason.other, message));
 
-        if (buffer.length !== 0x8000) {
-            throw new Error(`not a CDF image: invalid lenght ${buffer.length}`);
-        }
-
         /* ROM layout:
          *
          *    2k ARM driver
