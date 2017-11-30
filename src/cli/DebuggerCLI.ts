@@ -45,16 +45,13 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
         this._debuggerFrontend = debuggerFrontend;
     }
 
-    runDebuggerScript(filename: string): void {
+    async runDebuggerScript(filename: string): Promise<void> {
         this._fsProvider.pushd(path.dirname(filename));
 
         try {
-            this._fsProvider
-                .readTextFileSync(path.basename(filename))
-                .split('\n')
-                .forEach((line: string): void => {
-                    this.pushInput(line);
-                });
+            for (const line of this._fsProvider.readTextFileSync(path.basename(filename)).split('\n')) {
+                await this.pushInput(line);
+            }
         } catch (e) {
             this._fsProvider.popd();
             throw e;
@@ -70,9 +67,9 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
 
     shutdown(): void {}
 
-    pushInput(input: string): void {
+    async pushInput(input: string): Promise<void> {
         try {
-            this._outputLine(this._getCommandInterpreter().execute(input));
+            this._outputLine(await this._getCommandInterpreter().execute(input));
         } catch (e) {
             this._outputLine('ERROR: ' + e.message);
         }
@@ -125,12 +122,12 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
                 this._quit();
                 return 'bye';
             },
-            'run-script': (args: Array<string>): string => {
+            'run-script': async (args: Array<string>): Promise<string> => {
                 if (!args.length) {
                     throw new Error('filename required');
                 }
 
-                this.runDebuggerScript(args[0]);
+                await this.runDebuggerScript(args[0]);
                 return 'script executed';
             }
         });

@@ -118,11 +118,11 @@ class StellaCLI extends DebuggerCLI {
         return this._state;
     }
 
-    loadCartridgeFromBuffer(buffer: { [idx: number]: number; length: number }, name: string): void {
+    async loadCartridgeFromBuffer(buffer: { [idx: number]: number; length: number }, name: string): Promise<void> {
         const factory = new CartridgeFactory();
 
         try {
-            this._cartridge = factory.createCartridge(buffer);
+            this._cartridge = await factory.createCartridge(buffer);
             this._initializeHardware();
             this._setState(StellaCLI.State.debug);
             this._cartridgeFile = name;
@@ -150,7 +150,7 @@ class StellaCLI extends DebuggerCLI {
         }
     }
 
-    protected _executeLoadCartridge(args: Array<string>): string {
+    protected async _executeLoadCartridge(args: Array<string>): Promise<string> {
         if (args.length === 0) {
             return 'ERROR: filename required';
         }
@@ -158,7 +158,7 @@ class StellaCLI extends DebuggerCLI {
         const file = args[0];
 
         try {
-            this._loadCartridge(file);
+            await this._loadCartridge(file);
             this._cartridgeFile = file;
             this._initializeHardware();
             this._setState(StellaCLI.State.debug);
@@ -169,11 +169,11 @@ class StellaCLI extends DebuggerCLI {
         return `succesfully loaded ${file}\nformat: ${CartridgeInfo.describeCartridgeType(this._cartridge.getType())}`;
     }
 
-    protected _loadCartridge(file: string): void {
+    protected async _loadCartridge(file: string): Promise<void> {
         const fileBuffer = this._fsProvider.readBinaryFileSync(file),
             factory = new CartridgeFactory();
 
-        this._cartridge = factory.createCartridge(fileBuffer);
+        this._cartridge = await factory.createCartridge(fileBuffer);
     }
 
     protected _initialize(): void {

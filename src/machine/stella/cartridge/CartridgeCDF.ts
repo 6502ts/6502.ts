@@ -104,6 +104,10 @@ class CartridgeCDF extends AbstractCartridge {
         return CartridgeCDF.getVersion(buffer) >= 0;
     }
 
+    init(): Promise<void> {
+        return this._soc.init();
+    }
+
     reset() {
         for (let i = 0; i < 0x0200; i++) {
             this._soc.setRam32(i << 2, this._soc.getRom32(i << 2));

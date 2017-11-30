@@ -29,6 +29,8 @@ import Bus from '../Bus';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class AbstractCartridge implements CartridgeInterface {
+    async init(): Promise<void> {}
+
     reset(): void {}
 
     read(address: number): number {

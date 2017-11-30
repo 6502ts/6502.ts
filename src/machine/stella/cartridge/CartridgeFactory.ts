@@ -44,7 +44,18 @@ import CartridgeDetector from './CartridgeDetector';
 import CartridgeInterface from './CartridgeInterface';
 
 export default class CartridgeFactory {
-    createCartridge(
+    async createCartridge(
+        buffer: { [i: number]: number; length: number },
+        cartridgeType?: CartridgeInfo.CartridgeType
+    ): Promise<CartridgeInterface> {
+        const cartridge = this._createCartridge(buffer, cartridgeType);
+
+        await cartridge.init();
+
+        return cartridge;
+    }
+
+    private _createCartridge(
         buffer: { [i: number]: number; length: number },
         cartridgeType?: CartridgeInfo.CartridgeType
     ): CartridgeInterface {

@@ -28,6 +28,8 @@ import BusInterface from '../../bus/BusInterface';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 interface CartridgeInterface {
+    init(): Promise<void>;
+
     reset(): void;
 
     read(address: number): number;

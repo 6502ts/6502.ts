@@ -86,12 +86,12 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
 
                 return '';
             },
-            'run-script': (args: Array<string>): string => {
+            'run-script': async (args: Array<string>): Promise<string> => {
                 if (!args.length) {
                     throw new Error('filename required');
                 }
 
-                this.runDebuggerScript(args[0]);
+                await this.runDebuggerScript(args[0]);
                 return 'script executed';
             },
             'read-program': (args: Array<string>): string => {
@@ -109,7 +109,6 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
             .setOutCallback((value: number) => this._serialOutHandler(value))
             .setInCallback(() => this._serialInHandler());
 
-        this._commands = commandInterpreter.getCommands();
         this._board = board;
         this._commandInterpreter = commandInterpreter;
         this._scheduler = new ImmediateScheduler();
@@ -117,16 +116,13 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         this._debuggerFrontend = debuggerFrontend;
     }
 
-    runDebuggerScript(filename: string): void {
+    async runDebuggerScript(filename: string): Promise<void> {
         this._fsProvider.pushd(path.dirname(filename));
 
         try {
-            this._fsProvider
-                .readTextFileSync(path.basename(filename))
-                .split('\n')
-                .forEach((line: string): void => {
-                    this.pushInput(line);
-                });
+            for (const line of this._fsProvider.readTextFileSync(path.basename(filename)).split('\n')) {
+                await this.pushInput(line);
+            }
         } catch (e) {
             this._fsProvider.popd();
             throw e;
@@ -196,7 +192,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         return !!this._cliOutputBuffer;
     }
 
-    pushInput(data: string): void {
+    async pushInput(data: string): Promise<void> {
         switch (this._state) {
             case State.run:
                 const size = data.length;
@@ -209,7 +205,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
 
             case State.debug:
                 try {
-                    this._outputLine(this._commandInterpreter.execute(data));
+                    this._outputLine(await this._commandInterpreter.execute(data));
                 } catch (e) {
                     this._outputLine('ERROR: ' + e.message);
                 }
@@ -339,8 +335,6 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
 
     private _state: State;
     private _allowQuit = true;
-
-    private _commands: Array<string>;
 
     private _outputBuffer = '';
     private _inputBuffer: Array<number> = [];

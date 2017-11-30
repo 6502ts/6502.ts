@@ -25,8 +25,7 @@ import { Event } from 'microevent.ts';
 import { encode as hex } from '../../../../tools/hex';
 
 const enum CONST {
-    returnAddress = 0x8004,
-    trapReturn = 255
+    returnAddress = 0x8004
 }
 
 function hostIsLittleEndian(): boolean {
@@ -84,11 +83,15 @@ class Soc {
         this._ram32 = new Uint32Array(this._ramBuffer);
 
         this._thumbulator = new Thumbulator(this._thumbulatorBus, {
-            trapOnInstructionFetch: address => (address === CONST.returnAddress ? CONST.trapReturn : 0),
+            stopAddress: CONST.returnAddress,
             trapOnBx32: blx32Handler
         });
 
         this.reset();
+    }
+
+    init(): Promise<void> {
+        return this._thumbulator.init();
     }
 
     reset(): void {}
@@ -117,7 +120,7 @@ class Soc {
 
         const trap = this._thumbulator.run(500000);
 
-        if (trap !== CONST.trapReturn && trap !== Thumbulator.TrapReason.abort) {
+        if (trap !== Thumbulator.TrapReason.stop && trap !== Thumbulator.TrapReason.abort) {
             this._triggerTrap(`ARM execution trapped: ${trap}`);
         }
     }

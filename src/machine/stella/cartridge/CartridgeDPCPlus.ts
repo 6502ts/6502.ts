@@ -86,6 +86,10 @@ class CartridgeDPCPlus extends AbstractCartridge {
         return signatureCounts[0] === 2;
     }
 
+    init(): Promise<void> {
+        return this._soc.init();
+    }
+
     reset() {
         this._soc.reset();
 

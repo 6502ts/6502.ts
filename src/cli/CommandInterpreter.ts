@@ -30,7 +30,7 @@ class CommandInterpreter {
         Object.keys(commandTable).forEach((command: string) => (this._commandTable[command] = commandTable[command]));
     }
 
-    public execute(cmd: string): string {
+    public async execute(cmd: string): Promise<string> {
         cmd = cmd.replace(/;.*/, '');
         if (cmd.match(/^\s*$/)) {
             return '';
@@ -39,7 +39,7 @@ class CommandInterpreter {
         const components = cmd.split(/\s+/).filter((value: string): boolean => !!value),
             commandName = components.shift();
 
-        return this._locateCommand(commandName).call(this, components, cmd);
+        return await this._locateCommand(commandName).call(this, components, cmd);
     }
 
     public getCommands(): Array<string> {
@@ -77,7 +77,7 @@ class CommandInterpreter {
 
 namespace CommandInterpreter {
     export interface CommandInterface {
-        (args?: Array<string>, cmdString?: string): string;
+        (args?: Array<string>, cmdString?: string): string | Promise<string>;
     }
 
     export interface CommandTableInterface {

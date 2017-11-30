@@ -55,7 +55,7 @@ export default class EmulationService implements EmulationServiceInterface {
     ): Promise<EmulationServiceInterface.State> {
         const factory = new CartridgeFactory();
 
-        return this._mutex.runExclusive(() => {
+        return this._mutex.runExclusive(async () => {
             try {
                 this._stop();
 
@@ -68,7 +68,7 @@ export default class EmulationService implements EmulationServiceInterface {
                     return this._state;
                 }
 
-                const cartridge = factory.createCartridge(buffer, cartridgeType),
+                const cartridge = await factory.createCartridge(buffer, cartridgeType),
                     board = new Board(config, cartridge);
 
                 this._board = board;
