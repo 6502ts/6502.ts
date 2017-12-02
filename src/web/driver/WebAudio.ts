@@ -119,11 +119,23 @@ class WebAudioDriver {
     }
 
     pause(): Promise<void> {
-        return this._mutex.runExclusive(() => this._context.suspend());
+        return this._mutex.runExclusive(
+            () =>
+                new Promise(resolve => {
+                    this._context.suspend().then(resolve, resolve);
+                    setTimeout(resolve, 200);
+                })
+        );
     }
 
     resume(): Promise<void> {
-        return this._mutex.runExclusive(() => this._context.resume());
+        return this._mutex.runExclusive(
+            () =>
+                new Promise(resolve => {
+                    this._context.resume().then(resolve, resolve);
+                    setTimeout(resolve, 200);
+                })
+        );
     }
 
     close(): void {
