@@ -159,7 +159,7 @@ export default class GamepadDriver {
         for (let i = 0; i < gamepads.length; i++) {
             const gamepad = gamepads[i];
 
-            if (!gamepad || gamepad.mapping !== 'standard') {
+            if (!gamepad) {
                 continue;
             }
 
@@ -207,19 +207,19 @@ export default class GamepadDriver {
             joystick[button].toggle(this._readState(mapping, gamepad));
         }
 
-        if (gamepad.axes[0] < -0.5 || gamepad.axes[1] < -0.5) {
+        if (gamepad.axes[0] < -0.5 || gamepad.axes[2] < -0.5) {
             joystick[MappingButton.left].toggle(true);
         }
 
-        if (gamepad.axes[0] > 0.5 || gamepad.axes[1] > 0.5) {
+        if (gamepad.axes[0] > 0.5 || gamepad.axes[2] > 0.5) {
             joystick[MappingButton.right].toggle(true);
         }
 
-        if (gamepad.axes[2] < -0.5 || gamepad.axes[3] < -0.5) {
+        if (gamepad.axes[1] < -0.5 || gamepad.axes[3] < -0.5) {
             joystick[MappingButton.up].toggle(true);
         }
 
-        if (gamepad.axes[2] > 0.5 || gamepad.axes[3] > 0.5) {
+        if (gamepad.axes[1] > 0.5 || gamepad.axes[3] > 0.5) {
             joystick[MappingButton.down].toggle(true);
         }
     }
@@ -276,7 +276,7 @@ export default class GamepadDriver {
         const gamepads = navigator.getGamepads();
 
         for (let i = 0; i < gamepads.length; i++) {
-            if (gamepads[i] && gamepads[i].mapping === 'standard') {
+            if (gamepads[i]) {
                 cnt++;
             }
         }
