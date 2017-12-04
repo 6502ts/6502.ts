@@ -182,7 +182,9 @@ export default class GamepadDriver {
         let state = false;
 
         for (let i = 0; i < mapping.length; i++) {
-            state = state || gamepad.buttons[mapping[i]].pressed;
+            const button: GamepadButton | number = gamepad.buttons[mapping[i]];
+
+            state = state || (typeof button === 'object' ? button.pressed : button >= 0.5);
         }
 
         return state;
