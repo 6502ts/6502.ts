@@ -27,16 +27,16 @@ import SwitchInterface from '../../machine/io/SwitchInterface';
 const MIN_POLL_INTERVAL = 50;
 
 const enum MappingButton {
-    left = 1,
-    right = 2,
-    up = 3,
-    down = 4,
-    fire = 5,
-    start = 6,
-    select = 7
+    left = 'left',
+    right = 'right',
+    up = 'up',
+    down = 'down',
+    fire = 'fire',
+    start = 'start',
+    select = 'select'
 }
 
-const standardMappings: { [button: number]: Array<number> } = {
+const standardMappings: { [button: string]: Array<number> } = {
     [MappingButton.up]: [12],
     [MappingButton.down]: [13],
     [MappingButton.left]: [14],
@@ -77,36 +77,18 @@ export default class GamepadDriver {
             return;
         }
 
-        this._joysticks = joysticks;
+        this._joysticks = joysticks || [];
         this._start = start;
         this._select = select;
         this._bound = true;
 
-        this._joysticksShadow = null;
-        this._startShadow = null;
-        this._selectShadow = null;
+        this._joysticksShadow = this._joysticks.map(x => createShadowJoystick());
+        this._startShadow = this._start ? new ShadowSwitch() : null;
+        this._selectShadow = this._select ? new ShadowSwitch() : null;
 
-        if (this._joysticks) {
-            this._joysticksShadow = new Array<ShadowJoystick>(this._joysticks.length);
-
-            for (let i = 0; i < this._joysticks.length; i++) {
-                const joystick = this._joysticks[i];
-
-                joystick.getLeft().beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
-
-                this._joysticksShadow[i] = createShadowJoystick();
-            }
-        }
-
-        if (this._select) {
-            this._select.beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
-            this._selectShadow = new ShadowSwitch();
-        }
-
-        if (this._start) {
-            this._start.beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this);
-            this._startShadow = new ShadowSwitch();
-        }
+        this._controlledSwitches().forEach(swtch =>
+            swtch.beforeRead.addHandler(GamepadDriver._onBeforeSwitchRead, this)
+        );
 
         this._initShadows();
     }
@@ -116,21 +98,9 @@ export default class GamepadDriver {
             return;
         }
 
-        if (this._joysticks) {
-            for (let i = 0; i < this._joysticks.length; i++) {
-                const joystick = this._joysticks[i];
-
-                joystick.getLeft().beforeRead.removeHandler(GamepadDriver._onBeforeSwitchRead, this);
-            }
-        }
-
-        if (this._select) {
-            this._select.beforeRead.removeHandler(GamepadDriver._onBeforeSwitchRead, this);
-        }
-
-        if (this._start) {
-            this._start.beforeRead.removeHandler(GamepadDriver._onBeforeSwitchRead, this);
-        }
+        this._controlledSwitches().forEach(swtch =>
+            swtch.beforeRead.removeHandler(GamepadDriver._onBeforeSwitchRead, this)
+        );
 
         this._joysticks = this._start = this._select = null;
         this._bound = false;
@@ -184,6 +154,30 @@ export default class GamepadDriver {
         self._syncShadows();
     }
 
+    private _controlledSwitches(): Array<SwitchInterface> {
+        const switches: Array<SwitchInterface> = [];
+
+        for (const joystick of this._joysticks) {
+            switches.push(
+                joystick.getLeft(),
+                joystick.getRight(),
+                joystick.getUp(),
+                joystick.getDown(),
+                joystick.getFire()
+            );
+        }
+
+        if (this._select) {
+            switches.push(this._select);
+        }
+
+        if (this._start) {
+            switches.push(this._start);
+        }
+
+        return switches;
+    }
+
     private _readState(mapping: Array<number>, gamepad: Gamepad): boolean {
         let state = false;
 
@@ -201,11 +195,11 @@ export default class GamepadDriver {
 
         const joystick = this._joysticksShadow[joystickIndex];
 
-        for (let button = 1; button <= 5; button++) {
-            const mapping = standardMappings[button];
-
-            joystick[button].toggle(this._readState(mapping, gamepad));
-        }
+        joystick[MappingButton.left].toggle(this._readState(standardMappings[MappingButton.left], gamepad));
+        joystick[MappingButton.right].toggle(this._readState(standardMappings[MappingButton.right], gamepad));
+        joystick[MappingButton.up].toggle(this._readState(standardMappings[MappingButton.up], gamepad));
+        joystick[MappingButton.down].toggle(this._readState(standardMappings[MappingButton.down], gamepad));
+        joystick[MappingButton.fire].toggle(this._readState(standardMappings[MappingButton.fire], gamepad));
 
         if (gamepad.axes[0] < -0.5 || gamepad.axes[2] < -0.5) {
             joystick[MappingButton.left].toggle(true);
@@ -332,7 +326,7 @@ class ShadowSwitch {
 }
 
 interface ShadowJoystick {
-    [button: number]: ShadowSwitch;
+    [button: string]: ShadowSwitch;
 }
 
 function createShadowJoystick(): ShadowJoystick {
