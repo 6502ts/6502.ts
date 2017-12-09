@@ -18,6 +18,7 @@
  *   with this program; if not, write to the Free Software Foundation, Inc.,
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+import { Mutex } from 'async-mutex';
 
 import EmulationServiceInterface from '../../stella/service/EmulationServiceInterface';
 import EmulationService from '../../stella/service/worker/EmulationService';
@@ -30,6 +31,7 @@ import WebglVideo from '../../driver/webgl/WebglVideo';
 import AudioDriver from '../../stella/driver/WebAudio';
 import KeyboardIO from '../../stella/driver/KeyboardIO';
 import Paddle from '../../driver/MouseAsPaddle';
+import Gamepad from '../../driver/Gamepad';
 import FullscreenDriver from '../../driver/FullscreenVideo';
 
 import CartridgeInfo from '../../../machine/stella/cartridge/CartridgeInfo';
@@ -49,6 +51,8 @@ class Stellerator {
             keyboardTarget: document,
             fullscreenViaKeyboard: true,
             paddleViaMouse: true,
+            pauseViaKeyboard: true,
+            enableGamepad: true,
 
             ...config
         };
@@ -121,42 +125,56 @@ class Stellerator {
         return this._audioDriver ? this._audioDriver.getMasterVolume() : 0;
     }
 
-    async start(
+    getState(): Stellerator.State {
+        return this._state;
+    }
+
+    start(
         cartridge: ArrayLike<number> | string,
         cartidgeType: CartridgeInfo.CartridgeType,
         config: Stellerator.CartridgeConfig
     ): Promise<Stellerator.State> {
-        if (typeof cartridge === 'string') {
-            cartridge = decodeBase64(cartridge);
-        }
+        return this._mutex.runExclusive(async () => {
+            if (typeof cartridge === 'string') {
+                cartridge = decodeBase64(cartridge);
+            }
 
-        const stellaConfig = StellaConfig.create();
+            const stellaConfig = StellaConfig.create();
 
-        if (typeof config.randomSeed !== 'undefined' && config.randomSeed > 0) {
-            stellaConfig.randomSeed = config.randomSeed;
-        }
+            if (typeof config.randomSeed !== 'undefined' && config.randomSeed > 0) {
+                stellaConfig.randomSeed = config.randomSeed;
+            }
 
-        if (typeof config.emulatePaddles !== 'undefined') {
-            stellaConfig.emulatePaddles = config.emulatePaddles;
-        }
+            if (typeof config.emulatePaddles !== 'undefined') {
+                stellaConfig.emulatePaddles = config.emulatePaddles;
+            }
 
-        if (typeof config.frameStart !== 'undefined') {
-            stellaConfig.frameStart = config.frameStart;
-        }
+            if (typeof config.frameStart !== 'undefined') {
+                stellaConfig.frameStart = config.frameStart;
+            }
 
-        return this._mapState(await this._emulationService.start(cartridge, stellaConfig, config.cartridgeType));
+            return (this._state = this._mapState(
+                await this._emulationService.start(cartridge, stellaConfig, config.cartridgeType)
+            ));
+        });
     }
 
-    async pause(): Promise<Stellerator.State> {
-        return this._mapState(await this._emulationService.pause());
+    pause(): Promise<Stellerator.State> {
+        return this._mutex.runExclusive(
+            async () => (this._state = this._mapState(await this._emulationService.pause()))
+        );
     }
 
-    async resume(): Promise<Stellerator.State> {
-        return this._mapState(await this._emulationService.resume());
+    resume(): Promise<Stellerator.State> {
+        return this._mutex.runExclusive(
+            async () => (this._state = this._mapState(await this._emulationService.resume()))
+        );
     }
 
-    async stop(): Promise<Stellerator.State> {
-        return this._mapState(await this._emulationService.stop());
+    stop(): Promise<Stellerator.State> {
+        return this._mutex.runExclusive(
+            async () => (this._state = this._mapState(await this._emulationService.stop()))
+        );
     }
 
     lastError(): Error {
@@ -203,6 +221,32 @@ class Stellerator {
             if (this._config.fullscreenViaKeyboard) {
                 this._keyboardIO.toggleFullscreen.addHandler(() => this._fullscreenVideo.toggle());
             }
+
+            if (this._config.pauseViaKeyboard) {
+                this._keyboardIO.togglePause.addHandler(() => {
+                    switch (this._emulationService.getState()) {
+                        case EmulationServiceInterface.State.paused:
+                            this.resume();
+                            break;
+
+                        case EmulationServiceInterface.State.running:
+                            this.pause();
+                            break;
+                    }
+                });
+            }
+        }
+
+        if (this._config.enableGamepad) {
+            this._gamepad = new Gamepad();
+
+            this._driverManager.addDriver(this._gamepad, context =>
+                this._gamepad.bind({
+                    joysticks: [context.getJoystick(0), context.getJoystick(1)],
+                    start: context.getControlPanel().getResetButton(),
+                    select: context.getControlPanel().getSelectSwitch()
+                })
+            );
         }
 
         if (this._config.paddleViaMouse) {
@@ -240,8 +284,13 @@ class Stellerator {
     private _audioDriver: AudioDriver = null;
     private _keyboardIO: KeyboardIO = null;
     private _paddle: Paddle = null;
+    private _gamepad: Gamepad = null;
+
+    private _state = Stellerator.State.stopped;
 
     private _driverManager = new DriverManager();
+
+    private _mutex = new Mutex();
 }
 
 namespace Stellerator {
@@ -256,7 +305,10 @@ namespace Stellerator {
         enableKeyboard: boolean;
         keyboardTarget: HTMLElement | HTMLDocument;
         fullscreenViaKeyboard: boolean;
+        pauseViaKeyboard: boolean;
         paddleViaMouse: boolean;
+
+        enableGamepad: boolean;
     }
 
     export enum TvMode {
