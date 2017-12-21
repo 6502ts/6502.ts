@@ -38,6 +38,7 @@ import CartridgeSupercharger from './CartridgeSupercharger';
 import CartridgeDPC from './CartridgeDPC';
 import CartridgeDPCPlus from './CartridgeDPCPlus';
 import CartdridgeCDF from './CartridgeCDF';
+import Cartidge8040 from './Cartridge0840';
 
 import CartridgeInfo from './CartridgeInfo';
 import CartridgeDetector from './CartridgeDetector';
@@ -89,6 +90,9 @@ export default class CartridgeFactory {
 
             case CartridgeInfo.CartridgeType.bankswitch_8k_DPC:
                 return new CartridgeDPC(buffer);
+
+            case CartridgeInfo.CartridgeType.bankswitch_8k_econobanking:
+                return new Cartidge8040(buffer);
 
             case CartridgeInfo.CartridgeType.bankswitch_12k_FA:
                 return new CartridgeFA(buffer);

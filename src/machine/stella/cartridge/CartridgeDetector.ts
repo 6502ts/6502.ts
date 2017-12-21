@@ -31,6 +31,7 @@ import CartridgeFA2 from './CartridgeFA2';
 import CartridgeEF from './CartridgeEF';
 import CartridgeDPCPlus from './CartridgeDPCPlus';
 import CartridgeCDF from './CartridgeCDF';
+import Cartridge8040 from './Cartridge0840';
 import * as cartridgeUtil from './util';
 
 class CartridgeDetector {
@@ -94,6 +95,10 @@ class CartridgeDetector {
 
         if (!f8Matches && CartridgeFE.matchesBuffer(buffer)) {
             return CartridgeInfo.CartridgeType.bankswitch_8k_FE;
+        }
+
+        if (Cartridge8040.matchesBuffer(buffer)) {
+            return CartridgeInfo.CartridgeType.bankswitch_8k_econobanking;
         }
 
         return CartridgeInfo.CartridgeType.bankswitch_8k_F8;

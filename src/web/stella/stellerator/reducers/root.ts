@@ -108,9 +108,9 @@ function registerNewCartridge(state: State, a: RegisterNewCartridgeAction): Stat
 
     let tvMode: StellaConfig.TvMode;
 
-    if (name.match(/\Wpal\W/i)) {
+    if (name.match(/[\W\-_]pal\d*[\W\-_]/i)) {
         tvMode = StellaConfig.TvMode.pal;
-    } else if (name.match(/\Wsecam\W/i)) {
+    } else if (name.match(/[\W\-_]secam\d*[\W\-_]/i)) {
         tvMode = StellaConfig.TvMode.secam;
     } else {
         tvMode = StellaConfig.TvMode.ntsc;

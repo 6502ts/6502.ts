@@ -30,6 +30,7 @@ namespace CartridgeInfo {
         bankswitch_8k_FE = 'bankswitch_8k_FE',
         bankswitch_8k_UA = 'bankswitch_8k_UA',
         bankswitch_8k_DPC = 'bankswitch_8k_DPC',
+        bankswitch_8k_econobanking = 'bankswitch_8k_econobanking',
 
         bankswitch_12k_FA = 'bankswitch_12k_FA',
 
@@ -60,6 +61,7 @@ namespace CartridgeInfo {
             CartridgeType.bankswitch_8k_3F,
             CartridgeType.bankswitch_8k_FE,
             CartridgeType.bankswitch_8k_UA,
+            CartridgeType.bankswitch_8k_econobanking,
             CartridgeType.bankswitch_12k_FA,
             CartridgeType.bankswitch_8k_DPC,
             CartridgeType.bankswitch_16k_F6,
@@ -104,6 +106,9 @@ namespace CartridgeInfo {
 
             case CartridgeType.bankswitch_8k_DPC:
                 return 'bankswitched 8k + DPC';
+
+            case CartridgeType.bankswitch_8k_econobanking:
+                return 'bankswitched 8k, econobanking scheme';
 
             case CartridgeType.bankswitch_16k_F6:
                 return 'bankswitched 16k, F6 (Atari) scheme';

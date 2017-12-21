@@ -73,7 +73,7 @@ class CartridgeManager implements CartridgeManagerInterface {
                 reader.readAsArrayBuffer(action.file);
             });
 
-        if (action.file.name.match(/\.zip$/)) {
+        if (action.file.name.match(/\.zip$/i)) {
             return this._handleZipfile(action.file.name, fileContent);
         } else {
             return this._handleCartridge(action.file.name, fileContent);
@@ -100,7 +100,7 @@ class CartridgeManager implements CartridgeManagerInterface {
         try {
             await zipfile.loadAsync(content);
 
-            const files = zipfile.file(/\.(bin|a26)$/);
+            const files = zipfile.file(/\.(bin|a26)$/i);
 
             if (files.length === 0) {
                 this._store.dispatch(setZipfileError('No ROM images in ZIP file.'));
