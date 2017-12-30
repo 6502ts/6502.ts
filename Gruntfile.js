@@ -41,6 +41,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-postcss');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-exec');
+    grunt.loadNpmTasks('grunt-typedoc');
 
     grunt.loadTasks('./grunt');
 
@@ -73,7 +74,8 @@ module.exports = function(grunt) {
                 'tests/fixtures/fs_provider/blob.json',
                 'web/stellerator.html',
                 'build',
-                'compiled'
+                'compiled',
+                'typedoc'
             ],
             mrproper: ['web/js/installed', 'web/css/installed']
         },
@@ -364,6 +366,24 @@ module.exports = function(grunt) {
                         'node_modules/jquery.terminal/js/jquery.mousewheel-min.js',
                     'web/css/installed/jquery.terminal.min.css': 'node_modules/jquery.terminal/css/jquery.terminal.css'
                 }
+            }
+        },
+
+        typedoc: {
+            stellerator_embedded: {
+                options: {
+                    module: 'commonjs',
+                    out: 'typedoc/stellerator-embedded',
+                    name: 'Stellerator embedded',
+                    target: 'es5',
+                    theme: 'minimal',
+                    excludePrivate: true,
+                    excludeExternals: true,
+                    mode: 'modules',
+                    readme: 'doc/stellerator_embedded.md',
+                    exclude: '**/+(index.ts|ControlPanelProxy.ts|SwitchProxy.ts)'
+                },
+                src: ['src/web/embedded/stellerator']
             }
         },
 
