@@ -2,7 +2,7 @@
  *   This file is part of 6502.ts, an emulator for 6502 based systems built
  *   in Typescript.
  *
- *   Copyright (C) 2014 - 2017 Christian Speckner & contributors
+ *   Copyright (C) 2014 - 2018 Christian Speckner & contributors
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  *   with this program; if not, write to the Free Software Foundation, Inc.,
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 import { Mutex } from 'async-mutex';
 import { EventInterface as Event, Event as EventImplementation } from 'microevent.ts';
 
