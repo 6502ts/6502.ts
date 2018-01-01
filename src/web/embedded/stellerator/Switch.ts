@@ -50,4 +50,4 @@ interface Switch {
     stateChange: Event<boolean>;
 }
 
-export default Switch;
+export { Switch as default };

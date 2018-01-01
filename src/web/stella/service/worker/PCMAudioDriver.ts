@@ -137,4 +137,4 @@ class PCMAudioDriver {
     private _signalTogglePause = '';
 }
 
-export default PCMAudioDriver;
+export { PCMAudioDriver as default };

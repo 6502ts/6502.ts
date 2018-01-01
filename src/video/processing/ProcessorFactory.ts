@@ -40,4 +40,4 @@ class ProcessorFactory {
     }
 }
 
-export default ProcessorFactory;
+export { ProcessorFactory as default };

@@ -44,4 +44,4 @@ interface Changeset {
     pendingLoadName?: string;
 }
 
-export default GuiState;
+export { GuiState as default };

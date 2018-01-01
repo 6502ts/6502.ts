@@ -55,4 +55,4 @@ namespace Switch {
     };
 }
 
-export default Switch;
+export { Switch as default };

@@ -78,4 +78,4 @@ class AccessLog {
     private _entries = new Array<Entry>();
 }
 
-export default AccessLog;
+export { AccessLog as default };

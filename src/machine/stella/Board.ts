@@ -390,4 +390,4 @@ class Board implements BoardInterface {
     private _rng: RngInterface;
 }
 
-export default Board;
+export { Board as default };

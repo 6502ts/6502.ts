@@ -45,4 +45,4 @@ class ImmediateScheduler implements SchedulerInterface {
     }
 }
 
-export default ImmediateScheduler;
+export { ImmediateScheduler as default };

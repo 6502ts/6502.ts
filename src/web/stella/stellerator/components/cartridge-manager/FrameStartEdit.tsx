@@ -55,4 +55,4 @@ namespace FrameStartEdit {
     };
 }
 
-export default FrameStartEdit;
+export { FrameStartEdit as default };

@@ -87,4 +87,4 @@ class WaveformAudioDriver {
     private _audio: WaveformAudioOutputInterface = null;
 }
 
-export default WaveformAudioDriver;
+export { WaveformAudioDriver as default };

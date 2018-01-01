@@ -108,4 +108,4 @@ class CartridgeFA extends AbstractCartridge {
     private _ram = new Uint8Array(0x0100);
 }
 
-export default CartridgeFA;
+export { CartridgeFA as default };

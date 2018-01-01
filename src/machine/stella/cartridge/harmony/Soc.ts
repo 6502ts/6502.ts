@@ -300,4 +300,4 @@ namespace Soc {
     }
 }
 
-export default Soc;
+export { Soc as default };

@@ -39,4 +39,4 @@ interface Container {
     setStore(store: Store<State>): this;
 }
 
-export default Container;
+export { Container as default };

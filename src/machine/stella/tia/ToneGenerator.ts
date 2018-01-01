@@ -156,4 +156,4 @@ class ToneGenerator {
     }
 }
 
-export default ToneGenerator;
+export { ToneGenerator as default };

@@ -27,4 +27,4 @@ interface PersistenceProvider {
     getMiddleware(): Middleware;
 }
 
-export default PersistenceProvider;
+export { PersistenceProvider as default };

@@ -63,4 +63,4 @@ const SettingsContainer = connect(mapStateToProps, {
     onChangeAudioDriver: changeAudioDriver
 })(SettingsComponent as any);
 
-export default SettingsContainer;
+export { SettingsContainer as default };

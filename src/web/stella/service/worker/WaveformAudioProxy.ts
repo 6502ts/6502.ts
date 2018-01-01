@@ -97,4 +97,4 @@ class WaveformAudioProxy implements WaveformAudioOutputInterface {
     private _volume = 0;
 }
 
-export default WaveformAudioProxy;
+export { WaveformAudioProxy as default };

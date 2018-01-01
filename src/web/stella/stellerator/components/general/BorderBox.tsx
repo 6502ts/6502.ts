@@ -28,4 +28,4 @@ const BorderBox = styled.div`
 `;
 BorderBox.displayName = 'BorderBox';
 
-export default BorderBox;
+export { BorderBox as default };

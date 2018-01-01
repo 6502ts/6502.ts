@@ -76,4 +76,4 @@ class PCMAudioEndpoint implements PCMAudioEndpointInterface {
     );
 }
 
-export default PCMAudioEndpoint;
+export { PCMAudioEndpoint as default };

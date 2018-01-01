@@ -75,4 +75,4 @@ class SwitchProxy implements Switch {
     private _boundSwitch: SwitchIO = null;
 }
 
-export default SwitchProxy;
+export { SwitchProxy as default };

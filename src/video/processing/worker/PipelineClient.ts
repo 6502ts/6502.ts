@@ -108,4 +108,4 @@ class PipelineClient {
     private _surfaces = new Map<number, PoolMemberInterface<ArrayBufferSurface>>();
 }
 
-export default PipelineClient;
+export { PipelineClient as default };

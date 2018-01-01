@@ -529,4 +529,4 @@ class MusicFetcher {
     waveform = 0;
 }
 
-export default CartridgeDPCPlus;
+export { CartridgeDPCPlus as default };

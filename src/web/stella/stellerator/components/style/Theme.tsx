@@ -21,4 +21,4 @@
 
 interface Theme {}
 
-export default Theme;
+export { Theme as default };

@@ -104,4 +104,4 @@ namespace WebAudioDriver {
     export type Channels = Array<WaveformAudioOutputInterface> | Array<PCMAudioEndpointInterface>;
 }
 
-export default WebAudioDriver;
+export { WebAudioDriver as default };

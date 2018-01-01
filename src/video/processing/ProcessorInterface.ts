@@ -34,4 +34,4 @@ interface ProcessorInterface {
     emit: EventInterface<PoolMemberInterface<RGBASurfaceInterface>>;
 }
 
-export default ProcessorInterface;
+export { ProcessorInterface as default };

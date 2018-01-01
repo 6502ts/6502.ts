@@ -85,4 +85,4 @@ namespace Slider {
     };
 }
 
-export default Slider;
+export { Slider as default };

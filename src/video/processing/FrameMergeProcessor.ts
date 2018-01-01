@@ -83,4 +83,4 @@ class FrameMergeProcessor implements ProcessorInterface {
     private _height = 0;
 }
 
-export default FrameMergeProcessor;
+export { FrameMergeProcessor as default };

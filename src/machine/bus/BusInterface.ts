@@ -31,4 +31,4 @@ interface BusInterface {
     poke(address: number, value: number): void;
 }
 
-export default BusInterface;
+export { BusInterface as default };

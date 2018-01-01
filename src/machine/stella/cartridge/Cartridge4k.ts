@@ -50,4 +50,4 @@ class Cartridge4k extends AbstractCartridge {
     protected _rom = new Uint8Array(0x1000);
 }
 
-export default Cartridge4k;
+export { Cartridge4k as default };

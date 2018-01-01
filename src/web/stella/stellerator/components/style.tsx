@@ -42,4 +42,4 @@ const {
 
 export { styled, css, injectGlobal, keyframes, ThemeProvider };
 
-export default styled;
+export { styled as default };

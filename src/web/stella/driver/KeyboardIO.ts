@@ -332,4 +332,4 @@ namespace KeyboardIO {
     ];
 }
 
-export default KeyboardIO;
+export { KeyboardIO as default };

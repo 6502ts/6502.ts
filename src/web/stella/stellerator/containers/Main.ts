@@ -36,4 +36,4 @@ function mapStateToProps(state: State): Props {
 
 const Navbar = connect(mapStateToProps, {}, undefined, { pure: false })(MainComponent as any);
 
-export default Navbar;
+export { Navbar as default };

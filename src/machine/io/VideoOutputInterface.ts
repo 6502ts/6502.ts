@@ -39,4 +39,4 @@ namespace VideoOutputInterface {
     }
 }
 
-export default VideoOutputInterface;
+export { VideoOutputInterface as default };

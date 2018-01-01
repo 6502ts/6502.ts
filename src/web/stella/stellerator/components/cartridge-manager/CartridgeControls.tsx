@@ -82,4 +82,4 @@ const CartridgeControlsStyled = styled(CartridgeControlsUnstyled)`
     }
 `;
 
-export default CartridgeControlsStyled;
+export { CartridgeControlsStyled as default };

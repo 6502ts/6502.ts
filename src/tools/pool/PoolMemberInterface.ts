@@ -29,4 +29,4 @@ interface PoolMemberInterface<T> {
     dispose(): void;
 }
 
-export default PoolMemberInterface;
+export { PoolMemberInterface as default };

@@ -107,4 +107,4 @@ namespace Pool {
     }
 }
 
-export default Pool;
+export { Pool as default };

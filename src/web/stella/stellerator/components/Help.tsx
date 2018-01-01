@@ -53,4 +53,4 @@ namespace Help {
     };
 }
 
-export default Help;
+export { Help as default };

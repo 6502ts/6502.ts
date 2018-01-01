@@ -116,4 +116,4 @@ class CartridgeE0 extends AbstractCartridge {
     private _activeBanks = new Array<Uint8Array>(4);
 }
 
-export default CartridgeE0;
+export { CartridgeE0 as default };

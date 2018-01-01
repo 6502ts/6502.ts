@@ -74,4 +74,4 @@ namespace OptionalValueInput {
     };
 }
 
-export default OptionalValueInput;
+export { OptionalValueInput as default };

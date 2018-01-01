@@ -24,4 +24,4 @@ const getTimestamp =
         ? () => (self as any).performance.now()
         : () => Date.now();
 
-export default getTimestamp;
+export { getTimestamp as default };

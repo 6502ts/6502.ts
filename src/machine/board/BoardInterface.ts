@@ -73,4 +73,4 @@ namespace BoardInterface {
     }
 }
 
-export default BoardInterface;
+export { BoardInterface as default };

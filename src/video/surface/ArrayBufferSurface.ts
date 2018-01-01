@@ -82,4 +82,4 @@ class ArrayBufferSurface implements RGBASurfaceInterface {
     private _buffer: Uint32Array = null;
 }
 
-export default ArrayBufferSurface;
+export { ArrayBufferSurface as default };

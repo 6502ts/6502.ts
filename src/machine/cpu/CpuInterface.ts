@@ -81,4 +81,4 @@ namespace CpuInterface {
     }
 }
 
-export default CpuInterface;
+export { CpuInterface as default };

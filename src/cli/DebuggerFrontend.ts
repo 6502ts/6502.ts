@@ -272,4 +272,4 @@ class DebuggerFrontend {
     }
 }
 
-export default DebuggerFrontend;
+export { DebuggerFrontend as default };

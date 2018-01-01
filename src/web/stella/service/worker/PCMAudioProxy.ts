@@ -135,4 +135,4 @@ class PCMAudioProxy implements PCMAudioEndpointInterface {
     private _signalReturnFrame = '';
 }
 
-export default PCMAudioProxy;
+export { PCMAudioProxy as default };

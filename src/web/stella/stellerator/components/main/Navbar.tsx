@@ -38,4 +38,4 @@ function Navbar(props: Props) {
     );
 }
 
-export default Navbar;
+export { Navbar as default };

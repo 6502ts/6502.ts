@@ -35,4 +35,4 @@ interface WaveformAudioOutputInterface {
     stop: EventInterface<void>;
 }
 
-export default WaveformAudioOutputInterface;
+export { WaveformAudioOutputInterface as default };

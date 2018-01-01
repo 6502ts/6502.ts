@@ -160,4 +160,4 @@ class PCMAudio implements PCMAudioInterface {
     private _channel1 = new PCMChannel();
 }
 
-export default PCMAudio;
+export { PCMAudio as default };

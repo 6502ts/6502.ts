@@ -43,4 +43,4 @@ namespace PCMAudioOutputInterface {
     }
 }
 
-export default PCMAudioOutputInterface;
+export { PCMAudioOutputInterface as default };

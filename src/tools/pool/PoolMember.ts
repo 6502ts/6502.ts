@@ -49,4 +49,4 @@ class PoolMember<T> implements PoolMemberInterface<T> {
     public _poolPosition: number;
 }
 
-export default PoolMember;
+export { PoolMember as default };

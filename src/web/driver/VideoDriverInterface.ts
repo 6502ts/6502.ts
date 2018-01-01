@@ -43,4 +43,4 @@ interface VideoDriverInterface {
     bind(video: VideoEndpointInterface): this;
 }
 
-export default VideoDriverInterface;
+export { VideoDriverInterface as default };

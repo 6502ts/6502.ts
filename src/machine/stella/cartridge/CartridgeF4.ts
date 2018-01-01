@@ -112,4 +112,4 @@ class CartridgeF4 extends AbstractCartridge {
     private _hasSC = false;
 }
 
-export default CartridgeF4;
+export { CartridgeF4 as default };

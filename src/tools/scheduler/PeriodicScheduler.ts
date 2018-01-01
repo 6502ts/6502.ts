@@ -56,4 +56,4 @@ class PeriodicScheduler implements SchedulerInterface {
     }
 }
 
-export default PeriodicScheduler;
+export { PeriodicScheduler as default };

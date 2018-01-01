@@ -60,4 +60,4 @@ namespace Config {
     }
 }
 
-export default Config;
+export { Config as default };

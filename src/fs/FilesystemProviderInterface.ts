@@ -49,4 +49,4 @@ namespace FileSystemProviderInterface {
     }
 }
 
-export default FileSystemProviderInterface;
+export { FileSystemProviderInterface as default };

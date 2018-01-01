@@ -66,4 +66,4 @@ class Header {
     blockChecksum: Uint8Array = null;
 }
 
-export default Header;
+export { Header as default };

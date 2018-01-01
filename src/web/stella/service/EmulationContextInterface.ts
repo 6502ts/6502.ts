@@ -43,4 +43,4 @@ interface EmulationContextInterface {
     getPCMChannel(): PCMAudioEndpointInterface;
 }
 
-export default EmulationContextInterface;
+export { EmulationContextInterface as default };

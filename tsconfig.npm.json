@@ -1,0 +1,15 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "declaration": true,
+        "outDir": "lib"
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "src/cli/**/*",
+        "src/web/*CLI.ts",
+        "src/web/stella/stellerator/**/*"
+    ]
+}

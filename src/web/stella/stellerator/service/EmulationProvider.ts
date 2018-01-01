@@ -31,4 +31,4 @@ interface EmulationProvider {
     init(workerUrl?: string): Promise<void>;
 }
 
-export default EmulationProvider;
+export { EmulationProvider as default };

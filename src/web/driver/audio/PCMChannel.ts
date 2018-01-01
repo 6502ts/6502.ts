@@ -186,4 +186,4 @@ class PCMChannel implements ChannelInterface {
     private _resampler: ResamplerInterface = new LinearReasmpler();
 }
 
-export default PCMChannel;
+export { PCMChannel as default };

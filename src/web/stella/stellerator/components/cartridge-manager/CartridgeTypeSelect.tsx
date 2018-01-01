@@ -66,4 +66,4 @@ namespace CartridgeTypeSelect {
     };
 }
 
-export default CartridgeTypeSelect;
+export { CartridgeTypeSelect as default };

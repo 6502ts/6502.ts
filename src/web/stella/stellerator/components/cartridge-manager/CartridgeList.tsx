@@ -91,4 +91,4 @@ const CartridgeListStyled: CartridgeListStyled = styled(CartridgeListUnstyled)`
     margin-bottom: 1.5rem;
 `;
 
-export default CartridgeListStyled;
+export { CartridgeListStyled as default };

@@ -89,4 +89,4 @@ class CotrolPanelManagementProvider {
     };
 }
 
-export default CotrolPanelManagementProvider;
+export { CotrolPanelManagementProvider as default };

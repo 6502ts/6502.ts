@@ -168,4 +168,4 @@ class Cartridge3E extends AbstractCartridge {
     private _bus: Bus = null;
 }
 
-export default Cartridge3E;
+export { Cartridge3E as default };

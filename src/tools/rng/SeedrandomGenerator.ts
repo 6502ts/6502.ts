@@ -21,7 +21,7 @@
 
 import GeneratorInterface from './GeneratorInterface';
 
-interface SeedrandomPrng {
+export interface SeedrandomPrng {
     quick(): number;
     int32(): number;
     double(): number;
@@ -52,4 +52,4 @@ class SeedrandomGenerator implements GeneratorInterface {
     }
 }
 
-export default SeedrandomGenerator;
+export { SeedrandomGenerator as default };

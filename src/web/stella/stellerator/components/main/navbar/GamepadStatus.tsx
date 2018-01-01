@@ -37,4 +37,4 @@ const GamepadStatusStyled: GamepadStatusStyled = styled(GamepadStatusUnstyled)`
     display: ${props => (props.gamepadCount > 0 ? 'inline' : 'none')};
 `;
 
-export default GamepadStatusStyled;
+export { GamepadStatusStyled as default };

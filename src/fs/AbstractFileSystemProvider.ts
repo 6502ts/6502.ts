@@ -58,4 +58,4 @@ abstract class AbstractFileSystemProvider {
     protected _cwd = '/';
 }
 
-export default AbstractFileSystemProvider;
+export { AbstractFileSystemProvider as default };

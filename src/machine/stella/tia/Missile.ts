@@ -218,4 +218,4 @@ class Missile {
     private _widths = new Uint8Array([1, 2, 4, 8]);
 }
 
-export default Missile;
+export { Missile as default };

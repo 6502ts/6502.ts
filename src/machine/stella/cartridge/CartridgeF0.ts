@@ -85,4 +85,4 @@ class CartridgeF0 extends AbstractCartridge {
     private _bankIdx = 0;
 }
 
-export default CartridgeF0;
+export { CartridgeF0 as default };

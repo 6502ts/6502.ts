@@ -79,4 +79,4 @@ class PersistenceProvider implements PersistenceProviderInterface {
     private _store: Store<State>;
 }
 
-export default PersistenceProvider;
+export { PersistenceProvider as default };

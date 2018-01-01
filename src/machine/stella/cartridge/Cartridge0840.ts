@@ -107,4 +107,4 @@ class Cartridge8040 extends AbstractCartridge {
     private _bus: Bus = null;
 }
 
-export default Cartridge8040;
+export { Cartridge8040 as default };

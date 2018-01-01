@@ -98,4 +98,4 @@ class ControlProxy {
     private _controlPanel = new ControlPanel();
 }
 
-export default ControlProxy;
+export { ControlProxy as default };

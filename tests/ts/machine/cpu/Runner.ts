@@ -219,4 +219,4 @@ namespace Runner {
     }
 }
 
-export default Runner;
+export { Runner as default };

@@ -31,4 +31,4 @@ interface VideoEndpointInterface {
     newFrame: EventInterface<PoolMemberInterface<ImageData>>;
 }
 
-export default VideoEndpointInterface;
+export { VideoEndpointInterface as default };

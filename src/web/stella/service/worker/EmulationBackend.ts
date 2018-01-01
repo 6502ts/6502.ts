@@ -124,4 +124,4 @@ class EmulationBackend {
     private _videoDriver: VideoDriver = null;
 }
 
-export default EmulationBackend;
+export { EmulationBackend as default };

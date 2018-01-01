@@ -52,4 +52,4 @@ interface ControlPanel {
     color(): Switch;
 }
 
-export default ControlPanel;
+export { ControlPanel as default };

@@ -116,4 +116,4 @@ namespace PrepackagedFilesystemProvider {
     }
 }
 
-export default PrepackagedFilesystemProvider;
+export { PrepackagedFilesystemProvider as default };

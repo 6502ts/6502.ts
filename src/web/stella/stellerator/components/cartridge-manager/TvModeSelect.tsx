@@ -62,4 +62,4 @@ namespace TvModeSelect {
     };
 }
 
-export default TvModeSelect;
+export { TvModeSelect as default };

@@ -153,4 +153,4 @@ class WebAudioDriver {
     private _isBound = false;
 }
 
-export default WebAudioDriver;
+export { WebAudioDriver as default };

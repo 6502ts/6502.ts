@@ -65,4 +65,4 @@ namespace CartridgeInterface {
     }
 }
 
-export default CartridgeInterface;
+export { CartridgeInterface as default };

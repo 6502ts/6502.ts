@@ -59,4 +59,4 @@ function Navigation(props: Props) {
     );
 }
 
-export default Navigation;
+export { Navigation as default };

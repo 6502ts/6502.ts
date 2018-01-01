@@ -41,4 +41,4 @@ export function Routing(props: Props) {
     );
 }
 
-export default Routing;
+export { Routing as default };

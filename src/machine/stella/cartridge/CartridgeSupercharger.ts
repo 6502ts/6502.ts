@@ -281,4 +281,4 @@ class CartridgeSupercharger extends AbstractCartridge {
     private _writeRamEnabled = false;
 }
 
-export default CartridgeSupercharger;
+export { CartridgeSupercharger as default };

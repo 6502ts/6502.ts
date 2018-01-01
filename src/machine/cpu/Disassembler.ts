@@ -101,4 +101,4 @@ class Disassembler {
     }
 }
 
-export default Disassembler;
+export { Disassembler as default };

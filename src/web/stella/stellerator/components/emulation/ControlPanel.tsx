@@ -115,4 +115,4 @@ namespace ControlPanel {
     };
 }
 
-export default ControlPanel;
+export { ControlPanel as default };

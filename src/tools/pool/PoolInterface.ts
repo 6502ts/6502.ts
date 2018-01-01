@@ -32,4 +32,4 @@ interface PoolInterface<T> {
     };
 }
 
-export default PoolInterface;
+export { PoolInterface as default };

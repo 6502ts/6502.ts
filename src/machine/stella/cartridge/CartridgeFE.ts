@@ -118,4 +118,4 @@ class CartridgeFE extends AbstractCartridge {
     private _lastAddressBusValue = -1;
 }
 
-export default CartridgeFE;
+export { CartridgeFE as default };

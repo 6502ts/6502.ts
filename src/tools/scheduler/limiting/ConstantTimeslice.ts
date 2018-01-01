@@ -65,4 +65,4 @@ class ConstantTimesliceScheduler implements SchedulerInterface {
     }
 }
 
-export default ConstantTimesliceScheduler;
+export { ConstantTimesliceScheduler as default };

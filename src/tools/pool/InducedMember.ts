@@ -45,4 +45,4 @@ class InducedMember<T, U> implements PoolMemberInterface<U> {
     }
 }
 
-export default InducedMember;
+export { InducedMember as default };

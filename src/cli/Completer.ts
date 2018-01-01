@@ -95,4 +95,4 @@ namespace Completer {
     }
 }
 
-export default Completer;
+export { Completer as default };

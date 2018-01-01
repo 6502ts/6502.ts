@@ -31,4 +31,4 @@ namespace SchedulerInterface {
     }
 }
 
-export default SchedulerInterface;
+export { SchedulerInterface as default };

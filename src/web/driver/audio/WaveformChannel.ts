@@ -117,4 +117,4 @@ class WaveformChannel implements ChannelInterface {
     private _masterVolume = 1;
 }
 
-export default WaveformChannel;
+export { WaveformChannel as default };

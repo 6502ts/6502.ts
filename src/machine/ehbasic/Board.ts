@@ -43,4 +43,4 @@ class Board extends VanillaBoard {
     protected _bus: Memory;
 }
 
-export default Board;
+export { Board as default };

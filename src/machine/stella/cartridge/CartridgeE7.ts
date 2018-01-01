@@ -168,4 +168,4 @@ class CartrdigeE7 extends AbstractCartridge {
     private _ram0Enabled = false;
 }
 
-export default CartrdigeE7;
+export { CartrdigeE7 as default };

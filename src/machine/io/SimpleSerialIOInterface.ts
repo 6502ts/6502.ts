@@ -39,4 +39,4 @@ namespace SimpleSerialIOInterface {
     }
 }
 
-export default SimpleSerialIOInterface;
+export { SimpleSerialIOInterface as default };

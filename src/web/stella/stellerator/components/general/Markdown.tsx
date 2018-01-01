@@ -81,4 +81,4 @@ namespace Markdown {
     }
 }
 
-export default Markdown;
+export { Markdown as default };

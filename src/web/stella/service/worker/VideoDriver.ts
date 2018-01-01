@@ -224,4 +224,4 @@ class VideoDriver {
     private _nextId = 0;
 }
 
-export default VideoDriver;
+export { VideoDriver as default };

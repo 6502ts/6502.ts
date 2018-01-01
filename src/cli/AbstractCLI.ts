@@ -45,4 +45,4 @@ namespace AbstractCLI {
     }
 }
 
-export default AbstractCLI;
+export { AbstractCLI as default };

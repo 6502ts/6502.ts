@@ -58,4 +58,4 @@ namespace RandomSeedEdit {
     };
 }
 
-export default RandomSeedEdit;
+export { RandomSeedEdit as default };

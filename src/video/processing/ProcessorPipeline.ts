@@ -61,4 +61,4 @@ class ProcessorPipeline implements ProcessorInterface {
     private _processors: Array<ProcessorInterface>;
 }
 
-export default ProcessorPipeline;
+export { ProcessorPipeline as default };

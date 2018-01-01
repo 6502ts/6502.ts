@@ -1,25 +1,12 @@
 {
+    "extends": "../tsconfig.base.json",
     "compilerOptions": {
-        "allowJs": true,
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "noImplicitAny": true,
-        "target": "es5",
-        "preserveConstEnums": true,
-        "sourceMap": false,
-        "noUnusedLocals": true,
-        "allowUnreachableCode": true,
         "lib": [
             "es5",
             "es6",
             "webworker"
         ],
-        "types": [],
-        "noImplicitThis": true,
-        "removeComments": true,
-        "plugins": [
-            { "name": "tslint-language-service"}
-        ]
+        "types": []
     },
     "include": [
         "stella/**/*.ts",

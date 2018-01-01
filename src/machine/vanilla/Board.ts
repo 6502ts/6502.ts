@@ -195,4 +195,4 @@ class Board implements BoardInterface {
     };
 }
 
-export default Board;
+export { Board as default };

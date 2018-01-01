@@ -146,4 +146,4 @@ namespace CartridgeInfo {
     }
 }
 
-export default CartridgeInfo;
+export { CartridgeInfo as default };

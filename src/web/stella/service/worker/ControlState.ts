@@ -48,4 +48,4 @@ namespace ControlState {
     }
 }
 
-export default ControlState;
+export { ControlState as default };

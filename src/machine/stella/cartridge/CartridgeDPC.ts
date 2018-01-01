@@ -326,4 +326,4 @@ class Fetcher {
     mask = 0x00;
 }
 
-export default CartridgeDPC;
+export { CartridgeDPC as default };

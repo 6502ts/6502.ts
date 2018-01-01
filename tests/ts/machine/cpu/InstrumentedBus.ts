@@ -55,4 +55,4 @@ class InstrumentedBus implements BusInterface {
     private _memory = new Uint8Array(0x10000);
 }
 
-export default InstrumentedBus;
+export { InstrumentedBus as default };

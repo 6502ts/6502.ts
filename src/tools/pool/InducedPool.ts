@@ -41,4 +41,4 @@ class InducedPool<T, U> {
     private _map = new WeakMap<PoolMemberInterface<T>, InducedMember<T, U>>();
 }
 
-export default InducedPool;
+export { InducedPool as default };

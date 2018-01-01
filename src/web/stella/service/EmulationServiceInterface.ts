@@ -70,4 +70,4 @@ namespace EmulationServiceInterface {
     }
 }
 
-export default EmulationServiceInterface;
+export { EmulationServiceInterface as default };

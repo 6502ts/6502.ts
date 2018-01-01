@@ -68,4 +68,4 @@ const EmulationContainer = connect(mapStateToProps, {
     onEnforceRateLimitChange: (enforce: boolean) => enforceRateLimit(enforce)
 })(EmulationComponent as any);
 
-export default EmulationContainer;
+export { EmulationContainer as default };

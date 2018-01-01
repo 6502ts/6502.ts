@@ -105,4 +105,4 @@ class Memory extends VanillaMemory implements SimpleSerialIOInterface {
     private _feedbackRegister = 0;
 }
 
-export default Memory;
+export { Memory as default };

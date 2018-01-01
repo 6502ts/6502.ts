@@ -80,4 +80,4 @@ class RingBuffer<T> {
     private _buffer: Array<T>;
 }
 
-export default RingBuffer;
+export { RingBuffer as default };

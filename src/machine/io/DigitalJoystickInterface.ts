@@ -30,4 +30,4 @@ interface DigitalJoystickInterface {
     getFire(): SwitchInterface;
 }
 
-export default DigitalJoystickInterface;
+export { DigitalJoystickInterface as default };

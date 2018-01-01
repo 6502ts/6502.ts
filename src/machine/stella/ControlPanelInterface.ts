@@ -29,4 +29,4 @@ interface ControlPanelInterface {
     getDifficultySwitchP1(): SwitchInterface;
 }
 
-export default ControlPanelInterface;
+export { ControlPanelInterface as default };

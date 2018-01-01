@@ -85,4 +85,4 @@ namespace Factory {
     }
 }
 
-export default Factory;
+export { Factory as default };

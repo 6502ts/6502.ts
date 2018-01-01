@@ -31,4 +31,4 @@ interface AudioInterface {
     setActive(active: boolean): void;
 }
 
-export default AudioInterface;
+export { AudioInterface as default };

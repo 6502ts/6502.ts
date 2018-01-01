@@ -94,4 +94,4 @@ class ControlDriver {
     private _emulationContext: EmulationContextInterface = null;
 }
 
-export default ControlDriver;
+export { ControlDriver as default };

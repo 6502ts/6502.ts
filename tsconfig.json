@@ -1,36 +1,12 @@
 {
+    "extends": "./tsconfig.base.json",
     "compilerOptions": {
-        "allowJs": true,
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "noImplicitAny": true,
-        "noUnusedLocals": true,
-        "target": "es5",
-        "sourceMap": true,
-        "jsx": "react",
-        "allowUnreachableCode": true,
-        "downlevelIteration": true,
-        "importHelpers": true,
-        "lib": [
-            "dom",
-            "es5",
-            "es6"
-        ],
-        "noImplicitThis": true,
-        "removeComments": true,
-        "outDir": "compiled",
-        "plugins": [
-            { "name": "tslint-language-service"}
-        ]
+        "outDir": "compiled"
     },
     "include": [
         "bin/*.ts",
         "src/**/*.ts",
-        "src/**/*.js",
         "tests/**/*.ts",
         "src/web/stella/stellerator/**/*.tsx"
-    ],
-    "exclude": [
-        "node_modules"
     ]
 }

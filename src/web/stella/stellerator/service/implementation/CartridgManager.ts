@@ -218,4 +218,4 @@ class CartridgeManager implements CartridgeManagerInterface {
     private _store: Store<State>;
 }
 
-export default CartridgeManager;
+export { CartridgeManager as default };

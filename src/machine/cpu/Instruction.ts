@@ -217,7 +217,7 @@ namespace Instruction {
     export const opcodes = new Array<Instruction>(256);
 }
 
-export default Instruction;
+export { Instruction as default };
 
 // Opcodes init
 

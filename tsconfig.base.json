@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "target": "es5",
+        "sourceMap": true,
+        "jsx": "react",
+        "allowUnreachableCode": true,
+        "downlevelIteration": true,
+        "importHelpers": true,
+        "lib": [
+            "dom",
+            "es5",
+            "es6"
+        ],
+        "noImplicitThis": true,
+        "removeComments": true,
+        "plugins": [
+            {
+                "name": "tslint-language-service"
+            }
+        ]
+    }
+}

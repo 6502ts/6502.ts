@@ -151,4 +151,4 @@ class CartridgeEF extends AbstractCartridge {
     private _hasSC = false;
 }
 
-export default CartridgeEF;
+export { CartridgeEF as default };

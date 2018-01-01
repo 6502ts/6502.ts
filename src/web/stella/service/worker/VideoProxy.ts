@@ -113,4 +113,4 @@ class VideoProxy implements VideoEndpointInterface {
     private _ids: Set<number> = null;
 }
 
-export default VideoProxy;
+export { VideoProxy as default };

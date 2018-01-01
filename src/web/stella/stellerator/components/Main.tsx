@@ -38,4 +38,4 @@ function Main(props: Props) {
     );
 }
 
-export default Main;
+export { Main as default };

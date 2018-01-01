@@ -310,4 +310,4 @@ namespace StellaCLI {
     }
 }
 
-export default StellaCLI;
+export { StellaCLI as default };

@@ -133,4 +133,4 @@ namespace DriverManager {
     }
 }
 
-export default DriverManager;
+export { DriverManager as default };

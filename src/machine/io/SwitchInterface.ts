@@ -30,4 +30,4 @@ interface SwitchInterface {
     beforeRead: EventInterface<SwitchInterface>;
 }
 
-export default SwitchInterface;
+export { SwitchInterface as default };

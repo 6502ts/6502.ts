@@ -94,4 +94,4 @@ class ZipfileSelectModal extends React.PureComponent<Props, State> {
     private _id = `zipfile-dropdown-${index++}`;
 }
 
-export default ZipfileSelectModal;
+export { ZipfileSelectModal as default };

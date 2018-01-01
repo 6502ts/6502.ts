@@ -342,4 +342,4 @@ class EmulationService implements EmulationServiceInterface {
     private _saveConfig: StellaConfig = null;
 }
 
-export default EmulationService;
+export { EmulationService as default };

@@ -494,4 +494,4 @@ namespace WebglVideoDriver {
     }
 }
 
-export default WebglVideoDriver;
+export { WebglVideoDriver as default };

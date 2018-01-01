@@ -32,4 +32,4 @@ interface ChannelInterface {
     setMasterVolume(volume: number): void;
 }
 
-export default ChannelInterface;
+export { ChannelInterface as default };

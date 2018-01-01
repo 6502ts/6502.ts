@@ -84,4 +84,4 @@ class EmulationContext implements EmulationContextInterface {
     private _config: Config = null;
 }
 
-export default EmulationContext;
+export { EmulationContext as default };

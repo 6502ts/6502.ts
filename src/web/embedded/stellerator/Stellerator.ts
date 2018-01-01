@@ -764,4 +764,4 @@ namespace Stellerator {
     }
 }
 
-export default Stellerator;
+export { Stellerator as default };

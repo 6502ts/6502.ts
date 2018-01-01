@@ -58,4 +58,4 @@ namespace PendingChangesModal {
     };
 }
 
-export default PendingChangesModal;
+export { PendingChangesModal as default };

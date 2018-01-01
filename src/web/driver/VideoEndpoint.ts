@@ -88,4 +88,4 @@ class VideoEndpoint implements VideoEndpointInterface {
     private _videoProcessor: VideoProcessorInterface;
 }
 
-export default VideoEndpoint;
+export { VideoEndpoint as default };

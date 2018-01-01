@@ -69,4 +69,4 @@ namespace FileUploadButton {
     };
 }
 
-export default FileUploadButton;
+export { FileUploadButton as default };

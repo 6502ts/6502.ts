@@ -29,4 +29,4 @@ interface Resampler {
     push(sample: number): void;
 }
 
-export default Resampler;
+export { Resampler as default };

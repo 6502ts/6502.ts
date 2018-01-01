@@ -29,4 +29,4 @@ interface PaddleInterface {
     getFire(): SwitchInterface;
 }
 
-export default PaddleInterface;
+export { PaddleInterface as default };

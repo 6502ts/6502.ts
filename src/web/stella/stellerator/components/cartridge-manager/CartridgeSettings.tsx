@@ -150,4 +150,4 @@ const CartridgeSettingsStyled: CartridgeSettingsStyled = styled(CartridgeSetting
     ${p => (p.cartridge ? '' : 'display: none;')};
 `;
 
-export default CartridgeSettingsStyled;
+export { CartridgeSettingsStyled as default };

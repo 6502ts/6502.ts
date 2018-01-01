@@ -362,4 +362,4 @@ namespace Debugger {
     }
 }
 
-export default Debugger;
+export { Debugger as default };

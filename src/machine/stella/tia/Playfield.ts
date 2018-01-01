@@ -197,4 +197,4 @@ class Playfield {
     private _x = 0;
 }
 
-export default Playfield;
+export { Playfield as default };

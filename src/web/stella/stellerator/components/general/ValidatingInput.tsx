@@ -88,4 +88,4 @@ namespace ValidatingInput {
     };
 }
 
-export default ValidatingInput;
+export { ValidatingInput as default };

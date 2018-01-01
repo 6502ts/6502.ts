@@ -59,4 +59,4 @@ namespace CLIInterface {
     }
 }
 
-export default CLIInterface;
+export { CLIInterface as default };

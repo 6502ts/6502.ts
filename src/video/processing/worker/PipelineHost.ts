@@ -119,4 +119,4 @@ class PipelineHost {
     private _bufferIds = new WeakMap<ArrayBuffer, number>();
 }
 
-export default PipelineHost;
+export { PipelineHost as default };

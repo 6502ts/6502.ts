@@ -35,4 +35,4 @@ interface PCMAudioEndpointInterface {
     togglePause: EventInterface<boolean>;
 }
 
-export default PCMAudioEndpointInterface;
+export { PCMAudioEndpointInterface as default };

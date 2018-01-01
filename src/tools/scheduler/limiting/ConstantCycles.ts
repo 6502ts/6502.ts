@@ -83,4 +83,4 @@ class ConstantCyclesScheduler implements SchedulerInterface {
     }
 }
 
-export default ConstantCyclesScheduler;
+export { ConstantCyclesScheduler as default };

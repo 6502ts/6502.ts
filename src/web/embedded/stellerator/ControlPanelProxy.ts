@@ -83,4 +83,4 @@ class ControlPanelProxy implements ControlPanel {
     private _boundControlPanel: StellaControlPanel = null;
 }
 
-export default ControlPanelProxy;
+export { ControlPanelProxy as default };

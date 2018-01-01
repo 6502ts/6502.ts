@@ -50,4 +50,4 @@ class NodeFilesystemProvider extends AbstractFileSystemProvider implements Files
     }
 }
 
-export default NodeFilesystemProvider;
+export { NodeFilesystemProvider as default };

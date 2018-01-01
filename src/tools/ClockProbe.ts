@@ -102,4 +102,4 @@ class ClockProbe {
     private _measurementTask: TaskInterface;
 }
 
-export default ClockProbe;
+export { ClockProbe as default };

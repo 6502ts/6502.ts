@@ -66,4 +66,4 @@ class LinearReasmpler implements ResamplerInterface {
     private _ratio = 0;
 }
 
-export default LinearReasmpler;
+export { LinearReasmpler as default };

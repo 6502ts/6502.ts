@@ -162,4 +162,4 @@ class CartridgeFA2 extends AbstractCartridge {
     private _bus: Bus;
 }
 
-export default CartridgeFA2;
+export { CartridgeFA2 as default };

@@ -1081,4 +1081,4 @@ namespace Tia {
     }
 }
 
-export default Tia;
+export { Tia as default };

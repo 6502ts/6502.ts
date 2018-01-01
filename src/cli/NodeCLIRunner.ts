@@ -98,4 +98,4 @@ class NodeCLIRunner {
     private _completer: Completer;
 }
 
-export default NodeCLIRunner;
+export { NodeCLIRunner as default };

@@ -94,4 +94,4 @@ class Container implements ContainerInterface {
     private _store: Store<State>;
 }
 
-export default Container;
+export { Container as default };

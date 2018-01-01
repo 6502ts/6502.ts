@@ -249,4 +249,4 @@ class EmulationProvider implements EmulationProviderInterface {
     private _gamepadDriver: GamepadDriver;
 }
 
-export default EmulationProvider;
+export { EmulationProvider as default };

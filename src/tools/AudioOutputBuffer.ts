@@ -39,4 +39,4 @@ class AudioOutputBuffer {
     }
 }
 
-export default AudioOutputBuffer;
+export { AudioOutputBuffer as default };

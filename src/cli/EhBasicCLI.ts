@@ -351,4 +351,4 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
     private _clockProbe: ClockProbe;
 }
 
-export default EhBasicCLI;
+export { EhBasicCLI as default };

@@ -57,4 +57,4 @@ class Memory implements BusInterface {
     protected _data = new Uint8Array(0x10000);
 }
 
-export default Memory;
+export { Memory as default };

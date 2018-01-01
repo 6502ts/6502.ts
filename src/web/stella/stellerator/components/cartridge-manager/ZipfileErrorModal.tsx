@@ -50,4 +50,4 @@ namespace ZipfileErrorModal {
     };
 }
 
-export default ZipfileErrorModal;
+export { ZipfileErrorModal as default };

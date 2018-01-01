@@ -25,4 +25,4 @@ interface CartridgeManager {
     getMiddleware(): Middleware;
 }
 
-export default CartridgeManager;
+export { CartridgeManager as default };

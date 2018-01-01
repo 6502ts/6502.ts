@@ -85,4 +85,4 @@ namespace JqtermCLIRunner {
     }
 }
 
-export default JqtermCLIRunner;
+export { JqtermCLIRunner as default };

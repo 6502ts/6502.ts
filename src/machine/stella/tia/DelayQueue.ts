@@ -108,4 +108,4 @@ class QueueEntry {
     nextIndex = 0;
 }
 
-export default DelayQueue;
+export { DelayQueue as default };

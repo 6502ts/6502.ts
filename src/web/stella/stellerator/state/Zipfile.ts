@@ -35,4 +35,4 @@ interface Changeset {
     error?: string;
 }
 
-export default Zipfile;
+export { Zipfile as default };

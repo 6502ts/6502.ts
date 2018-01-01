@@ -97,4 +97,4 @@ class CartridgeUA extends AbstractCartridge {
     private _bank1 = new Uint8Array(0x1000);
 }
 
-export default CartridgeUA;
+export { CartridgeUA as default };

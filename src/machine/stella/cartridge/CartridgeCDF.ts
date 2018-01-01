@@ -428,4 +428,4 @@ class MusicStream {
     waveformSize = 27;
 }
 
-export default CartridgeCDF;
+export { CartridgeCDF as default };

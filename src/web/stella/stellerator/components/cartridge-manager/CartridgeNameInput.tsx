@@ -47,4 +47,4 @@ namespace CartridgeNameInput {
     };
 }
 
-export default CartridgeNameInput;
+export { CartridgeNameInput as default };

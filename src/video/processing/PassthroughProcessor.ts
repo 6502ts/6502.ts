@@ -37,4 +37,4 @@ class PassthroughProcessor implements ProcessorInterface {
     emit = new Event<PoolMemberInterface<RGBASurfaceInterface>>();
 }
 
-export default PassthroughProcessor;
+export { PassthroughProcessor as default };

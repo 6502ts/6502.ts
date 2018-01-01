@@ -54,4 +54,4 @@ type EmulationStatusStyled = StyledComponent<Props>;
 
 const EmulationStatusStyled: EmulationStatusStyled = styled(EmulationStatusUnstyled)`margin-left: 1rem;`;
 
-export default EmulationStatusStyled;
+export { EmulationStatusStyled as default };

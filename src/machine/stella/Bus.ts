@@ -168,4 +168,4 @@ namespace Bus {
     }
 }
 
-export default Bus;
+export { Bus as default };

@@ -162,4 +162,4 @@ class DebuggerCLI extends AbstractCLI implements CLIInterface {
     protected _debugger: Debugger;
 }
 
-export default DebuggerCLI;
+export { DebuggerCLI as default };

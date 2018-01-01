@@ -40,4 +40,4 @@ interface StorageManager {
     saveSettings(settings: SettingsModel): Promise<void>;
 }
 
-export default StorageManager;
+export { StorageManager as default };

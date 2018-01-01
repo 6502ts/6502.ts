@@ -265,4 +265,4 @@ namespace Emulation {
     }
 }
 
-export default Emulation;
+export { Emulation as default };

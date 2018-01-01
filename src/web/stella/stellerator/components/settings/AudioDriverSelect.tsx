@@ -55,4 +55,4 @@ namespace AudioDriverSelect {
     };
 }
 
-export default AudioDriverSelect;
+export { AudioDriverSelect as default };

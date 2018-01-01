@@ -1376,4 +1376,4 @@ interface InstructionCallbackInterface {
     ): void;
 }
 
-export default Cpu;
+export { Cpu as default };

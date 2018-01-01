@@ -145,4 +145,4 @@ class CartridgeDetector {
     }
 }
 
-export default CartridgeDetector;
+export { CartridgeDetector as default };

@@ -39,4 +39,4 @@ namespace RGBASurfaceInterface {
     }
 }
 
-export default RGBASurfaceInterface;
+export { RGBASurfaceInterface as default };

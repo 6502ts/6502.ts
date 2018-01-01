@@ -85,4 +85,4 @@ namespace CommandInterpreter {
     }
 }
 
-export default CommandInterpreter;
+export { CommandInterpreter as default };

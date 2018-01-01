@@ -31,4 +31,4 @@ interface TimerInterface {
     isRunning(): boolean;
 }
 
-export default TimerInterface;
+export { TimerInterface as default };

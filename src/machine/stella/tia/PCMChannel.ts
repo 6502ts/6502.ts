@@ -152,4 +152,4 @@ class PCMChannel {
     private _pulseCounter = 0;
 }
 
-export default PCMChannel;
+export { PCMChannel as default };

@@ -66,4 +66,4 @@ namespace Cartridge {
     }
 }
 
-export default Cartridge;
+export { Cartridge as default };

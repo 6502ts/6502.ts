@@ -72,4 +72,4 @@ class AbstractCartridge implements CartridgeInterface {
     trap = new Event<CartridgeInterface.TrapPayload>();
 }
 
-export default AbstractCartridge;
+export { AbstractCartridge as default };

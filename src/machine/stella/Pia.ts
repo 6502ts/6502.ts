@@ -237,4 +237,4 @@ namespace Pia {
     }
 }
 
-export default Pia;
+export { Pia as default };

@@ -31,4 +31,4 @@ interface GeneratorInterface {
     saveState(): any;
 }
 
-export default GeneratorInterface;
+export { GeneratorInterface as default };
