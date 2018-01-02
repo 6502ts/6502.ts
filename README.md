@@ -33,7 +33,7 @@ You can find recent builds of the various applications on the project's github.i
 
 After checking out the repos, doing
 
-    npm install
+    yarn install
     grunt initial
 
 will initialize the development environment. You can then do a development build of all
