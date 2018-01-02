@@ -31,7 +31,8 @@ You can find recent builds of the various applications on the project's github.i
 
 # Building and development
 
-After checking out the repos, doing
+6502.ts uses [Yarn](https://yarnpkg.com/lang/en/) for package management, so you'll
+have to install it first. After checking out the repos, doing
 
     yarn install
     grunt initial
