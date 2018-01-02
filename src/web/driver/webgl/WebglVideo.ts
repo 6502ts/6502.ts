@@ -29,6 +29,8 @@ const fragmentShaderPovSource = fs.readFileSync(__dirname + '/shader/render_pov.
 const fragmentSahderPlainSource = fs.readFileSync(__dirname + '/shader/render_plain.fsh', 'utf-8');
 const vertexShaderSource = fs.readFileSync(__dirname + '/shader/render.vsh', 'utf-8');
 
+const CONTEXT_IDS = ['webgl', 'experimental-webgl'];
+
 class WebglVideoDriver implements VideoDriverInterface {
     constructor(private _canvas: HTMLCanvasElement, config: WebglVideoDriver.Config = {}) {
         if (typeof config.aspect !== 'undefined') {
@@ -43,9 +45,19 @@ class WebglVideoDriver implements VideoDriverInterface {
             this._povEmulation = config.povEmulation;
         }
 
-        this._gl = this._canvas.getContext('webgl', {
-            alpha: false
-        }) as WebGLRenderingContext;
+        for (const contextId of CONTEXT_IDS) {
+            if (this._gl) {
+                break;
+            }
+
+            this._gl = this._canvas.getContext(contextId, {
+                alpha: false
+            }) as WebGLRenderingContext;
+        }
+
+        if (!this._gl) {
+            throw new Error('unable to acquire WebGL context');
+        }
 
         this._createTextureArrays();
     }
