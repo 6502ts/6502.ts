@@ -20,7 +20,6 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CpuInterface from '../../cpu/CpuInterface';
 import Bus from '../Bus';
 import CartridgeInfo from './CartridgeInfo';
 import * as cartridgeUtil from './util';
@@ -73,12 +72,6 @@ class CartridgeFE extends AbstractCartridge {
         super.write(address, value);
     }
 
-    setCpu(cpu: CpuInterface): this {
-        this._cpu = cpu;
-
-        return this;
-    }
-
     setBus(bus: Bus): this {
         this._bus = bus;
 
@@ -107,7 +100,6 @@ class CartridgeFE extends AbstractCartridge {
         self._lastAccessWasFE = self._bus.getLastAddresBusValue() === 0x01fe;
     }
 
-    private _cpu: CpuInterface;
     private _bus: Bus;
 
     private _bank0 = new Uint8Array(0x1000);
