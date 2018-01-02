@@ -52,6 +52,8 @@ function describeState(state: EmulationServiceInterface.State, frequency: number
 
 type EmulationStatusStyled = StyledComponent<Props>;
 
-const EmulationStatusStyled: EmulationStatusStyled = styled(EmulationStatusUnstyled)`margin-left: 1rem;`;
+const EmulationStatusStyled: EmulationStatusStyled = styled(EmulationStatusUnstyled)`
+    margin-left: 1rem;
+`;
 
 export { EmulationStatusStyled as default };

@@ -83,8 +83,9 @@ class WebAudioDriver {
 
         if (waveformSources.length !== this._waveformChannels.length) {
             throw new Error(
-                `invalid number of waveform sources: expected ${this._waveformChannels
-                    .length}, got ${waveformSources.length}`
+                `invalid number of waveform sources: expected ${this._waveformChannels.length}, got ${
+                    waveformSources.length
+                }`
             );
         }
 

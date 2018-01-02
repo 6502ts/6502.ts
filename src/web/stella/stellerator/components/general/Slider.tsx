@@ -40,7 +40,9 @@ const Container = styled.div`
     align-items: center;
 `;
 
-const Label = styled.div`padding-left: 1rem;`;
+const Label = styled.div`
+    padding-left: 1rem;
+`;
 
 function Slider(props: Props) {
     return (

@@ -1,0 +1,16 @@
+{
+    "editor.trimAutoWhitespace": true,
+    "files.insertFinalNewline": true,
+    "[javascript]": {
+        "editor.formatOnSave": true
+    },
+    "[json]": {
+        "editor.quickSuggestions": {
+            "strings": true
+        },
+        "editor.formatOnSave": true
+    },
+    "[typescript]": {
+        "editor.formatOnSave": true
+    }
+}

@@ -40,6 +40,8 @@ export function StatusWidgetUnstyled(props: Props) {
 
 type StatusWidgetStyled = StyledComponent<Props>;
 
-const StatusWidgetStyled: StatusWidgetStyled = styled(StatusWidgetUnstyled)`float: right;`;
+const StatusWidgetStyled: StatusWidgetStyled = styled(StatusWidgetUnstyled)`
+    float: right;
+`;
 
 export { StatusWidgetStyled as default };

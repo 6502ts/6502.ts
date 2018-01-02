@@ -91,15 +91,15 @@ class EmulationService implements EmulationServiceInterface {
         await this.stop();
 
         return this._mutex.runExclusive(async () => {
-            const state = await this._rpc.rpc<
-                EmulationStartMessage,
-                EmulationServiceInterface.State
-            >(RPC_TYPE.emulationStart, {
-                buffer,
-                config,
-                cartridgeType,
-                videoProcessing
-            });
+            const state = await this._rpc.rpc<EmulationStartMessage, EmulationServiceInterface.State>(
+                RPC_TYPE.emulationStart,
+                {
+                    buffer,
+                    config,
+                    cartridgeType,
+                    videoProcessing
+                }
+            );
 
             if (state === EmulationServiceInterface.State.paused) {
                 this._saveConfig = config;

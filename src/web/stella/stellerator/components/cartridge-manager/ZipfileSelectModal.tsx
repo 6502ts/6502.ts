@@ -38,7 +38,9 @@ interface State {
 
 let index = 0;
 
-const Container = styled.div`margin-bottom: 1rem;`;
+const Container = styled.div`
+    margin-bottom: 1rem;
+`;
 
 class ZipfileSelectModal extends React.PureComponent<Props, State> {
     componentWillReceiveProps(newProps: Props) {
