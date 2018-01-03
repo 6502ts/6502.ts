@@ -205,17 +205,8 @@ class WebglVideoDriver implements VideoDriverInterface {
             return this;
         }
 
-        const video = this._video;
-        if (video) {
-            this.unbind();
-        }
-
         this._povEmulation = emulatePov;
         this._reinit();
-
-        if (video) {
-            this.bind(video);
-        }
     }
 
     povEmulationEnabled(): boolean {
