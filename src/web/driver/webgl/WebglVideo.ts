@@ -115,9 +115,11 @@ class WebglVideoDriver implements VideoDriverInterface {
             height = this._canvas.clientHeight;
         }
 
-        this._canvas.width = width;
-        this._canvas.height = height;
-        this._gl.viewport(0, 0, width, height);
+        const pixelRatio = window.devicePixelRatio || 1;
+
+        this._canvas.width = width * pixelRatio;
+        this._canvas.height = height * pixelRatio;
+        this._gl.viewport(0, 0, width * pixelRatio, height * pixelRatio);
         this._recalculateVertexBuffer();
 
         if (this._video) {
