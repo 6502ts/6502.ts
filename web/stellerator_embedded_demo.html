@@ -20,18 +20,23 @@
 
             #speed {
                 text-align: right;
+                padding-top: 0
             }
 
             #stellerator-canvas {
                 width: 4px;
                 height: 600px;
                 width: 800px;
-                max-height: calc(100vh - 5rem);
+                max-height: calc(100vh - 12rem);
                 max-width: 100vw;
             }
 
-            #info {
+            #info, #keys {
                 text-align: center;
+            }
+
+            #keys {
+                padding-top: 0;
             }
 
             .inline-pre {
@@ -41,6 +46,13 @@
     </head>
     <body>
             <div class="text-box" id="speed">Emulation running</div>
+            <div class="text-box" id="keys">
+                    wasd / arrows + v/space = left joystick , ijkl + b = right joystick
+                    <br/>
+                    shift-enter = reset, shift-space = select, enter = toggle fullscreen
+                    <br/>
+                    shift-r = hard reset, p = pause
+            </div>
             <div class="container">
                 <canvas id="stellerator-canvas"></canvas>
             </div>
