@@ -35,7 +35,7 @@
     "grunt-browserify": "^5.2.0",
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-copy": "~1.0.0",
-    "grunt-contrib-uglify": "https://github.com/gruntjs/grunt-contrib-uglify.git#5251b6f",
+    "grunt-contrib-uglify": "^3.3.0",
     "grunt-contrib-watch": "~1.0.0",
     "grunt-exec": "^3.0.0",
     "grunt-exorcise": "~2.1.1",
