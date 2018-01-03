@@ -205,8 +205,17 @@ class WebglVideoDriver implements VideoDriverInterface {
             return this;
         }
 
+        const video = this._video;
+        if (video) {
+            this.unbind();
+        }
+
         this._povEmulation = emulatePov;
         this._reinit();
+
+        if (video) {
+            this.bind(video);
+        }
     }
 
     povEmulationEnabled(): boolean {
@@ -260,6 +269,9 @@ class WebglVideoDriver implements VideoDriverInterface {
         this._allocateTextures();
         this._configureTextures();
         this._setupAttribs();
+
+        this._frameCount = 0;
+        this._currentFrameIndex = 0;
     }
 
     private _scheduleDraw(): void {

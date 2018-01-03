@@ -70,9 +70,9 @@ class Stellerator {
     /**
      * Creates an instance of Stellerator.
      * @param canvasElt The canvas element that is used to display the TIA image.
-     * You can configure the canvas dimensions as you like; the TIA image will be
-     * automatically positioned and scaled to fit while preserving
-     * the 4:3 aspect ration.
+     * The `height` and `width` attributes of the canvas will be automatically
+     * maintained by Stellerator, so there is not requirement to set those to
+     * specific values.
      *
      * @param workerUrl The URL from which the web worker will be loaded.
      * In order to avoid cross domain issues, the worker should be hosted on the same
@@ -98,6 +98,7 @@ class Stellerator {
             paddleViaMouse: true,
             pauseViaKeyboard: true,
             enableGamepad: true,
+            resetViaKeyboard: true,
 
             ...config
         };
@@ -115,6 +116,12 @@ class Stellerator {
         this._driverManager.addDriver(this._controlPanel, context =>
             this._controlPanel.bind(context.getControlPanel())
         );
+        this._driverManager.bind(this._emulationService);
+
+        this._serviceInitialized = this._emulationService.init().then(undefined, e => {
+            console.log(e);
+            throw e;
+        });
     }
 
     /**
@@ -242,19 +249,11 @@ class Stellerator {
     }
 
     /**
-     * Change the canvas size (if `width` and `height` are specified) or notifiy
-     * the video driver of a canvas size change.
-     *
-     * Note that "canvas size" refers to
-     * the `width` and `height` attributes of the element that define framebuffer size.
-     * Changes to the actual client dimenstions of the element that are a triggered
-     * by CSS are irrelevant to the video driver.
-     *
-     * @param width New canvas width. Will be ignored unless height is set, too.
-     * @param height New canvas height. Will be ignored unless width is set, too.
+     * Notify the video driver of a change of the visible dimensions (client size) of
+     * the canvas element. This will cause the driver to adjust the resolution to match.
      */
-    resize(width?: number, height?: number): this {
-        this._videoDriver.resize(width, height);
+    resize(): this {
+        this._videoDriver.resize();
 
         return this;
     }
@@ -304,7 +303,10 @@ class Stellerator {
                 cartridge = decodeBase64(cartridge);
             }
 
-            const stellaConfig = StellaConfig.create({ tvMode: this._convertTvMode(tvMode) });
+            const stellaConfig = StellaConfig.create({
+                tvMode: this._convertTvMode(tvMode),
+                pcmAudio: true
+            });
 
             if (typeof config.randomSeed !== 'undefined' && config.randomSeed > 0) {
                 stellaConfig.randomSeed = config.randomSeed;
@@ -317,6 +319,8 @@ class Stellerator {
             if (typeof config.frameStart !== 'undefined') {
                 stellaConfig.frameStart = config.frameStart;
             }
+
+            await this._serviceInitialized;
 
             return (this._state = this._mapState(
                 await this._emulationService.start(cartridge, stellaConfig, config.cartridgeType)
@@ -358,7 +362,9 @@ class Stellerator {
      *
      * @returns {Promise<Stellerator.State>}
      */
-    pause(): Promise<Stellerator.State> {
+    async pause(): Promise<Stellerator.State> {
+        await this._serviceInitialized;
+
         return this._mutex.runExclusive(
             async () => (this._state = this._mapState(await this._emulationService.pause()))
         );
@@ -370,7 +376,9 @@ class Stellerator {
      *
      * @returns {Promise<Stellerator.State>}
      */
-    resume(): Promise<Stellerator.State> {
+    async resume(): Promise<Stellerator.State> {
+        await this._serviceInitialized;
+
         return this._mutex.runExclusive(
             async () => (this._state = this._mapState(await this._emulationService.resume()))
         );
@@ -382,9 +390,25 @@ class Stellerator {
      *
      * @returns {Promise<Stellerator.State>}
      */
-    stop(): Promise<Stellerator.State> {
+    async stop(): Promise<Stellerator.State> {
+        await this._serviceInitialized;
+
         return this._mutex.runExclusive(
             async () => (this._state = this._mapState(await this._emulationService.stop()))
+        );
+    }
+
+    /**
+     * Reset a running emulation session. This method is **async** and returns a
+     * promise for the resulting emulation state.
+     *
+     * @returns {Promise<Stellerator.State>}
+     */
+    async reset(): Promise<Stellerator.State> {
+        await this._serviceInitialized;
+
+        return this._mutex.runExclusive(
+            async () => (this._state = this._mapState(await this._emulationService.reset()))
         );
     }
 
@@ -436,6 +460,7 @@ class Stellerator {
         if (this._config.audio) {
             try {
                 this._audioDriver = new AudioDriver();
+                this._audioDriver.init();
                 this._audioDriver.setMasterVolume(this._config.volume);
 
                 this._driverManager.addDriver(this._audioDriver, context =>
@@ -470,6 +495,10 @@ class Stellerator {
                     }
                 });
             }
+        }
+
+        if (this._config.resetViaKeyboard) {
+            this._keyboardIO.hardReset.addHandler(() => this.reset());
         }
 
         if (this._config.enableGamepad) {
@@ -546,6 +575,7 @@ class Stellerator {
     private _canvasElt: HTMLCanvasElement;
     private _config: Stellerator.Config = null;
     private _emulationService: EmulationServiceInterface = null;
+    private _serviceInitialized: Promise<void> = null;
 
     private _videoDriver: VideoDriverInterface = null;
     private _webglVideo: WebglVideo = null;
@@ -637,6 +667,13 @@ namespace Stellerator {
          * Default: true
          */
         pauseViaKeyboard: boolean;
+
+        /**
+         * Reset emulation with "shift-r".
+         *
+         * Default: true
+         */
+        resetViaKeyboard: boolean;
 
         /**
          * Emulate the first paddlewith the horizontal movement of the mouse.
