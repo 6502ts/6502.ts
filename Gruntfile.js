@@ -203,7 +203,7 @@ module.exports = function(grunt) {
 
         uglify: {
             options: {
-                sourceMap: false
+                sourceMap: true
             },
             stellerator: {
                 dest: 'build/stellerator/js/app.js',
@@ -214,16 +214,25 @@ module.exports = function(grunt) {
                 ]
             },
             stella_worker: {
-                dest: 'build/stellerator/js/worker/stella.js',
-                src: 'web/js/compiled/worker/stella.js'
+                src: 'web/js/compiled/worker/stella.js',
+                dest: 'web/js/compiled/worker/stella.min.js',
+                options: {
+                    sourceMapIn: 'web/js/compiled/worker/stella.js.map'
+                }
             },
             video_pipeline_worker: {
-                dest: 'build/stellerator/js/worker/video-pipeline.js',
-                src: 'web/js/compiled/worker/video-pipeline.js'
+                src: 'web/js/compiled/worker/video-pipeline.js',
+                dest: 'web/js/compiled/worker/video-pipeline.min.js',
+                options: {
+                    sourceMapIn: 'web/js/compiled/worker/video-pipeline.js.map'
+                }
             },
             stellerator_embedded: {
                 src: 'web/js/compiled/stellerator_embedded.js',
-                dest: 'web/js/compiled/stellerator_embedded.min.js'
+                dest: 'web/js/compiled/stellerator_embedded.min.js',
+                options: {
+                    sourceMapIn: 'web/js/compiled/stellerator_embedded.js.map'
+                }
             }
         },
 
@@ -336,6 +345,14 @@ module.exports = function(grunt) {
                         expand: true,
                         src: ['doc/**/*'],
                         dest: 'build/stellerator'
+                    },
+                    {
+                        src: 'web/js/compiled/worker/stella.min.js',
+                        dest: 'build/stellerator/js/worker/stella.js'
+                    },
+                    {
+                        src: 'web/js/compiled/worker/video-pipeline.min.js',
+                        dest: 'build/stellerator/js/worker/video-pipeline.js'
                     }
                 ]
             },
@@ -447,7 +464,10 @@ module.exports = function(grunt) {
         'tslint',
         'browserify:stellerator_embedded',
         'exorcise:stellerator_embedded',
-        'uglify:stellerator_embedded'
+        'uglify:stellerator_embedded',
+        'browserify:stella_worker',
+        'exorcise:stella_worker',
+        'uglify:stella_worker'
     ]);
 
     grunt.registerTask('tslint', ['exec:tslint']);
