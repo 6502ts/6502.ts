@@ -67,6 +67,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-typedoc');
+    grunt.loadNpmTasks('grunt-contrib-compress');
 
     grunt.loadTasks('./grunt');
 
@@ -358,6 +359,27 @@ module.exports = function(grunt) {
             }
         },
 
+        compress: {
+            stellerator_embedded: {
+                options: {
+                    archive: 'dist/stellerator_embedded.zip',
+                    mode: 'zip'
+                },
+                files: [
+                    {
+                        cwd: 'web/js/compiled',
+                        expand: true,
+                        src: ['stellerator_embedded.min.js', 'stellerator_embedded.min.js.map']
+                    },
+                    {
+                        cwd: 'web/js/compiled/worker',
+                        expand: true,
+                        src: ['stella.min.js', 'stella.min.js.map']
+                    }
+                ]
+            }
+        },
+
         copy: {
             stellerator_prod: {
                 files: [
@@ -493,7 +515,8 @@ module.exports = function(grunt) {
         'uglify:stellerator_embedded',
         'browserify:stella_worker',
         'exorcise:stella_worker',
-        'uglify:stella_worker'
+        'uglify:stella_worker',
+        'compress:stellerator_embedded'
     ]);
 
     grunt.registerTask('tslint', ['exec:tslint']);
