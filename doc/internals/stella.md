@@ -1,10 +1,6 @@
 # Stella implementation internals
 
-## Cartridge / bankswitching types
-
-If marked with *stella*, the names refer to Stella source code. Otherwise,
-the names refer to Kevin Hortons bankswitching [guide](http://blog.kevtris.org/blogfiles/Atari%202600%20Mappers.txt).
-Supported:
+## Supported CARTRIDGE TYPES
 
  * 2k plain
  * 4k plain
@@ -18,31 +14,15 @@ Supported:
  * F0 (Megaboy)
  * UA (UA 8k)
  * F4 (Atari 32k)
- * *Stella* FA2
+ * FA2
+ * EF
  * DPC (Pitfall 2)
  * Supercharger
  * 3E
- * *Stella* DPC+
+ * EF / EF SC
+ * DPC+
+ * CDF
+ * 8040 / econobanking
 
-DPC+ includes support for ARM code (using a transpiled version of D. Welch's
+DPC+ and CDF include support for ARM code (using a transpiled version of D. Welch's
 [thumbulator](https://github.com/dwelch67/thumbulator)).
-
-Currently not implemented
-
- * CV (Commavid)
- * F8 with SARA
- * 3F enhanced
- * 0840
- * MC (Megacart)
- * EF
- * X07
- * 4A50
- * Compumate
- * *Stella* 4KSK 4k + extra RAM
- * *Stella* DASH
- * *Stella* DF (Homestar Runner)
- * *Stella* DFSC (Homestar Runner)
- * *Stella* EF (Homestar Runner)
- * *Stella* EFSC (Homestar Runner)
- * *Stella* SB (Superbanking)
-
