@@ -27,7 +27,7 @@ You can find recent builds of the various applications on the project's github.i
  * [hardware monitor frontend / debugger](https://6502ts.github.io/dev/)
  * [Atari 2600 debugger frontend](https://6502ts.github.io/dev/stella.html)
  * [Atari 2600 stellerator, development build](https://6502ts.github.io/dev/stellerator.html)
- * [Atari 2600 stellerator, production build](https://github.com/6502ts/6502.ts/issues)
+ * [Atari 2600 stellerator, production build]((https://6502ts.github.io/stellerator)
 
 # Atari 2600 emulation
 
@@ -36,7 +36,7 @@ debugger, there are two ways to use the emulator
 
  * **Stellerator** allows to import, manage and play VCS ROMs in the browser. ROMs are
    stored locally in the browser. Stellerator is hosted on github.io
-   [here](https://github.com/6502ts/6502.ts/issues).
+   [here](https://6502ts.github.io/stellerator).
  * **Stellerator embedded** offers a rich API to embed VCS emulation into web sites
    and web applications. Please check out the
    [documentation](https://6502ts.github.io/typedoc/stellerator-embedded/)
