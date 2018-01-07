@@ -27,7 +27,7 @@ You can find recent builds of the various applications on the project's github.i
  * [hardware monitor frontend / debugger](https://6502ts.github.io/dev/)
  * [Atari 2600 debugger frontend](https://6502ts.github.io/dev/stella.html)
  * [Atari 2600 stellerator, development build](https://6502ts.github.io/dev/stellerator.html)
- * [Atari 2600 stellerator, production build]((https://6502ts.github.io/stellerator)
+ * [Atari 2600 stellerator, production build](https://6502ts.github.io/stellerator)
 
 # Atari 2600 emulation
 
