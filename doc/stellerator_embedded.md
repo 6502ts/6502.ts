@@ -50,7 +50,7 @@ the page that embeds the emulator.
    in your HTML:
 
 ```html
-    <script src="js/stellerator_embedded.min.js"></script>
+<script src="js/stellerator_embedded.min.js"></script>
 ```
 
    The `Stellerator` class is available on the global `$6502` object after the script has
@@ -60,7 +60,7 @@ the page that embeds the emulator.
    to the constructor of the `Stellerator` instance:
 
 ```javascript
-    const stellerator = new $6502.Stellerator(canvasElement, 'js/stellerator_worker.min.js');
+const stellerator = new $6502.Stellerator(canvasElement, 'js/stellerator_worker.min.js');
 ```
 
 In addition to these two scripts, the archive also contains source maps for both. Place
@@ -73,7 +73,7 @@ The emulation core of 6502.ts is available as `6502.ts` on
 [NPM](https://www.npmjs.com). Install into your project e.g. using npm via
 
 ```
-    $ npm install 6502.ts
+$ npm install 6502.ts
 ```
 
 After installation, you can import the `Stellerator` class using an ES6 import
@@ -106,7 +106,7 @@ page (which will display the TIA image) and create an instance of the `Stellerat
 class:
 
 ```javascript
-    const stellerator = new Stellerator(canvasElement, 'js/stellerator_worker.min.js');
+const stellerator = new Stellerator(canvasElement, 'js/stellerator_worker.min.js');
 ```
 
 The second argument of the constructor is the URL from which the web worker will be loaded.
@@ -114,7 +114,7 @@ The second argument of the constructor is the URL from which the web worker will
 Emulation can then be started by invoking the `run` method
 
 ```javascript
-    stellerator.run(romImage, Stellerator.TvMode.ntsc);
+stellerator.run(romImage, Stellerator.TvMode.ntsc);
 ```
 
 ROM images can be provided as arrays, typed arrays or as base64 encoded strings. Both the
