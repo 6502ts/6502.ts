@@ -28,7 +28,7 @@ interface EmulationProvider {
 
     getMiddleware(): Middleware;
 
-    init(workerUrl?: string): Promise<void>;
+    init(stellaWorkerUrl: string, videoPipelingWorkerUrl: string): Promise<void>;
 }
 
 export { EmulationProvider as default };

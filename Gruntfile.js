@@ -147,23 +147,42 @@ module.exports = function(grunt) {
                     cacheFile: 'foo.json'
                 }
             },
-            stella_worker: {
+            stellerator_worker: {
                 options: {
                     configure: b => b.plugin('tsify', { project: path.join(__dirname, 'worker') }).transform('brfs')
                 },
-                dest: 'web/js/compiled/worker/stella.js',
-                src: ['worker/src/main/stella.ts']
+                dest: 'web/js/compiled/worker/stellerator_worker.js',
+                src: ['worker/src/main/stellerator.ts']
             },
             video_pipeline_worker: {
                 options: {
                     configure: b => b.plugin('tsify', { project: path.join(__dirname, 'worker') }).transform('brfs')
                 },
-                dest: 'web/js/compiled/worker/video-pipeline.js',
+                dest: 'web/js/compiled/worker/video_pipeline_worker.js',
                 src: ['worker/src/main/video-pipeline.ts']
             },
             stellerator_dev: {
                 dest: 'web/js/compiled/stellerator.js',
-                src: ['src/web/stella/stellerator/main.tsx']
+                src: ['src/web/stella/stellerator/main.tsx'],
+                options: {
+                    configure: b =>
+                        b
+                            .plugin('tsify', { project: __dirname })
+                            .transform(
+                                envify({
+                                    NODE_ENV: 'development',
+                                    STELLERATOR_WORKER_URL: 'js/compiled/worker/stellerator_worker.js',
+                                    VIDEO_PIPELINE_WORKER_URL: 'js/compiled/worker/video_pipeline_worker.js',
+                                    HELPPAGE_URL: 'doc/stellerator.md',
+                                    BUILD_ID: buildId
+                                }),
+                                { global: true }
+                            )
+                            .transform('brfs'),
+                    browserifyOptions: {
+                        debug: true
+                    }
+                }
             },
             stellerator_prod: {
                 dest: 'web/js/compiled/stellerator.prod.js',
@@ -174,7 +193,11 @@ module.exports = function(grunt) {
                             .plugin('tsify', { project: __dirname })
                             .transform(
                                 envify({
-                                    NODE_ENV: 'production'
+                                    NODE_ENV: 'production',
+                                    STELLERATOR_WORKER_URL: 'js/worker/stellerator_worker.min.js',
+                                    VIDEO_PIPELINE_WORKER_URL: 'js/worker/video_pipeline_worker.min.js',
+                                    HELPPAGE_URL: 'doc/stellerator.md',
+                                    BUILD_ID: buildId
                                 }),
                                 { global: true }
                             )
@@ -201,13 +224,13 @@ module.exports = function(grunt) {
                 src: 'web/js/compiled/stellerator.js',
                 dest: 'web/js/compiled/stellerator.js.map'
             },
-            stella_worker: {
-                src: 'web/js/compiled/worker/stella.js',
-                dest: 'web/js/compiled/worker/stella.js.map'
+            stellerator_worker: {
+                src: 'web/js/compiled/worker/stellerator_worker.js',
+                dest: 'web/js/compiled/worker/stellerator_worker.js.map'
             },
             video_pipeline_worker: {
-                src: 'web/js/compiled/worker/video-pipeline.js',
-                dest: 'web/js/compiled/worker/video-pipeline.js.map'
+                src: 'web/js/compiled/worker/video_pipeline_worker.js',
+                dest: 'web/js/compiled/worker/video_pipeline_worker.js.map'
             },
             ehBasicCLI: {
                 src: 'web/js/compiled/ehBasicCLI.js',
@@ -240,18 +263,18 @@ module.exports = function(grunt) {
                     'web/js/compiled/stellerator.prod.js'
                 ]
             },
-            stella_worker: {
-                src: 'web/js/compiled/worker/stella.js',
-                dest: 'web/js/compiled/worker/stella.min.js',
+            video_pipeline_worker: {
+                src: 'web/js/compiled/worker/video_pipeline_worker.js',
+                dest: 'web/js/compiled/worker/video_pipeline_worker.min.js',
                 options: {
-                    sourceMapIn: 'web/js/compiled/worker/stella.js.map'
+                    sourceMapIn: 'web/js/compiled/worker/video_pipeline_worker.js.map'
                 }
             },
-            video_pipeline_worker: {
-                src: 'web/js/compiled/worker/video-pipeline.js',
-                dest: 'web/js/compiled/worker/video-pipeline.min.js',
+            stellerator_worker: {
+                src: 'web/js/compiled/worker/stellerator_worker.js',
+                dest: 'web/js/compiled/worker/stellerator_worker.min.js',
                 options: {
-                    sourceMapIn: 'web/js/compiled/worker/video-pipeline.js.map'
+                    sourceMapIn: 'web/js/compiled/worker/stellerator_worker.js.map'
                 }
             },
             stellerator_embedded: {
@@ -339,9 +362,7 @@ module.exports = function(grunt) {
                 options: {
                     data: {
                         stylesheets: ['css/stellerator.css'],
-                        scripts: ['js/installed/jquery.min.js', 'js/bootstrap.min.js', 'js/compiled/stellerator.js'],
-                        workerUrl: 'js/compiled/worker/',
-                        buildId
+                        scripts: ['js/installed/jquery.min.js', 'js/bootstrap.min.js', 'js/compiled/stellerator.js']
                     }
                 }
             },
@@ -351,9 +372,7 @@ module.exports = function(grunt) {
                 options: {
                     data: {
                         stylesheets: ['css/app.css'],
-                        scripts: ['js/app.js'],
-                        workerUrl: ['js/worker/'],
-                        buildId
+                        scripts: ['js/app.js']
                     }
                 }
             }
@@ -374,7 +393,7 @@ module.exports = function(grunt) {
                     {
                         cwd: 'web/js/compiled/worker',
                         expand: true,
-                        src: ['stella.min.js', 'stella.min.js.map']
+                        src: ['stellerator_worker.min.js', 'stellerator_worker.min.js.map']
                     }
                 ]
             }
@@ -395,12 +414,12 @@ module.exports = function(grunt) {
                         dest: 'build/stellerator'
                     },
                     {
-                        src: 'web/js/compiled/worker/stella.min.js',
-                        dest: 'build/stellerator/js/worker/stella.js'
+                        src: 'web/js/compiled/worker/stellerator_worker.min.js',
+                        dest: 'build/stellerator/js/worker/stellerator_worker.min.js'
                     },
                     {
-                        src: 'web/js/compiled/worker/video-pipeline.min.js',
-                        dest: 'build/stellerator/js/worker/video-pipeline.js'
+                        src: 'web/js/compiled/worker/video_pipeline_worker.min.js',
+                        dest: 'build/stellerator/js/worker/video_pipeline_worker.min.js'
                     }
                 ]
             },
@@ -472,7 +491,7 @@ module.exports = function(grunt) {
         'browserify:ehBasicCLI',
         'browserify:stellaCLI',
         'browserify:stellerator_dev',
-        'browserify:stella_worker',
+        'browserify:stellerator_worker',
         'browserify:video_pipeline_worker',
         'browserify:stellerator_embedded',
         'exorcise'
@@ -484,10 +503,10 @@ module.exports = function(grunt) {
     grunt.registerTask('stellerator:dev', [
         'tslint',
         'browserify:stellerator_dev',
-        'browserify:stella_worker',
+        'browserify:stellerator_worker',
         'browserify:video_pipeline_worker',
         'exorcise:stellerator',
-        'exorcise:stella_worker',
+        'exorcise:stellerator_worker',
         'exorcise:video_pipeline_worker',
         'template:stellerator_dev',
         'copy:stellerator_dev'
@@ -496,12 +515,12 @@ module.exports = function(grunt) {
     grunt.registerTask('stellerator:build', [
         'tslint',
         'browserify:stellerator_prod',
-        'browserify:stella_worker',
+        'browserify:stellerator_worker',
         'browserify:video_pipeline_worker',
-        'exorcise:stella_worker',
+        'exorcise:stellerator_worker',
         'exorcise:video_pipeline_worker',
         'uglify:stellerator',
-        'uglify:stella_worker',
+        'uglify:stellerator_worker',
         'uglify:video_pipeline_worker',
         'postcss:stellerator',
         'copy:stellerator_prod',
@@ -513,9 +532,9 @@ module.exports = function(grunt) {
         'browserify:stellerator_embedded',
         'exorcise:stellerator_embedded',
         'uglify:stellerator_embedded',
-        'browserify:stella_worker',
-        'exorcise:stella_worker',
-        'uglify:stella_worker',
+        'browserify:stellerator_worker',
+        'exorcise:stellerator_worker',
+        'uglify:stellerator_worker',
         'compress:stellerator_embedded'
     ]);
 

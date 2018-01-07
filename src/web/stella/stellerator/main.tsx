@@ -19,12 +19,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-declare namespace _stelleratorSettings {
-    export const workerUrl: string;
-    export const helppageUrl: string;
-    export const buildId: string;
-}
-
 declare namespace window {
     export const devToolsExtension: any;
 }
@@ -65,15 +59,15 @@ async function main() {
 
     store.dispatch(
         initializeEnvironment({
-            helppageUrl: _stelleratorSettings.helppageUrl,
-            buildId: _stelleratorSettings.buildId
+            helppageUrl: process.env.HELPPAGE_URL,
+            buildId: process.env.BUILD_ID
         })
     );
 
     await serviceContainer.getPersistenceProvider().init();
     await serviceContainer
         .getEmulationProvider()
-        .init(store.getState().settings.useWorker ? _stelleratorSettings.workerUrl : undefined);
+        .init(store.getState().settings.useWorker ? process.env.STELLERATOR_WORKER_URL : undefined, process.env.VIDEO_PIPELINE_WORKER_URL);
 
     render(
         <ThemeProvider theme={{}}>

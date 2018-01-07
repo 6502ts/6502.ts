@@ -27,7 +27,20 @@ You can find recent builds of the various applications on the project's github.i
  * [hardware monitor frontend / debugger](https://6502ts.github.io/dev/)
  * [Atari 2600 debugger frontend](https://6502ts.github.io/dev/stella.html)
  * [Atari 2600 stellerator, development build](https://6502ts.github.io/dev/stellerator.html)
- * [Atari 2600 stellerator, production build](https://6502ts.github.io/stellerator)
+ * [Atari 2600 stellerator, production build](https://github.com/6502ts/6502.ts/issues)
+
+# Atari 2600 emulation
+
+6502.ts implements a full-fledged emulator for the Atari 2600 VCS. Apart from the
+debugger, there are two ways to use the emulator
+
+ * **Stellerator** allows to import, manage and play VCS ROMs in the browser. ROMs are
+   stored locally in the browser. Stellerator is hosted on github.io
+   [here](https://github.com/6502ts/6502.ts/issues).
+ * **Stellerator embedded** offers a rich API to embed VCS emulation into web sites
+   and web applications. Please check out the
+   [documentation](https://6502ts.github.io/typedoc/stellerator-embedded/)
+   for more information.
 
 # Building and development
 
@@ -46,6 +59,17 @@ After building, additional NodeJS applications for commandline debugging can be 
 `bin`.
 
 Please check the `Gruntfile.js` for more build targets.
+
+# NPM package
+
+The core parts of the emulator are available as `6502.ts` on
+[NPM](https://www.npmjs.com).
+The package includes TypeScript typings and can be used directly in TypeScript projects.
+
+Most APIs are pretty stable by now, but not documented yet, with the exception
+of Stellerator embedded. Please check out the
+[documentation](https://6502ts.github.io/typedoc/stellerator-embedded/)
+of Stellerator embedded for more details.
 
 # License and credits
 
