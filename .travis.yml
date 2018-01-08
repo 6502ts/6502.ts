@@ -1,25 +1,36 @@
 language: node_js
 node_js:
-    - 7
+  - 7
 cache:
-    yarn: true
+  yarn: true
 before-script:
-    - yarn add grunt
-    - yarn add grunt-cli
-    - yarn install
+  - yarn add grunt
+  - yarn add grunt-cli
+  - yarn install
 script:
-    - grunt initial
+  - grunt initial
 before_deploy:
-    - openssl aes-256-cbc -K $encrypted_6dbc9dbe3b2a_key -iv $encrypted_6dbc9dbe3b2a_iv -in deploy/key.enc -out deploy/key -d
-    - grunt dev build
-    - grunt dev
+  - openssl aes-256-cbc -K $encrypted_6dbc9dbe3b2a_key -iv $encrypted_6dbc9dbe3b2a_iv -in deploy/key.enc -out deploy/key -d
+  - grunt dev build typedoc
 deploy:
-    provider: script
-    script: deploy/deploy.sh
+  - provider: script
+    script: deploy/deploy_github_io.sh
     skip_cleanup: true
     on:
-        branch: github.io
+      branch: github.io
+  - provider: script
+    script: deploy/deploy_tag.sh
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: releases
+    api_key:
+      secure: GHYnNT53ku4TmcLLwgVdThy8Upzd0+DYj5DrmaE3ZU06fsdJ7Xw3HC313i0IDoS9XmzDk4YElbCw3feUTU9ygpOGslSy1fFyoKxW3nAAlMkdn40dthLaHbGA2iqfcMUXeQ/ql3XXXiCO1mxsRFm8WfyTa1RnWC/PTozDr/wExJE=
+    skip_cleanup: true
+    file: dist/stellerator_embedded.zip
+    on:
+      tags: true
 notifications:
-    email:
-        recipients:
-            - cnspeckn@googlemail.com
+  email:
+    recipients:
+      - cnspeckn@googlemail.com

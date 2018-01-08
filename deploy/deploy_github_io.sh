@@ -4,15 +4,8 @@ set -e
 
 DEST="`pwd`/6502ts.github.io"
 REVISION=`git rev-parse --short HEAD`
-SSH_WRAPPER="`pwd`/deploy/ssh_wrapper.sh"
-SSH_KEY="`pwd`/deploy/key"
 
-echo '#!/bin/bash' > "$SSH_WRAPPER"
-echo "ssh -i \"$SSH_KEY\" \"\$@\"" >> "$SSH_WRAPPER"
-chmod +x "$SSH_WRAPPER"
-chmod 600 "$SSH_KEY"
-
-export GIT_SSH="$SSH_WRAPPER"
+source "`pwd`/deploy/setup_ssh.sh"
 
 git clone git@github.com:6502ts/6502ts.github.io.git "$DEST"
 
