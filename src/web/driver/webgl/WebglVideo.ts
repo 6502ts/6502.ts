@@ -19,15 +19,15 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import * as fs from 'fs';
-
 import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
 import VideoEndpointInterface from '../VideoEndpointInterface';
 import VideoDriverInterface from '../VideoDriverInterface';
 
-const fragmentShaderPovSource = fs.readFileSync(__dirname + '/shader/render_pov.fsh', 'utf-8');
-const fragmentSahderPlainSource = fs.readFileSync(__dirname + '/shader/render_plain.fsh', 'utf-8');
-const vertexShaderSource = fs.readFileSync(__dirname + '/shader/render.vsh', 'utf-8');
+import {
+    vertexShader as vertexShaderSource,
+    fragmentShaderPlain as fragmentShaderPlainSource,
+    fragmentShaderPov as fragmentShaderPovSource
+} from './shader';
 
 const CONTEXT_IDS = ['webgl', 'experimental-webgl'];
 
@@ -330,7 +330,7 @@ class WebglVideoDriver implements VideoDriverInterface {
             throw new Error(`failed to compile vertex shader: ${gl.getShaderInfoLog(vertexShader)}`);
         }
 
-        gl.shaderSource(fragmentShader, this._povEmulation ? fragmentShaderPovSource : fragmentSahderPlainSource);
+        gl.shaderSource(fragmentShader, this._povEmulation ? fragmentShaderPovSource : fragmentShaderPlainSource);
         gl.compileShader(fragmentShader);
 
         if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {

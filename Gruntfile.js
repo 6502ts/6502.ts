@@ -114,7 +114,7 @@ module.exports = function(grunt) {
 
         browserify: {
             options: {
-                configure: b => b.plugin('tsify', { project: __dirname }).transform('brfs'),
+                configure: b => b.plugin('tsify', { project: __dirname }),
                 browserifyOptions: {
                     debug: true
                 }
@@ -149,14 +149,14 @@ module.exports = function(grunt) {
             },
             stellerator_worker: {
                 options: {
-                    configure: b => b.plugin('tsify', { project: path.join(__dirname, 'worker') }).transform('brfs')
+                    configure: b => b.plugin('tsify', { project: path.join(__dirname, 'worker') })
                 },
                 dest: 'web/js/compiled/worker/stellerator_worker.js',
                 src: ['worker/src/main/stellerator.ts']
             },
             video_pipeline_worker: {
                 options: {
-                    configure: b => b.plugin('tsify', { project: path.join(__dirname, 'worker') }).transform('brfs')
+                    configure: b => b.plugin('tsify', { project: path.join(__dirname, 'worker') })
                 },
                 dest: 'web/js/compiled/worker/video_pipeline_worker.js',
                 src: ['worker/src/main/video-pipeline.ts']
@@ -166,19 +166,16 @@ module.exports = function(grunt) {
                 src: ['src/web/stella/stellerator/main.tsx'],
                 options: {
                     configure: b =>
-                        b
-                            .plugin('tsify', { project: __dirname })
-                            .transform(
-                                envify({
-                                    NODE_ENV: 'development',
-                                    STELLERATOR_WORKER_URL: 'js/compiled/worker/stellerator_worker.js',
-                                    VIDEO_PIPELINE_WORKER_URL: 'js/compiled/worker/video_pipeline_worker.js',
-                                    HELPPAGE_URL: 'doc/stellerator.md',
-                                    BUILD_ID: buildId
-                                }),
-                                { global: true }
-                            )
-                            .transform('brfs'),
+                        b.plugin('tsify', { project: __dirname }).transform(
+                            envify({
+                                NODE_ENV: 'development',
+                                STELLERATOR_WORKER_URL: 'js/compiled/worker/stellerator_worker.js',
+                                VIDEO_PIPELINE_WORKER_URL: 'js/compiled/worker/video_pipeline_worker.js',
+                                HELPPAGE_URL: 'doc/stellerator.md',
+                                BUILD_ID: buildId
+                            }),
+                            { global: true }
+                        ),
                     browserifyOptions: {
                         debug: true
                     }
@@ -189,19 +186,16 @@ module.exports = function(grunt) {
                 src: ['src/web/stella/stellerator/main.tsx'],
                 options: {
                     configure: b =>
-                        b
-                            .plugin('tsify', { project: __dirname })
-                            .transform(
-                                envify({
-                                    NODE_ENV: 'production',
-                                    STELLERATOR_WORKER_URL: 'js/worker/stellerator_worker.min.js',
-                                    VIDEO_PIPELINE_WORKER_URL: 'js/worker/video_pipeline_worker.min.js',
-                                    HELPPAGE_URL: 'doc/stellerator.md',
-                                    BUILD_ID: buildId
-                                }),
-                                { global: true }
-                            )
-                            .transform('brfs'),
+                        b.plugin('tsify', { project: __dirname }).transform(
+                            envify({
+                                NODE_ENV: 'production',
+                                STELLERATOR_WORKER_URL: 'js/worker/stellerator_worker.min.js',
+                                VIDEO_PIPELINE_WORKER_URL: 'js/worker/video_pipeline_worker.min.js',
+                                HELPPAGE_URL: 'doc/stellerator.md',
+                                BUILD_ID: buildId
+                            }),
+                            { global: true }
+                        ),
                     browserifyOptions: {
                         debug: true
                     }
