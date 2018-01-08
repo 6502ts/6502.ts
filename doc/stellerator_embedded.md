@@ -15,6 +15,9 @@ You can find a example of the embedded emulator
 The source code is available in the 6502.ts repository on GitHub
 [here](https://github.com/6502ts/6502.ts/blob/master/web/stellerator_embedded_demo.html).
 
+The example exposes the Stellerator instance (see below) as `window.stellerator`, so
+you can access and explore it in the developer console.
+
 # Overview
 
 Stellerator consists of two parts: a frontend that renders the emulation output and
