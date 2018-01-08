@@ -2,8 +2,6 @@
 
 # What is it?
 
-**DOCUMENTATION is being rewritten, the old docs are availabe [here](README.old.md)**
-
 6502.ts strives to be a collection of emulators for 6502 based systems written in Typescript.
 It currently provides
 
@@ -13,7 +11,7 @@ It currently provides
    [EhBasic interpreter](https://github.com/jefftranter/6502/tree/master/asm/ehbasic)
    and Klaus Dormann's
    [6502 testsuite](https://github.com/Klaus2m5/6502_65C02_functional_tests)
- * A full-featured [Atari 2600 emulator](doc/internals/stella.md), including sound, CRT afterglow simulation,
+ * A full-featured [Atari 2600 emulator](doc/internals/stella.md), including sound, CRT phosphor simulation,
    debugging environment and a more user oriented ["stellerator" frontend](doc/stellerator.md).
 
 The projects targets both NodeJS and the browser as runtime environments (no video or audio on node,
