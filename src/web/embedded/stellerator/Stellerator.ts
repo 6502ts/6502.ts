@@ -503,6 +503,7 @@ class Stellerator {
 
         if (this._config.enableGamepad) {
             this._gamepad = new Gamepad();
+            this._gamepad.init();
 
             this._driverManager.addDriver(this._gamepad, context =>
                 this._gamepad.bind({
