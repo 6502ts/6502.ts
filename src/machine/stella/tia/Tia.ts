@@ -287,7 +287,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             default:
-                result = lastDataBusValue;
+                result = 0;
                 break;
         }
 
