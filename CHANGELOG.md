@@ -1,3 +1,7 @@
+# 0.9.4
+
+ * Fix the two highest bits in undefined TIA reads
+
 # 0.9.3
 
  * Stellerator embedded: fix gamepad input
