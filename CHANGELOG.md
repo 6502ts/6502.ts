@@ -1,5 +1,9 @@
 # 0.9.5
 
+ * Override maxHeight and maxWidth in fullscreen mode for simpler styling.
+
+# 0.9.5
+
  * CPU read timing improvements. Fixes edge cases in timer loops.
 
 # 0.9.4
