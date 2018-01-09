@@ -687,6 +687,10 @@ class Cpu {
             case CpuInterface.ExecutionState.boot:
             case CpuInterface.ExecutionState.execute:
                 if (--this._opCycles === 0) {
+                    if (this._dereference) {
+                        this._operand = this._bus.read(this._operand);
+                    }
+
                     if (this._interuptCheck === InterruptCheck.beforeOp) {
                         this._checkForInterrupts();
                     }
@@ -1329,8 +1333,8 @@ class Cpu {
                 break;
         }
 
+        this._dereference = dereference;
         if (dereference) {
-            this._operand = this._bus.read(this._operand);
             this._opCycles++;
         }
 
@@ -1365,6 +1369,8 @@ class Cpu {
     private _operand: number = 0;
     private _lastInstructionPointer: number = 0;
     private _currentAddressingMode: Instruction.AddressingMode = Instruction.AddressingMode.invalid;
+
+    private _dereference = false;
 }
 
 interface InstructionCallbackInterface {
