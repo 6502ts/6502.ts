@@ -74,6 +74,8 @@ export default class FullscreenVideoDriver {
 
         element.style.width = '';
         element.style.height = '';
+        element.style.maxWidth = '';
+        element.style.maxHeight = '';
 
         setTimeout(() => this._videoDriver.resize(), 0);
     }
@@ -84,6 +86,8 @@ export default class FullscreenVideoDriver {
         this._videoDriver.resize(window.innerWidth, window.innerHeight);
         element.style.width = window.innerWidth + 'px';
         element.style.height = window.innerHeight + 'px';
+        element.style.maxWidth = window.innerWidth + 'px';
+        element.style.maxHeight = window.innerHeight + 'px';
     }
 
     private _resizeListener: () => void = this._adjustSizeForFullscreen.bind(this);
