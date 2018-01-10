@@ -129,7 +129,6 @@ class Tia implements VideoOutputInterface {
     }
 
     reset(): void {
-        this._hblankCtr = 0;
         this._hctr = 0;
         this._movementInProgress = false;
         this._extendedHblank = false;
@@ -585,7 +584,6 @@ class Tia implements VideoOutputInterface {
                 self._movementInProgress = true;
 
                 if (!self._extendedHblank) {
-                    self._hblankCtr -= 8;
                     self._clearHmoveComb();
                     self._extendedHblank = true;
                 }
@@ -734,13 +732,25 @@ class Tia implements VideoOutputInterface {
     }
 
     private _tickHblank() {
-        if (this._hctr === 0) {
-            this._hblankCtr = 0;
-            this._cpu.resume();
-        }
+        switch (this._hctr) {
+            case 0:
+                this._extendedHblank = false;
+                this._cpu.resume();
+                break;
 
-        if (++this._hblankCtr >= 68) {
-            this._hstate = HState.frame;
+            case 67:
+                if (!this._extendedHblank) {
+                    this._hstate = HState.frame;
+                }
+
+                break;
+
+            case 75:
+                if (this._extendedHblank) {
+                    this._hstate = HState.frame;
+                }
+
+                break;
         }
     }
 
@@ -784,7 +794,6 @@ class Tia implements VideoOutputInterface {
         }
 
         this._hstate = HState.blank;
-        this._extendedHblank = false;
         this._xDelta = 0;
 
         this._frameManager.nextLine();
@@ -959,8 +968,6 @@ class Tia implements VideoOutputInterface {
 
     private _hstate = HState.blank;
 
-    // We need a separate counter for the blank period that will be decremented by hmove
-    private _hblankCtr = 0;
     // hclock counter
     private _hctr = 0;
     // collision latch update required?
