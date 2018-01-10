@@ -86,7 +86,7 @@
                 const speedElement = document.getElementById('speed');
                 // Subscribe to speed updates and update the DOM node accordingly
                 stellerator.frequencyUpdate.addHandler(
-                    speed => speedElement.innerText = `Emulation running at ${(speed / 1000000).toFixed(2)}Hz`
+                    speed => speedElement.innerText = `Emulation running at ${(speed / 1000000).toFixed(2)}MHz`
                 );
 
                 // We are using a responsive layout and resize the canvas as the window
