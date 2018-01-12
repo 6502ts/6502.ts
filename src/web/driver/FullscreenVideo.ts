@@ -22,8 +22,14 @@
 import * as screenfull from 'screenfull';
 import VideoDriver from './VideoDriverInterface';
 
+const noFullscrenApi = !!navigator.platform.match(/iPhone|iPad|iPod/);
+
 export default class FullscreenVideoDriver {
-    constructor(private _videoDriver: VideoDriver) {}
+    constructor(
+        private _videoDriver: VideoDriver,
+        private _zIndex = 100000,
+        private _fullscreenClass = 'stellerator-fullscreen'
+    ) {}
 
     engage(): void {
         if (this._engaged) {
@@ -32,8 +38,14 @@ export default class FullscreenVideoDriver {
 
         this._engaged = true;
 
-        screenfull.on('change', this._changeListener);
-        screenfull.request(this._videoDriver.getCanvas());
+        if (noFullscrenApi) {
+            this._adjustSizeForFullscreen();
+            window.addEventListener('resize', this._resizeListener);
+            this._engaged = true;
+        } else {
+            screenfull.on('change', this._changeListener);
+            screenfull.request(this._videoDriver.getCanvas());
+        }
     }
 
     disengage(): void {
@@ -41,7 +53,13 @@ export default class FullscreenVideoDriver {
             return;
         }
 
-        screenfull.exit();
+        if (noFullscrenApi) {
+            this._resetSize();
+            window.removeEventListener('resize', this._resizeListener);
+            this._engaged = false;
+        } else {
+            screenfull.exit();
+        }
     }
 
     toggle(): void {
@@ -77,6 +95,15 @@ export default class FullscreenVideoDriver {
         element.style.maxWidth = '';
         element.style.maxHeight = '';
 
+        if (noFullscrenApi) {
+            element.style.position = '';
+            element.style.top = '';
+            element.style.left = '';
+            element.style.zIndex = '';
+        }
+
+        document.body.classList.remove(this._fullscreenClass);
+
         setTimeout(() => this._videoDriver.resize(), 0);
     }
 
@@ -88,6 +115,15 @@ export default class FullscreenVideoDriver {
         element.style.height = window.innerHeight + 'px';
         element.style.maxWidth = window.innerWidth + 'px';
         element.style.maxHeight = window.innerHeight + 'px';
+
+        if (noFullscrenApi) {
+            element.style.position = 'fixed';
+            element.style.top = '0';
+            element.style.left = '0';
+            element.style.zIndex = '' + this._zIndex;
+        }
+
+        document.body.classList.add(this._fullscreenClass);
     }
 
     private _resizeListener: () => void = this._adjustSizeForFullscreen.bind(this);
