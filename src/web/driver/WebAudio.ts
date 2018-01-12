@@ -28,6 +28,8 @@ import PCMChannel from './audio/PCMChannel';
 import WaveformAudioOutputInterface from '../../machine/io/WaveformAudioOutputInterface';
 import PCMAudioEndpointInterface from './PCMAudioEndpointInterface';
 
+const audioNeedsInteraction = !!navigator.platform.match(/iPhone|iPad|iPod/);
+
 type AudioContextType = typeof AudioContext;
 
 declare namespace window {
@@ -71,6 +73,10 @@ class WebAudioDriver {
         this._merger.connect(this._context.destination);
 
         this._channels.forEach(channel => channel.init(this._context, this._merger));
+
+        if (audioNeedsInteraction) {
+            document.addEventListener('touchstart', this._touchListener, true);
+        }
     }
 
     bind(
@@ -120,28 +126,44 @@ class WebAudioDriver {
     }
 
     pause(): Promise<void> {
-        return this._mutex.runExclusive(
-            () =>
-                new Promise(resolve => {
-                    this._context.suspend().then(resolve, resolve);
-                    setTimeout(resolve, 200);
-                })
-        );
+        return this._mutex.runExclusive(() => {
+            this._suspended = true;
+
+            return new Promise(resolve => {
+                this._context.suspend().then(resolve, resolve);
+                setTimeout(resolve, 200);
+            });
+        });
     }
 
     resume(): Promise<void> {
-        return this._mutex.runExclusive(
-            () =>
-                new Promise(resolve => {
-                    this._context.resume().then(resolve, resolve);
-                    setTimeout(resolve, 200);
-                })
-        );
+        return this._mutex.runExclusive(() => {
+            this._suspended = false;
+
+            return new Promise(resolve => {
+                this._context.resume().then(resolve, resolve);
+                setTimeout(resolve, 200);
+            });
+        });
     }
 
     close(): void {
         this._mutex.runExclusive(() => this._context.close());
     }
+
+    private _touchListener = () => {
+        document.removeEventListener('touchstart', this._touchListener, true);
+
+        if (!this._context) {
+            return;
+        }
+
+        this._context.resume();
+
+        setTimeout(() => {
+            this._mutex.runExclusive(() => (this._suspended ? this._context.suspend() : this._context.resume()));
+        }, 10);
+    };
 
     private _context: AudioContext = null;
     private _merger: ChannelMergerNode = null;
@@ -150,6 +172,8 @@ class WebAudioDriver {
     private _channels: Array<ChannelInterface> = null;
     private _cache = new Map<number, AudioBuffer>();
     private _mutex = new Mutex();
+
+    private _suspended = true;
 
     private _isBound = false;
 }
