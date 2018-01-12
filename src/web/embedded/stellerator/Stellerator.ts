@@ -91,7 +91,7 @@ class Stellerator {
             simulatePov: true,
             gamma: 1,
             audio: true,
-            volume: 1,
+            volume: 0.5,
             enableKeyboard: true,
             keyboardTarget: document,
             fullscreenViaKeyboard: true,
@@ -634,7 +634,7 @@ namespace Stellerator {
         /**
          * Master volume.
          *
-         * Default: true
+         * Default: 0.5
          */
         volume: number;
 
