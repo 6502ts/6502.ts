@@ -19,6 +19,10 @@ canvas {
     canvas {
         margin-bottom: 1rem;
     }
+
+    .navbar {
+        position: absolute !important;
+    }
 }
 
 .border-box {
