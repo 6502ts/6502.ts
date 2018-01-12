@@ -77,6 +77,10 @@ const CartridgeControlsStyled = styled(CartridgeControlsUnstyled)`
         margin-right: 2ex;
     }
 
+    .btn {
+        margin-bottom: 0.5rem;
+    }
+
     button[disabled] {
         color: #777;
     }
