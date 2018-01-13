@@ -162,14 +162,16 @@ part of the ES6 standard. Therefore, a recent browser is required to run the
 emulator.
 
 Stellerator is tested and works fine on current versions of Chrome, Firefox
-and Safari. Microsoft Edge might work but is untested. Performance is best
+and Safari. Microsoft Edge works, but performace is abysmal. Performance is best
 in Chrome and Safari, Firefox may lag on DPC+ cartridges.
 
 The emulator runs at full speed (approximately 3.5 MHz / 60 FPS in NTSC mode)
-on any modern x86-based machine. On ARM based devices, speed varies greatly,
-and only high-end devices achieve full speed. During emulation, the current
+on any modern x86-based machine. On ARM based mobile devices, speed varies greatly.
+Android devices usually are incapable of running the emulator at full speed. Modern
+64bit iOS devices run the emulator well.
+During emulation, the current
 clock of the emulated system is displayed in the upper right corner.
-Chrome / V8 tends to be faster than Firefox.
+Chrome / V8  abd JavascriptCore / Safari tends to be faster than Firefox.
 
 If you run into performance issues, you can try switching of the web worker in
 the settings and try switching the audio driver to "waveform". Turning on frame
@@ -179,6 +181,8 @@ merging can help as well.
 
  * Keyboard and gamepad mappings cannot be configured.
  * Only the first paddle can be controlled.
+ * Audio on iOS may require a touch to the display to start. This is a restriction
+   imposed by Apple, and nothing can be done about it.
 
 ## License
 

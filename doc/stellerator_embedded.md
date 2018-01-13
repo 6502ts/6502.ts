@@ -147,7 +147,19 @@ method on the stellerator instance. This does not apply to window size changes i
 fullscreen mode --- the video driver takes care of those automatically.
 
 The canvas can be styled regularily using CSS; however, `padding` and `box-model`
-must be avoided.
+as well as borders must be avoided. Please use a wrapper element to achieve
+those effects. In addition, fullscreen mode (see below) changes element styles on
+the canvas --- do not use element styles on the canvas in oder to avoid collisions.
+
+## Fullscreen mode
+
+The display can be put in fullscreen mode either programmatically or (unless disabled)
+via the keyboard. Stellerator uses the HTML5 fullscreen API (with the exception of
+iOS devices which do not support HTML5 fullscreen; see 'iOS quirks' below).
+
+Switching to fullscreen mode changes element styles on the canvas. In addition, the class
+`stellerator-fullscreen` is added to the the body element. You can target this class
+if you want to do additional styling in fullscreen mode.
 
 ## Input and key mappings
 
@@ -180,7 +192,9 @@ to provide the missing features, but don't expect the result to run smoothly :)
 
 That said, Stellerator runs flawlessly in any reasonably modern version of Chrome,
 Firefox and Safari. Edge runs the emulator, but currently has trouble running
-at full speed. The mileage with other browsers may vary.
+at full speed. Safari on iOS works fine on 64bit devices, but there are some
+quirks regarding audio and fullscreen mode (see below). The mileage with other
+browsers may vary.
 
 ## System requirements and speed
 
@@ -190,9 +204,28 @@ The emulator supports connected gamepads (unless disabled in the options) but re
 on OS and browser to map the gamepad buttons correctly.
 
 I have not yet found any Android device that can sustain 6502.ts at full speed, but
-recent iOS devices are reported to work fine. Audio on iOS is currently hit and miss
-though (this will be fixed in the future), and touch controls have not yet
-been implemented.
+recent 64bit iOS devices work fine.
+
+## iOS quirks
+
+Stellerator works fine on iOS devices; however there are some quirks.
+
+Due to policies enforced by Apple, audio will not play unless started from an
+interaction event triggered by the user. Stellerator tries to work around this,
+but there must be at least one touch to the page after the `Stellerator` instance
+has been created before audio starts playing.
+
+HTML5 fullscreen in unsupported by Safari on iOS. Instead, Stellerator tries to
+emulate it by fixed positioning of the canvas with a large Z index. This more or less
+works, but the browser toolbar still makes its appearance if the display is
+touched at the wrong points, and manual scrolling is required to get rid of
+it again. Unfortunately, there is not much that can be done about this
+when the page is displayed in the browser app.
+However, the intereference from the browser UI can be avoided if the page is loaded
+from the homescreen and the `apple-mobile-web-app-capable` meta tag is configured.
+Please check out the official Apple
+[documentation](https://developer.apple.com/library/content/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html)
+for details.
 
 # Troubleshooting
 
