@@ -215,13 +215,13 @@ interaction event triggered by the user. Stellerator tries to work around this,
 but there must be at least one touch to the page after the `Stellerator` instance
 has been created before audio starts playing.
 
-HTML5 fullscreen in unsupported by Safari on iOS. Instead, Stellerator tries to
+HTML5 fullscreen is unsupported by Safari on iOS. Instead, Stellerator tries to
 emulate it by fixed positioning of the canvas with a large Z index. This more or less
 works, but the browser toolbar still makes its appearance if the display is
 touched at the wrong points, and manual scrolling is required to get rid of
 it again. Unfortunately, there is not much that can be done about this
 when the page is displayed in the browser app.
-However, the intereference from the browser UI can be avoided if the page is loaded
+However, the interference from the browser UI can be avoided if the page is loaded
 from the homescreen and the `apple-mobile-web-app-capable` meta tag is configured.
 Please check out the official Apple
 [documentation](https://developer.apple.com/library/content/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html)
