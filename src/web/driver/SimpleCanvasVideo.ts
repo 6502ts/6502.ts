@@ -47,8 +47,21 @@ export default class SimpleCanvasVideo implements VideoDriverInterface {
             height = this._canvas.clientHeight;
         }
 
-        const pixelRatio = window.devicePixelRatio || 1;
+        let pixelRatio = window.devicePixelRatio || 1;
+        if (this._video) {
+            const w = this._video.getWidth(),
+                h = this._video.getHeight();
 
+            if (height * this._aspect <= width) {
+                if (height >= 3 * h && height * this._aspect >= 3 * w) {
+                    pixelRatio = 1;
+                }
+            } else {
+                if (width >= 3 * w && width / this._aspect >= 3 * h) {
+                    pixelRatio = 1;
+                }
+            }
+        }
         this._canvas.width = width * pixelRatio;
         this._canvas.height = height * pixelRatio;
 
