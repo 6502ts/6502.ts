@@ -1,3 +1,11 @@
+# 0.9.8
+
+ * Stellerator: UI fixes for mobile devices
+ * Work around audio issues on iOS
+ * Implement a poor man's fullscreen mode for iOS devices
+ * Restrict HiDPI scaling in order to avoid slowdowns in Chrome
+ * Stellerator embedded: reduce default volume to 70%.
+
 # 0.9.7
 
  * Fix an extreme edge case of late HMOVE followed by another HMOVE. This
