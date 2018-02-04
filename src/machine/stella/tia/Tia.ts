@@ -752,6 +752,10 @@ class Tia implements VideoOutputInterface {
 
                 break;
         }
+
+        if (this._extendedHblank && this._hctr > 67) {
+            this._playfield.tick(this._hctr - 68 + this._xDelta);
+        }
     }
 
     private _tickHframe() {
@@ -788,6 +792,8 @@ class Tia implements VideoOutputInterface {
 
         // Reset the counters
         this._hctr = 0;
+
+        this._playfield.tick(0);
 
         if (!this._movementInProgress) {
             this._linesSinceChange++;
@@ -1084,7 +1090,7 @@ namespace Tia {
     }
 
     export class TrapPayload {
-        constructor(public reason: TrapReason, public tia: Tia, public message?: string) {}
+        constructor(public reason: TrapReason, public tia: Tia, public message?: string) { }
     }
 }
 
