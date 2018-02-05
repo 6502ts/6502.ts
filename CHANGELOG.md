@@ -1,3 +1,8 @@
+# 0.9.9
+
+ * Improvements to playfield collisions during HBLANK. Fixes a glitch in
+   Thrust.
+
 # 0.9.8
 
  * Stellerator: UI fixes for mobile devices
