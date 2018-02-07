@@ -214,7 +214,7 @@ class CartridgeCDF extends AbstractCartridge {
                         acc += this._displayRam[
                             (this._getWaveform(i) +
                                 (this._musicStreams[i].counter >>> this._musicStreams[i].waveformSize)) &
-                                0x0fff
+                            0x0fff
                         ];
                     }
 
@@ -330,7 +330,7 @@ class CartridgeCDF extends AbstractCartridge {
     private _getWaveform(index: number): number {
         const value = this._soc.getRam32(WaveformBase[this._version] + 4 * index);
 
-        return (value - 0x40000000 - 0x0fff) & 0x0fff;
+        return (value - 0x40000000 - 0x0800) & 0x0fff;
     }
 
     private _handleBxCDF0 = (address: number): number => {
