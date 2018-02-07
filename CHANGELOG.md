@@ -1,3 +1,7 @@
+# 0.9.10
+
+ * Fix CDF music mode.
+
 # 0.9.9
 
  * Improvements to playfield collisions during HBLANK. Fixes a glitch in
