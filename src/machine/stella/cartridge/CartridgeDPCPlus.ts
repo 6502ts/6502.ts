@@ -397,7 +397,7 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             case 254:
             case 255:
-                this._soc.run(0x0c0b);
+                this._soc.run(0xc0b);
                 break;
         }
     }

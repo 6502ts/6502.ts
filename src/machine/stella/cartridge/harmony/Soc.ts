@@ -94,7 +94,7 @@ class Soc {
         return this._thumbulator.init();
     }
 
-    reset(): void {}
+    reset(): void { }
 
     getRom(): Uint8Array {
         return this._rom8;
@@ -112,7 +112,7 @@ class Soc {
             this._thumbulator.writeRegister(i, 0);
         }
 
-        this._thumbulator.writeRegister(13, 0x40001fb4);
+        this._thumbulator.writeRegister(13, 0x20001fb4 + 0x8000);
         this._thumbulator.writeRegister(14, CONST.returnAddress + 1);
         this._thumbulator.writeRegister(15, entry);
 
@@ -160,9 +160,9 @@ class Soc {
                     }
                     break;
 
-                case 0x4:
-                    if (addr < 0x2000) {
-                        return this.getRam16(addr);
+                case 0x2:
+                    if (addr >= 0x8000 && addr < 0xa000) {
+                        return this.getRam16(addr - 0x8000);
                     }
                     break;
 
@@ -196,9 +196,9 @@ class Soc {
                     }
                     break;
 
-                case 0x4:
-                    if (addr < 0x2000) {
-                        return this.getRam32(addr);
+                case 0x2:
+                    if (addr >= 0x8000 && addr < 0xa000) {
+                        return this.getRam32(addr - 0x8000);
                     }
                     break;
 
@@ -227,9 +227,9 @@ class Soc {
                 addr = address & 0x0fffffff;
 
             switch (region) {
-                case 0x04:
-                    if (addr < 0x2000) {
-                        this.setRam16(addr, value & 0xffff);
+                case 0x02:
+                    if (addr >= 0x8000 && addr < 0xa000) {
+                        this.setRam16(addr - 0x8000, value & 0xffff);
                         return;
                     }
                     break;
@@ -257,9 +257,9 @@ class Soc {
                 addr = address & 0x0fffffff;
 
             switch (region) {
-                case 0x4:
-                    if (addr < 0x2000) {
-                        this.setRam32(addr, value);
+                case 0x2:
+                    if (addr >= 0x8000 && addr < 0xa000) {
+                        this.setRam32(addr - 0x8000, value);
                         return;
                     }
 
