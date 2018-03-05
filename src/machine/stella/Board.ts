@@ -85,7 +85,8 @@ class Board implements BoardInterface {
         cartridge
             .setCpu(cpu)
             .setBus(bus)
-            .setCpuTimeProvider(() => this.getCpuTime());
+            .setCpuTimeProvider(() => this.getCpuTime())
+            .setRng(this._rng);
 
         pia.setBus(bus);
 

@@ -22,6 +22,7 @@
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
+import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 import Header from './supercharger/Header';
 import { bios } from './supercharger/blob';
@@ -32,7 +33,7 @@ const enum BankType {
 }
 
 class CartridgeSupercharger extends AbstractCartridge {
-    constructor(buffer: { [i: number]: number; length: number }, private _showLoadingBars = true) {
+    constructor(buffer: { [i: number]: number; length: number }) {
         super();
 
         if (buffer.length % 8448 !== 0) {
@@ -66,7 +67,7 @@ class CartridgeSupercharger extends AbstractCartridge {
             this._ramBanks[i] = new Uint8Array(0x0800);
         }
 
-        this._loadBios();
+        this._setupRom();
 
         this.reset();
     }
@@ -78,6 +79,8 @@ class CartridgeSupercharger extends AbstractCartridge {
         this._pendingWriteData = 0;
         this._lastAddressBusValue = -1;
         this._writeRamEnabled = false;
+        this._loadInProgress = false;
+        this._loadTimestamp = 0;
     }
 
     setBus(bus: Bus): this {
@@ -89,27 +92,24 @@ class CartridgeSupercharger extends AbstractCartridge {
         return this;
     }
 
+    setCpuTimeProvider(provider: () => number): this {
+        this._cpuTimeProvider = provider;
+
+        return this;
+    }
+
+    setRng(rng: RngInterface): this {
+        this._rng = rng;
+
+        return this;
+    }
+
     read(address: number): number {
-        address &= 0x0fff;
-
-        if (address === 0x0850 && this._bank1Type === BankType.rom) {
-            this._loadIntoRam(this._bus.peek(0x80));
-        }
-
-        const value = this._access(address, this._bus.getLastDataBusValue());
-        if (value >= 0) {
-            return value;
-        }
-
-        return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07ff];
+        return this._access(address, this._bus.getLastDataBusValue());
     }
 
     peek(address: number): number {
         address &= 0x0fff;
-
-        if (this._pendingWrite && this._writeRamEnabled && this._transitionCount === 5) {
-            return this._pendingWriteData;
-        }
 
         return address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07ff];
     }
@@ -137,12 +137,22 @@ class CartridgeSupercharger extends AbstractCartridge {
     private _access(address: number, value: number): number {
         address &= 0x0fff;
 
+        if (this._loadInProgress) {
+            if ((this._cpuTimeProvider() - this._loadTimestamp) > 1E-3) {
+                this._loadInProgress = false;
+            } else {
+                return value;
+            }
+        }
+
+        const readValue = address < 0x0800 ? this._bank0[address] : this._bank1[address & 0x07ff];
+
         if ((address & 0x0f00) === 0 && (!this._pendingWrite || !this._writeRamEnabled)) {
             this._pendingWriteData = address & 0x00ff;
             this._transitionCount = 0;
-            this._pendingWrite = true;
+            this._pendingWrite = this._writeRamEnabled;
 
-            return -1;
+            return readValue;
         }
 
         if (address === 0x0ff8) {
@@ -151,22 +161,30 @@ class CartridgeSupercharger extends AbstractCartridge {
 
             this._pendingWrite = false;
 
-            return -1;
+            return readValue;
+        }
+
+        if (address === 0x0ff9 && this._bank1Type === BankType.rom && ((this._lastAddressBusValue & 0x1fff) < 0xff)) {
+            this._loadIntoRam(value);
+
+            return readValue;
         }
 
         if (this._pendingWrite && this._writeRamEnabled && this._transitionCount === 5) {
+            this._pendingWrite = false;
+
             if (address < 0x0800) {
                 this._bank0[address] = this._pendingWriteData;
             } else if (this._bank1Type === BankType.ram) {
                 this._bank1[address & 0x07ff] = this._pendingWriteData;
+            } else {
+                return readValue;
             }
-
-            this._pendingWrite = false;
 
             return this._pendingWriteData;
         }
 
-        return -1;
+        return readValue;
     }
 
     private _setBankswitchMode(mode: number): void {
@@ -206,15 +224,17 @@ class CartridgeSupercharger extends AbstractCartridge {
         this._bank1 = bank1Type === BankType.ram ? this._ramBanks[bank1] : this._rom;
     }
 
-    private _loadBios() {
+    private _setupRom() {
         for (let i = 0; i < 0x0800; i++) {
-            this._rom[i] = i < bios.length ? bios[i] : 0x02;
+            this._rom[i] = 0;
         }
 
-        this._rom[109] = this._showLoadingBars ? 0 : 0xff;
+        for (let i = 0; i < bios.length; i++) {
+            this._rom[i] = bios[i];
+        }
 
         this._rom[0x07ff] = this._rom[0x07fd] = 0xf8;
-        this._rom[0x07fe] = this._rom[0x07fc] = 0x0a;
+        this._rom[0x07fe] = this._rom[0x07fc] = 0x07;
     }
 
     private _loadIntoRam(loadId: number) {
@@ -256,9 +276,13 @@ class CartridgeSupercharger extends AbstractCartridge {
             }
         }
 
-        this._bus.write(0xfe, header.startAddressLow);
-        this._bus.write(0xff, header.startAddressHigh);
-        this._bus.write(0x80, header.controlWord);
+        this._rom[0x7f0] = header.controlWord;
+        this._rom[0x7f1] = this._rng.int(0xff);
+        this._rom[0x7f2] = header.startAddressLow;
+        this._rom[0x7f3] = header.startAddressHigh;
+
+        this._loadInProgress = true;
+        this._loadTimestamp = this._cpuTimeProvider();
     }
 
     private _bus: Bus;
@@ -267,7 +291,7 @@ class CartridgeSupercharger extends AbstractCartridge {
     private _loads: Array<Uint8Array> = null;
     private _headers: Array<Header> = null;
 
-    private _rom = new Uint8Array(0x0800);
+    private _rom = new Uint8Array(0x800);
     private _ramBanks = new Array<Uint8Array>(3);
 
     private _bank0: Uint8Array = null;
@@ -279,6 +303,11 @@ class CartridgeSupercharger extends AbstractCartridge {
     private _pendingWrite = false;
     private _lastAddressBusValue = -1;
     private _writeRamEnabled = false;
+    private _loadInProgress = false;
+    private _loadTimestamp = 0;
+
+    private _rng: RngInterface;
+    private _cpuTimeProvider: () => number = null;
 }
 
 export { CartridgeSupercharger as default };

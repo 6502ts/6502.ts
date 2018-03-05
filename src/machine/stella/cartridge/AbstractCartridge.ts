@@ -29,9 +29,9 @@ import Bus from '../Bus';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 class AbstractCartridge implements CartridgeInterface {
-    async init(): Promise<void> {}
+    async init(): Promise<void> { }
 
-    reset(): void {}
+    reset(): void { }
 
     read(address: number): number {
         return 0;
@@ -41,7 +41,7 @@ class AbstractCartridge implements CartridgeInterface {
         return this.read(address);
     }
 
-    write(address: number, value: number) {}
+    write(address: number, value: number) { }
 
     getType(): CartridgeInfo.CartridgeType {
         return CartridgeInfo.CartridgeType.unknown;
@@ -55,11 +55,17 @@ class AbstractCartridge implements CartridgeInterface {
         return this;
     }
 
-    setCpuTimeProvider(provider: () => number) {}
+    setRng(rng: RngInterface): this {
+        return this;
+    }
 
-    notifyCpuCycleComplete(): void {}
+    setCpuTimeProvider(provider: () => number) {
+        return this;
+    }
 
-    randomize(rng: RngInterface): void {}
+    notifyCpuCycleComplete(): void { }
+
+    randomize(rng: RngInterface): void { }
 
     protected triggerTrap(reason: CartridgeInterface.TrapReason, message: string) {
         if (this.trap.hasHandlers) {

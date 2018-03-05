@@ -44,7 +44,9 @@ interface CartridgeInterface {
 
     setBus(bus: BusInterface): this;
 
-    setCpuTimeProvider(provider: () => number): void;
+    setRng(rng: RngInterface): this;
+
+    setCpuTimeProvider(provider: () => number): this;
 
     notifyCpuCycleComplete(): void;
 
@@ -61,7 +63,7 @@ namespace CartridgeInterface {
     }
 
     export class TrapPayload {
-        constructor(public reason: TrapReason, public cartridge: CartridgeInterface, public message?: string) {}
+        constructor(public reason: TrapReason, public cartridge: CartridgeInterface, public message?: string) { }
     }
 }
 

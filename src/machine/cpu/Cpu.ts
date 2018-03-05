@@ -316,7 +316,7 @@ function opLsrMem(state: CpuInterface.State, bus: BusInterface, operand: number)
         (old & CpuInterface.Flags.c);
 }
 
-function opNop(): void {}
+function opNop(): void { }
 
 function opOra(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     state.a |= operand;
@@ -573,7 +573,7 @@ function opLar(state: CpuInterface.State, bus: BusInterface, operand: number): v
 }
 
 function opIsc(state: CpuInterface.State, bus: BusInterface, operand: number): void {
-    const value = bus.read(operand) + 1;
+    const value = (bus.read(operand) + 1) & 0xff;
     bus.write(operand, value);
 
     opSbc(state, bus, value);

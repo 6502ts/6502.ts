@@ -118,7 +118,7 @@ class Bus implements BusInterface {
     }
 
     // Stub
-    poke(address: number, value: number) {}
+    poke(address: number, value: number) { }
 
     getLastDataBusValue(): number {
         return this._lastDataBusValue;
@@ -164,7 +164,7 @@ namespace Bus {
     }
 
     export class TrapPayload {
-        constructor(public reason: TrapReason, public bus: Bus, public message?: string) {}
+        constructor(public reason: TrapReason, public bus: Bus, public message?: string) { }
     }
 }
 

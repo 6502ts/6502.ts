@@ -68,8 +68,10 @@ class CartridgeDPC extends AbstractCartridge {
         return this;
     }
 
-    setCpuTimeProvider(provider: () => number): void {
+    setCpuTimeProvider(provider: () => number): this {
         this._cpuTimeProvider = provider;
+
+        return this;
     }
 
     read(address: number): number {
