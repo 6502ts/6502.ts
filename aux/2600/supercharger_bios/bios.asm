@@ -291,17 +291,3 @@ execute:
         STA $FFF8
 ; ... and jump. The address will be patched in.
         JMP $0000
-
-; ===
-; The load canary and the 6502 vectors
-; ===
-;        SEG vectors
-;        ORG $FFFB
-
-; Canary value. While the load is in progress, the cartridge won't drive the
-; bus, and this will not read zero
-;        dc.b    0
-; reset vector
-;        dc.w    start
-; BRK vector
-;        dc.w    start
