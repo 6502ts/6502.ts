@@ -125,9 +125,9 @@ class CartridgeSupercharger extends AbstractCartridge {
     private static _onBusAccess(type: Bus.AccessType, self: CartridgeSupercharger) {
         const address = self._bus.getLastAddresBusValue();
 
-        if (address !== self._lastAddressBusValue) {
-            if (++self._transitionCount > 5) {
-                self._pendingWrite = false;
+        if (address !== self._lastAddressBusValue && !self._loadInProgress) {
+            if (self._transitionCount <= 5) {
+                self._transitionCount++;
             }
 
             self._lastAddressBusValue = address;
@@ -150,7 +150,7 @@ class CartridgeSupercharger extends AbstractCartridge {
         if ((address & 0x0f00) === 0 && (!this._pendingWrite || !this._writeRamEnabled)) {
             this._pendingWriteData = address & 0x00ff;
             this._transitionCount = 0;
-            this._pendingWrite = this._writeRamEnabled;
+            this._pendingWrite = true;
 
             return readValue;
         }
