@@ -46,6 +46,8 @@ import StellaConfig from '../../../../../machine/stella/Config';
 import Settings from '../../model/Settings';
 import * as VideoProcessorConfig from '../../../../../video/processing/config';
 
+const isSafari = navigator.userAgent.match(/safari/i);
+
 class EmulationProvider implements EmulationProviderInterface {
     constructor(private _storage: StorageManager) {}
 
@@ -176,7 +178,7 @@ class EmulationProvider implements EmulationProviderInterface {
             buffer,
             stellaConfig,
             cartridge.cartridgeType,
-            state.settings.mergeFrames ? [{ type: VideoProcessorConfig.Type.merge }] : undefined
+            !isSafari && state.settings.mergeFrames ? [{ type: VideoProcessorConfig.Type.merge }] : undefined
         );
 
         this._updateControlPanelState(state.emulationState);

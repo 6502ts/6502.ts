@@ -28,6 +28,8 @@ import Switch from './general/Switch';
 import AudioDriverSelect from './settings/AudioDriverSelect';
 import SettingsModel from '../model/Settings';
 
+const isSafari = navigator.userAgent.match(/safari/i);
+
 function Settings(props: Settings.Props) {
     return (
         <Grid fluid className="settings-grid">
@@ -122,19 +124,21 @@ function Settings(props: Settings.Props) {
                     <Slider value={props.gamma} min={0.1} max={5} step={0.1} onChange={props.onChangeGamma} />
                 </Col>
             </Row>
-            <Row>
-                <Col sm={4}>
-                    <ControlLabel>Reduce framerate (requires cartridge restart):</ControlLabel>
-                </Col>
-                <Col sm={8}>
-                    <Switch
-                        labelTrue="On"
-                        labelFalse="Off"
-                        state={props.mergeFrames}
-                        onSwitch={props.onToggleMergeFrames}
-                    />
-                </Col>
-            </Row>
+            {isSafari ? null :
+                <Row>
+                    <Col sm={4}>
+                        <ControlLabel>Reduce framerate (requires cartridge restart):</ControlLabel>
+                    </Col>
+                    <Col sm={8}>
+                        <Switch
+                            labelTrue="On"
+                            labelFalse="Off"
+                            state={props.mergeFrames}
+                            onSwitch={props.onToggleMergeFrames}
+                        />
+                    </Col>
+                </Row>
+            }
             <Row>
                 <Col sm={4}>
                     <ControlLabel>Sync rendering to browser redraw:</ControlLabel>
