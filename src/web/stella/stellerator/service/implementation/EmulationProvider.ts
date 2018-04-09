@@ -20,6 +20,7 @@
  */
 
 import { Action, MiddlewareAPI, Middleware, Store } from 'redux';
+import * as bowser from 'bowser';
 
 import State from '../../state/State';
 import Cartridge from '../../model/Cartridge';
@@ -46,7 +47,7 @@ import StellaConfig from '../../../../../machine/stella/Config';
 import Settings from '../../model/Settings';
 import * as VideoProcessorConfig from '../../../../../video/processing/config';
 
-const isSafari = navigator.userAgent.match(/safari/i);
+const isSafari = bowser.safari || bowser.ios;
 
 class EmulationProvider implements EmulationProviderInterface {
     constructor(private _storage: StorageManager) {}
@@ -57,7 +58,7 @@ class EmulationProvider implements EmulationProviderInterface {
 
     async init(stellaWorkerUrl: string, videoPipelingWorkerUrl: string): Promise<void> {
         this._service = stellaWorkerUrl
-            ? new WorkerEmulationService(`${stellaWorkerUrl}`, `${videoPipelingWorkerUrl}`)
+            ? new WorkerEmulationService(`${stellaWorkerUrl}`, isSafari ? undefined : `${videoPipelingWorkerUrl}`)
             : new VanillaEmulationService();
 
         await this._service.init();

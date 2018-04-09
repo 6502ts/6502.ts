@@ -41,10 +41,6 @@ class VideoDriver {
     constructor(private _rpc: RpcProviderInterface) {}
 
     init(videoPipelinePort?: MessagePort): void {
-        if (navigator.userAgent.match(/safari/i)) {
-            videoPipelinePort = null;
-        }
-
         this._rpc
             .registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurfaceFromHost.bind(this))
             .registerRpcHandler(RPC_TYPE.getVideoParameters, this._onGetVideoParameters.bind(this));

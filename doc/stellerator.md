@@ -71,6 +71,9 @@ The "Settings" page allows to configure global emulation settings.
  * **Reduce framerate:** Merge frames in pair. Reduces rendering load and provides another
    way of emulating phosphor / POV. Note that enabling this together with POV / phosphor
    emulation will yield an extreme phosphor effect.
+
+   **Note** Due to a bug in Safari 11.1, this functionality is currently disabled
+   on Safari and iOS.
  * **Sync rendering to browser redraw:** This syncs rendering to the browsers redraw
    cycle and will avoid tearing (provided the system supports it). However, this can
    lead to frame drop for displays with low refresh rates.

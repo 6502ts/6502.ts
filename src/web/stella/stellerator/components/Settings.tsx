@@ -22,13 +22,14 @@
 import * as React from 'react';
 
 import { Col, ControlLabel, Grid, Row } from 'react-bootstrap';
+import * as bowser from 'bowser';
 
 import Slider from './general/Slider';
 import Switch from './general/Switch';
 import AudioDriverSelect from './settings/AudioDriverSelect';
 import SettingsModel from '../model/Settings';
 
-const isSafari = navigator.userAgent.match(/safari/i);
+const isSafari = bowser.safari || bowser.ios;
 
 function Settings(props: Settings.Props) {
     return (
