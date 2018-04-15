@@ -33,6 +33,7 @@ import SimpleCanvasVideoDriver from '../../../driver/SimpleCanvasVideo';
 import WebglVideoDriver from '../../../driver/webgl/WebglVideo';
 import VideoDriver from '../../../driver/VideoDriverInterface';
 import KeyboardIoDriver from '../../driver/KeyboardIO';
+import TouchIoDriver from '../../driver/TouchIO';
 import FullscreenVideoDriver from '../../../driver/FullscreenVideo';
 import MouseAsPaddleDriver from '../../../driver/MouseAsPaddle';
 
@@ -113,6 +114,7 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         }
 
         const keyboardDriver = new KeyboardIoDriver(document);
+        const touchDriver = new TouchIoDriver(this._canvasElt);
         this._fullscreenDriver = new FullscreenVideoDriver(videoDriver);
 
         this._driverManager
@@ -121,19 +123,24 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
             )
             .addDriver(keyboardDriver, (context: EmulationContextInterface, driver: KeyboardIoDriver) =>
                 driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+            )
+            .addDriver(touchDriver, (context: EmulationContextInterface, driver: TouchIoDriver) =>
+                driver.bind(context.getJoystick(0), context.getControlPanel())
             );
 
-        keyboardDriver.toggleFullscreen.addHandler(() => this._fullscreenDriver.toggle());
+        for (const driver of [keyboardDriver, touchDriver]) {
+            driver.toggleFullscreen.addHandler(() => this._fullscreenDriver.toggle());
+
+            driver.togglePause.addHandler(() => {
+                if (this.props.emulationState === EmulationServiceInterface.State.running) {
+                    this.props.userPauseEmulation();
+                } else if (this.props.emulationState === EmulationServiceInterface.State.paused) {
+                    this.props.resumeEmulation();
+                }
+            });
+        }
 
         keyboardDriver.hardReset.addHandler(() => this.props.resetEmulation());
-
-        keyboardDriver.togglePause.addHandler(() => {
-            if (this.props.emulationState === EmulationServiceInterface.State.running) {
-                this.props.userPauseEmulation();
-            } else if (this.props.emulationState === EmulationServiceInterface.State.paused) {
-                this.props.resumeEmulation();
-            }
-        });
 
         if (this._videoDriver) {
             this._videoDriver.resize();
