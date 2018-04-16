@@ -38,6 +38,9 @@ export interface SettingsSchema {
     volume: number;
     syncRendering: boolean;
     audioDriver: AudioDriverString;
+    enableTouchControls: boolean;
+    touchJoystickSensitivity: number;
+    touchLeftHandedMode: boolean;
 }
 
 function audioDriverToString(driver: SettingsModel.AudioDriver): AudioDriverString {

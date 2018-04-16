@@ -37,7 +37,7 @@ const enum TouchType {
 }
 
 class TouchIO {
-    constructor(private _canvas: HTMLCanvasElement, private _joystickSensitivity = 15) {
+    constructor(private _canvas: HTMLCanvasElement, private _joystickSensitivity = 15, private _leftHanded = false) {
         this.toggleFullscreen = this._fullscreenDoubleTapDetector.trigger;
     }
 
@@ -88,7 +88,7 @@ class TouchIO {
             const normalizedTouch = new NormalizedTouch(e.changedTouches.item(i), this._canvas),
                 id = normalizedTouch.touch.identifier;
 
-            if (normalizedTouch.x <= 0.5) {
+            if (this._leftHanded ? normalizedTouch.x > 0.5 : normalizedTouch.x <= 0.5) {
                 if (normalizedTouch.y <= 0.5) {
                     // NW
                     normalizedTouch.type = TouchType.alt;

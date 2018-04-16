@@ -210,6 +210,24 @@ export default class Database extends Dexie {
                     cursor.update(settings);
                 });
             });
+
+        this.version(12)
+            .stores({
+                cartridge: '++id, &hash',
+                settings: 'id',
+                image: '&hash'
+            })
+            .upgrade(transaction => {
+                transaction.table<Settings.SettingsSchema, Settings.indexType>('settings').each((settings, c) => {
+                    const cursor: IDBCursor = c as any;
+
+                    settings.enableTouchControls = true;
+                    settings.touchJoystickSensitivity = 15;
+                    settings.touchLeftHandedMode = false;
+
+                    cursor.update(settings);
+                });
+            });
     }
 
     cartridge: Dexie.Table<Cartridge.CartridgeSchema, Cartridge.indexType>;

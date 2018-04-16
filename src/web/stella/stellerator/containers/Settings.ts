@@ -33,7 +33,10 @@ import {
     setVolume,
     setSyncRendering,
     setPovEmulation,
-    changeAudioDriver
+    changeAudioDriver,
+    setEnableTouchControls,
+    setTouchJoystickSensitivity,
+    setTouchLeftHandedMode
 } from '../actions/settings';
 
 function mapStateToProps(state: State): SettingsComponent.Props {
@@ -46,7 +49,10 @@ function mapStateToProps(state: State): SettingsComponent.Props {
         mergeFrames: state.settings.mergeFrames,
         volume: state.settings.volume,
         syncRendering: state.settings.syncRendering,
-        audioDriver: state.settings.audioDriver
+        audioDriver: state.settings.audioDriver,
+        enableTouchControls: state.settings.enableTouchControls,
+        touchJoystickSensitivity: state.settings.touchJoystickSensitivity,
+        touchLeftHandedMode: state.settings.touchLeftHandedMode
     };
 }
 
@@ -60,7 +66,10 @@ const SettingsContainer = connect(mapStateToProps, {
     onChangeVolume: setVolume,
     onChangeSyncRendering: setSyncRendering,
     onTogglePovEmulation: setPovEmulation,
-    onChangeAudioDriver: changeAudioDriver
+    onChangeAudioDriver: changeAudioDriver,
+    onChangeEnableTouch: setEnableTouchControls,
+    onChangeTouchJoystickSensitivity: setTouchJoystickSensitivity,
+    onChangeTouchLeftHandedMode: setTouchLeftHandedMode
 })(SettingsComponent as any);
 
 export { SettingsContainer as default };

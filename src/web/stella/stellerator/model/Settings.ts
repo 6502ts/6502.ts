@@ -29,6 +29,9 @@ interface Settings {
     volume: number;
     syncRendering: boolean;
     audioDriver: Settings.AudioDriver;
+    enableTouchControls: boolean;
+    touchJoystickSensitivity: number;
+    touchLeftHandedMode: boolean;
 }
 
 namespace Settings {
@@ -50,7 +53,10 @@ namespace Settings {
             mergeFrames: false,
             volume: 1,
             syncRendering: true,
-            audioDriver: AudioDriver.pcm
+            audioDriver: AudioDriver.pcm,
+            enableTouchControls: true,
+            touchJoystickSensitivity: 15,
+            touchLeftHandedMode: false
         };
     }
 

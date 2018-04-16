@@ -33,6 +33,9 @@ export const types = {
     setVolume: 'settings/setVolume',
     setSyncRendering: 'settings/setSyncRendering',
     changeAudioDriver: 'settings/changeAudioDriver',
+    setEnableTouchControls: 'settings/setEnableTouchControls',
+    setTouchJoystickSensitivity: 'settings/setTouchJoystickSensitivity',
+    setTouchLeftHandedMode: 'settings/setTouchLeftHandedMode',
     init: 'settings/init'
 };
 
@@ -147,5 +150,38 @@ export function changeAudioDriver(driver: Settings.AudioDriver): ChangeAudioDriv
     return {
         type: types.changeAudioDriver,
         driver
+    };
+}
+
+export interface SetEnableTouchControls extends Action {
+    enableTouchControls: boolean;
+}
+
+export function setEnableTouchControls(enableTouchControls: boolean): SetEnableTouchControls {
+    return {
+        type: types.setEnableTouchControls,
+        enableTouchControls
+    };
+}
+
+export interface SetTouchJoystickSensitivity extends Action {
+    sensitivity: number;
+}
+
+export function setTouchJoystickSensitivity(sensitivity: number): SetTouchJoystickSensitivity {
+    return {
+        type: types.setTouchJoystickSensitivity,
+        sensitivity
+    };
+}
+
+export interface SetTouchLeftHandedMode extends Action {
+    leftHandedMode: boolean;
+}
+
+export function setTouchLeftHandedMode(leftHandedMode: boolean): SetTouchLeftHandedMode {
+    return {
+        type: types.setTouchLeftHandedMode,
+        leftHandedMode
     };
 }

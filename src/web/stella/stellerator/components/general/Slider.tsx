@@ -32,6 +32,7 @@ export interface Props {
     wheelWeight?: number;
 
     onChange?: (newValue: number) => void;
+    format?: (value: number) => number | string;
 }
 
 const Container = styled.div`
@@ -70,7 +71,7 @@ function Slider(props: Props) {
                 step={props.step.toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => props.onChange(parseFloat(e.target.value))}
             />
-            <Label>{props.value.toFixed(2)}</Label>
+            <Label>{props.format(props.value)}</Label>
         </Container>
     );
 }
@@ -83,7 +84,8 @@ namespace Slider {
         step: 0.01,
         wheelWeight: 0.1,
 
-        onChange: () => undefined
+        onChange: () => undefined,
+        format: x => x.toFixed(2)
     };
 }
 

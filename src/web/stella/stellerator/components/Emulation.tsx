@@ -114,7 +114,9 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
         }
 
         const keyboardDriver = new KeyboardIoDriver(document);
-        const touchDriver = new TouchIoDriver(this._canvasElt);
+        const touchDriver = this.props.enableTouchControls ?
+            new TouchIoDriver(this._canvasElt, this.props.touchJoystickSensitivity, this.props.touchLeftHandedMode) :
+            null;
         this._fullscreenDriver = new FullscreenVideoDriver(videoDriver);
 
         this._driverManager
@@ -123,12 +125,15 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
             )
             .addDriver(keyboardDriver, (context: EmulationContextInterface, driver: KeyboardIoDriver) =>
                 driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
-            )
-            .addDriver(touchDriver, (context: EmulationContextInterface, driver: TouchIoDriver) =>
-                driver.bind(context.getJoystick(0), context.getControlPanel())
             );
 
-        for (const driver of [keyboardDriver, touchDriver]) {
+        if (this.props.enableTouchControls) {
+            this._driverManager.addDriver(touchDriver, (context: EmulationContextInterface, driver: TouchIoDriver) =>
+                driver.bind(context.getJoystick(0), context.getControlPanel())
+            );
+        }
+
+        for (const driver of [keyboardDriver, ...(this.props.enableTouchControls ? [touchDriver] : [])]) {
             driver.toggleFullscreen.addHandler(() => this._fullscreenDriver.toggle());
 
             driver.togglePause.addHandler(() => {
@@ -238,6 +243,9 @@ namespace Emulation {
         gamma?: number;
         pausedByUser?: boolean;
         syncRendering?: boolean;
+        enableTouchControls?: boolean;
+        touchJoystickSensitivity?: number;
+        touchLeftHandedMode?: boolean;
 
         navigateAway?: () => void;
         pauseEmulation?: () => void;
@@ -257,6 +265,9 @@ namespace Emulation {
         emulationState: EmulationServiceInterface.State.stopped,
         pausedByUser: false,
         syncRendering: true,
+        enableTouchControls: true,
+        touchJoystickSensitivity: 15,
+        touchLeftHandedMode: false,
 
         navigateAway: (): void => undefined,
         pauseEmulation: (): void => undefined,

@@ -34,7 +34,10 @@ import {
     SetMergeFramesAction,
     SetVolumeAction,
     SetSyncRenderingAction,
-    SetPovEmulationAction
+    SetPovEmulationAction,
+    SetEnableTouchControls,
+    SetTouchJoystickSensitivity,
+    SetTouchLeftHandedMode
 } from '../actions/settings';
 
 export default function reducer(settings: Settings = Settings.create(), action: Action): Settings {
@@ -68,6 +71,15 @@ export default function reducer(settings: Settings = Settings.create(), action: 
 
         case types.changeAudioDriver:
             return changeAudioDriver(settings, action as ChangeAudioDriverAction);
+
+        case types.setEnableTouchControls:
+            return setEnableTouchControls(settings, action as SetEnableTouchControls);
+
+        case types.setTouchJoystickSensitivity:
+            return setTouchJoystickSensitivity(settings, action as SetTouchJoystickSensitivity);
+
+        case types.setTouchLeftHandedMode:
+            return setTouchLeftHandedMode(settings, action as SetTouchLeftHandedMode);
     }
 
     return settings;
@@ -139,5 +151,26 @@ function changeAudioDriver(settings: Settings, action: ChangeAudioDriverAction):
     return {
         ...settings,
         audioDriver: action.driver
+    };
+}
+
+function setEnableTouchControls(settings: Settings, action: SetEnableTouchControls): Settings {
+    return {
+        ...settings,
+        enableTouchControls: action.enableTouchControls
+    };
+}
+
+function setTouchJoystickSensitivity(settings: Settings, action: SetTouchJoystickSensitivity): Settings {
+    return {
+        ...settings,
+        touchJoystickSensitivity: action.sensitivity
+    };
+}
+
+function setTouchLeftHandedMode(settings: Settings, action: SetTouchLeftHandedMode): Settings {
+    return {
+        ...settings,
+        touchLeftHandedMode: action.leftHandedMode
     };
 }

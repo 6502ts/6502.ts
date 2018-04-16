@@ -50,7 +50,10 @@ function mapStateToProps(state: State): EmulationComponent.Props {
         povEmulation: state.settings.povEmulation,
         gamma: state.settings.gamma,
         pausedByUser: state.emulationState.pausedByUser,
-        syncRendering: state.settings.syncRendering
+        syncRendering: state.settings.syncRendering,
+        enableTouchControls: state.settings.enableTouchControls,
+        touchJoystickSensitivity: state.settings.touchJoystickSensitivity,
+        touchLeftHandedMode: state.settings.touchLeftHandedMode
     };
 }
 

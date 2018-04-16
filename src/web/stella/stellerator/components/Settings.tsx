@@ -32,8 +32,7 @@ import SettingsModel from '../model/Settings';
 const isSafari = bowser.safari || bowser.ios;
 
 function Settings(props: Settings.Props) {
-    return (
-        <Grid fluid className="settings-grid">
+    return <Grid fluid className="settings-grid">
             <Row>
                 <Col md={12}>
                     <h1>General Settings</h1>
@@ -44,12 +43,7 @@ function Settings(props: Settings.Props) {
                     <ControlLabel>Use worker (requires reload):</ControlLabel>
                 </Col>
                 <Col sm={8}>
-                    <Switch
-                        labelTrue="Yes"
-                        labelFalse="No"
-                        state={props.useWorker}
-                        onSwitch={props.onToggleUseWorker}
-                    />
+                    <Switch labelTrue="Yes" labelFalse="No" state={props.useWorker} onSwitch={props.onToggleUseWorker} />
                 </Col>
             </Row>
             <Row style={{ marginTop: '1rem' }}>
@@ -83,12 +77,7 @@ function Settings(props: Settings.Props) {
                     <ControlLabel>Smooth scaling:</ControlLabel>
                 </Col>
                 <Col sm={8}>
-                    <Switch
-                        labelTrue="On"
-                        labelFalse="Off"
-                        state={props.smoothScaling}
-                        onSwitch={props.onToggleSmoothScaling}
-                    />
+                    <Switch labelTrue="On" labelFalse="Off" state={props.smoothScaling} onSwitch={props.onToggleSmoothScaling} />
                 </Col>
             </Row>
             <Row>
@@ -96,12 +85,7 @@ function Settings(props: Settings.Props) {
                     <ControlLabel>WebGL rendering:</ControlLabel>
                 </Col>
                 <Col sm={8}>
-                    <Switch
-                        labelTrue="On"
-                        labelFalse="Off"
-                        state={props.webGlRendering}
-                        onSwitch={props.onToggleWebGlRendering}
-                    />
+                    <Switch labelTrue="On" labelFalse="Off" state={props.webGlRendering} onSwitch={props.onToggleWebGlRendering} />
                 </Col>
             </Row>
             <Row>
@@ -109,12 +93,7 @@ function Settings(props: Settings.Props) {
                     <ControlLabel>POV / Phosphor emulation (WebGL only):</ControlLabel>
                 </Col>
                 <Col sm={8}>
-                    <Switch
-                        labelTrue="On"
-                        labelFalse="Off"
-                        state={props.povEmulation}
-                        onSwitch={props.onTogglePovEmulation}
-                    />
+                    <Switch labelTrue="On" labelFalse="Off" state={props.povEmulation} onSwitch={props.onTogglePovEmulation} />
                 </Col>
             </Row>
             <Row>
@@ -125,36 +104,59 @@ function Settings(props: Settings.Props) {
                     <Slider value={props.gamma} min={0.1} max={5} step={0.1} onChange={props.onChangeGamma} />
                 </Col>
             </Row>
-            {isSafari ? null :
-                <Row>
+            {isSafari ? null : <Row>
                     <Col sm={4}>
                         <ControlLabel>Reduce framerate (requires cartridge restart):</ControlLabel>
                     </Col>
                     <Col sm={8}>
-                        <Switch
-                            labelTrue="On"
-                            labelFalse="Off"
-                            state={props.mergeFrames}
-                            onSwitch={props.onToggleMergeFrames}
-                        />
+                        <Switch labelTrue="On" labelFalse="Off" state={props.mergeFrames} onSwitch={props.onToggleMergeFrames} />
                     </Col>
-                </Row>
-            }
+                </Row>}
             <Row>
                 <Col sm={4}>
                     <ControlLabel>Sync rendering to browser redraw:</ControlLabel>
                 </Col>
                 <Col sm={8}>
-                    <Switch
-                        labelTrue="On"
-                        labelFalse="Off"
-                        state={props.syncRendering}
-                        onSwitch={props.onChangeSyncRendering}
+                    <Switch labelTrue="On" labelFalse="Off" state={props.syncRendering} onSwitch={props.onChangeSyncRendering} />
+                </Col>
+            </Row>
+            <Row style={{ marginTop: '1rem' }}>
+                <Col md={12}>
+                    <h1>Touch controls</h1>
+                </Col>
+            </Row>
+            <Row>
+                <Col sm={4}>
+                    <ControlLabel>Enable touch controls:</ControlLabel>
+                </Col>
+                <Col sm={8}>
+                    <Switch labelTrue="On" labelFalse="Off" state={props.enableTouchControls} onSwitch={props.onChangeEnableTouch} />
+                </Col>
+            </Row>
+            <Row>
+                <Col sm={4}>
+                    <ControlLabel>Left handed mode:</ControlLabel>
+                </Col>
+                <Col sm={8}>
+                    <Switch labelTrue="On" labelFalse="Off" state={props.touchLeftHandedMode} onSwitch={props.onChangeTouchLeftHandedMode} />
+                </Col>
+            </Row>
+            <Row>
+                <Col sm={4}>
+                    <ControlLabel>Virtual joystick sensitivity:</ControlLabel>
+                </Col>
+                <Col sm={4}>
+                    <Slider
+                        value={props.touchJoystickSensitivity}
+                        min={0}
+                        max={100}
+                        step={1}
+                        onChange={props.onChangeTouchJoystickSensitivity}
+                        format={x => x}
                     />
                 </Col>
             </Row>
-        </Grid>
-    );
+        </Grid>;
 }
 
 namespace Settings {
@@ -168,6 +170,9 @@ namespace Settings {
         volume?: number;
         syncRendering?: boolean;
         audioDriver?: SettingsModel.AudioDriver;
+        enableTouchControls?: boolean;
+        touchJoystickSensitivity?: number;
+        touchLeftHandedMode?: boolean;
 
         onToggleSmoothScaling?: (value: boolean) => void;
         onToggleWebGlRendering?: (value: boolean) => void;
@@ -178,6 +183,9 @@ namespace Settings {
         onChangeVolume?: (value: number) => void;
         onChangeSyncRendering?: (value: boolean) => void;
         onChangeAudioDriver?: (newDriver: SettingsModel.AudioDriver) => void;
+        onChangeEnableTouch?: (value: boolean) => void;
+        onChangeTouchJoystickSensitivity?: (value: number) => void;
+        onChangeTouchLeftHandedMode?: (value: boolean) => void;
     }
 
     export const defaultProps: Props = {
@@ -190,6 +198,9 @@ namespace Settings {
         volume: 1,
         syncRendering: true,
         audioDriver: SettingsModel.AudioDriver.pcm,
+        enableTouchControls: true,
+        touchJoystickSensitivity: 15,
+        touchLeftHandedMode: false,
 
         onToggleSmoothScaling: () => undefined,
         onToggleWebGlRendering: () => undefined,
@@ -198,7 +209,10 @@ namespace Settings {
         onToggleMergeFrames: () => undefined,
         onChangeVolume: () => undefined,
         onChangeSyncRendering: () => undefined,
-        onChangeAudioDriver: () => undefined
+        onChangeAudioDriver: () => undefined,
+        onChangeEnableTouch: () => undefined,
+        onChangeTouchJoystickSensitivity: () => undefined,
+        onChangeTouchLeftHandedMode: () => undefined
     };
 }
 
