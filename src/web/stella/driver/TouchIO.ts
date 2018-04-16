@@ -145,7 +145,7 @@ class TouchIO {
                     throw new Error('invalid touch type');
             }
 
-            if (this._cancelEvent(normalizedTouch)) {
+            if (this._cancelEvent(normalizedTouch) && !this._fullscreenDoubleTapDetector.isDispatching()) {
                 cancel = true;
             }
         }
@@ -163,6 +163,10 @@ class TouchIO {
 
             if (!normalizedTouch) {
                 continue;
+            }
+
+            if (this._cancelEvent(normalizedTouch) && !this._fullscreenDoubleTapDetector.isDispatching()) {
+                cancel = true;
             }
 
             switch (normalizedTouch.type) {
@@ -199,10 +203,6 @@ class TouchIO {
 
             this._pendingTouches.delete(normalizedTouch.type);
             this._pendingTouches.delete(normalizedTouch.touch.identifier);
-
-            if (this._cancelEvent(normalizedTouch)) {
-                cancel = true;
-            }
         }
 
         if (cancel) {

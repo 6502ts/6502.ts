@@ -59,6 +59,10 @@ class DoubleTapDetector {
         this._lastTouchEligible = false;
     }
 
+    isDispatching(): boolean {
+        return this._dispatch;
+    }
+
     trigger = new Event<void>();
 
     private _dispatch = false;
