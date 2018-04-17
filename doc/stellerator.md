@@ -37,9 +37,14 @@ images can be loaded directly from ZIP files.
    The default is auto detection ("auto") and should work fine for the vast majority
    of ROMs. For problematic cases, this can be set to a fixed value. Typical values
    of real CRTs lie somewhere around 30 scanlines.
-* **Audio Driver:** Override the audio driver configured in the settings. See below
+ * **Audio Driver:** Override the audio driver configured in the settings. See below
   for a detailed description of the available choices.
  * **Volume:** Allows to control audio on a per-cartridge basis.
+ * **Enable touch controls:** Enable / disable touch controls
+ * **Left handed mode:** Switch touch controls to left handed mode (see below)
+ * **Virtual joystick sensitivity:** Control the minimum drag distance for the virtual
+   joystick to respond. The lower you set this value, the more sensitive the joystick
+   will be to finger movement.
 
 # Global Settings
 
@@ -107,6 +112,35 @@ As the emulator currently does not provide a way to change the button mapping,
 your mileage may vary. If one or two supported gamepads (for which the browser
 reports a well-defined mapping) are plugged in, the top bar will display
 "A" or "AB" in the top right corner.
+
+## Touch controls
+
+Stellerator can be controlled by touch gestures on touch capable devices. The touch
+controls divide the VCS video image into the four quadrants NW (top left), NE (top right),
+SW (bottom left) and SE (bottom right).
+
+In "normal mode", the controls are:
+
+ * NW: Double tap to toggle fullscreen, hold to switch to "alt" mode (see below)
+ * SW: Fire
+ * NE / SE: Hold and drag to control a virtual joystick that is centered at your
+   intial touch position.
+
+![touch controls](images/2600_touch.jpg)
+
+While you are touching NW, the controls enter "alt" mode:
+
+ * SW: Tap to pause / unpause
+ * NE: Select
+ * SE: Reset
+
+![touch controls alt](images/2600_touch_alt.jpg)
+
+The touch controls can be changed to "left handed" moded in the settings. This
+basically mirrors quadrant assignment horizontally:
+
+![touch controls, left handed](images/2600_touch_lh.jpg)
+![touch controls, left handed](images/2600_touch_alt_lh.jpg)
 
 ## Paddle emulation
 
