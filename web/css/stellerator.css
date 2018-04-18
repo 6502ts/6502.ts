@@ -77,6 +77,11 @@ input[type='text'].invalid {
     color: #090;
 }
 
+.helppage img {
+    padding: 1rem;
+    max-width: calc(100vw - 20px);
+}
+
 .build-id {
     color: #fff;
     margin-bottom: 1rem;

@@ -21,6 +21,7 @@
 
 import * as React from 'react';
 import * as commonmark from 'commonmark';
+import {parse as parseUrl} from 'url';
 
 class Markdown extends React.Component<Markdown.Props, Markdown.State> {
     constructor(props?: Markdown.Props, context?: any) {
@@ -38,7 +39,7 @@ class Markdown extends React.Component<Markdown.Props, Markdown.State> {
                     renderer = new commonmark.HtmlRenderer();
 
                 this.setState({
-                    content: renderer.render(parser.parse(source))
+                    content: renderer.render(this._postprocessParsedMarkdown(parser.parse(source)))
                 });
             })
             .then(undefined, (e: Error) => this.props.onMarkdownError(e));
@@ -57,6 +58,44 @@ class Markdown extends React.Component<Markdown.Props, Markdown.State> {
                       dataType: 'text'
                   })
               ).then(source => (Markdown._cache[this.props.url] = source));
+    }
+
+    private _postprocessParsedMarkdown(root: commonmark.Node): commonmark.Node {
+        const markdownUrl = parseUrl(this.props.url);
+
+        if (!markdownUrl || !markdownUrl.path || !markdownUrl.path.match(/\//)) {
+            return root;
+        }
+
+        const prefix = markdownUrl.path.split('/').slice(0, -1).join('/');
+
+        const walker = root.walker();
+        let step: commonmark.NodeWalkingStep;
+
+        // tslint:disable-next-line:no-conditional-assignment
+        while ((step = walker.next()) !== null) {
+            if (!step.entering) {
+                continue;
+            }
+
+            if (step.node.type !== 'image') {
+                continue;
+            }
+
+            const url = parseUrl(step.node.destination);
+
+            if (!url || url.protocol) {
+                continue;
+            }
+
+            if (step.node.destination.match(/^\//)) {
+                continue;
+            }
+
+            step.node.destination = prefix + '/' + step.node.destination;
+        }
+
+        return root;
     }
 
     static defaultProps: Markdown.Props = {
