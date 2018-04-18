@@ -80,11 +80,34 @@ input[type='text'].invalid {
 .helppage img {
     padding: 1rem;
     max-width: calc(100vw - 20px);
+    max-height: calc(100vh - 6rem);
+    display: block;
 }
 
 .build-id {
     color: #fff;
     margin-bottom: 1rem;
+}
+
+img.touch-control-layout {
+    width: calc(100vw - 20px);
+    padding-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    img.touch-control-layout {
+      width: 580px;
+    }
+}
+
+.model-dialog img.touch-control-help {
+    width: 580px;
+    padding-bottom: 1rem:
+}
+
+.model-dialog img.touch-control-help {
+    width: 580px;
+    padding-bottom: 1rem:
 }
 
 button {
