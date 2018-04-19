@@ -22,6 +22,7 @@
 import * as React from 'react';
 
 import { Grid, Row, Col } from 'react-bootstrap';
+import detectIt from 'detect-it';
 
 import ControlPanel from './emulation/ControlPanel';
 import { Context as EmulationContext, contextTypes as emulationContextTypes } from '../context/Emulation';
@@ -178,8 +179,18 @@ class Emulation extends React.Component<Emulation.Props, Emulation.State> {
                         <div className={`emulation-viewport error-display ${this._showErrorMessage() ? '' : 'hidden'}`}>
                             {this._errorMessage()}
                         </div>
-                        <div className={`emulation-viewport placeholder ${this._showPlaceholder() ? '' : 'hidden'}`}>
-                            paused
+                        <div
+                            className={`emulation-viewport placeholder ${this._showPlaceholder() ? '' : 'hidden'}`}
+                            onClick={detectIt.hasTouch ? this.props.resumeEmulation : () => undefined}
+                        >
+                            <p>paused</p>
+                            {
+                                detectIt.hasTouch ?
+                                    <p>
+                                        (tap to resume)
+                                    </p> :
+                                    null
+                            }
                         </div>
                         <canvas
                             className={`emulation-viewport ${this._showCanvas() ? '' : 'hidden'}`}
