@@ -371,6 +371,10 @@ module.exports = function(grunt) {
                         dev: false
                     }
                 }
+            },
+            stellerator_appcache: {
+                src: 'web/template/stellerator.appcache',
+                dest: 'build/stellerator/stellerator.appcache'
             }
         },
 
@@ -524,7 +528,8 @@ module.exports = function(grunt) {
         'uglify:video_pipeline_worker',
         'postcss:stellerator',
         'copy:stellerator_prod',
-        'template:stellerator_build'
+        'template:stellerator_build',
+        'template:stellerator_appcache'
     ]);
 
     grunt.registerTask('stellerator_embedded:build', [
