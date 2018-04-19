@@ -324,7 +324,7 @@ module.exports = function(grunt) {
             build: {
                 root: 'build',
                 port: 2600,
-                hosts: '127.0.0.1',
+                host: '127.0.0.1',
                 autoIndex: true,
                 ext: 'html',
                 cache: 0
@@ -356,7 +356,8 @@ module.exports = function(grunt) {
                 options: {
                     data: {
                         stylesheets: ['css/stellerator.css'],
-                        scripts: ['js/installed/jquery.min.js', 'js/bootstrap.min.js', 'js/compiled/stellerator.js']
+                        scripts: ['js/installed/jquery.min.js', 'js/bootstrap.min.js', 'js/compiled/stellerator.js'],
+                        dev: true
                     }
                 }
             },
@@ -366,7 +367,8 @@ module.exports = function(grunt) {
                 options: {
                     data: {
                         stylesheets: ['css/app.css'],
-                        scripts: ['js/app.js']
+                        scripts: ['js/app.js'],
+                        dev: false
                     }
                 }
             }
