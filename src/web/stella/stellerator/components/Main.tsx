@@ -22,9 +22,15 @@
 import * as React from 'react';
 
 import { default as Navbar, Props as NavbarProps } from './main/Navbar';
+import UpdatedDialog from './main/UpdatedDialog';
 
 export interface Props extends NavbarProps {
+    wasUpdated?: boolean;
+    buildId?: string;
+
     children?: React.ReactNode;
+
+    onUpdatedDialogClosed?: () => void;
 }
 
 function Main(props: Props) {
@@ -32,10 +38,19 @@ function Main(props: Props) {
 
     return (
         <div>
+            <UpdatedDialog show={props.wasUpdated} buildId={props.buildId} onClose={props.onUpdatedDialogClosed}/>
             <Navbar {...p(props)} />
             {props.children}
         </div>
     );
+}
+
+namespace Main {
+    export const defaultProps: Partial<Props> = {
+        wasUpdated: false,
+        buildId: '',
+        onUpdatedDialogClosed: () => undefined
+    };
 }
 
 export { Main as default };

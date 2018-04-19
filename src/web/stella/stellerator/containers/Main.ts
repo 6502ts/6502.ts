@@ -21,6 +21,7 @@
 
 import { connect } from 'react-redux';
 
+import { clearWasUpdatedFlag } from '../actions/environment';
 import { default as MainComponent, Props } from '../components/Main';
 import State from '../state/State';
 import { GuiMode } from '../model/types';
@@ -30,10 +31,19 @@ function mapStateToProps(state: State): Props {
         emulationActive: state.guiState.mode === GuiMode.run,
         frequency: state.emulationState.frequency,
         emulationState: state.emulationState.emulationState,
-        gamepadCount: state.emulationState.gamepadCount
+        gamepadCount: state.emulationState.gamepadCount,
+        wasUpdated: state.environment.wasUpdated,
+        buildId: state.environment.buildId
     };
 }
 
-const Navbar = connect(mapStateToProps, {}, undefined, { pure: false })(MainComponent as any);
+const Navbar = connect(
+    mapStateToProps,
+    {
+        onUpdatedDialogClosed: clearWasUpdatedFlag
+    },
+    undefined,
+    { pure: false }
+)(MainComponent as any);
 
 export { Navbar as default };

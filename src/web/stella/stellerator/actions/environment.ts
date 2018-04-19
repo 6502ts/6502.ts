@@ -22,19 +22,38 @@
 import { Action } from 'redux';
 
 export const types = {
-    initialize: 'environment/initialize'
+    initialize: 'environment/initialize',
+    clearWasUpdatedFlag: 'environment/clear-was-updated-flag'
 };
 Object.freeze(types);
 
 export interface InitializeAction extends Action {
     helppageUrl: string;
     buildId: string;
+    wasUpdated: boolean;
 }
 
-export function initialize({ helppageUrl, buildId }: { helppageUrl: string; buildId: string }): InitializeAction {
+export function initialize({
+    helppageUrl,
+    buildId,
+    wasUpdated
+}: {
+    helppageUrl: string;
+    buildId: string;
+    wasUpdated: boolean;
+}): InitializeAction {
     return {
         type: types.initialize,
         helppageUrl,
-        buildId
+        buildId,
+        wasUpdated
+    };
+}
+
+export interface ClearWasUpdatedFlagAction extends Action {}
+
+export function clearWasUpdatedFlag(): ClearWasUpdatedFlagAction {
+    return {
+        type: types.clearWasUpdatedFlag
     };
 }

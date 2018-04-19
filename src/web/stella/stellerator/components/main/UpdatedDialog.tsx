@@ -19,18 +19,32 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export default class Environment implements Changeset {
-    constructor(changes?: Changeset, old?: Environment) {
-        Object.assign(this, old, changes);
-    }
+import * as React from 'react';
 
-    helppageUrl = '';
-    buildId = '';
-    wasUpdated = false;
+import { Button, Modal } from 'react-bootstrap';
+
+export interface Props {
+    show: boolean;
+    buildId: string;
+
+    onClose?: () => void;
 }
 
-interface Changeset {
-    helppageUrl?: string;
-    buildId?: string;
-    wasUpdated?: boolean;
-}
+const UpdatedDialog: React.SFC<Props> = props =>
+    <Modal show={props.show} onHide={props.onClose} backdrop={false}>
+        <Modal.Header closeButton>
+            <Modal.Title>Stellerator updated</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            Stellerator was updated to build {props.buildId}.
+        </Modal.Body>
+        <Modal.Footer>
+            <Button onClick={props.onClose}>Close</Button>
+        </Modal.Footer>
+    </Modal>;
+
+UpdatedDialog.defaultProps = {
+    onClose: () => undefined
+};
+
+export default UpdatedDialog;

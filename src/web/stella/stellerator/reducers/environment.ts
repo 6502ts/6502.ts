@@ -30,6 +30,9 @@ export default function reducer(state: Environment = new Environment(), action: 
         case Actions.initialize:
             return initialize(state, action as InitializeAction);
 
+        case Actions.clearWasUpdatedFlag:
+            return clearWasUpdatedFlag(state);
+
         default:
             return state;
     }
@@ -39,8 +42,13 @@ function initialize(state: Environment, action: InitializeAction): Environment {
     return new Environment(
         {
             helppageUrl: action.helppageUrl,
-            buildId: action.buildId
+            buildId: action.buildId,
+            wasUpdated: action.wasUpdated
         },
         state
     );
+}
+
+function clearWasUpdatedFlag(state: Environment): Environment {
+    return new Environment({ wasUpdated: false }, state);
 }

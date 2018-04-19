@@ -26,7 +26,7 @@ declare namespace window {
 import * as React from 'react';
 import { render } from 'react-dom';
 import { createHashHistory } from 'history';
-import { applyMiddleware, compose, createStore } from 'redux';
+import { applyMiddleware, compose, createStore, Store } from 'redux';
 import { ThemeProvider } from 'styled-components';
 import { Provider as ReduxProvider } from 'react-redux';
 import { routerMiddleware, ConnectedRouter } from 'react-router-redux';
@@ -39,6 +39,24 @@ import { batchMiddleware } from './middleware';
 import ServiceContainer from './service/implementation/Container';
 import Main from './containers/Main';
 import Routing from './Routing';
+
+function initEnv(store: Store<State>) {
+    const BUILD_ID_KEY = 'build-id';
+
+    const buildId = process.env.BUILD_ID,
+        storedBuildId = localStorage.getItem(BUILD_ID_KEY),
+        wasUpdated = storedBuildId && storedBuildId !== buildId;
+
+    localStorage.setItem(BUILD_ID_KEY, buildId);
+
+    store.dispatch(
+        initializeEnvironment({
+            helppageUrl: process.env.HELPPAGE_URL,
+            buildId,
+            wasUpdated
+        })
+    );
+}
 
 async function main() {
     const serviceContainer = new ServiceContainer(),
@@ -57,12 +75,7 @@ async function main() {
 
     serviceContainer.setStore(store);
 
-    store.dispatch(
-        initializeEnvironment({
-            helppageUrl: process.env.HELPPAGE_URL,
-            buildId: process.env.BUILD_ID
-        })
-    );
+    initEnv(store);
 
     await serviceContainer.getPersistenceProvider().init();
     await serviceContainer
