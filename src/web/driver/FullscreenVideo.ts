@@ -91,6 +91,11 @@ export default class FullscreenVideoDriver {
     private _resetSize() {
         const element = this._videoDriver.getCanvas();
 
+        if (this._resizeHandle) {
+            clearTimeout(this._resizeHandle);
+            this._resizeHandle = null;
+        }
+
         element.style.width = '';
         element.style.height = '';
         element.style.maxWidth = '';
