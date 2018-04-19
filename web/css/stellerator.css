@@ -11,6 +11,10 @@ canvas {
     max-width: calc(100vw - 1rem);
 }
 
+.dialog {
+    width: 100vw;
+}
+
 @media (max-width: 768px) {
     body {
         padding-top: 6.5rem;
