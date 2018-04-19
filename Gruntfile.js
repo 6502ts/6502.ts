@@ -416,6 +416,10 @@ module.exports = function(grunt) {
                     {
                         src: 'web/js/compiled/worker/video_pipeline_worker.min.js',
                         dest: 'build/stellerator/js/worker/video_pipeline_worker.min.js'
+                    },
+                    {
+                        src: 'web/stellerator_homescreen_icon.png',
+                        dest: 'build/stellerator/stellerator_homescreen_icon.png'
                     }
                 ]
             },
