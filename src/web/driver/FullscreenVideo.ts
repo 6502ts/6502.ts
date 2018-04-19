@@ -20,6 +20,7 @@
  */
 
 import * as screenfull from 'screenfull';
+
 import VideoDriver from './VideoDriverInterface';
 
 const noFullscrenApi = !!navigator.platform.match(/iPhone|iPad|iPod/);
@@ -126,7 +127,18 @@ export default class FullscreenVideoDriver {
         document.body.classList.add(this._fullscreenClass);
     }
 
-    private _resizeListener: () => void = this._adjustSizeForFullscreen.bind(this);
+    private _resizeListener = () => {
+        if (this._resizeHandle) {
+            return;
+        }
+
+        this._resizeHandle = setTimeout(() => {
+            this._resizeHandle = null;
+            this._adjustSizeForFullscreen();
+        }, 100);
+    };
+
+    private _resizeHandle: any = null;
 
     private _changeListener: () => void = this._onChange.bind(this);
 
