@@ -19,9 +19,7 @@
     "url": "https://github.com/6502ts/6502.ts.git"
   },
   "dependencies": {
-    "@types/detect-it": "^2.1.0",
     "async-mutex": "^0.1.3",
-    "detect-it": "^3.0.4",
     "md5": "~2.2.1",
     "microevent.ts": "~0.1.0",
     "screenfull": "^3.3.1",
@@ -32,6 +30,8 @@
     "worker-rpc": "~0.1.0"
   },
   "devDependencies": {
+    "detect-it": "^3.0.4",
+    "@types/detect-it": "^2.1.0",
     "@types/classnames": "^2.2.3",
     "@types/commonmark": "^0.27.0",
     "@types/deep-equal": "^1.0.1",

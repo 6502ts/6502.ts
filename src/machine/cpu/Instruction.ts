@@ -20,10 +20,14 @@
  */
 
 class Instruction {
-    constructor(public operation: Instruction.Operation, public addressingMode: Instruction.AddressingMode) {}
+    constructor(
+        public readonly operation: Instruction.Operation,
+        public readonly addressingMode: Instruction.AddressingMode,
+        public readonly effectiveAddressingMode = addressingMode
+    ) {}
 
     getSize(): number {
-        switch (this.addressingMode) {
+        switch (this.effectiveAddressingMode) {
             case Instruction.AddressingMode.immediate:
             case Instruction.AddressingMode.zeroPage:
             case Instruction.AddressingMode.zeroPageX:
@@ -290,19 +294,22 @@ namespace Instruction {
 
                 if (operation !== Operation.invalid && addressingMode !== AddressingMode.invalid) {
                     opcode = (i << 5) | (j << 2) | 1;
-                    opcodes[opcode].operation = operation;
-                    opcodes[opcode].addressingMode = addressingMode;
+                    opcodes[opcode] = new Instruction(operation, addressingMode);
                 }
             }
         }
 
-        function set(_opcode: number, _operation: Operation, _addressingMode: AddressingMode): void {
+        function set(
+            _opcode: number,
+            _operation: Operation,
+            _addressingMode: AddressingMode,
+            _effectiveAdressingMode?: AddressingMode
+        ): void {
             if (opcodes[_opcode].operation !== Operation.invalid) {
                 throw new Error('entry for opcode ' + _opcode + ' already exists');
             }
 
-            opcodes[_opcode].operation = _operation;
-            opcodes[_opcode].addressingMode = _addressingMode;
+            opcodes[_opcode] = new Instruction(_operation, _addressingMode, _effectiveAdressingMode);
         }
 
         set(0x06, Operation.asl, AddressingMode.zeroPage);
@@ -383,7 +390,7 @@ namespace Instruction {
         set(0xf0, Operation.beq, AddressingMode.relative);
 
         set(0x00, Operation.brk, AddressingMode.implied);
-        set(0x20, Operation.jsr, AddressingMode.implied);
+        set(0x20, Operation.jsr, AddressingMode.implied, AddressingMode.absolute);
         set(0x40, Operation.rti, AddressingMode.implied);
         set(0x60, Operation.rts, AddressingMode.implied);
         set(0x08, Operation.php, AddressingMode.implied);

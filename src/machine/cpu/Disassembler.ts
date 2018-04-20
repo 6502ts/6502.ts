@@ -46,7 +46,7 @@ class Disassembler {
 
         const decodeSint8 = (value: number) => (value & 0x80 ? -(~(value - 1) & 0xff) : value);
 
-        switch (instruction.addressingMode) {
+        switch (instruction.effectiveAddressingMode) {
             case Instruction.AddressingMode.implied:
                 return operation;
 
