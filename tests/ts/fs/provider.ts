@@ -60,7 +60,7 @@ function runProviderTests(factory: () => FilesystemProviderInterface): void {
         });
 
         test(util.format('%s as binary, sync', filePath), function() {
-            assertBufferIdentity(provider.readBinaryFileSync(filePath), new Buffer((fixtures as any)[key]));
+            assertBufferIdentity(provider.readBinaryFileSync(filePath), Buffer.from((fixtures as any)[key]));
         });
     }
 

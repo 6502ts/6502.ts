@@ -66,7 +66,7 @@ function mapStateToProps(state: State): DataProps {
     };
 }
 
-function mapDispatchToProps(dispatch: Dispatch<State>): HandlerProps {
+function mapDispatchToProps(dispatch: Dispatch): HandlerProps {
     return {
         onDelete: () => dispatch(deleteCurrentCartridge()),
         onSave: () => dispatch(saveCurrentCartride()),
@@ -101,5 +101,8 @@ function mapDispatchToProps(dispatch: Dispatch<State>): HandlerProps {
     };
 }
 
-const CartridgeManager = connect(mapStateToProps, mapDispatchToProps)(CartridgeManagerComponent as any);
+const CartridgeManager = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(CartridgeManagerComponent as any);
 export { CartridgeManager as default };

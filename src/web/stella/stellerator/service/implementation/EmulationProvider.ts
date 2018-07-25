@@ -195,9 +195,7 @@ class EmulationProvider implements EmulationProviderInterface {
         this._audioDriver.setMasterVolume(state.settings.volume * cartridge.volume);
     }
 
-    private _middleware = ((api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (
-        a: Action
-    ): Promise<any> => {
+    private _middleware = ((api: MiddlewareAPI) => (next: (a: Action) => any) => async (a: Action): Promise<any> => {
         if (!a || !this._service) {
             return next(a);
         }

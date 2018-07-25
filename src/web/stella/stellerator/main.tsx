@@ -62,7 +62,7 @@ async function main() {
     const serviceContainer = new ServiceContainer(),
         history = createHashHistory();
 
-    const store = createStore<State>(reducer, new State(), compose(
+    const store = createStore(reducer, new State(), compose(
         applyMiddleware(
             batchMiddleware,
             serviceContainer.getPersistenceProvider().getMiddleware(),

@@ -103,7 +103,7 @@ class PrepackagedFilesystemProvider extends AbstractFileSystemProvider implement
         }
 
         if (name && typeof scope[name] === 'string') {
-            scope[name] = new Buffer(scope[name], 'base64');
+            scope[name] = Buffer.from(scope[name], 'base64');
         }
 
         return name ? scope[name] : scope;

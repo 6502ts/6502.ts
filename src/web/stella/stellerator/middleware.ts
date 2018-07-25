@@ -22,11 +22,8 @@
 import * as redux from 'redux';
 
 import { types as ActionType, BatchAction } from './actions/root';
-import State from './state/State';
 
-export const batchMiddleware = ((api: redux.MiddlewareAPI<State>) => (next: (a: any) => void) => (
-    a: redux.Action
-): any => {
+export const batchMiddleware = ((api: redux.MiddlewareAPI) => (next: (a: any) => void) => (a: redux.Action): any => {
     if (a && a.type === ActionType.batch) {
         return dispatchBatchedActions(a as BatchAction, api.dispatch);
     }

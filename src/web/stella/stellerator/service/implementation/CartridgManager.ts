@@ -179,7 +179,7 @@ class CartridgeManager implements CartridgeManagerInterface {
         return this._storage.deleteImage(this._store.getState().currentCartridge.hash);
     }
 
-    private _middleware = ((api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (
+    private _middleware = ((api: MiddlewareAPI) => (next: (a: Action) => any) => async (
         action: Action
     ): Promise<void> => {
         switch (action.type) {

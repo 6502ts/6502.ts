@@ -50,9 +50,7 @@ class PersistenceProvider implements PersistenceProviderInterface {
         await this._store.dispatch(initSettings(settings));
     }
 
-    private _middleware = ((api: MiddlewareAPI<State>) => (next: (a: Action) => any) => async (
-        a: Action
-    ): Promise<any> => {
+    private _middleware = ((api: MiddlewareAPI) => (next: (a: Action) => any) => async (a: Action): Promise<any> => {
         if (!a) {
             return next(a);
         }
