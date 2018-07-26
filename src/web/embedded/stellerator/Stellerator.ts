@@ -521,7 +521,7 @@ class Stellerator {
             );
 
             if (this._config.pauseViaTouch) {
-                this._touchIO.togglePause.addHandler(() => pauseHandler);
+                this._touchIO.togglePause.addHandler(pauseHandler);
             }
 
             if (this._config.fullscreenViaTouch) {

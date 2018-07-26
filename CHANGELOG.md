@@ -1,3 +1,7 @@
+# 0.9.12
+
+ * Stellerator embedded: fix pause via touch controls
+
 # 0.9.11
 
  * Update dependencies
