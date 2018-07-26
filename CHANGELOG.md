@@ -1,3 +1,8 @@
+# 0.9.11
+
+ * Update dependencies
+ * Stellerator embedded: include support for touch controls
+
 # 0.9.10
 
  * Fix CDF music mode.

@@ -1,6 +1,6 @@
 {
   "name": "6502.ts",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "description": "A 6502 emulator written in typescript",
   "author": "cnspeckn@googlemail.com",
   "license": "GPL-2.0+",
