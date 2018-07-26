@@ -176,6 +176,10 @@ The following control scheme applies unless configured differently in the option
  * The horizontal axis of the mouse and d for fire control paddle 1
  * Gamepads are supported for joystick 1/2 but rely on browser and OS for the correct
    mapping
+ * Multitouch controls are available for controlling the left joystick and start / reset /
+   fullscreen. Check the
+   [Stellerator documentation](https://github.com/6502ts/6502.ts/blob/master/doc/stellerator.md#touch-controls)
+   for the control scheme.
 
 The difficulty and color switches can be controlled via the API.
 

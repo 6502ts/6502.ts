@@ -32,6 +32,7 @@ import WebglVideo from '../../driver/webgl/WebglVideo';
 
 import AudioDriver from '../../stella/driver/WebAudio';
 import KeyboardIO from '../../stella/driver/KeyboardIO';
+import TouchIO from '../../stella/driver/TouchIO';
 import Paddle from '../../driver/MouseAsPaddle';
 import Gamepad from '../../driver/Gamepad';
 import FullscreenDriver from '../../driver/FullscreenVideo';
@@ -93,10 +94,15 @@ class Stellerator {
             audio: true,
             volume: 0.5,
             enableKeyboard: true,
+            enableTouch: true,
+            touchLeftHanded: false,
+            touchJoystickSensitivity: 15,
             keyboardTarget: document,
             fullscreenViaKeyboard: true,
             paddleViaMouse: true,
             pauseViaKeyboard: true,
+            pauseViaTouch: true,
+            fullscreenViaTouch: true,
             enableGamepad: true,
             resetViaKeyboard: true,
 
@@ -471,6 +477,18 @@ class Stellerator {
             }
         }
 
+        const pauseHandler = () => {
+            switch (this._emulationService.getState()) {
+                case EmulationServiceInterface.State.paused:
+                    this.resume();
+                    break;
+
+                case EmulationServiceInterface.State.running:
+                    this.pause();
+                    break;
+            }
+        };
+
         if (this._config.enableKeyboard) {
             this._keyboardIO = new KeyboardIO(this._config.keyboardTarget);
 
@@ -483,22 +501,32 @@ class Stellerator {
             }
 
             if (this._config.pauseViaKeyboard) {
-                this._keyboardIO.togglePause.addHandler(() => {
-                    switch (this._emulationService.getState()) {
-                        case EmulationServiceInterface.State.paused:
-                            this.resume();
-                            break;
-
-                        case EmulationServiceInterface.State.running:
-                            this.pause();
-                            break;
-                    }
-                });
+                this._keyboardIO.togglePause.addHandler(pauseHandler);
             }
         }
 
         if (this._config.resetViaKeyboard) {
             this._keyboardIO.hardReset.addHandler(() => this.reset());
+        }
+
+        if (this._config.enableTouch) {
+            this._touchIO = new TouchIO(
+                this._canvasElt,
+                this._config.touchJoystickSensitivity,
+                this._config.touchLeftHanded
+            );
+
+            this._driverManager.addDriver(this._touchIO, context =>
+                this._touchIO.bind(context.getJoystick(0), context.getControlPanel())
+            );
+
+            if (this._config.pauseViaTouch) {
+                this._touchIO.togglePause.addHandler(() => pauseHandler);
+            }
+
+            if (this._config.fullscreenViaTouch) {
+                this._touchIO.toggleFullscreen.addHandler(() => this._fullscreenVideo.toggle());
+            }
         }
 
         if (this._config.enableGamepad) {
@@ -583,6 +611,7 @@ class Stellerator {
     private _fullscreenVideo: FullscreenDriver = null;
     private _audioDriver: AudioDriver = null;
     private _keyboardIO: KeyboardIO = null;
+    private _touchIO: TouchIO = null;
     private _paddle: Paddle = null;
     private _gamepad: Gamepad = null;
 
@@ -647,6 +676,27 @@ namespace Stellerator {
         enableKeyboard: boolean;
 
         /**
+         * Enable touch controls for left joystick and reset / resume.
+         *
+         * Default: true
+         */
+        enableTouch: boolean;
+
+        /**
+         * Mirror touch controls for left handed users.
+         *
+         * Default: false
+         */
+        touchLeftHanded: boolean;
+
+        /**
+         * Touch control joystick emulation sensitivity (in pixels).
+         *
+         * Default: 15
+         */
+        touchJoystickSensitivity: number;
+
+        /**
          * Specify an HTML element on which the driver listens for keyboard
          * events.
          *
@@ -675,6 +725,18 @@ namespace Stellerator {
          * Default: true
          */
         resetViaKeyboard: boolean;
+
+        /**
+         * Toggle pause via touch controls. Applicable **only** if `enableTouch` is set.
+         *
+         * Default: true
+         */
+        pauseViaTouch: boolean;
+
+        /**
+         * Toggle fullscreen via touch controls. Applicable **only** if `enableTouch` is set.
+         */
+        fullscreenViaTouch: boolean;
 
         /**
          * Emulate the first paddlewith the horizontal movement of the mouse.

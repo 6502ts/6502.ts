@@ -27,6 +27,7 @@
     "setimmediate2": "^3.0.0",
     "thumbulator.ts": "^0.3.0",
     "tslib": "^1.9.3",
+    "typedoc": "https://github.com/DirtyHairy/typedoc/archive/support-ts-2.9.tar.gz",
     "worker-rpc": "~0.1.0"
   },
   "devDependencies": {
@@ -97,7 +98,6 @@
     "tsify": "~4.0.0",
     "tslint": "^5.11.0",
     "tslint-language-service": "^0.9.6",
-    "typedoc": "^0.11.1",
     "typescript": "^2.9.2"
   },
   "scripts": {
