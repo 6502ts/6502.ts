@@ -81,7 +81,7 @@ function opAdc(state: CpuInterface.State, bus: BusInterface, operand: number): v
         const d0 = (operand & 0x0f) + (state.a & 0x0f) + (state.flags & CpuInterface.Flags.c),
             d1 = (operand >>> 4) + (state.a >>> 4) + (d0 > 9 ? 1 : 0);
 
-        state.a = (d0 % 10) | ((d1 % 10) << 4);
+        state.a = d0 % 10 | (d1 % 10 << 4);
 
         state.flags =
             (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
@@ -316,7 +316,7 @@ function opLsrMem(state: CpuInterface.State, bus: BusInterface, operand: number)
         (old & CpuInterface.Flags.c);
 }
 
-function opNop(): void { }
+function opNop(): void {}
 
 function opOra(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     state.a |= operand;

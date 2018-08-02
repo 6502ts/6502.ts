@@ -23,7 +23,7 @@ import { Event } from 'microevent.ts';
 
 import BoardInterface from '../board/BoardInterface';
 import CpuInterface from '../cpu/CpuInterface';
-import Cpu from '../cpu/Cpu';
+import Cpu from '../cpu/BatchedAccessCpu';
 import Bus from './Bus';
 import BusInterface from '../bus/BusInterface';
 import Pia from './Pia';
@@ -77,8 +77,7 @@ class Board implements BoardInterface {
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
 
-        tia
-            .setCpu(cpu)
+        tia.setCpu(cpu)
             .setBus(bus)
             .setCpuTimeProvider(() => this.getCpuTime());
 
@@ -90,8 +89,7 @@ class Board implements BoardInterface {
 
         pia.setBus(bus);
 
-        bus
-            .setTia(tia)
+        bus.setTia(tia)
             .setPia(pia)
             .setCartridge(cartridge);
 
@@ -257,13 +255,13 @@ class Board implements BoardInterface {
     }
 
     getCpuTime(): number {
-        return this._cpuCycles / Config.getClockHz(this._config) * 3;
+        return (this._cpuCycles / Config.getClockHz(this._config)) * 3;
     }
 
     private static _executeSlice(board: Board, _timeSlice?: number) {
-        const slice = _timeSlice ? Math.round(_timeSlice * board._clockHz / 1000) : board._sliceSize;
+        const slice = _timeSlice ? Math.round((_timeSlice * board._clockHz) / 1000) : board._sliceSize;
 
-        return board._tick(slice) / board._clockHz * 1000;
+        return (board._tick(slice) / board._clockHz) * 1000;
     }
 
     private _updateAudioState(): void {

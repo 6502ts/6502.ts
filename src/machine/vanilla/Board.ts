@@ -23,7 +23,7 @@ import { Event } from 'microevent.ts';
 
 import BoardInterface from '../board/BoardInterface';
 import CpuInterface from '../cpu/CpuInterface';
-import Cpu from '../cpu/Cpu';
+import Cpu from '../cpu/BatchedAccessCpu';
 import Memory from './Memory';
 import BusInterface from '../bus/BusInterface';
 import TimerInterface from '../board/TimerInterface';

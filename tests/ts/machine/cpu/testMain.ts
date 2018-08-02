@@ -26,7 +26,7 @@ import { run as testOtherOpcodes } from './testOtherOpcodes';
 import { run as testAccessPatterns } from './testAccessPatterns';
 import { run as testUndocumentedOpcodes } from './testUndocumentedOpcodes';
 
-import Cpu from '../../../../src/machine/cpu/Cpu';
+import Cpu from '../../../../src/machine/cpu/BatchedAccessCpu';
 
 import { run as testInterrupt } from './testInterrupt';
 import Runner from './Runner';
