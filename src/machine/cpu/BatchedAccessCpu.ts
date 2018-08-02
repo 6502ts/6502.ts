@@ -64,12 +64,12 @@ export function opNmi(state: CpuInterface.State, bus: BusInterface) {
     dispatchInterrupt(state, bus, 0xfffa);
 }
 
-class Cpu {
+class BatchedAccessCpu {
     constructor(private _bus: BusInterface, private _rng?: RngInterface) {
         this.reset();
     }
 
-    setInterrupt(irq: boolean): Cpu {
+    setInterrupt(irq: boolean): BatchedAccessCpu {
         this._interruptPending = irq;
         return this;
     }
@@ -78,17 +78,17 @@ class Cpu {
         return this._interruptPending;
     }
 
-    nmi(): Cpu {
+    nmi(): BatchedAccessCpu {
         this._nmiPending = true;
         return this;
     }
 
-    halt(): Cpu {
+    halt(): BatchedAccessCpu {
         this._halted = true;
         return this;
     }
 
-    resume(): Cpu {
+    resume(): BatchedAccessCpu {
         this._halted = false;
         return this;
     }
@@ -97,7 +97,7 @@ class Cpu {
         return this._halted;
     }
 
-    setInvalidInstructionCallback(callback: CpuInterface.InvalidInstructionCallbackInterface): Cpu {
+    setInvalidInstructionCallback(callback: CpuInterface.InvalidInstructionCallbackInterface): BatchedAccessCpu {
         this._invalidInstructionCallback = callback;
         return this;
     }
@@ -110,7 +110,7 @@ class Cpu {
         return this._lastInstructionPointer;
     }
 
-    reset(): Cpu {
+    reset(): BatchedAccessCpu {
         this.state.a = this._rng ? this._rng.int(0xff) : 0;
         this.state.x = this._rng ? this._rng.int(0xff) : 0;
         this.state.y = this._rng ? this._rng.int(0xff) : 0;
@@ -131,7 +131,7 @@ class Cpu {
         return this;
     }
 
-    cycle(): Cpu {
+    cycle(): BatchedAccessCpu {
         if (this._halted) {
             return this;
         }
@@ -835,4 +835,4 @@ interface InstructionCallbackInterface {
     ): void;
 }
 
-export { Cpu as default };
+export { BatchedAccessCpu as default };
