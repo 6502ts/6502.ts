@@ -22,10 +22,10 @@
 import Runner from './Runner';
 import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
 
-function clearFlagSuite(mnemonic: string, opcode: number, flag: number) {
+function clearFlagSuite(cpuFactory: Runner.CpuFactory, mnemonic: string, opcode: number, flag: number) {
     suite(mnemonic, function() {
         test('implied', () =>
-            Runner.create([opcode])
+            Runner.create(cpuFactory, [opcode])
                 .setState({
                     flags: CpuInterface.Flags.e | flag
                 })
@@ -37,10 +37,10 @@ function clearFlagSuite(mnemonic: string, opcode: number, flag: number) {
     });
 }
 
-function setFlagSuite(mnemonic: string, opcode: number, flag: number) {
+function setFlagSuite(cpuFactory: Runner.CpuFactory, mnemonic: string, opcode: number, flag: number) {
     suite(mnemonic, function() {
         test('implied', () =>
-            Runner.create([opcode])
+            Runner.create(cpuFactory, [opcode])
                 .setState({
                     flags: CpuInterface.Flags.e
                 })
@@ -52,18 +52,18 @@ function setFlagSuite(mnemonic: string, opcode: number, flag: number) {
     });
 }
 
-export function run(): void {
-    clearFlagSuite('CLC', 0x18, CpuInterface.Flags.c);
+export function run(cpuFactory: Runner.CpuFactory): void {
+    clearFlagSuite(cpuFactory, 'CLC', 0x18, CpuInterface.Flags.c);
 
-    clearFlagSuite('CLD', 0xd8, CpuInterface.Flags.d);
+    clearFlagSuite(cpuFactory, 'CLD', 0xd8, CpuInterface.Flags.d);
 
-    clearFlagSuite('CLI', 0x58, CpuInterface.Flags.i);
+    clearFlagSuite(cpuFactory, 'CLI', 0x58, CpuInterface.Flags.i);
 
-    clearFlagSuite('CLV', 0xb8, CpuInterface.Flags.v);
+    clearFlagSuite(cpuFactory, 'CLV', 0xb8, CpuInterface.Flags.v);
 
-    setFlagSuite('SEC', 0x38, CpuInterface.Flags.c);
+    setFlagSuite(cpuFactory, 'SEC', 0x38, CpuInterface.Flags.c);
 
-    setFlagSuite('SED', 0xf8, CpuInterface.Flags.d);
+    setFlagSuite(cpuFactory, 'SED', 0xf8, CpuInterface.Flags.d);
 
-    setFlagSuite('SEI', 0x78, CpuInterface.Flags.i);
+    setFlagSuite(cpuFactory, 'SEI', 0x78, CpuInterface.Flags.i);
 }

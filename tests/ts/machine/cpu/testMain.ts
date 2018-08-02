@@ -26,28 +26,35 @@ import { run as testOtherOpcodes } from './testOtherOpcodes';
 import { run as testAccessPatterns } from './testAccessPatterns';
 import { run as testUndocumentedOpcodes } from './testUndocumentedOpcodes';
 
+import Cpu from '../../../../src/machine/cpu/Cpu';
+
 import { run as testInterrupt } from './testInterrupt';
+import Runner from './Runner';
 
-suite('CPU', function() {
-    suite('opcodes', function() {
-        testBranches();
+function run(cpuFactory: Runner.CpuFactory, cpuName: string) {
+    suite(`CPU [${cpuName}]`, function() {
+        suite('opcodes', function() {
+            testBranches(cpuFactory);
 
-        testFlagToggles();
+            testFlagToggles(cpuFactory);
 
-        testArithmetics();
+            testArithmetics(cpuFactory);
 
-        testOtherOpcodes();
+            testOtherOpcodes(cpuFactory);
+        });
+
+        suite('undocumented opcodes', function() {
+            testUndocumentedOpcodes(cpuFactory);
+        });
+
+        suite('memory access patterns', function() {
+            testAccessPatterns(cpuFactory);
+        });
+
+        suite('interrupt handling', function() {
+            testInterrupt(cpuFactory);
+        });
     });
+}
 
-    suite('undocumented opcodes', function() {
-        testUndocumentedOpcodes();
-    });
-
-    suite('memory access patterns', function() {
-        testAccessPatterns();
-    });
-
-    suite('interrupt handling', function() {
-        testInterrupt();
-    });
-});
+run(bus => new Cpu(bus), 'standard CPU');

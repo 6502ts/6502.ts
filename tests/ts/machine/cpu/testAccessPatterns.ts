@@ -22,10 +22,10 @@
 import Runner from './Runner';
 import AccessLog from './AccessLog';
 
-export function run() {
+export function run(cpuFactory: Runner.CpuFactory) {
     suite('addressing patterns', function() {
         test('absolute,X via LDA', () =>
-            Runner.create([0xbd, 0x00, 0xa0], 0xe000)
+            Runner.create(cpuFactory, [0xbd, 0x00, 0xa0], 0xe000)
                 .setState({
                     x: 0x05
                 })
@@ -39,7 +39,7 @@ export function run() {
                 ));
 
         test('absolute,X via LDA (page crossing)', () =>
-            Runner.create([0xbd, 0xff, 0xa0], 0xe000)
+            Runner.create(cpuFactory, [0xbd, 0xff, 0xa0], 0xe000)
                 .setState({
                     x: 0x05
                 })
@@ -54,7 +54,7 @@ export function run() {
                 ));
 
         test('absolute,Y via LDA', () =>
-            Runner.create([0xb9, 0x00, 0xa0], 0xe000)
+            Runner.create(cpuFactory, [0xb9, 0x00, 0xa0], 0xe000)
                 .setState({
                     y: 0x05
                 })
@@ -68,7 +68,7 @@ export function run() {
                 ));
 
         test('absolute,Y via LDA (page crossing)', () =>
-            Runner.create([0xb9, 0xff, 0xa0], 0xe000)
+            Runner.create(cpuFactory, [0xb9, 0xff, 0xa0], 0xe000)
                 .setState({
                     y: 0x05
                 })
@@ -83,7 +83,7 @@ export function run() {
                 ));
 
         test('zeropage,X via LDA', () =>
-            Runner.create([0xb5, 0x01], 0xe000)
+            Runner.create(cpuFactory, [0xb5, 0x01], 0xe000)
                 .setState({
                     x: 0x05
                 })
@@ -97,7 +97,7 @@ export function run() {
                 ));
 
         test('zeropage,Y via LDX', () =>
-            Runner.create([0xb6, 0x01], 0xe000)
+            Runner.create(cpuFactory, [0xb6, 0x01], 0xe000)
                 .setState({
                     y: 0x05
                 })
@@ -111,7 +111,7 @@ export function run() {
                 ));
 
         test('indexed,X via LDA', () =>
-            Runner.create([0xa1, 0x01], 0xe000)
+            Runner.create(cpuFactory, [0xa1, 0x01], 0xe000)
                 .setState({
                     x: 0x05
                 })
@@ -131,7 +131,7 @@ export function run() {
                 ));
 
         test('indexed,Y via LDA', () =>
-            Runner.create([0xb1, 0x02], 0xe000)
+            Runner.create(cpuFactory, [0xb1, 0x02], 0xe000)
                 .setState({
                     y: 0x05
                 })
@@ -150,7 +150,7 @@ export function run() {
                 ));
 
         test('indexed,Y via LDA (page crossing)', () =>
-            Runner.create([0xb1, 0x02], 0xe000)
+            Runner.create(cpuFactory, [0xb1, 0x02], 0xe000)
                 .setState({
                     y: 0xff
                 })

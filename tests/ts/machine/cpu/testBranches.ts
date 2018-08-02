@@ -22,10 +22,16 @@
 import Runner from './Runner';
 import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
 
-function branchSuite(mnemonic: string, opcode: number, jumpCondition: number, noJumpCondition: number): void {
+function branchSuite(
+    cpuFactory: Runner.CpuFactory,
+    mnemonic: string,
+    opcode: number,
+    jumpCondition: number,
+    noJumpCondition: number
+): void {
     suite(mnemonic, function() {
         test('immediate, no branch', () =>
-            Runner.create([opcode, 0x0f], 0xe000)
+            Runner.create(cpuFactory, [opcode, 0x0f], 0xe000)
                 .setState({
                     flags: noJumpCondition
                 })
@@ -36,7 +42,7 @@ function branchSuite(mnemonic: string, opcode: number, jumpCondition: number, no
                 }));
 
         test('immediate, forward branch', () =>
-            Runner.create([opcode, 0x0f], 0xe000)
+            Runner.create(cpuFactory, [opcode, 0x0f], 0xe000)
                 .setState({
                     flags: jumpCondition
                 })
@@ -47,7 +53,7 @@ function branchSuite(mnemonic: string, opcode: number, jumpCondition: number, no
                 }));
 
         test('immediate, backward branch, page crossing', () =>
-            Runner.create([opcode, (~0x0a & 0xff) + 1], 0xe000)
+            Runner.create(cpuFactory, [opcode, (~0x0a & 0xff) + 1], 0xe000)
                 .setState({
                     flags: jumpCondition
                 })
@@ -58,7 +64,7 @@ function branchSuite(mnemonic: string, opcode: number, jumpCondition: number, no
                 }));
 
         test('immediate, backward branch, page crossing @ 0xFE', () =>
-            Runner.create([opcode, (~0x0a & 0xff) + 1], 0xe0fe)
+            Runner.create(cpuFactory, [opcode, (~0x0a & 0xff) + 1], 0xe0fe)
                 .setState({
                     flags: jumpCondition
                 })
@@ -69,7 +75,7 @@ function branchSuite(mnemonic: string, opcode: number, jumpCondition: number, no
                 }));
 
         test('immediate, backward branch, page crossing @ 0xFF', () =>
-            Runner.create([opcode, (~0x0a & 0xff) + 1], 0xe0ff)
+            Runner.create(cpuFactory, [opcode, (~0x0a & 0xff) + 1], 0xe0ff)
                 .setState({
                     flags: jumpCondition
                 })
@@ -81,18 +87,18 @@ function branchSuite(mnemonic: string, opcode: number, jumpCondition: number, no
     });
 }
 
-export function run(): void {
-    branchSuite('BCC', 0x90, 0, CpuInterface.Flags.c);
+export function run(cpuFactory: Runner.CpuFactory): void {
+    branchSuite(cpuFactory, 'BCC', 0x90, 0, CpuInterface.Flags.c);
 
-    branchSuite('BNE', 0xd0, 0, CpuInterface.Flags.z);
+    branchSuite(cpuFactory, 'BNE', 0xd0, 0, CpuInterface.Flags.z);
 
-    branchSuite('BEQ', 0xf0, CpuInterface.Flags.z, 0);
+    branchSuite(cpuFactory, 'BEQ', 0xf0, CpuInterface.Flags.z, 0);
 
-    branchSuite('BPL', 0x10, 0, CpuInterface.Flags.n);
+    branchSuite(cpuFactory, 'BPL', 0x10, 0, CpuInterface.Flags.n);
 
-    branchSuite('BMI', 0x30, CpuInterface.Flags.n, 0);
+    branchSuite(cpuFactory, 'BMI', 0x30, CpuInterface.Flags.n, 0);
 
-    branchSuite('BVC', 0x50, 0, CpuInterface.Flags.v);
+    branchSuite(cpuFactory, 'BVC', 0x50, 0, CpuInterface.Flags.v);
 
-    branchSuite('BVS', 0x70, CpuInterface.Flags.v, 0);
+    branchSuite(cpuFactory, 'BVS', 0x70, CpuInterface.Flags.v, 0);
 }

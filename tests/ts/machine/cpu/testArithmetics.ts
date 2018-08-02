@@ -24,11 +24,19 @@ import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
 import * as hex from '../../../../src/tools/hex';
 import * as util from './util';
 
-function testAdc(in1: number, in2: number, out: number, flags = 0, flagsDontcare = 0, carry = false): void {
+function testAdc(
+    cpuFactory: Runner.CpuFactory,
+    in1: number,
+    in2: number,
+    out: number,
+    flags = 0,
+    flagsDontcare = 0,
+    carry = false
+): void {
     test(
         `immediate: ${hex.encode(in1, 2)} + ${hex.encode(in2, 2)} ` + `${carry ? '+ c ' : ''}= ${hex.encode(out, 2)}`,
         function() {
-            const runner = Runner.create([0x69, in1]).setState({
+            const runner = Runner.create(cpuFactory, [0x69, in1]).setState({
                 a: in2,
                 flags: CpuInterface.Flags.e | (carry ? CpuInterface.Flags.c : 0)
             });
@@ -46,7 +54,15 @@ function testAdc(in1: number, in2: number, out: number, flags = 0, flagsDontcare
     );
 }
 
-function testAdcNeg(in1: number, in2: number, out: number, flags = 0, flagsDontcare = 0, carry = false): void {
+function testAdcNeg(
+    cpuFactory: Runner.CpuFactory,
+    in1: number,
+    in2: number,
+    out: number,
+    flags = 0,
+    flagsDontcare = 0,
+    carry = false
+): void {
     test(
         `immediate: ${hex.encode(in1, 2)} + ${hex.encode(in2, 2)} ` + `${carry ? '+ c ' : ''}= ${hex.encode(out, 2)}`,
         function() {
@@ -54,7 +70,7 @@ function testAdcNeg(in1: number, in2: number, out: number, flags = 0, flagsDontc
             in2 = in2 >= 0 ? in2 : (~Math.abs(in2) & 0xff) + 1;
             out = out >= 0 ? out : (~Math.abs(out) & 0xff) + 1;
 
-            const runner = Runner.create([0x69, in1])
+            const runner = Runner.create(cpuFactory, [0x69, in1])
                 .setState({
                     a: in2,
                     flags: CpuInterface.Flags.e | (carry ? CpuInterface.Flags.c : 0)
@@ -69,12 +85,20 @@ function testAdcNeg(in1: number, in2: number, out: number, flags = 0, flagsDontc
     );
 }
 
-function testAdcBcd(in1: number, in2: number, out: number, flags = 0, flagsDontcare = 0, carry = false) {
+function testAdcBcd(
+    cpuFactory: Runner.CpuFactory,
+    in1: number,
+    in2: number,
+    out: number,
+    flags = 0,
+    flagsDontcare = 0,
+    carry = false
+) {
     test(
         `immediate, BCD: ${hex.encode(in1, 2)} + ${hex.encode(in2, 2)} ` +
             `${carry ? '+ c ' : ''}= ${hex.encode(out, 2)}`,
         function() {
-            const runner = Runner.create([0x69, in1]).setState({
+            const runner = Runner.create(cpuFactory, [0x69, in1]).setState({
                 a: in2,
                 flags: CpuInterface.Flags.d | (carry ? CpuInterface.Flags.c : 0)
             });
@@ -92,11 +116,20 @@ function testAdcBcd(in1: number, in2: number, out: number, flags = 0, flagsDontc
     );
 }
 
-function testSbc(opcode: number, in1: number, in2: number, out: number, flags = 0, flagsDontcare = 0, borrow = false) {
+function testSbc(
+    cpuFactory: Runner.CpuFactory,
+    opcode: number,
+    in1: number,
+    in2: number,
+    out: number,
+    flags = 0,
+    flagsDontcare = 0,
+    borrow = false
+) {
     test(
         `immediate: ${hex.encode(in1, 2)} - ${hex.encode(in2, 2)} ` + `${borrow ? '- b ' : ''}= ${hex.encode(out, 2)}`,
         function() {
-            const runner = Runner.create([opcode, in2]).setState({
+            const runner = Runner.create(cpuFactory, [opcode, in2]).setState({
                 a: in1,
                 flags: CpuInterface.Flags.e | (borrow ? 0 : CpuInterface.Flags.c)
             });
@@ -115,6 +148,7 @@ function testSbc(opcode: number, in1: number, in2: number, out: number, flags = 
 }
 
 function testSbcBcd(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     in1: number,
     in2: number,
@@ -127,7 +161,7 @@ function testSbcBcd(
         `immediate, BCD: ${hex.encode(in1, 2)} - ${hex.encode(in2, 2)} ` +
             `${borrow ? '- b ' : ''}= ${hex.encode(out, 2)}`,
         function() {
-            const runner = Runner.create([opcode, in2]).setState({
+            const runner = Runner.create(cpuFactory, [opcode, in2]).setState({
                 a: in1,
                 flags: CpuInterface.Flags.d | (borrow ? 0 : CpuInterface.Flags.c)
             });
@@ -145,62 +179,62 @@ function testSbcBcd(
     );
 }
 
-export function run(): void {
+export function run(cpuFactory: Runner.CpuFactory): void {
     suite('ADC', function() {
-        testAdc(0x01, 0x30, 0x31, 0, CpuInterface.Flags.v);
-        testAdc(0x01, 0x30, 0x32, 0, CpuInterface.Flags.v, true);
-        testAdc(0xfe, 0x02, 0x00, CpuInterface.Flags.c | CpuInterface.Flags.z, CpuInterface.Flags.v);
-        testAdc(0x80, 0x70, 0xf0, CpuInterface.Flags.n);
-        testAdcNeg(0x01, -0x01, 0x00, CpuInterface.Flags.z, CpuInterface.Flags.c);
-        testAdcNeg(-0x71, 0x61, -0x10, CpuInterface.Flags.n, CpuInterface.Flags.c);
-        testAdcNeg(-0x71, -0x61, 0x2e, CpuInterface.Flags.v, CpuInterface.Flags.c);
-        testAdcNeg(0x7f, 0x7f, 0xfe, CpuInterface.Flags.v | CpuInterface.Flags.n, CpuInterface.Flags.c);
-        testAdcBcd(0x03, 0x08, 0x11);
-        testAdcBcd(0x23, 0x44, 0x67);
-        testAdcBcd(0x76, 0x43, 0x19, CpuInterface.Flags.c);
-        testAdcBcd(0x77, 0x23, 0x00, CpuInterface.Flags.z | CpuInterface.Flags.c);
-        testAdcBcd(0x50, 0x44, 0x94, CpuInterface.Flags.n);
+        testAdc(cpuFactory, 0x01, 0x30, 0x31, 0, CpuInterface.Flags.v);
+        testAdc(cpuFactory, 0x01, 0x30, 0x32, 0, CpuInterface.Flags.v, true);
+        testAdc(cpuFactory, 0xfe, 0x02, 0x00, CpuInterface.Flags.c | CpuInterface.Flags.z, CpuInterface.Flags.v);
+        testAdc(cpuFactory, 0x80, 0x70, 0xf0, CpuInterface.Flags.n);
+        testAdcNeg(cpuFactory, 0x01, -0x01, 0x00, CpuInterface.Flags.z, CpuInterface.Flags.c);
+        testAdcNeg(cpuFactory, -0x71, 0x61, -0x10, CpuInterface.Flags.n, CpuInterface.Flags.c);
+        testAdcNeg(cpuFactory, -0x71, -0x61, 0x2e, CpuInterface.Flags.v, CpuInterface.Flags.c);
+        testAdcNeg(cpuFactory, 0x7f, 0x7f, 0xfe, CpuInterface.Flags.v | CpuInterface.Flags.n, CpuInterface.Flags.c);
+        testAdcBcd(cpuFactory, 0x03, 0x08, 0x11);
+        testAdcBcd(cpuFactory, 0x23, 0x44, 0x67);
+        testAdcBcd(cpuFactory, 0x76, 0x43, 0x19, CpuInterface.Flags.c);
+        testAdcBcd(cpuFactory, 0x77, 0x23, 0x00, CpuInterface.Flags.z | CpuInterface.Flags.c);
+        testAdcBcd(cpuFactory, 0x50, 0x44, 0x94, CpuInterface.Flags.n);
 
-        util.testDereferencingZeropage(0x65, 0x12, 3, { a: 0x23 }, { a: 0x35 });
-        util.testDereferencingZeropageX(0x75, 0x12, 4, { a: 0x23 }, { a: 0x35 });
-        util.testDereferencingAbsolute(0x6d, 0x12, 4, { a: 0x23 }, { a: 0x35 });
-        util.testDereferencingAbsoluteX(0x7d, 0x12, 4, 5, { a: 0x23 }, { a: 0x35 });
-        util.testDereferencingAbsoluteY(0x79, 0x12, 4, 5, { a: 0x23 }, { a: 0x35 });
-        util.testDereferencingIndirectX(0x61, 0x12, 6, { a: 0x23 }, { a: 0x35 });
-        util.testDereferencingIndirectY(0x71, 0x12, 5, 6, { a: 0x23 }, { a: 0x35 });
+        util.testDereferencingZeropage(cpuFactory, 0x65, 0x12, 3, { a: 0x23 }, { a: 0x35 });
+        util.testDereferencingZeropageX(cpuFactory, 0x75, 0x12, 4, { a: 0x23 }, { a: 0x35 });
+        util.testDereferencingAbsolute(cpuFactory, 0x6d, 0x12, 4, { a: 0x23 }, { a: 0x35 });
+        util.testDereferencingAbsoluteX(cpuFactory, 0x7d, 0x12, 4, 5, { a: 0x23 }, { a: 0x35 });
+        util.testDereferencingAbsoluteY(cpuFactory, 0x79, 0x12, 4, 5, { a: 0x23 }, { a: 0x35 });
+        util.testDereferencingIndirectX(cpuFactory, 0x61, 0x12, 6, { a: 0x23 }, { a: 0x35 });
+        util.testDereferencingIndirectY(cpuFactory, 0x71, 0x12, 5, 6, { a: 0x23 }, { a: 0x35 });
     });
 
     suite('SBC', function() {
-        testSbc(0xe9, 0x45, 0x01, 0x44, CpuInterface.Flags.c, 0);
-        testSbc(0xe9, 0x45, 0x36, 0x0f, CpuInterface.Flags.c, 0);
-        testSbc(0xe9, 0x45, 0x36, 0x0f, CpuInterface.Flags.c, 0);
-        testSbc(0xe9, 0x45, 0x50, 0xf5, CpuInterface.Flags.n, 0);
-        testSbc(0xe9, 0xff, 0xfe, 0x00, CpuInterface.Flags.z | CpuInterface.Flags.c, 0, true);
-        testSbcBcd(0xe9, 0x34, 0x12, 0x22, CpuInterface.Flags.c, 0);
-        testSbcBcd(0xe9, 0x34, 0x17, 0x17, CpuInterface.Flags.c, 0);
-        testSbcBcd(0xe9, 0x78, 0x80, 0x98, 0, CpuInterface.Flags.n);
-        testSbcBcd(0xe9, 0x56, 0x56, 0x00, CpuInterface.Flags.c | CpuInterface.Flags.z, 0);
-        testSbcBcd(0xe9, 0x56, 0x56, 0x99, CpuInterface.Flags.n, 0, true);
+        testSbc(cpuFactory, 0xe9, 0x45, 0x01, 0x44, CpuInterface.Flags.c, 0);
+        testSbc(cpuFactory, 0xe9, 0x45, 0x36, 0x0f, CpuInterface.Flags.c, 0);
+        testSbc(cpuFactory, 0xe9, 0x45, 0x36, 0x0f, CpuInterface.Flags.c, 0);
+        testSbc(cpuFactory, 0xe9, 0x45, 0x50, 0xf5, CpuInterface.Flags.n, 0);
+        testSbc(cpuFactory, 0xe9, 0xff, 0xfe, 0x00, CpuInterface.Flags.z | CpuInterface.Flags.c, 0, true);
+        testSbcBcd(cpuFactory, 0xe9, 0x34, 0x12, 0x22, CpuInterface.Flags.c, 0);
+        testSbcBcd(cpuFactory, 0xe9, 0x34, 0x17, 0x17, CpuInterface.Flags.c, 0);
+        testSbcBcd(cpuFactory, 0xe9, 0x78, 0x80, 0x98, 0, CpuInterface.Flags.n);
+        testSbcBcd(cpuFactory, 0xe9, 0x56, 0x56, 0x00, CpuInterface.Flags.c | CpuInterface.Flags.z, 0);
+        testSbcBcd(cpuFactory, 0xe9, 0x56, 0x56, 0x99, CpuInterface.Flags.n, 0, true);
 
-        util.testDereferencingZeropage(0xe5, 0xff, 3, { a: 0x10 }, { a: 0x10 });
-        util.testDereferencingZeropageX(0xf5, 0xff, 4, { a: 0x10 }, { a: 0x10 });
-        util.testDereferencingAbsolute(0xed, 0xff, 4, { a: 0x10 }, { a: 0x10 });
-        util.testDereferencingAbsoluteX(0xfd, 0xff, 4, 5, { a: 0x10 }, { a: 0x10 });
-        util.testDereferencingAbsoluteY(0xf9, 0xff, 4, 5, { a: 0x10 }, { a: 0x10 });
-        util.testDereferencingIndirectX(0xe1, 0xff, 6, { a: 0x10 }, { a: 0x10 });
-        util.testDereferencingIndirectY(0xf1, 0xff, 5, 6, { a: 0x10 }, { a: 0x10 });
+        util.testDereferencingZeropage(cpuFactory, 0xe5, 0xff, 3, { a: 0x10 }, { a: 0x10 });
+        util.testDereferencingZeropageX(cpuFactory, 0xf5, 0xff, 4, { a: 0x10 }, { a: 0x10 });
+        util.testDereferencingAbsolute(cpuFactory, 0xed, 0xff, 4, { a: 0x10 }, { a: 0x10 });
+        util.testDereferencingAbsoluteX(cpuFactory, 0xfd, 0xff, 4, 5, { a: 0x10 }, { a: 0x10 });
+        util.testDereferencingAbsoluteY(cpuFactory, 0xf9, 0xff, 4, 5, { a: 0x10 }, { a: 0x10 });
+        util.testDereferencingIndirectX(cpuFactory, 0xe1, 0xff, 6, { a: 0x10 }, { a: 0x10 });
+        util.testDereferencingIndirectY(cpuFactory, 0xf1, 0xff, 5, 6, { a: 0x10 }, { a: 0x10 });
     });
 
     suite('UNDOC-SBC', function() {
-        testSbc(0xeb, 0x45, 0x01, 0x44, CpuInterface.Flags.c, 0);
-        testSbc(0xeb, 0x45, 0x36, 0x0f, CpuInterface.Flags.c, 0);
-        testSbc(0xeb, 0x45, 0x36, 0x0f, CpuInterface.Flags.c, 0);
-        testSbc(0xeb, 0x45, 0x50, 0xf5, CpuInterface.Flags.n, 0);
-        testSbc(0xeb, 0xff, 0xfe, 0x00, CpuInterface.Flags.z | CpuInterface.Flags.c, 0, true);
-        testSbcBcd(0xeb, 0x34, 0x12, 0x22, CpuInterface.Flags.c, 0);
-        testSbcBcd(0xeb, 0x34, 0x17, 0x17, CpuInterface.Flags.c, 0);
-        testSbcBcd(0xeb, 0x78, 0x80, 0x98, 0, CpuInterface.Flags.n);
-        testSbcBcd(0xeb, 0x56, 0x56, 0x00, CpuInterface.Flags.c | CpuInterface.Flags.z, 0);
-        testSbcBcd(0xeb, 0x56, 0x56, 0x99, CpuInterface.Flags.n, 0, true);
+        testSbc(cpuFactory, 0xeb, 0x45, 0x01, 0x44, CpuInterface.Flags.c, 0);
+        testSbc(cpuFactory, 0xeb, 0x45, 0x36, 0x0f, CpuInterface.Flags.c, 0);
+        testSbc(cpuFactory, 0xeb, 0x45, 0x36, 0x0f, CpuInterface.Flags.c, 0);
+        testSbc(cpuFactory, 0xeb, 0x45, 0x50, 0xf5, CpuInterface.Flags.n, 0);
+        testSbc(cpuFactory, 0xeb, 0xff, 0xfe, 0x00, CpuInterface.Flags.z | CpuInterface.Flags.c, 0, true);
+        testSbcBcd(cpuFactory, 0xeb, 0x34, 0x12, 0x22, CpuInterface.Flags.c, 0);
+        testSbcBcd(cpuFactory, 0xeb, 0x34, 0x17, 0x17, CpuInterface.Flags.c, 0);
+        testSbcBcd(cpuFactory, 0xeb, 0x78, 0x80, 0x98, 0, CpuInterface.Flags.n);
+        testSbcBcd(cpuFactory, 0xeb, 0x56, 0x56, 0x00, CpuInterface.Flags.c | CpuInterface.Flags.z, 0);
+        testSbcBcd(cpuFactory, 0xeb, 0x56, 0x56, 0x99, CpuInterface.Flags.n, 0, true);
     });
 }

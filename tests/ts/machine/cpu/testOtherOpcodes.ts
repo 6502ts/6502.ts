@@ -23,9 +23,10 @@ import Runner from './Runner';
 import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
 import * as util from './util';
 
-export function run() {
+export function run(cpuFactory: Runner.CpuFactory) {
     suite('ASL', function() {
         util.testImplied(
+            cpuFactory,
             0x0a,
             2,
             {
@@ -40,6 +41,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x0a,
             2,
             {
@@ -54,6 +56,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x0a,
             2,
             {
@@ -68,6 +71,7 @@ export function run() {
         );
 
         util.testMutatingZeropage(
+            cpuFactory,
             0x06,
             0xff,
             0xfe,
@@ -82,6 +86,7 @@ export function run() {
         );
 
         util.testMutatingZeropage(
+            cpuFactory,
             0x06,
             parseInt('01010101', 2),
             parseInt('10101010', 2),
@@ -96,6 +101,7 @@ export function run() {
         );
 
         util.testMutatingZeropage(
+            cpuFactory,
             0x06,
             0x80,
             0x00,
@@ -109,14 +115,14 @@ export function run() {
             ', 0x01'
         );
 
-        util.testMutatingZeropageX(0x16, 0x01, 0x02, 6, { a: 0x02 }, {});
-        util.testMutatingAbsolute(0x0e, 0x01, 0x02, 6, { a: 0x02 }, {});
-        util.testMutatingAbsoluteX(0x1e, 0x01, 0x02, 7, 7, { a: 0x02 }, {});
+        util.testMutatingZeropageX(cpuFactory, 0x16, 0x01, 0x02, 6, { a: 0x02 }, {});
+        util.testMutatingAbsolute(cpuFactory, 0x0e, 0x01, 0x02, 6, { a: 0x02 }, {});
+        util.testMutatingAbsoluteX(cpuFactory, 0x1e, 0x01, 0x02, 7, 7, { a: 0x02 }, {});
     });
 
     suite('AND', function() {
         test('immediate, flags', () =>
-            Runner.create([0x29, 0xff])
+            Runner.create(cpuFactory, [0x29, 0xff])
                 .setState({
                     a: 0xf0,
                     flags: 0xff & ~CpuInterface.Flags.n
@@ -129,7 +135,7 @@ export function run() {
                 }));
 
         test('zeroPage, flags', () =>
-            Runner.create([0x25, 0x34])
+            Runner.create(cpuFactory, [0x25, 0x34])
                 .setState({
                     a: 0x0f,
                     flags: 0xff & ~CpuInterface.Flags.z
@@ -145,7 +151,7 @@ export function run() {
                 }));
 
         test('zeroPage,X, flags', () =>
-            Runner.create([0x35, 0x33])
+            Runner.create(cpuFactory, [0x35, 0x33])
                 .setState({
                     a: 0x01,
                     x: 0x01,
@@ -162,7 +168,7 @@ export function run() {
                 }));
 
         test('absolute', () =>
-            Runner.create([0x2d, 0x33, 0x44])
+            Runner.create(cpuFactory, [0x2d, 0x33, 0x44])
                 .setState({
                     a: 0x01
                 })
@@ -176,7 +182,7 @@ export function run() {
                 }));
 
         test('absolute,X', () =>
-            Runner.create([0x3d, 0x44, 0x33])
+            Runner.create(cpuFactory, [0x3d, 0x44, 0x33])
                 .setState({
                     a: 0x01,
                     x: 0x01
@@ -191,7 +197,7 @@ export function run() {
                 }));
 
         test('absolute,X , page crossing', () =>
-            Runner.create([0x3d, 0x44, 0x33])
+            Runner.create(cpuFactory, [0x3d, 0x44, 0x33])
                 .setState({
                     a: 0x01,
                     x: 0xff
@@ -206,7 +212,7 @@ export function run() {
                 }));
 
         test('absolute,Y', () =>
-            Runner.create([0x39, 0x44, 0x33])
+            Runner.create(cpuFactory, [0x39, 0x44, 0x33])
                 .setState({
                     a: 0x01,
                     y: 0x01
@@ -221,7 +227,7 @@ export function run() {
                 }));
 
         test('absolute,Y , page crossing', () =>
-            Runner.create([0x39, 0x44, 0x33])
+            Runner.create(cpuFactory, [0x39, 0x44, 0x33])
                 .setState({
                     a: 0x01,
                     y: 0xff
@@ -236,7 +242,7 @@ export function run() {
                 }));
 
         test('indirect.X', () =>
-            Runner.create([0x21, 0x33])
+            Runner.create(cpuFactory, [0x21, 0x33])
                 .setState({
                     a: 0x01,
                     x: 0x01
@@ -253,7 +259,7 @@ export function run() {
                 }));
 
         test('indirect,Y', () =>
-            Runner.create([0x31, 0x33])
+            Runner.create(cpuFactory, [0x31, 0x33])
                 .setState({
                     a: 0x01,
                     y: 0x01
@@ -270,7 +276,7 @@ export function run() {
                 }));
 
         test('indirect,Y , page crossing', () =>
-            Runner.create([0x31, 0x33])
+            Runner.create(cpuFactory, [0x31, 0x33])
                 .setState({
                     a: 0x01,
                     y: 0xff
@@ -289,6 +295,7 @@ export function run() {
 
     suite('BIT', function() {
         util.testDereferencingZeropage(
+            cpuFactory,
             0x24,
             CpuInterface.Flags.n,
             3,
@@ -303,6 +310,7 @@ export function run() {
         );
 
         util.testDereferencingAbsolute(
+            cpuFactory,
             0x2c,
             CpuInterface.Flags.n | CpuInterface.Flags.v,
             4,
@@ -317,6 +325,7 @@ export function run() {
         );
 
         util.testDereferencingAbsolute(
+            cpuFactory,
             0x2c,
             CpuInterface.Flags.n | CpuInterface.Flags.v,
             4,
@@ -331,6 +340,7 @@ export function run() {
         );
 
         util.testDereferencingAbsolute(
+            cpuFactory,
             0x2c,
             0x01,
             4,
@@ -347,7 +357,7 @@ export function run() {
 
     suite('BRK', function() {
         test('immediate', () =>
-            Runner.create([0x00])
+            Runner.create(cpuFactory, [0x00])
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0xff
@@ -370,7 +380,7 @@ export function run() {
                 }));
 
         test('immediate, stack overflow', () =>
-            Runner.create([0x00])
+            Runner.create(cpuFactory, [0x00])
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0x01
@@ -395,7 +405,7 @@ export function run() {
 
     suite('CMP', function() {
         test('immediate, flags', () =>
-            Runner.create([0xc9, 0xff])
+            Runner.create(cpuFactory, [0xc9, 0xff])
                 .setState({
                     a: 0,
                     flags: 0xff
@@ -407,7 +417,7 @@ export function run() {
                 }));
 
         test('zero page, flags', () =>
-            Runner.create([0xc5, 0x55])
+            Runner.create(cpuFactory, [0xc5, 0x55])
                 .setState({
                     a: 0xff,
                     flags: 0xff & ~CpuInterface.Flags.c & ~CpuInterface.Flags.n
@@ -422,7 +432,7 @@ export function run() {
                 }));
 
         test('zero page,X, flags', () =>
-            Runner.create([0xd5, 0x55])
+            Runner.create(cpuFactory, [0xd5, 0x55])
                 .setState({
                     a: 0x34,
                     x: 0x01,
@@ -438,7 +448,7 @@ export function run() {
                 }));
 
         test('absolute', () =>
-            Runner.create([0xcd, 0x55, 0x34])
+            Runner.create(cpuFactory, [0xcd, 0x55, 0x34])
                 .setState({
                     a: 0x34,
                     flags: 0xff
@@ -453,7 +463,7 @@ export function run() {
                 }));
 
         test('absolute,X', () =>
-            Runner.create([0xdd, 0x55, 0x34])
+            Runner.create(cpuFactory, [0xdd, 0x55, 0x34])
                 .setState({
                     a: 0x34,
                     x: 0x01,
@@ -469,7 +479,7 @@ export function run() {
                 }));
 
         test('absolute,X , page crossing', () =>
-            Runner.create([0xdd, 0x55, 0x34])
+            Runner.create(cpuFactory, [0xdd, 0x55, 0x34])
                 .setState({
                     a: 0x34,
                     x: 0xff,
@@ -485,7 +495,7 @@ export function run() {
                 }));
 
         test('absolute,Y', () =>
-            Runner.create([0xd9, 0x55, 0x34])
+            Runner.create(cpuFactory, [0xd9, 0x55, 0x34])
                 .setState({
                     a: 0x34,
                     y: 0x01,
@@ -501,7 +511,7 @@ export function run() {
                 }));
 
         test('absolute,Y , page crossing', () =>
-            Runner.create([0xd9, 0x55, 0x34])
+            Runner.create(cpuFactory, [0xd9, 0x55, 0x34])
                 .setState({
                     a: 0x34,
                     y: 0xff,
@@ -517,7 +527,7 @@ export function run() {
                 }));
 
         test('indirect,X', () =>
-            Runner.create([0xc1, 0x55])
+            Runner.create(cpuFactory, [0xc1, 0x55])
                 .setState({
                     a: 0x34,
                     x: 0x01,
@@ -535,7 +545,7 @@ export function run() {
                 }));
 
         test('indirect,Y', () =>
-            Runner.create([0xd1, 0x55])
+            Runner.create(cpuFactory, [0xd1, 0x55])
                 .setState({
                     a: 0x34,
                     y: 0x01,
@@ -553,7 +563,7 @@ export function run() {
                 }));
 
         test('indirect,Y , page crossing', () =>
-            Runner.create([0xd1, 0x55])
+            Runner.create(cpuFactory, [0xd1, 0x55])
                 .setState({
                     a: 0x34,
                     y: 0xff,
@@ -573,6 +583,7 @@ export function run() {
 
     suite('CPX', function() {
         util.testImmediate(
+            cpuFactory,
             0xe0,
             0x23,
             2,
@@ -587,6 +598,7 @@ export function run() {
         );
 
         util.testDereferencingZeropage(
+            cpuFactory,
             0xe4,
             0x33,
             3,
@@ -601,6 +613,7 @@ export function run() {
         );
 
         util.testDereferencingAbsolute(
+            cpuFactory,
             0xec,
             0xff,
             4,
@@ -617,6 +630,7 @@ export function run() {
 
     suite('CPY', function() {
         util.testImmediate(
+            cpuFactory,
             0xc0,
             0x23,
             2,
@@ -631,6 +645,7 @@ export function run() {
         );
 
         util.testDereferencingZeropage(
+            cpuFactory,
             0xc4,
             0x33,
             3,
@@ -645,6 +660,7 @@ export function run() {
         );
 
         util.testDereferencingAbsolute(
+            cpuFactory,
             0xcc,
             0xff,
             4,
@@ -661,6 +677,7 @@ export function run() {
 
     suite('DEC', function() {
         util.testMutatingZeropage(
+            cpuFactory,
             0xc6,
             0xff,
             0xfe,
@@ -674,6 +691,7 @@ export function run() {
         );
 
         util.testMutatingZeropageX(
+            cpuFactory,
             0xd6,
             0x00,
             0xff,
@@ -687,6 +705,7 @@ export function run() {
         );
 
         util.testMutatingAbsolute(
+            cpuFactory,
             0xce,
             0x01,
             0x00,
@@ -699,12 +718,12 @@ export function run() {
             }
         );
 
-        util.testMutatingAbsoluteX(0xde, 0x05, 0x04, 7, 7, {}, {});
+        util.testMutatingAbsoluteX(cpuFactory, 0xde, 0x05, 0x04, 7, 7, {}, {});
     });
 
     suite('DEX', function() {
         test('starting with 0x01, flags', () =>
-            Runner.create([0xca])
+            Runner.create(cpuFactory, [0xca])
                 .setState({
                     x: 0x01,
                     flags: 0xff & ~CpuInterface.Flags.z
@@ -717,7 +736,7 @@ export function run() {
                 }));
 
         test('starting with 0x00, flags', () =>
-            Runner.create([0xca])
+            Runner.create(cpuFactory, [0xca])
                 .setState({
                     x: 0,
                     flags: 0xff & ~CpuInterface.Flags.n
@@ -732,7 +751,7 @@ export function run() {
 
     suite('DEY', function() {
         test('starting with 0x01, flags', () =>
-            Runner.create([0x88])
+            Runner.create(cpuFactory, [0x88])
                 .setState({
                     y: 0x01,
                     flags: 0xff & ~CpuInterface.Flags.z
@@ -745,7 +764,7 @@ export function run() {
                 }));
 
         test('starting with 0x00, flags', () =>
-            Runner.create([0x88])
+            Runner.create(cpuFactory, [0x88])
                 .setState({
                     y: 0,
                     flags: 0xff & ~CpuInterface.Flags.n
@@ -759,8 +778,9 @@ export function run() {
     });
 
     suite('EOR', function() {
-        util.testImmediate(0x49, 0x3, 2, { a: 0x01 }, { a: 0x02 }, ', flags');
+        util.testImmediate(cpuFactory, 0x49, 0x3, 2, { a: 0x01 }, { a: 0x02 }, ', flags');
         util.testDereferencingZeropage(
+            cpuFactory,
             0x45,
             0xff,
             3,
@@ -775,6 +795,7 @@ export function run() {
             ', flags'
         );
         util.testDereferencingZeropageX(
+            cpuFactory,
             0x55,
             0xff,
             4,
@@ -788,23 +809,41 @@ export function run() {
             },
             ', flags'
         );
-        util.testDereferencingAbsolute(0x4d, 0x3, 4, { a: 0x01 }, { a: 0x02 });
-        util.testDereferencingAbsoluteX(0x5d, 0x3, 4, 5, { a: 0x01 }, { a: 0x02 });
-        util.testDereferencingAbsoluteY(0x59, 0x3, 4, 5, { a: 0x01 }, { a: 0x02 });
-        util.testDereferencingIndirectX(0x41, 0x3, 6, { a: 0x01 }, { a: 0x02 });
-        util.testDereferencingIndirectY(0x51, 0x3, 5, 6, { a: 0x01 }, { a: 0x02 });
+        util.testDereferencingAbsolute(cpuFactory, 0x4d, 0x3, 4, { a: 0x01 }, { a: 0x02 });
+        util.testDereferencingAbsoluteX(cpuFactory, 0x5d, 0x3, 4, 5, { a: 0x01 }, { a: 0x02 });
+        util.testDereferencingAbsoluteY(cpuFactory, 0x59, 0x3, 4, 5, { a: 0x01 }, { a: 0x02 });
+        util.testDereferencingIndirectX(cpuFactory, 0x41, 0x3, 6, { a: 0x01 }, { a: 0x02 });
+        util.testDereferencingIndirectY(cpuFactory, 0x51, 0x3, 5, 6, { a: 0x01 }, { a: 0x02 });
     });
 
     suite('INC', function() {
-        util.testMutatingZeropage(0xe6, 0x11, 0x12, 5, {}, {}, ', 0x11');
-        util.testMutatingZeropageX(0xf6, 0xef, 0xf0, 6, { flags: 0 }, { flags: CpuInterface.Flags.n }, ', 0xEF, flags');
-        util.testMutatingAbsolute(0xee, 0xff, 0x00, 6, { flags: 0 }, { flags: CpuInterface.Flags.z }, ', 0xFF, flags');
-        util.testMutatingAbsoluteX(0xfe, 0x11, 0x12, 7, 7, {}, {}, ', 0x11');
+        util.testMutatingZeropage(cpuFactory, 0xe6, 0x11, 0x12, 5, {}, {}, ', 0x11');
+        util.testMutatingZeropageX(
+            cpuFactory,
+            0xf6,
+            0xef,
+            0xf0,
+            6,
+            { flags: 0 },
+            { flags: CpuInterface.Flags.n },
+            ', 0xEF, flags'
+        );
+        util.testMutatingAbsolute(
+            cpuFactory,
+            0xee,
+            0xff,
+            0x00,
+            6,
+            { flags: 0 },
+            { flags: CpuInterface.Flags.z },
+            ', 0xFF, flags'
+        );
+        util.testMutatingAbsoluteX(cpuFactory, 0xfe, 0x11, 0x12, 7, 7, {}, {}, ', 0x11');
     });
 
     suite('INY', function() {
         test('starting with 0xFF, flags', () =>
-            Runner.create([0xc8])
+            Runner.create(cpuFactory, [0xc8])
                 .setState({
                     y: 0xff,
                     flags: 0xff & ~CpuInterface.Flags.z
@@ -817,7 +856,7 @@ export function run() {
                 }));
 
         test('starting with 0x7E, flags', () =>
-            Runner.create([0xc8])
+            Runner.create(cpuFactory, [0xc8])
                 .setState({
                     y: 0x7f,
                     flags: 0xff & ~CpuInterface.Flags.n
@@ -832,6 +871,7 @@ export function run() {
 
     suite('INX', function() {
         util.testImplied(
+            cpuFactory,
             0xe8,
             2,
             {
@@ -846,6 +886,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0xe8,
             2,
             {
@@ -862,7 +903,7 @@ export function run() {
 
     suite('JMP', function() {
         test('absolute', () =>
-            Runner.create([0x4c, 0x67, 0xa1])
+            Runner.create(cpuFactory, [0x4c, 0x67, 0xa1])
                 .run()
                 .assertCycles(3)
                 .assertState({
@@ -870,7 +911,7 @@ export function run() {
                 }));
 
         test('indirect', () =>
-            Runner.create([0x6c, 0x67, 0xa1])
+            Runner.create(cpuFactory, [0x6c, 0x67, 0xa1])
                 .poke({
                     '0xA167': 0x34,
                     '0xA168': 0x56
@@ -882,7 +923,7 @@ export function run() {
                 }));
 
         test('indirect, wraparound', () =>
-            Runner.create([0x6c, 0xff, 0xa1])
+            Runner.create(cpuFactory, [0x6c, 0xff, 0xa1])
                 .poke({
                     '0xA1FF': 0x34,
                     '0xA100': 0x56
@@ -896,7 +937,7 @@ export function run() {
 
     suite('JSR', function() {
         test('implied', () =>
-            Runner.create([0x20, 0x67, 0xa1], 0xe000)
+            Runner.create(cpuFactory, [0x20, 0x67, 0xa1], 0xe000)
                 .setState({
                     s: 0xff
                 })
@@ -912,7 +953,7 @@ export function run() {
                 }));
 
         test('stack overflow', () =>
-            Runner.create([0x20, 0x67, 0xa1], 0xe000)
+            Runner.create(cpuFactory, [0x20, 0x67, 0xa1], 0xe000)
                 .setState({
                     s: 0x00
                 })
@@ -930,7 +971,7 @@ export function run() {
 
     suite('LDA', function() {
         test('immediate, 0x00, flags', () =>
-            Runner.create([0xa9, 0])
+            Runner.create(cpuFactory, [0xa9, 0])
                 .setState({
                     a: 0x10,
                     flags: 0xff & ~CpuInterface.Flags.z
@@ -943,7 +984,7 @@ export function run() {
                 }));
 
         test('zeroPage, 0xFF, flags', () =>
-            Runner.create([0xa5, 0x12])
+            Runner.create(cpuFactory, [0xa5, 0x12])
                 .poke({
                     '0x12': 0xff
                 })
@@ -958,7 +999,7 @@ export function run() {
                 }));
 
         test('zeroPage,X , wraparound, 0x34, flags', () =>
-            Runner.create([0xb5, 0x12])
+            Runner.create(cpuFactory, [0xb5, 0x12])
                 .setState({
                     x: 0xfe,
                     flags: 0xff
@@ -974,7 +1015,7 @@ export function run() {
                 }));
 
         test('absolute', () =>
-            Runner.create([0xad, 0x12, 0x44])
+            Runner.create(cpuFactory, [0xad, 0x12, 0x44])
                 .poke({
                     '0x4412': 0x34
                 })
@@ -985,7 +1026,7 @@ export function run() {
                 }));
 
         test('absolute,X', () =>
-            Runner.create([0xbd, 0x12, 0x44])
+            Runner.create(cpuFactory, [0xbd, 0x12, 0x44])
                 .setState({
                     x: 0x01
                 })
@@ -999,7 +1040,7 @@ export function run() {
                 }));
 
         test('absolute,X , page crossing', () =>
-            Runner.create([0xbd, 0xff, 0xff])
+            Runner.create(cpuFactory, [0xbd, 0xff, 0xff])
                 .setState({
                     x: 0x02
                 })
@@ -1013,7 +1054,7 @@ export function run() {
                 }));
 
         test('absolute,Y', () =>
-            Runner.create([0xb9, 0x12, 0x44])
+            Runner.create(cpuFactory, [0xb9, 0x12, 0x44])
                 .setState({
                     y: 0x01
                 })
@@ -1027,7 +1068,7 @@ export function run() {
                 }));
 
         test('absolute,Y , page crossing', () =>
-            Runner.create([0xb9, 0xff, 0xff])
+            Runner.create(cpuFactory, [0xb9, 0xff, 0xff])
                 .setState({
                     y: 0x02
                 })
@@ -1041,7 +1082,7 @@ export function run() {
                 }));
 
         test('indirect,X , wraparound during sum', () =>
-            Runner.create([0xa1, 0x32])
+            Runner.create(cpuFactory, [0xa1, 0x32])
                 .setState({
                     x: 0xfe
                 })
@@ -1057,7 +1098,7 @@ export function run() {
                 }));
 
         test('indirect,Y , wraparound during address read', () =>
-            Runner.create([0xb1, 0xff])
+            Runner.create(cpuFactory, [0xb1, 0xff])
                 .setState({
                     y: 0x01
                 })
@@ -1073,7 +1114,7 @@ export function run() {
                 }));
 
         test('indirect,Y , page crossing', () =>
-            Runner.create([0xb1, 0xfe])
+            Runner.create(cpuFactory, [0xb1, 0xfe])
                 .setState({
                     y: 0xff
                 })
@@ -1091,7 +1132,7 @@ export function run() {
 
     suite('LDX', function() {
         test('immediate, 0x00, flags', () =>
-            Runner.create([0xa2, 0x00])
+            Runner.create(cpuFactory, [0xa2, 0x00])
                 .setState({
                     x: 0x10,
                     flags: 0xff & ~CpuInterface.Flags.z
@@ -1104,7 +1145,7 @@ export function run() {
                 }));
 
         test('zeroPage, 0xFF, flags', () =>
-            Runner.create([0xa6, 0x10])
+            Runner.create(cpuFactory, [0xa6, 0x10])
                 .poke({
                     '0x0010': 0xff
                 })
@@ -1119,7 +1160,7 @@ export function run() {
                 }));
 
         test('zeroPage,Y , wraparound, 0x23, flags', () =>
-            Runner.create([0xb6, 0x12])
+            Runner.create(cpuFactory, [0xb6, 0x12])
                 .poke({
                     '0x0011': 0x23
                 })
@@ -1135,7 +1176,7 @@ export function run() {
                 }));
 
         test('absolute', () =>
-            Runner.create([0xae, 0x11, 0xae])
+            Runner.create(cpuFactory, [0xae, 0x11, 0xae])
                 .poke({
                     '0xAE11': 0x23
                 })
@@ -1146,7 +1187,7 @@ export function run() {
                 }));
 
         test('absolute,Y', () =>
-            Runner.create([0xbe, 0x10, 0xae])
+            Runner.create(cpuFactory, [0xbe, 0x10, 0xae])
                 .poke({
                     '0xAE11': 0x23
                 })
@@ -1160,7 +1201,7 @@ export function run() {
                 }));
 
         test('absolute,Y , page crossing', () =>
-            Runner.create([0xbe, 0x02, 0xae])
+            Runner.create(cpuFactory, [0xbe, 0x02, 0xae])
                 .poke({
                     '0xAF01': 0x23
                 })
@@ -1176,7 +1217,7 @@ export function run() {
 
     suite('LDY', function() {
         test('immediate, 0x00, flags', () =>
-            Runner.create([0xa0, 0x00])
+            Runner.create(cpuFactory, [0xa0, 0x00])
                 .setState({
                     y: 0x10,
                     flags: 0xff & ~CpuInterface.Flags.z
@@ -1189,7 +1230,7 @@ export function run() {
                 }));
 
         test('zeroPage, 0xFF, flags', () =>
-            Runner.create([0xa4, 0x10])
+            Runner.create(cpuFactory, [0xa4, 0x10])
                 .poke({
                     '0x0010': 0xff
                 })
@@ -1204,7 +1245,7 @@ export function run() {
                 }));
 
         test('zeroPage,X , 0x23, flags', () =>
-            Runner.create([0xb4, 0x10])
+            Runner.create(cpuFactory, [0xb4, 0x10])
                 .poke({
                     '0x0011': 0x23
                 })
@@ -1220,7 +1261,7 @@ export function run() {
                 }));
 
         test('absolute', () =>
-            Runner.create([0xac, 0x11, 0xae])
+            Runner.create(cpuFactory, [0xac, 0x11, 0xae])
                 .poke({
                     '0xAE11': 0x23
                 })
@@ -1231,7 +1272,7 @@ export function run() {
                 }));
 
         test('absolute,X', () =>
-            Runner.create([0xbc, 0x10, 0xae])
+            Runner.create(cpuFactory, [0xbc, 0x10, 0xae])
                 .poke({
                     '0xAE11': 0x23
                 })
@@ -1245,7 +1286,7 @@ export function run() {
                 }));
 
         test('absolute,X , page crossing', () =>
-            Runner.create([0xbc, 0x02, 0xae])
+            Runner.create(cpuFactory, [0xbc, 0x02, 0xae])
                 .poke({
                     '0xAF01': 0x23
                 })
@@ -1261,6 +1302,7 @@ export function run() {
 
     suite('LSR', function() {
         util.testImplied(
+            cpuFactory,
             0x4a,
             2,
             {
@@ -1275,6 +1317,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x4a,
             2,
             {
@@ -1289,6 +1332,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x4a,
             2,
             {
@@ -1301,6 +1345,7 @@ export function run() {
         );
 
         util.testMutatingZeropage(
+            cpuFactory,
             0x46,
             0x01,
             0x00,
@@ -1315,6 +1360,7 @@ export function run() {
         );
 
         util.testMutatingZeropageX(
+            cpuFactory,
             0x56,
             0x01,
             0x00,
@@ -1329,6 +1375,7 @@ export function run() {
         );
 
         util.testMutatingAbsolute(
+            cpuFactory,
             0x4e,
             parseInt('10101010', 2),
             parseInt('01010101', 2),
@@ -1339,6 +1386,7 @@ export function run() {
         );
 
         util.testMutatingAbsolute(
+            cpuFactory,
             0x5e,
             parseInt('10101010', 2),
             parseInt('01010101', 2),
@@ -1351,7 +1399,7 @@ export function run() {
 
     suite('NOP', function() {
         test('implied', () =>
-            Runner.create([0xea])
+            Runner.create(cpuFactory, [0xea])
                 .run()
                 .assertCycles(2)
                 .assertState());
@@ -1359,6 +1407,7 @@ export function run() {
 
     suite('ORA', function() {
         util.testImmediate(
+            cpuFactory,
             0x09,
             0x01,
             2,
@@ -1373,6 +1422,7 @@ export function run() {
         );
 
         util.testDereferencingZeropage(
+            cpuFactory,
             0x05,
             0x00,
             3,
@@ -1386,17 +1436,17 @@ export function run() {
             }
         );
 
-        util.testDereferencingZeropageX(0x15, 0x40, 4, { a: 0x04 }, { a: 0x44 });
-        util.testDereferencingAbsolute(0x0d, 0x40, 4, { a: 0x04 }, { a: 0x44 });
-        util.testDereferencingAbsoluteX(0x1d, 0x40, 4, 5, { a: 0x04 }, { a: 0x44 });
-        util.testDereferencingAbsoluteY(0x19, 0x40, 4, 5, { a: 0x04 }, { a: 0x44 });
-        util.testDereferencingIndirectX(0x01, 0x40, 6, { a: 0x04 }, { a: 0x44 });
-        util.testDereferencingIndirectY(0x11, 0x40, 5, 6, { a: 0x04 }, { a: 0x44 });
+        util.testDereferencingZeropageX(cpuFactory, 0x15, 0x40, 4, { a: 0x04 }, { a: 0x44 });
+        util.testDereferencingAbsolute(cpuFactory, 0x0d, 0x40, 4, { a: 0x04 }, { a: 0x44 });
+        util.testDereferencingAbsoluteX(cpuFactory, 0x1d, 0x40, 4, 5, { a: 0x04 }, { a: 0x44 });
+        util.testDereferencingAbsoluteY(cpuFactory, 0x19, 0x40, 4, 5, { a: 0x04 }, { a: 0x44 });
+        util.testDereferencingIndirectX(cpuFactory, 0x01, 0x40, 6, { a: 0x04 }, { a: 0x44 });
+        util.testDereferencingIndirectY(cpuFactory, 0x11, 0x40, 5, 6, { a: 0x04 }, { a: 0x44 });
     });
 
     suite('PHA', function() {
         test('implied', () =>
-            Runner.create([0x48])
+            Runner.create(cpuFactory, [0x48])
                 .setState({
                     a: 0xff,
                     s: 0xff
@@ -1411,7 +1461,7 @@ export function run() {
                 }));
 
         test('implied, stack overflow', () =>
-            Runner.create([0x48])
+            Runner.create(cpuFactory, [0x48])
                 .setState({
                     a: 0xe8,
                     s: 0x00
@@ -1428,7 +1478,7 @@ export function run() {
 
     suite('PHP', function() {
         test('implied', () =>
-            Runner.create([0x08])
+            Runner.create(cpuFactory, [0x08])
                 .setState({
                     flags: 0xff,
                     s: 0xff
@@ -1443,7 +1493,7 @@ export function run() {
                 }));
 
         test('implied, stack overflow', () =>
-            Runner.create([0x08])
+            Runner.create(cpuFactory, [0x08])
                 .setState({
                     flags: 0xe8,
                     s: 0x00
@@ -1460,7 +1510,7 @@ export function run() {
 
     suite('PLP', function() {
         test('implied', () =>
-            Runner.create([0x28])
+            Runner.create(cpuFactory, [0x28])
                 .setState({
                     flags: 0,
                     s: 0xfe
@@ -1476,7 +1526,7 @@ export function run() {
                 }));
 
         test('implied, e and b flag handling', () =>
-            Runner.create([0x28])
+            Runner.create(cpuFactory, [0x28])
                 .setState({
                     flags: 0,
                     s: 0xfe
@@ -1492,7 +1542,7 @@ export function run() {
                 }));
 
         test('implied, stack underflow', () =>
-            Runner.create([0x28])
+            Runner.create(cpuFactory, [0x28])
                 .setState({
                     flags: 0,
                     s: 0xff
@@ -1510,7 +1560,7 @@ export function run() {
 
     suite('PLA', function() {
         test('implied', () =>
-            Runner.create([0x68])
+            Runner.create(cpuFactory, [0x68])
                 .setState({
                     a: 0,
                     s: 0xfe,
@@ -1528,7 +1578,7 @@ export function run() {
                 }));
 
         test('implied, stack underflow', () =>
-            Runner.create([0x68])
+            Runner.create(cpuFactory, [0x68])
                 .setState({
                     a: 0xff,
                     s: 0xff,
@@ -1548,6 +1598,7 @@ export function run() {
 
     suite('ROL', function() {
         util.testImplied(
+            cpuFactory,
             0x2a,
             2,
             {
@@ -1562,6 +1613,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x2a,
             2,
             {
@@ -1576,6 +1628,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x2a,
             2,
             {
@@ -1590,6 +1643,7 @@ export function run() {
         );
 
         util.testMutatingZeropage(
+            cpuFactory,
             0x26,
             0x80,
             0x00,
@@ -1604,6 +1658,7 @@ export function run() {
         );
 
         util.testMutatingZeropageX(
+            cpuFactory,
             0x36,
             0x80,
             0x01,
@@ -1618,6 +1673,7 @@ export function run() {
         );
 
         util.testMutatingAbsolute(
+            cpuFactory,
             0x2e,
             0x40,
             0x81,
@@ -1631,11 +1687,12 @@ export function run() {
             ', 0x40 + c, flags'
         );
 
-        util.testMutatingAbsoluteX(0x3e, 0x01, 0x02, 7, 7, {}, {});
+        util.testMutatingAbsoluteX(cpuFactory, 0x3e, 0x01, 0x02, 7, 7, {}, {});
     });
 
     suite('ROR', function() {
         util.testImplied(
+            cpuFactory,
             0x6a,
             2,
             {
@@ -1650,6 +1707,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x6a,
             2,
             {
@@ -1664,6 +1722,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x6a,
             2,
             {
@@ -1678,6 +1737,7 @@ export function run() {
         );
 
         util.testMutatingZeropage(
+            cpuFactory,
             0x66,
             0x01,
             0x00,
@@ -1692,6 +1752,7 @@ export function run() {
         );
 
         util.testMutatingZeropageX(
+            cpuFactory,
             0x76,
             0x01,
             0x80,
@@ -1706,6 +1767,7 @@ export function run() {
         );
 
         util.testMutatingAbsolute(
+            cpuFactory,
             0x6e,
             0x40,
             0xa0,
@@ -1719,12 +1781,12 @@ export function run() {
             ', 0x40 + c, flags'
         );
 
-        util.testMutatingAbsoluteX(0x7e, 0x02, 0x01, 7, 7, {}, {});
+        util.testMutatingAbsoluteX(cpuFactory, 0x7e, 0x02, 0x01, 7, 7, {}, {});
     });
 
     suite('RTI', function() {
         test('implied', () =>
-            Runner.create([0x40])
+            Runner.create(cpuFactory, [0x40])
                 .setState({
                     s: 0xfc,
                     flags: CpuInterface.Flags.d
@@ -1742,7 +1804,7 @@ export function run() {
                 }));
 
         test('implied, stack underflow', () =>
-            Runner.create([0x40])
+            Runner.create(cpuFactory, [0x40])
                 .setState({
                     s: 0xfe,
                     flags: CpuInterface.Flags.d
@@ -1763,7 +1825,7 @@ export function run() {
 
     suite('RTS', function() {
         test('implied', () =>
-            Runner.create([0x60])
+            Runner.create(cpuFactory, [0x60])
                 .setState({
                     s: 0xfd
                 })
@@ -1779,7 +1841,7 @@ export function run() {
                 }));
 
         test('stack underflow', () =>
-            Runner.create([0x60])
+            Runner.create(cpuFactory, [0x60])
                 .setState({
                     s: 0xfe
                 })
@@ -1797,7 +1859,7 @@ export function run() {
 
     suite('STA', function() {
         test('zeroPage , flags', () =>
-            Runner.create([0x85, 0x10])
+            Runner.create(cpuFactory, [0x85, 0x10])
                 .setState({
                     a: 0x45,
                     flags: 0xff
@@ -1810,7 +1872,7 @@ export function run() {
                 }));
 
         test('zeroPage,X', () =>
-            Runner.create([0x95, 0x10])
+            Runner.create(cpuFactory, [0x95, 0x10])
                 .setState({
                     a: 0x45,
                     x: 0x04
@@ -1823,7 +1885,7 @@ export function run() {
                 }));
 
         test('absolute', () =>
-            Runner.create([0x8d, 0x10, 0x11])
+            Runner.create(cpuFactory, [0x8d, 0x10, 0x11])
                 .setState({
                     a: 0x45
                 })
@@ -1835,7 +1897,7 @@ export function run() {
                 }));
 
         test('absolute,X', () =>
-            Runner.create([0x9d, 0x10, 0x11])
+            Runner.create(cpuFactory, [0x9d, 0x10, 0x11])
                 .setState({
                     a: 0x45,
                     x: 0x10
@@ -1848,7 +1910,7 @@ export function run() {
                 }));
 
         test('absolute,X , page crossing', () =>
-            Runner.create([0x9d, 0x10, 0x11])
+            Runner.create(cpuFactory, [0x9d, 0x10, 0x11])
                 .setState({
                     a: 0x45,
                     x: 0xff
@@ -1861,7 +1923,7 @@ export function run() {
                 }));
 
         test('absolute,Y', () =>
-            Runner.create([0x99, 0x10, 0x11])
+            Runner.create(cpuFactory, [0x99, 0x10, 0x11])
                 .setState({
                     a: 0x45,
                     y: 0x10
@@ -1874,7 +1936,7 @@ export function run() {
                 }));
 
         test('absolute,Y , page crossing', () =>
-            Runner.create([0x99, 0x10, 0x11])
+            Runner.create(cpuFactory, [0x99, 0x10, 0x11])
                 .setState({
                     a: 0x45,
                     y: 0xff
@@ -1887,7 +1949,7 @@ export function run() {
                 }));
 
         test('indirect,X , wraparound during address read', () =>
-            Runner.create([0x81, 0xfe])
+            Runner.create(cpuFactory, [0x81, 0xfe])
                 .setState({
                     a: 0x45,
                     x: 0x01
@@ -1904,7 +1966,7 @@ export function run() {
                 }));
 
         test('indirect,Y', () =>
-            Runner.create([0x91, 0x50])
+            Runner.create(cpuFactory, [0x91, 0x50])
                 .setState({
                     a: 0x45,
                     y: 0x05
@@ -1921,7 +1983,7 @@ export function run() {
                 }));
 
         test('indirect,Y , page crossing', () =>
-            Runner.create([0x91, 0x50])
+            Runner.create(cpuFactory, [0x91, 0x50])
                 .setState({
                     a: 0x45,
                     y: 0xfe
@@ -1940,7 +2002,7 @@ export function run() {
 
     suite('STX', function() {
         test('zeroPage', () =>
-            Runner.create([0x86, 0x45])
+            Runner.create(cpuFactory, [0x86, 0x45])
                 .setState({
                     x: 0x24
                 })
@@ -1951,7 +2013,7 @@ export function run() {
                 }));
 
         test('zeroPage,Y', () =>
-            Runner.create([0x96, 0x45])
+            Runner.create(cpuFactory, [0x96, 0x45])
                 .setState({
                     x: 0x24,
                     y: 0x01
@@ -1963,7 +2025,7 @@ export function run() {
                 }));
 
         test('absolute', () =>
-            Runner.create([0x8e, 0x45, 0x73])
+            Runner.create(cpuFactory, [0x8e, 0x45, 0x73])
                 .setState({
                     x: 0x24
                 })
@@ -1976,7 +2038,7 @@ export function run() {
 
     suite('STY', function() {
         test('zeroPage', () =>
-            Runner.create([0x84, 0x45])
+            Runner.create(cpuFactory, [0x84, 0x45])
                 .setState({
                     y: 0x24
                 })
@@ -1987,7 +2049,7 @@ export function run() {
                 }));
 
         test('zeroPage,X', () =>
-            Runner.create([0x94, 0x45])
+            Runner.create(cpuFactory, [0x94, 0x45])
                 .setState({
                     y: 0x24,
                     x: 0x01
@@ -1999,7 +2061,7 @@ export function run() {
                 }));
 
         test('absolute', () =>
-            Runner.create([0x8c, 0x45, 0x73])
+            Runner.create(cpuFactory, [0x8c, 0x45, 0x73])
                 .setState({
                     y: 0x24
                 })
@@ -2012,6 +2074,7 @@ export function run() {
 
     suite('TAX', function() {
         util.testImplied(
+            cpuFactory,
             0xaa,
             2,
             {
@@ -2027,6 +2090,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0xaa,
             2,
             {
@@ -2044,6 +2108,7 @@ export function run() {
 
     suite('TAY', function() {
         util.testImplied(
+            cpuFactory,
             0xa8,
             2,
             {
@@ -2059,6 +2124,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0xa8,
             2,
             {
@@ -2076,6 +2142,7 @@ export function run() {
 
     suite('TSX', function() {
         util.testImplied(
+            cpuFactory,
             0xba,
             2,
             {
@@ -2092,6 +2159,7 @@ export function run() {
 
     suite('TXA', function() {
         util.testImplied(
+            cpuFactory,
             0x8a,
             2,
             {
@@ -2106,6 +2174,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x8a,
             2,
             {
@@ -2122,6 +2191,7 @@ export function run() {
         );
 
         util.testImplied(
+            cpuFactory,
             0x8a,
             2,
             {
@@ -2140,7 +2210,7 @@ export function run() {
 
     suite('TXS', function() {
         test('implied, flags', () =>
-            Runner.create([0x9a])
+            Runner.create(cpuFactory, [0x9a])
                 .setState({
                     x: 0xde,
                     s: 0x00,
@@ -2155,7 +2225,7 @@ export function run() {
 
     suite('TYA', function() {
         test('implied, flags', () =>
-            Runner.create([0x98])
+            Runner.create(cpuFactory, [0x98])
                 .setState({
                     y: 0xff,
                     a: 0,

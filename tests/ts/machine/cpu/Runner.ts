@@ -19,16 +19,21 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import Cpu from '../../../../src/machine/cpu/Cpu';
 import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
+import BusInterface from '../../../../src/machine/bus/BusInterface';
 import InstrumentedBus from './InstrumentedBus';
 import AccessLog from './AccessLog';
 import * as hex from '../../../../src/tools/hex.js';
 import * as binary from '../../../../src/tools/binary';
+
 class Runner {
-    constructor(private _code: { length: number; [address: number]: number }, private _base = 0xe000) {
+    constructor(
+        cpuFactory: Runner.CpuFactory,
+        private _code: { length: number; [address: number]: number },
+        private _base = 0xe000
+    ) {
         this._bus = new InstrumentedBus();
-        this._cpu = new Cpu(this._bus);
+        this._cpu = cpuFactory(this._bus);
 
         for (let i = 0; i < this._code.length; i++) {
             this._bus.write(this._base + i, this._code[i]);
@@ -44,8 +49,12 @@ class Runner {
         }
     }
 
-    static create(code?: { length: number; [address: number]: number }, base?: number): Runner {
-        return new Runner(code, base);
+    static create(
+        cpuFactory: Runner.CpuFactory,
+        code?: { length: number; [address: number]: number },
+        base?: number
+    ): Runner {
+        return new Runner(cpuFactory, code, base);
     }
 
     setState(state: Runner.State): this {
@@ -216,6 +225,10 @@ namespace Runner {
         s?: number;
         p?: number;
         flags?: number;
+    }
+
+    export interface CpuFactory {
+        (bus: BusInterface): CpuInterface;
     }
 }
 

@@ -22,6 +22,7 @@
 import Runner from './Runner';
 
 export function testImplied(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     cycles: number,
     stateBefore: Runner.State,
@@ -29,7 +30,7 @@ export function testImplied(
     extra = ''
 ): void {
     test(`implied ${extra}`, () =>
-        Runner.create([opcode])
+        Runner.create(cpuFactory, [opcode])
             .setState(stateBefore)
             .run()
             .assertCycles(cycles)
@@ -37,6 +38,7 @@ export function testImplied(
 }
 
 export function testImmediate(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     cycles: number,
@@ -45,7 +47,7 @@ export function testImmediate(
     extra = ''
 ): void {
     test(`immediate: ${extra}`, () =>
-        Runner.create([opcode, operand])
+        Runner.create(cpuFactory, [opcode, operand])
             .setState(stateBefore)
             .run()
             .assertCycles(cycles)
@@ -53,6 +55,7 @@ export function testImmediate(
 }
 
 export function testDereferencingZeropage(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     cycles: number,
@@ -61,7 +64,7 @@ export function testDereferencingZeropage(
     extra = ''
 ): void {
     test(`zeropage ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0034': operand
@@ -72,6 +75,7 @@ export function testDereferencingZeropage(
 }
 
 export function testDereferencingZeropageX(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     cycles: number,
@@ -82,7 +86,7 @@ export function testDereferencingZeropageX(
     stateBefore.x = 0x12;
 
     test(`zeropage,X ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0046': operand
@@ -93,6 +97,7 @@ export function testDereferencingZeropageX(
 }
 
 export function testDereferencingZeropageY(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     cycles: number,
@@ -103,7 +108,7 @@ export function testDereferencingZeropageY(
     stateBefore.y = 0x12;
 
     test(`zeropage,Y ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0046': operand
@@ -114,6 +119,7 @@ export function testDereferencingZeropageY(
 }
 
 export function testDereferencingAbsolute(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     cycles: number,
@@ -122,7 +128,7 @@ export function testDereferencingAbsolute(
     extra = ''
 ): void {
     test(`absolute ${extra}`, () =>
-        Runner.create([opcode, 0x34, 0x56])
+        Runner.create(cpuFactory, [opcode, 0x34, 0x56])
             .setState(stateBefore)
             .poke({
                 '0x5634': operand
@@ -133,6 +139,7 @@ export function testDereferencingAbsolute(
 }
 
 export function testDereferencingAbsoluteX(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     cycles: number,
@@ -144,7 +151,7 @@ export function testDereferencingAbsoluteX(
     stateBefore.x = 0x12;
 
     test(`absolute,X ${extra}`, () =>
-        Runner.create([opcode, 0x34, 0x55])
+        Runner.create(cpuFactory, [opcode, 0x34, 0x55])
             .setState(stateBefore)
             .poke({
                 '0x5546': operand
@@ -154,7 +161,7 @@ export function testDereferencingAbsoluteX(
             .assertState(stateAfter));
 
     test(`absolute,X (page crossing) ${extra}`, () =>
-        Runner.create([opcode, 0xee, 0x55])
+        Runner.create(cpuFactory, [opcode, 0xee, 0x55])
             .setState(stateBefore)
             .poke({
                 '0x5600': operand
@@ -165,6 +172,7 @@ export function testDereferencingAbsoluteX(
 }
 
 export function testDereferencingAbsoluteY(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     cycles: number,
@@ -176,7 +184,7 @@ export function testDereferencingAbsoluteY(
     stateBefore.y = 0x12;
 
     test(`absolute,Y ${extra}`, () =>
-        Runner.create([opcode, 0x34, 0x55])
+        Runner.create(cpuFactory, [opcode, 0x34, 0x55])
             .setState(stateBefore)
             .poke({
                 '0x5546': operand
@@ -186,7 +194,7 @@ export function testDereferencingAbsoluteY(
             .assertState(stateAfter));
 
     test(`absolute,Y (page crossing) ${extra}`, () =>
-        Runner.create([opcode, 0xee, 0x55])
+        Runner.create(cpuFactory, [opcode, 0xee, 0x55])
             .setState(stateBefore)
             .poke({
                 '0x5600': operand
@@ -197,6 +205,7 @@ export function testDereferencingAbsoluteY(
 }
 
 export function testDereferencingIndirectX(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     cycles: number,
@@ -207,7 +216,7 @@ export function testDereferencingIndirectX(
     stateBefore.x = 0x12;
 
     test(`indirect,X ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0046': 0x87,
@@ -220,6 +229,7 @@ export function testDereferencingIndirectX(
 }
 
 export function testDereferencingIndirectY(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     cycles: number,
@@ -231,7 +241,7 @@ export function testDereferencingIndirectY(
     stateBefore.y = 0x12;
 
     test(`indirect,Y ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0034': 0x87,
@@ -243,7 +253,7 @@ export function testDereferencingIndirectY(
             .assertState(stateAfter));
 
     test(`indirect,Y (page crossing) ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0034': 0xff,
@@ -256,6 +266,7 @@ export function testDereferencingIndirectY(
 }
 
 export function testMutatingZeropage(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     before: number,
     after: number,
@@ -265,7 +276,7 @@ export function testMutatingZeropage(
     extra = ''
 ): void {
     test(`zeropage ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0034': before
@@ -279,6 +290,7 @@ export function testMutatingZeropage(
 }
 
 export function testMutatingZeropageX(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     before: number,
     after: number,
@@ -290,7 +302,7 @@ export function testMutatingZeropageX(
     stateBefore.x = 0x12;
 
     test(`zeropage,X ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0046': before
@@ -304,6 +316,7 @@ export function testMutatingZeropageX(
 }
 
 export function testMutatingAbsolute(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     before: number,
     after: number,
@@ -313,7 +326,7 @@ export function testMutatingAbsolute(
     extra = ''
 ): void {
     test(`absolute ${extra}`, () =>
-        Runner.create([opcode, 0x34, 0x56])
+        Runner.create(cpuFactory, [opcode, 0x34, 0x56])
             .setState(stateBefore)
             .poke({
                 '0x5634': before
@@ -327,6 +340,7 @@ export function testMutatingAbsolute(
 }
 
 export function testMutatingAbsoluteX(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     before: number,
     after: number,
@@ -339,7 +353,7 @@ export function testMutatingAbsoluteX(
     stateBefore.x = 0x12;
 
     test(`absolute,X ${extra}`, () =>
-        Runner.create([opcode, 0x34, 0x55])
+        Runner.create(cpuFactory, [opcode, 0x34, 0x55])
             .setState(stateBefore)
             .poke({
                 '0x5546': before
@@ -352,7 +366,7 @@ export function testMutatingAbsoluteX(
             }));
 
     test(`absolute,X (page crossing) ${extra}`, () =>
-        Runner.create([opcode, 0xee, 0x55])
+        Runner.create(cpuFactory, [opcode, 0xee, 0x55])
             .setState(stateBefore)
             .poke({
                 '0x5600': before
@@ -366,6 +380,7 @@ export function testMutatingAbsoluteX(
 }
 
 export function testMutatingAbsoluteY(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     before: number,
     after: number,
@@ -378,7 +393,7 @@ export function testMutatingAbsoluteY(
     stateBefore.y = 0x12;
 
     test(`absolute,Y ${extra}`, () =>
-        Runner.create([opcode, 0x34, 0x55])
+        Runner.create(cpuFactory, [opcode, 0x34, 0x55])
             .setState(stateBefore)
             .poke({
                 '0x5546': before
@@ -391,7 +406,7 @@ export function testMutatingAbsoluteY(
             }));
 
     test(`absolute,Y (page crossing) ${extra}`, () =>
-        Runner.create([opcode, 0xee, 0x55])
+        Runner.create(cpuFactory, [opcode, 0xee, 0x55])
             .setState(stateBefore)
             .poke({
                 '0x5600': before
@@ -405,6 +420,7 @@ export function testMutatingAbsoluteY(
 }
 
 export function testMutatingIndirectX(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     after: number,
@@ -416,7 +432,7 @@ export function testMutatingIndirectX(
     stateBefore.x = 0x12;
 
     test(`indirect,X ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0046': 0x87,
@@ -432,6 +448,7 @@ export function testMutatingIndirectX(
 }
 
 export function testMutatingIndirectY(
+    cpuFactory: Runner.CpuFactory,
     opcode: number,
     operand: number,
     after: number,
@@ -444,7 +461,7 @@ export function testMutatingIndirectY(
     stateBefore.y = 0x12;
 
     test(`indirect,Y ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0034': 0x87,
@@ -459,7 +476,7 @@ export function testMutatingIndirectY(
             }));
 
     test(`indirect,Y (page crossing) ${extra}`, () =>
-        Runner.create([opcode, 0x34])
+        Runner.create(cpuFactory, [opcode, 0x34])
             .setState(stateBefore)
             .poke({
                 '0x0034': 0xff,
