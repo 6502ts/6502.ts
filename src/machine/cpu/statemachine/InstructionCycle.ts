@@ -86,8 +86,8 @@ class InstructionCycle<
         return self._nextAddressingStep && InstructionCycle._instructionStep;
     }
 
-    private _nextAddressingStep: StateMachineInterface.Step<Addressing>;
-    private _nextInstructionStep: StateMachineInterface.Step<Instruction>;
+    private _nextAddressingStep: StateMachineInterface.Step<Addressing> = null;
+    private _nextInstructionStep: StateMachineInterface.Step<Instruction> = null;
 }
 
 export default InstructionCycle;

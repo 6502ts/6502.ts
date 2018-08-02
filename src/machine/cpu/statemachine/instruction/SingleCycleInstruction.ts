@@ -37,7 +37,7 @@ class SingleCycleInstruction implements InstructionInterface<SingleCycleInstruct
         return (self: SingleCycleInstruction) => (self._op(self._state, self._bus, self._operand), null);
     }
 
-    private _operand: number;
+    private _operand: number = 0;
 }
 
 namespace SingleCycleInstruction {

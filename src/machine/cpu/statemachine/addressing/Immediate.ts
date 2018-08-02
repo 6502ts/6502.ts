@@ -38,7 +38,7 @@ class Immediate implements AddressingInterface<Immediate> {
         return null;
     }
 
-    operand: number;
+    operand: number = 0;
 }
 
 export default Immediate;
