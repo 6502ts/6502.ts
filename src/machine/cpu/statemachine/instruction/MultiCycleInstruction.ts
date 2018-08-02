@@ -40,7 +40,7 @@ class MultiCycleInstruction implements InstructionInterface<MultiCycleInstructio
     }
 
     private static _nextCycle(self: MultiCycleInstruction): StateMachineInterface.Step<MultiCycleInstruction> {
-        if (self._cycleCounter-- > 0) {
+        if (--self._cycleCounter > 0) {
             return MultiCycleInstruction._nextCycle;
         }
 
