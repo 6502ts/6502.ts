@@ -23,24 +23,35 @@ import CpuInterface from '../../CpuInterface';
 import StateMachineInterface from '../StateMachineInterface';
 import AddressingInterface from './AddressingInterface';
 
-class Immediate implements AddressingInterface<Immediate> {
+class ZeroPage implements AddressingInterface<ZeroPage> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface
-    ) {}
-
-    reset(): StateMachineInterface.Step<Immediate> {
-        return Immediate._fetchOperand;
+        private readonly _bus: StateMachineInterface.BusInterface,
+        dereference = true
+    ) {
+        this._dereferenceStep = dereference ? ZeroPage._dereference : null;
     }
 
-    private static _fetchOperand(self: Immediate): null {
+    reset(): StateMachineInterface.Step<ZeroPage> {
+        return ZeroPage._fetchAddress;
+    }
+
+    private static _fetchAddress(self: ZeroPage): StateMachineInterface.Step<ZeroPage> | null {
         self.operand = self._bus.read(self._state.p);
         self._state.p = (self._state.p + 1) & 0xffff;
+
+        return self._dereferenceStep;
+    }
+
+    private static _dereference(self: ZeroPage): null {
+        self.operand = self._bus.read(self.operand);
 
         return null;
     }
 
     operand = 0;
+
+    private readonly _dereferenceStep: StateMachineInterface.Step<ZeroPage> | null;
 }
 
-export default Immediate;
+export default ZeroPage;

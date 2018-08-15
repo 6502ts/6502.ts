@@ -19,15 +19,14 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import InstructionInterface from './InstructionInterface';
+import UnaryInstructionInterface from './UnaryInstructionInterface';
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
-import BusInterface from '../../../bus/BusInterface';
 
-class MultiCycleInstruction implements InstructionInterface<MultiCycleInstruction> {
+class MultiCycleInstruction implements UnaryInstructionInterface<MultiCycleInstruction> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: BusInterface,
+        private readonly _bus: StateMachineInterface.BusInterface,
         private readonly _op: SingleCycleInstruction.Op,
         private readonly _cycles: number
     ) {}
@@ -54,7 +53,7 @@ class MultiCycleInstruction implements InstructionInterface<MultiCycleInstructio
 
 namespace SingleCycleInstruction {
     export interface Op {
-        (state: CpuInterface.State, bus: BusInterface, operand: number): void;
+        (state: CpuInterface.State, bus: StateMachineInterface.BusInterface, operand: number): void;
     }
 }
 

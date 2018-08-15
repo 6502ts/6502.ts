@@ -21,6 +21,6 @@
 
 import StateMachineInterface from '../StateMachineInterface';
 
-interface InstructionInterface<T extends InstructionInterface<T>> extends StateMachineInterface<T, number> {}
+interface UnaryInstructionInterface<T extends UnaryInstructionInterface<T>> extends StateMachineInterface<T, number> {}
 
-export default InstructionInterface;
+export default UnaryInstructionInterface;

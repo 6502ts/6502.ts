@@ -27,6 +27,11 @@ namespace StateMachineInterface {
     export interface Step<T> {
         (stateMachine: T): Step<T> | null;
     }
+
+    export interface BusInterface {
+        read(address: number): number;
+        write(address: number): number;
+    }
 }
 
 export default StateMachineInterface;

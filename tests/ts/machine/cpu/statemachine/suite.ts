@@ -19,28 +19,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import CpuInterface from '../../CpuInterface';
-import StateMachineInterface from '../StateMachineInterface';
-import AddressingInterface from './AddressingInterface';
+import runAddressingTests from './addressing';
 
-class Immediate implements AddressingInterface<Immediate> {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface
-    ) {}
-
-    reset(): StateMachineInterface.Step<Immediate> {
-        return Immediate._fetchOperand;
-    }
-
-    private static _fetchOperand(self: Immediate): null {
-        self.operand = self._bus.read(self._state.p);
-        self._state.p = (self._state.p + 1) & 0xffff;
-
-        return null;
-    }
-
-    operand = 0;
-}
-
-export default Immediate;
+suite('CPU emulation state machines', () => {
+    runAddressingTests();
+});

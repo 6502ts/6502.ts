@@ -21,21 +21,13 @@
 
 import StateMachineInterface from './StateMachineInterface';
 import AddressingInterface from './addressing/AddressingInterface';
-import InstructionInterface from './instruction/InstructionInterface';
-import CpuInterface from '../CpuInterface';
-import BusInterface from '../../bus/BusInterface';
+import UnaryInstructionInterface from './instruction/UnaryInstructionInterface';
 
 class InstructionCycle<
     Addressing extends AddressingInterface<Addressing>,
-    Instruction extends InstructionInterface<Instruction>
+    Instruction extends UnaryInstructionInterface<Instruction>
 > implements StateMachineInterface<InstructionCycle<Addressing, Instruction>> {
-    constructor(
-        private readonly _addressing: Addressing,
-        private readonly _instruction: Instruction,
-        private readonly _state: CpuInterface.State,
-        private readonly _bus: BusInterface,
-        private readonly _dereference = false
-    ) {}
+    constructor(private readonly _addressing: Addressing, private readonly _instruction: Instruction) {}
 
     reset(): StateMachineInterface.Step<InstructionCycle<Addressing, Instruction>> {
         this._nextAddressingStep = this._addressing.reset();
@@ -45,7 +37,7 @@ class InstructionCycle<
 
     private static _addressingStep<
         Addressing extends AddressingInterface<Addressing>,
-        Instruction extends InstructionInterface<Instruction>
+        Instruction extends UnaryInstructionInterface<Instruction>
     >(
         self: InstructionCycle<Addressing, Instruction>
     ): StateMachineInterface.Step<InstructionCycle<Addressing, Instruction>> {
@@ -55,29 +47,13 @@ class InstructionCycle<
             return InstructionCycle._addressingStep;
         }
 
-        if (self._dereference) {
-            return InstructionCycle._dereference;
-        }
-
         self._nextInstructionStep = self._instruction.reset(self._addressing.operand);
-        return InstructionCycle._instructionStep;
-    }
-
-    private static _dereference<
-        Addressing extends AddressingInterface<Addressing>,
-        Instruction extends InstructionInterface<Instruction>
-    >(
-        self: InstructionCycle<Addressing, Instruction>
-    ): StateMachineInterface.Step<InstructionCycle<Addressing, Instruction>> {
-        self._nextInstructionStep = self._instruction.reset(self._bus.read(self._addressing.operand));
-        self._state.p = (self._state.p + 1) & 0xffff;
-
         return InstructionCycle._instructionStep;
     }
 
     private static _instructionStep<
         Addressing extends AddressingInterface<Addressing>,
-        Instruction extends InstructionInterface<Instruction>
+        Instruction extends UnaryInstructionInterface<Instruction>
     >(
         self: InstructionCycle<Addressing, Instruction>
     ): StateMachineInterface.Step<InstructionCycle<Addressing, Instruction>> {
