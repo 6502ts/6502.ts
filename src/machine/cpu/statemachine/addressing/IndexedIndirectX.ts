@@ -47,8 +47,6 @@ class IndexedIndirectX implements AddressingInterface<IndexedIndirectX> {
         self._bus.read(self._address);
         self._address = (self._address + self._state.x) & 0xff;
 
-        self._address = self._address + 1;
-
         return IndexedIndirectX._fetchLo;
     }
 

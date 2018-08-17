@@ -26,11 +26,8 @@ import AddressingInterface from './AddressingInterface';
 class Indirect implements AddressingInterface<Indirect> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
-        dereference = true
-    ) {
-        this._dereferenceStep = dereference ? Indirect._dereference : null;
-    }
+        private readonly _bus: StateMachineInterface.BusInterface
+    ) {}
 
     reset(): StateMachineInterface.Step<Indirect> {
         return Indirect._fetchAddressLo;
@@ -53,7 +50,7 @@ class Indirect implements AddressingInterface<Indirect> {
     private static _fetchLo(self: Indirect): StateMachineInterface.Step<Indirect> {
         self.operand = self._bus.read(self._address);
 
-        if ((self._address & 0xff) === 0) {
+        if ((self._address & 0xff) === 0xff) {
             self._address &= 0xff00;
         } else {
             self._address = (self._address + 1) & 0xffff;
@@ -62,14 +59,8 @@ class Indirect implements AddressingInterface<Indirect> {
         return Indirect._fetchHi;
     }
 
-    private static _fetchHi(self: Indirect): StateMachineInterface.Step<Indirect> | null {
+    private static _fetchHi(self: Indirect): StateMachineInterface.Step<Indirect> {
         self.operand |= self._bus.read(self._address) << 8;
-
-        return self._dereferenceStep;
-    }
-
-    private static _dereference(self: Indirect): null {
-        self.operand = self._bus.read(self.operand);
 
         return null;
     }
@@ -77,7 +68,6 @@ class Indirect implements AddressingInterface<Indirect> {
     operand = 0;
 
     private _address = 0;
-    private readonly _dereferenceStep: StateMachineInterface.Step<Indirect> | null;
 }
 
 export default Indirect;
