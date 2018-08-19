@@ -26,14 +26,14 @@ import CpuInterface from '../../CpuInterface';
 class SingleCycleInstruction implements UnaryInstructionInterface<SingleCycleInstruction> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
+        private readonly _context: StateMachineInterface.CpuContextInterface,
         private readonly _op: SingleCycleInstruction.Op
     ) {}
 
     reset(operand: number): StateMachineInterface.Step<SingleCycleInstruction> {
         this._operand = operand;
 
-        return (self: SingleCycleInstruction) => (self._op(self._state, self._bus, self._operand), null);
+        return (self: SingleCycleInstruction) => (self._op(self._state, self._context, self._operand), null);
     }
 
     private _operand: number = 0;
@@ -41,7 +41,7 @@ class SingleCycleInstruction implements UnaryInstructionInterface<SingleCycleIns
 
 namespace SingleCycleInstruction {
     export interface Op {
-        (state: CpuInterface.State, bus: StateMachineInterface.BusInterface, operand: number): void;
+        (state: CpuInterface.State, context: StateMachineInterface.CpuContextInterface, operand: number): void;
     }
 }
 

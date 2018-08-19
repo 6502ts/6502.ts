@@ -35,7 +35,8 @@ export class Builder {
                 type: Runner.BusOperationType.read,
                 address,
                 value
-            }
+            },
+            pollInterrupt: false
         };
 
         return this;
@@ -49,7 +50,8 @@ export class Builder {
                 type: Runner.BusOperationType.write,
                 address,
                 value
-            }
+            },
+            pollInterrupt: false
         };
 
         return this;
@@ -61,9 +63,15 @@ export class Builder {
         return this;
     }
 
+    pollInterrupt(): this {
+        this._currentCycle.pollInterrupt = true;
+
+        return this;
+    }
+
     run<S extends StateMachineInterface<S, O>, O>(
         prepareState: (s: CpuInterface.State) => CpuInterface.State,
-        createStateMachine: (state: CpuInterface.State, bus: StateMachineInterface.BusInterface) => S,
+        createStateMachine: (state: CpuInterface.State, context: StateMachineInterface.CpuContextInterface) => S,
         operand: O
     ): Runner<S, O> {
         this._pushCurrentCycle();
@@ -87,11 +95,12 @@ class Runner<S extends StateMachineInterface<S, O>, O> {
     constructor(
         private readonly _cycles: Array<Runner.Cycle>,
         private readonly _state: CpuInterface.State,
-        createStateMachine: (state: CpuInterface.State, bus: StateMachineInterface.BusInterface) => S
+        createStateMachine: (state: CpuInterface.State, context: StateMachineInterface.CpuContextInterface) => S
     ) {
         this._stateMachine = createStateMachine(this._state, {
             read: this._read.bind(this),
-            write: this._write.bind(this)
+            write: this._write.bind(this),
+            pollInterrupts: this._pollInterrupts.bind(this)
         });
     }
 
@@ -104,6 +113,7 @@ class Runner<S extends StateMachineInterface<S, O>, O> {
             const cycle = this._cycles[this._step];
             const state = cycle.result ? cycle.result(this._state) : { ...this._state };
 
+            this._interruptPolled = false;
             nextStep = nextStep(this._stateMachine);
             this._step++;
 
@@ -117,6 +127,10 @@ class Runner<S extends StateMachineInterface<S, O>, O> {
 
             if (!this._busAccessComplete) {
                 throw new Error(`no bus access in step ${this._step}`);
+            }
+
+            if (this._interruptPolled !== cycle.pollInterrupt) {
+                throw new Error(`expected interrupt state to be polled in step ${this._step}`);
             }
 
             if (!deepEqual(this._state, state)) {
@@ -189,8 +203,17 @@ class Runner<S extends StateMachineInterface<S, O>, O> {
         }
     }
 
+    private _pollInterrupts(): void {
+        if (this._interruptPolled) {
+            throw new Error(`interrupt polled twice in step ${this._step}`);
+        }
+
+        this._interruptPolled = true;
+    }
+
     private _step = 0;
     private _busAccessComplete = false;
+    private _interruptPolled = false;
 
     private readonly _stateMachine: S = null;
 }
@@ -218,6 +241,7 @@ namespace Runner {
     export interface Cycle {
         busOperation: BusOperation;
         result?: (s: CpuInterface.State) => CpuInterface.State;
+        pollInterrupt: boolean;
     }
 
     export const build = () => new Builder();

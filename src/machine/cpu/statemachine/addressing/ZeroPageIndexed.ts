@@ -26,7 +26,7 @@ import AddressingInterface from './AddressingInterface';
 class ZeroPageIndexed implements AddressingInterface<ZeroPageIndexed> {
     private constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
+        private readonly _context: StateMachineInterface.CpuContextInterface,
         private readonly _indexExtractor: (state: CpuInterface.State) => number,
         dereference: boolean
     ) {
@@ -35,18 +35,18 @@ class ZeroPageIndexed implements AddressingInterface<ZeroPageIndexed> {
 
     static zeroPageX(
         state: CpuInterface.State,
-        bus: StateMachineInterface.BusInterface,
+        context: StateMachineInterface.CpuContextInterface,
         dereference = true
     ): ZeroPageIndexed {
-        return new ZeroPageIndexed(state, bus, s => s.x, dereference);
+        return new ZeroPageIndexed(state, context, s => s.x, dereference);
     }
 
     static zeroPageY(
         state: CpuInterface.State,
-        bus: StateMachineInterface.BusInterface,
+        context: StateMachineInterface.CpuContextInterface,
         dereference = true
     ): ZeroPageIndexed {
-        return new ZeroPageIndexed(state, bus, s => s.y, dereference);
+        return new ZeroPageIndexed(state, context, s => s.y, dereference);
     }
 
     reset(): StateMachineInterface.Step<ZeroPageIndexed> {
@@ -54,14 +54,14 @@ class ZeroPageIndexed implements AddressingInterface<ZeroPageIndexed> {
     }
 
     private static _fetchAddress(self: ZeroPageIndexed): StateMachineInterface.Step<ZeroPageIndexed> {
-        self.operand = self._bus.read(self._state.p);
+        self.operand = self._context.read(self._state.p);
         self._state.p = (self._state.p + 1) & 0xffff;
 
         return ZeroPageIndexed._addIndex;
     }
 
     private static _addIndex(self: ZeroPageIndexed): StateMachineInterface.Step<ZeroPageIndexed> | null {
-        self._bus.read(self.operand);
+        self._context.read(self.operand);
 
         self.operand = (self.operand + self._indexExtractor(self._state)) & 0xff;
 
@@ -69,7 +69,7 @@ class ZeroPageIndexed implements AddressingInterface<ZeroPageIndexed> {
     }
 
     private static _dereference(self: ZeroPageIndexed): null {
-        self.operand = self._bus.read(self.operand);
+        self.operand = self._context.read(self.operand);
 
         return null;
     }

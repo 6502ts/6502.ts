@@ -26,7 +26,7 @@ import AddressingInterface from './AddressingInterface';
 class IndexedIndirectX implements AddressingInterface<IndexedIndirectX> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
+        private readonly _context: StateMachineInterface.CpuContextInterface,
         dereference = true
     ) {
         this._dereferenceStep = dereference ? IndexedIndirectX._dereference : null;
@@ -37,34 +37,34 @@ class IndexedIndirectX implements AddressingInterface<IndexedIndirectX> {
     }
 
     private static _fetchAddress(self: IndexedIndirectX): StateMachineInterface.Step<IndexedIndirectX> {
-        self._address = self._bus.read(self._state.p);
+        self._address = self._context.read(self._state.p);
         self._state.p = (self._state.p + 1) & 0xffff;
 
         return IndexedIndirectX._addIndex;
     }
 
     private static _addIndex(self: IndexedIndirectX): StateMachineInterface.Step<IndexedIndirectX> {
-        self._bus.read(self._address);
+        self._context.read(self._address);
         self._address = (self._address + self._state.x) & 0xff;
 
         return IndexedIndirectX._fetchLo;
     }
 
     private static _fetchLo(self: IndexedIndirectX): StateMachineInterface.Step<IndexedIndirectX> {
-        self.operand = self._bus.read(self._address);
+        self.operand = self._context.read(self._address);
         self._address = (self._address + 1) & 0xff;
 
         return IndexedIndirectX._fetchHi;
     }
 
     private static _fetchHi(self: IndexedIndirectX): StateMachineInterface.Step<IndexedIndirectX> | null {
-        self.operand |= self._bus.read(self._address) << 8;
+        self.operand |= self._context.read(self._address) << 8;
 
         return self._dereferenceStep;
     }
 
     private static _dereference(self: IndexedIndirectX): null {
-        self.operand = self._bus.read(self.operand);
+        self.operand = self._context.read(self.operand);
 
         return null;
     }

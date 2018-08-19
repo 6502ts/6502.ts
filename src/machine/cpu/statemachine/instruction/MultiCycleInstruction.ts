@@ -26,7 +26,7 @@ import CpuInterface from '../../CpuInterface';
 class MultiCycleInstruction implements UnaryInstructionInterface<MultiCycleInstruction> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
+        private readonly _context: StateMachineInterface.CpuContextInterface,
         private readonly _op: SingleCycleInstruction.Op,
         private readonly _cycles: number
     ) {}
@@ -43,7 +43,7 @@ class MultiCycleInstruction implements UnaryInstructionInterface<MultiCycleInstr
             return MultiCycleInstruction._nextCycle;
         }
 
-        self._op(self._state, self._bus, self._operand);
+        self._op(self._state, self._context, self._operand);
         return null;
     }
 
@@ -53,7 +53,7 @@ class MultiCycleInstruction implements UnaryInstructionInterface<MultiCycleInstr
 
 namespace SingleCycleInstruction {
     export interface Op {
-        (state: CpuInterface.State, bus: StateMachineInterface.BusInterface, operand: number): void;
+        (state: CpuInterface.State, context: StateMachineInterface.CpuContextInterface, operand: number): void;
     }
 }
 

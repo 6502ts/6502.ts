@@ -28,9 +28,10 @@ namespace StateMachineInterface {
         (stateMachine: T): Step<T> | null;
     }
 
-    export interface BusInterface {
+    export interface CpuContextInterface {
         read(address: number): number;
         write(address: number): number;
+        pollInterrupts(): void;
     }
 }
 

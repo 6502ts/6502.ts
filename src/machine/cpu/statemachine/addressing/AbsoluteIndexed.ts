@@ -26,7 +26,7 @@ import AddressingInterface from './AddressingInterface';
 class AbsoluteIndexed implements AddressingInterface<AbsoluteIndexed> {
     private constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
+        private readonly _context: StateMachineInterface.CpuContextInterface,
         private readonly _indexExtractor: (s: CpuInterface.State) => number,
         dereference: boolean,
         private readonly _writeOp: boolean
@@ -36,20 +36,20 @@ class AbsoluteIndexed implements AddressingInterface<AbsoluteIndexed> {
 
     static absoluteX(
         state: CpuInterface.State,
-        bus: StateMachineInterface.BusInterface,
+        context: StateMachineInterface.CpuContextInterface,
         dereference = true,
         writeOp = false
     ): AbsoluteIndexed {
-        return new AbsoluteIndexed(state, bus, s => s.x, dereference, writeOp);
+        return new AbsoluteIndexed(state, context, s => s.x, dereference, writeOp);
     }
 
     static absoluteY(
         state: CpuInterface.State,
-        bus: StateMachineInterface.BusInterface,
+        context: StateMachineInterface.CpuContextInterface,
         dereference = true,
         writeOp = false
     ): AbsoluteIndexed {
-        return new AbsoluteIndexed(state, bus, s => s.y, dereference, writeOp);
+        return new AbsoluteIndexed(state, context, s => s.y, dereference, writeOp);
     }
 
     reset(): StateMachineInterface.Step<AbsoluteIndexed> {
@@ -57,14 +57,14 @@ class AbsoluteIndexed implements AddressingInterface<AbsoluteIndexed> {
     }
 
     private static _fetchLo(self: AbsoluteIndexed): StateMachineInterface.Step<AbsoluteIndexed> {
-        self.operand = self._bus.read(self._state.p);
+        self.operand = self._context.read(self._state.p);
         self._state.p = (self._state.p + 1) & 0xffff;
 
         return AbsoluteIndexed._fetchHi;
     }
 
     private static _fetchHi(self: AbsoluteIndexed): StateMachineInterface.Step<AbsoluteIndexed> | null {
-        self.operand |= self._bus.read(self._state.p) << 8;
+        self.operand |= self._context.read(self._state.p) << 8;
         self._state.p = (self._state.p + 1) & 0xffff;
 
         const index = self._indexExtractor(self._state);
@@ -75,7 +75,7 @@ class AbsoluteIndexed implements AddressingInterface<AbsoluteIndexed> {
     }
 
     private static _dereferenceAndCarry(self: AbsoluteIndexed): StateMachineInterface.Step<AbsoluteIndexed> | null {
-        self._bus.read(self.operand);
+        self._context.read(self.operand);
 
         if (self._carry) {
             self.operand = (self.operand + 0x0100) & 0xffff;
@@ -85,7 +85,7 @@ class AbsoluteIndexed implements AddressingInterface<AbsoluteIndexed> {
     }
 
     private static _dereference(self: AbsoluteIndexed): null {
-        self.operand = self._bus.read(self.operand);
+        self.operand = self._context.read(self.operand);
 
         return null;
     }

@@ -26,7 +26,7 @@ import AddressingInterface from './AddressingInterface';
 class Immediate implements AddressingInterface<Immediate> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface
+        private readonly _context: StateMachineInterface.CpuContextInterface
     ) {}
 
     reset(): StateMachineInterface.Step<Immediate> {
@@ -34,7 +34,7 @@ class Immediate implements AddressingInterface<Immediate> {
     }
 
     private static _fetchOperand(self: Immediate): null {
-        self.operand = self._bus.read(self._state.p);
+        self.operand = self._context.read(self._state.p);
         self._state.p = (self._state.p + 1) & 0xffff;
 
         return null;

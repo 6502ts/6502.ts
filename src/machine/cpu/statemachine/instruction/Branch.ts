@@ -25,7 +25,7 @@ import CpuInterface from '../../CpuInterface';
 class Branch implements StateMachineInterface<Branch> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
+        private readonly _context: StateMachineInterface.CpuContextInterface,
         private readonly _predicate: Branch.Predicate
     ) {}
 
@@ -34,14 +34,14 @@ class Branch implements StateMachineInterface<Branch> {
     }
 
     private static _fetchTarget(self: Branch): StateMachineInterface.Step<Branch> | null {
-        self._operand = self._bus.read(self._state.p);
+        self._operand = self._context.read(self._state.p);
         self._state.p = (self._state.p + 1) & 0xffff;
 
         return self._predicate(self._state.flags) ? Branch._firstDummyRead : null;
     }
 
     private static _firstDummyRead(self: Branch): StateMachineInterface.Step<Branch> | null {
-        self._bus.read(self._state.p);
+        self._context.read(self._state.p);
 
         self._base = (self._state.p - 2) & 0xffff;
         self._target = (self._base + (self._operand & 0x80 ? self._operand - 256 : self._operand)) & 0xffff;
@@ -55,7 +55,7 @@ class Branch implements StateMachineInterface<Branch> {
     }
 
     private static _secondDummyRead(self: Branch): null {
-        self._bus.read((self._base & 0xff00) | (self._target & 0x00ff));
+        self._context.read((self._base & 0xff00) | (self._target & 0x00ff));
 
         self._state.p = self._target;
         return null;

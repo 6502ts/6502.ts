@@ -26,7 +26,7 @@ import AddressingInterface from './AddressingInterface';
 class ZeroPage implements AddressingInterface<ZeroPage> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
+        private readonly _context: StateMachineInterface.CpuContextInterface,
         dereference = true
     ) {
         this._dereferenceStep = dereference ? ZeroPage._dereference : null;
@@ -37,14 +37,14 @@ class ZeroPage implements AddressingInterface<ZeroPage> {
     }
 
     private static _fetchAddress(self: ZeroPage): StateMachineInterface.Step<ZeroPage> | null {
-        self.operand = self._bus.read(self._state.p);
+        self.operand = self._context.read(self._state.p);
         self._state.p = (self._state.p + 1) & 0xffff;
 
         return self._dereferenceStep;
     }
 
     private static _dereference(self: ZeroPage): null {
-        self.operand = self._bus.read(self.operand);
+        self.operand = self._context.read(self.operand);
 
         return null;
     }

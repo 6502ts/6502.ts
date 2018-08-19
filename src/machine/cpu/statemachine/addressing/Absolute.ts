@@ -26,7 +26,7 @@ import AddressingInterface from './AddressingInterface';
 class Absolute implements AddressingInterface<Absolute> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
+        private readonly _context: StateMachineInterface.CpuContextInterface,
         dereference = true
     ) {
         this._dereferenceStep = dereference ? Absolute._dereference : null;
@@ -37,21 +37,21 @@ class Absolute implements AddressingInterface<Absolute> {
     }
 
     private static _fetchLo(self: Absolute): StateMachineInterface.Step<Absolute> {
-        self.operand = self._bus.read(self._state.p);
+        self.operand = self._context.read(self._state.p);
         self._state.p = (self._state.p + 1) & 0xffff;
 
         return Absolute._fetchHi;
     }
 
     private static _fetchHi(self: Absolute): StateMachineInterface.Step<Absolute> | null {
-        self.operand |= self._bus.read(self._state.p) << 8;
+        self.operand |= self._context.read(self._state.p) << 8;
         self._state.p = (self._state.p + 1) & 0xffff;
 
         return self._dereferenceStep;
     }
 
     private static _dereference(self: Absolute): null {
-        self.operand = self._bus.read(self.operand);
+        self.operand = self._context.read(self.operand);
 
         return null;
     }

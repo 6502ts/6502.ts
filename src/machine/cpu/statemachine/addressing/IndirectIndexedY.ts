@@ -26,7 +26,7 @@ import AddressingInterface from './AddressingInterface';
 class IndexedIndirectY implements AddressingInterface<IndexedIndirectY> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _bus: StateMachineInterface.BusInterface,
+        private readonly _context: StateMachineInterface.CpuContextInterface,
         dereference: boolean,
         private readonly _writeOp: boolean
     ) {
@@ -38,21 +38,21 @@ class IndexedIndirectY implements AddressingInterface<IndexedIndirectY> {
     }
 
     private static _fetchAddress(self: IndexedIndirectY): StateMachineInterface.Step<IndexedIndirectY> {
-        self._address = self._bus.read(self._state.p);
+        self._address = self._context.read(self._state.p);
         self._state.p = (self._state.p + 1) & 0xffff;
 
         return IndexedIndirectY._fetchLo;
     }
 
     private static _fetchLo(self: IndexedIndirectY): StateMachineInterface.Step<IndexedIndirectY> {
-        self.operand = self._bus.read(self._address);
+        self.operand = self._context.read(self._address);
         self._address = (self._address + 1) & 0xff;
 
         return IndexedIndirectY._fetchHi;
     }
 
     private static _fetchHi(self: IndexedIndirectY): StateMachineInterface.Step<IndexedIndirectY> | null {
-        self.operand |= self._bus.read(self._address) << 8;
+        self.operand |= self._context.read(self._address) << 8;
 
         self._carry = (self.operand & 0xff) + self._state.y > 0xff;
         self.operand = (self.operand & 0xff00) | ((self.operand + self._state.y) & 0xff);
@@ -61,7 +61,7 @@ class IndexedIndirectY implements AddressingInterface<IndexedIndirectY> {
     }
 
     private static _dereferenceAndCarry(self: IndexedIndirectY): StateMachineInterface.Step<IndexedIndirectY> | null {
-        self._bus.read(self.operand);
+        self._context.read(self.operand);
 
         if (self._carry) {
             self.operand = (self.operand + 0x0100) & 0xffff;
@@ -71,7 +71,7 @@ class IndexedIndirectY implements AddressingInterface<IndexedIndirectY> {
     }
 
     private static _dereference(self: IndexedIndirectY): null {
-        self.operand = self._bus.read(self.operand);
+        self.operand = self._context.read(self.operand);
 
         return null;
     }
