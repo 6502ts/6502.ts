@@ -20,7 +20,16 @@
  */
 
 import StateMachineInterface from '../StateMachineInterface';
+import ResultImpl from '../ResultImpl';
 
-interface UnaryInstructionInterface<T extends UnaryInstructionInterface<T>> extends StateMachineInterface<T, number> {}
+class Dereference implements StateMachineInterface<number> {
+    constructor(private readonly _next: StateMachineInterface.Step = () => null) {}
 
-export default UnaryInstructionInterface;
+    reset = (operand: number): StateMachineInterface.Result => this._result.read(this._dereference, operand);
+
+    private _dereference = (value: number): StateMachineInterface.Result | null => this._next(value);
+
+    private readonly _result = new ResultImpl();
+}
+
+export default Dereference;

@@ -21,49 +21,41 @@
 
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
+import ResultImpl from '../ResultImpl';
 
-class Branch implements StateMachineInterface<Branch> {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _context: StateMachineInterface.CpuContextInterface,
-        private readonly _predicate: Branch.Predicate
-    ) {}
+class Branch implements StateMachineInterface {
+    constructor(private readonly _state: CpuInterface.State, private readonly _predicate: Branch.Predicate) {}
 
-    reset(): StateMachineInterface.Step<Branch> {
-        return Branch._fetchTarget;
-    }
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchTarget, this._state.p);
 
-    private static _fetchTarget(self: Branch): StateMachineInterface.Step<Branch> | null {
-        self._operand = self._context.read(self._state.p);
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchTarget = (value: number): StateMachineInterface.Result | null => {
+        this._operand = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return self._predicate(self._state.flags) ? Branch._firstDummyRead : null;
-    }
+        return this._predicate(this._state.flags) ? this._result.read(this._firstDummyRead, this._state.p) : null;
+    };
 
-    private static _firstDummyRead(self: Branch): StateMachineInterface.Step<Branch> | null {
-        self._context.read(self._state.p);
+    private _firstDummyRead = (value: number): StateMachineInterface.Result | null => {
+        const base = (this._state.p - 2) & 0xffff;
+        this._target = (base + (this._operand & 0x80 ? this._operand - 256 : this._operand)) & 0xffff;
 
-        self._base = (self._state.p - 2) & 0xffff;
-        self._target = (self._base + (self._operand & 0x80 ? self._operand - 256 : self._operand)) & 0xffff;
-
-        if ((self._target & 0xff00) === (self._base & 0xff00)) {
-            self._state.p = self._target;
+        if ((this._target & 0xff00) === (base & 0xff00)) {
+            this._state.p = this._target;
             return null;
         }
 
-        return Branch._secondDummyRead;
-    }
+        return this._result.read(this._secondDummyRead, (base & 0xff00) | (this._target & 0x00ff));
+    };
 
-    private static _secondDummyRead(self: Branch): null {
-        self._context.read((self._base & 0xff00) | (self._target & 0x00ff));
-
-        self._state.p = self._target;
+    private _secondDummyRead = (value: number): null => {
+        this._state.p = this._target;
         return null;
-    }
+    };
 
-    private _base = 0;
     private _target = 0;
     private _operand = 0;
+
+    private readonly _result = new ResultImpl();
 }
 
 namespace Branch {

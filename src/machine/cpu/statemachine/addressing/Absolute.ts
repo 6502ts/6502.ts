@@ -20,45 +20,33 @@
  */
 
 import CpuInterface from '../../CpuInterface';
+import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
-import AddressingInterface from './AddressingInterface';
 
-class Absolute implements AddressingInterface<Absolute> {
+class Absolute implements StateMachineInterface {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _context: StateMachineInterface.CpuContextInterface,
-        dereference = true
-    ) {
-        this._dereferenceStep = dereference ? Absolute._dereference : null;
-    }
+        private readonly _next: StateMachineInterface.Step = () => null
+    ) {}
 
-    reset(): StateMachineInterface.Step<Absolute> {
-        return Absolute._fetchLo;
-    }
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchLo, this._state.p);
 
-    private static _fetchLo(self: Absolute): StateMachineInterface.Step<Absolute> {
-        self.operand = self._context.read(self._state.p);
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchLo = (value: number): StateMachineInterface.Result => {
+        this._operand = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return Absolute._fetchHi;
-    }
+        return this._result.read(this._fetchHi, this._state.p);
+    };
 
-    private static _fetchHi(self: Absolute): StateMachineInterface.Step<Absolute> | null {
-        self.operand |= self._context.read(self._state.p) << 8;
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchHi = (value: number): StateMachineInterface.Result | null => {
+        this._operand |= value << 8;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return self._dereferenceStep;
-    }
+        return this._next(this._operand);
+    };
 
-    private static _dereference(self: Absolute): null {
-        self.operand = self._context.read(self.operand);
-
-        return null;
-    }
-
-    operand = 0;
-
-    private readonly _dereferenceStep: StateMachineInterface.Step<Absolute> | null;
+    private _operand = 0;
+    private readonly _result = new ResultImpl();
 }
 
 export default Absolute;

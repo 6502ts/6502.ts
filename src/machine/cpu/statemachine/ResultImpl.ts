@@ -19,28 +19,39 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-interface StateMachineInterface<OperandT extends undefined | number = undefined> {
-    reset(operand: OperandT): StateMachineInterface.Result;
+import StateMachineInterface from './StateMachineInterface';
+
+class ResultImpl implements StateMachineInterface.Result {
+    constructor() {}
+
+    read(nextStep: StateMachineInterface.Step, address: number): this {
+        this.cycleType = StateMachineInterface.CycleType.read;
+        this.address = address;
+        this.nextStep = nextStep;
+
+        return this;
+    }
+
+    write(nextStep: StateMachineInterface.Step, address: number, value: number): this {
+        this.cycleType = StateMachineInterface.CycleType.write;
+        this.address = address;
+        this.value = value;
+        this.nextStep = nextStep;
+
+        return this;
+    }
+
+    poll(poll: boolean): this {
+        this.pollInterrupts = poll;
+
+        return this;
+    }
+
+    cycleType = StateMachineInterface.CycleType.read;
+    address = 0;
+    value = 0;
+    pollInterrupts = false;
+    nextStep: StateMachineInterface.Step = null;
 }
 
-namespace StateMachineInterface {
-    export const enum CycleType {
-        read,
-        write
-    }
-
-    export interface Step {
-        (value: number): Result | null;
-    }
-
-    export interface Result {
-        readonly cycleType: CycleType;
-        readonly address: number;
-        value: number;
-        pollInterrupts: boolean;
-
-        nextStep: Step;
-    }
-}
-
-export default StateMachineInterface;
+export default ResultImpl;

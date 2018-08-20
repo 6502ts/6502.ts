@@ -20,54 +20,52 @@
  */
 
 import CpuInterface from '../../CpuInterface';
+import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
-import AddressingInterface from './AddressingInterface';
 
-class Indirect implements AddressingInterface<Indirect> {
+class Indirect implements StateMachineInterface {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _context: StateMachineInterface.CpuContextInterface
+        private readonly _next: StateMachineInterface.Step = () => null
     ) {}
 
-    reset(): StateMachineInterface.Step<Indirect> {
-        return Indirect._fetchAddressLo;
-    }
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddressLo, this._state.p);
 
-    private static _fetchAddressLo(self: Indirect): StateMachineInterface.Step<Indirect> {
-        self._address = self._context.read(self._state.p);
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchAddressLo = (value: number): StateMachineInterface.Result => {
+        this._address = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return Indirect._fetchAddressHi;
-    }
+        return this._result.read(this._fetchAddressHi, this._state.p);
+    };
 
-    private static _fetchAddressHi(self: Indirect): StateMachineInterface.Step<Indirect> {
-        self._address |= self._context.read(self._state.p) << 8;
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchAddressHi = (value: number): StateMachineInterface.Result => {
+        this._address |= value << 8;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return Indirect._fetchLo;
-    }
+        return this._result.read(this._fetchLo, this._address);
+    };
 
-    private static _fetchLo(self: Indirect): StateMachineInterface.Step<Indirect> {
-        self.operand = self._context.read(self._address);
+    private _fetchLo = (value: number): StateMachineInterface.Result => {
+        this._operand = value;
 
-        if ((self._address & 0xff) === 0xff) {
-            self._address &= 0xff00;
+        if ((this._address & 0xff) === 0xff) {
+            this._address &= 0xff00;
         } else {
-            self._address = (self._address + 1) & 0xffff;
+            this._address = (this._address + 1) & 0xffff;
         }
 
-        return Indirect._fetchHi;
-    }
+        return this._result.read(this._fetchHi, this._address);
+    };
 
-    private static _fetchHi(self: Indirect): StateMachineInterface.Step<Indirect> {
-        self.operand |= self._context.read(self._address) << 8;
+    private _fetchHi = (value: number): StateMachineInterface.Result | null => {
+        this._operand |= value << 8;
 
-        return null;
-    }
+        return this._next(this._operand);
+    };
 
-    operand = 0;
-
+    private _operand = 0;
     private _address = 0;
+    private readonly _result = new ResultImpl();
 }
 
 export default Indirect;

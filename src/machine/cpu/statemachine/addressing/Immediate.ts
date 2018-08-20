@@ -21,26 +21,26 @@
 
 import CpuInterface from '../../CpuInterface';
 import StateMachineInterface from '../StateMachineInterface';
-import AddressingInterface from './AddressingInterface';
+import ResultImpl from '../ResultImpl';
 
-class Immediate implements AddressingInterface<Immediate> {
+class Immediate implements StateMachineInterface {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _context: StateMachineInterface.CpuContextInterface
+        private readonly _next: StateMachineInterface.Step = () => null
     ) {}
 
-    reset(): StateMachineInterface.Step<Immediate> {
-        return Immediate._fetchOperand;
-    }
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchOperand, this._state.p);
 
-    private static _fetchOperand(self: Immediate): null {
-        self.operand = self._context.read(self._state.p);
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchOperand = (value: number): StateMachineInterface.Result | null => {
+        this.operand = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return null;
-    }
+        return this._next(this.operand);
+    };
 
     operand = 0;
+
+    private readonly _result = new ResultImpl();
 }
 
 export default Immediate;

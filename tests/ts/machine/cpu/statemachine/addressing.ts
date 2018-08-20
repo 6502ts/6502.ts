@@ -23,6 +23,7 @@ import { strictEqual } from 'assert';
 
 import { default as Runner, incrementP } from './Runner';
 import {
+    Dereference,
     Immediate,
     ZeroPage,
     Absolute,
@@ -33,387 +34,367 @@ import {
     IndirectIndexedY
 } from '../../../../../src/machine/cpu/statemachine/addressing';
 
-export default function run() {
+export default function run(): void {
     suite('address modes', () => {
         test('immediate', () =>
             Runner.build()
                 .read(0x0010, 0x43)
-                .result(incrementP)
-                .run<Immediate, undefined>(
-                    s => ({ ...s, p: 0x0010 }),
-                    (state, bus) => new Immediate(state, bus),
-                    undefined
-                )
-                .assert(s => strictEqual(s.operand, 0x43)));
+                .action(incrementP)
+                .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new Immediate(state, getResult), undefined)
+                .assert(result => strictEqual(result, 0x43)));
 
         suite('zeropage', () => {
             test('no dereference', () =>
                 Runner.build()
                     .read(0x0010, 0x43)
-                    .result(incrementP)
-                    .run<ZeroPage, undefined>(
-                        s => ({ ...s, p: 0x0010 }),
-                        (state, bus) => new ZeroPage(state, bus, false),
-                        undefined
-                    )
-                    .assert(s => strictEqual(s.operand, 0x43)));
+                    .action(incrementP)
+                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new ZeroPage(state, getResult), undefined)
+                    .assert(result => strictEqual(result, 0x43)));
 
             test('dereference', () =>
                 Runner.build()
                     .read(0x0010, 0x43)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x43, 0x66)
-                    .run<ZeroPage, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010 }),
-                        (state, bus) => new ZeroPage(state, bus),
+                        (state, getResult) => new ZeroPage(state, new Dereference(getResult).reset),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x66)));
+                    .assert(result => strictEqual(result, 0x66)));
         });
 
         suite('absolute', () => {
             test('no dereference', () =>
                 Runner.build()
                     .read(0x0010, 0x34)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x12)
-                    .result(incrementP)
-                    .run<Absolute, undefined>(
-                        s => ({ ...s, p: 0x0010 }),
-                        (state, bus) => new Absolute(state, bus, false),
-                        undefined
-                    )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .action(incrementP)
+                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new Absolute(state, getResult), undefined)
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('dereference', () =>
                 Runner.build()
                     .read(0x0010, 0x34)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x12)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x1234, 0x43)
-                    .run<Absolute, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010 }),
-                        (state, bus) => new Absolute(state, bus),
+                        (state, getResult) => new Absolute(state, new Dereference(getResult).reset),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x43)));
+                    .assert(result => strictEqual(result, 0x43)));
         });
 
         suite('indirect', () => {
             test('no page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x56)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x34)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x3456, 0x34)
                     .read(0x3457, 0x12)
-                    .run<Indirect, undefined>(
-                        s => ({ ...s, p: 0x0010 }),
-                        (state, bus) => new Indirect(state, bus),
-                        undefined
-                    )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new Indirect(state, getResult), undefined)
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0xff)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x34)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x34ff, 0x34)
                     .read(0x3400, 0x12)
-                    .run<Indirect, undefined>(
-                        s => ({ ...s, p: 0x0010 }),
-                        (state, bus) => new Indirect(state, bus),
-                        undefined
-                    )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new Indirect(state, getResult), undefined)
+                    .assert(result => strictEqual(result, 0x1234)));
         });
 
         suite('absolute indexed', () => {
             test('no derereference, read, no page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x24)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x12)
-                    .result(incrementP)
-                    .run<AbsoluteIndexed, undefined>(
+                    .action(incrementP)
+                    .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, bus) => AbsoluteIndexed.absoluteX(state, bus, false, false),
+                        (state, getResult) => AbsoluteIndexed.absoluteX(state, getResult, false),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('no derereference, read, page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x35)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x11)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x1134, 0x42)
-                    .run<AbsoluteIndexed, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, bus) => AbsoluteIndexed.absoluteY(state, bus, false, false),
+                        (state, getResult) => AbsoluteIndexed.absoluteY(state, getResult, false),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('derereference, read, no page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x24)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x12)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x1234, 0x66)
-                    .run<AbsoluteIndexed, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, bus) => AbsoluteIndexed.absoluteX(state, bus, true, false),
+                        (state, getResult) => AbsoluteIndexed.absoluteX(state, new Dereference(getResult).reset, false),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x66)));
+                    .assert(result => strictEqual(result, 0x66)));
 
             test('derereference, read, page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x35)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x11)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x1134, 0x42)
                     .read(0x1234, 0x66)
-                    .run<AbsoluteIndexed, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, bus) => AbsoluteIndexed.absoluteY(state, bus, true, false),
+                        (state, getResult) => AbsoluteIndexed.absoluteY(state, new Dereference(getResult).reset, false),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x66)));
+                    .assert(result => strictEqual(result, 0x66)));
 
             test('no derereference, write, no page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x24)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x12)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x1234, 0x66)
-                    .run<AbsoluteIndexed, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, bus) => AbsoluteIndexed.absoluteX(state, bus, false, true),
+                        (state, getResult) => AbsoluteIndexed.absoluteX(state, getResult, true),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('no derereference, write, page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x35)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x0011, 0x11)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x1134, 0x42)
-                    .run<AbsoluteIndexed, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, bus) => AbsoluteIndexed.absoluteY(state, bus, false, true),
+                        (state, getResult) => AbsoluteIndexed.absoluteY(state, getResult, true),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
         });
 
         suite('zeropage indexed', () => {
             test('no dereference, no page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x60)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x60, 0x12)
-                    .run<ZeroPageIndexed, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, x: 0x06 }),
-                        (state, bus) => ZeroPageIndexed.zeroPageX(state, bus, false),
+                        (state, getResult) => ZeroPageIndexed.zeroPageX(state, getResult),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x66)));
+                    .assert(result => strictEqual(result, 0x66)));
 
             test('dereference, no page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x60)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x60, 0x66)
                     .read(0x66, 0x42)
-                    .run<ZeroPageIndexed, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, y: 0x06 }),
-                        (state, bus) => ZeroPageIndexed.zeroPageY(state, bus, true),
+                        (state, getResult) => ZeroPageIndexed.zeroPageY(state, new Dereference(getResult).reset),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x42)));
+                    .assert(result => strictEqual(result, 0x42)));
 
             test('no dereference, page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x67)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x67, 0x12)
-                    .run<ZeroPageIndexed, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, x: 0xff }),
-                        (state, bus) => ZeroPageIndexed.zeroPageX(state, bus, false),
+                        (state, getResult) => ZeroPageIndexed.zeroPageX(state, getResult),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x66)));
+                    .assert(result => strictEqual(result, 0x66)));
 
             test('dereference, page boundary', () =>
                 Runner.build()
                     .read(0x0010, 0x67)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x67, 0x12)
                     .read(0x66, 0x42)
-                    .run<ZeroPageIndexed, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, bus) => ZeroPageIndexed.zeroPageY(state, bus, true),
+                        (state, getResult) => ZeroPageIndexed.zeroPageY(state, new Dereference(getResult).reset),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x42)));
+                    .assert(result => strictEqual(result, 0x42)));
         });
 
         suite('indexed indirect', () => {
             test('no dereference, no page boundary', () =>
                 Runner.build()
                     .read(0x10, 0x30)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x30, 0x42)
                     .read(0x40, 0x34)
                     .read(0x41, 0x12)
-                    .run<IndexedIndirectX, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, bus) => new IndexedIndirectX(state, bus, false),
+                        (state, getResult) => new IndexedIndirectX(state, getResult),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('dereference, no page boundary', () =>
                 Runner.build()
                     .read(0x10, 0x30)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x30, 0x42)
                     .read(0x40, 0x34)
                     .read(0x41, 0x12)
                     .read(0x1234, 0x66)
-                    .run<IndexedIndirectX, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, bus) => new IndexedIndirectX(state, bus, true),
+                        (state, getResult) => new IndexedIndirectX(state, new Dereference(getResult).reset),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x66)));
+                    .assert(result => strictEqual(result, 0x66)));
 
             test('no dereference, page boundary', () =>
                 Runner.build()
                     .read(0x10, 0x50)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x50, 0x42)
                     .read(0x40, 0x34)
                     .read(0x41, 0x12)
-                    .run<IndexedIndirectX, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, x: 0xf0 }),
-                        (state, bus) => new IndexedIndirectX(state, bus, false),
+                        (state, getResult) => new IndexedIndirectX(state, getResult),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('dereference, page boundary', () =>
                 Runner.build()
                     .read(0x10, 0x50)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x50, 0x42)
                     .read(0x40, 0x34)
                     .read(0x41, 0x12)
                     .read(0x1234, 0x66)
-                    .run<IndexedIndirectX, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x0010, x: 0xf0 }),
-                        (state, bus) => new IndexedIndirectX(state, bus, true),
+                        (state, getResult) => new IndexedIndirectX(state, new Dereference(getResult).reset),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x66)));
+                    .assert(result => strictEqual(result, 0x66)));
         });
 
         suite('indirect indexed Y', () => {
             test('no dereference, read, no page boundary', () =>
                 Runner.build()
                     .read(0x10, 0x20)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x20, 0x30)
                     .read(0x21, 0x12)
-                    .run<IndirectIndexedY, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x010, y: 0x04 }),
-                        (state, bus) => new IndirectIndexedY(state, bus, false, false),
+                        (state, getResult) => new IndirectIndexedY(state, getResult, false),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('dereference, read, no page boundary', () =>
                 Runner.build()
                     .read(0x10, 0xff)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0xff, 0x30)
                     .read(0x00, 0x12)
                     .read(0x1234, 0x66)
-                    .run<IndirectIndexedY, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x010, y: 0x04 }),
-                        (state, bus) => new IndirectIndexedY(state, bus, true, false),
+                        (state, getResult) => new IndirectIndexedY(state, new Dereference(getResult).reset, false),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x66)));
+                    .assert(result => strictEqual(result, 0x66)));
 
             test('no dereference, read, page boundary', () =>
                 Runner.build()
                     .read(0x10, 0x20)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x20, 0x35)
                     .read(0x21, 0x11)
                     .read(0x1134, 0x66)
-                    .run<IndirectIndexedY, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x010, y: 0xff }),
-                        (state, bus) => new IndirectIndexedY(state, bus, false, false),
+                        (state, getResult) => new IndirectIndexedY(state, getResult, false),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('dereference, read, no page boundary', () =>
                 Runner.build()
                     .read(0x10, 0xff)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0xff, 0x35)
                     .read(0x00, 0x11)
                     .read(0x1134, 0x66)
                     .read(0x1234, 0x66)
-                    .run<IndirectIndexedY, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x010, y: 0xff }),
-                        (state, bus) => new IndirectIndexedY(state, bus, true, false),
+                        (state, getResult) => new IndirectIndexedY(state, new Dereference(getResult).reset, false),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x66)));
+                    .assert(result => strictEqual(result, 0x66)));
 
             test('no dereference, write, no page boundary', () =>
                 Runner.build()
                     .read(0x10, 0x20)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x20, 0x30)
                     .read(0x21, 0x12)
                     .read(0x1234, 0x66)
-                    .run<IndirectIndexedY, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x010, y: 0x04 }),
-                        (state, bus) => new IndirectIndexedY(state, bus, false, true),
+                        (state, getResult) => new IndirectIndexedY(state, getResult, true),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
 
             test('no dereference, write, page boundary', () =>
                 Runner.build()
                     .read(0x10, 0x20)
-                    .result(incrementP)
+                    .action(incrementP)
                     .read(0x20, 0x35)
                     .read(0x21, 0x11)
                     .read(0x1134, 0x66)
-                    .run<IndirectIndexedY, undefined>(
+                    .run(
                         s => ({ ...s, p: 0x010, y: 0xff }),
-                        (state, bus) => new IndirectIndexedY(state, bus, false, true),
+                        (state, getResult) => new IndirectIndexedY(state, getResult, true),
                         undefined
                     )
-                    .assert(s => strictEqual(s.operand, 0x1234)));
+                    .assert(result => strictEqual(result, 0x1234)));
         });
     });
 }

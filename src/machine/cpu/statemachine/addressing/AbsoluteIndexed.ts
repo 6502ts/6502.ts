@@ -20,80 +20,66 @@
  */
 
 import CpuInterface from '../../CpuInterface';
+import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
-import AddressingInterface from './AddressingInterface';
 
-class AbsoluteIndexed implements AddressingInterface<AbsoluteIndexed> {
+class AbsoluteIndexed implements StateMachineInterface {
     private constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _context: StateMachineInterface.CpuContextInterface,
         private readonly _indexExtractor: (s: CpuInterface.State) => number,
-        dereference: boolean,
+        private readonly _next: StateMachineInterface.Step,
         private readonly _writeOp: boolean
-    ) {
-        this._dereferenceStep = dereference ? AbsoluteIndexed._dereference : null;
-    }
+    ) {}
 
     static absoluteX(
         state: CpuInterface.State,
-        context: StateMachineInterface.CpuContextInterface,
-        dereference = true,
+        next: StateMachineInterface.Step = () => null,
         writeOp = false
     ): AbsoluteIndexed {
-        return new AbsoluteIndexed(state, context, s => s.x, dereference, writeOp);
+        return new AbsoluteIndexed(state, s => s.x, next, writeOp);
     }
 
     static absoluteY(
         state: CpuInterface.State,
-        context: StateMachineInterface.CpuContextInterface,
-        dereference = true,
+        next: StateMachineInterface.Step = () => null,
         writeOp = false
     ): AbsoluteIndexed {
-        return new AbsoluteIndexed(state, context, s => s.y, dereference, writeOp);
+        return new AbsoluteIndexed(state, s => s.y, next, writeOp);
     }
 
-    reset(): StateMachineInterface.Step<AbsoluteIndexed> {
-        return AbsoluteIndexed._fetchLo;
-    }
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchLo, this._state.p);
 
-    private static _fetchLo(self: AbsoluteIndexed): StateMachineInterface.Step<AbsoluteIndexed> {
-        self.operand = self._context.read(self._state.p);
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchLo = (value: number): StateMachineInterface.Result => {
+        this._operand = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return AbsoluteIndexed._fetchHi;
-    }
+        return this._result.read(this._fetchHi, this._state.p);
+    };
 
-    private static _fetchHi(self: AbsoluteIndexed): StateMachineInterface.Step<AbsoluteIndexed> | null {
-        self.operand |= self._context.read(self._state.p) << 8;
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchHi = (value: number): StateMachineInterface.Result | null => {
+        this._operand |= value << 8;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        const index = self._indexExtractor(self._state);
-        self._carry = (self.operand & 0xff) + index > 0xff;
-        self.operand = (self.operand & 0xff00) | ((self.operand + index) & 0xff);
+        const index = this._indexExtractor(this._state);
+        this._carry = (this._operand & 0xff) + index > 0xff;
+        this._operand = (this._operand & 0xff00) | ((this._operand + index) & 0xff);
 
-        return self._carry || self._writeOp ? AbsoluteIndexed._dereferenceAndCarry : self._dereferenceStep;
-    }
+        return this._carry || this._writeOp
+            ? this._result.read(this._dereferenceAndCarry, this._operand)
+            : this._next(this._operand);
+    };
 
-    private static _dereferenceAndCarry(self: AbsoluteIndexed): StateMachineInterface.Step<AbsoluteIndexed> | null {
-        self._context.read(self.operand);
-
-        if (self._carry) {
-            self.operand = (self.operand + 0x0100) & 0xffff;
+    private _dereferenceAndCarry = (value: number): StateMachineInterface.Result | null => {
+        if (this._carry) {
+            this._operand = (this._operand + 0x0100) & 0xffff;
         }
 
-        return self._dereferenceStep;
-    }
+        return this._next(this._operand);
+    };
 
-    private static _dereference(self: AbsoluteIndexed): null {
-        self.operand = self._context.read(self.operand);
-
-        return null;
-    }
-
-    operand = 0;
+    private _operand = 0;
     private _carry = false;
-
-    private readonly _dereferenceStep: StateMachineInterface.Step<AbsoluteIndexed> | null;
+    private readonly _result = new ResultImpl();
 }
 
 export default AbsoluteIndexed;

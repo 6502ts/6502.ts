@@ -20,63 +20,41 @@
  */
 
 import CpuInterface from '../../CpuInterface';
+import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
-import AddressingInterface from './AddressingInterface';
 
-class ZeroPageIndexed implements AddressingInterface<ZeroPageIndexed> {
+class ZeroPageIndexed implements StateMachineInterface {
     private constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _context: StateMachineInterface.CpuContextInterface,
         private readonly _indexExtractor: (state: CpuInterface.State) => number,
-        dereference: boolean
-    ) {
-        this._dereferenceStep = dereference ? ZeroPageIndexed._dereference : null;
+        private readonly _next: StateMachineInterface.Step
+    ) {}
+
+    static zeroPageX(state: CpuInterface.State, next: StateMachineInterface.Step = () => null): ZeroPageIndexed {
+        return new ZeroPageIndexed(state, s => s.x, next);
     }
 
-    static zeroPageX(
-        state: CpuInterface.State,
-        context: StateMachineInterface.CpuContextInterface,
-        dereference = true
-    ): ZeroPageIndexed {
-        return new ZeroPageIndexed(state, context, s => s.x, dereference);
+    static zeroPageY(state: CpuInterface.State, next: StateMachineInterface.Step = () => null): ZeroPageIndexed {
+        return new ZeroPageIndexed(state, s => s.y, next);
     }
 
-    static zeroPageY(
-        state: CpuInterface.State,
-        context: StateMachineInterface.CpuContextInterface,
-        dereference = true
-    ): ZeroPageIndexed {
-        return new ZeroPageIndexed(state, context, s => s.y, dereference);
-    }
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
 
-    reset(): StateMachineInterface.Step<ZeroPageIndexed> {
-        return ZeroPageIndexed._fetchAddress;
-    }
+    private _fetchAddress = (value: number): StateMachineInterface.Result => {
+        this._operand = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-    private static _fetchAddress(self: ZeroPageIndexed): StateMachineInterface.Step<ZeroPageIndexed> {
-        self.operand = self._context.read(self._state.p);
-        self._state.p = (self._state.p + 1) & 0xffff;
+        return this._result.read(this._addIndex, this._operand);
+    };
 
-        return ZeroPageIndexed._addIndex;
-    }
+    private _addIndex = (value: number): StateMachineInterface.Result | null => {
+        this._operand = (this._operand + this._indexExtractor(this._state)) & 0xff;
 
-    private static _addIndex(self: ZeroPageIndexed): StateMachineInterface.Step<ZeroPageIndexed> | null {
-        self._context.read(self.operand);
+        return this._next(this._operand);
+    };
 
-        self.operand = (self.operand + self._indexExtractor(self._state)) & 0xff;
-
-        return self._dereferenceStep;
-    }
-
-    private static _dereference(self: ZeroPageIndexed): null {
-        self.operand = self._context.read(self.operand);
-
-        return null;
-    }
-
-    operand = 0;
-
-    private readonly _dereferenceStep: StateMachineInterface.Step<ZeroPageIndexed> | null;
+    private _operand = 0;
+    private readonly _result = new ResultImpl();
 }
 
 export default ZeroPageIndexed;

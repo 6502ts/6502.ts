@@ -20,38 +20,26 @@
  */
 
 import CpuInterface from '../../CpuInterface';
+import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
-import AddressingInterface from './AddressingInterface';
 
-class ZeroPage implements AddressingInterface<ZeroPage> {
+class ZeroPage implements StateMachineInterface {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _context: StateMachineInterface.CpuContextInterface,
-        dereference = true
-    ) {
-        this._dereferenceStep = dereference ? ZeroPage._dereference : null;
-    }
+        private readonly _next: StateMachineInterface.Step = () => null
+    ) {}
 
-    reset(): StateMachineInterface.Step<ZeroPage> {
-        return ZeroPage._fetchAddress;
-    }
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
 
-    private static _fetchAddress(self: ZeroPage): StateMachineInterface.Step<ZeroPage> | null {
-        self.operand = self._context.read(self._state.p);
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchAddress = (value: number): StateMachineInterface.Result | null => {
+        this._operand = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return self._dereferenceStep;
-    }
+        return this._next(this._operand);
+    };
 
-    private static _dereference(self: ZeroPage): null {
-        self.operand = self._context.read(self.operand);
-
-        return null;
-    }
-
-    operand = 0;
-
-    private readonly _dereferenceStep: StateMachineInterface.Step<ZeroPage> | null;
+    private _operand = 0;
+    private readonly _result = new ResultImpl();
 }
 
 export default ZeroPage;

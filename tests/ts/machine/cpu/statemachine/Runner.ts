@@ -31,12 +31,13 @@ export class Builder {
         this._pushCurrentCycle();
 
         this._currentCycle = {
-            busOperation: {
-                type: Runner.BusOperationType.read,
+            result: {
+                cycleType: StateMachineInterface.CycleType.read,
                 address,
-                value
-            },
-            pollInterrupt: false
+                value,
+                pollInterrupts: false,
+                nextStep: () => undefined
+            }
         };
 
         return this;
@@ -46,34 +47,38 @@ export class Builder {
         this._pushCurrentCycle();
 
         this._currentCycle = {
-            busOperation: {
-                type: Runner.BusOperationType.write,
+            result: {
+                cycleType: StateMachineInterface.CycleType.write,
                 address,
-                value
-            },
-            pollInterrupt: false
+                value,
+                pollInterrupts: false,
+                nextStep: () => undefined
+            }
         };
 
         return this;
     }
 
-    result(result: (s: CpuInterface.State) => CpuInterface.State): this {
-        this._currentCycle.result = result;
+    action(action: (s: CpuInterface.State) => CpuInterface.State): this {
+        this._currentCycle.action = action;
 
         return this;
     }
 
-    pollInterrupt(): this {
-        this._currentCycle.pollInterrupt = true;
+    pollInterrupts(): this {
+        this._currentCycle.result.pollInterrupts = true;
 
         return this;
     }
 
-    run<S extends StateMachineInterface<S, O>, O>(
+    run<OperandT extends number | undefined = undefined>(
         prepareState: (s: CpuInterface.State) => CpuInterface.State,
-        createStateMachine: (state: CpuInterface.State, context: StateMachineInterface.CpuContextInterface) => S,
-        operand: O
-    ): Runner<S, O> {
+        createStateMachine: (
+            state: CpuInterface.State,
+            getResult: (result: number) => null
+        ) => StateMachineInterface<OperandT>,
+        operand: OperandT
+    ): Runner<OperandT> {
         this._pushCurrentCycle();
 
         const runner = new Runner(this._cycles, prepareState(new CpuInterface.State()), createStateMachine);
@@ -91,52 +96,70 @@ export class Builder {
     private readonly _cycles = new Array<Runner.Cycle>();
 }
 
-class Runner<S extends StateMachineInterface<S, O>, O> {
+class Runner<OperandT extends number | undefined = undefined> {
     constructor(
         private readonly _cycles: Array<Runner.Cycle>,
         private readonly _state: CpuInterface.State,
-        createStateMachine: (state: CpuInterface.State, context: StateMachineInterface.CpuContextInterface) => S
+        createStateMachine: (
+            state: CpuInterface.State,
+            getResult: (result: number) => null
+        ) => StateMachineInterface<OperandT>
     ) {
-        this._stateMachine = createStateMachine(this._state, {
-            read: this._read.bind(this),
-            write: this._write.bind(this),
-            pollInterrupts: this._pollInterrupts.bind(this)
-        });
+        this._stateMachine = createStateMachine(this._state, result => ((this._result = result), null));
     }
 
-    run(operand: O): this {
+    run(operand: OperandT): this {
         this._step = 0;
-        let nextStep = this._stateMachine.reset(operand);
+        let resultActual = this._stateMachine.reset(operand);
 
-        while (nextStep !== null) {
-            this._busAccessComplete = false;
+        while (resultActual !== null) {
             const cycle = this._cycles[this._step];
-            const state = cycle.result ? cycle.result(this._state) : { ...this._state };
 
-            this._interruptPolled = false;
-            nextStep = nextStep(this._stateMachine);
+            if (!cycle) {
+                throw new Error(`expected state machine to complete in ${this._cycles.length} steps`);
+            }
+
+            const resultExpected = cycle.result;
+            const stateExpected = cycle.action ? cycle.action(this._state) : { ...this._state };
+
+            if (resultActual.cycleType !== resultExpected.cycleType) {
+                throw new Error(
+                    `cycle type mismatch: expected ${
+                        resultExpected.cycleType === StateMachineInterface.CycleType.read ? 'read' : 'write'
+                    }`
+                );
+            }
+
+            if (resultActual.address !== resultExpected.address) {
+                throw new Error(
+                    `expected an access to ${toHex(resultExpected.address)}; got ${toHex(resultActual.address)} instead`
+                );
+            }
+
+            if (
+                resultExpected.cycleType === StateMachineInterface.CycleType.write &&
+                resultExpected.value !== resultActual.value
+            ) {
+                throw new Error(
+                    `expected a write of ${toHex(resultExpected.value)}, got ${toHex(resultActual.value)} instead`
+                );
+            }
+
+            if (resultExpected.pollInterrupts && !resultActual.pollInterrupts) {
+                throw new Error('expected interrupts to be polled');
+            }
+
+            if (!resultExpected.pollInterrupts && resultActual.pollInterrupts) {
+                throw new Error('expected interrupts not to be polled');
+            }
+
+            resultActual = resultActual.nextStep(resultExpected.value);
             this._step++;
 
-            if (nextStep === null && this._step !== this._cycles.length) {
-                throw new Error(`expected ${this._cycles.length} steps, but completed in ${this._step}`);
-            }
-
-            if (nextStep !== null && this._step === this._cycles.length) {
-                throw new Error(`expected ${this._cycles.length} steps, but state machine did not complete`);
-            }
-
-            if (!this._busAccessComplete) {
-                throw new Error(`no bus access in step ${this._step}`);
-            }
-
-            if (this._interruptPolled !== cycle.pollInterrupt) {
-                throw new Error(`expected interrupt state to be polled in step ${this._step}`);
-            }
-
-            if (!deepEqual(this._state, state)) {
+            if (!deepEqual(stateExpected, this._state)) {
                 throw new Error(
-                    `state mismath in step ${this._step}: expected ${JSON.stringify(
-                        state,
+                    `state mismatch in step ${this._step}: expected ${JSON.stringify(
+                        stateExpected,
                         undefined,
                         '  '
                     )}, got ${JSON.stringify(this._state, undefined, '  ')}`
@@ -144,107 +167,30 @@ class Runner<S extends StateMachineInterface<S, O>, O> {
             }
         }
 
+        if (this._cycles[this._step]) {
+            throw new Error(`State machine completed in step ${this._step}, but expected ${this._cycles.length} steos`);
+        }
+
         return this;
     }
 
-    assert(assertion: (s: S) => void) {
-        assertion(this._stateMachine);
-    }
-
-    private _read(address: number): number {
-        const operation = this._cycles[this._step].busOperation;
-
-        if (this._busAccessComplete) {
-            throw new Error(`second bus access in step ${this._step}`);
-        }
-        this._busAccessComplete = true;
-
-        if (operation.type !== Runner.BusOperationType.read) {
-            throw new Error(`Expected a read operation, but got a write in step ${this._step}`);
-        }
-
-        if (address !== operation.address) {
-            throw new Error(
-                `Expected an access to ${toHex(operation.address)}, but got an access to ${toHex(
-                    address
-                )} instead in step ${this._step}`
-            );
-        }
-
-        return operation.value;
-    }
-
-    private _write(address: number, value: number): void {
-        const operation = this._cycles[this._step].busOperation;
-
-        if (this._busAccessComplete) {
-            throw new Error(`second bus access in step ${this._step}`);
-        }
-        this._busAccessComplete = true;
-
-        if (operation.type !== Runner.BusOperationType.write) {
-            throw new Error(`Expected a write operation, but got a read in step ${this._step}`);
-        }
-
-        if (address !== operation.address) {
-            throw new Error(
-                `Expected an access to ${toHex(operation.address)}, but got an access to ${toHex(
-                    address
-                )} instead in step ${this._step}`
-            );
-        }
-
-        if (value !== operation.value) {
-            throw new Error(
-                `Expected ${toHex(operation.value)} to be written, but got ${toHex(value)} instead in step ${
-                    this._step
-                }`
-            );
-        }
-    }
-
-    private _pollInterrupts(): void {
-        if (this._interruptPolled) {
-            throw new Error(`interrupt polled twice in step ${this._step}`);
-        }
-
-        this._interruptPolled = true;
+    assert(assertion: (result: number) => void): void {
+        assertion(this._result);
     }
 
     private _step = 0;
-    private _busAccessComplete = false;
-    private _interruptPolled = false;
+    private _result = 0;
 
-    private readonly _stateMachine: S = null;
+    private readonly _stateMachine: StateMachineInterface<OperandT> = null;
 }
 
 namespace Runner {
-    export const enum BusOperationType {
-        read,
-        write
-    }
-
-    export interface BusRead {
-        type: BusOperationType.read;
-        address: number;
-        value: number;
-    }
-
-    export interface BusWrite {
-        type: BusOperationType.write;
-        address: number;
-        value: number;
-    }
-
-    export type BusOperation = BusWrite | BusRead;
+    export const build = () => new Builder();
 
     export interface Cycle {
-        busOperation: BusOperation;
-        result?: (s: CpuInterface.State) => CpuInterface.State;
-        pollInterrupt: boolean;
+        result: StateMachineInterface.Result;
+        action?: (s: CpuInterface.State) => CpuInterface.State;
     }
-
-    export const build = () => new Builder();
 }
 
 export default Runner;

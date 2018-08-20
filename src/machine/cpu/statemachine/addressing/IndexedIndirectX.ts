@@ -20,59 +20,46 @@
  */
 
 import CpuInterface from '../../CpuInterface';
+import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
-import AddressingInterface from './AddressingInterface';
 
-class IndexedIndirectX implements AddressingInterface<IndexedIndirectX> {
+class IndexedIndirectX implements StateMachineInterface {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _context: StateMachineInterface.CpuContextInterface,
-        dereference = true
-    ) {
-        this._dereferenceStep = dereference ? IndexedIndirectX._dereference : null;
-    }
+        private readonly _next: StateMachineInterface.Step = () => null
+    ) {}
 
-    reset(): StateMachineInterface.Step<IndexedIndirectX> {
-        return IndexedIndirectX._fetchAddress;
-    }
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
 
-    private static _fetchAddress(self: IndexedIndirectX): StateMachineInterface.Step<IndexedIndirectX> {
-        self._address = self._context.read(self._state.p);
-        self._state.p = (self._state.p + 1) & 0xffff;
+    private _fetchAddress = (value: number): StateMachineInterface.Result => {
+        this._address = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return IndexedIndirectX._addIndex;
-    }
+        return this._result.read(this._addIndex, this._address);
+    };
 
-    private static _addIndex(self: IndexedIndirectX): StateMachineInterface.Step<IndexedIndirectX> {
-        self._context.read(self._address);
-        self._address = (self._address + self._state.x) & 0xff;
+    private _addIndex = (value: number): StateMachineInterface.Result => {
+        this._address = (this._address + this._state.x) & 0xff;
 
-        return IndexedIndirectX._fetchLo;
-    }
+        return this._result.read(this._fetchLo, this._address);
+    };
 
-    private static _fetchLo(self: IndexedIndirectX): StateMachineInterface.Step<IndexedIndirectX> {
-        self.operand = self._context.read(self._address);
-        self._address = (self._address + 1) & 0xff;
+    private _fetchLo = (value: number): StateMachineInterface.Result => {
+        this._operand = value;
+        this._address = (this._address + 1) & 0xff;
 
-        return IndexedIndirectX._fetchHi;
-    }
+        return this._result.read(this._fetchHi, this._address);
+    };
 
-    private static _fetchHi(self: IndexedIndirectX): StateMachineInterface.Step<IndexedIndirectX> | null {
-        self.operand |= self._context.read(self._address) << 8;
+    private _fetchHi = (value: number): StateMachineInterface.Result | null => {
+        this._operand |= value << 8;
 
-        return self._dereferenceStep;
-    }
+        return this._next(this._operand);
+    };
 
-    private static _dereference(self: IndexedIndirectX): null {
-        self.operand = self._context.read(self.operand);
-
-        return null;
-    }
-
-    operand = 0;
-
+    private _operand = 0;
     private _address = 0;
-    private readonly _dereferenceStep: StateMachineInterface.Step<IndexedIndirectX> | null;
+    private readonly _result = new ResultImpl();
 }
 
 export default IndexedIndirectX;
