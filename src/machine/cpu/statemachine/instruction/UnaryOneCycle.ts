@@ -19,10 +19,25 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import runAddressingTests from './addressing';
-import runInstructionTests from './instruction';
+import StateMachineInterface from '../StateMachineInterface';
+import CpuInterface from '../../CpuInterface';
+import ResultImpl from '../ResultImpl';
 
-suite('CPU emulation state machines', () => {
-    runAddressingTests();
-    runInstructionTests();
-});
+class UnaryOneCycle implements StateMachineInterface<number> {
+    constructor(
+        private readonly _state: CpuInterface.State,
+        private readonly _operation: (s: CpuInterface.State) => void
+    ) {}
+
+    reset = () => this._result.read(this._operationStep, this._state.p);
+
+    private _operationStep = (): null => {
+        this._operation(this._state);
+
+        return null;
+    };
+
+    private _result = new ResultImpl();
+}
+
+export default UnaryOneCycle;

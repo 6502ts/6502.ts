@@ -35,7 +35,7 @@ import {
 } from '../../../../../src/machine/cpu/statemachine/addressing';
 
 export default function run(): void {
-    suite('address modes', () => {
+    suite('addressing modes', () => {
         test('immediate', () =>
             Runner.build()
                 .read(0x0010, 0x43)
