@@ -32,21 +32,21 @@ class Rts implements StateMachineInterface {
         this._result.read(this._dummyStackRead, 0x0100 + this._state.s);
 
     private _dummyStackRead = (): StateMachineInterface.Result => {
-        this._state.s = (this._state.s - 1) & 0xff;
+        this._state.s = (this._state.s + 1) & 0xff;
 
         return this._result.read(this._popPcl, 0x0100 + this._state.s);
     };
 
     private _popPcl = (value: number): StateMachineInterface.Result => {
-        this._state.p = value;
-        this._state.s = (this._state.s - 1) & 0xff;
+        this._state.p = (this._state.p & 0xff00) | value;
+        this._state.s = (this._state.s + 1) & 0xff;
 
         return this._result.read(this._popPch, 0x0100 + this._state.s);
     };
 
     private _popPch = (value: number): StateMachineInterface.Result => {
-        this._state.p = this._state.p | (value << 8);
-        this._state.s = (this._state.s - 1) & 0xff;
+        this._state.p = (this._state.p & 0xff) | (value << 8);
+        this._state.s = (this._state.s + 1) & 0xff;
 
         return this._result.read(this._incrementP, this._state.p);
     };

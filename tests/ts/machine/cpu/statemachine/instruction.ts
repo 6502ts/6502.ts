@@ -27,7 +27,8 @@ import {
     Write,
     ReadModifyWrite,
     Branch,
-    Jsr
+    Jsr,
+    Rts
 } from '../../../../../src/machine/cpu/statemachine/instruction';
 
 export default function run(): void {
@@ -107,9 +108,11 @@ export default function run(): void {
                 .read(0x0130, 0x22)
                 .action(incrementS)
                 .read(0x0131, 0x34)
-                .action(s => ({ ...s, p: 0x2234, s: 0x32 }))
+                .action(s => ({ ...s, p: 0x1134, s: 0x32 }))
                 .read(0x0132, 0x12)
                 .action(s => ({ ...s, p: 0x1234, s: 0x33 }))
-                .read(0x01234, 0x66));
+                .read(0x01234, 0x66)
+                .action(incrementP)
+                .run(s => ({ ...s, p: 0x1110, s: 0x30 }), s => new Rts(s), undefined));
     });
 }
