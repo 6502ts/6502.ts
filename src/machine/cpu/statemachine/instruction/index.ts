@@ -4,3 +4,4 @@ export { default as ReadModifyWrite } from './ReadModifyWrite';
 export { default as UnaryOneCycle } from './UnaryOneCycle';
 export { default as Jsr } from './Jsr';
 export { default as Rts } from './Rts';
+export { default as Brk } from './Brk';

@@ -28,6 +28,25 @@ function setFlagsNZ(state: CpuInterface.State, operand: number): void {
         (operand ? 0 : CpuInterface.Flags.z);
 }
 
+export function geRmw(state: CpuInterface.State, operand: number, operation: (x: number) => number): number {
+    const result = operation(operand);
+    setFlagsNZ(state, result);
+
+    return result;
+}
+
+export function genNullary(state: CpuInterface.State, operation: (state: CpuInterface.State) => number): void {
+    setFlagsNZ(state, operation(state));
+}
+
+export function getUnary(
+    state: CpuInterface.State,
+    operand: number,
+    operation: (state: CpuInterface.State, operand: number) => number
+) {
+    setFlagsNZ(state, operation(state, operand));
+}
+
 export function adc(state: CpuInterface.State, operand: number): void {
     if (state.flags & CpuInterface.Flags.d) {
         const d0 = (operand & 0x0f) + (state.a & 0x0f) + (state.flags & CpuInterface.Flags.c),
@@ -54,11 +73,6 @@ export function adc(state: CpuInterface.State, operand: number): void {
 
         state.a = result;
     }
-}
-
-export function and(state: CpuInterface.State, operand: number): void {
-    state.a &= operand;
-    setFlagsNZ(state, state.a);
 }
 
 export function aslImmediate(state: CpuInterface.State): void {
@@ -103,13 +117,6 @@ export function cmp(
         (diff & 0x80) |
         (diff & 0xff ? 0 : CpuInterface.Flags.z) |
         (diff >>> 8);
-}
-
-export function dec(state: CpuInterface.State, operand: number): number {
-    const result = (operand + 0xff) & 0xff;
-    setFlagsNZ(state, result);
-
-    return result;
 }
 
 export function sbc(state: CpuInterface.State, operand: number): void {

@@ -32,10 +32,9 @@ import {
     IndexedIndirectX,
     Indirect
 } from './addressing';
-import { UnaryOneCycle, ReadModifyWrite } from './instruction';
+import { UnaryOneCycle, ReadModifyWrite, Brk, Jsr } from './instruction';
 import IndexedIndirectY from './addressing/IndirectIndexedY';
 import * as ops from './ops';
-import Brk from './instruction/Brk';
 
 export function opAslRMW(state: CpuInterface.State, operand: number): number {
     const result = (operand << 1) & 0xff;
@@ -62,9 +61,13 @@ class Compiler {
                 });
 
             case Instruction.Operation.and:
-                return this._createAddressing(instruction.addressingMode, o => (ops.and(this._state, o), null), {
-                    dereference: true
-                });
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (ops.getUnary(this._state, o, (state, operand) => (state.a = state.a & operand)), null),
+                    {
+                        dereference: true
+                    }
+                );
 
             case Instruction.Operation.asl:
                 return instruction.addressingMode === Instruction.AddressingMode.implied
@@ -113,9 +116,80 @@ class Compiler {
             case Instruction.Operation.dec:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    new ReadModifyWrite(this._state, ops.dec).reset,
+                    new ReadModifyWrite(this._state, (s, o) => ops.geRmw(s, o, x => (x - 1) & 0xff)).reset,
                     {
                         writeOp: true
+                    }
+                );
+
+            case Instruction.Operation.dex:
+                return new UnaryOneCycle(this._state, s =>
+                    ops.genNullary(s, state => (state.x = (state.x - 1) & 0xff))
+                );
+
+            case Instruction.Operation.dey:
+                return new UnaryOneCycle(this._state, s =>
+                    ops.genNullary(s, state => (state.y = (state.y - 1) & 0xff))
+                );
+
+            case Instruction.Operation.inc:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    new ReadModifyWrite(this._state, (s, o) => ops.geRmw(s, o, x => (x + 1) & 0xff)).reset,
+                    {
+                        writeOp: true
+                    }
+                );
+
+            case Instruction.Operation.inx:
+                return new UnaryOneCycle(this._state, s =>
+                    ops.genNullary(s, state => (state.x = (state.x + 1) & 0xff))
+                );
+
+            case Instruction.Operation.iny:
+                return new UnaryOneCycle(this._state, s =>
+                    ops.genNullary(s, state => (state.y = (state.y + 1) & 0xff))
+                );
+
+            case Instruction.Operation.eor:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (ops.getUnary(this._state, o, (state, operand) => (state.a = state.a ^ operand)), null),
+                    {
+                        dereference: true
+                    }
+                );
+
+            case Instruction.Operation.jmp:
+                return this._createAddressing(instruction.addressingMode, o => ((this._state.p = o), null));
+
+            case Instruction.Operation.jsr:
+                return new Jsr(this._state);
+
+            case Instruction.Operation.lda:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (ops.getUnary(this._state, o, (state, operand) => (state.a = operand)), null),
+                    {
+                        dereference: true
+                    }
+                );
+
+            case Instruction.Operation.ldx:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (ops.getUnary(this._state, o, (state, operand) => (state.x = operand)), null),
+                    {
+                        dereference: true
+                    }
+                );
+
+            case Instruction.Operation.ldy:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (ops.getUnary(this._state, o, (state, operand) => (state.y = operand)), null),
+                    {
+                        dereference: true
                     }
                 );
 
