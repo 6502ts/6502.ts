@@ -71,10 +71,7 @@ class Runner {
         return this;
     }
 
-    run(maxCycles = 100) {
-        const codeEnd = this._base + this._code.length;
-        let pBeforeExecute = this._cpu.state.p;
-
+    run(expectedInstructionCycles = 1, maxCycles = 100) {
         this._cycles = 0;
         this._originalState = Object.assign(new CpuInterface.State(), this._cpu.state);
 
@@ -84,37 +81,15 @@ class Runner {
 
         this._bus.getLog().clear();
 
-        while (pBeforeExecute !== codeEnd && this._cycles <= maxCycles) {
-            do {
-                pBeforeExecute = this._cpu.state.p;
-                this._cpu.cycle();
-                this._cycles++;
-            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch);
-        }
+        let instructionCycles = 0;
+        do {
+            this._cpu.cycle();
+            this._cycles++;
 
-        if (this._cycles > maxCycles) {
-            throw new Error('maximum execution cycles exceeded');
-        }
-
-        return this;
-    }
-
-    runTo(codeEnd: number, maxCycles = 100) {
-        this._cycles = 0;
-        this._originalState = Object.assign(new CpuInterface.State(), this._cpu.state);
-
-        this._cpu.setInvalidInstructionCallback(() => {
-            throw new Error('invalid instruction!');
-        });
-
-        this._bus.getLog().clear();
-
-        while (this._cpu.state.p !== codeEnd && this._cycles <= maxCycles) {
-            do {
-                this._cpu.cycle();
-                this._cycles++;
-            } while (this._cpu.executionState !== CpuInterface.ExecutionState.fetch);
-        }
+            if (this._cpu.executionState === CpuInterface.ExecutionState.fetch) {
+                instructionCycles++;
+            }
+        } while (this._cycles <= maxCycles && instructionCycles < expectedInstructionCycles);
 
         if (this._cycles > maxCycles) {
             throw new Error('maximum execution cycles exceeded');

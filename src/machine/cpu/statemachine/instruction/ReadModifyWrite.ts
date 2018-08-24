@@ -26,7 +26,7 @@ import ResultImpl from '../ResultImpl';
 class ReadModifyWrite implements StateMachineInterface<number> {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _operation: (operand: number, s: CpuInterface.State) => number
+        private readonly _operation: (s: CpuInterface.State, operand: number) => number
     ) {}
 
     reset = (address: number): StateMachineInterface.Result => {
@@ -42,7 +42,7 @@ class ReadModifyWrite implements StateMachineInterface<number> {
     };
 
     private _dummyWrite = (value: number): StateMachineInterface.Result =>
-        this._result.write(this._write, this._address, this._operation(this._operand, this._state));
+        this._result.write(this._write, this._address, this._operation(this._state, this._operand));
 
     private _write = (): null => null;
 

@@ -35,7 +35,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                     '0xFFFF': 0x34,
                     '0x3412': 0x40 // RTI
                 })
-                .runFor(13)
+                .run(2)
                 .assertState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     p: 0xe002,
@@ -76,7 +76,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                     s: 0xff,
                     p: 0xe001
                 })
-                .run()
+                .run(2)
                 .assertCycles(4));
 
         test('INT - RTI cycle, stack wrap', () =>
@@ -108,7 +108,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                     s: 0x01,
                     p: 0xe001
                 })
-                .run()
+                .run(2)
                 .assertCycles(4));
 
         test('CLI', () =>
@@ -124,7 +124,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                 })
                 .runFor(1)
                 .configure(cpu => cpu.setInterrupt(true))
-                .run()
+                .run(3)
                 .assertCycles(5));
 
         test('Interrupt during RTI', () =>
@@ -165,7 +165,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                     p: 0x3412
                 })
                 .configure(cpu => cpu.setInterrupt(false))
-                .run()
+                .run(3)
                 .assertCycles(10));
 
         test('Interrupt during CLI', () =>
@@ -187,7 +187,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                 })
                 .runFor(2)
                 .configure(cpu => cpu.setInterrupt(false))
-                .run()
+                .run(3)
                 .assertCycles(14));
 
         test('Interrupt during SEI', () =>
@@ -209,7 +209,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
                     s: 0xfc
                 })
-                .run()
+                .run(3)
                 .assertCycles(10));
 
         test('Interrupt during PLP: clear flag', () =>
@@ -233,7 +233,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                 })
                 .runFor(2)
                 .configure(cpu => cpu.setInterrupt(false))
-                .run()
+                .run(3)
                 .assertCycles(14));
 
         test('Interrupt during PLP: set flag', () =>
@@ -256,7 +256,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.i,
                     s: 0xfc
                 })
-                .run()
+                .run(3)
                 .assertCycles(10));
     });
 
@@ -289,7 +289,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                     s: 0xff,
                     p: 0xe001
                 })
-                .run()
+                .run(2)
                 .assertCycles(4));
 
         test('NMI - RTI cycle, stack wrap', () =>
@@ -320,7 +320,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                     s: 0x01,
                     p: 0xe001
                 })
-                .run()
+                .run(2)
                 .assertCycles(4));
 
         test('CLI', () =>
@@ -336,7 +336,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                 })
                 .runFor(1)
                 .configure(cpu => cpu.nmi())
-                .run()
+                .run(5)
                 .assertState({})
                 .assertCycles(18));
 
@@ -362,7 +362,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                 .assertMemory({
                     '0x01FD': CpuInterface.Flags.z | CpuInterface.Flags.e | CpuInterface.Flags.b
                 })
-                .run()
+                .run(3)
                 .assertCycles(10));
 
         test('Hijack IRQ', () =>
@@ -390,7 +390,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                     '0x01FD': CpuInterface.Flags.z | CpuInterface.Flags.e
                 })
                 .configure(cpu => cpu.setInterrupt(false))
-                .run()
+                .run(3)
                 .assertCycles(10));
     });
 }

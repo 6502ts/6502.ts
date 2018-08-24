@@ -26,35 +26,72 @@ import { run as testOtherOpcodes } from './testOtherOpcodes';
 import { run as testAccessPatterns } from './testAccessPatterns';
 import { run as testUndocumentedOpcodes } from './testUndocumentedOpcodes';
 
-import Cpu from '../../../../src/machine/cpu/BatchedAccessCpu';
+import BatchedAddressCp from '../../../../src/machine/cpu/BatchedAccessCpu';
 
 import { run as testInterrupt } from './testInterrupt';
 import Runner from './Runner';
+import StateMachineCpu from '../../../../src/machine/cpu/StateMachineCpu';
 
-function run(cpuFactory: Runner.CpuFactory, cpuName: string) {
+function run(
+    cpuFactory: Runner.CpuFactory,
+    cpuName: string,
+    {
+        branches = true,
+        flags = true,
+        arithmetics = true,
+        other = true,
+        undocumented = true,
+        access = true,
+        interrupt = true
+    } = {}
+) {
     suite(`CPU [${cpuName}]`, function() {
         suite('opcodes', function() {
-            testBranches(cpuFactory);
+            if (branches) {
+                testBranches(cpuFactory);
+            }
 
-            testFlagToggles(cpuFactory);
+            if (flags) {
+                testFlagToggles(cpuFactory);
+            }
 
-            testArithmetics(cpuFactory);
+            if (arithmetics) {
+                testArithmetics(cpuFactory);
+            }
 
-            testOtherOpcodes(cpuFactory);
+            if (other) {
+                testOtherOpcodes(cpuFactory);
+            }
         });
 
         suite('undocumented opcodes', function() {
-            testUndocumentedOpcodes(cpuFactory);
+            if (undocumented) {
+                testUndocumentedOpcodes(cpuFactory);
+            }
         });
 
         suite('memory access patterns', function() {
-            testAccessPatterns(cpuFactory);
+            if (access) {
+                testAccessPatterns(cpuFactory);
+            }
         });
 
         suite('interrupt handling', function() {
-            testInterrupt(cpuFactory);
+            if (interrupt) {
+                testInterrupt(cpuFactory);
+            }
         });
     });
 }
 
-run(bus => new Cpu(bus), 'standard CPU');
+run(bus => new BatchedAddressCp(bus), 'standard CPU');
+
+if (process.env['TEST_STATE_MACHINE_CPU']) {
+    run(bus => new StateMachineCpu(bus), 'state machine CPU', {
+        branches: false,
+        flags: false,
+        undocumented: false,
+        access: false,
+        interrupt: false
+    });
+}

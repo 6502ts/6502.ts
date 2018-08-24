@@ -941,7 +941,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                 .setState({
                     s: 0xff
                 })
-                .runTo(0xa167)
+                .run()
                 .assertCycles(6)
                 .assertState({
                     p: 0xa167,
@@ -957,7 +957,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                 .setState({
                     s: 0x00
                 })
-                .runTo(0xa167)
+                .run()
                 .assertCycles(6)
                 .assertState({
                     p: 0xa167,
