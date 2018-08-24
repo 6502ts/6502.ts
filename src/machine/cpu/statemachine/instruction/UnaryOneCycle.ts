@@ -29,9 +29,9 @@ class UnaryOneCycle implements StateMachineInterface<number> {
         private readonly _operation: (s: CpuInterface.State) => void
     ) {}
 
-    reset = () => this._result.read(this._operationStep, this._state.p);
+    reset = () => this._result.read(this._executeOperation, this._state.p);
 
-    private _operationStep = (): null => {
+    private _executeOperation = (): null => {
         this._operation(this._state);
 
         return null;

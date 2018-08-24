@@ -32,19 +32,19 @@ class ReadModifyWrite implements StateMachineInterface<number> {
     reset = (address: number): StateMachineInterface.Result => {
         this._address = address;
 
-        return this._result.read(this._readStep, address);
+        return this._result.read(this._read, address);
     };
 
-    private _readStep = (value: number): StateMachineInterface.Result => {
+    private _read = (value: number): StateMachineInterface.Result => {
         this._operand = value;
 
-        return this._result.write(this._dummyWriteStep, this._address, this._operand);
+        return this._result.write(this._dummyWrite, this._address, this._operand);
     };
 
-    private _dummyWriteStep = (value: number): StateMachineInterface.Result =>
-        this._result.write(this._writeStep, this._address, this._operation(this._operand, this._state));
+    private _dummyWrite = (value: number): StateMachineInterface.Result =>
+        this._result.write(this._write, this._address, this._operation(this._operand, this._state));
 
-    private _writeStep = (): null => null;
+    private _write = (): null => null;
 
     private _address: number;
     private _operand: number;

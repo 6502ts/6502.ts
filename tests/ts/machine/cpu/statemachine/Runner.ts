@@ -24,7 +24,9 @@ import StateMachineInterface from '../../../../../src/machine/cpu/statemachine/S
 import { encode as toHex } from '../../../../../src/tools/hex';
 import deepEqual = require('deep-equal');
 
-export const incrementP = (s: CpuInterface.State) => ({ ...s, p: s.p + 1 });
+export const incrementP = (s: CpuInterface.State) => ({ ...s, p: (s.p + 1) & 0xffff });
+export const decrementS = (s: CpuInterface.State) => ({ ...s, s: (s.s - 1) & 0xffff });
+export const incrementS = (s: CpuInterface.State) => ({ ...s, s: (s.s + 1) & 0xffff });
 
 export class Builder {
     read(address: number, value: number): this {

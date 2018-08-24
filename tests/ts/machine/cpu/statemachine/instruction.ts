@@ -21,8 +21,14 @@
 
 import * as assert from 'assert';
 
-import Runner from './Runner';
-import { UnaryOneCycle, Write, ReadModifyWrite } from '../../../../../src/machine/cpu/statemachine/instruction';
+import { default as Runner, incrementP, decrementS, incrementS } from './Runner';
+import {
+    UnaryOneCycle,
+    Write,
+    ReadModifyWrite,
+    Branch,
+    Jsr
+} from '../../../../../src/machine/cpu/statemachine/instruction';
 
 export default function run(): void {
     suite('instructions', () => {
@@ -47,5 +53,63 @@ export default function run(): void {
                 .write(0x0010, 0x42)
                 .write(0x0010, 0x66)
                 .run(s => ({ ...s, p: 0 }), s => new ReadModifyWrite(s, () => 0x66), 0x0010));
+
+        suite('branch', () => {
+            test('no branch', () =>
+                Runner.build()
+                    .read(0x0010, 0x42)
+                    .action(incrementP)
+                    .run(s => ({ ...s, p: 0x0010 }), s => new Branch(s, () => false), undefined));
+
+            test('branch, no page crossing', () =>
+                Runner.build()
+                    .read(0x0010, 0x13)
+                    .action(incrementP)
+                    .read(0x0011, 0x66)
+                    .action(s => ({ ...s, p: 0x0024 }))
+                    .run(s => ({ ...s, p: 0x0010 }), s => new Branch(s, () => true), undefined));
+
+            test('branch, page overflow', () =>
+                Runner.build()
+                    .read(0x01ef, 0x13)
+                    .action(incrementP)
+                    .read(0x01f0, 0x66)
+                    .read(0x0103, 0x42)
+                    .action(s => ({ ...s, p: 0x0203 }))
+                    .run(s => ({ ...s, p: 0x01ef }), s => new Branch(s, () => true), undefined));
+
+            test('branch, page underflow', () =>
+                Runner.build()
+                    .read(0x0100, 0xfe)
+                    .action(incrementP)
+                    .read(0x0101, 0x66)
+                    .read(0x01ff, 0x42)
+                    .action(s => ({ ...s, p: 0x00ff }))
+                    .run(s => ({ ...s, p: 0x0100 }), s => new Branch(s, () => true), undefined));
+        });
+
+        test('jsr', () =>
+            Runner.build()
+                .read(0x3310, 0x34)
+                .action(incrementP)
+                .read(0x0130, 0x66)
+                .write(0x0130, 0x33)
+                .action(decrementS)
+                .write(0x012f, 0x011)
+                .action(decrementS)
+                .read(0x3311, 0x12)
+                .action(s => ({ ...s, p: 0x1234 }))
+                .run(s => ({ ...s, p: 0x3310, s: 0x30 }), s => new Jsr(s), undefined));
+
+        test('rts', () =>
+            Runner.build()
+                .read(0x1110, 0x66)
+                .read(0x0130, 0x22)
+                .action(incrementS)
+                .read(0x0131, 0x34)
+                .action(s => ({ ...s, p: 0x2234, s: 0x32 }))
+                .read(0x0132, 0x12)
+                .action(s => ({ ...s, p: 0x1234, s: 0x33 }))
+                .read(0x01234, 0x66));
     });
 }

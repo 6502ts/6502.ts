@@ -36,15 +36,14 @@ class Branch implements StateMachineInterface {
     };
 
     private _firstDummyRead = (value: number): StateMachineInterface.Result | null => {
-        const base = (this._state.p - 2) & 0xffff;
-        this._target = (base + (this._operand & 0x80 ? this._operand - 256 : this._operand)) & 0xffff;
+        this._target = (this._state.p + (this._operand & 0x80 ? this._operand - 256 : this._operand)) & 0xffff;
 
-        if ((this._target & 0xff00) === (base & 0xff00)) {
+        if ((this._target & 0xff00) === (this._state.p & 0xff00)) {
             this._state.p = this._target;
             return null;
         }
 
-        return this._result.read(this._secondDummyRead, (base & 0xff00) | (this._target & 0x00ff));
+        return this._result.read(this._secondDummyRead, (this._state.p & 0xff00) | (this._target & 0x00ff));
     };
 
     private _secondDummyRead = (value: number): null => {
