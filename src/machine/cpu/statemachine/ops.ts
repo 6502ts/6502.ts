@@ -83,3 +83,61 @@ export function aslRMW(state: CpuInterface.State, operand: number): number {
 
     return result;
 }
+
+export function bit(state: CpuInterface.State, operand: number): void {
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.v | CpuInterface.Flags.z)) |
+        (operand & (CpuInterface.Flags.n | CpuInterface.Flags.v)) |
+        (operand & state.a ? 0 : CpuInterface.Flags.z);
+}
+
+export function cmp(
+    state: CpuInterface.State,
+    operand: number,
+    getRegister: (state: CpuInterface.State) => number
+): void {
+    const diff = getRegister(state) + (~operand & 0xff) + 1;
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (diff & 0x80) |
+        (diff & 0xff ? 0 : CpuInterface.Flags.z) |
+        (diff >>> 8);
+}
+
+export function dec(state: CpuInterface.State, operand: number): number {
+    const result = (operand + 0xff) & 0xff;
+    setFlagsNZ(state, result);
+
+    return result;
+}
+
+export function sbc(state: CpuInterface.State, operand: number): void {
+    if (state.flags & CpuInterface.Flags.d) {
+        const d0 = (state.a & 0x0f) - (operand & 0x0f) - (~state.flags & CpuInterface.Flags.c),
+            d1 = (state.a >>> 4) - (operand >>> 4) - (d0 < 0 ? 1 : 0);
+
+        state.a = (d0 < 0 ? 10 + d0 : d0) | ((d1 < 0 ? 10 + d1 : d1) << 4);
+
+        state.flags =
+            (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+            (state.a & 0x80) | // negative
+            (state.a ? 0 : CpuInterface.Flags.z) | // zero
+            (d1 < 0 ? 0 : CpuInterface.Flags.c); // carry / borrow
+    } else {
+        operand = ~operand & 0xff;
+
+        const sum = state.a + operand + (state.flags & CpuInterface.Flags.c),
+            result = sum & 0xff;
+
+        state.flags =
+            (state.flags &
+                ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c | CpuInterface.Flags.v)) |
+            (result & 0x80) | // negative
+            (result ? 0 : CpuInterface.Flags.z) | // zero
+            (sum >>> 8) | // carry / borrow
+            ((~(operand ^ state.a) & (result ^ operand) & 0x80) >>> 1); // overflow
+
+        state.a = result;
+    }
+}

@@ -35,6 +35,7 @@ import {
 import { UnaryOneCycle, ReadModifyWrite } from './instruction';
 import IndexedIndirectY from './addressing/IndirectIndexedY';
 import * as ops from './ops';
+import Brk from './instruction/Brk';
 
 export function opAslRMW(state: CpuInterface.State, operand: number): number {
     const result = (operand << 1) & 0xff;
@@ -56,18 +57,14 @@ class Compiler {
 
         switch (instruction.operation) {
             case Instruction.Operation.adc:
-                return this._createAddressing(
-                    instruction.addressingMode,
-                    operand => (ops.adc(this._state, operand), null),
-                    { dereference: true }
-                );
+                return this._createAddressing(instruction.addressingMode, o => (ops.adc(this._state, o), null), {
+                    dereference: true
+                });
 
             case Instruction.Operation.and:
-                return this._createAddressing(
-                    instruction.addressingMode,
-                    operand => (ops.and(this._state, operand), null),
-                    { dereference: true }
-                );
+                return this._createAddressing(instruction.addressingMode, o => (ops.and(this._state, o), null), {
+                    dereference: true
+                });
 
             case Instruction.Operation.asl:
                 return instruction.addressingMode === Instruction.AddressingMode.implied
@@ -77,6 +74,55 @@ class Compiler {
                           new ReadModifyWrite(this._state, ops.aslRMW).reset,
                           { writeOp: true }
                       );
+
+            case Instruction.Operation.bit:
+                return this._createAddressing(instruction.addressingMode, o => (ops.bit(this._state, o), null), {
+                    dereference: true
+                });
+
+            case Instruction.Operation.brk:
+                return new Brk(this._state);
+
+            case Instruction.Operation.cmp:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (ops.cmp(this._state, o, s => s.a), null),
+                    {
+                        dereference: true
+                    }
+                );
+
+            case Instruction.Operation.cpx:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (ops.cmp(this._state, o, s => s.x), null),
+                    {
+                        dereference: true
+                    }
+                );
+
+            case Instruction.Operation.cpy:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (ops.cmp(this._state, o, s => s.y), null),
+                    {
+                        dereference: true
+                    }
+                );
+
+            case Instruction.Operation.dec:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    new ReadModifyWrite(this._state, ops.dec).reset,
+                    {
+                        writeOp: true
+                    }
+                );
+
+            case Instruction.Operation.sbc:
+                return this._createAddressing(instruction.addressingMode, o => (ops.sbc(this._state, o), null), {
+                    dereference: true
+                });
 
             default:
                 return null;
