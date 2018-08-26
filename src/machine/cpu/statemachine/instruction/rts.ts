@@ -22,21 +22,29 @@
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class Rts implements StateMachineInterface {
-    constructor(private readonly _state: CpuInterface.State) {}
+    constructor(state: CpuInterface.State) {
+        this._state = state;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._dummyOperandRead, this._state.p);
+        freezeImmutables(this);
+    }
 
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._dummyOperandRead, this._state.p);
+
+    @Immutable
     private _dummyOperandRead = (): StateMachineInterface.Result =>
         this._result.read(this._dummyStackRead, 0x0100 + this._state.s);
 
+    @Immutable
     private _dummyStackRead = (): StateMachineInterface.Result => {
         this._state.s = (this._state.s + 1) & 0xff;
 
         return this._result.read(this._popPcl, 0x0100 + this._state.s);
     };
 
+    @Immutable
     private _popPcl = (value: number): StateMachineInterface.Result => {
         this._state.p = (this._state.p & 0xff00) | value;
         this._state.s = (this._state.s + 1) & 0xff;
@@ -44,6 +52,7 @@ class Rts implements StateMachineInterface {
         return this._result.read(this._popPch, 0x0100 + this._state.s);
     };
 
+    @Immutable
     private _popPch = (value: number): StateMachineInterface.Result => {
         this._state.p = (this._state.p & 0xff) | (value << 8);
         this._state.s = (this._state.s + 1) & 0xff;
@@ -51,13 +60,16 @@ class Rts implements StateMachineInterface {
         return this._result.read(this._incrementP, this._state.p);
     };
 
+    @Immutable
     private _incrementP = (): null => {
         this._state.p = (this._state.p + 1) & 0xffff;
 
         return null;
     };
 
-    private readonly _result = new ResultImpl();
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
 }
 
 export const rts = (state: CpuInterface.State) => new Rts(state);

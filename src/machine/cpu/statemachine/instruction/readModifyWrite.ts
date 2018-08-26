@@ -22,30 +22,43 @@
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class ReadModifyWrite implements StateMachineInterface<number> {
-    constructor(private readonly _state: CpuInterface.State, private readonly _operation: ReadModifyWrite.Operation) {}
+    constructor(state: CpuInterface.State, operation: ReadModifyWrite.Operation) {
+        this._state = state;
+        this._operation = operation;
 
+        freezeImmutables(this);
+    }
+
+    @Immutable
     reset = (address: number): StateMachineInterface.Result => {
         this._address = address;
 
         return this._result.read(this._read, address);
     };
 
+    @Immutable
     private _read = (value: number): StateMachineInterface.Result => {
         this._operand = value;
 
         return this._result.write(this._dummyWrite, this._address, this._operand);
     };
 
+    @Immutable
     private _dummyWrite = (value: number): StateMachineInterface.Result =>
         this._result.write(this._write, this._address, this._operation(this._state, this._operand));
 
-    private _write = (): null => null;
+    @Immutable private _write = (): null => null;
 
     private _address: number;
     private _operand: number;
-    private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _operation: ReadModifyWrite.Operation;
 }
 
 namespace ReadModifyWrite {

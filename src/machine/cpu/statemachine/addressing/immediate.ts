@@ -22,25 +22,32 @@
 import CpuInterface from '../../CpuInterface';
 import StateMachineInterface from '../StateMachineInterface';
 import ResultImpl from '../ResultImpl';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class Immediate implements StateMachineInterface {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _next: StateMachineInterface.Step = () => null
-    ) {}
+    constructor(state: CpuInterface.State, next: StateMachineInterface.Step = () => null) {
+        this._state = state;
+        this._next = next;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchOperand, this._state.p);
+        freezeImmutables(this);
+    }
 
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._fetchOperand, this._state.p);
+
+    @Immutable
     private _fetchOperand = (value: number): StateMachineInterface.Result | null => {
-        this.operand = value;
+        this._operand = value;
         this._state.p = (this._state.p + 1) & 0xffff;
 
-        return this._next(this.operand);
+        return this._next(this._operand);
     };
 
-    operand = 0;
+    private _operand = 0;
 
-    private readonly _result = new ResultImpl();
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _next: StateMachineInterface.Step;
 }
 
 export const immediate = (state: CpuInterface.State, next: StateMachineInterface.Step) => new Immediate(state, next);

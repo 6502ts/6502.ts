@@ -22,15 +22,19 @@
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class Indirect implements StateMachineInterface {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _next: StateMachineInterface.Step = () => null
-    ) {}
+    constructor(state: CpuInterface.State, next: StateMachineInterface.Step = () => null) {
+        this._state = state;
+        this._next = next;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddressLo, this._state.p);
+        freezeImmutables(this);
+    }
 
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddressLo, this._state.p);
+
+    @Immutable
     private _fetchAddressLo = (value: number): StateMachineInterface.Result => {
         this._address = value;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -38,6 +42,7 @@ class Indirect implements StateMachineInterface {
         return this._result.read(this._fetchAddressHi, this._state.p);
     };
 
+    @Immutable
     private _fetchAddressHi = (value: number): StateMachineInterface.Result => {
         this._address |= value << 8;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -45,6 +50,7 @@ class Indirect implements StateMachineInterface {
         return this._result.read(this._fetchLo, this._address);
     };
 
+    @Immutable
     private _fetchLo = (value: number): StateMachineInterface.Result => {
         this._operand = value;
 
@@ -57,6 +63,7 @@ class Indirect implements StateMachineInterface {
         return this._result.read(this._fetchHi, this._address);
     };
 
+    @Immutable
     private _fetchHi = (value: number): StateMachineInterface.Result | null => {
         this._operand |= value << 8;
 
@@ -65,7 +72,11 @@ class Indirect implements StateMachineInterface {
 
     private _operand = 0;
     private _address = 0;
-    private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _next: StateMachineInterface.Step;
 }
 
 export const indirect = (state: CpuInterface.State, next: StateMachineInterface.Step) => new Indirect(state, next);

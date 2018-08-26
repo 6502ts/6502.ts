@@ -22,15 +22,19 @@
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class IndexedIndirectX implements StateMachineInterface {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _next: StateMachineInterface.Step = () => null
-    ) {}
+    constructor(state: CpuInterface.State, next: StateMachineInterface.Step = () => null) {
+        this._state = state;
+        this._next = next;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+        freezeImmutables(this);
+    }
 
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+
+    @Immutable
     private _fetchAddress = (value: number): StateMachineInterface.Result => {
         this._address = value;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -38,12 +42,14 @@ class IndexedIndirectX implements StateMachineInterface {
         return this._result.read(this._addIndex, this._address);
     };
 
+    @Immutable
     private _addIndex = (value: number): StateMachineInterface.Result => {
         this._address = (this._address + this._state.x) & 0xff;
 
         return this._result.read(this._fetchLo, this._address);
     };
 
+    @Immutable
     private _fetchLo = (value: number): StateMachineInterface.Result => {
         this._operand = value;
         this._address = (this._address + 1) & 0xff;
@@ -51,6 +57,7 @@ class IndexedIndirectX implements StateMachineInterface {
         return this._result.read(this._fetchHi, this._address);
     };
 
+    @Immutable
     private _fetchHi = (value: number): StateMachineInterface.Result | null => {
         this._operand |= value << 8;
 
@@ -59,7 +66,11 @@ class IndexedIndirectX implements StateMachineInterface {
 
     private _operand = 0;
     private _address = 0;
-    private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _next: StateMachineInterface.Step;
 }
 
 export const indexedIndirectX = (state: CpuInterface.State, next: StateMachineInterface.Step) =>

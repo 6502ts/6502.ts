@@ -23,24 +23,36 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
 
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
+
 class AbsoluteIndexed implements StateMachineInterface {
     private constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _indexExtractor: (s: CpuInterface.State) => number,
-        private readonly _next: StateMachineInterface.Step = () => null,
-        private readonly _writeOp = false
-    ) {}
+        state: CpuInterface.State,
+        indexExtractor: AbsoluteIndexed.IndexExtractor,
+        next: StateMachineInterface.Step = () => null,
+        writeOp = false
+    ) {
+        this._state = state;
+        this._indexExtractor = indexExtractor;
+        this._next = next;
+        this._writeOp = writeOp;
 
+        freezeImmutables(this);
+    }
+
+    @Immutable
     static absoluteX(state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean): AbsoluteIndexed {
         return new AbsoluteIndexed(state, s => s.x, next, writeOp);
     }
 
+    @Immutable
     static absoluteY(state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean): AbsoluteIndexed {
         return new AbsoluteIndexed(state, s => s.y, next, writeOp);
     }
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchLo, this._state.p);
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._fetchLo, this._state.p);
 
+    @Immutable
     private _fetchLo = (value: number): StateMachineInterface.Result => {
         this._operand = value;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -48,6 +60,7 @@ class AbsoluteIndexed implements StateMachineInterface {
         return this._result.read(this._fetchHi, this._state.p);
     };
 
+    @Immutable
     private _fetchHi = (value: number): StateMachineInterface.Result | null => {
         this._operand |= value << 8;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -61,6 +74,7 @@ class AbsoluteIndexed implements StateMachineInterface {
             : this._next(this._operand);
     };
 
+    @Immutable
     private _dereferenceAndCarry = (value: number): StateMachineInterface.Result | null => {
         if (this._carry) {
             this._operand = (this._operand + 0x0100) & 0xffff;
@@ -71,7 +85,19 @@ class AbsoluteIndexed implements StateMachineInterface {
 
     private _operand = 0;
     private _carry = false;
-    private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _indexExtractor: AbsoluteIndexed.IndexExtractor;
+    @Immutable private readonly _next: StateMachineInterface.Step;
+    @Immutable private readonly _writeOp: boolean;
+}
+
+namespace AbsoluteIndexed {
+    export interface IndexExtractor {
+        (s: CpuInterface.State): number;
+    }
 }
 
 export const absoluteX = (state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean) =>

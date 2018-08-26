@@ -22,16 +22,20 @@
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class IndexedIndirectY implements StateMachineInterface {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _next: StateMachineInterface.Step = () => null,
-        private readonly _writeOp: boolean
-    ) {}
+    constructor(state: CpuInterface.State, next: StateMachineInterface.Step = () => null, writeOp: boolean) {
+        this._state = state;
+        this._next = next;
+        this._writeOp = writeOp;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+        freezeImmutables(this);
+    }
 
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+
+    @Immutable
     private _fetchAddress = (value: number): StateMachineInterface.Result => {
         this._address = value;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -39,6 +43,7 @@ class IndexedIndirectY implements StateMachineInterface {
         return this._result.read(this._fetchLo, this._address);
     };
 
+    @Immutable
     private _fetchLo = (value: number): StateMachineInterface.Result => {
         this._operand = value;
         this._address = (this._address + 1) & 0xff;
@@ -46,6 +51,7 @@ class IndexedIndirectY implements StateMachineInterface {
         return this._result.read(this._fetchHi, this._address);
     };
 
+    @Immutable
     private _fetchHi = (value: number): StateMachineInterface.Result | null => {
         this._operand |= value << 8;
 
@@ -57,6 +63,7 @@ class IndexedIndirectY implements StateMachineInterface {
             : this._next(this._operand);
     };
 
+    @Immutable
     private _dereferenceAndCarry = (value: number): StateMachineInterface.Result | null => {
         if (this._carry) {
             this._operand = (this._operand + 0x0100) & 0xffff;
@@ -69,7 +76,11 @@ class IndexedIndirectY implements StateMachineInterface {
     private _address = 0;
     private _carry = false;
 
-    private readonly _result = new ResultImpl();
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _next: StateMachineInterface.Step;
+    @Immutable private readonly _writeOp: boolean;
 }
 
 export const indirectIndexedY = (state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean) =>

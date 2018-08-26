@@ -22,30 +22,39 @@
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class Boot implements StateMachineInterface {
-    constructor(private readonly _state: CpuInterface.State) {}
+    constructor(state: CpuInterface.State) {
+        this._state = state;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._pre1Step, 0xff);
+        freezeImmutables(this);
+    }
 
-    private _pre1Step = (): StateMachineInterface.Result => this._result.read(this._pre2Step, 0x0ff);
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._pre1Step, 0xff);
 
-    private _pre2Step = (): StateMachineInterface.Result => this._result.read(this._stack1Step, 0x0100);
+    @Immutable private _pre1Step = (): StateMachineInterface.Result => this._result.read(this._pre2Step, 0x0ff);
 
-    private _stack1Step = (): StateMachineInterface.Result => this._result.read(this._stack2Step, 0x01ff);
+    @Immutable private _pre2Step = (): StateMachineInterface.Result => this._result.read(this._stack1Step, 0x0100);
 
+    @Immutable private _stack1Step = (): StateMachineInterface.Result => this._result.read(this._stack2Step, 0x01ff);
+
+    @Immutable
     private _stack2Step = (): StateMachineInterface.Result => {
         this._state.s = 0xfd;
         return this._result.read(this._stack3Step, 0x01fe);
     };
 
+    @Immutable
     private _stack3Step = (): StateMachineInterface.Result => this._result.read(this._readTargetLoStep, 0xfffc);
 
+    @Immutable
     private _readTargetLoStep = (operand: number): StateMachineInterface.Result => {
         this._targetAddress = operand;
         return this._result.read(this._readTargetHiStep, 0xfffd);
     };
 
+    @Immutable
     private _readTargetHiStep = (operand: number): null => {
         this._targetAddress |= operand << 8;
         this._state.p = this._targetAddress;
@@ -54,7 +63,10 @@ class Boot implements StateMachineInterface {
     };
 
     private _targetAddress = 0;
-    private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
 }
 
 export const boot = (state: CpuInterface.State) => new Boot(state);

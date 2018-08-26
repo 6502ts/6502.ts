@@ -22,13 +22,20 @@
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class ZeroPageIndexed implements StateMachineInterface {
     private constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _indexExtractor: (state: CpuInterface.State) => number,
-        private readonly _next: StateMachineInterface.Step
-    ) {}
+        state: CpuInterface.State,
+        indexExtractor: ZeroPageIndexed.IndexExtractor,
+        next: StateMachineInterface.Step
+    ) {
+        this._state = state;
+        this._indexExtractor = indexExtractor;
+        this._next = next;
+
+        freezeImmutables(this);
+    }
 
     static zeroPageX(state: CpuInterface.State, next: StateMachineInterface.Step = () => null): ZeroPageIndexed {
         return new ZeroPageIndexed(state, s => s.x, next);
@@ -38,8 +45,9 @@ class ZeroPageIndexed implements StateMachineInterface {
         return new ZeroPageIndexed(state, s => s.y, next);
     }
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
 
+    @Immutable
     private _fetchAddress = (value: number): StateMachineInterface.Result => {
         this._operand = value;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -47,6 +55,7 @@ class ZeroPageIndexed implements StateMachineInterface {
         return this._result.read(this._addIndex, this._operand);
     };
 
+    @Immutable
     private _addIndex = (value: number): StateMachineInterface.Result | null => {
         this._operand = (this._operand + this._indexExtractor(this._state)) & 0xff;
 
@@ -54,7 +63,18 @@ class ZeroPageIndexed implements StateMachineInterface {
     };
 
     private _operand = 0;
-    private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _next: StateMachineInterface.Step;
+    @Immutable private readonly _indexExtractor: ZeroPageIndexed.IndexExtractor;
+}
+
+namespace ZeroPageIndexed {
+    export interface IndexExtractor {
+        (s: CpuInterface.State): number;
+    }
 }
 
 export const zeroPageX = (state: CpuInterface.State, next: StateMachineInterface.Step) =>

@@ -19,24 +19,23 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import StateMachineInterface from '../StateMachineInterface';
-import ResultImpl from '../ResultImpl';
-import { freezeImmutables, Immutable } from '../../../../tools/decorators';
+const immutables = Symbol('immutable properties');
 
-class Dereference implements StateMachineInterface<number> {
-    constructor(next: StateMachineInterface.Step = () => null) {
-        this._next = next;
-
-        freezeImmutables(this);
+export function freezeImmutables(target: any): void {
+    const immutableProperties = target[immutables];
+    if (!immutableProperties) {
+        return;
     }
 
-    @Immutable reset = (operand: number): StateMachineInterface.Result => this._result.read(this._dereference, operand);
-
-    @Immutable private _dereference = (value: number): StateMachineInterface.Result | null => this._next(value);
-
-    @Immutable private readonly _result = new ResultImpl();
-
-    @Immutable private readonly _next: StateMachineInterface.Step;
+    for (const prop of immutableProperties) {
+        Object.defineProperty(target, prop, { writable: false, configurable: false });
+    }
 }
 
-export const dereference = (next: StateMachineInterface.Step) => new Dereference(next);
+export function Immutable(target: any, prop: string): void {
+    if (!target[immutables]) {
+        Object.defineProperty(target, immutables, { value: [], writable: false, enumerable: false });
+    }
+
+    target[immutables].push(prop);
+}

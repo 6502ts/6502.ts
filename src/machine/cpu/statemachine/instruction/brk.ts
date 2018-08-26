@@ -22,24 +22,32 @@
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class Brk implements StateMachineInterface {
-    constructor(private readonly _state: CpuInterface.State) {}
+    constructor(state: CpuInterface.State) {
+        this._state = state;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._dummyRead, this._state.p);
+        freezeImmutables(this);
+    }
 
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._dummyRead, this._state.p);
+
+    @Immutable
     private _dummyRead = (): StateMachineInterface.Result => {
         this._state.p = (this._state.p + 1) & 0xffff;
 
         return this._result.write(this._pushPch, 0x0100 + this._state.s, this._state.p >>> 8);
     };
 
+    @Immutable
     private _pushPch = (): StateMachineInterface.Result => {
         this._state.s = (this._state.s - 1) & 0xff;
 
         return this._result.write(this._pushPcl, 0x0100 + this._state.s, this._state.p & 0xff);
     };
 
+    @Immutable
     private _pushPcl = (): StateMachineInterface.Result => {
         this._state.s = (this._state.s - 1) & 0xff;
         this._vector = this._state.nmi ? 0xfffa : 0xfffe;
@@ -47,12 +55,14 @@ class Brk implements StateMachineInterface {
         return this._result.write(this._pushFlags, 0x0100 + this._state.s, this._state.flags | CpuInterface.Flags.b);
     };
 
+    @Immutable
     private _pushFlags = (): StateMachineInterface.Result => {
         this._state.s = (this._state.s - 1) & 0xff;
 
         return this._result.read(this._fetchPcl, this._vector);
     };
 
+    @Immutable
     private _fetchPcl = (value: number): StateMachineInterface.Result => {
         this._state.flags |= CpuInterface.Flags.i;
         this._state.p = value;
@@ -60,6 +70,7 @@ class Brk implements StateMachineInterface {
         return this._result.read(this._fetchPch, ++this._vector);
     };
 
+    @Immutable
     private _fetchPch = (value: number): null => {
         this._state.p = this._state.p | (value << 8);
 
@@ -67,7 +78,10 @@ class Brk implements StateMachineInterface {
     };
 
     private _vector = 0;
-    private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
 }
 
 export const brk = (state: CpuInterface.State) => new Brk(state);

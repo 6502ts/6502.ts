@@ -22,12 +22,19 @@
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class Branch implements StateMachineInterface {
-    constructor(private readonly _state: CpuInterface.State, private readonly _predicate: Branch.Predicate) {}
+    constructor(state: CpuInterface.State, predicate: Branch.Predicate) {
+        this._state = state;
+        this._predicate = predicate;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchTarget, this._state.p);
+        freezeImmutables(this);
+    }
 
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._fetchTarget, this._state.p);
+
+    @Immutable
     private _fetchTarget = (value: number): StateMachineInterface.Result | null => {
         this._operand = value;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -35,6 +42,7 @@ class Branch implements StateMachineInterface {
         return this._predicate(this._state.flags) ? this._result.read(this._firstDummyRead, this._state.p) : null;
     };
 
+    @Immutable
     private _firstDummyRead = (value: number): StateMachineInterface.Result | null => {
         this._target = (this._state.p + (this._operand & 0x80 ? this._operand - 256 : this._operand)) & 0xffff;
 
@@ -46,6 +54,7 @@ class Branch implements StateMachineInterface {
         return this._result.read(this._secondDummyRead, (this._state.p & 0xff00) | (this._target & 0x00ff));
     };
 
+    @Immutable
     private _secondDummyRead = (value: number): null => {
         this._state.p = this._target;
         return null;
@@ -54,7 +63,10 @@ class Branch implements StateMachineInterface {
     private _target = 0;
     private _operand = 0;
 
-    private readonly _result = new ResultImpl();
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _predicate: Branch.Predicate;
 }
 
 namespace Branch {

@@ -22,19 +22,29 @@
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class UnaryOneCycle implements StateMachineInterface<number> {
-    constructor(private readonly _state: CpuInterface.State, private readonly _operation: UnaryOneCycle.Operation) {}
+    constructor(state: CpuInterface.State, operation: UnaryOneCycle.Operation) {
+        this._state = state;
+        this._operation = operation;
 
-    reset = () => this._result.read(this._executeOperation, this._state.p);
+        freezeImmutables(this);
+    }
 
+    @Immutable reset = () => this._result.read(this._executeOperation, this._state.p);
+
+    @Immutable
     private _executeOperation = (): null => {
         this._operation(this._state);
 
         return null;
     };
 
-    private _result = new ResultImpl();
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _operation: UnaryOneCycle.Operation;
 }
 
 namespace UnaryOneCycle {

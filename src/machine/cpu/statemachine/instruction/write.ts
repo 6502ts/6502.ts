@@ -22,14 +22,24 @@
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class Write implements StateMachineInterface<number> {
-    constructor(private readonly _state: CpuInterface.State, private readonly _operation: Write.Operation) {}
+    constructor(state: CpuInterface.State, operation: Write.Operation) {
+        this._state = state;
+        this._operation = operation;
 
+        freezeImmutables(this);
+    }
+
+    @Immutable
     reset = (operand: number): StateMachineInterface.Result =>
         this._result.write(() => null, operand, this._operation(this._state));
 
-    private readonly _result = new ResultImpl();
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _operation: Write.Operation;
 }
 
 namespace Write {

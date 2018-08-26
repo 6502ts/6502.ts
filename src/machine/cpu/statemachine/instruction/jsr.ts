@@ -22,12 +22,18 @@
 import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class Jsr implements StateMachineInterface {
-    constructor(private readonly _state: CpuInterface.State) {}
+    constructor(state: CpuInterface.State) {
+        this._state = state;
+
+        freezeImmutables(this);
+    }
 
     reset = (): StateMachineInterface.Result => this._result.read(this._fetchPcl, this._state.p);
 
+    @Immutable
     private _fetchPcl = (value: number): StateMachineInterface.Result => {
         this._addressLo = value;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -35,21 +41,25 @@ class Jsr implements StateMachineInterface {
         return this._result.read(this._dummyStackRead, 0x0100 + this._state.s);
     };
 
+    @Immutable
     private _dummyStackRead = (): StateMachineInterface.Result =>
         this._result.write(this._pushPch, 0x0100 + this._state.s, this._state.p >>> 8);
 
+    @Immutable
     private _pushPch = (): StateMachineInterface.Result => {
         this._state.s = (this._state.s - 1) & 0xff;
 
         return this._result.write(this._pushPcl, 0x0100 + this._state.s, this._state.p & 0xff);
     };
 
+    @Immutable
     private _pushPcl = (): StateMachineInterface.Result => {
         this._state.s = (this._state.s - 1) & 0xff;
 
         return this._result.read(this._fetchPch, this._state.p);
     };
 
+    @Immutable
     private _fetchPch = (value: number): null => {
         this._state.p = this._addressLo | (value << 8);
 
@@ -57,7 +67,10 @@ class Jsr implements StateMachineInterface {
     };
 
     private _addressLo = 0;
-    private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
 }
 
 export const jsr = (state: CpuInterface.State) => new Jsr(state);

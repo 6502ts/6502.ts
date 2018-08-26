@@ -22,15 +22,19 @@
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
+import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
 class ZeroPage implements StateMachineInterface {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _next: StateMachineInterface.Step = () => null
-    ) {}
+    constructor(state: CpuInterface.State, next: StateMachineInterface.Step = () => null) {
+        this._state = state;
+        this._next = next;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+        freezeImmutables(this);
+    }
 
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+
+    @Immutable
     private _fetchAddress = (value: number): StateMachineInterface.Result | null => {
         this._operand = value;
         this._state.p = (this._state.p + 1) & 0xffff;
@@ -39,7 +43,11 @@ class ZeroPage implements StateMachineInterface {
     };
 
     private _operand = 0;
-    private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _result = new ResultImpl();
+
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _next: StateMachineInterface.Step;
 }
 
 export const zeroPage = (state: CpuInterface.State, next: StateMachineInterface.Step) => new ZeroPage(state, next);
