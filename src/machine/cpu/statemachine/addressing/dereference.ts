@@ -20,24 +20,16 @@
  */
 
 import StateMachineInterface from '../StateMachineInterface';
-import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 
-class UnaryOneCycle implements StateMachineInterface<number> {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _operation: (s: CpuInterface.State) => void
-    ) {}
+class Dereference implements StateMachineInterface<number> {
+    constructor(private readonly _next: StateMachineInterface.Step = () => null) {}
 
-    reset = () => this._result.read(this._executeOperation, this._state.p);
+    reset = (operand: number): StateMachineInterface.Result => this._result.read(this._dereference, operand);
 
-    private _executeOperation = (): null => {
-        this._operation(this._state);
+    private _dereference = (value: number): StateMachineInterface.Result | null => this._next(value);
 
-        return null;
-    };
-
-    private _result = new ResultImpl();
+    private readonly _result = new ResultImpl();
 }
 
-export default UnaryOneCycle;
+export const dereference = (next: StateMachineInterface.Step) => new Dereference(next);

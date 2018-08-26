@@ -19,36 +19,34 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
+import StateMachineInterface from '../StateMachineInterface';
 
-class ReadModifyWrite implements StateMachineInterface<number> {
+class Absolute implements StateMachineInterface {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _operation: (s: CpuInterface.State, operand: number) => number
+        private readonly _next: StateMachineInterface.Step = () => null
     ) {}
 
-    reset = (address: number): StateMachineInterface.Result => {
-        this._address = address;
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchLo, this._state.p);
 
-        return this._result.read(this._read, address);
-    };
-
-    private _read = (value: number): StateMachineInterface.Result => {
+    private _fetchLo = (value: number): StateMachineInterface.Result => {
         this._operand = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-        return this._result.write(this._dummyWrite, this._address, this._operand);
+        return this._result.read(this._fetchHi, this._state.p);
     };
 
-    private _dummyWrite = (value: number): StateMachineInterface.Result =>
-        this._result.write(this._write, this._address, this._operation(this._state, this._operand));
+    private _fetchHi = (value: number): StateMachineInterface.Result | null => {
+        this._operand |= value << 8;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-    private _write = (): null => null;
+        return this._next(this._operand);
+    };
 
-    private _address: number;
-    private _operand: number;
+    private _operand = 0;
     private readonly _result = new ResultImpl();
 }
 
-export default ReadModifyWrite;
+export const absolute = (state: CpuInterface.State, next: StateMachineInterface.Step) => new Absolute(state, next);

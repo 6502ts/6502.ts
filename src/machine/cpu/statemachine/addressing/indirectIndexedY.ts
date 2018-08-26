@@ -23,46 +23,34 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
 
-class AbsoluteIndexed implements StateMachineInterface {
-    private constructor(
+class IndexedIndirectY implements StateMachineInterface {
+    constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _indexExtractor: (s: CpuInterface.State) => number,
-        private readonly _next: StateMachineInterface.Step,
+        private readonly _next: StateMachineInterface.Step = () => null,
         private readonly _writeOp: boolean
     ) {}
 
-    static absoluteX(
-        state: CpuInterface.State,
-        next: StateMachineInterface.Step = () => null,
-        writeOp = false
-    ): AbsoluteIndexed {
-        return new AbsoluteIndexed(state, s => s.x, next, writeOp);
-    }
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
 
-    static absoluteY(
-        state: CpuInterface.State,
-        next: StateMachineInterface.Step = () => null,
-        writeOp = false
-    ): AbsoluteIndexed {
-        return new AbsoluteIndexed(state, s => s.y, next, writeOp);
-    }
+    private _fetchAddress = (value: number): StateMachineInterface.Result => {
+        this._address = value;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchLo, this._state.p);
+        return this._result.read(this._fetchLo, this._address);
+    };
 
     private _fetchLo = (value: number): StateMachineInterface.Result => {
         this._operand = value;
-        this._state.p = (this._state.p + 1) & 0xffff;
+        this._address = (this._address + 1) & 0xff;
 
-        return this._result.read(this._fetchHi, this._state.p);
+        return this._result.read(this._fetchHi, this._address);
     };
 
     private _fetchHi = (value: number): StateMachineInterface.Result | null => {
         this._operand |= value << 8;
-        this._state.p = (this._state.p + 1) & 0xffff;
 
-        const index = this._indexExtractor(this._state);
-        this._carry = (this._operand & 0xff) + index > 0xff;
-        this._operand = (this._operand & 0xff00) | ((this._operand + index) & 0xff);
+        this._carry = (this._operand & 0xff) + this._state.y > 0xff;
+        this._operand = (this._operand & 0xff00) | ((this._operand + this._state.y) & 0xff);
 
         return this._carry || this._writeOp
             ? this._result.read(this._dereferenceAndCarry, this._operand)
@@ -78,8 +66,11 @@ class AbsoluteIndexed implements StateMachineInterface {
     };
 
     private _operand = 0;
+    private _address = 0;
     private _carry = false;
+
     private readonly _result = new ResultImpl();
 }
 
-export default AbsoluteIndexed;
+export const indirectIndexedY = (state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean) =>
+    new IndexedIndirectY(state, next, writeOp);

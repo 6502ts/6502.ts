@@ -19,28 +19,29 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import CpuInterface from '../../CpuInterface';
 import StateMachineInterface from '../StateMachineInterface';
+import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 
-class Immediate implements StateMachineInterface {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _next: StateMachineInterface.Step = () => null
-    ) {}
+class UnaryOneCycle implements StateMachineInterface<number> {
+    constructor(private readonly _state: CpuInterface.State, private readonly _operation: UnaryOneCycle.Operation) {}
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchOperand, this._state.p);
+    reset = () => this._result.read(this._executeOperation, this._state.p);
 
-    private _fetchOperand = (value: number): StateMachineInterface.Result | null => {
-        this.operand = value;
-        this._state.p = (this._state.p + 1) & 0xffff;
+    private _executeOperation = (): null => {
+        this._operation(this._state);
 
-        return this._next(this.operand);
+        return null;
     };
 
-    operand = 0;
-
-    private readonly _result = new ResultImpl();
+    private _result = new ResultImpl();
 }
 
-export default Immediate;
+namespace UnaryOneCycle {
+    export interface Operation {
+        (s: CpuInterface.State): void;
+    }
+}
+
+export const unaryOneCycle = (state: CpuInterface.State, operation: UnaryOneCycle.Operation) =>
+    new UnaryOneCycle(state, operation);

@@ -23,12 +23,12 @@ import CpuInterface from './CpuInterface';
 import StateMachineInterface from './statemachine/StateMachineInterface';
 import BusInterface from '../bus/BusInterface';
 import RngInterface from '../../tools/rng/GeneratorInterface';
-import { Boot } from './statemachine/vector';
+import { boot } from './statemachine/vector';
 import Compiler from './statemachine/Compiler';
 
 class StateMachineCpu implements CpuInterface {
     constructor(private _bus: BusInterface, private _rng?: RngInterface) {
-        this._opBoot = new Boot(this.state);
+        this._opBoot = boot(this.state);
 
         const compiler = new Compiler(this.state);
         for (let op = 0; op < 256; op++) {
@@ -56,7 +56,7 @@ class StateMachineCpu implements CpuInterface {
         this._interruptPending = false;
         this._nmiPending = false;
         this._halt = false;
-        this._lastResult = this._opBoot.reset();
+        this._lastResult = this._opBoot.reset(undefined);
         this._lastInstructionPointer = 0;
 
         return this;
@@ -173,7 +173,7 @@ class StateMachineCpu implements CpuInterface {
 
     private _lastInstructionPointer = 0;
 
-    private _opBoot: Boot;
+    private _opBoot: StateMachineInterface;
     private _operations = new Array<StateMachineInterface>(255);
 }
 

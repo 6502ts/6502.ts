@@ -1,9 +1,8 @@
-export { default as Immediate } from './Immediate';
-export { default as ZeroPage } from './ZeroPage';
-export { default as Absolute } from './Absolute';
-export { default as AbsoluteIndexed } from './AbsoluteIndexed';
-export { default as ZeroPageIndexed } from './ZeroPageIndexed';
-export { default as Indirect } from './Indirect';
-export { default as IndexedIndirectX } from './IndexedIndirectX';
-export { default as IndirectIndexedY } from './IndirectIndexedY';
-export { default as Dereference } from './Dereference';
+export { absolute } from './absolute';
+export { absoluteX, absoluteY } from './absoluteIndexed';
+export { dereference } from './dereference';
+export { immediate } from './immediate';
+export { indexedIndirectX } from './indexedIndirectX';
+export { indirectIndexedY } from './indirectIndexedY';
+export { zeroPage } from './zeroPage';
+export { zeroPageX, zeroPageY } from './zeroPageIndexed';

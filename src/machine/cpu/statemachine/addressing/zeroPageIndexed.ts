@@ -23,24 +23,32 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
 
-class Absolute implements StateMachineInterface {
-    constructor(
+class ZeroPageIndexed implements StateMachineInterface {
+    private constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _next: StateMachineInterface.Step = () => null
+        private readonly _indexExtractor: (state: CpuInterface.State) => number,
+        private readonly _next: StateMachineInterface.Step
     ) {}
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchLo, this._state.p);
+    static zeroPageX(state: CpuInterface.State, next: StateMachineInterface.Step = () => null): ZeroPageIndexed {
+        return new ZeroPageIndexed(state, s => s.x, next);
+    }
 
-    private _fetchLo = (value: number): StateMachineInterface.Result => {
+    static zeroPageY(state: CpuInterface.State, next: StateMachineInterface.Step = () => null): ZeroPageIndexed {
+        return new ZeroPageIndexed(state, s => s.y, next);
+    }
+
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+
+    private _fetchAddress = (value: number): StateMachineInterface.Result => {
         this._operand = value;
         this._state.p = (this._state.p + 1) & 0xffff;
 
-        return this._result.read(this._fetchHi, this._state.p);
+        return this._result.read(this._addIndex, this._operand);
     };
 
-    private _fetchHi = (value: number): StateMachineInterface.Result | null => {
-        this._operand |= value << 8;
-        this._state.p = (this._state.p + 1) & 0xffff;
+    private _addIndex = (value: number): StateMachineInterface.Result | null => {
+        this._operand = (this._operand + this._indexExtractor(this._state)) & 0xff;
 
         return this._next(this._operand);
     };
@@ -49,4 +57,8 @@ class Absolute implements StateMachineInterface {
     private readonly _result = new ResultImpl();
 }
 
-export default Absolute;
+export const zeroPageX = (state: CpuInterface.State, next: StateMachineInterface.Step) =>
+    ZeroPageIndexed.zeroPageX(state, next);
+
+export const zeroPageY = (state: CpuInterface.State, next: StateMachineInterface.Step) =>
+    ZeroPageIndexed.zeroPageY(state, next);

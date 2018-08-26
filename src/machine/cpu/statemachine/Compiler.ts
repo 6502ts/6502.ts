@@ -23,18 +23,20 @@ import CpuInterface from '../CpuInterface';
 import StateMachineInterface from './StateMachineInterface';
 import Instruction from '../Instruction';
 import {
-    Immediate,
-    ZeroPage,
-    Dereference,
-    Absolute,
-    ZeroPageIndexed,
-    AbsoluteIndexed,
-    IndexedIndirectX,
-    Indirect
+    immediate,
+    dereference,
+    zeroPage,
+    absolute,
+    zeroPageX,
+    zeroPageY,
+    absoluteX,
+    absoluteY,
+    indexedIndirectX,
+    indirectIndexedY
 } from './addressing';
-import { UnaryOneCycle, ReadModifyWrite, Brk, Jsr } from './instruction';
-import IndexedIndirectY from './addressing/IndirectIndexedY';
+import { unaryOneCycle, readModifyWrite, brk, jsr } from './instruction';
 import * as ops from './ops';
+import { indirect } from './addressing/indirect';
 
 export function opAslRMW(state: CpuInterface.State, operand: number): number {
     const result = (operand << 1) & 0xff;
@@ -57,7 +59,7 @@ class Compiler {
         switch (instruction.operation) {
             case Instruction.Operation.adc:
                 return this._createAddressing(instruction.addressingMode, o => (ops.adc(this._state, o), null), {
-                    dereference: true
+                    deref: true
                 });
 
             case Instruction.Operation.and:
@@ -65,33 +67,33 @@ class Compiler {
                     instruction.addressingMode,
                     o => (ops.getUnary(this._state, o, (state, operand) => (state.a = state.a & operand)), null),
                     {
-                        dereference: true
+                        deref: true
                     }
                 );
 
             case Instruction.Operation.asl:
                 return instruction.addressingMode === Instruction.AddressingMode.implied
-                    ? new UnaryOneCycle(this._state, ops.aslImmediate)
+                    ? unaryOneCycle(this._state, ops.aslImmediate)
                     : this._createAddressing(
                           instruction.addressingMode,
-                          new ReadModifyWrite(this._state, ops.aslRMW).reset,
+                          readModifyWrite(this._state, ops.aslRMW).reset,
                           { writeOp: true }
                       );
 
             case Instruction.Operation.bit:
                 return this._createAddressing(instruction.addressingMode, o => (ops.bit(this._state, o), null), {
-                    dereference: true
+                    deref: true
                 });
 
             case Instruction.Operation.brk:
-                return new Brk(this._state);
+                return brk(this._state);
 
             case Instruction.Operation.cmp:
                 return this._createAddressing(
                     instruction.addressingMode,
                     o => (ops.cmp(this._state, o, s => s.a), null),
                     {
-                        dereference: true
+                        deref: true
                     }
                 );
 
@@ -100,7 +102,7 @@ class Compiler {
                     instruction.addressingMode,
                     o => (ops.cmp(this._state, o, s => s.x), null),
                     {
-                        dereference: true
+                        deref: true
                     }
                 );
 
@@ -109,54 +111,46 @@ class Compiler {
                     instruction.addressingMode,
                     o => (ops.cmp(this._state, o, s => s.y), null),
                     {
-                        dereference: true
+                        deref: true
                     }
                 );
 
             case Instruction.Operation.dec:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    new ReadModifyWrite(this._state, (s, o) => ops.geRmw(s, o, x => (x - 1) & 0xff)).reset,
+                    readModifyWrite(this._state, (s, o) => ops.geRmw(s, o, x => (x - 1) & 0xff)).reset,
                     {
                         writeOp: true
                     }
                 );
 
             case Instruction.Operation.dex:
-                return new UnaryOneCycle(this._state, s =>
-                    ops.genNullary(s, state => (state.x = (state.x - 1) & 0xff))
-                );
+                return unaryOneCycle(this._state, s => ops.genNullary(s, state => (state.x = (state.x - 1) & 0xff)));
 
             case Instruction.Operation.dey:
-                return new UnaryOneCycle(this._state, s =>
-                    ops.genNullary(s, state => (state.y = (state.y - 1) & 0xff))
-                );
+                return unaryOneCycle(this._state, s => ops.genNullary(s, state => (state.y = (state.y - 1) & 0xff)));
 
             case Instruction.Operation.inc:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    new ReadModifyWrite(this._state, (s, o) => ops.geRmw(s, o, x => (x + 1) & 0xff)).reset,
+                    readModifyWrite(this._state, (s, o) => ops.geRmw(s, o, x => (x + 1) & 0xff)).reset,
                     {
                         writeOp: true
                     }
                 );
 
             case Instruction.Operation.inx:
-                return new UnaryOneCycle(this._state, s =>
-                    ops.genNullary(s, state => (state.x = (state.x + 1) & 0xff))
-                );
+                return unaryOneCycle(this._state, s => ops.genNullary(s, state => (state.x = (state.x + 1) & 0xff)));
 
             case Instruction.Operation.iny:
-                return new UnaryOneCycle(this._state, s =>
-                    ops.genNullary(s, state => (state.y = (state.y + 1) & 0xff))
-                );
+                return unaryOneCycle(this._state, s => ops.genNullary(s, state => (state.y = (state.y + 1) & 0xff)));
 
             case Instruction.Operation.eor:
                 return this._createAddressing(
                     instruction.addressingMode,
                     o => (ops.getUnary(this._state, o, (state, operand) => (state.a = state.a ^ operand)), null),
                     {
-                        dereference: true
+                        deref: true
                     }
                 );
 
@@ -164,14 +158,14 @@ class Compiler {
                 return this._createAddressing(instruction.addressingMode, o => ((this._state.p = o), null));
 
             case Instruction.Operation.jsr:
-                return new Jsr(this._state);
+                return jsr(this._state);
 
             case Instruction.Operation.lda:
                 return this._createAddressing(
                     instruction.addressingMode,
                     o => (ops.getUnary(this._state, o, (state, operand) => (state.a = operand)), null),
                     {
-                        dereference: true
+                        deref: true
                     }
                 );
 
@@ -180,7 +174,7 @@ class Compiler {
                     instruction.addressingMode,
                     o => (ops.getUnary(this._state, o, (state, operand) => (state.x = operand)), null),
                     {
-                        dereference: true
+                        deref: true
                     }
                 );
 
@@ -189,13 +183,13 @@ class Compiler {
                     instruction.addressingMode,
                     o => (ops.getUnary(this._state, o, (state, operand) => (state.y = operand)), null),
                     {
-                        dereference: true
+                        deref: true
                     }
                 );
 
             case Instruction.Operation.sbc:
                 return this._createAddressing(instruction.addressingMode, o => (ops.sbc(this._state, o), null), {
-                    dereference: true
+                    deref: true
                 });
 
             default:
@@ -206,42 +200,42 @@ class Compiler {
     private _createAddressing(
         addressingMode: Instruction.AddressingMode,
         next: (operand: number) => StateMachineInterface.Result,
-        { dereference = false, writeOp = false } = {}
+        { deref = false, writeOp = false } = {}
     ): StateMachineInterface {
-        if (dereference && addressingMode !== Instruction.AddressingMode.immediate) {
-            next = new Dereference(next).reset;
+        if (deref && addressingMode !== Instruction.AddressingMode.immediate) {
+            next = dereference(next).reset;
         }
 
         switch (addressingMode) {
             case Instruction.AddressingMode.immediate:
-                return new Immediate(this._state, next);
+                return immediate(this._state, next);
 
             case Instruction.AddressingMode.zeroPage:
-                return new ZeroPage(this._state, next);
+                return zeroPage(this._state, next);
 
             case Instruction.AddressingMode.absolute:
-                return new Absolute(this._state, next);
+                return absolute(this._state, next);
 
             case Instruction.AddressingMode.zeroPageX:
-                return ZeroPageIndexed.zeroPageX(this._state, next);
+                return zeroPageX(this._state, next);
 
             case Instruction.AddressingMode.zeroPageY:
-                return ZeroPageIndexed.zeroPageY(this._state, next);
+                return zeroPageY(this._state, next);
 
             case Instruction.AddressingMode.absoluteX:
-                return AbsoluteIndexed.absoluteX(this._state, next, writeOp);
+                return absoluteX(this._state, next, writeOp);
 
             case Instruction.AddressingMode.absoluteY:
-                return AbsoluteIndexed.absoluteY(this._state, next, writeOp);
+                return absoluteY(this._state, next, writeOp);
 
             case Instruction.AddressingMode.indexedIndirectX:
-                return new IndexedIndirectX(this._state, next);
+                return indexedIndirectX(this._state, next);
 
             case Instruction.AddressingMode.indirectIndexedY:
-                return new IndexedIndirectY(this._state, next, writeOp);
+                return indirectIndexedY(this._state, next, writeOp);
 
             case Instruction.AddressingMode.indirect:
-                return new Indirect(this._state, next);
+                return indirect(this._state, next);
 
             default:
                 throw new Error(`invalid addressing mode ${addressingMode}`);

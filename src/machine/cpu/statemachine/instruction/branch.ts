@@ -63,4 +63,4 @@ namespace Branch {
     }
 }
 
-export default Branch;
+export const branch = (state: CpuInterface.State, predicate: Branch.Predicate) => new Branch(state, predicate);

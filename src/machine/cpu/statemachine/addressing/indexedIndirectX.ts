@@ -23,11 +23,10 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
 
-class IndexedIndirectY implements StateMachineInterface {
+class IndexedIndirectX implements StateMachineInterface {
     constructor(
         private readonly _state: CpuInterface.State,
-        private readonly _next: StateMachineInterface.Step = () => null,
-        private readonly _writeOp: boolean
+        private readonly _next: StateMachineInterface.Step = () => null
     ) {}
 
     reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
@@ -35,6 +34,12 @@ class IndexedIndirectY implements StateMachineInterface {
     private _fetchAddress = (value: number): StateMachineInterface.Result => {
         this._address = value;
         this._state.p = (this._state.p + 1) & 0xffff;
+
+        return this._result.read(this._addIndex, this._address);
+    };
+
+    private _addIndex = (value: number): StateMachineInterface.Result => {
+        this._address = (this._address + this._state.x) & 0xff;
 
         return this._result.read(this._fetchLo, this._address);
     };
@@ -49,27 +54,13 @@ class IndexedIndirectY implements StateMachineInterface {
     private _fetchHi = (value: number): StateMachineInterface.Result | null => {
         this._operand |= value << 8;
 
-        this._carry = (this._operand & 0xff) + this._state.y > 0xff;
-        this._operand = (this._operand & 0xff00) | ((this._operand + this._state.y) & 0xff);
-
-        return this._carry || this._writeOp
-            ? this._result.read(this._dereferenceAndCarry, this._operand)
-            : this._next(this._operand);
-    };
-
-    private _dereferenceAndCarry = (value: number): StateMachineInterface.Result | null => {
-        if (this._carry) {
-            this._operand = (this._operand + 0x0100) & 0xffff;
-        }
-
         return this._next(this._operand);
     };
 
     private _operand = 0;
     private _address = 0;
-    private _carry = false;
-
     private readonly _result = new ResultImpl();
 }
 
-export default IndexedIndirectY;
+export const indexedIndirectX = (state: CpuInterface.State, next: StateMachineInterface.Step) =>
+    new IndexedIndirectX(state, next);

@@ -70,4 +70,4 @@ class Brk implements StateMachineInterface {
     private readonly _result = new ResultImpl();
 }
 
-export default Brk;
+export const brk = (state: CpuInterface.State) => new Brk(state);

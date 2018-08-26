@@ -23,16 +23,18 @@ import { strictEqual } from 'assert';
 
 import { default as Runner, incrementP } from './Runner';
 import {
-    Dereference,
-    Immediate,
-    ZeroPage,
-    Absolute,
-    AbsoluteIndexed,
-    Indirect,
-    ZeroPageIndexed,
-    IndexedIndirectX,
-    IndirectIndexedY
+    dereference,
+    immediate,
+    zeroPage,
+    absolute,
+    absoluteX,
+    absoluteY,
+    zeroPageX,
+    zeroPageY,
+    indexedIndirectX,
+    indirectIndexedY
 } from '../../../../../src/machine/cpu/statemachine/addressing';
+import { indirect } from '../../../../../src/machine/cpu/statemachine/addressing/indirect';
 
 export default function run(): void {
     suite('addressing modes', () => {
@@ -40,7 +42,7 @@ export default function run(): void {
             Runner.build()
                 .read(0x0010, 0x43)
                 .action(incrementP)
-                .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new Immediate(state, getResult), undefined)
+                .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => immediate(state, getResult), undefined)
                 .assert(result => strictEqual(result, 0x43)));
 
         suite('zeropage', () => {
@@ -48,7 +50,7 @@ export default function run(): void {
                 Runner.build()
                     .read(0x0010, 0x43)
                     .action(incrementP)
-                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new ZeroPage(state, getResult), undefined)
+                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => zeroPage(state, getResult), undefined)
                     .assert(result => strictEqual(result, 0x43)));
 
             test('dereference', () =>
@@ -58,7 +60,7 @@ export default function run(): void {
                     .read(0x43, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010 }),
-                        (state, getResult) => new ZeroPage(state, new Dereference(getResult).reset),
+                        (state, getResult) => zeroPage(state, dereference(getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -71,7 +73,7 @@ export default function run(): void {
                     .action(incrementP)
                     .read(0x0011, 0x12)
                     .action(incrementP)
-                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new Absolute(state, getResult), undefined)
+                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => absolute(state, getResult), undefined)
                     .assert(result => strictEqual(result, 0x1234)));
 
             test('dereference', () =>
@@ -83,7 +85,7 @@ export default function run(): void {
                     .read(0x1234, 0x43)
                     .run(
                         s => ({ ...s, p: 0x0010 }),
-                        (state, getResult) => new Absolute(state, new Dereference(getResult).reset),
+                        (state, getResult) => absolute(state, dereference(getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x43)));
@@ -98,7 +100,7 @@ export default function run(): void {
                     .action(incrementP)
                     .read(0x3456, 0x34)
                     .read(0x3457, 0x12)
-                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new Indirect(state, getResult), undefined)
+                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => indirect(state, getResult), undefined)
                     .assert(result => strictEqual(result, 0x1234)));
 
             test('page boundary', () =>
@@ -109,7 +111,7 @@ export default function run(): void {
                     .action(incrementP)
                     .read(0x34ff, 0x34)
                     .read(0x3400, 0x12)
-                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => new Indirect(state, getResult), undefined)
+                    .run(s => ({ ...s, p: 0x0010 }), (state, getResult) => indirect(state, getResult), undefined)
                     .assert(result => strictEqual(result, 0x1234)));
         });
 
@@ -122,7 +124,7 @@ export default function run(): void {
                     .action(incrementP)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, getResult) => AbsoluteIndexed.absoluteX(state, getResult, false),
+                        (state, getResult) => absoluteX(state, getResult, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));
@@ -136,7 +138,7 @@ export default function run(): void {
                     .read(0x1134, 0x42)
                     .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, getResult) => AbsoluteIndexed.absoluteY(state, getResult, false),
+                        (state, getResult) => absoluteY(state, getResult, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));
@@ -150,7 +152,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, getResult) => AbsoluteIndexed.absoluteX(state, new Dereference(getResult).reset, false),
+                        (state, getResult) => absoluteX(state, dereference(getResult).reset, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -165,7 +167,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, getResult) => AbsoluteIndexed.absoluteY(state, new Dereference(getResult).reset, false),
+                        (state, getResult) => absoluteY(state, dereference(getResult).reset, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -179,7 +181,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, getResult) => AbsoluteIndexed.absoluteX(state, getResult, true),
+                        (state, getResult) => absoluteX(state, getResult, true),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));
@@ -193,7 +195,7 @@ export default function run(): void {
                     .read(0x1134, 0x42)
                     .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, getResult) => AbsoluteIndexed.absoluteY(state, getResult, true),
+                        (state, getResult) => absoluteY(state, getResult, true),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));
@@ -207,7 +209,7 @@ export default function run(): void {
                     .read(0x60, 0x12)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0x06 }),
-                        (state, getResult) => ZeroPageIndexed.zeroPageX(state, getResult),
+                        (state, getResult) => zeroPageX(state, getResult),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -220,7 +222,7 @@ export default function run(): void {
                     .read(0x66, 0x42)
                     .run(
                         s => ({ ...s, p: 0x0010, y: 0x06 }),
-                        (state, getResult) => ZeroPageIndexed.zeroPageY(state, new Dereference(getResult).reset),
+                        (state, getResult) => zeroPageY(state, dereference(getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x42)));
@@ -232,7 +234,7 @@ export default function run(): void {
                     .read(0x67, 0x12)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0xff }),
-                        (state, getResult) => ZeroPageIndexed.zeroPageX(state, getResult),
+                        (state, getResult) => zeroPageX(state, getResult),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -245,7 +247,7 @@ export default function run(): void {
                     .read(0x66, 0x42)
                     .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, getResult) => ZeroPageIndexed.zeroPageY(state, new Dereference(getResult).reset),
+                        (state, getResult) => zeroPageY(state, dereference(getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x42)));
@@ -261,7 +263,7 @@ export default function run(): void {
                     .read(0x41, 0x12)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, getResult) => new IndexedIndirectX(state, getResult),
+                        (state, getResult) => indexedIndirectX(state, getResult),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));
@@ -276,7 +278,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, getResult) => new IndexedIndirectX(state, new Dereference(getResult).reset),
+                        (state, getResult) => indexedIndirectX(state, dereference(getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -290,7 +292,7 @@ export default function run(): void {
                     .read(0x41, 0x12)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0xf0 }),
-                        (state, getResult) => new IndexedIndirectX(state, getResult),
+                        (state, getResult) => indexedIndirectX(state, getResult),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));
@@ -305,7 +307,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0xf0 }),
-                        (state, getResult) => new IndexedIndirectX(state, new Dereference(getResult).reset),
+                        (state, getResult) => indexedIndirectX(state, dereference(getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -320,7 +322,7 @@ export default function run(): void {
                     .read(0x21, 0x12)
                     .run(
                         s => ({ ...s, p: 0x010, y: 0x04 }),
-                        (state, getResult) => new IndirectIndexedY(state, getResult, false),
+                        (state, getResult) => indirectIndexedY(state, getResult, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));
@@ -334,7 +336,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x010, y: 0x04 }),
-                        (state, getResult) => new IndirectIndexedY(state, new Dereference(getResult).reset, false),
+                        (state, getResult) => indirectIndexedY(state, dereference(getResult).reset, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -348,7 +350,7 @@ export default function run(): void {
                     .read(0x1134, 0x66)
                     .run(
                         s => ({ ...s, p: 0x010, y: 0xff }),
-                        (state, getResult) => new IndirectIndexedY(state, getResult, false),
+                        (state, getResult) => indirectIndexedY(state, getResult, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));
@@ -363,7 +365,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x010, y: 0xff }),
-                        (state, getResult) => new IndirectIndexedY(state, new Dereference(getResult).reset, false),
+                        (state, getResult) => indirectIndexedY(state, dereference(getResult).reset, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -377,7 +379,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x010, y: 0x04 }),
-                        (state, getResult) => new IndirectIndexedY(state, getResult, true),
+                        (state, getResult) => indirectIndexedY(state, getResult, true),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));
@@ -391,7 +393,7 @@ export default function run(): void {
                     .read(0x1134, 0x66)
                     .run(
                         s => ({ ...s, p: 0x010, y: 0xff }),
-                        (state, getResult) => new IndirectIndexedY(state, getResult, true),
+                        (state, getResult) => indirectIndexedY(state, getResult, true),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x1234)));

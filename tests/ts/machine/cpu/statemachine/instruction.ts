@@ -23,12 +23,12 @@ import * as assert from 'assert';
 
 import { default as Runner, incrementP, decrementS, incrementS } from './Runner';
 import {
-    UnaryOneCycle,
-    Write,
-    ReadModifyWrite,
-    Branch,
-    Jsr,
-    Rts
+    branch,
+    unaryOneCycle,
+    write,
+    readModifyWrite,
+    jsr,
+    rts
 } from '../../../../../src/machine/cpu/statemachine/instruction';
 
 export default function run(): void {
@@ -38,7 +38,7 @@ export default function run(): void {
 
             Runner.build()
                 .read(0x0010, 0x11)
-                .run(s => ({ ...s, p: 0x0010 }), s => new UnaryOneCycle(s, () => calls++), undefined);
+                .run(s => ({ ...s, p: 0x0010 }), s => unaryOneCycle(s, () => calls++), undefined);
 
             assert.strictEqual(calls, 1);
         });
@@ -46,21 +46,21 @@ export default function run(): void {
         test('write', () =>
             Runner.build()
                 .write(0x0010, 0x66)
-                .run(s => ({ ...s, p: 0 }), s => new Write(s, () => 0x66), 0x0010));
+                .run(s => ({ ...s, p: 0 }), s => write(s, () => 0x66), 0x0010));
 
         test('read modify write', () =>
             Runner.build()
                 .read(0x0010, 0x42)
                 .write(0x0010, 0x42)
                 .write(0x0010, 0x66)
-                .run(s => ({ ...s, p: 0 }), s => new ReadModifyWrite(s, () => 0x66), 0x0010));
+                .run(s => ({ ...s, p: 0 }), s => readModifyWrite(s, () => 0x66), 0x0010));
 
         suite('branch', () => {
             test('no branch', () =>
                 Runner.build()
                     .read(0x0010, 0x42)
                     .action(incrementP)
-                    .run(s => ({ ...s, p: 0x0010 }), s => new Branch(s, () => false), undefined));
+                    .run(s => ({ ...s, p: 0x0010 }), s => branch(s, () => false), undefined));
 
             test('branch, no page crossing', () =>
                 Runner.build()
@@ -68,7 +68,7 @@ export default function run(): void {
                     .action(incrementP)
                     .read(0x0011, 0x66)
                     .action(s => ({ ...s, p: 0x0024 }))
-                    .run(s => ({ ...s, p: 0x0010 }), s => new Branch(s, () => true), undefined));
+                    .run(s => ({ ...s, p: 0x0010 }), s => branch(s, () => true), undefined));
 
             test('branch, page overflow', () =>
                 Runner.build()
@@ -77,7 +77,7 @@ export default function run(): void {
                     .read(0x01f0, 0x66)
                     .read(0x0103, 0x42)
                     .action(s => ({ ...s, p: 0x0203 }))
-                    .run(s => ({ ...s, p: 0x01ef }), s => new Branch(s, () => true), undefined));
+                    .run(s => ({ ...s, p: 0x01ef }), s => branch(s, () => true), undefined));
 
             test('branch, page underflow', () =>
                 Runner.build()
@@ -86,7 +86,7 @@ export default function run(): void {
                     .read(0x0101, 0x66)
                     .read(0x01ff, 0x42)
                     .action(s => ({ ...s, p: 0x00ff }))
-                    .run(s => ({ ...s, p: 0x0100 }), s => new Branch(s, () => true), undefined));
+                    .run(s => ({ ...s, p: 0x0100 }), s => branch(s, () => true), undefined));
         });
 
         test('jsr', () =>
@@ -100,7 +100,7 @@ export default function run(): void {
                 .action(decrementS)
                 .read(0x3311, 0x12)
                 .action(s => ({ ...s, p: 0x1234 }))
-                .run(s => ({ ...s, p: 0x3310, s: 0x30 }), s => new Jsr(s), undefined));
+                .run(s => ({ ...s, p: 0x3310, s: 0x30 }), s => jsr(s), undefined));
 
         test('rts', () =>
             Runner.build()
@@ -113,6 +113,6 @@ export default function run(): void {
                 .action(s => ({ ...s, p: 0x1234, s: 0x33 }))
                 .read(0x01234, 0x66)
                 .action(incrementP)
-                .run(s => ({ ...s, p: 0x1110, s: 0x30 }), s => new Rts(s), undefined));
+                .run(s => ({ ...s, p: 0x1110, s: 0x30 }), s => rts(s), undefined));
     });
 }

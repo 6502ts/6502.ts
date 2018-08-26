@@ -23,38 +23,41 @@ import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 
-class Boot implements StateMachineInterface {
+class Rts implements StateMachineInterface {
     constructor(private readonly _state: CpuInterface.State) {}
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._pre1Step, 0xff);
+    reset = (): StateMachineInterface.Result => this._result.read(this._dummyOperandRead, this._state.p);
 
-    private _pre1Step = (): StateMachineInterface.Result => this._result.read(this._pre2Step, 0x0ff);
+    private _dummyOperandRead = (): StateMachineInterface.Result =>
+        this._result.read(this._dummyStackRead, 0x0100 + this._state.s);
 
-    private _pre2Step = (): StateMachineInterface.Result => this._result.read(this._stack1Step, 0x0100);
+    private _dummyStackRead = (): StateMachineInterface.Result => {
+        this._state.s = (this._state.s + 1) & 0xff;
 
-    private _stack1Step = (): StateMachineInterface.Result => this._result.read(this._stack2Step, 0x01ff);
-
-    private _stack2Step = (): StateMachineInterface.Result => {
-        this._state.s = 0xfd;
-        return this._result.read(this._stack3Step, 0x01fe);
+        return this._result.read(this._popPcl, 0x0100 + this._state.s);
     };
 
-    private _stack3Step = (): StateMachineInterface.Result => this._result.read(this._readTargetLoStep, 0xfffc);
+    private _popPcl = (value: number): StateMachineInterface.Result => {
+        this._state.p = (this._state.p & 0xff00) | value;
+        this._state.s = (this._state.s + 1) & 0xff;
 
-    private _readTargetLoStep = (operand: number): StateMachineInterface.Result => {
-        this._targetAddress = operand;
-        return this._result.read(this._readTargetHiStep, 0xfffd);
+        return this._result.read(this._popPch, 0x0100 + this._state.s);
     };
 
-    private _readTargetHiStep = (operand: number): null => {
-        this._targetAddress |= operand << 8;
-        this._state.p = this._targetAddress;
+    private _popPch = (value: number): StateMachineInterface.Result => {
+        this._state.p = (this._state.p & 0xff) | (value << 8);
+        this._state.s = (this._state.s + 1) & 0xff;
+
+        return this._result.read(this._incrementP, this._state.p);
+    };
+
+    private _incrementP = (): null => {
+        this._state.p = (this._state.p + 1) & 0xffff;
 
         return null;
     };
 
-    private _targetAddress = 0;
     private readonly _result = new ResultImpl();
 }
 
-export default Boot;
+export const rts = (state: CpuInterface.State) => new Rts(state);

@@ -20,46 +20,27 @@
  */
 
 import CpuInterface from '../../CpuInterface';
-import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
+import ResultImpl from '../ResultImpl';
 
-class IndexedIndirectX implements StateMachineInterface {
+class Immediate implements StateMachineInterface {
     constructor(
         private readonly _state: CpuInterface.State,
         private readonly _next: StateMachineInterface.Step = () => null
     ) {}
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchOperand, this._state.p);
 
-    private _fetchAddress = (value: number): StateMachineInterface.Result => {
-        this._address = value;
+    private _fetchOperand = (value: number): StateMachineInterface.Result | null => {
+        this.operand = value;
         this._state.p = (this._state.p + 1) & 0xffff;
 
-        return this._result.read(this._addIndex, this._address);
+        return this._next(this.operand);
     };
 
-    private _addIndex = (value: number): StateMachineInterface.Result => {
-        this._address = (this._address + this._state.x) & 0xff;
+    operand = 0;
 
-        return this._result.read(this._fetchLo, this._address);
-    };
-
-    private _fetchLo = (value: number): StateMachineInterface.Result => {
-        this._operand = value;
-        this._address = (this._address + 1) & 0xff;
-
-        return this._result.read(this._fetchHi, this._address);
-    };
-
-    private _fetchHi = (value: number): StateMachineInterface.Result | null => {
-        this._operand |= value << 8;
-
-        return this._next(this._operand);
-    };
-
-    private _operand = 0;
-    private _address = 0;
     private readonly _result = new ResultImpl();
 }
 
-export default IndexedIndirectX;
+export const immediate = (state: CpuInterface.State, next: StateMachineInterface.Step) => new Immediate(state, next);

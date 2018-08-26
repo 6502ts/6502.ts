@@ -23,49 +23,23 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
 
-class Indirect implements StateMachineInterface {
+class ZeroPage implements StateMachineInterface {
     constructor(
         private readonly _state: CpuInterface.State,
         private readonly _next: StateMachineInterface.Step = () => null
     ) {}
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddressLo, this._state.p);
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
 
-    private _fetchAddressLo = (value: number): StateMachineInterface.Result => {
-        this._address = value;
-        this._state.p = (this._state.p + 1) & 0xffff;
-
-        return this._result.read(this._fetchAddressHi, this._state.p);
-    };
-
-    private _fetchAddressHi = (value: number): StateMachineInterface.Result => {
-        this._address |= value << 8;
-        this._state.p = (this._state.p + 1) & 0xffff;
-
-        return this._result.read(this._fetchLo, this._address);
-    };
-
-    private _fetchLo = (value: number): StateMachineInterface.Result => {
+    private _fetchAddress = (value: number): StateMachineInterface.Result | null => {
         this._operand = value;
-
-        if ((this._address & 0xff) === 0xff) {
-            this._address &= 0xff00;
-        } else {
-            this._address = (this._address + 1) & 0xffff;
-        }
-
-        return this._result.read(this._fetchHi, this._address);
-    };
-
-    private _fetchHi = (value: number): StateMachineInterface.Result | null => {
-        this._operand |= value << 8;
+        this._state.p = (this._state.p + 1) & 0xffff;
 
         return this._next(this._operand);
     };
 
     private _operand = 0;
-    private _address = 0;
     private readonly _result = new ResultImpl();
 }
 
-export default Indirect;
+export const zeroPage = (state: CpuInterface.State, next: StateMachineInterface.Step) => new ZeroPage(state, next);

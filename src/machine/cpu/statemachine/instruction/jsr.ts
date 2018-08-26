@@ -23,41 +23,41 @@ import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 
-class Rts implements StateMachineInterface {
+class Jsr implements StateMachineInterface {
     constructor(private readonly _state: CpuInterface.State) {}
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._dummyOperandRead, this._state.p);
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchPcl, this._state.p);
 
-    private _dummyOperandRead = (): StateMachineInterface.Result =>
-        this._result.read(this._dummyStackRead, 0x0100 + this._state.s);
-
-    private _dummyStackRead = (): StateMachineInterface.Result => {
-        this._state.s = (this._state.s + 1) & 0xff;
-
-        return this._result.read(this._popPcl, 0x0100 + this._state.s);
-    };
-
-    private _popPcl = (value: number): StateMachineInterface.Result => {
-        this._state.p = (this._state.p & 0xff00) | value;
-        this._state.s = (this._state.s + 1) & 0xff;
-
-        return this._result.read(this._popPch, 0x0100 + this._state.s);
-    };
-
-    private _popPch = (value: number): StateMachineInterface.Result => {
-        this._state.p = (this._state.p & 0xff) | (value << 8);
-        this._state.s = (this._state.s + 1) & 0xff;
-
-        return this._result.read(this._incrementP, this._state.p);
-    };
-
-    private _incrementP = (): null => {
+    private _fetchPcl = (value: number): StateMachineInterface.Result => {
+        this._addressLo = value;
         this._state.p = (this._state.p + 1) & 0xffff;
+
+        return this._result.read(this._dummyStackRead, 0x0100 + this._state.s);
+    };
+
+    private _dummyStackRead = (): StateMachineInterface.Result =>
+        this._result.write(this._pushPch, 0x0100 + this._state.s, this._state.p >>> 8);
+
+    private _pushPch = (): StateMachineInterface.Result => {
+        this._state.s = (this._state.s - 1) & 0xff;
+
+        return this._result.write(this._pushPcl, 0x0100 + this._state.s, this._state.p & 0xff);
+    };
+
+    private _pushPcl = (): StateMachineInterface.Result => {
+        this._state.s = (this._state.s - 1) & 0xff;
+
+        return this._result.read(this._fetchPch, this._state.p);
+    };
+
+    private _fetchPch = (value: number): null => {
+        this._state.p = this._addressLo | (value << 8);
 
         return null;
     };
 
+    private _addressLo = 0;
     private readonly _result = new ResultImpl();
 }
 
-export default Rts;
+export const jsr = (state: CpuInterface.State) => new Jsr(state);

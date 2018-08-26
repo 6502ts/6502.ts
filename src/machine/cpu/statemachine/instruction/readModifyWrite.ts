@@ -23,16 +23,36 @@ import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 
-class Write implements StateMachineInterface<number> {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _operation: (s: CpuInterface.State) => number
-    ) {}
+class ReadModifyWrite implements StateMachineInterface<number> {
+    constructor(private readonly _state: CpuInterface.State, private readonly _operation: ReadModifyWrite.Operation) {}
 
-    reset = (operand: number): StateMachineInterface.Result =>
-        this._result.write(() => null, operand, this._operation(this._state));
+    reset = (address: number): StateMachineInterface.Result => {
+        this._address = address;
 
+        return this._result.read(this._read, address);
+    };
+
+    private _read = (value: number): StateMachineInterface.Result => {
+        this._operand = value;
+
+        return this._result.write(this._dummyWrite, this._address, this._operand);
+    };
+
+    private _dummyWrite = (value: number): StateMachineInterface.Result =>
+        this._result.write(this._write, this._address, this._operation(this._state, this._operand));
+
+    private _write = (): null => null;
+
+    private _address: number;
+    private _operand: number;
     private readonly _result = new ResultImpl();
 }
 
-export default Write;
+namespace ReadModifyWrite {
+    export interface Operation {
+        (s: CpuInterface.State, operand: number): number;
+    }
+}
+
+export const readModifyWrite = (state: CpuInterface.State, operation: ReadModifyWrite.Operation) =>
+    new ReadModifyWrite(state, operation);

@@ -19,27 +19,23 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
-import StateMachineInterface from '../StateMachineInterface';
 
-class ZeroPage implements StateMachineInterface {
-    constructor(
-        private readonly _state: CpuInterface.State,
-        private readonly _next: StateMachineInterface.Step = () => null
-    ) {}
+class Write implements StateMachineInterface<number> {
+    constructor(private readonly _state: CpuInterface.State, private readonly _operation: Write.Operation) {}
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchAddress, this._state.p);
+    reset = (operand: number): StateMachineInterface.Result =>
+        this._result.write(() => null, operand, this._operation(this._state));
 
-    private _fetchAddress = (value: number): StateMachineInterface.Result | null => {
-        this._operand = value;
-        this._state.p = (this._state.p + 1) & 0xffff;
-
-        return this._next(this._operand);
-    };
-
-    private _operand = 0;
     private readonly _result = new ResultImpl();
 }
 
-export default ZeroPage;
+namespace Write {
+    export interface Operation {
+        (s: CpuInterface.State): number;
+    }
+}
+
+export const write = (state: CpuInterface.State, operation: Write.Operation) => new Write(state, operation);

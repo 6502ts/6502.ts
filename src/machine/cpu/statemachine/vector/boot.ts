@@ -23,41 +23,38 @@ import StateMachineInterface from '../StateMachineInterface';
 import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 
-class Jsr implements StateMachineInterface {
+class Boot implements StateMachineInterface {
     constructor(private readonly _state: CpuInterface.State) {}
 
-    reset = (): StateMachineInterface.Result => this._result.read(this._fetchPcl, this._state.p);
+    reset = (): StateMachineInterface.Result => this._result.read(this._pre1Step, 0xff);
 
-    private _fetchPcl = (value: number): StateMachineInterface.Result => {
-        this._addressLo = value;
-        this._state.p = (this._state.p + 1) & 0xffff;
+    private _pre1Step = (): StateMachineInterface.Result => this._result.read(this._pre2Step, 0x0ff);
 
-        return this._result.read(this._dummyStackRead, 0x0100 + this._state.s);
+    private _pre2Step = (): StateMachineInterface.Result => this._result.read(this._stack1Step, 0x0100);
+
+    private _stack1Step = (): StateMachineInterface.Result => this._result.read(this._stack2Step, 0x01ff);
+
+    private _stack2Step = (): StateMachineInterface.Result => {
+        this._state.s = 0xfd;
+        return this._result.read(this._stack3Step, 0x01fe);
     };
 
-    private _dummyStackRead = (): StateMachineInterface.Result =>
-        this._result.write(this._pushPch, 0x0100 + this._state.s, this._state.p >>> 8);
+    private _stack3Step = (): StateMachineInterface.Result => this._result.read(this._readTargetLoStep, 0xfffc);
 
-    private _pushPch = (): StateMachineInterface.Result => {
-        this._state.s = (this._state.s - 1) & 0xff;
-
-        return this._result.write(this._pushPcl, 0x0100 + this._state.s, this._state.p & 0xff);
+    private _readTargetLoStep = (operand: number): StateMachineInterface.Result => {
+        this._targetAddress = operand;
+        return this._result.read(this._readTargetHiStep, 0xfffd);
     };
 
-    private _pushPcl = (): StateMachineInterface.Result => {
-        this._state.s = (this._state.s - 1) & 0xff;
-
-        return this._result.read(this._fetchPch, this._state.p);
-    };
-
-    private _fetchPch = (value: number): null => {
-        this._state.p = this._addressLo | (value << 8);
+    private _readTargetHiStep = (operand: number): null => {
+        this._targetAddress |= operand << 8;
+        this._state.p = this._targetAddress;
 
         return null;
     };
 
-    private _addressLo = 0;
+    private _targetAddress = 0;
     private readonly _result = new ResultImpl();
 }
 
-export default Jsr;
+export const boot = (state: CpuInterface.State) => new Boot(state);
