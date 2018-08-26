@@ -24,19 +24,45 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
-class UnaryOneCycle implements StateMachineInterface<number> {
-    constructor(state: CpuInterface.State, operation: UnaryOneCycle.Operation) {
+class Rti implements StateMachineInterface {
+    constructor(state: CpuInterface.State) {
         this._state = state;
-        this._operation = operation;
 
         freezeImmutables(this);
     }
 
-    @Immutable reset = () => this._result.read(this._executeOperation, this._state.p);
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._dummyOperandRead, this._state.p);
 
     @Immutable
-    private _executeOperation = (): null => {
-        this._operation(this._state);
+    private _dummyOperandRead = (): StateMachineInterface.Result =>
+        this._result.read(this._dummyStackRead, 0x0100 + this._state.s);
+
+    @Immutable
+    private _dummyStackRead = (): StateMachineInterface.Result => {
+        this._state.s = (this._state.s + 1) & 0xff;
+
+        return this._result.read(this._popP, 0x0100 + this._state.s);
+    };
+
+    @Immutable
+    private _popP = (value: number): StateMachineInterface.Result => {
+        this._state.flags = (value | CpuInterface.Flags.e) & ~CpuInterface.Flags.b;
+        this._state.s = (this._state.s + 1) & 0xff;
+
+        return this._result.read(this._popPcl, 0x0100 + this._state.s);
+    };
+
+    @Immutable
+    private _popPcl = (value: number): StateMachineInterface.Result => {
+        this._state.p = (this._state.p & 0xff00) | value;
+        this._state.s = (this._state.s + 1) & 0xff;
+
+        return this._result.read(this._popPch, 0x0100 + this._state.s);
+    };
+
+    @Immutable
+    private _popPch = (value: number): null => {
+        this._state.p = (this._state.p & 0xff) | (value << 8);
 
         return null;
     };
@@ -44,14 +70,6 @@ class UnaryOneCycle implements StateMachineInterface<number> {
     @Immutable private readonly _result = new ResultImpl();
 
     @Immutable private readonly _state: CpuInterface.State;
-    @Immutable private readonly _operation: UnaryOneCycle.Operation;
 }
 
-namespace UnaryOneCycle {
-    export interface Operation {
-        (s: CpuInterface.State): void;
-    }
-}
-
-export const unaryOneCycle = (state: CpuInterface.State, operation: UnaryOneCycle.Operation) =>
-    new UnaryOneCycle(state, operation);
+export const rti = (state: CpuInterface.State) => new Rti(state);

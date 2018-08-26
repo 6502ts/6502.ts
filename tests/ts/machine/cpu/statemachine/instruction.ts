@@ -24,7 +24,7 @@ import * as assert from 'assert';
 import { default as Runner, incrementP, decrementS, incrementS } from './Runner';
 import {
     branch,
-    unaryOneCycle,
+    nullaryOneCycle,
     write,
     readModifyWrite,
     jsr,
@@ -38,7 +38,7 @@ export default function run(): void {
 
             Runner.build()
                 .read(0x0010, 0x11)
-                .run(s => ({ ...s, p: 0x0010 }), s => unaryOneCycle(s, () => calls++), undefined);
+                .run(s => ({ ...s, p: 0x0010 }), s => nullaryOneCycle(s, () => calls++), undefined);
 
             assert.strictEqual(calls, 1);
         });
@@ -110,7 +110,7 @@ export default function run(): void {
                 .read(0x0131, 0x34)
                 .action(s => ({ ...s, p: 0x1134, s: 0x32 }))
                 .read(0x0132, 0x12)
-                .action(s => ({ ...s, p: 0x1234, s: 0x33 }))
+                .action(s => ({ ...s, p: 0x1234 }))
                 .read(0x01234, 0x66)
                 .action(incrementP)
                 .run(s => ({ ...s, p: 0x1110, s: 0x30 }), s => rts(s), undefined));

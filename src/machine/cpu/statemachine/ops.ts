@@ -28,7 +28,7 @@ function setFlagsNZ(state: CpuInterface.State, operand: number): void {
         (operand ? 0 : CpuInterface.Flags.z);
 }
 
-export function geRmw(state: CpuInterface.State, operand: number, operation: (x: number) => number): number {
+export function genRmw(state: CpuInterface.State, operand: number, operation: (x: number) => number): number {
     const result = operation(operand);
     setFlagsNZ(state, result);
 
@@ -39,7 +39,7 @@ export function genNullary(state: CpuInterface.State, operation: (state: CpuInte
     setFlagsNZ(state, operation(state));
 }
 
-export function getUnary(
+export function genUnary(
     state: CpuInterface.State,
     operand: number,
     operation: (state: CpuInterface.State, operand: number) => number
@@ -86,7 +86,7 @@ export function aslImmediate(state: CpuInterface.State): void {
         (old >>> 7);
 }
 
-export function aslRMW(state: CpuInterface.State, operand: number): number {
+export function aslRmw(state: CpuInterface.State, operand: number): number {
     const result = (operand << 1) & 0xff;
 
     state.flags =
@@ -147,4 +147,73 @@ export function sbc(state: CpuInterface.State, operand: number): void {
 
         state.a = result;
     }
+}
+
+export function lsrImmediate(state: CpuInterface.State): void {
+    const old = state.a;
+    state.a = state.a >>> 1;
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (state.a & 0x80) |
+        (state.a ? 0 : CpuInterface.Flags.z) |
+        (old & CpuInterface.Flags.c);
+}
+
+export function lsrRmw(state: CpuInterface.State, operand: number): number {
+    const result = operand >>> 1;
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (result & 0x80) |
+        (result ? 0 : CpuInterface.Flags.z) |
+        (operand & CpuInterface.Flags.c);
+
+    return result;
+}
+
+export function rolImmediate(state: CpuInterface.State): void {
+    const old = state.a;
+    state.a = ((state.a << 1) & 0xff) | (state.flags & CpuInterface.Flags.c);
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (state.a & 0x80) |
+        (state.a ? 0 : CpuInterface.Flags.z) |
+        (old >>> 7);
+}
+
+export function rolRmw(state: CpuInterface.State, operand: number): number {
+    const result = ((operand << 1) & 0xff) | (state.flags & CpuInterface.Flags.c);
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (result & 0x80) |
+        (result ? 0 : CpuInterface.Flags.z) |
+        (operand >>> 7);
+
+    return result;
+}
+
+export function rorImmediate(state: CpuInterface.State): void {
+    const old = state.a;
+    state.a = (state.a >>> 1) | ((state.flags & CpuInterface.Flags.c) << 7);
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (state.a & 0x80) |
+        (state.a ? 0 : CpuInterface.Flags.z) |
+        (old & CpuInterface.Flags.c);
+}
+
+export function rorRmw(state: CpuInterface.State, operand: number): number {
+    const result = (operand >>> 1) | ((state.flags & CpuInterface.Flags.c) << 7);
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (result & 0x80) |
+        (result ? 0 : CpuInterface.Flags.z) |
+        (operand & CpuInterface.Flags.c);
+
+    return result;
 }
