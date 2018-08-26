@@ -35,11 +35,8 @@ class Push implements StateMachineInterface {
     @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._dummyRead, this._state.p);
 
     @Immutable
-    private _dummyRead = (): StateMachineInterface.Result => {
-        this._state.p = (this._state.p + 1) & 0xffff;
-
-        return this._result.write(this._push, 0x0100 + this._state.s, this._operation(this._state));
-    };
+    private _dummyRead = (): StateMachineInterface.Result =>
+        this._result.write(this._push, 0x0100 + this._state.s, this._operation(this._state));
 
     @Immutable
     private _push = (): null => {

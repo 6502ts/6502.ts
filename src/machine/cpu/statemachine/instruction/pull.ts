@@ -35,11 +35,8 @@ class Pull implements StateMachineInterface {
     @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._dummyRead, this._state.p);
 
     @Immutable
-    private _dummyRead = (): StateMachineInterface.Result => {
-        this._state.p = (this._state.p + 1) & 0xffff;
-
-        return this._result.read(this._incrementS, 0x0100 + this._state.s);
-    };
+    private _dummyRead = (): StateMachineInterface.Result =>
+        this._result.read(this._incrementS, 0x0100 + this._state.s);
 
     @Immutable
     private _incrementS = (): StateMachineInterface.Result => {
