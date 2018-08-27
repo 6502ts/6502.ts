@@ -109,7 +109,7 @@ class StateMachineCpu implements CpuInterface {
     }
 
     cycle(): this {
-        if (this._halt && this._lastResult && this._lastResult.cycleType === StateMachineInterface.CycleType.read) {
+        if (this._halt && (!this._lastResult || this._lastResult.cycleType === StateMachineInterface.CycleType.read)) {
             return this;
         }
 
