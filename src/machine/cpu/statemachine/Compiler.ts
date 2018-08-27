@@ -68,30 +68,6 @@ class Compiler {
                           { writeOp: true }
                       );
 
-            case Instruction.Operation.bcc:
-                return branch(this._state, flags => (flags & CpuInterface.Flags.c) === 0);
-
-            case Instruction.Operation.bcs:
-                return branch(this._state, flags => (flags & CpuInterface.Flags.c) > 0);
-
-            case Instruction.Operation.bne:
-                return branch(this._state, flags => (flags & CpuInterface.Flags.z) === 0);
-
-            case Instruction.Operation.beq:
-                return branch(this._state, flags => (flags & CpuInterface.Flags.z) > 0);
-
-            case Instruction.Operation.bpl:
-                return branch(this._state, flags => (flags & CpuInterface.Flags.n) === 0);
-
-            case Instruction.Operation.bmi:
-                return branch(this._state, flags => (flags & CpuInterface.Flags.n) > 0);
-
-            case Instruction.Operation.bvc:
-                return branch(this._state, flags => (flags & CpuInterface.Flags.v) === 0);
-
-            case Instruction.Operation.bvs:
-                return branch(this._state, flags => (flags & CpuInterface.Flags.v) > 0);
-
             case Instruction.Operation.bit:
                 return this._createAddressing(instruction.addressingMode, o => (ops.bit(this._state, o), null), {
                     deref: true
@@ -99,18 +75,6 @@ class Compiler {
 
             case Instruction.Operation.brk:
                 return brk(this._state);
-
-            case Instruction.Operation.clc:
-                return nullaryOneCycle(this._state, s => (s.flags &= ~CpuInterface.Flags.c));
-
-            case Instruction.Operation.cld:
-                return nullaryOneCycle(this._state, s => (s.flags &= ~CpuInterface.Flags.d));
-
-            case Instruction.Operation.cli:
-                return nullaryOneCycle(this._state, s => (s.flags &= ~CpuInterface.Flags.i));
-
-            case Instruction.Operation.clv:
-                return nullaryOneCycle(this._state, s => (s.flags &= ~CpuInterface.Flags.v));
 
             case Instruction.Operation.cmp:
                 return this._createAddressing(
@@ -211,11 +175,6 @@ class Compiler {
                     }
                 );
 
-            case Instruction.Operation.sbc:
-                return this._createAddressing(instruction.addressingMode, o => (ops.sbc(this._state, o), null), {
-                    deref: true
-                });
-
             case Instruction.Operation.lsr:
                 return instruction.addressingMode === Instruction.AddressingMode.implied
                     ? nullaryOneCycle(this._state, ops.lsrImmediate)
@@ -271,18 +230,9 @@ class Compiler {
             case Instruction.Operation.rts:
                 return rts(this._state);
 
-            case Instruction.Operation.sec:
-                return nullaryOneCycle(this._state, s => (s.flags |= CpuInterface.Flags.c));
-
-            case Instruction.Operation.sed:
-                return nullaryOneCycle(this._state, s => (s.flags |= CpuInterface.Flags.d));
-
-            case Instruction.Operation.sei:
-                return nullaryOneCycle(this._state, s => (s.flags |= CpuInterface.Flags.i));
-
-            case Instruction.Operation.sta:
-                return this._createAddressing(instruction.addressingMode, write(this._state, s => s.a).reset, {
-                    writeOp: true
+            case Instruction.Operation.sbc:
+                return this._createAddressing(instruction.addressingMode, o => (ops.sbc(this._state, o), null), {
+                    deref: true
                 });
 
             case Instruction.Operation.stx:
@@ -312,6 +262,116 @@ class Compiler {
 
             case Instruction.Operation.tya:
                 return nullaryOneCycle(this._state, s => ops.genNullary(s, state => (state.a = state.y)));
+
+            // Bramches
+
+            case Instruction.Operation.bcc:
+                return branch(this._state, flags => (flags & CpuInterface.Flags.c) === 0);
+
+            case Instruction.Operation.bcs:
+                return branch(this._state, flags => (flags & CpuInterface.Flags.c) > 0);
+
+            case Instruction.Operation.bne:
+                return branch(this._state, flags => (flags & CpuInterface.Flags.z) === 0);
+
+            case Instruction.Operation.beq:
+                return branch(this._state, flags => (flags & CpuInterface.Flags.z) > 0);
+
+            case Instruction.Operation.bpl:
+                return branch(this._state, flags => (flags & CpuInterface.Flags.n) === 0);
+
+            case Instruction.Operation.bmi:
+                return branch(this._state, flags => (flags & CpuInterface.Flags.n) > 0);
+
+            case Instruction.Operation.bvc:
+                return branch(this._state, flags => (flags & CpuInterface.Flags.v) === 0);
+
+            case Instruction.Operation.bvs:
+                return branch(this._state, flags => (flags & CpuInterface.Flags.v) > 0);
+
+            // Flags
+
+            case Instruction.Operation.sec:
+                return nullaryOneCycle(this._state, s => (s.flags |= CpuInterface.Flags.c));
+
+            case Instruction.Operation.sed:
+                return nullaryOneCycle(this._state, s => (s.flags |= CpuInterface.Flags.d));
+
+            case Instruction.Operation.sei:
+                return nullaryOneCycle(this._state, s => (s.flags |= CpuInterface.Flags.i));
+
+            case Instruction.Operation.sta:
+                return this._createAddressing(instruction.addressingMode, write(this._state, s => s.a).reset, {
+                    writeOp: true
+                });
+
+            case Instruction.Operation.clc:
+                return nullaryOneCycle(this._state, s => (s.flags &= ~CpuInterface.Flags.c));
+
+            case Instruction.Operation.cld:
+                return nullaryOneCycle(this._state, s => (s.flags &= ~CpuInterface.Flags.d));
+
+            case Instruction.Operation.cli:
+                return nullaryOneCycle(this._state, s => (s.flags &= ~CpuInterface.Flags.i));
+
+            case Instruction.Operation.clv:
+                return nullaryOneCycle(this._state, s => (s.flags &= ~CpuInterface.Flags.v));
+
+            // Undocumented opcodes
+
+            case Instruction.Operation.arr:
+                return this._createAddressing(instruction.addressingMode, o => (ops.arr(this._state, o), null), {
+                    deref: true
+                });
+
+            case Instruction.Operation.dop:
+            case Instruction.Operation.top:
+                return this._createAddressing(instruction.addressingMode, () => null, { deref: true });
+
+            case Instruction.Operation.lax:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (ops.genUnary(this._state, o, (state, operand) => (state.a = state.x = operand)), null),
+                    {
+                        deref: true
+                    }
+                );
+
+            case Instruction.Operation.alr:
+                return this._createAddressing(instruction.addressingMode, o => (ops.alr(this._state, o), null), {
+                    deref: true
+                });
+
+            case Instruction.Operation.dcp:
+                return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.dcp).reset, {
+                    writeOp: true
+                });
+
+            case Instruction.Operation.axs:
+                return this._createAddressing(instruction.addressingMode, o => (ops.axs(this._state, o), null), {
+                    deref: true
+                });
+
+            case Instruction.Operation.atx:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    o => (
+                        ops.genUnary(this._state, o, (state, operand) => (state.x = state.a = state.a & operand)), null
+                    ),
+                    {
+                        deref: true
+                    }
+                );
+
+            case Instruction.Operation.rra:
+                return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.rra).reset, {
+                    writeOp: true
+                });
+
+            case Instruction.Operation.rla:
+                return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.rla).reset, {
+                    writeOp: true
+                });
 
             default:
                 return null;

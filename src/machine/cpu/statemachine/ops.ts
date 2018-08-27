@@ -217,3 +217,72 @@ export function rorRmw(state: CpuInterface.State, operand: number): number {
 
     return result;
 }
+
+// Undocumented opcodes
+
+export function arr(state: CpuInterface.State, operand: number): void {
+    state.a = ((state.a & operand) >>> 1) | (state.flags & CpuInterface.Flags.c ? 0x80 : 0);
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.c | CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.v)) |
+        ((state.a & 0x40) >>> 6) |
+        (state.a ? 0 : CpuInterface.Flags.z) |
+        (state.a & 0x80) |
+        ((state.a & 0x40) ^ ((state.a & 0x20) << 1));
+}
+
+export function alr(state: CpuInterface.State, operand: number): void {
+    const i = state.a & operand;
+    state.a = i >>> 1;
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (state.a & 0x80) |
+        (state.a ? 0 : CpuInterface.Flags.z) |
+        (i & CpuInterface.Flags.c);
+}
+
+export function dcp(state: CpuInterface.State, operand: number): number {
+    const result = (operand + 0xff) & 0xff;
+    const diff = state.a + (~result & 0xff) + 1;
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (diff & 0x80) |
+        (diff & 0xff ? 0 : CpuInterface.Flags.z) |
+        (diff >>> 8);
+
+    return result;
+}
+
+export function axs(state: CpuInterface.State, operand: number): void {
+    const value = (state.a & state.x) + (~operand & 0xff) + 1;
+
+    state.x = value & 0xff;
+
+    state.flags =
+        (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z | CpuInterface.Flags.c)) |
+        (state.x & 0x80) |
+        (state.x & 0xff ? 0 : CpuInterface.Flags.z) |
+        (value >>> 8);
+}
+
+export function rra(state: CpuInterface.State, operand: number): number {
+    const result = (operand >>> 1) | ((state.flags & CpuInterface.Flags.c) << 7);
+
+    state.flags = (state.flags & ~CpuInterface.Flags.c) | (operand & CpuInterface.Flags.c);
+
+    adc(state, result);
+
+    return result;
+}
+
+export function rla(state: CpuInterface.State, operand: number): number {
+    const result = ((operand << 1) & 0xff) | (state.flags & CpuInterface.Flags.c);
+
+    state.flags = (state.flags & ~CpuInterface.Flags.c) | (operand >>> 7);
+
+    setFlagsNZ(state, (state.a &= result));
+
+    return result;
+}

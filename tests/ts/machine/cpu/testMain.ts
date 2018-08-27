@@ -88,7 +88,6 @@ run(bus => new BatchedAddressCp(bus), 'standard CPU');
 
 if (process.env['TEST_STATE_MACHINE_CPU']) {
     run(bus => new StateMachineCpu(bus), 'state machine CPU', {
-        undocumented: false,
         interrupt: false
     });
 }
