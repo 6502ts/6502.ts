@@ -24,12 +24,13 @@ import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
 
 import { freezeImmutables, Immutable } from '../../../../tools/decorators';
+import NextStep from './NextStep';
 
 class AbsoluteIndexed implements StateMachineInterface {
     private constructor(
         state: CpuInterface.State,
         indexExtractor: AbsoluteIndexed.IndexExtractor,
-        next: StateMachineInterface.Step = () => null,
+        next: NextStep = () => null,
         writeOp = false
     ) {
         this._state = state;
@@ -41,12 +42,12 @@ class AbsoluteIndexed implements StateMachineInterface {
     }
 
     @Immutable
-    static absoluteX(state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean): AbsoluteIndexed {
+    static absoluteX(state: CpuInterface.State, next: NextStep, writeOp: boolean): AbsoluteIndexed {
         return new AbsoluteIndexed(state, s => s.x, next, writeOp);
     }
 
     @Immutable
-    static absoluteY(state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean): AbsoluteIndexed {
+    static absoluteY(state: CpuInterface.State, next: NextStep, writeOp: boolean): AbsoluteIndexed {
         return new AbsoluteIndexed(state, s => s.y, next, writeOp);
     }
 
@@ -71,7 +72,7 @@ class AbsoluteIndexed implements StateMachineInterface {
 
         return this._carry || this._writeOp
             ? this._result.read(this._dereferenceAndCarry, this._operand)
-            : this._next(this._operand);
+            : this._next(this._operand, this._state);
     };
 
     @Immutable
@@ -80,7 +81,7 @@ class AbsoluteIndexed implements StateMachineInterface {
             this._operand = (this._operand + 0x0100) & 0xffff;
         }
 
-        return this._next(this._operand);
+        return this._next(this._operand, this._state);
     };
 
     private _operand = 0;
@@ -90,7 +91,7 @@ class AbsoluteIndexed implements StateMachineInterface {
 
     @Immutable private readonly _state: CpuInterface.State;
     @Immutable private readonly _indexExtractor: AbsoluteIndexed.IndexExtractor;
-    @Immutable private readonly _next: StateMachineInterface.Step;
+    @Immutable private readonly _next: NextStep;
     @Immutable private readonly _writeOp: boolean;
 }
 
@@ -100,8 +101,8 @@ namespace AbsoluteIndexed {
     }
 }
 
-export const absoluteX = (state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean) =>
+export const absoluteX = (state: CpuInterface.State, next: NextStep, writeOp: boolean) =>
     AbsoluteIndexed.absoluteX(state, next, writeOp);
 
-export const absoluteY = (state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean) =>
+export const absoluteY = (state: CpuInterface.State, next: NextStep, writeOp: boolean) =>
     AbsoluteIndexed.absoluteY(state, next, writeOp);

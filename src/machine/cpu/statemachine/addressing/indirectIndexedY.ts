@@ -23,9 +23,10 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
 import { freezeImmutables, Immutable } from '../../../../tools/decorators';
+import NextStep from './NextStep';
 
 class IndexedIndirectY implements StateMachineInterface {
-    constructor(state: CpuInterface.State, next: StateMachineInterface.Step = () => null, writeOp: boolean) {
+    constructor(state: CpuInterface.State, next: NextStep = () => null, writeOp: boolean) {
         this._state = state;
         this._next = next;
         this._writeOp = writeOp;
@@ -60,7 +61,7 @@ class IndexedIndirectY implements StateMachineInterface {
 
         return this._carry || this._writeOp
             ? this._result.read(this._dereferenceAndCarry, this._operand)
-            : this._next(this._operand);
+            : this._next(this._operand, this._state);
     };
 
     @Immutable
@@ -69,7 +70,7 @@ class IndexedIndirectY implements StateMachineInterface {
             this._operand = (this._operand + 0x0100) & 0xffff;
         }
 
-        return this._next(this._operand);
+        return this._next(this._operand, this._state);
     };
 
     private _operand = 0;
@@ -79,9 +80,9 @@ class IndexedIndirectY implements StateMachineInterface {
     @Immutable private readonly _result = new ResultImpl();
 
     @Immutable private readonly _state: CpuInterface.State;
-    @Immutable private readonly _next: StateMachineInterface.Step;
+    @Immutable private readonly _next: NextStep;
     @Immutable private readonly _writeOp: boolean;
 }
 
-export const indirectIndexedY = (state: CpuInterface.State, next: StateMachineInterface.Step, writeOp: boolean) =>
+export const indirectIndexedY = (state: CpuInterface.State, next: NextStep, writeOp: boolean) =>
     new IndexedIndirectY(state, next, writeOp);

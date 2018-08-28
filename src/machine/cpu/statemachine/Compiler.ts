@@ -37,6 +37,7 @@ import {
 import { nullaryOneCycle, readModifyWrite, brk, jsr, push, pull, rti, rts, write, branch } from './instruction';
 import * as ops from './ops';
 import { indirect } from './addressing/indirect';
+import NextStep from './addressing/NextStep';
 
 class Compiler {
     constructor(private readonly _state: CpuInterface.State) {}
@@ -46,14 +47,14 @@ class Compiler {
 
         switch (instruction.operation) {
             case Instruction.Operation.adc:
-                return this._createAddressing(instruction.addressingMode, o => (ops.adc(this._state, o), null), {
+                return this._createAddressing(instruction.addressingMode, ops.adc, {
                     deref: true
                 });
 
             case Instruction.Operation.and:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (ops.genUnary(this._state, o, (state, operand) => (state.a = state.a & operand)), null),
+                    (o, s) => ops.genUnary(o, s, (operand, state) => (state.a = state.a & operand)),
                     {
                         deref: true
                     }
@@ -69,7 +70,7 @@ class Compiler {
                       );
 
             case Instruction.Operation.bit:
-                return this._createAddressing(instruction.addressingMode, o => (ops.bit(this._state, o), null), {
+                return this._createAddressing(instruction.addressingMode, ops.bit, {
                     deref: true
                 });
 
@@ -79,7 +80,7 @@ class Compiler {
             case Instruction.Operation.cmp:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (ops.cmp(this._state, o, s => s.a), null),
+                    (o, s) => (ops.cmp(o, s, state => state.a), null),
                     {
                         deref: true
                     }
@@ -88,7 +89,7 @@ class Compiler {
             case Instruction.Operation.cpx:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (ops.cmp(this._state, o, s => s.x), null),
+                    (o, s) => (ops.cmp(o, s, state => state.x), null),
                     {
                         deref: true
                     }
@@ -97,7 +98,7 @@ class Compiler {
             case Instruction.Operation.cpy:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (ops.cmp(this._state, o, s => s.y), null),
+                    (o, s) => (ops.cmp(o, s, state => state.y), null),
                     {
                         deref: true
                     }
@@ -136,14 +137,14 @@ class Compiler {
             case Instruction.Operation.eor:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (ops.genUnary(this._state, o, (state, operand) => (state.a = state.a ^ operand)), null),
+                    (o, s) => ops.genUnary(o, s, (operand, state) => (state.a = state.a ^ operand)),
                     {
                         deref: true
                     }
                 );
 
             case Instruction.Operation.jmp:
-                return this._createAddressing(instruction.addressingMode, o => ((this._state.p = o), null));
+                return this._createAddressing(instruction.addressingMode, (o, s) => ((s.p = o), null));
 
             case Instruction.Operation.jsr:
                 return jsr(this._state);
@@ -151,7 +152,7 @@ class Compiler {
             case Instruction.Operation.lda:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (ops.genUnary(this._state, o, (state, operand) => (state.a = operand)), null),
+                    (o, s) => ops.genUnary(o, s, (operand, state) => (state.a = operand)),
                     {
                         deref: true
                     }
@@ -160,7 +161,7 @@ class Compiler {
             case Instruction.Operation.ldx:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (ops.genUnary(this._state, o, (state, operand) => (state.x = operand)), null),
+                    (o, s) => ops.genUnary(o, s, (operand, state) => (state.x = operand)),
                     {
                         deref: true
                     }
@@ -169,7 +170,7 @@ class Compiler {
             case Instruction.Operation.ldy:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (ops.genUnary(this._state, o, (state, operand) => (state.y = operand)), null),
+                    (o, s) => ops.genUnary(o, s, (operand, state) => (state.y = operand)),
                     {
                         deref: true
                     }
@@ -190,7 +191,7 @@ class Compiler {
             case Instruction.Operation.ora:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (ops.genUnary(this._state, o, (state, operand) => (state.a |= operand)), null),
+                    (o, s) => ops.genUnary(o, s, (operand, state) => (state.a |= operand)),
                     { deref: true }
                 );
 
@@ -231,7 +232,7 @@ class Compiler {
                 return rts(this._state);
 
             case Instruction.Operation.sbc:
-                return this._createAddressing(instruction.addressingMode, o => (ops.sbc(this._state, o), null), {
+                return this._createAddressing(instruction.addressingMode, ops.sbc, {
                     deref: true
                 });
 
@@ -319,57 +320,85 @@ class Compiler {
 
             // Undocumented opcodes
 
-            case Instruction.Operation.arr:
-                return this._createAddressing(instruction.addressingMode, o => (ops.arr(this._state, o), null), {
-                    deref: true
-                });
-
             case Instruction.Operation.dop:
             case Instruction.Operation.top:
                 return this._createAddressing(instruction.addressingMode, () => null, { deref: true });
 
-            case Instruction.Operation.lax:
-                return this._createAddressing(
-                    instruction.addressingMode,
-                    o => (ops.genUnary(this._state, o, (state, operand) => (state.a = state.x = operand)), null),
-                    {
-                        deref: true
-                    }
-                );
+            case Instruction.Operation.aac:
+                return this._createAddressing(instruction.addressingMode, ops.aac);
 
-            case Instruction.Operation.alr:
-                return this._createAddressing(instruction.addressingMode, o => (ops.alr(this._state, o), null), {
-                    deref: true
-                });
-
-            case Instruction.Operation.dcp:
-                return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.dcp).reset, {
+            case Instruction.Operation.aax:
+                return this._createAddressing(instruction.addressingMode, write(this._state, ops.aax).reset, {
                     writeOp: true
                 });
 
+            case Instruction.Operation.alr:
+                return this._createAddressing(instruction.addressingMode, ops.alr, {
+                    deref: true
+                });
+
+            case Instruction.Operation.arr:
+                return this._createAddressing(instruction.addressingMode, (o, s) => (ops.arr(o, s), null), {
+                    deref: true
+                });
+
             case Instruction.Operation.axs:
-                return this._createAddressing(instruction.addressingMode, o => (ops.axs(this._state, o), null), {
+                return this._createAddressing(instruction.addressingMode, ops.axs, {
                     deref: true
                 });
 
             case Instruction.Operation.atx:
                 return this._createAddressing(
                     instruction.addressingMode,
-                    o => (
-                        ops.genUnary(this._state, o, (state, operand) => (state.x = state.a = state.a & operand)), null
-                    ),
+                    (o, s) => ops.genUnary(o, s, (operand, state) => (state.x = state.a = state.a & operand)),
                     {
                         deref: true
                     }
                 );
+
+            case Instruction.Operation.atx:
+                return this._createAddressing(instruction.addressingMode, (o, s) =>
+                    ops.genUnary(o, s, (operand, state) => (state.x = state.a = state.a & operand))
+                );
+
+            case Instruction.Operation.dcp:
+                return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.dcp).reset, {
+                    writeOp: true
+                });
+
+            case Instruction.Operation.isc:
+                return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.isc).reset, {
+                    writeOp: true
+                });
+
+            case Instruction.Operation.lax:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    (o, s) => ops.genUnary(o, s, (operand, state) => (state.a = state.x = operand)),
+                    {
+                        deref: true
+                    }
+                );
+
+            case Instruction.Operation.lar:
+                return this._createAddressing(
+                    instruction.addressingMode,
+                    (o, s) => ops.genUnary(o, s, (operand, state) => (state.s = state.x = state.a = state.s & operand)),
+                    { deref: true }
+                );
+
+            case Instruction.Operation.rla:
+                return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.rla).reset, {
+                    writeOp: true
+                });
 
             case Instruction.Operation.rra:
                 return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.rra).reset, {
                     writeOp: true
                 });
 
-            case Instruction.Operation.rla:
-                return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.rla).reset, {
+            case Instruction.Operation.slo:
+                return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.slo).reset, {
                     writeOp: true
                 });
 
@@ -380,11 +409,11 @@ class Compiler {
 
     private _createAddressing(
         addressingMode: Instruction.AddressingMode,
-        next: (operand: number) => StateMachineInterface.Result,
+        next: NextStep,
         { deref = false, writeOp = false } = {}
     ): StateMachineInterface {
         if (deref && addressingMode !== Instruction.AddressingMode.immediate) {
-            next = dereference(next).reset;
+            next = dereference(this._state, next).reset;
         }
 
         switch (addressingMode) {

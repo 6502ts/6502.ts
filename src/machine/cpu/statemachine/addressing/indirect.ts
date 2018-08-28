@@ -23,9 +23,10 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
 import { freezeImmutables, Immutable } from '../../../../tools/decorators';
+import NextStep from './NextStep';
 
 class Indirect implements StateMachineInterface {
-    constructor(state: CpuInterface.State, next: StateMachineInterface.Step = () => null) {
+    constructor(state: CpuInterface.State, next: NextStep = () => null) {
         this._state = state;
         this._next = next;
 
@@ -67,7 +68,7 @@ class Indirect implements StateMachineInterface {
     private _fetchHi = (value: number): StateMachineInterface.Result | null => {
         this._operand |= value << 8;
 
-        return this._next(this._operand);
+        return this._next(this._operand, this._state);
     };
 
     private _operand = 0;
@@ -76,7 +77,7 @@ class Indirect implements StateMachineInterface {
     @Immutable private readonly _result = new ResultImpl();
 
     @Immutable private readonly _state: CpuInterface.State;
-    @Immutable private readonly _next: StateMachineInterface.Step;
+    @Immutable private readonly _next: NextStep;
 }
 
-export const indirect = (state: CpuInterface.State, next: StateMachineInterface.Step) => new Indirect(state, next);
+export const indirect = (state: CpuInterface.State, next: NextStep) => new Indirect(state, next);

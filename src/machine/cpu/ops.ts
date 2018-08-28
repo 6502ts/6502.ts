@@ -512,7 +512,7 @@ export function opArr(state: CpuInterface.State, bus: BusInterface, operand: num
 export function opSlo(state: CpuInterface.State, bus: BusInterface, operand: number): void {
     let value = bus.read(operand);
     state.flags = (state.flags & ~CpuInterface.Flags.c) | (value >>> 7);
-    value = value << 1;
+    value = (value << 1) & 0xff;
 
     bus.write(operand, value);
 

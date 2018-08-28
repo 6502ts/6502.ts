@@ -48,7 +48,7 @@ class ReadModifyWrite implements StateMachineInterface<number> {
 
     @Immutable
     private _dummyWrite = (value: number): StateMachineInterface.Result =>
-        this._result.write(this._write, this._address, this._operation(this._state, this._operand));
+        this._result.write(this._write, this._address, this._operation(this._operand, this._state));
 
     @Immutable private _write = (): null => null;
 
@@ -63,7 +63,7 @@ class ReadModifyWrite implements StateMachineInterface<number> {
 
 namespace ReadModifyWrite {
     export interface Operation {
-        (s: CpuInterface.State, operand: number): number;
+        (o: number, s: CpuInterface.State): number;
     }
 }
 

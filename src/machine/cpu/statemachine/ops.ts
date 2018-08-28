@@ -21,33 +21,35 @@
 
 import CpuInterface from '../CpuInterface';
 
-function setFlagsNZ(state: CpuInterface.State, operand: number): void {
+function setFlagsNZ(operand: number, state: CpuInterface.State): void {
     state.flags =
         (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.z)) |
         (operand & 0x80) |
         (operand ? 0 : CpuInterface.Flags.z);
 }
 
-export function genRmw(state: CpuInterface.State, operand: number, operation: (x: number) => number): number {
+export function genRmw(operand: number, state: CpuInterface.State, operation: (x: number) => number): number {
     const result = operation(operand);
-    setFlagsNZ(state, result);
+    setFlagsNZ(result, state);
 
     return result;
 }
 
 export function genNullary(state: CpuInterface.State, operation: (state: CpuInterface.State) => number): void {
-    setFlagsNZ(state, operation(state));
+    setFlagsNZ(operation(state), state);
 }
 
 export function genUnary(
-    state: CpuInterface.State,
     operand: number,
-    operation: (state: CpuInterface.State, operand: number) => number
-) {
-    setFlagsNZ(state, operation(state, operand));
+    state: CpuInterface.State,
+    operation: (operand: number, state: CpuInterface.State) => number
+): null {
+    setFlagsNZ(operation(operand, state), state);
+
+    return null;
 }
 
-export function adc(state: CpuInterface.State, operand: number): void {
+export function adc(operand: number, state: CpuInterface.State): null {
     if (state.flags & CpuInterface.Flags.d) {
         const d0 = (operand & 0x0f) + (state.a & 0x0f) + (state.flags & CpuInterface.Flags.c),
             d1 = (operand >>> 4) + (state.a >>> 4) + (d0 > 9 ? 1 : 0);
@@ -73,6 +75,8 @@ export function adc(state: CpuInterface.State, operand: number): void {
 
         state.a = result;
     }
+
+    return null;
 }
 
 export function aslImmediate(state: CpuInterface.State): void {
@@ -86,7 +90,7 @@ export function aslImmediate(state: CpuInterface.State): void {
         (old >>> 7);
 }
 
-export function aslRmw(state: CpuInterface.State, operand: number): number {
+export function aslRmw(operand: number, state: CpuInterface.State): number {
     const result = (operand << 1) & 0xff;
 
     state.flags =
@@ -98,16 +102,18 @@ export function aslRmw(state: CpuInterface.State, operand: number): number {
     return result;
 }
 
-export function bit(state: CpuInterface.State, operand: number): void {
+export function bit(operand: number, state: CpuInterface.State): null {
     state.flags =
         (state.flags & ~(CpuInterface.Flags.n | CpuInterface.Flags.v | CpuInterface.Flags.z)) |
         (operand & (CpuInterface.Flags.n | CpuInterface.Flags.v)) |
         (operand & state.a ? 0 : CpuInterface.Flags.z);
+
+    return null;
 }
 
 export function cmp(
-    state: CpuInterface.State,
     operand: number,
+    state: CpuInterface.State,
     getRegister: (state: CpuInterface.State) => number
 ): void {
     const diff = getRegister(state) + (~operand & 0xff) + 1;
@@ -119,7 +125,7 @@ export function cmp(
         (diff >>> 8);
 }
 
-export function sbc(state: CpuInterface.State, operand: number): void {
+export function sbc(operand: number, state: CpuInterface.State): null {
     if (state.flags & CpuInterface.Flags.d) {
         const d0 = (state.a & 0x0f) - (operand & 0x0f) - (~state.flags & CpuInterface.Flags.c),
             d1 = (state.a >>> 4) - (operand >>> 4) - (d0 < 0 ? 1 : 0);
@@ -147,6 +153,8 @@ export function sbc(state: CpuInterface.State, operand: number): void {
 
         state.a = result;
     }
+
+    return null;
 }
 
 export function lsrImmediate(state: CpuInterface.State): void {
@@ -160,7 +168,7 @@ export function lsrImmediate(state: CpuInterface.State): void {
         (old & CpuInterface.Flags.c);
 }
 
-export function lsrRmw(state: CpuInterface.State, operand: number): number {
+export function lsrRmw(operand: number, state: CpuInterface.State): number {
     const result = operand >>> 1;
 
     state.flags =
@@ -183,7 +191,7 @@ export function rolImmediate(state: CpuInterface.State): void {
         (old >>> 7);
 }
 
-export function rolRmw(state: CpuInterface.State, operand: number): number {
+export function rolRmw(operand: number, state: CpuInterface.State): number {
     const result = ((operand << 1) & 0xff) | (state.flags & CpuInterface.Flags.c);
 
     state.flags =
@@ -206,7 +214,7 @@ export function rorImmediate(state: CpuInterface.State): void {
         (old & CpuInterface.Flags.c);
 }
 
-export function rorRmw(state: CpuInterface.State, operand: number): number {
+export function rorRmw(operand: number, state: CpuInterface.State): number {
     const result = (operand >>> 1) | ((state.flags & CpuInterface.Flags.c) << 7);
 
     state.flags =
@@ -220,7 +228,7 @@ export function rorRmw(state: CpuInterface.State, operand: number): number {
 
 // Undocumented opcodes
 
-export function arr(state: CpuInterface.State, operand: number): void {
+export function arr(operand: number, state: CpuInterface.State): void {
     state.a = ((state.a & operand) >>> 1) | (state.flags & CpuInterface.Flags.c ? 0x80 : 0);
 
     state.flags =
@@ -231,7 +239,7 @@ export function arr(state: CpuInterface.State, operand: number): void {
         ((state.a & 0x40) ^ ((state.a & 0x20) << 1));
 }
 
-export function alr(state: CpuInterface.State, operand: number): void {
+export function alr(operand: number, state: CpuInterface.State): null {
     const i = state.a & operand;
     state.a = i >>> 1;
 
@@ -240,9 +248,11 @@ export function alr(state: CpuInterface.State, operand: number): void {
         (state.a & 0x80) |
         (state.a ? 0 : CpuInterface.Flags.z) |
         (i & CpuInterface.Flags.c);
+
+    return null;
 }
 
-export function dcp(state: CpuInterface.State, operand: number): number {
+export function dcp(operand: number, state: CpuInterface.State): number {
     const result = (operand + 0xff) & 0xff;
     const diff = state.a + (~result & 0xff) + 1;
 
@@ -255,7 +265,7 @@ export function dcp(state: CpuInterface.State, operand: number): number {
     return result;
 }
 
-export function axs(state: CpuInterface.State, operand: number): void {
+export function axs(operand: number, state: CpuInterface.State): null {
     const value = (state.a & state.x) + (~operand & 0xff) + 1;
 
     state.x = value & 0xff;
@@ -265,24 +275,59 @@ export function axs(state: CpuInterface.State, operand: number): void {
         (state.x & 0x80) |
         (state.x & 0xff ? 0 : CpuInterface.Flags.z) |
         (value >>> 8);
+
+    return null;
 }
 
-export function rra(state: CpuInterface.State, operand: number): number {
+export function rra(operand: number, state: CpuInterface.State): number {
     const result = (operand >>> 1) | ((state.flags & CpuInterface.Flags.c) << 7);
 
     state.flags = (state.flags & ~CpuInterface.Flags.c) | (operand & CpuInterface.Flags.c);
 
-    adc(state, result);
+    adc(result, state);
 
     return result;
 }
 
-export function rla(state: CpuInterface.State, operand: number): number {
+export function rla(operand: number, state: CpuInterface.State): number {
     const result = ((operand << 1) & 0xff) | (state.flags & CpuInterface.Flags.c);
 
     state.flags = (state.flags & ~CpuInterface.Flags.c) | (operand >>> 7);
 
-    setFlagsNZ(state, (state.a &= result));
+    setFlagsNZ((state.a &= result), state);
 
     return result;
+}
+
+export function slo(operand: number, state: CpuInterface.State): number {
+    state.flags = (state.flags & ~CpuInterface.Flags.c) | (operand >>> 7);
+    const result = (operand << 1) & 0xff;
+
+    state.a = state.a | result;
+    setFlagsNZ(state.a, state);
+
+    return result;
+}
+
+export function aax(state: CpuInterface.State): number {
+    const result = state.a & state.x;
+    setFlagsNZ(result, state);
+
+    return result;
+}
+
+export function isc(operand: number, state: CpuInterface.State): number {
+    const result = (operand + 1) & 0xff;
+
+    sbc(result, state);
+
+    return result;
+}
+
+export function aac(operand: number, state: CpuInterface.State): null {
+    state.a &= operand;
+    setFlagsNZ(state.a, state);
+    state.flags = (state.flags & ~CpuInterface.Flags.c) | ((state.a & 0x80) >>> 7);
+
+    return null;
 }

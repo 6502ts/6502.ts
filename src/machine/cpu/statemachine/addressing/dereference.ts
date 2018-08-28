@@ -22,21 +22,26 @@
 import StateMachineInterface from '../StateMachineInterface';
 import ResultImpl from '../ResultImpl';
 import { freezeImmutables, Immutable } from '../../../../tools/decorators';
+import NextStep from './NextStep';
+import CpuInterface from '../../CpuInterface';
 
 class Dereference implements StateMachineInterface<number> {
-    constructor(next: StateMachineInterface.Step = () => null) {
+    constructor(state: CpuInterface.State, next: NextStep = () => null) {
         this._next = next;
+        this._state = state;
 
         freezeImmutables(this);
     }
 
     @Immutable reset = (operand: number): StateMachineInterface.Result => this._result.read(this._dereference, operand);
 
-    @Immutable private _dereference = (value: number): StateMachineInterface.Result | null => this._next(value);
+    @Immutable
+    private _dereference = (value: number): StateMachineInterface.Result | null => this._next(value, this._state);
 
     @Immutable private readonly _result = new ResultImpl();
 
-    @Immutable private readonly _next: StateMachineInterface.Step;
+    @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _next: NextStep;
 }
 
-export const dereference = (next: StateMachineInterface.Step) => new Dereference(next);
+export const dereference = (state: CpuInterface.State, next: NextStep) => new Dereference(state, next);

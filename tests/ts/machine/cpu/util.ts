@@ -315,6 +315,32 @@ export function testMutatingZeropageX(
             }));
 }
 
+export function testMutatingZeropageY(
+    cpuFactory: Runner.CpuFactory,
+    opcode: number,
+    before: number,
+    after: number,
+    cycles: number,
+    stateBefore: Runner.State,
+    stateAfter: Runner.State,
+    extra = ''
+): void {
+    stateBefore.y = 0x12;
+
+    test(`zeropage,Y ${extra}`, () =>
+        Runner.create(cpuFactory, [opcode, 0x34])
+            .setState(stateBefore)
+            .poke({
+                '0x0046': before
+            })
+            .run()
+            .assertCycles(cycles)
+            .assertState(stateAfter)
+            .assertMemory({
+                '0x0046': after
+            }));
+}
+
 export function testMutatingAbsolute(
     cpuFactory: Runner.CpuFactory,
     opcode: number,

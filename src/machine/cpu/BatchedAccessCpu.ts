@@ -613,9 +613,10 @@ class BatchedAccessCpu {
                 break;
 
             case Instruction.Operation.slo:
-                this._opCycles = 2;
+                this._opCycles = 3;
                 this._instructionCallback = ops.opSlo;
                 slowIndexedAccess = true;
+                dereference = false;
                 break;
 
             case Instruction.Operation.aax:
@@ -632,6 +633,7 @@ class BatchedAccessCpu {
             case Instruction.Operation.isc:
                 this._opCycles = 3;
                 this._instructionCallback = ops.opIsc;
+                slowIndexedAccess = true;
                 break;
 
             case Instruction.Operation.aac:

@@ -23,13 +23,10 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import StateMachineInterface from '../StateMachineInterface';
 import { freezeImmutables, Immutable } from '../../../../tools/decorators';
+import NextStep from './NextStep';
 
 class ZeroPageIndexed implements StateMachineInterface {
-    private constructor(
-        state: CpuInterface.State,
-        indexExtractor: ZeroPageIndexed.IndexExtractor,
-        next: StateMachineInterface.Step
-    ) {
+    private constructor(state: CpuInterface.State, indexExtractor: ZeroPageIndexed.IndexExtractor, next: NextStep) {
         this._state = state;
         this._indexExtractor = indexExtractor;
         this._next = next;
@@ -37,11 +34,11 @@ class ZeroPageIndexed implements StateMachineInterface {
         freezeImmutables(this);
     }
 
-    static zeroPageX(state: CpuInterface.State, next: StateMachineInterface.Step = () => null): ZeroPageIndexed {
+    static zeroPageX(state: CpuInterface.State, next: NextStep = () => null): ZeroPageIndexed {
         return new ZeroPageIndexed(state, s => s.x, next);
     }
 
-    static zeroPageY(state: CpuInterface.State, next: StateMachineInterface.Step = () => null): ZeroPageIndexed {
+    static zeroPageY(state: CpuInterface.State, next: NextStep = () => null): ZeroPageIndexed {
         return new ZeroPageIndexed(state, s => s.y, next);
     }
 
@@ -59,7 +56,7 @@ class ZeroPageIndexed implements StateMachineInterface {
     private _addIndex = (value: number): StateMachineInterface.Result | null => {
         this._operand = (this._operand + this._indexExtractor(this._state)) & 0xff;
 
-        return this._next(this._operand);
+        return this._next(this._operand, this._state);
     };
 
     private _operand = 0;
@@ -67,7 +64,7 @@ class ZeroPageIndexed implements StateMachineInterface {
     @Immutable private readonly _result = new ResultImpl();
 
     @Immutable private readonly _state: CpuInterface.State;
-    @Immutable private readonly _next: StateMachineInterface.Step;
+    @Immutable private readonly _next: NextStep;
     @Immutable private readonly _indexExtractor: ZeroPageIndexed.IndexExtractor;
 }
 
@@ -77,8 +74,6 @@ namespace ZeroPageIndexed {
     }
 }
 
-export const zeroPageX = (state: CpuInterface.State, next: StateMachineInterface.Step) =>
-    ZeroPageIndexed.zeroPageX(state, next);
+export const zeroPageX = (state: CpuInterface.State, next: NextStep) => ZeroPageIndexed.zeroPageX(state, next);
 
-export const zeroPageY = (state: CpuInterface.State, next: StateMachineInterface.Step) =>
-    ZeroPageIndexed.zeroPageY(state, next);
+export const zeroPageY = (state: CpuInterface.State, next: NextStep) => ZeroPageIndexed.zeroPageY(state, next);

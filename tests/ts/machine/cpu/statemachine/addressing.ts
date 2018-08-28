@@ -60,7 +60,7 @@ export default function run(): void {
                     .read(0x43, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010 }),
-                        (state, getResult) => zeroPage(state, dereference(getResult).reset),
+                        (state, getResult) => zeroPage(state, dereference(state, getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -85,7 +85,7 @@ export default function run(): void {
                     .read(0x1234, 0x43)
                     .run(
                         s => ({ ...s, p: 0x0010 }),
-                        (state, getResult) => absolute(state, dereference(getResult).reset),
+                        (state, getResult) => absolute(state, dereference(state, getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x43)));
@@ -152,7 +152,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, getResult) => absoluteX(state, dereference(getResult).reset, false),
+                        (state, getResult) => absoluteX(state, dereference(state, getResult).reset, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -167,7 +167,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, getResult) => absoluteY(state, dereference(getResult).reset, false),
+                        (state, getResult) => absoluteY(state, dereference(state, getResult).reset, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -222,7 +222,7 @@ export default function run(): void {
                     .read(0x66, 0x42)
                     .run(
                         s => ({ ...s, p: 0x0010, y: 0x06 }),
-                        (state, getResult) => zeroPageY(state, dereference(getResult).reset),
+                        (state, getResult) => zeroPageY(state, dereference(state, getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x42)));
@@ -247,7 +247,7 @@ export default function run(): void {
                     .read(0x66, 0x42)
                     .run(
                         s => ({ ...s, p: 0x0010, y: 0xff }),
-                        (state, getResult) => zeroPageY(state, dereference(getResult).reset),
+                        (state, getResult) => zeroPageY(state, dereference(state, getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x42)));
@@ -278,7 +278,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0x10 }),
-                        (state, getResult) => indexedIndirectX(state, dereference(getResult).reset),
+                        (state, getResult) => indexedIndirectX(state, dereference(state, getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -307,7 +307,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x0010, x: 0xf0 }),
-                        (state, getResult) => indexedIndirectX(state, dereference(getResult).reset),
+                        (state, getResult) => indexedIndirectX(state, dereference(state, getResult).reset),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -336,7 +336,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x010, y: 0x04 }),
-                        (state, getResult) => indirectIndexedY(state, dereference(getResult).reset, false),
+                        (state, getResult) => indirectIndexedY(state, dereference(state, getResult).reset, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
@@ -365,7 +365,7 @@ export default function run(): void {
                     .read(0x1234, 0x66)
                     .run(
                         s => ({ ...s, p: 0x010, y: 0xff }),
-                        (state, getResult) => indirectIndexedY(state, dereference(getResult).reset, false),
+                        (state, getResult) => indirectIndexedY(state, dereference(state, getResult).reset, false),
                         undefined
                     )
                     .assert(result => strictEqual(result, 0x66)));
