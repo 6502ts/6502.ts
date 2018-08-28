@@ -356,11 +356,6 @@ class Compiler {
                     }
                 );
 
-            case Instruction.Operation.atx:
-                return this._createAddressing(instruction.addressingMode, (o, s) =>
-                    ops.genUnary(o, s, (operand, state) => (state.x = state.a = state.a & operand))
-                );
-
             case Instruction.Operation.dcp:
                 return this._createAddressing(instruction.addressingMode, readModifyWrite(this._state, ops.dcp).reset, {
                     writeOp: true
