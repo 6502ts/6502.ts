@@ -24,9 +24,11 @@ import CpuInterface from '../../CpuInterface';
 import ResultImpl from '../ResultImpl';
 import { freezeImmutables, Immutable } from '../../../../tools/decorators';
 
-class Irq implements StateMachineInterface {
-    constructor(state: CpuInterface.State) {
+class Interrupt implements StateMachineInterface {
+    constructor(state: CpuInterface.State, defaultVector: number, isBrk: boolean) {
         this._state = state;
+        this._defaultVector = defaultVector;
+        this._isBrk = isBrk;
 
         freezeImmutables(this);
     }
@@ -35,7 +37,9 @@ class Irq implements StateMachineInterface {
 
     @Immutable
     private _dummyRead = (): StateMachineInterface.Result => {
-        this._state.p = (this._state.p + 1) & 0xffff;
+        if (this._isBrk) {
+            this._state.p = (this._state.p + 1) & 0xffff;
+        }
 
         return this._result.write(this._pushPch, 0x0100 + this._state.s, this._state.p >>> 8);
     };
@@ -44,15 +48,19 @@ class Irq implements StateMachineInterface {
     private _pushPch = (): StateMachineInterface.Result => {
         this._state.s = (this._state.s - 1) & 0xff;
 
-        return this._result.write(this._pushPcl, 0x0100 + this._state.s, this._state.p & 0xff);
+        return this._result.write(this._pushPcl, 0x0100 + this._state.s, this._state.p & 0xff).poll(true);
     };
 
     @Immutable
     private _pushPcl = (): StateMachineInterface.Result => {
         this._state.s = (this._state.s - 1) & 0xff;
-        this._vector = this._state.nmi ? 0xfffa : 0xfffe;
+        this._vector = this._state.nmi ? 0xfffa : this._defaultVector;
 
-        return this._result.write(this._pushFlags, 0x0100 + this._state.s, this._state.flags | CpuInterface.Flags.b);
+        return this._result.write(
+            this._pushFlags,
+            0x0100 + this._state.s,
+            this._isBrk ? this._state.flags | CpuInterface.Flags.b : this._state.flags & ~CpuInterface.Flags.b
+        );
     };
 
     @Immutable
@@ -73,6 +81,7 @@ class Irq implements StateMachineInterface {
     @Immutable
     private _fetchPch = (value: number): null => {
         this._state.p = this._state.p | (value << 8);
+        this._state.nmi = this._state.irq = false;
 
         return null;
     };
@@ -82,6 +91,10 @@ class Irq implements StateMachineInterface {
     @Immutable private readonly _result = new ResultImpl();
 
     @Immutable private readonly _state: CpuInterface.State;
+    @Immutable private readonly _defaultVector: number;
+    @Immutable private readonly _isBrk: boolean;
 }
 
-export const irq = (state: CpuInterface.State) => new Irq(state);
+export const brk = (state: CpuInterface.State) => new Interrupt(state, 0xfffe, true);
+export const irq = (state: CpuInterface.State) => new Interrupt(state, 0xfffe, false);
+export const nmi = (state: CpuInterface.State) => new Interrupt(state, 0xfffa, false);

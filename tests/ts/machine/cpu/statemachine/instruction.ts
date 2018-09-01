@@ -38,6 +38,7 @@ export default function run(): void {
 
             Runner.build()
                 .read(0x0010, 0x11)
+                .pollInterrupts()
                 .run(s => ({ ...s, p: 0x0010 }), s => nullaryOneCycle(s, () => calls++), undefined);
 
             assert.strictEqual(calls, 1);
@@ -59,12 +60,14 @@ export default function run(): void {
             test('no branch', () =>
                 Runner.build()
                     .read(0x0010, 0x42)
+                    .pollInterrupts()
                     .action(incrementP)
                     .run(s => ({ ...s, p: 0x0010 }), s => branch(s, () => false), undefined));
 
             test('branch, no page crossing', () =>
                 Runner.build()
                     .read(0x0010, 0x13)
+                    .pollInterrupts()
                     .action(incrementP)
                     .read(0x0011, 0x66)
                     .action(s => ({ ...s, p: 0x0024 }))
@@ -73,18 +76,22 @@ export default function run(): void {
             test('branch, page overflow', () =>
                 Runner.build()
                     .read(0x01ef, 0x13)
+                    .pollInterrupts()
                     .action(incrementP)
                     .read(0x01f0, 0x66)
                     .read(0x0103, 0x42)
+                    .pollInterrupts()
                     .action(s => ({ ...s, p: 0x0203 }))
                     .run(s => ({ ...s, p: 0x01ef }), s => branch(s, () => true), undefined));
 
             test('branch, page underflow', () =>
                 Runner.build()
                     .read(0x0100, 0xfe)
+                    .pollInterrupts()
                     .action(incrementP)
                     .read(0x0101, 0x66)
                     .read(0x01ff, 0x42)
+                    .pollInterrupts()
                     .action(s => ({ ...s, p: 0x00ff }))
                     .run(s => ({ ...s, p: 0x0100 }), s => branch(s, () => true), undefined));
         });

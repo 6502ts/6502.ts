@@ -148,13 +148,14 @@ class Runner<OperandT extends number | undefined = undefined> {
             }
 
             if (resultExpected.pollInterrupts && !resultActual.pollInterrupts) {
-                throw new Error('expected interrupts to be polled');
+                throw new Error(`expected interrupts to be polled in step ${this._step}`);
             }
 
             if (!resultExpected.pollInterrupts && resultActual.pollInterrupts) {
-                throw new Error('expected interrupts not to be polled');
+                throw new Error(`expected interrupts not to be polled in step ${this._step}`);
             }
 
+            resultActual.pollInterrupts = false;
             resultActual = resultActual.nextStep(resultExpected.value);
             this._step++;
 

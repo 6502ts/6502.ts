@@ -32,7 +32,7 @@ class NullaryOneCycle implements StateMachineInterface<number> {
         freezeImmutables(this);
     }
 
-    @Immutable reset = () => this._result.read(this._executeOperation, this._state.p);
+    @Immutable reset = () => this._result.read(this._executeOperation, this._state.p).poll(true);
 
     @Immutable
     private _executeOperation = (): null => {

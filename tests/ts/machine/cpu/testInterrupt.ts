@@ -341,7 +341,7 @@ export function run(cpuFactory: Runner.CpuFactory) {
                 .assertCycles(18));
 
         test('Hijack BRK', () =>
-            Runner.create(cpuFactory, [0x00, 0x00, 0xea, 0xea], 0xe000) // NOP NOP NOP
+            Runner.create(cpuFactory, [0x00, 0xea, 0xea, 0xea], 0xe000) // BRK NOP NOP
                 .setState({
                     flags: CpuInterface.Flags.z | CpuInterface.Flags.e,
                     s: 0xff

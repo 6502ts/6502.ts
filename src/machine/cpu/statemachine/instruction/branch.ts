@@ -32,7 +32,8 @@ class Branch implements StateMachineInterface {
         freezeImmutables(this);
     }
 
-    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._fetchTarget, this._state.p);
+    @Immutable
+    reset = (): StateMachineInterface.Result => this._result.read(this._fetchTarget, this._state.p).poll(true);
 
     @Immutable
     private _fetchTarget = (value: number): StateMachineInterface.Result | null => {
@@ -51,7 +52,7 @@ class Branch implements StateMachineInterface {
             return null;
         }
 
-        return this._result.read(this._secondDummyRead, (this._state.p & 0xff00) | (this._target & 0x00ff));
+        return this._result.read(this._secondDummyRead, (this._state.p & 0xff00) | (this._target & 0x00ff)).poll(true);
     };
 
     @Immutable

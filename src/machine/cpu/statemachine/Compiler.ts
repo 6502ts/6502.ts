@@ -34,10 +34,11 @@ import {
     indexedIndirectX,
     indirectIndexedY
 } from './addressing';
-import { nullaryOneCycle, readModifyWrite, brk, jsr, push, pull, rti, rts, write, branch } from './instruction';
+import { nullaryOneCycle, readModifyWrite, jsr, push, pull, rti, rts, write, branch } from './instruction';
 import * as ops from './ops';
 import { indirect } from './addressing/indirect';
 import NextStep from './addressing/NextStep';
+import { brk } from './vector';
 
 class Compiler {
     constructor(private readonly _state: CpuInterface.State) {}

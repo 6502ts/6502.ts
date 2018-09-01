@@ -84,10 +84,5 @@ function run(
     });
 }
 
-run(bus => new BatchedAddressCp(bus), 'standard CPU');
-
-if (process.env['TEST_STATE_MACHINE_CPU']) {
-    run(bus => new StateMachineCpu(bus), 'state machine CPU', {
-        interrupt: false
-    });
-}
+run(bus => new BatchedAddressCp(bus), 'batched access CPU');
+run(bus => new StateMachineCpu(bus), 'state machine CPU');

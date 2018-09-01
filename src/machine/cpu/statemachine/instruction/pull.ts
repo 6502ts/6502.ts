@@ -32,7 +32,7 @@ class Pull implements StateMachineInterface {
         freezeImmutables(this);
     }
 
-    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._dummyRead, this._state.p);
+    @Immutable reset = (): StateMachineInterface.Result => this._result.read(this._dummyRead, this._state.p).poll(true);
 
     @Immutable
     private _dummyRead = (): StateMachineInterface.Result =>
