@@ -27,7 +27,6 @@
     "setimmediate2": "^3.0.0",
     "thumbulator.ts": "^0.3.0",
     "tslib": "^1.9.3",
-    "typedoc": "https://github.com/DirtyHairy/typedoc/archive/support-ts-2.9.tar.gz",
     "worker-rpc": "~0.1.0"
   },
   "devDependencies": {
@@ -52,6 +51,8 @@
     "@types/react-router-redux": "^5.0.15",
     "@types/screenfull": "^3.3.1",
     "@types/seedrandom": "~2.4.27",
+    "@types/argparse": "^1.0.34",
+    "argparse": "^1.0.10",
     "bowser": "^1.9.3",
     "classnames": "^2.2.6",
     "commonmark": "^0.28.1",
@@ -98,6 +99,7 @@
     "tsify": "~4.0.0",
     "tslint": "^5.11.0",
     "tslint-language-service": "^0.9.6",
+    "typedoc": "https://github.com/DirtyHairy/typedoc/archive/support-ts-2.9.tar.gz",
     "typescript": "^2.9.2"
   },
   "scripts": {

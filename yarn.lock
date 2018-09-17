@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@types/argparse@^1.0.34":
+  version "1.0.34"
+  resolved "https://registry.yarnpkg.com/@types/argparse/-/argparse-1.0.34.tgz#3ee09ced0285c7577d879c51b8cf092125591e68"
+
 "@types/classnames@^2.2.6":
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-2.2.6.tgz#dbe8a666156d556ed018e15a4c65f08937c3f628"
@@ -314,7 +318,7 @@ are-we-there-yet@~1.1.2:
     delegates "^1.0.0"
     readable-stream "^2.0.6"
 
-argparse@^1.0.2, argparse@^1.0.7:
+argparse@^1.0.10, argparse@^1.0.2, argparse@^1.0.7:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/argparse/-/argparse-1.0.10.tgz#bcd6791ea5ae09725e17e5ad988134cd40b3d911"
   dependencies:

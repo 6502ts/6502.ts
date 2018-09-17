@@ -37,6 +37,7 @@ import PeriodicScheduler from '../tools/scheduler/PeriodicScheduler';
 import TaskInterface from '../tools/scheduler/TaskInterface';
 
 import ClockProbe from '../tools/ClockProbe';
+import CpuFactory from '../machine/cpu/Factory';
 
 const enum State {
     debug,
@@ -48,10 +49,14 @@ const OUTPUT_FLUSH_INTERVAL = 100;
 const CLOCK_PROBE_INTERVAL = 1000;
 
 class EhBasicCLI extends AbstractCLI implements CLIInterface {
-    constructor(private _fsProvider: FileSystemProviderInterface) {
+    constructor(
+        private _fsProvider: FileSystemProviderInterface,
+        cpuType: CpuFactory.Type = CpuFactory.Type.stateMachine
+    ) {
         super();
 
-        const board = new Board(),
+        const cpuFactory = new CpuFactory(cpuType),
+            board = new Board(cpuFactory.create.bind(cpuFactory)),
             dbg = new Debugger(),
             commandInterpreter = new CommandInterpreter(),
             debuggerFrontend = new DebuggerFrontend(dbg, this._fsProvider, commandInterpreter),
@@ -99,7 +104,7 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
                     throw new Error('filename required');
                 }
 
-                this.readBasicProgram(args[0]);
+                this.readInputFile(args[0]);
                 return 'program read into buffer';
             }
         });
@@ -131,17 +136,19 @@ class EhBasicCLI extends AbstractCLI implements CLIInterface {
         this._fsProvider.popd();
     }
 
-    readBasicProgram(filename: string): void {
+    readInputFile(filename: string): void {
         this._fsProvider
             .readTextFileSync(filename)
             .split('\n')
-            .forEach((line: string): void => {
-                const length = line.length;
-                for (let i = 0; i < length; i++) {
-                    this._inputBuffer.push(line.charCodeAt(i) & 0xff);
+            .forEach(
+                (line: string): void => {
+                    const length = line.length;
+                    for (let i = 0; i < length; i++) {
+                        this._inputBuffer.push(line.charCodeAt(i) & 0xff);
+                    }
+                    this._inputBuffer.push(0x0d);
                 }
-                this._inputBuffer.push(0x0d);
-            });
+            );
     }
 
     startup(): void {

@@ -22,17 +22,52 @@
 import EhBasicCLI from '../src/cli/EhBasicCLI';
 import NodeCLIRunner from '../src/cli/NodeCLIRunner';
 import NodeFilesystemProvider from '../src/fs/NodeFilesystemProvider';
+import { ArgumentParser } from 'argparse';
+import CpuFactory from '../src/machine/cpu/Factory';
+
+enum CpuTypes {
+    stateMachine = 'state-machine',
+    batchedAccess = 'batched-access'
+}
+
+function cpuType(cliType: CpuTypes): CpuFactory.Type {
+    switch (cliType) {
+        case CpuTypes.stateMachine:
+            return CpuFactory.Type.stateMachine;
+
+        case CpuTypes.batchedAccess:
+            return CpuFactory.Type.batchedAccess;
+
+        default:
+            throw new Error('invalid CPU type');
+    }
+}
+
+const parser = new ArgumentParser({
+    description: 'CLI interface for the ehBasic hardware monitor',
+    addHelp: true
+});
+
+parser.addArgument('--cpu-type', {
+    help: `one of ${CpuTypes.stateMachine} (default), ${CpuTypes.batchedAccess}`,
+    choices: [CpuTypes.stateMachine, CpuTypes.batchedAccess],
+    defaultValue: CpuTypes.stateMachine
+});
+parser.addArgument(['--script', '-s'], { help: 'debugger script' });
+parser.addArgument(['--file', '-f'], { help: 'input to feed into the monitor' });
+
+const args = parser.parseArgs();
 
 const fsProvider = new NodeFilesystemProvider(),
-    cli = new EhBasicCLI(fsProvider),
+    cli = new EhBasicCLI(fsProvider, cpuType(args['cpu_type'])),
     runner = new NodeCLIRunner(cli);
 
 runner.startup();
 
-if (process.argv.length > 2) {
-    cli.runDebuggerScript(process.argv[2]);
+if (args['script']) {
+    cli.runDebuggerScript(args['script']);
 }
 
-if (process.argv.length > 3) {
-    cli.readBasicProgram(process.argv[3]);
+if (args['file']) {
+    cli.readInputFile(args['file']);
 }
