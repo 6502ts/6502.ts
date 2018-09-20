@@ -28,7 +28,8 @@ import PCMChannel from './audio/PCMChannel';
 import WaveformAudioOutputInterface from '../../machine/io/WaveformAudioOutputInterface';
 import PCMAudioEndpointInterface from './PCMAudioEndpointInterface';
 
-const audioNeedsInteraction = !!navigator.platform.match(/iPhone|iPad|iPod/);
+const audioNeedsInteraction = !!navigator.platform.match(/iPhone|iPad|iPod/) || !!(window as any).safari;
+const INTERACTION_EVENTS = ['touchstart', 'click'];
 
 type AudioContextType = typeof AudioContext;
 
@@ -75,7 +76,7 @@ class WebAudioDriver {
         this._channels.forEach(channel => channel.init(this._context, this._merger));
 
         if (audioNeedsInteraction) {
-            document.addEventListener('touchstart', this._touchListener, true);
+            INTERACTION_EVENTS.forEach(event => document.addEventListener(event, this._touchListener, true));
         }
     }
 
@@ -152,7 +153,7 @@ class WebAudioDriver {
     }
 
     private _touchListener = () => {
-        document.removeEventListener('touchstart', this._touchListener, true);
+        INTERACTION_EVENTS.forEach(event => document.removeEventListener(event, this._touchListener, true));
 
         if (!this._context) {
             return;

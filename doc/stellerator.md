@@ -218,7 +218,7 @@ merging can help as well.
 
  * Keyboard and gamepad mappings cannot be configured.
  * Only the first paddle can be controlled.
- * Audio on iOS may require a touch to the display to start. This is a restriction
+ * Audio on Safari on both iOS and MacOS may require a touch or click to start. This is a restriction
    imposed by Apple, and nothing can be done about it.
 
 ## License

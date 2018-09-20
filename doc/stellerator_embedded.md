@@ -210,6 +210,13 @@ on OS and browser to map the gamepad buttons correctly.
 I have not yet found any Android device that can sustain 6502.ts at full speed, but
 recent 64bit iOS devices work fine.
 
+## Safari quirks
+
+Due to policies enforced by Apple, audio will not play unless started from an
+interaction event triggered by the user. Stellerator tries to work around this,
+but there must be at least one click to the page after the `Stellerator` instance
+has been created before audio starts playing.
+
 ## iOS quirks
 
 Stellerator works fine on iOS devices; however there are some quirks.
