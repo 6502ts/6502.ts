@@ -21,6 +21,7 @@
 
 import Config from '../../machine/stella/Config';
 import CommandInterpreter from '../CommandInterpreter';
+import Factory from '../../machine/cpu/Factory';
 
 export default class SystemConfigSetupProvider {
     constructor(private _config: Config) {}
@@ -70,6 +71,14 @@ export default class SystemConfigSetupProvider {
         return `paddle emulation: ${this._config.emulatePaddles ? 'enabled' : 'disabled'}`;
     }
 
+    protected _setHighPrecisionCpu(args?: Array<string>) {
+        if (args && args.length !== 0) {
+            this._config.cpuType = this._isArgTruthy(args[0]) ? Factory.Type.stateMachine : Factory.Type.batchedAccess;
+        }
+
+        return `using high precision CPU: ${this._config.cpuType === Factory.Type.stateMachine ? 'yes' : 'no'}`;
+    }
+
     protected _setRandomSeed(args?: Array<string>) {
         if (args && args.length !== 0) {
             this._config.randomSeed = parseInt(args[0], 10);
@@ -113,6 +122,7 @@ export default class SystemConfigSetupProvider {
         audio: this._setupAudio.bind(this),
         paddles: this._setupPaddles.bind(this),
         seed: this._setRandomSeed.bind(this),
-        pcm: this._setupPcmAUdio.bind(this)
+        pcm: this._setupPcmAUdio.bind(this),
+        'high-precision-cpu': this._setHighPrecisionCpu.bind(this)
     };
 }

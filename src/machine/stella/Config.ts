@@ -1,3 +1,5 @@
+import CpuFactory from '../cpu/Factory';
+
 /*
  *   This file is part of 6502.ts, an emulator for 6502 based systems built
  *   in Typescript.
@@ -26,6 +28,7 @@ interface Config {
     emulatePaddles: boolean;
     frameStart: number;
     pcmAudio: boolean;
+    cpuType: CpuFactory.Type;
 }
 
 namespace Config {
@@ -43,6 +46,7 @@ namespace Config {
             emulatePaddles: true,
             frameStart: -1,
             pcmAudio: false,
+            cpuType: CpuFactory.Type.stateMachine,
 
             ...config
         };

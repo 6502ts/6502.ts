@@ -23,7 +23,6 @@ import { Event } from 'microevent.ts';
 
 import BoardInterface from '../board/BoardInterface';
 import CpuInterface from '../cpu/CpuInterface';
-import Cpu from '../cpu/StateMachineCpu';
 import Bus from './Bus';
 import BusInterface from '../bus/BusInterface';
 import Pia from './Pia';
@@ -46,6 +45,7 @@ import SchedulerInterface from '../../tools/scheduler/SchedulerInterface';
 import TaskInterface from '../../tools/scheduler/TaskInterface';
 import RngInterface from '../../tools/rng/GeneratorInterface';
 import { createRng } from '../../tools/rng/factory';
+import CpuFactory from '../cpu/Factory';
 
 class Board implements BoardInterface {
     constructor(
@@ -59,7 +59,7 @@ class Board implements BoardInterface {
         const bus = new Bus();
 
         if (typeof cpuFactory === 'undefined') {
-            cpuFactory = (_bus, rng) => new Cpu(_bus, rng);
+            cpuFactory = (_bus, rng) => new CpuFactory(_config.cpuType).create(_bus, rng);
         }
 
         const controlPanel = new ControlPanel(),
