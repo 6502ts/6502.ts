@@ -29,7 +29,7 @@ import WaveformAudioOutputInterface from '../../machine/io/WaveformAudioOutputIn
 import PCMAudioEndpointInterface from './PCMAudioEndpointInterface';
 
 const audioNeedsInteraction = !!navigator.platform.match(/iPhone|iPad|iPod/) || !!(window as any).safari;
-const INTERACTION_EVENTS = ['touchstart', 'click'];
+const INTERACTION_EVENTS = ['touchstart', 'click', 'keydown'];
 
 type AudioContextType = typeof AudioContext;
 
@@ -38,6 +38,54 @@ declare namespace window {
     // tslint:disable-next-line:variable-name
     const AudioContext: AudioContextType;
 }
+
+const audioContextCtor = window.AudioContext || window.webkitAudioContext;
+
+class PreallocatedContext {
+    constructor() {
+        if (!audioContextCtor) {
+            return;
+        }
+
+        this.context = new audioContextCtor();
+
+        try {
+            this.context.destination.channelCount = 1;
+        } catch (e) {
+            console.warn('audio driver: failed to set channel count');
+        }
+
+        INTERACTION_EVENTS.forEach(event => document.addEventListener(event, this._interactionListener));
+    }
+
+    stopListening(): void {
+        INTERACTION_EVENTS.forEach(event => document.removeEventListener(event, this._interactionListener));
+    }
+
+    private _interactionListener = () => {
+        const context = this.context;
+
+        this.interactionRequired = false;
+        INTERACTION_EVENTS.forEach(event => document.removeEventListener(event, this._interactionListener));
+
+        this.mutex.runExclusive(() => {
+            context.resume();
+
+            return new Promise(r =>
+                setTimeout(() => {
+                    context.suspend();
+                    r();
+                }, 100)
+            );
+        });
+    };
+
+    public readonly mutex = new Mutex();
+    public readonly context: AudioContext = null;
+    public interactionRequired = true;
+}
+
+let preallocatedContext = audioNeedsInteraction ? new PreallocatedContext() : null;
 
 class WebAudioDriver {
     constructor(waveformChannels = 0, pcmChannels = 0, fragmentSize?: number) {
@@ -56,28 +104,36 @@ class WebAudioDriver {
     }
 
     init(): void {
-        const ctor = window.AudioContext || window.webkitAudioContext;
+        if (preallocatedContext) {
+            const p = preallocatedContext;
+            preallocatedContext = new PreallocatedContext();
 
-        if (!ctor) {
-            throw new Error(`web audio is not supported by runtime`);
-        }
+            this._context = p.context;
+            p.stopListening();
 
-        this._context = new ctor();
+            this._mutex = p.mutex;
 
-        try {
-            this._context.destination.channelCount = 1;
-        } catch (e) {
-            console.warn('audio driver: failed to set channel count');
+            if (p.interactionRequired) {
+                INTERACTION_EVENTS.forEach(event => document.addEventListener(event, this._touchListener, true));
+            }
+        } else {
+            if (!audioContextCtor) {
+                throw new Error(`web audio is not supported by runtime`);
+            }
+
+            this._context = new audioContextCtor();
+
+            try {
+                this._context.destination.channelCount = 1;
+            } catch (e) {
+                console.warn('audio driver: failed to set channel count');
+            }
         }
 
         this._merger = this._context.createChannelMerger(this._channels.length);
         this._merger.connect(this._context.destination);
 
         this._channels.forEach(channel => channel.init(this._context, this._merger));
-
-        if (audioNeedsInteraction) {
-            INTERACTION_EVENTS.forEach(event => document.addEventListener(event, this._touchListener, true));
-        }
     }
 
     bind(

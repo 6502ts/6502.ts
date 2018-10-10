@@ -315,7 +315,7 @@ module.exports = function(grunt) {
             dev: {
                 root: 'web',
                 port: 6502,
-                host: '127.0.0.1',
+                host: '0.0.0.0',
                 autoIndex: true,
                 ext: 'html',
                 cache: 0,
@@ -324,7 +324,7 @@ module.exports = function(grunt) {
             build: {
                 root: 'build',
                 port: 2600,
-                host: '127.0.0.1',
+                host: '0.0.0.0',
                 autoIndex: true,
                 ext: 'html',
                 cache: 0
