@@ -26,7 +26,7 @@ import { ControlLabel } from 'react-bootstrap';
 import StellaConfig from '../../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../../machine/stella/cartridge/CartridgeInfo';
 
-import { styled, StyledComponent } from '../style';
+import { styled } from '../style';
 import CartridgeNameInput from './CartridgeNameInput';
 import Slider from '../general/Slider';
 import TvModeSelect from './TvModeSelect';
@@ -37,6 +37,8 @@ import FrameStartEdit from './FrameStartEdit';
 import Cartridge from '../../model/Cartridge';
 import Settings from '../../model/Settings';
 import AudioDriverSelect from './AudioDriverSelect';
+import { StyledComponentClass } from 'styled-components';
+import Theme from '../style/Theme';
 
 export interface Props {
     cartridge: Cartridge;
@@ -144,7 +146,7 @@ const LabelStyled = styled(ControlLabel)`
     }
 `;
 
-type CartridgeSettingsStyled = StyledComponent<Props, void>;
+type CartridgeSettingsStyled = StyledComponentClass<Props, Theme>;
 
 const CartridgeSettingsStyled: CartridgeSettingsStyled = styled(CartridgeSettingsUnstyled)`
     ${p => (p.cartridge ? '' : 'display: none;')};

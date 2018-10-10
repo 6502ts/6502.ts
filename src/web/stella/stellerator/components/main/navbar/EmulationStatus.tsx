@@ -20,9 +20,11 @@
  */
 
 import * as React from 'react';
-import { styled, StyledComponent } from '../../style';
+import { styled } from '../../style';
 
 import EmulationServiceInterface from '../../../../service/EmulationServiceInterface';
+import { StyledComponentClass } from 'styled-components';
+import Theme from '../../style/Theme';
 
 export interface Props {
     className?: string;
@@ -50,7 +52,7 @@ function describeState(state: EmulationServiceInterface.State, frequency: number
     }
 }
 
-type EmulationStatusStyled = StyledComponent<Props>;
+type EmulationStatusStyled = StyledComponentClass<Props, Theme>;
 
 const EmulationStatusStyled: EmulationStatusStyled = styled(EmulationStatusUnstyled)`
     margin-left: 1rem;

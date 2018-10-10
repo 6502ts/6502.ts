@@ -39,7 +39,7 @@ export default class FullscreenVideoDriver {
 
         this._engaged = true;
 
-        if (noFullscrenApi) {
+        if (noFullscrenApi || !screenfull) {
             this._adjustSizeForFullscreen();
             window.addEventListener('resize', this._resizeListener);
             this._engaged = true;
@@ -54,7 +54,7 @@ export default class FullscreenVideoDriver {
             return;
         }
 
-        if (noFullscrenApi) {
+        if (noFullscrenApi || !screenfull) {
             this._resetSize();
             window.removeEventListener('resize', this._resizeListener);
             this._engaged = false;
@@ -76,6 +76,10 @@ export default class FullscreenVideoDriver {
     }
 
     private _onChange(): void {
+        if (!screenfull) {
+            return;
+        }
+
         if (screenfull.isFullscreen) {
             window.addEventListener('resize', this._resizeListener);
             this._adjustSizeForFullscreen();

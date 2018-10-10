@@ -20,10 +20,12 @@
  */
 
 import * as React from 'react';
-import { styled, StyledComponent } from '../../style';
+import { styled } from '../../style';
 
 import { default as GamepadStatus, Props as GamepadStatusProps } from './GamepadStatus';
 import { default as EmulationStatus, Props as EmulationStatusProps } from './EmulationStatus';
+import { StyledComponentClass } from 'styled-components';
+import Theme from '../../style/Theme';
 
 export interface Props extends GamepadStatusProps, EmulationStatusProps {
     className?: string;
@@ -38,7 +40,7 @@ export function StatusWidgetUnstyled(props: Props) {
     );
 }
 
-type StatusWidgetStyled = StyledComponent<Props>;
+type StatusWidgetStyled = StyledComponentClass<Props, Theme>;
 
 const StatusWidgetStyled: StatusWidgetStyled = styled(StatusWidgetUnstyled)`
     float: right;

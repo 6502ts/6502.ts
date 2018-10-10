@@ -21,10 +21,12 @@
 
 import * as React from 'react';
 
-import { styled, StyledComponent } from '../style';
+import { styled } from '../style';
 import { Button } from 'react-bootstrap';
 
 import FileUploadButton from '../general/FileUploadButton';
+import { StyledComponentClass } from 'styled-components';
+import Theme from '../style/Theme';
 
 export interface Props {
     active: boolean;
@@ -70,7 +72,7 @@ namespace CartridgeControlsUnstyled {
     };
 }
 
-type CartridgeControlsStyled = StyledComponent<Props, void>;
+type CartridgeControlsStyled = StyledComponentClass<Props, Theme>;
 
 const CartridgeControlsStyled = styled(CartridgeControlsUnstyled)`
     .btn:not(:last-child) {

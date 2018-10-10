@@ -143,7 +143,7 @@ function setupCartridgeReader(cli: StellaCLI, cartridgeFileInput: JQuery, cartri
                 return;
             }
 
-            cli.loadCartridgeFromBuffer(new Uint8Array(reader.result), file.name);
+            cli.loadCartridgeFromBuffer(new Uint8Array(reader.result as ArrayBuffer), file.name);
         });
 
         reader.readAsArrayBuffer(files[0]);

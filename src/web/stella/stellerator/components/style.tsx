@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import { ComponentClass, Ref } from 'react';
+import { Ref } from 'react';
 import * as styledComponents from 'styled-components';
 import { ThemedStyledComponentsModule } from 'styled-components';
 
@@ -29,8 +29,6 @@ export type StyledComponentProps<Props, RefT = void> = Props & {
     innerRef?: Ref<RefT>;
     theme?: Theme;
 };
-
-export type StyledComponent<Props, RefT = void> = ComponentClass<StyledComponentProps<Props, RefT>>;
 
 const {
     default: styled,

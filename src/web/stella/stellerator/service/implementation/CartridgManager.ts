@@ -69,7 +69,7 @@ class CartridgeManager implements CartridgeManagerInterface {
     private async _onUpload(action: UploadNewCartridgeAction): Promise<void> {
         const reader = new FileReader(),
             fileContent = await new Promise<Uint8Array>(r => {
-                reader.addEventListener('load', () => r(new Uint8Array(reader.result)));
+                reader.addEventListener('load', () => r(new Uint8Array(reader.result as ArrayBuffer)));
                 reader.readAsArrayBuffer(action.file);
             });
 

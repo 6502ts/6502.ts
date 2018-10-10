@@ -21,9 +21,11 @@
 
 import * as React from 'react';
 
-import { styled, StyledComponent } from '../style';
+import { styled } from '../style';
 import Cartridge from '../../model/Cartridge';
 import BorderBox from '../general/BorderBox';
+import Theme from '../style/Theme';
+import { StyledComponentClass } from 'styled-components';
 
 export interface Props {
     cartridges: { [key: string]: Cartridge };
@@ -83,7 +85,7 @@ const ListItemStyled = styled.li`
     }
 `;
 
-type CartridgeListStyled = StyledComponent<Props, void>;
+type CartridgeListStyled = StyledComponentClass<Props, Theme>;
 
 const CartridgeListStyled: CartridgeListStyled = styled(CartridgeListUnstyled)`
     height: 24rem;
