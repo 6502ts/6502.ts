@@ -36,6 +36,7 @@ interface Cartridge {
     frameStart: number;
     autodetectFrameStart: boolean;
     audioDriver: Cartridge.AudioDriver;
+    cpuAccuracy: Cartridge.CpuAccuracy;
 }
 
 namespace Cartridge {
@@ -43,6 +44,12 @@ namespace Cartridge {
         default,
         waveform,
         pcm
+    }
+
+    export const enum CpuAccuracy {
+        default,
+        instruction,
+        cycle
     }
 
     export function create(): Cartridge {
@@ -57,7 +64,8 @@ namespace Cartridge {
             volume: 1,
             frameStart: 0,
             autodetectFrameStart: true,
-            audioDriver: AudioDriver.default
+            audioDriver: AudioDriver.default,
+            cpuAccuracy: CpuAccuracy.default
         };
     }
 

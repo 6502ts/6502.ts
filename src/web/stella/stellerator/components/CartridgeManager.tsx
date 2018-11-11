@@ -38,6 +38,7 @@ export interface DataProps {
     pendingChanges: boolean;
     currentCartridge: Cartridge;
     defaultAudioDriver: Settings.AudioDriver;
+    defaultCpuAccuracy: Settings.CpuAccuracy;
 
     showSelectPendingChangesModel: boolean;
     showLoadPendingChangesModel: boolean;
@@ -66,6 +67,7 @@ export interface HandlerProps {
     onChangeFrameStart: (frameStart: number) => void;
     onChangeFrameStartAuto: (frameStartAuto: boolean) => void;
     onChangeAudioDriver: (driver: Cartridge.AudioDriver) => void;
+    onChangeCpuAccuracy: (accuracy: Cartridge.CpuAccuracy) => void;
 
     onSelectPendingChangesClose: () => void;
     onSelectPendingChangesSave: () => void;
@@ -98,6 +100,7 @@ export default function CartridgeManager(props: Props) {
                     <CartridgeSettings
                         cartridge={props.currentCartridge}
                         defaultAudioDriver={props.defaultAudioDriver}
+                        defaultCpuAccuracy={props.defaultCpuAccuracy}
                         onCartridgeNameChange={props.onCartridgeNameChange}
                         onTvModeChanged={props.onTvModeChanged}
                         onSave={props.onSave}
@@ -109,6 +112,7 @@ export default function CartridgeManager(props: Props) {
                         onChangeFrameStart={props.onChangeFrameStart}
                         onToggleFrameStartAuto={props.onChangeFrameStartAuto}
                         onChangeAudioDriver={props.onChangeAudioDriver}
+                        onChangeCpuAccuracy={props.onChangeCpuAccuracy}
                     />
                 </Col>
             </Row>

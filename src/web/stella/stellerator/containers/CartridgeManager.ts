@@ -37,7 +37,8 @@ import {
     changeVolume,
     changeFrameStart,
     changeFrameStartAuto,
-    changeAudioDriver
+    changeAudioDriver,
+    changeCpuAccuracy
 } from '../actions/currentCartridge';
 import { closeSelectPendingChangesModal, closeLoadPendingChangesModal } from '../actions/guiState';
 import {
@@ -54,6 +55,7 @@ function mapStateToProps(state: State): DataProps {
     return {
         cartridges: state.cartridges,
         defaultAudioDriver: state.settings.audioDriver,
+        defaultCpuAccuracy: state.settings.cpuAccuracy,
         currentCartridge: state.currentCartridge,
         pendingChanges:
             state.currentCartridge &&
@@ -85,6 +87,7 @@ function mapDispatchToProps(dispatch: Dispatch): HandlerProps {
         onChangeFrameStart: frameStart => dispatch(changeFrameStart(frameStart)),
         onChangeFrameStartAuto: isAuto => dispatch(changeFrameStartAuto(isAuto)),
         onChangeAudioDriver: driver => dispatch(changeAudioDriver(driver)),
+        onChangeCpuAccuracy: accuracy => dispatch(changeCpuAccuracy(accuracy)),
 
         onSelectPendingChangesClose: () => dispatch(closeSelectPendingChangesModal()),
         onSelectPendingChangesSave: () => dispatch(confirmSelect()),

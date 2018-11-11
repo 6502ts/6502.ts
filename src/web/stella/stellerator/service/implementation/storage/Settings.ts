@@ -26,6 +26,7 @@ export const UNIQUE_ID = 0;
 export type indexType = number;
 
 type AudioDriverString = 'pcm' | 'waveform';
+type CpuAccuracyString = 'cycle' | 'instruction';
 
 export interface SettingsSchema {
     id: number;
@@ -41,6 +42,7 @@ export interface SettingsSchema {
     enableTouchControls: boolean;
     touchJoystickSensitivity: number;
     touchLeftHandedMode: boolean;
+    cpuAccuracy: CpuAccuracyString;
 }
 
 function audioDriverToString(driver: SettingsModel.AudioDriver): AudioDriverString {
@@ -69,13 +71,40 @@ function audioDriverFromString(driver: AudioDriverString): SettingsModel.AudioDr
     }
 }
 
+function cpuAccuracyToString(cpuAccuracy: SettingsModel.CpuAccuracy): CpuAccuracyString {
+    switch (cpuAccuracy) {
+        case SettingsModel.CpuAccuracy.cycle:
+            return 'cycle';
+
+        case SettingsModel.CpuAccuracy.instruction:
+            return 'instruction';
+
+        default:
+            throw new Error(`invalid cpu accuracy ${cpuAccuracy}`);
+    }
+}
+
+function cpuAccuracyFromString(cpuAccuracyString: CpuAccuracyString): SettingsModel.CpuAccuracy {
+    switch (cpuAccuracyString) {
+        case 'cycle':
+            return SettingsModel.CpuAccuracy.cycle;
+
+        case 'instruction':
+            return SettingsModel.CpuAccuracy.instruction;
+
+        default:
+            throw new Error(`invalid cpu accuracy string ${cpuAccuracyString}`);
+    }
+}
+
 export function fromModel(model: SettingsModel): SettingsSchema {
     const { audioDriver, ...m } = model;
 
     return {
         ...m,
         id: UNIQUE_ID,
-        audioDriver: audioDriverToString(audioDriver)
+        audioDriver: audioDriverToString(audioDriver),
+        cpuAccuracy: cpuAccuracyToString(model.cpuAccuracy)
     };
 }
 
@@ -84,10 +113,11 @@ export function toModel(record?: SettingsSchema): SettingsModel {
         return SettingsModel.create();
     }
 
-    const { id, audioDriver, ...settings } = record;
+    const { id, audioDriver, cpuAccuracy, ...settings } = record;
 
     return {
         ...settings,
-        audioDriver: audioDriverFromString(audioDriver)
+        audioDriver: audioDriverFromString(audioDriver),
+        cpuAccuracy: cpuAccuracyFromString(cpuAccuracy)
     };
 }

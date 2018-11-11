@@ -39,10 +39,12 @@ import Settings from '../../model/Settings';
 import AudioDriverSelect from './AudioDriverSelect';
 import { StyledComponentClass } from 'styled-components';
 import Theme from '../style/Theme';
+import CpuAccuracySelect from './CpuAccuracySelect';
 
 export interface Props {
     cartridge: Cartridge;
     defaultAudioDriver: Settings.AudioDriver;
+    defaultCpuAccuracy: Settings.CpuAccuracy;
     className?: string;
 
     onCartridgeNameChange?: (value: string) => void;
@@ -56,6 +58,7 @@ export interface Props {
     onChangeFrameStart?: (frameStart: number) => void;
     onToggleFrameStartAuto?: (isAuto: boolean) => void;
     onChangeAudioDriver?: (driver: Cartridge.AudioDriver) => void;
+    onChangeCpuAccuracy?: (accuracy: Cartridge.CpuAccuracy) => void;
 }
 
 function CartridgeSettingsUnstyled(props: Props) {
@@ -105,6 +108,13 @@ function CartridgeSettingsUnstyled(props: Props) {
                 onChange={props.onChangeFrameStart}
                 onToggleAuto={props.onToggleFrameStartAuto}
                 onKeyEnter={props.onSave}
+            />
+
+            <LabelStyled>CPU emulation accuracy:</LabelStyled>
+            <CpuAccuracySelect
+                accuracy={props.cartridge.cpuAccuracy}
+                defaultAccuracy={props.defaultCpuAccuracy}
+                onAccuracyChange={props.onChangeCpuAccuracy}
             />
 
             <LabelStyled>Audio Driver:</LabelStyled>

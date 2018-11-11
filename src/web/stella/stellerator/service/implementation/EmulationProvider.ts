@@ -46,6 +46,7 @@ import GamepadDriver from '../../../../driver/Gamepad';
 import StellaConfig from '../../../../../machine/stella/Config';
 import Settings from '../../model/Settings';
 import * as VideoProcessorConfig from '../../../../../video/processing/config';
+import CpuFactory from '../../../../../machine/cpu/Factory';
 
 const isSafari = bowser.safari || bowser.ios;
 
@@ -158,13 +159,25 @@ class EmulationProvider implements EmulationProviderInterface {
             pcm = cartridge.audioDriver === Cartridge.AudioDriver.pcm;
         }
 
+        let cpuType =
+            state.settings.cpuAccuracy === Settings.CpuAccuracy.cycle
+                ? CpuFactory.Type.stateMachine
+                : CpuFactory.Type.batchedAccess;
+        if (cartridge.cpuAccuracy !== Cartridge.CpuAccuracy.default) {
+            cpuType =
+                cartridge.cpuAccuracy === Cartridge.CpuAccuracy.cycle
+                    ? CpuFactory.Type.stateMachine
+                    : CpuFactory.Type.batchedAccess;
+        }
+
         const stellaConfig = StellaConfig.create({
             tvMode: cartridge.tvMode,
             enableAudio: cartridge.volume > 0,
             randomSeed: cartridge.rngSeedAuto ? -1 : cartridge.rngSeed,
             emulatePaddles: cartridge.emulatePaddles,
             frameStart: cartridge.autodetectFrameStart ? -1 : cartridge.frameStart,
-            pcmAudio: pcm
+            pcmAudio: pcm,
+            cpuType
         });
 
         const buffer = await this._storage.getImage(cartridge.hash);

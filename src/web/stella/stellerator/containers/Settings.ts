@@ -36,7 +36,8 @@ import {
     changeAudioDriver,
     setEnableTouchControls,
     setTouchJoystickSensitivity,
-    setTouchLeftHandedMode
+    setTouchLeftHandedMode,
+    changeCpuAccuracy
 } from '../actions/settings';
 
 function mapStateToProps(state: State): SettingsComponent.Props {
@@ -52,24 +53,29 @@ function mapStateToProps(state: State): SettingsComponent.Props {
         audioDriver: state.settings.audioDriver,
         enableTouchControls: state.settings.enableTouchControls,
         touchJoystickSensitivity: state.settings.touchJoystickSensitivity,
-        touchLeftHandedMode: state.settings.touchLeftHandedMode
+        touchLeftHandedMode: state.settings.touchLeftHandedMode,
+        cpuAccuracy: state.settings.cpuAccuracy
     };
 }
 
 // tslint:disable-next-line:variable-name
-const SettingsContainer = connect(mapStateToProps, {
-    onToggleSmoothScaling: setSmoothScaling,
-    onToggleWebGlRendering: setWebGlRendering,
-    onChangeGamma: setGamma,
-    onToggleUseWorker: setUseWorker,
-    onToggleMergeFrames: setMergeFrames,
-    onChangeVolume: setVolume,
-    onChangeSyncRendering: setSyncRendering,
-    onTogglePovEmulation: setPovEmulation,
-    onChangeAudioDriver: changeAudioDriver,
-    onChangeEnableTouch: setEnableTouchControls,
-    onChangeTouchJoystickSensitivity: setTouchJoystickSensitivity,
-    onChangeTouchLeftHandedMode: setTouchLeftHandedMode
-})(SettingsComponent as any);
+const SettingsContainer = connect(
+    mapStateToProps,
+    {
+        onToggleSmoothScaling: setSmoothScaling,
+        onToggleWebGlRendering: setWebGlRendering,
+        onChangeGamma: setGamma,
+        onToggleUseWorker: setUseWorker,
+        onToggleMergeFrames: setMergeFrames,
+        onChangeVolume: setVolume,
+        onChangeSyncRendering: setSyncRendering,
+        onTogglePovEmulation: setPovEmulation,
+        onChangeAudioDriver: changeAudioDriver,
+        onChangeEnableTouch: setEnableTouchControls,
+        onChangeTouchJoystickSensitivity: setTouchJoystickSensitivity,
+        onChangeTouchLeftHandedMode: setTouchLeftHandedMode,
+        onChangeDefaultCpuAccuracy: changeCpuAccuracy
+    }
+)(SettingsComponent as any);
 
 export { SettingsContainer as default };

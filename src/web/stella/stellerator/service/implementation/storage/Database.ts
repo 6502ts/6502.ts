@@ -246,6 +246,30 @@ export default class Database extends Dexie {
                     cursor.update(settings);
                 });
             });
+
+        this.version(14)
+            .stores({
+                cartridge: '++id, &hash',
+                settings: 'id',
+                image: '&hash'
+            })
+            .upgrade(transaction => {
+                transaction.table<Cartridge.CartridgeSchema, Settings.indexType>('cartridge').each((cartridge, c) => {
+                    const cursor: IDBCursor = c as any;
+
+                    cartridge.cpuAccuracy = 'default';
+
+                    cursor.update(cartridge);
+                });
+
+                transaction.table<Settings.SettingsSchema, Settings.indexType>('settings').each((settings, c) => {
+                    const cursor: IDBCursor = c as any;
+
+                    settings.cpuAccuracy = 'cycle';
+
+                    cursor.update(settings);
+                });
+            });
     }
 
     cartridge: Dexie.Table<Cartridge.CartridgeSchema, Cartridge.indexType>;

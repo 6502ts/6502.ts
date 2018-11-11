@@ -35,7 +35,8 @@ export const types = {
     changeVolume: 'current-cartridge/change-volume',
     changeFrameStart: 'current-cartridge/change-frame-start',
     changeFrameStartAuto: 'current-cartridge/change-frame-start-auto',
-    changeAudioDriver: 'current-cartridge/change-audio-driver'
+    changeAudioDriver: 'current-cartridge/change-audio-driver',
+    changeCpuAccuracy: 'current-cartridge/change-cpu-accuracy'
 };
 Object.freeze(types);
 
@@ -146,5 +147,16 @@ export function changeAudioDriver(driver: CartridgeModel.AudioDriver): ChangeAud
     return {
         type: types.changeAudioDriver,
         driver
+    };
+}
+
+export interface ChangeCpuAccuracyAction extends Action {
+    cpuAccuracy: CartridgeModel.CpuAccuracy;
+}
+
+export function changeCpuAccuracy(cpuAccuracy: CartridgeModel.CpuAccuracy): ChangeCpuAccuracyAction {
+    return {
+        type: types.changeCpuAccuracy,
+        cpuAccuracy
     };
 }

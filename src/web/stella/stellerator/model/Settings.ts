@@ -32,6 +32,7 @@ interface Settings {
     enableTouchControls: boolean;
     touchJoystickSensitivity: number;
     touchLeftHandedMode: boolean;
+    cpuAccuracy: Settings.CpuAccuracy;
 }
 
 namespace Settings {
@@ -41,6 +42,11 @@ namespace Settings {
     export const enum AudioDriver {
         waveform,
         pcm
+    }
+
+    export const enum CpuAccuracy {
+        cycle,
+        instruction
     }
 
     export function create(): Settings {
@@ -56,7 +62,8 @@ namespace Settings {
             audioDriver: AudioDriver.pcm,
             enableTouchControls: true,
             touchJoystickSensitivity: 15,
-            touchLeftHandedMode: false
+            touchLeftHandedMode: false,
+            cpuAccuracy: CpuAccuracy.cycle
         };
     }
 

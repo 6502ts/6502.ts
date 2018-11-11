@@ -33,6 +33,7 @@ export const types = {
     setVolume: 'settings/setVolume',
     setSyncRendering: 'settings/setSyncRendering',
     changeAudioDriver: 'settings/changeAudioDriver',
+    changeCpuAccuracy: 'settings/changeCpuAccuracy',
     setEnableTouchControls: 'settings/setEnableTouchControls',
     setTouchJoystickSensitivity: 'settings/setTouchJoystickSensitivity',
     setTouchLeftHandedMode: 'settings/setTouchLeftHandedMode',
@@ -150,6 +151,17 @@ export function changeAudioDriver(driver: Settings.AudioDriver): ChangeAudioDriv
     return {
         type: types.changeAudioDriver,
         driver
+    };
+}
+
+export interface ChangeCpuAccuracyAction extends Action {
+    accuracy: Settings.CpuAccuracy;
+}
+
+export function changeCpuAccuracy(accuracy: Settings.CpuAccuracy): ChangeCpuAccuracyAction {
+    return {
+        type: types.changeCpuAccuracy,
+        accuracy
     };
 }
 

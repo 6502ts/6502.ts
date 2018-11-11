@@ -37,7 +37,8 @@ import {
     SetPovEmulationAction,
     SetEnableTouchControls,
     SetTouchJoystickSensitivity,
-    SetTouchLeftHandedMode
+    SetTouchLeftHandedMode,
+    ChangeCpuAccuracyAction
 } from '../actions/settings';
 
 export default function reducer(settings: Settings = Settings.create(), action: Action): Settings {
@@ -71,6 +72,9 @@ export default function reducer(settings: Settings = Settings.create(), action: 
 
         case types.changeAudioDriver:
             return changeAudioDriver(settings, action as ChangeAudioDriverAction);
+
+        case types.changeCpuAccuracy:
+            return changeCpuAccuracy(settings, action as ChangeCpuAccuracyAction);
 
         case types.setEnableTouchControls:
             return setEnableTouchControls(settings, action as SetEnableTouchControls);
@@ -151,6 +155,13 @@ function changeAudioDriver(settings: Settings, action: ChangeAudioDriverAction):
     return {
         ...settings,
         audioDriver: action.driver
+    };
+}
+
+function changeCpuAccuracy(settings: Settings, action: ChangeCpuAccuracyAction): Settings {
+    return {
+        ...settings,
+        cpuAccuracy: action.accuracy
     };
 }
 

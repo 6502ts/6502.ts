@@ -26,6 +26,7 @@ import CartridgeModel from '../../../model/Cartridge';
 
 type tvModeString = 'pal' | 'secam' | 'ntsc';
 type AudioDriverString = 'default' | 'waveform' | 'pcm';
+type CpuAccuracyString = 'instruction' | 'cycle' | 'default';
 
 export interface CartridgeSchema {
     id?: number;
@@ -40,6 +41,7 @@ export interface CartridgeSchema {
     frameStart: number;
     autodetectFrameStart: boolean;
     audioDriver: AudioDriverString;
+    cpuAccuracy: CpuAccuracyString;
 }
 
 function tvModeToString(tvMode: StellaConfig.TvMode): tvModeString {
@@ -106,6 +108,38 @@ function audioDriverFromString(driverString: AudioDriverString): CartridgeModel.
     }
 }
 
+function cpuAccuracyToString(cpuAccuracy: CartridgeModel.CpuAccuracy): CpuAccuracyString {
+    switch (cpuAccuracy) {
+        case CartridgeModel.CpuAccuracy.cycle:
+            return 'cycle';
+
+        case CartridgeModel.CpuAccuracy.instruction:
+            return 'instruction';
+
+        case CartridgeModel.CpuAccuracy.default:
+            return 'default';
+
+        default:
+            throw new Error(`invalid CPU accuracy ${cpuAccuracy}`);
+    }
+}
+
+function cpuAccuracyFromString(cpuAccuracyString: CpuAccuracyString): CartridgeModel.CpuAccuracy {
+    switch (cpuAccuracyString) {
+        case 'instruction':
+            return CartridgeModel.CpuAccuracy.instruction;
+
+        case 'cycle':
+            return CartridgeModel.CpuAccuracy.cycle;
+
+        case 'default':
+            return CartridgeModel.CpuAccuracy.default;
+
+        default:
+            throw new Error(`invalid CPU accuracy string ${cpuAccuracyString}`);
+    }
+}
+
 export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
     const { tvMode, cartridgeType, audioDriver, ...c } = model;
 
@@ -113,7 +147,8 @@ export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
         ...c,
         tvMode: tvModeToString(tvMode),
         cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridgeType],
-        audioDriver: audioDriverToString(model.audioDriver)
+        audioDriver: audioDriverToString(model.audioDriver),
+        cpuAccuracy: cpuAccuracyToString(model.cpuAccuracy)
     };
 
     if (typeof id !== 'undefined') {
@@ -124,13 +159,14 @@ export function fromModel(model: CartridgeModel, id?: number): CartridgeSchema {
 }
 
 export function toState(cartridge: CartridgeSchema): CartridgeModel {
-    const { tvMode, cartridgeType, id, audioDriver, ...c } = cartridge;
+    const { tvMode, cartridgeType, id, audioDriver, cpuAccuracy, ...c } = cartridge;
 
     return {
         ...c,
         tvMode: tvModeFromString(tvMode),
         cartridgeType: (CartridgeInfo.CartridgeType as any)[cartridgeType],
-        audioDriver: audioDriverFromString(cartridge.audioDriver)
+        audioDriver: audioDriverFromString(audioDriver),
+        cpuAccuracy: cpuAccuracyFromString(cpuAccuracy)
     };
 }
 

@@ -32,7 +32,8 @@ import {
     ChangeFrameStartAction,
     ChangeFrameStartAutoAction,
     ChangeAudioDriverAction,
-    types as ActionType
+    types as ActionType,
+    ChangeCpuAccuracyAction
 } from '../actions/currentCartridge';
 import Cartridge from '../model/Cartridge';
 
@@ -67,6 +68,9 @@ export default function reduce(cartridge: Cartridge, action: Action): Cartridge 
 
         case ActionType.changeAudioDriver:
             return changeAudioDriver(cartridge, action as ChangeAudioDriverAction);
+
+        case ActionType.changeCpuAccuracy:
+            return changeCpuAccuracy(cartridge, action as ChangeCpuAccuracyAction);
 
         default:
             return cartridge;
@@ -151,5 +155,12 @@ function changeAudioDriver(cartridge = Cartridge.create(), action: ChangeAudioDr
     return {
         ...cartridge,
         audioDriver: action.driver
+    };
+}
+
+function changeCpuAccuracy(cartridge = Cartridge.create(), action: ChangeCpuAccuracyAction): Cartridge {
+    return {
+        ...cartridge,
+        cpuAccuracy: action.cpuAccuracy
     };
 }

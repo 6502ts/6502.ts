@@ -28,6 +28,7 @@ import Slider from './general/Slider';
 import Switch from './general/Switch';
 import AudioDriverSelect from './settings/AudioDriverSelect';
 import SettingsModel from '../model/Settings';
+import CpuAccuracySelect from './settings/CpuAccuracySelect';
 
 const isSafari = bowser.safari || bowser.ios;
 
@@ -44,6 +45,14 @@ function Settings(props: Settings.Props) {
                 </Col>
                 <Col sm={8}>
                     <Switch labelTrue="Yes" labelFalse="No" state={props.useWorker} onSwitch={props.onToggleUseWorker} />
+                </Col>
+            </Row>
+            <Row>
+                <Col sm={4}>
+                    <ControlLabel>Default CPU emulation accuracy (requires cartridge restart):</ControlLabel>
+                </Col>
+                <Col sm={8}>
+                    <CpuAccuracySelect cpuAccuracy={props.cpuAccuracy} onCpuAccuracyChange={props.onChangeDefaultCpuAccuracy} />
                 </Col>
             </Row>
             <Row style={{ marginTop: '1rem' }}>
@@ -170,6 +179,7 @@ namespace Settings {
         volume?: number;
         syncRendering?: boolean;
         audioDriver?: SettingsModel.AudioDriver;
+        cpuAccuracy?: SettingsModel.CpuAccuracy;
         enableTouchControls?: boolean;
         touchJoystickSensitivity?: number;
         touchLeftHandedMode?: boolean;
@@ -183,6 +193,7 @@ namespace Settings {
         onChangeVolume?: (value: number) => void;
         onChangeSyncRendering?: (value: boolean) => void;
         onChangeAudioDriver?: (newDriver: SettingsModel.AudioDriver) => void;
+        onChangeDefaultCpuAccuracy?: (newAccuracy: SettingsModel.CpuAccuracy) => void;
         onChangeEnableTouch?: (value: boolean) => void;
         onChangeTouchJoystickSensitivity?: (value: number) => void;
         onChangeTouchLeftHandedMode?: (value: boolean) => void;
@@ -198,6 +209,7 @@ namespace Settings {
         volume: 1,
         syncRendering: true,
         audioDriver: SettingsModel.AudioDriver.pcm,
+        cpuAccuracy: SettingsModel.CpuAccuracy.cycle,
         enableTouchControls: true,
         touchJoystickSensitivity: 15,
         touchLeftHandedMode: false,
@@ -210,6 +222,7 @@ namespace Settings {
         onChangeVolume: () => undefined,
         onChangeSyncRendering: () => undefined,
         onChangeAudioDriver: () => undefined,
+        onChangeDefaultCpuAccuracy: () => undefined,
         onChangeEnableTouch: () => undefined,
         onChangeTouchJoystickSensitivity: () => undefined,
         onChangeTouchLeftHandedMode: () => undefined
