@@ -37,6 +37,8 @@ images can be loaded directly from ZIP files.
    The default is auto detection ("auto") and should work fine for the vast majority
    of ROMs. For problematic cases, this can be set to a fixed value. Typical values
    of real CRTs lie somewhere around 30 scanlines.
+ * **CPU emulation accuracy:** Override the accuracy with which the CPU is emulated. See
+   below for the different options.
  * **Audio Driver:** Override the audio driver configured in the settings. See below
   for a detailed description of the available choices.
  * **Volume:** Allows to control audio on a per-cartridge basis.
@@ -56,6 +58,9 @@ The "Settings" page allows to configure global emulation settings.
    by default and allows for smoother framerates, but slow machines might
    actually profit from disabling this option. Changing this setting will require
    a page reload to apply.
+
+* **CPU emulation accuracy:** Change the default accuracy with which the CPU is emulated. See
+   below for the different options.
 
 ## Audio Settings
 
@@ -192,6 +197,28 @@ The price for this is emulation accuracy. Most games will sound just fine, but
 keen ears might spot small differences, and PCM playback via bitbanging will not
 work (e.g. affecting Pitfall II, Quadrun, Stay Frosty 2 and others).
 
+# CPU emulation
+
+There are two different accuracy levels for CPU emulation.
+
+## TL;DR
+
+Use "Cycle" unless you encounter performance problems.
+
+## Cycle
+
+This mode provides a cycle exact model of every bus access. However, it is about 20%
+slower than the faster "Instruction" mode.
+
+## Instruction
+
+This mode provides cycle exact CPU emulation as well, but multiple bus accesses may
+be batched in a single cycle. This is faster than "Cycle" mode, but compatibility
+is slightly worse.
+
+In practice, the only game known to habe issues with "Instruction" mode is Pole
+Position.
+
 # Browser support and emulation speed
 
 Stellerator aggressively uses many modern web technologies, some of which are
@@ -208,11 +235,11 @@ Android devices usually are incapable of running the emulator at full speed. Mod
 64bit iOS devices run the emulator well.
 During emulation, the current
 clock of the emulated system is displayed in the upper right corner.
-Chrome / V8  abd JavascriptCore / Safari tends to be faster than Firefox.
+Chrome / V8  and JavascriptCore / Safari tend to be faster than Firefox.
 
-If you run into performance issues, you can try switching of the web worker in
-the settings and try switching the audio driver to "waveform". Turning on frame
-merging can help as well.
+If you run into performance issues, switch CPU accuracy  to "instruction"
+and set the audio driver to waveform. Turning on frame merging and disabling the web
+worker can can help as well.
 
 # Current limitations
 
