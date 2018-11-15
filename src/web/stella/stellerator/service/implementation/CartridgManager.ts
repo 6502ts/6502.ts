@@ -179,6 +179,29 @@ class CartridgeManager implements CartridgeManagerInterface {
         return this._storage.deleteImage(this._store.getState().currentCartridge.hash);
     }
 
+    private async _onDownloadCurrentCartridge(): Promise<void> {
+        const state = this._store.getState(),
+            blob = new Blob([await this._storage.getImage(state.currentCartridge.hash)]);
+
+        const link = document.createElement('a');
+
+        link.style.display = 'none';
+        link.download = state.currentCartridge.name + '.bin';
+        link.href = window.URL.createObjectURL(blob);
+
+        document.body.appendChild(link);
+        link.click();
+
+        await new Promise(resolve =>
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(link.href);
+
+                resolve();
+            })
+        );
+    }
+
     private _middleware = ((api: MiddlewareAPI) => (next: (a: Action) => any) => async (
         action: Action
     ): Promise<void> => {
@@ -206,6 +229,10 @@ class CartridgeManager implements CartridgeManagerInterface {
             case actions.selectRomFromZipfile:
                 await next(action);
                 return this._onSelectRomFromZipfile(action as SelectRomFromZipfileAction);
+
+            case actions.downloadCurrentCartridge:
+                await next(action);
+                return this._onDownloadCurrentCartridge();
 
             case rootActions.deleteCurrentCartridge:
                 await this._onDeleteCurrentCartridge();

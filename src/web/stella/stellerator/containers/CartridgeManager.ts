@@ -47,7 +47,8 @@ import {
     selectCartridge,
     confirmLoad,
     confirmSelect,
-    selectRomFromZipfile
+    selectRomFromZipfile,
+    downloadCurrentCartridge
 } from '../actions/cartridgeManager';
 import { clear as clearZipfile, clearError as clearZipfileError } from '../actions/zipfile';
 
@@ -73,6 +74,7 @@ function mapDispatchToProps(dispatch: Dispatch): HandlerProps {
         onDelete: () => dispatch(deleteCurrentCartridge()),
         onSave: () => dispatch(saveCurrentCartride()),
         onRun: () => dispatch(runCurrentCartridge()),
+        onDownload: () => dispatch(downloadCurrentCartridge()),
         onCartridgeUploaded: file => dispatch(uploadNewCartridge(file)),
 
         onCartridgeSelected: key => dispatch(selectCartridge(key)),

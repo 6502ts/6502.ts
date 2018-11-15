@@ -53,6 +53,7 @@ export interface HandlerProps {
     onDelete: () => void;
     onSave: () => void;
     onRun: () => void;
+    onDownload: () => void;
     onCartridgeUploaded: (file: File) => void;
 
     onCartridgeSelected: (key: string) => void;
@@ -124,6 +125,7 @@ export default function CartridgeManager(props: Props) {
                         onDelete={props.onDelete}
                         onSave={props.onSave}
                         onRun={props.onRun}
+                        onDownload={props.onDownload}
                         onCartridgeUploaded={props.onCartridgeUploaded}
                     />
                 </Col>

@@ -37,6 +37,7 @@ export interface Props {
     onSave?: () => void;
     onRun?: () => void;
     onCartridgeUploaded?: (file: File) => void;
+    onDownload?: () => void;
 }
 
 function CartridgeControlsUnstyled(props: Props) {
@@ -57,6 +58,9 @@ function CartridgeControlsUnstyled(props: Props) {
             <Button disabled={!props.active} onClick={props.onRun}>
                 {props.changes ? 'Save & Run' : 'Run'}
             </Button>
+            <Button disabled={!props.active} onClick={props.onDownload}>
+                Download
+            </Button>
         </div>
     );
 }
@@ -68,7 +72,8 @@ namespace CartridgeControlsUnstyled {
         onDelete: (): void => undefined,
         onSave: (): void => undefined,
         onRun: (): void => undefined,
-        onCartridgeUploaded: (): void => undefined
+        onCartridgeUploaded: (): void => undefined,
+        onDownload: (): void => undefined
     };
 }
 

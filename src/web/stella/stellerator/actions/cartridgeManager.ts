@@ -27,7 +27,8 @@ export const actions = {
     selectCartridge: 'cartridge-manager/select-cartridge',
     confirmLoad: 'cartridge-manager/confirm-load',
     confirmSelect: 'cartridge-manager/confirm-select',
-    selectRomFromZipfile: 'cartridge-manager/select-rom-from-zipfile'
+    selectRomFromZipfile: 'cartridge-manager/select-rom-from-zipfile',
+    downloadCurrentCartridge: 'cartridge-manager/download-current-cartridge'
 };
 Object.freeze(actions);
 
@@ -91,5 +92,13 @@ export function selectRomFromZipfile(filename: string): SelectRomFromZipfileActi
     return {
         type: actions.selectRomFromZipfile,
         filename
+    };
+}
+
+export interface DownloadCurrentCartridgeAction extends Action {}
+
+export function downloadCurrentCartridge(): DownloadCurrentCartridgeAction {
+    return {
+        type: actions.downloadCurrentCartridge
     };
 }
