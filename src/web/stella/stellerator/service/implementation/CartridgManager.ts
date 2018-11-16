@@ -192,14 +192,10 @@ class CartridgeManager implements CartridgeManagerInterface {
         document.body.appendChild(link);
         link.click();
 
-        await new Promise(resolve =>
-            setTimeout(() => {
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(link.href);
-
-                resolve();
-            })
-        );
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(link.href);
+        }, 100);
     }
 
     private _middleware = ((api: MiddlewareAPI) => (next: (a: Action) => any) => async (
