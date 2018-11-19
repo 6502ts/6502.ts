@@ -49,6 +49,9 @@ function CartridgeControlsUnstyled(props: Props) {
             >
                 Load
             </FileUploadButton>
+            <Button disabled={!props.active} onClick={props.onDownload}>
+                Download
+            </Button>
             <Button disabled={!props.active} onClick={props.onDelete}>
                 Delete
             </Button>
@@ -57,9 +60,6 @@ function CartridgeControlsUnstyled(props: Props) {
             </Button>
             <Button disabled={!props.active} onClick={props.onRun}>
                 {props.changes ? 'Save & Run' : 'Run'}
-            </Button>
-            <Button disabled={!props.active} onClick={props.onDownload}>
-                Download
             </Button>
         </div>
     );
