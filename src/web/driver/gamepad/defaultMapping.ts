@@ -31,7 +31,7 @@ export const defaultMapping: Array<Mapping> = [
     button(9, Target.start),
 
     ...[0, 1, 2, 3, 10, 11].map(i => button(i, Target.fire)),
-    ...[4, 5, 6, 7, 16].map(i => button(i, Target.pause)),
+    ...[4, 5, 6, 7].map(i => button(i, Target.pause)),
 
     axis(0, Sign.negative, Target.left),
     axis(0, Sign.positive, Target.right),

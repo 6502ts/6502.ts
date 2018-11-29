@@ -31,7 +31,10 @@ import {
     updateFrequency,
     updateGamepadCount,
     StartAction,
-    SetEnforceRateLimitAction
+    SetEnforceRateLimitAction,
+    resume,
+    userPause,
+    UpdateGamepadCountAction
 } from '../../actions/emulation';
 import { types as settingsActions } from '../../actions/settings';
 
@@ -48,7 +51,9 @@ import Settings from '../../model/Settings';
 import * as VideoProcessorConfig from '../../../../../video/processing/config';
 import CpuFactory from '../../../../../machine/cpu/Factory';
 import { Target } from '../../../../driver/gamepad/Mapping';
+import Switch from '../../../../../machine/io/Switch';
 
+const POLL_GAMEPAD_INTERVALL = 100;
 const isSafari = bowser.safari || bowser.ios;
 
 class EmulationProvider implements EmulationProviderInterface {
@@ -111,7 +116,8 @@ class EmulationProvider implements EmulationProviderInterface {
             this._driverManager.addDriver(gamepadDriver, (context: EmulationContextInterface, driver: GamepadDriver) =>
                 driver.bind([context.getJoystick(0), context.getJoystick(1)], {
                     [Target.start]: context.getControlPanel().getResetButton(),
-                    [Target.select]: context.getControlPanel().getSelectSwitch()
+                    [Target.select]: context.getControlPanel().getSelectSwitch(),
+                    [Target.pause]: this._pauseSwitch
                 })
             );
 
@@ -126,6 +132,22 @@ class EmulationProvider implements EmulationProviderInterface {
             this._gamepadDriver.gamepadCountChanged.addHandler(gamepadCount =>
                 this._store.dispatch(updateGamepadCount(gamepadCount))
             );
+
+            this._pauseSwitch.stateChanged.addHandler(state => {
+                if (!state) {
+                    return;
+                }
+
+                switch (this._service.getState()) {
+                    case EmulationServiceInterface.State.paused:
+                        this._store.dispatch(resume());
+                        break;
+
+                    case EmulationServiceInterface.State.running:
+                        this._store.dispatch(userPause());
+                        break;
+                }
+            });
         }
 
         this._store.dispatch(updateGamepadCount(this._gamepadDriver.getGamepadCount()));
@@ -210,6 +232,23 @@ class EmulationProvider implements EmulationProviderInterface {
         this._audioDriver.setMasterVolume(state.settings.volume * cartridge.volume);
     }
 
+    private _onUpdateGamepadCount(a: UpdateGamepadCountAction) {
+        if (!this._gamepadDriver) {
+            return;
+        }
+
+        if (a.value > 0) {
+            if (this._pollGamepadIntervalHandle === null) {
+                this._pollGamepadIntervalHandle = setInterval(() => this._gamepadDriver.poll(), POLL_GAMEPAD_INTERVALL);
+            }
+        } else {
+            if (this._pollGamepadIntervalHandle !== null) {
+                clearInterval(this._pollGamepadIntervalHandle);
+                this._pollGamepadIntervalHandle = null;
+            }
+        }
+    }
+
     private _middleware = ((api: MiddlewareAPI) => (next: (a: Action) => any) => async (a: Action): Promise<any> => {
         if (!a || !this._service) {
             return next(a);
@@ -252,6 +291,10 @@ class EmulationProvider implements EmulationProviderInterface {
                 this._updateVolume();
                 return result;
 
+            case emulationActions.updateGamepadCount:
+                this._onUpdateGamepadCount(a as UpdateGamepadCountAction);
+                return next(a);
+
             default:
                 return next(a);
         }
@@ -263,6 +306,9 @@ class EmulationProvider implements EmulationProviderInterface {
     private _service: EmulationServiceInterface;
     private _audioDriver: WebAudioDriver;
     private _gamepadDriver: GamepadDriver;
+    private _pauseSwitch = new Switch();
+
+    private _pollGamepadIntervalHandle: any = null;
 }
 
 export { EmulationProvider as default };

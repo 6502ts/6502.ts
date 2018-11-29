@@ -137,10 +137,12 @@ export default class GamepadDriver {
         this._mappings.delete(id);
     }
 
-    private static _onBeforeSwitchRead(swtch: SwitchInterface, self: GamepadDriver) {
-        self._readGamepads();
+    poll() {
+        this._readGamepads();
+    }
 
-        self._shadows.get(swtch).sync(swtch);
+    private static _onBeforeSwitchRead(swtch: SwitchInterface, self: GamepadDriver) {
+        self.poll();
     }
 
     private probeGamepads(): void {
@@ -268,7 +270,11 @@ export default class GamepadDriver {
                     continue;
                 }
 
-                swtch.toggle(states.get(target));
+                const shadow = this._shadows.get(swtch);
+
+                shadow.toggle(states.get(target));
+
+                shadow.sync(swtch);
             }
 
             joystickIndex++;
