@@ -44,6 +44,7 @@ import { decode as decodeBase64 } from '../../../tools/base64';
 
 import ControlPanel from './ControlPanel';
 import ControlPanelProxy from './ControlPanelProxy';
+import { Target } from '../../driver/gamepad/Mapping';
 
 /**
  * The stellerator class and namespace. In a typical application, a single instance is
@@ -534,10 +535,9 @@ class Stellerator {
             this._gamepad.init();
 
             this._driverManager.addDriver(this._gamepad, context =>
-                this._gamepad.bind({
-                    joysticks: [context.getJoystick(0), context.getJoystick(1)],
-                    start: context.getControlPanel().getResetButton(),
-                    select: context.getControlPanel().getSelectSwitch()
+                this._gamepad.bind([context.getJoystick(0), context.getJoystick(1)], {
+                    [Target.start]: context.getControlPanel().getResetButton(),
+                    [Target.start]: context.getControlPanel().getSelectSwitch()
                 })
             );
         }

@@ -47,6 +47,7 @@ import StellaConfig from '../../../../../machine/stella/Config';
 import Settings from '../../model/Settings';
 import * as VideoProcessorConfig from '../../../../../video/processing/config';
 import CpuFactory from '../../../../../machine/cpu/Factory';
+import { Target } from '../../../../driver/gamepad/Mapping';
 
 const isSafari = bowser.safari || bowser.ios;
 
@@ -108,10 +109,9 @@ class EmulationProvider implements EmulationProviderInterface {
             gamepadDriver.init();
 
             this._driverManager.addDriver(gamepadDriver, (context: EmulationContextInterface, driver: GamepadDriver) =>
-                driver.bind({
-                    joysticks: [context.getJoystick(0), context.getJoystick(1)],
-                    start: context.getControlPanel().getResetButton(),
-                    select: context.getControlPanel().getSelectSwitch()
+                driver.bind([context.getJoystick(0), context.getJoystick(1)], {
+                    [Target.start]: context.getControlPanel().getResetButton(),
+                    [Target.select]: context.getControlPanel().getSelectSwitch()
                 })
             );
 
@@ -127,6 +127,8 @@ class EmulationProvider implements EmulationProviderInterface {
                 this._store.dispatch(updateGamepadCount(gamepadCount))
             );
         }
+
+        this._store.dispatch(updateGamepadCount(this._gamepadDriver.getGamepadCount()));
 
         this._service.stateChanged.addHandler(newState => this._store.dispatch(stateChange(newState)));
 
