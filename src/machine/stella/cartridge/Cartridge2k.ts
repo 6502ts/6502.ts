@@ -22,6 +22,32 @@
 import AbstractCartridge from './AbstractCartridge';
 import CartridgeInfo from './CartridgeInfo';
 
+function nextPowerOfTwo(x: number): number {
+    let v = 1;
+
+    while (v < x) {
+        v *= 2;
+    }
+
+    return v;
+}
+
+function padBuffer(buffer: ArrayLike<number>): ArrayLike<number> {
+    const paddedLength = nextPowerOfTwo(buffer.length);
+
+    if (paddedLength === buffer.length) {
+        return buffer;
+    }
+
+    const paddedBuffer = new Uint8Array(paddedLength);
+
+    for (let i = 0; i < paddedLength; i++) {
+        paddedBuffer[paddedLength - i - 1] = i < buffer.length ? buffer[buffer.length - i - 1] : 0;
+    }
+
+    return paddedBuffer;
+}
+
 class Cartridge2k extends AbstractCartridge {
     constructor(buffer: { [i: number]: number; length: number }) {
         super();
@@ -30,8 +56,10 @@ class Cartridge2k extends AbstractCartridge {
             throw new Error(`buffer is not a 2k cartridge image: wrong length ${buffer.length}`);
         }
 
-        for (let i = 0; i < buffer.length && i < 0x0800; i++) {
-            this._rom[0x07ff - i] = buffer[buffer.length - 1 - i];
+        const paddedBuffer = padBuffer(buffer);
+
+        for (let i = 0; i < 0x0800; i++) {
+            this._rom[i] = buffer[i % paddedBuffer.length];
         }
     }
 
