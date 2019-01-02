@@ -45,6 +45,20 @@ import { decode as decodeBase64 } from '../../../tools/base64';
 import ControlPanel from './ControlPanel';
 import ControlPanelProxy from './ControlPanelProxy';
 import { Target } from '../../driver/gamepad/Mapping';
+import CpuFactory from '../../../machine/cpu/Factory';
+
+function cpuType(config = Stellerator.CpuAccuracy.cycle): CpuFactory.Type {
+    switch (config) {
+        case Stellerator.CpuAccuracy.cycle:
+            return CpuFactory.Type.stateMachine;
+
+        case Stellerator.CpuAccuracy.instruction:
+            return CpuFactory.Type.batchedAccess;
+
+        default:
+            throw new Error(`invalid CPU Accuracy: ${config}`);
+    }
+}
 
 /**
  * The stellerator class and namespace. In a typical application, a single instance is
@@ -326,6 +340,8 @@ class Stellerator {
             if (typeof config.frameStart !== 'undefined') {
                 stellaConfig.frameStart = config.frameStart;
             }
+
+            stellaConfig.cpuType = cpuType(config.cpuAccuracy);
 
             await this._serviceInitialized;
 
@@ -808,6 +824,13 @@ namespace Stellerator {
          * Default: undefined [autodetect]
          */
         frameStart: number;
+
+        /**
+         * The accuracy of the CPU core (see below).
+         *
+         * Default: cycle (high precision)
+         */
+        cpuAccuracy: CpuAccuracy;
     }
 
     /**
@@ -861,6 +884,20 @@ namespace Stellerator {
          * Emulation has been stopped by an error.
          */
         error = 'error'
+    }
+
+    /**
+     * The different possible CPU emulation modes.
+     */
+    export enum CpuAccuracy {
+        /**
+         * True cycle-exact CPU emulation. High accuracy.
+         */
+        cycle = 'cycle',
+        /**
+         * Less accurate memory access patters. Slightly less accurate, but faster
+         */
+        instruction = 'instruction'
     }
 }
 
