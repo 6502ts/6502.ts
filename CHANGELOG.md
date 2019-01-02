@@ -1,3 +1,9 @@
+# 0.9.13
+
+ * New CPU core with one bus access per cycle
+ * Support 2 / 4 / ... / 1024 byte ROMs
+ * Audio fixes for Safari iOS / MacOS: audio now reliably starts after the first interaction on both platforms
+
 # 0.9.12
 
  * Stellerator embedded: fix pause via touch controls
