@@ -29,9 +29,20 @@ import CartridgeInterface from './CartridgeInterface';
 import * as cartridgeUtil from './util';
 
 const enum ReservedStream {
-    amplitude = 0x22,
+    amplitudeCDF = 0x22,
+    amplitudeCDFJ = 0x23,
     jump = 0x21,
     comm = 0x20
+}
+
+const enum CdfSubtype {
+    CDF,
+    CDFJ
+}
+
+interface CdfVersion {
+    layout: number;
+    subtype: CdfSubtype;
 }
 
 const DSPointerBase = new Uint16Array([0x06e0, 0x00a0]);
@@ -42,17 +53,35 @@ class CartridgeCDF extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
-        this._version = CartridgeCDF.getVersion(buffer);
+        const version = CartridgeCDF.getVersion(buffer);
+        if (!version) {
+            throw new Error('not a CDF image: missing signature');
+        }
+
+        this._datastreamBase = DSPointerBase[version.layout];
+        this._datastreamIncrementBase = DSIncrementBase[version.layout];
+        this._waveformBase = WaveformBase[version.layout];
+
+        switch (version.subtype) {
+            case CdfSubtype.CDF:
+                this._jumpstreamMask = 0xff;
+                this._amplitudeStream = ReservedStream.amplitudeCDF;
+                break;
+
+            case CdfSubtype.CDFJ:
+                this._jumpstreamMask = 0xfe;
+                this._amplitudeStream = ReservedStream.amplitudeCDFJ;
+                break;
+
+            default:
+                throw new Error('invalid CDF subtype');
+        }
 
         if (buffer.length !== 0x8000) {
             throw new Error(`not a CDF image: invalid lenght ${buffer.length}`);
         }
 
-        if (this._version < 0) {
-            throw new Error('not a CDF image: missing signature');
-        }
-
-        this._soc = new HarmonySoc(this._version > 0 ? this._handleBxCDF1 : this._handleBxCDF0);
+        this._soc = new HarmonySoc(version.layout > 0 ? this._handleBxCDF1 : this._handleBxCDF0);
         this._soc.trap.addHandler(message => this.triggerTrap(CartridgeInterface.TrapReason.other, message));
 
         /* ROM layout:
@@ -89,19 +118,37 @@ class CartridgeCDF extends AbstractCartridge {
         this.reset();
     }
 
-    static getVersion(buffer: cartridgeUtil.BufferInterface): number {
+    static getVersion(buffer: cartridgeUtil.BufferInterface): CdfVersion | undefined {
         const sig = 'CDF'.split('').map(x => x.charCodeAt(0)),
             startAddress = cartridgeUtil.searchForSignature(buffer, [...sig, -1, ...sig, -1, ...sig]);
 
         if (startAddress < 0) {
-            return -1;
+            return null;
         }
 
-        return buffer[startAddress + 3] > 0 ? 1 : 0;
+        switch (buffer[startAddress + 3]) {
+            case 0:
+                return {
+                    subtype: CdfSubtype.CDF,
+                    layout: 0
+                };
+
+            case 'J'.charCodeAt(0):
+                return {
+                    subtype: CdfSubtype.CDFJ,
+                    layout: 1
+                };
+
+            default:
+                return {
+                    subtype: CdfSubtype.CDF,
+                    layout: 1
+                };
+        }
     }
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        return CartridgeCDF.getVersion(buffer) >= 0;
+        return !!CartridgeCDF.getVersion(buffer);
     }
 
     init(): Promise<void> {
@@ -168,32 +215,38 @@ class CartridgeCDF extends AbstractCartridge {
         if (this._fastJumpCountdown-- > 0 && address === this._jmpOperandAddress) {
             this._jmpOperandAddress++;
 
-            return this._datastreamReadWithIncrement(ReservedStream.jump, 0x0100);
+            return this._datastreamReadWithIncrement(this._jumpstream, 0x0100);
         }
 
         if (
             this._fastFetch &&
             romValue === 0x4c &&
-            this._currentBank[(address + 1) & 0x0fff] === 0 &&
+            (this._currentBank[(address + 1) & 0x0fff] & this._jumpstreamMask) === 0 &&
             this._currentBank[(address + 2) & 0x0fff] === 0
         ) {
             this._fastJumpCountdown = 2;
             this._jmpOperandAddress = (address + 1) & 0x0fff;
+            this._jumpstream = ReservedStream.jump + this._currentBank[(address + 1) & 0x0fff];
 
             return romValue;
         }
 
         this._fastJumpCountdown = 0;
 
-        if (this._fastFetch && this._fastFetchPending && this._ldaOperandAddress === address && romValue <= 0x22) {
+        if (
+            this._fastFetch &&
+            this._fastFetchPending &&
+            this._ldaOperandAddress === address &&
+            romValue <= this._amplitudeStream
+        ) {
             this._fastFetchPending = false;
 
-            if (romValue === ReservedStream.amplitude) {
+            if (romValue === this._amplitudeStream) {
                 this._clockMusicStreams();
 
                 if (this._digitalAudio) {
                     const counter = this._musicStreams[0].counter,
-                        sampleAddress = this._soc.getRam32(WaveformBase[this._version]) + (counter >>> 21);
+                        sampleAddress = this._soc.getRam32(this._waveformBase) + (counter >>> 21);
 
                     let sample = 0;
 
@@ -216,7 +269,7 @@ class CartridgeCDF extends AbstractCartridge {
                         acc += this._displayRam[
                             (this._getWaveform(i) +
                                 (this._musicStreams[i].counter >>> this._musicStreams[i].waveformSize)) &
-                            0x0fff
+                                0x0fff
                         ];
                     }
 
@@ -292,15 +345,15 @@ class CartridgeCDF extends AbstractCartridge {
     }
 
     private _getDatastreamPointer(stream: number): number {
-        return this._soc.getRam32(DSPointerBase[this._version] + 4 * stream);
+        return this._soc.getRam32(this._datastreamBase + 4 * stream);
     }
 
     private _setDatastreamPointer(stream: number, value: number): void {
-        this._soc.setRam32(DSPointerBase[this._version] + 4 * stream, value);
+        this._soc.setRam32(this._datastreamBase + 4 * stream, value);
     }
 
     private _getDatastreamIncrement(stream: number): number {
-        return this._soc.getRam32(DSIncrementBase[this._version] + 4 * stream);
+        return this._soc.getRam32(this._datastreamIncrementBase + 4 * stream);
     }
 
     private _datastreamRead(stream: number): number {
@@ -330,7 +383,7 @@ class CartridgeCDF extends AbstractCartridge {
     }
 
     private _getWaveform(index: number): number {
-        const value = this._soc.getRam32(WaveformBase[this._version] + 4 * index);
+        const value = this._soc.getRam32(this._waveformBase + 4 * index);
 
         return (value - 0x40000000 - 0x0800) & 0x0fff;
     }
@@ -387,8 +440,6 @@ class CartridgeCDF extends AbstractCartridge {
         return Thumbulator.TrapReason.bxLeaveThumb;
     };
 
-    private _version = 1;
-
     private _banks = new Array<Uint8Array>(7);
     private _currentBank: Uint8Array = null;
 
@@ -410,6 +461,14 @@ class CartridgeCDF extends AbstractCartridge {
 
     private _jmpOperandAddress = 0;
     private _ldaOperandAddress = 0;
+
+    private _datastreamBase = 0;
+    private _datastreamIncrementBase = 0;
+    private _waveformBase = 0;
+
+    private _jumpstream = 0;
+    private _jumpstreamMask = 0;
+    private _amplitudeStream = 0;
 
     private _bus: Bus = null;
     private _cpuTimeProvider: () => number = null;
