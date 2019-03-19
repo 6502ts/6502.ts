@@ -35,53 +35,53 @@ const enum ReservedStream {
     comm = 0x20
 }
 
-const enum CdfSubtype {
-    CDF,
-    CDFJ
+const enum CdfVersion {
+    cdf0,
+    cdf1,
+    cdfj,
+    invalid
 }
-
-interface CdfVersion {
-    layout: number;
-    subtype: CdfSubtype;
-}
-
-const DSPointerBase = new Uint16Array([0x06e0, 0x00a0]);
-const DSIncrementBase = new Uint16Array([0x0768, 0x0128]);
-const WaveformBase = new Uint16Array([0x07f0, 0x01b0]);
 
 class CartridgeCDF extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
         super();
 
         const version = CartridgeCDF.getVersion(buffer);
-        if (!version) {
-            throw new Error('not a CDF image: missing signature');
-        }
 
-        this._datastreamBase = DSPointerBase[version.layout];
-        this._datastreamIncrementBase = DSIncrementBase[version.layout];
-        this._waveformBase = WaveformBase[version.layout];
-
-        switch (version.subtype) {
-            case CdfSubtype.CDF:
+        switch (version) {
+            case CdfVersion.cdf0:
                 this._jumpstreamMask = 0xff;
                 this._amplitudeStream = ReservedStream.amplitudeCDF;
+                this._datastreamBase = 0x06e0;
+                this._datastreamIncrementBase = 0x0768;
+                this._waveformBase = 0x7f0;
                 break;
 
-            case CdfSubtype.CDFJ:
+            case CdfVersion.cdf1:
+                this._jumpstreamMask = 0xff;
+                this._amplitudeStream = ReservedStream.amplitudeCDF;
+                this._datastreamBase = 0x00a0;
+                this._datastreamIncrementBase = 0x0128;
+                this._waveformBase = 0x01b0;
+                break;
+
+            case CdfVersion.cdfj:
                 this._jumpstreamMask = 0xfe;
                 this._amplitudeStream = ReservedStream.amplitudeCDFJ;
+                this._datastreamBase = 0x0098;
+                this._datastreamIncrementBase = 0x0124;
+                this._waveformBase = 0x01b0;
                 break;
 
             default:
-                throw new Error('invalid CDF subtype');
+                throw new Error('not a CDF image: missing signature');
         }
 
         if (buffer.length !== 0x8000) {
             throw new Error(`not a CDF image: invalid lenght ${buffer.length}`);
         }
 
-        this._soc = new HarmonySoc(version.layout > 0 ? this._handleBxCDF1 : this._handleBxCDF0);
+        this._soc = new HarmonySoc(version === CdfVersion.cdf0 ? this._handleBxCDF0 : this._handleBxCDF1);
         this._soc.trap.addHandler(message => this.triggerTrap(CartridgeInterface.TrapReason.other, message));
 
         /* ROM layout:
@@ -118,7 +118,7 @@ class CartridgeCDF extends AbstractCartridge {
         this.reset();
     }
 
-    static getVersion(buffer: cartridgeUtil.BufferInterface): CdfVersion | undefined {
+    static getVersion(buffer: cartridgeUtil.BufferInterface): CdfVersion {
         const sig = 'CDF'.split('').map(x => x.charCodeAt(0)),
             startAddress = cartridgeUtil.searchForSignature(buffer, [...sig, -1, ...sig, -1, ...sig]);
 
@@ -128,27 +128,21 @@ class CartridgeCDF extends AbstractCartridge {
 
         switch (buffer[startAddress + 3]) {
             case 0:
-                return {
-                    subtype: CdfSubtype.CDF,
-                    layout: 0
-                };
+                return CdfVersion.cdf0;
+
+            case 1:
+                return CdfVersion.cdf1;
 
             case 'J'.charCodeAt(0):
-                return {
-                    subtype: CdfSubtype.CDFJ,
-                    layout: 1
-                };
+                return CdfVersion.cdfj;
 
             default:
-                return {
-                    subtype: CdfSubtype.CDF,
-                    layout: 1
-                };
+                return CdfVersion.invalid;
         }
     }
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        return !!CartridgeCDF.getVersion(buffer);
+        return CartridgeCDF.getVersion(buffer) !== CdfVersion.invalid;
     }
 
     init(): Promise<void> {
