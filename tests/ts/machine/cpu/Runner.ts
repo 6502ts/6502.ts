@@ -23,7 +23,7 @@ import CpuInterface from '../../../../src/machine/cpu/CpuInterface';
 import BusInterface from '../../../../src/machine/bus/BusInterface';
 import InstrumentedBus from './InstrumentedBus';
 import AccessLog from './AccessLog';
-import * as hex from '../../../../src/tools/hex.js';
+import * as hex from '../../../../src/tools/hex';
 import * as binary from '../../../../src/tools/binary';
 
 class Runner {

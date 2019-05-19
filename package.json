@@ -29,11 +29,19 @@
     "worker-rpc": "^0.1.1"
   },
   "devDependencies": {
+    "@types/argparse": "^1.0.36",
+    "@types/deep-equal": "^1.0.1",
     "@types/md5": "^2.1.33",
+    "@types/mocha": "^5.2.6",
     "@types/node": "^12.0.2",
-    "@types/seedrandom": "^2.4.28"
+    "@types/seedrandom": "^2.4.28",
+    "argparse": "^1.0.10",
+    "deep-equal": "^1.0.1",
+    "mocha": "^6.1.4",
+    "ts-node": "^8.1.0"
   },
   "scripts": {
+    "test": "mocha --require ts-node/register -u tdd -R spec 'tests/ts/**/*.ts'",
     "_prepublish": "rm -fr lib; tsc -p tsconfig.npm.json"
   }
 }

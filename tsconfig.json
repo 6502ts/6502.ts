@@ -5,8 +5,6 @@
     },
     "include": [
         "bin/*.ts",
-        "src/**/*.ts",
-        "tests/**/*.ts",
-        "src/web/stella/stellerator/**/*.tsx"
+        "src/**/*.ts"
     ]
 }
