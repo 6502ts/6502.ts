@@ -690,6 +690,11 @@ set-blocking@^2.0.0:
   resolved "https://registry.yarnpkg.com/set-blocking/-/set-blocking-2.0.0.tgz#045f9782d011ae9a6803ddd382b24392b3d890f7"
   integrity sha1-BF+XgtARrppoA93TgrJDkrPYkPc=
 
+setimmediate2@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/setimmediate2/-/setimmediate2-3.0.0.tgz#6181b1a5eef17bb2eaf4d7a9be902aaa91bea8ae"
+  integrity sha1-YYGxpe7xe7Lq9NepvpAqqpG+qK4=
+
 shebang-command@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/shebang-command/-/shebang-command-1.2.0.tgz#44aac65b695b03398968c39f363fee5deafdf1ea"
