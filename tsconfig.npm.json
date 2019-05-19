@@ -9,7 +9,6 @@
     ],
     "exclude": [
         "src/cli/**/*",
-        "src/web/*CLI.ts",
-        "src/web/stella/stellerator/**/*"
+        "src/web/*CLI.ts"
     ]
 }

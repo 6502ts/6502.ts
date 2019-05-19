@@ -1,7 +1,0 @@
-.btn {
-    cursor: pointer;
-}
-
-.btn::first-letter {
-    color: inherit!important;
-}

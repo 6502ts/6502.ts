@@ -25,7 +25,6 @@ import * as path from 'path';
 import * as util from 'util';
 
 import NodeFilesystemProvider from '../../../src/fs/NodeFilesystemProvider';
-import PrepackagedFilesystemProvider from '../../../src/fs/PrepackagedFilesystemProvider';
 import FilesystemProviderInterface from '../../../src/fs/FilesystemProviderInterface';
 
 const fixtures = {
@@ -158,20 +157,6 @@ suite('FS Providers', function() {
 
             return provider;
         }
-
-        runProviderTests(factory);
-    });
-
-    suite('PrepackagedFileSystemProvider', function() {
-        let blob: PrepackagedFilesystemProvider.BlobInterface;
-
-        function factory() {
-            return new PrepackagedFilesystemProvider(_.cloneDeep(blob));
-        }
-
-        test('Loading the prepackaged blob', function() {
-            blob = require('../../fixtures/fs_provider/blob.json');
-        });
 
         runProviderTests(factory);
     });
