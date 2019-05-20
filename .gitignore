@@ -6,3 +6,4 @@ build
 typedoc
 lib
 dist
+.rpt2_cache
