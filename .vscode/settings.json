@@ -16,5 +16,8 @@
     "[elm]": {
         "editor.formatOnSave": true
     },
+    "[scss]": {
+        "editor.formatOnSave": true
+    },
     "typescript.tsdk": "./node_modules/typescript/lib"
 }

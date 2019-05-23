@@ -5,6 +5,8 @@ import builtins from 'rollup-plugin-node-builtins';
 import elm from 'rollup-plugin-elm';
 import { terser } from 'rollup-plugin-terser';
 import html from 'rollup-plugin-bundle-html';
+import scss from 'rollup-plugin-scss';
+import copy from 'rollup-plugin-copy';
 import path from 'path';
 
 const worker = (input, output) => ({
@@ -40,10 +42,10 @@ const worker = (input, output) => ({
     }
 });
 
-const elmFrontend = (input, output) => ({
+const elmFrontend = (input, outputDirectory, htmlTemplate) => ({
     input,
     output: {
-        file: output,
+        file: path.join(outputDirectory, 'app.js'),
         format: 'cjs',
         sourcemap: true
     },
@@ -55,6 +57,7 @@ const elmFrontend = (input, output) => ({
                 pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm')
             }
         }),
+        scss(),
         commonjs({
             namedExports: {
                 'node_modules/seedrandom/index.js': ['alea'],
@@ -68,15 +71,26 @@ const elmFrontend = (input, output) => ({
                     module: 'es2015'
                 }
             },
-            tsconfig: 'tsconfig.json'
+            tsconfig: 'tsconfig.json',
+            objectHashIgnoreUnknownHack: true
         }),
         builtins(),
         terser(),
         html({
-            template: 'template/stellerator.html',
-            dest: 'dist/frontend/stellerator',
+            template: htmlTemplate,
+            dest: outputDirectory,
             filename: 'index.html',
-            inject: 'head'
+            inject: 'head',
+            externals: [
+                {
+                    file: path.join(outputDirectory, 'app.css'),
+                    type: 'css'
+                }
+            ]
+        }),
+        copy({
+            targets: ['styles/assets'],
+            outputFolder: outputDirectory
         })
     ],
     onwarn: (warning, warn) => {
@@ -86,7 +100,7 @@ const elmFrontend = (input, output) => ({
 });
 
 export default [
-    worker('worker/src/main/stellerator.ts', 'dist/worker/stellerator.min.js'),
-    worker('worker/src/main/video-pipeline.ts', 'dist/worker/video-pipeline.min.js'),
-    elmFrontend('src/web/frontend/stellerator/index.ts', 'dist/frontend/stellerator/main.min.js')
+    // worker('worker/src/main/stellerator.ts', 'dist/worker/stellerator.min.js'),
+    // worker('worker/src/main/video-pipeline.ts', 'dist/worker/video-pipeline.min.js'),
+    elmFrontend('src/web/frontend/stellerator/index.ts', 'dist/frontend/stellerator', 'template/stellerator.html')
 ];
