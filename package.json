@@ -39,6 +39,7 @@
     "argparse": "^1.0.10",
     "deep-equal": "^1.0.1",
     "elm": "^0.19.0-no-deps",
+    "live-server": "^1.2.1",
     "mocha": "^6.1.4",
     "rollup": "^1.12.3",
     "rollup-plugin-bundle-html": "^0.2.0",

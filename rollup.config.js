@@ -102,5 +102,5 @@ const elmFrontend = (input, outputDirectory, htmlTemplate) => ({
 export default [
     // worker('worker/src/main/stellerator.ts', 'dist/worker/stellerator.min.js'),
     // worker('worker/src/main/video-pipeline.ts', 'dist/worker/video-pipeline.min.js'),
-    elmFrontend('src/web/frontend/stellerator/index.ts', 'dist/frontend/stellerator', 'template/stellerator.html')
+    elmFrontend('src/frontend/stellerator/index.ts', 'dist/frontend/stellerator', 'template/stellerator.html')
 ];

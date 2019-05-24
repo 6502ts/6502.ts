@@ -1,5 +1,5 @@
-import Elm from '../../../../elm/src/stellerator/Main.elm';
-import '../../../../styles/dos.scss';
+import Elm from '../elm/stellerator/Main.elm';
+import '../theme/dos.scss';
 
 function main(): void {
     const node = document.getElementById('root');

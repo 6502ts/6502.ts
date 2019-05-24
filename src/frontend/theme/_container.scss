@@ -1,0 +1,14 @@
+.panel {
+    position: relative;
+    border: $px solid $text-color-default;
+    margin: #{1rem / 8 * 5} 0.5rem;
+    padding: #{1rem / 8 * 5} 0.5rem;
+}
+
+.panel-label {
+    position: absolute;
+    top: -1rem / 8 * 5;
+    left: 0.5rem;
+    background-color: $background-color;
+    z-index: 10;
+}
