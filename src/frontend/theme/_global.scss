@@ -1,8 +1,11 @@
+@import "constants";
+
 body {
     background: $background-color;
     color: $text-color-default;
     font-family: DOS;
     font-size: $font-size-default;
+    line-height: $line-height-default;
     padding: 0;
     margin: 0;
 }

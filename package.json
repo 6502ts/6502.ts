@@ -41,6 +41,7 @@
     "elm": "^0.19.0-no-deps",
     "live-server": "^1.2.1",
     "mocha": "^6.1.4",
+    "normalize.css": "^8.0.1",
     "rollup": "^1.12.3",
     "rollup-plugin-bundle-html": "^0.2.0",
     "rollup-plugin-commonjs": "^10.0.0",

@@ -1,14 +1,16 @@
-.panel {
+@import "constants";
+
+.dos-panel {
     position: relative;
-    border: $px solid $text-color-default;
-    margin: #{1rem / 8 * 5} 0.5rem;
-    padding: #{1rem / 8 * 5} 0.5rem;
+    outline: $px solid $text-color-default;
+    padding: $line-height-default 1rem;
+    outline-offset: -5 * $px;
 }
 
-.panel-label {
+.dos-panel-label {
     position: absolute;
-    top: -1rem / 8 * 5;
-    left: 0.5rem;
+    top: 0;
+    left: 1rem;
     background-color: $background-color;
-    z-index: 10;
+    // z-index: 10;
 }

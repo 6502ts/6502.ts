@@ -57,7 +57,9 @@ const elmFrontend = (input, outputDirectory, htmlTemplate) => ({
                 pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm')
             }
         }),
-        scss(),
+        scss({
+            includePaths: [path.resolve(__dirname, 'node_modules')]
+        }),
         commonjs({
             namedExports: {
                 'node_modules/seedrandom/index.js': ['alea'],

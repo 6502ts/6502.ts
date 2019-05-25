@@ -1,4 +1,4 @@
 declare module '*.elm' {
-    const Main: any;
-    export default Main;
+    const elm: any;
+    export default elm;
 }
