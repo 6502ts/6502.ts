@@ -1,0 +1,27 @@
+@import "constants";
+@import "functions";
+
+button {
+    padding: 0 1rem;
+    line-height: inherit;
+    color: $black;
+    background: $white;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+
+    @include box-shadow(0.5rem #{0.5 * $line-height-default} 0 $black);
+
+    &:active {
+        color: $white;
+        background: $black;
+    }
+
+    &, &:focus, &:hover {
+        border: none;
+        outline: none;
+    }
+
+    &:hover {
+        cursor: pointer;
+    }
+}

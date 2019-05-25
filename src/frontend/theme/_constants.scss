@@ -1,5 +1,22 @@
-$background-color: #000084;
-$text-color-default: #bbb;
+$black: #000;
+$dark-grey: #555;
+$blue: #00a;
+$light-blue: #55f;
+$green: #0a0;
+$light-green: #5f5;
+$cyan: #0aa;
+$light-cyan: #5ff;
+$red: #a00;
+$light-red: #f55;
+$magenta: #a0a;
+$light-magenta: #f5f;
+$brown: #a50;
+$yellow: #ff0;
+$light-gray: #aaa;
+$white: #bbb;
+
+$background-color: $blue;
+$text-color-default: $white;
 
 $px: 1rem / 8;
 $font-size-default: 18px;

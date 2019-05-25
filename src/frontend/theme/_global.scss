@@ -1,5 +1,24 @@
 @import "constants";
 
+:root {
+    --black: #{$black};
+    --dark-grey: #{$dark-grey};
+    --blue: #{$blue};
+    --light-blue: #{$light-blue};
+    --green: #{$green};
+    --light-green: #{$light-green};
+    --cyan: #{$cyan};
+    --light-cyan: #{$light-cyan};
+    --red: #{$red};
+    --light-red: #{$light-red};
+    --magenta: #{$magenta};
+    --light-magenta: #{$light-magenta};
+    --brown: #{$brown};
+    --yellow: #{$yellow};
+    --light-gray: #{$light-gray};
+    --white: #{$white};
+}
+
 body {
     background: $background-color;
     color: $text-color-default;

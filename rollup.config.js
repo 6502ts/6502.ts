@@ -58,7 +58,8 @@ const elmFrontend = (input, outputDirectory, htmlTemplate) => ({
             }
         }),
         scss({
-            includePaths: [path.resolve(__dirname, 'node_modules')]
+            includePaths: [path.resolve(__dirname, 'node_modules')],
+            outputStyle: 'compressed'
         }),
         commonjs({
             namedExports: {

@@ -58,7 +58,7 @@ view model =
             ]
         , Dos.panelWithLabel "panel 3:"
             [ css [ flexGrow <| num 1, boxSizing borderBox ] ]
-            [ text "Toolbar"
+            [ button [] [ text "Save" ]
             ]
         ]
 
