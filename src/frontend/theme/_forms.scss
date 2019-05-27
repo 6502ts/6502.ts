@@ -17,7 +17,7 @@ button {
         color: $dark-gray;
     }
 
-    &:active {
+    &:not(:disabled):active {
         color: $white;
         background: $black;
     }
@@ -38,6 +38,7 @@ input[type=text] {
     background: $cyan;
     color: $black;
     height: $line-height;
+    cursor: text;
 
     &::placeholder {
         color: $dark-gray;
@@ -45,5 +46,31 @@ input[type=text] {
 
     &:disabled {
         background: $light-gray;
+    }
+}
+
+input[type=checkbox] {
+    @include appearance-none;
+
+    cursor: pointer;
+
+    &::before {
+        content: '[ ]';
+        color: $light-gray;
+    }
+
+    &:checked {
+        &::before {
+            content: '[x]';
+        }
+    }
+
+    &:disabled::before {
+        color: $dark-gray;
+    }
+
+    &:focus {
+        outline: none;
+        border: none;
     }
 }

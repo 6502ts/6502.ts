@@ -2,3 +2,9 @@
     box-shadow: $def;
     -webkit-box-shadow: $def;
 }
+
+@mixin appearance-none {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
