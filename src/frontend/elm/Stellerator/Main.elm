@@ -4,8 +4,8 @@ import Browser
 import Css exposing (..)
 import Dos
 import Html
-import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (..)
+import Html.Styled as H exposing (..)
+import Html.Styled.Attributes as A exposing (..)
 
 
 type Model
@@ -59,6 +59,7 @@ view model =
         , Dos.panelWithLabel "panel 3:"
             [ css [ flexGrow <| num 1, boxSizing borderBox ] ]
             [ button [] [ text "Save" ]
+            , button [ A.disabled True ] [ text "Disabled" ]
             ]
         ]
 

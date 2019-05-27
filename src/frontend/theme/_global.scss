@@ -2,7 +2,7 @@
 
 :root {
     --black: #{$black};
-    --dark-grey: #{$dark-grey};
+    --dark-gray: #{$dark-gray};
     --blue: #{$blue};
     --light-blue: #{$light-blue};
     --green: #{$green};
@@ -17,14 +17,20 @@
     --yellow: #{$yellow};
     --light-gray: #{$light-gray};
     --white: #{$white};
+
+    --background-color-default: #{$background-color-default};
+    --text-color-default: #{$text-color-default};
+    --px: #{$px};
+    --font-size: #{$font-size};
+    --line-height: #{$line-height};
 }
 
 body {
-    background: $background-color;
+    background: $background-color-default;
     color: $text-color-default;
     font-family: DOS;
-    font-size: $font-size-default;
-    line-height: $line-height-default;
+    font-size: $font-size;
+    line-height: $line-height;
     padding: 0;
     margin: 0;
 }

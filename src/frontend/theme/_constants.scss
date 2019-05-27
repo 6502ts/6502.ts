@@ -1,5 +1,5 @@
 $black: #000;
-$dark-grey: #555;
+$dark-gray: #555;
 $blue: #00a;
 $light-blue: #55f;
 $green: #0a0;
@@ -15,9 +15,9 @@ $yellow: #ff0;
 $light-gray: #aaa;
 $white: #bbb;
 
-$background-color: $blue;
+$background-color-default: $blue;
 $text-color-default: $white;
 
 $px: 1rem / 8;
-$font-size-default: 18px;
-$line-height-default: 10 * $px;
+$font-size: 18px;
+$line-height: 10 * $px;

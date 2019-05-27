@@ -3,7 +3,7 @@
 .dos-panel {
     position: relative;
     outline: $px solid $text-color-default;
-    padding: $line-height-default 1rem;
+    padding: $line-height 1rem;
     outline-offset: -5 * $px;
 }
 
@@ -11,6 +11,5 @@
     position: absolute;
     top: 0;
     left: 1rem;
-    background-color: $background-color;
-    // z-index: 10;
+    background-color: $background-color-default;
 }
