@@ -5,7 +5,7 @@ button {
     padding: 0 1rem;
     line-height: inherit;
     color: $black;
-    background: $white;
+    background: $light-gray;
     margin-right: 1rem;
     margin-bottom: 1rem;
 
@@ -29,5 +29,21 @@ button {
 
     &:hover {
         cursor: pointer;
+    }
+}
+
+input[type=text] {
+    border: none;
+    outline: none;
+    background: $cyan;
+    color: $black;
+    height: $line-height;
+
+    &::placeholder {
+        color: $dark-gray;
+    }
+
+    &:disabled {
+        background: $light-gray;
     }
 }

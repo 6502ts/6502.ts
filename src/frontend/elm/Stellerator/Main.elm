@@ -60,6 +60,13 @@ view model =
             [ css [ flexGrow <| num 1, boxSizing borderBox ] ]
             [ button [] [ text "Save" ]
             , button [ A.disabled True ] [ text "Disabled" ]
+            , br [] []
+            , label [ css [ marginRight (rem 1) ] ] [ text "active input:" ]
+            , input [ type_ "text", css [ Css.width (rem 20) ], placeholder "enter some text" ] []
+            , br [] []
+            , br [] []
+            , label [ css [ marginRight (rem 1) ] ] [ text "disabled input:" ]
+            , input [ type_ "text", A.disabled True, css [ Css.width (rem 20) ], placeholder "this is disabled" ] []
             ]
         ]
 
