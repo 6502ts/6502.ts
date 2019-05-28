@@ -3,7 +3,7 @@
 .panel {
     position: relative;
     outline: $px solid $text-color-default;
-    padding: $line-height 1rem;
+    padding: 1rem #{2 * $cw};
     outline-offset: - $character-height / 2 * $px;
 }
 

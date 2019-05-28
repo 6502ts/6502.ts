@@ -10,7 +10,7 @@ button {
     margin-bottom: 1rem;
 
     &:not(:disabled) {
-        @include box-shadow(0.5rem #{0.5 * $line-height} 0 $black);
+        @include box-shadow((0.5 * $cw) 0.5rem 0 $black);
     }
 
     &:disabled {
@@ -37,7 +37,7 @@ input[type=text] {
     outline: none;
     background: $cyan;
     color: $black;
-    height: $line-height;
+    height: 1rem;
     cursor: text;
 
     &::placeholder {
