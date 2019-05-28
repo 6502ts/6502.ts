@@ -2,15 +2,15 @@
 @import "functions";
 
 button {
-    padding: 0 1rem;
+    padding: 0 $cw;
     line-height: inherit;
     color: $black;
     background: $light-gray;
-    margin-right: 1rem;
+    margin-right: 2 * $cw;
     margin-bottom: 1rem;
 
     &:not(:disabled) {
-        @include box-shadow((0.5 * $cw) 0.5rem 0 $black);
+        @include box-shadow(($cw) 0.5rem 0 $black);
     }
 
     &:disabled {
