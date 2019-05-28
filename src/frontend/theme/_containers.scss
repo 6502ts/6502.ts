@@ -4,7 +4,7 @@
     position: relative;
     outline: $px solid $text-color-default;
     padding: 1rem #{2 * $cw};
-    outline-offset: - $character-height / 2 * $px;
+    outline-offset: - 0.5rem;
 }
 
 .panel-label {
