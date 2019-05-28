@@ -9,11 +9,11 @@ panelWithLabel : String -> List (Attribute msg) -> List (Html msg) -> Html msg
 panelWithLabel label attr content =
     let
         panelLabel =
-            [ Html.label [ class "dos-panel-label" ] [ text label ] ]
+            [ Html.label [ class "panel-label" ] [ text label ] ]
     in
-    div ([ class "dos-panel" ] ++ attr) (panelLabel ++ content)
+    div ([ class "panel" ] ++ attr) (panelLabel ++ content)
 
 
 panelWithoutLabel : List (Attribute msg) -> List (Html msg) -> Html msg
 panelWithoutLabel attr content =
-    div ([ class "dos-panel" ] ++ attr) content
+    div ([ class "panel" ] ++ attr) content

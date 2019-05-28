@@ -1,13 +1,13 @@
 @import "constants";
 
-.dos-panel {
+.panel {
     position: relative;
     outline: $px solid $text-color-default;
     padding: $line-height 1rem;
-    outline-offset: -5 * $px;
+    outline-offset: - $character-height / 2 * $px;
 }
 
-.dos-panel-label {
+.panel-label {
     position: absolute;
     top: 0;
     left: 1rem;

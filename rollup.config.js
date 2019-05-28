@@ -92,7 +92,7 @@ const elmFrontend = (input, outputDirectory, htmlTemplate) => ({
             ]
         }),
         copy({
-            targets: ['styles/assets'],
+            targets: ['src/frontend/theme/assets'],
             outputFolder: outputDirectory
         })
     ],

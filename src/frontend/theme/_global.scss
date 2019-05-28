@@ -23,16 +23,12 @@
     --px: #{$px};
     --font-size: #{$font-size};
     --line-height: #{$line-height};
-}
 
-body {
     background: $background-color-default;
     color: $text-color-default;
-    font-family: DOS;
+    font-family: dos;
     font-size: $font-size;
     line-height: $line-height;
-    padding: 0;
-    margin: 0;
 }
 
 p {

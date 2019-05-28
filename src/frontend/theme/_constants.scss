@@ -1,3 +1,9 @@
+$character-width: 8;
+$character-height: 16;
+$font-size: 18px;
+$line-height: $font-size;
+$px: 1rem / $character-height;
+
 $black: #000;
 $dark-gray: #555;
 $blue: #00a;
@@ -17,7 +23,3 @@ $white: #fff;
 
 $background-color-default: $blue;
 $text-color-default: $light-gray;
-
-$px: 1rem / 8;
-$font-size: 18px;
-$line-height: 10 * $px;
