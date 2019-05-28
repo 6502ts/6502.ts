@@ -74,3 +74,29 @@ input[type=checkbox] {
         border: none;
     }
 }
+
+input[type=radio] {
+    @include appearance-none;
+
+    cursor: pointer;
+
+    &::before {
+        content: '( )';
+        color: $light-gray;
+    }
+
+    &:checked {
+        &::before {
+            content: '(*)';
+        }
+    }
+
+    &:disabled::before {
+        color: $dark-gray;
+    }
+
+    &:focus {
+        outline: none;
+        border: none;
+    }
+}

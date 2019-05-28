@@ -30,6 +30,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 view : Model -> Html Msg
 view model =
+    let
+        hspace n =
+            "calc(" ++ String.fromFloat n ++ " * var(--cw))"
+    in
+    let
+        lbl x =
+            label [ css [ Css.property "width" <| hspace 20, display inlineBlock ] ] [ text x ]
+    in
     Dos.panelWithoutLabel
         [ css
             [ Css.height (vh 100)
@@ -56,25 +64,38 @@ view model =
                 [ text loremIpsum ]
             , p [] [ text "hello world!" ]
             ]
-        , Dos.panelWithLabel "panel 3:"
+        , Dos.panelWithLabel "Form elements:"
             [ css [ flexGrow <| num 1, boxSizing borderBox ] ]
-            [ button [] [ text "Save" ]
+            [ br [] []
+            , lbl "buttons:"
+            , button [] [ text "Save" ]
             , button [ A.disabled True ] [ text "Disabled" ]
             , br [] []
-            , label [ css [ marginRight (rem 1) ] ] [ text "active input:" ]
+            , lbl "active input:"
             , input [ type_ "text", css [ Css.width (rem 20) ], placeholder "enter some text" ] []
             , br [] []
             , br [] []
-            , label [ css [ marginRight (rem 1) ] ] [ text "disabled input:" ]
+            , lbl "disabled input:"
             , input [ type_ "text", A.disabled True, css [ Css.width (rem 20) ], placeholder "this is disabled" ] []
             , br [] []
             , br [] []
-            , label [ css [ marginRight (rem 1) ] ] [ text "active checkbox:" ]
+            , lbl "active checkbox:"
             , input [ type_ "checkbox" ] []
             , br [] []
             , br [] []
-            , label [ css [ marginRight (rem 1) ] ] [ text "disabled checkbox:" ]
+            , lbl "disabled checkbox:"
             , input [ type_ "checkbox", A.disabled True ] []
+            , br [] []
+            , br [] []
+            , lbl "radios:"
+            , label [ css [ Css.property "margin-right" <| hspace 1 ] ] [ text "Apples:" ]
+            , input [ type_ "radio", name "radiofoo", css [ Css.property "margin-right" <| hspace 3 ] ] []
+            , label [ css [ Css.property "margin-right" <| hspace 1 ] ] [ text "Bananas:" ]
+            , input [ type_ "radio", name "radiofoo", css [ Css.property "margin-right" <| hspace 3 ] ] []
+            , label [ css [ Css.property "margin-right" <| hspace 1 ] ] [ text "Cucumbers:" ]
+            , input [ type_ "radio", name "radiofoo", css [ Css.property "margin-right" <| hspace 3 ] ] []
+            , label [ css [ Css.property "margin-right" <| hspace 1 ] ] [ text "Disabled pear:" ]
+            , input [ type_ "radio", name "radiofoo", A.disabled True, css [ Css.property "margin-right" <| hspace 3 ] ] []
             ]
         ]
 

@@ -3,6 +3,7 @@ $character-height: 16;
 $font-size: 18px;
 $line-height: $font-size;
 $px: 1rem / $character-height;
+$cw: $character-width * $px;
 
 $black: #000;
 $dark-gray: #555;

@@ -1,6 +1,13 @@
 @import "constants";
 
 :root {
+    --character-width: #{$character-width};
+    --character-height: #{$character-height};
+    --font-size: #{$font-size};
+    --line-height: #{$line-height};
+    --px: #{$px};
+    --cw: #{$cw};
+
     --black: #{$black};
     --dark-gray: #{$dark-gray};
     --blue: #{$blue};
@@ -20,9 +27,6 @@
 
     --background-color-default: #{$background-color-default};
     --text-color-default: #{$text-color-default};
-    --px: #{$px};
-    --font-size: #{$font-size};
-    --line-height: #{$line-height};
 
     background: $background-color-default;
     color: $text-color-default;
