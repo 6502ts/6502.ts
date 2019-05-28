@@ -100,3 +100,66 @@ input[type=radio] {
         border: none;
     }
 }
+
+input[type=range] {
+    $slider-color: $light-gray;
+
+    @include appearance-none;
+
+    background: transparent;
+    vertical-align: middle;
+    cursor: pointer;
+    height: 1rem;
+
+    &::-webkit-slider-runnable-track {
+        @include appearance-none;
+
+        width: 100%;
+        height: 1 * $px;
+        cursor: pointer;
+        background: $slider-color;
+        outline: none;
+        border: none;
+    }
+
+    &::-webkit-slider-thumb {
+        @include appearance-none;
+
+        height: 1rem;
+        width: $cw;
+        background: $slider-color;
+        cursor: pointer;
+        margin-top: -0.5rem;
+        border-radius: 0;
+        outline: none;
+        border: none;
+    }
+
+    &::-moz-range-track {
+        @include appearance-none;
+
+        width: 100%;
+        height: 1 * $px;
+        cursor: pointer;
+        background-color: $slider-color;
+        outline: none;
+        border: none;
+    }
+
+    &::-moz-range-thumb {
+        @include appearance-none;
+
+        height: 1rem;
+        width: $cw;
+        border-radius: 0;
+        background: $slider-color;
+        cursor: pointer;
+        outline: none;
+        border: none;
+    }
+
+    &:focus {
+        outline: none;
+        border: none;
+    }
+}

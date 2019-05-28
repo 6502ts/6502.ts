@@ -96,6 +96,10 @@ view model =
             , input [ type_ "radio", name "radiofoo", css [ Css.property "margin-right" <| hspace 3 ] ] []
             , label [ css [ Css.property "margin-right" <| hspace 1 ] ] [ text "Disabled pear:" ]
             , input [ type_ "radio", name "radiofoo", A.disabled True, css [ Css.property "margin-right" <| hspace 3 ] ] []
+            , br [] []
+            , br [] []
+            , lbl "slider:"
+            , input [ type_ "range", css [ Css.property "width" <| hspace 25 ] ] []
             ]
         ]
 
