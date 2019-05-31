@@ -163,3 +163,17 @@ input[type=range] {
         border: none;
     }
 }
+
+select {
+    @include appearance-none;
+
+    border: none;
+    outline: none;
+    border-radius: 0;
+    background: $cyan;
+    color: $black;
+    padding-right: $cw;
+    cursor: pointer;
+
+    border-right: #{2 * $cw}  solid $light-gray;
+}

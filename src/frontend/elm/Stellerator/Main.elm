@@ -100,6 +100,10 @@ view model =
             , br [] []
             , lbl "slider:"
             , input [ type_ "range", css [ Css.property "width" <| hspace 25 ] ] []
+            , br [] []
+            , br [] []
+            , lbl "dropdown:"
+            , select [ css [ Css.property "width" (hspace 25) ] ] <| List.map (\x -> option [ value x ] [ text x ]) [ "hanni", "nanni", "fanni" ]
             ]
         ]
 
