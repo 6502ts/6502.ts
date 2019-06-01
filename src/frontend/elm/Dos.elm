@@ -1,4 +1,4 @@
-module Dos exposing (panelWithLabel, panelWithoutLabel)
+module Dos exposing (panelWithLabel, panelWithoutLabel, select)
 
 import Css exposing (..)
 import Html.Styled as Html exposing (..)
@@ -17,3 +17,13 @@ panelWithLabel label attr content =
 panelWithoutLabel : List (Attribute msg) -> List (Html msg) -> Html msg
 panelWithoutLabel attr content =
     div ([ class "panel" ] ++ attr) content
+
+
+select : List (Attribute msg) -> List ( String, String ) -> Html msg
+select attr values =
+    let
+        createOption ( v, t ) =
+            option [ value v ] [ text t ]
+    in
+    span [ class "select-wrapper" ]
+        [ Html.select attr <| List.map createOption values ]

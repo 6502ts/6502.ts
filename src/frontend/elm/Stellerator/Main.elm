@@ -103,7 +103,7 @@ view model =
             , br [] []
             , br [] []
             , lbl "dropdown:"
-            , select [ css [ Css.property "width" (hspace 25) ] ] <| List.map (\x -> option [ value x ] [ text x ]) [ "hanni", "nanni", "fanni" ]
+            , Dos.select [ css [ Css.property "width" <| hspace 20 ] ] [ ( "hanni", "Hanni" ), ( "nanni", "Nanni" ), ( "fanni", "Fanni" ) ]
             ]
         ]
 

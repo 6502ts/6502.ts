@@ -32,13 +32,16 @@ button {
     }
 }
 
-input[type=text] {
+@mixin text {
+    @include appearance-none;
+
     border: none;
     outline: none;
     background: $cyan;
     color: $black;
     height: 1rem;
-    cursor: text;
+    border-radius: 0;
+    padding: 0 $cw;
 
     &::placeholder {
         color: $dark-gray;
@@ -49,19 +52,50 @@ input[type=text] {
     }
 }
 
-input[type=checkbox] {
+input[type=text] {
+    @include text;
+
+    cursor: text;
+
+    &::placeholder {
+        color: $dark-gray;
+    }
+}
+
+select {
+    @include text;
+    padding-right: 2 * $cw;
+
+    cursor: pointer;
+}
+
+.select-wrapper {
+    position: relative;
+
+    &::after {
+        content: '\25bc';
+        color: $black;
+        position: absolute;
+        top: 0;
+        right: 0;
+        pointer-events: none;
+        background: $light-gray;
+    }
+}
+
+@mixin radio($deselected, $selected) {
     @include appearance-none;
 
     cursor: pointer;
 
     &::before {
-        content: '[ ]';
+        content: $deselected;
         color: $light-gray;
     }
 
     &:checked {
         &::before {
-            content: '[x]';
+            content: $selected;
         }
     }
 
@@ -75,30 +109,12 @@ input[type=checkbox] {
     }
 }
 
+input[type=checkbox] {
+    @include radio('[ ]', '[x]');
+}
+
 input[type=radio] {
-    @include appearance-none;
-
-    cursor: pointer;
-
-    &::before {
-        content: '( )';
-        color: $light-gray;
-    }
-
-    &:checked {
-        &::before {
-            content: '(*)';
-        }
-    }
-
-    &:disabled::before {
-        color: $dark-gray;
-    }
-
-    &:focus {
-        outline: none;
-        border: none;
-    }
+    @include radio('( )', '(*)');
 }
 
 input[type=range] {
@@ -162,18 +178,4 @@ input[type=range] {
         outline: none;
         border: none;
     }
-}
-
-select {
-    @include appearance-none;
-
-    border: none;
-    outline: none;
-    border-radius: 0;
-    background: $cyan;
-    color: $black;
-    padding-right: $cw;
-    cursor: pointer;
-
-    border-right: #{2 * $cw}  solid $light-gray;
 }
