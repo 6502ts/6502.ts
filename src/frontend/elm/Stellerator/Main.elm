@@ -31,12 +31,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 view : Model -> Html Msg
 view model =
     let
-        hspace n =
-            "calc(" ++ String.fromFloat n ++ " * var(--cw))"
-    in
-    let
         lbl x =
-            label [ css [ Css.property "width" <| hspace 20, display inlineBlock ] ] [ text x ]
+            label [ css [ Dos.widthCw 20, display inlineBlock ] ] [ text x ]
     in
     Dos.panelWithoutLabel
         [ css
@@ -72,11 +68,11 @@ view model =
             , button [ A.disabled True ] [ text "Disabled" ]
             , br [] []
             , lbl "active input:"
-            , input [ type_ "text", css [ Css.width (rem 20) ], placeholder "enter some text" ] []
+            , input [ type_ "text", css [ Dos.widthCw 40 ], placeholder "enter some text" ] []
             , br [] []
             , br [] []
             , lbl "disabled input:"
-            , input [ type_ "text", A.disabled True, css [ Css.width (rem 20) ], placeholder "this is disabled" ] []
+            , input [ type_ "text", A.disabled True, css [ Dos.widthCw 40 ], placeholder "this is disabled" ] []
             , br [] []
             , br [] []
             , lbl "active checkbox:"
@@ -88,22 +84,22 @@ view model =
             , br [] []
             , br [] []
             , lbl "radios:"
-            , label [ css [ Css.property "margin-right" <| hspace 1 ] ] [ text "Apples:" ]
-            , input [ type_ "radio", name "radiofoo", css [ Css.property "margin-right" <| hspace 3 ] ] []
-            , label [ css [ Css.property "margin-right" <| hspace 1 ] ] [ text "Bananas:" ]
-            , input [ type_ "radio", name "radiofoo", css [ Css.property "margin-right" <| hspace 3 ] ] []
-            , label [ css [ Css.property "margin-right" <| hspace 1 ] ] [ text "Cucumbers:" ]
-            , input [ type_ "radio", name "radiofoo", css [ Css.property "margin-right" <| hspace 3 ] ] []
-            , label [ css [ Css.property "margin-right" <| hspace 1 ] ] [ text "Disabled pear:" ]
-            , input [ type_ "radio", name "radiofoo", A.disabled True, css [ Css.property "margin-right" <| hspace 3 ] ] []
+            , label [ css [ Dos.marginRightCw 1 ] ] [ text "Apples:" ]
+            , input [ type_ "radio", name "radiofoo", css [ Dos.marginRightCw 3 ] ] []
+            , label [ css [ Dos.marginRightCw 1 ] ] [ text "Bananas:" ]
+            , input [ type_ "radio", name "radiofoo", css [ Dos.marginRightCw 3 ] ] []
+            , label [ css [ Dos.marginRightCw 1 ] ] [ text "Cucumbers:" ]
+            , input [ type_ "radio", name "radiofoo", css [ Dos.marginRightCw 3 ] ] []
+            , label [ css [ Dos.marginRightCw 1 ] ] [ text "Disabled pear:" ]
+            , input [ type_ "radio", name "radiofoo", A.disabled True, css [ Dos.marginRightCw 3 ] ] []
             , br [] []
             , br [] []
             , lbl "slider:"
-            , input [ type_ "range", css [ Css.property "width" <| hspace 25 ] ] []
+            , input [ type_ "range", css [ Dos.widthCw 20 ] ] []
             , br [] []
             , br [] []
             , lbl "dropdown:"
-            , Dos.select [ css [ Css.property "width" <| hspace 20 ] ] [ ( "hanni", "Hanni" ), ( "nanni", "Nanni" ), ( "fanni", "Fanni" ) ]
+            , Dos.select [ css [ Dos.widthCw 20 ] ] [ ( "hanni", "Hanni" ), ( "nanni", "Nanni" ), ( "fanni", "Fanni" ) ]
             ]
         ]
 

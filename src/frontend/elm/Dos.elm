@@ -1,4 +1,4 @@
-module Dos exposing (panelWithLabel, panelWithoutLabel, select)
+module Dos exposing (cw, marginRightCw, panelWithLabel, panelWithoutLabel, select, widthCw)
 
 import Css exposing (..)
 import Html.Styled as Html exposing (..)
@@ -27,3 +27,18 @@ select attr values =
     in
     span [ class "select-wrapper" ]
         [ Html.select attr <| List.map createOption values ]
+
+
+cw : Float -> String
+cw n =
+    "calc(" ++ String.fromFloat n ++ " * var(--cw))"
+
+
+widthCw : Float -> Css.Style
+widthCw x =
+    Css.property "width" <| cw x
+
+
+marginRightCw : Float -> Css.Style
+marginRightCw x =
+    Css.property "margin-right" <| cw x

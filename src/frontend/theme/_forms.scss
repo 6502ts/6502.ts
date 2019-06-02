@@ -67,6 +67,10 @@ select {
     padding-right: 2 * $cw;
 
     cursor: pointer;
+
+    option {
+        -moz-appearance: auto;
+    }
 }
 
 .select-wrapper {
@@ -85,17 +89,22 @@ select {
 
 @mixin radio($deselected, $selected) {
     @include appearance-none;
+    border: none;
+    outline: none;
+    background: none;
 
     cursor: pointer;
 
     &::before {
         content: $deselected;
         color: $light-gray;
+        white-space: nowrap;
     }
 
     &:checked {
         &::before {
             content: $selected;
+            white-space: nowrap;
         }
     }
 
@@ -121,6 +130,8 @@ input[type=range] {
     $slider-color: $light-gray;
 
     @include appearance-none;
+    @include user-select(none);
+    touch-action: manipulation;
 
     background: transparent;
     vertical-align: middle;
