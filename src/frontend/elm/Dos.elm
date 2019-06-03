@@ -1,38 +1,18 @@
-module Dos exposing (cw, eltAsPanel, eltAsPanelWithLabel, form, formWithLabel, marginRightCw, panelWithLabel, panelWithoutLabel, select, widthCw)
+module Dos exposing (cw, marginRightCw, panel, panelLabel, select, widthCw)
 
 import Css exposing (..)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as Attributes exposing (..)
 
 
-eltAsPanelWithLabel : (List (Attribute msg) -> List (Html msg) -> Html msg) -> String -> List (Attribute msg) -> List (Html msg) -> Html msg
-eltAsPanelWithLabel elt label attr content =
-    elt ([ class "panel", attribute "data-label" label ] ++ attr) content
+panel : Html.Attribute msg
+panel =
+    class "panel"
 
 
-eltAsPanel : (List (Attribute msg) -> List (Html msg) -> Html msg) -> List (Attribute msg) -> List (Html msg) -> Html msg
-eltAsPanel elt attr content =
-    elt ([ class "panel" ] ++ attr) content
-
-
-panelWithLabel : String -> List (Attribute msg) -> List (Html msg) -> Html msg
-panelWithLabel =
-    eltAsPanelWithLabel div
-
-
-panelWithoutLabel : List (Attribute msg) -> List (Html msg) -> Html msg
-panelWithoutLabel =
-    eltAsPanel div
-
-
-formWithLabel : String -> List (Attribute msg) -> List (Html msg) -> Html msg
-formWithLabel =
-    eltAsPanelWithLabel Html.form
-
-
-form : List (Attribute msg) -> List (Html msg) -> Html msg
-form =
-    eltAsPanel Html.form
+panelLabel : String -> Html.Attribute msg
+panelLabel label =
+    attribute "data-label" label
 
 
 select : List (Attribute msg) -> List ( String, String ) -> Html msg

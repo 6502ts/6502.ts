@@ -3,8 +3,7 @@ module Stellerator.Main exposing (main)
 import Browser
 import Css exposing (..)
 import Dos
-import Html
-import Html.Styled as H exposing (..)
+import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as A exposing (..)
 
 
@@ -31,11 +30,100 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 view : Model -> Html Msg
 view model =
     let
-        lbl x =
-            label [ css [ Dos.widthCw 20, display inlineBlock ] ] [ text x ]
+        br =
+            Html.br [] []
     in
-    Dos.panelWithoutLabel
-        [ css
+    let
+        panel i =
+            div [ Dos.panel, Dos.panelLabel ("panel " ++ String.fromInt i ++ ":"), css [ flex (pct 50), boxSizing borderBox ] ]
+                [ p
+                    []
+                    [ text loremIpsum ]
+                , p [] [ text "hello world!" ]
+                ]
+    in
+    let
+        form =
+            let
+                separator =
+                    [ br, br ]
+            in
+            let
+                compose x =
+                    List.concat <| List.intersperse separator x
+            in
+            let
+                radioLabel x =
+                    label [ css [ Dos.marginRightCw 1 ] ] [ text (x ++ ":") ]
+            in
+            let
+                radio isDisabled =
+                    input [ type_ "radio", name "radiofoo", A.disabled isDisabled, css [ Dos.marginRightCw 3 ] ] []
+            in
+            let
+                radioSet defs =
+                    List.concat <|
+                        List.map
+                            (\x ->
+                                [ radioLabel <| Tuple.first x
+                                , radio <| Tuple.second x
+                                ]
+                            )
+                            defs
+            in
+            let
+                radios =
+                    radioSet [ ( "Apples", False ), ( "Bananas", False ), ( "Cucumbers", False ), ( "Disabled Pears", True ) ]
+            in
+            let
+                lbl x =
+                    label [ css [ Dos.widthCw 20, display inlineBlock ] ] [ text x ]
+            in
+            let
+                items =
+                    [ [ lbl "buttons:"
+                      , button [ type_ "button" ] [ text "Save" ]
+                      , button [ type_ "button", A.disabled True ] [ text "Disabled" ]
+                      ]
+                    , [ lbl "active input:"
+                      , input [ type_ "text", css [ Dos.widthCw 40 ], placeholder "enter some text" ] []
+                      ]
+                    , [ lbl "disabled input:"
+                      , input [ type_ "text", A.disabled True, css [ Dos.widthCw 40 ], placeholder "this is disabled" ] []
+                      ]
+                    , [ lbl "active checkbox:"
+                      , input [ type_ "checkbox" ] []
+                      ]
+                    , [ lbl "disabled checkbox:"
+                      , input [ type_ "checkbox", A.disabled True ] []
+                      ]
+                    , [ lbl "radios:"
+                      ]
+                        ++ radios
+                    , [ lbl "slider:"
+                      , input [ type_ "range", css [ Dos.widthCw 20 ] ] []
+                      ]
+                    , [ lbl "dropdown:"
+                      , Dos.select [ css [ Dos.widthCw 20 ] ] [ ( "hanni", "Hanni" ), ( "nanni", "Nanni" ), ( "fanni", "Fanni" ) ]
+                      ]
+                    ]
+            in
+            Html.form [ Dos.panel, Dos.panelLabel "Form:", css [ flex (pct 100) ] ] <| br :: compose items
+    in
+    let
+        headings =
+            let
+                items =
+                    List.concat <|
+                        List.indexedMap
+                            (\i -> \h -> [ h [] [ text <| "Heading " ++ (String.fromInt <| i + 1) ], p [] [ text loremIpsum ] ])
+                            [ h1, h2, h3, h4, h5, h6 ]
+            in
+            div [ Dos.panel, Dos.panelLabel "Headings:" ] items
+    in
+    div
+        [ class "panel"
+        , css
             [ displayFlex
             , flexDirection row
             , flexWrap Css.wrap
@@ -44,89 +132,12 @@ view model =
             , overflowX Css.hidden
             ]
         ]
-        [ Dos.panelWithLabel "panel 1:"
-            [ css [ flex <| pct 50, boxSizing borderBox ] ]
-            [ p
-                []
-                [ text loremIpsum ]
-            , p [] [ text "hello world!" ]
-            ]
-        , Dos.panelWithLabel "panel 2:"
-            [ css [ flex <| pct 50, boxSizing borderBox ] ]
-            [ p
-                []
-                [ text loremIpsum ]
-            , p [] [ text "hello world!" ]
-            ]
-        , Dos.formWithLabel "Form:"
-            [ css [ flex <| pct 100, boxSizing borderBox ] ]
-            [ br [] []
-            , lbl "buttons:"
-            , button [] [ text "Save" ]
-            , button [ A.disabled True ] [ text "Disabled" ]
-            , br [] []
-            , lbl "active input:"
-            , input [ type_ "text", css [ Dos.widthCw 40 ], placeholder "enter some text" ] []
-            , br [] []
-            , br [] []
-            , lbl "disabled input:"
-            , input [ type_ "text", A.disabled True, css [ Dos.widthCw 40 ], placeholder "this is disabled" ] []
-            , br [] []
-            , br [] []
-            , lbl "active checkbox:"
-            , input [ type_ "checkbox" ] []
-            , br [] []
-            , br [] []
-            , lbl "disabled checkbox:"
-            , input [ type_ "checkbox", A.disabled True ] []
-            , br [] []
-            , br [] []
-            , lbl "radios:"
-            , label [ css [ Dos.marginRightCw 1 ] ] [ text "Apples:" ]
-            , input [ type_ "radio", name "radiofoo", css [ Dos.marginRightCw 3 ] ] []
-            , label [ css [ Dos.marginRightCw 1 ] ] [ text "Bananas:" ]
-            , input [ type_ "radio", name "radiofoo", css [ Dos.marginRightCw 3 ] ] []
-            , label [ css [ Dos.marginRightCw 1 ] ] [ text "Cucumbers:" ]
-            , input [ type_ "radio", name "radiofoo", css [ Dos.marginRightCw 3 ] ] []
-            , label [ css [ Dos.marginRightCw 1 ] ] [ text "Disabled pear:" ]
-            , input [ type_ "radio", name "radiofoo", A.disabled True, css [ Dos.marginRightCw 3 ] ] []
-            , br [] []
-            , br [] []
-            , lbl "slider:"
-            , input [ type_ "range", css [ Dos.widthCw 20 ] ] []
-            , br [] []
-            , br [] []
-            , lbl "dropdown:"
-            , Dos.select [ css [ Dos.widthCw 20 ] ] [ ( "hanni", "Hanni" ), ( "nanni", "Nanni" ), ( "fanni", "Fanni" ) ]
-            ]
-        , Dos.panelWithLabel
-            "Flow elements:"
-            [ css [ flexGrow <| num 1, boxSizing borderBox ] ]
-            [ h1 [] [ text "Heading 1" ]
-            , p []
-                [ text loremIpsum ]
-            , h2
-                []
-                [ text "Heading 2" ]
-            , p [] [ text loremIpsum ]
-            , h3
-                []
-                [ text "Heading 3" ]
-            , p [] [ text loremIpsum ]
-            , h4
-                []
-                [ text "Heading 4" ]
-            , p [] [ text loremIpsum ]
-            , h5
-                []
-                [ text "Heading 5" ]
-            , p [] [ text loremIpsum ]
-            , h6
-                []
-                [ text "Heading 6" ]
-            , p [] [ text loremIpsum ]
-            ]
-        ]
+    <|
+        panel 1
+            :: panel 2
+            :: form
+            :: headings
+            :: []
 
 
 main =

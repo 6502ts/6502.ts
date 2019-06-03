@@ -6,9 +6,8 @@
     margin: 0;
     @include width-fit-content;
 
-    &:not(:first-child) {
-        margin-top: 1rem;
-    }
+    margin-block-end: 1rem;
+    margin-block-start: 0;
 }
 
 @mixin h-frame($seq) {
