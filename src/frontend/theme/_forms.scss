@@ -190,3 +190,8 @@ input[type=range] {
         border: none;
     }
 }
+
+form {
+    @include appearance-none;
+    margin-block-end: 0;
+}

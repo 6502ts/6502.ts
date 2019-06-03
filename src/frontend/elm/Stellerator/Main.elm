@@ -36,9 +36,7 @@ view model =
     in
     Dos.panelWithoutLabel
         [ css
-            [ Css.height (vh 100)
-            , boxSizing borderBox
-            , displayFlex
+            [ displayFlex
             , flexDirection row
             , flexWrap Css.wrap
             , Css.property "align-content" "flex-start"
@@ -60,8 +58,8 @@ view model =
                 [ text loremIpsum ]
             , p [] [ text "hello world!" ]
             ]
-        , Dos.panelWithLabel "Form elements:"
-            [ css [ flexGrow <| num 1, boxSizing borderBox ] ]
+        , Dos.formWithLabel "Form:"
+            [ css [ flex <| pct 100, boxSizing borderBox ] ]
             [ br [] []
             , lbl "buttons:"
             , button [] [ text "Save" ]
@@ -100,6 +98,33 @@ view model =
             , br [] []
             , lbl "dropdown:"
             , Dos.select [ css [ Dos.widthCw 20 ] ] [ ( "hanni", "Hanni" ), ( "nanni", "Nanni" ), ( "fanni", "Fanni" ) ]
+            ]
+        , Dos.panelWithLabel
+            "Flow elements:"
+            [ css [ flexGrow <| num 1, boxSizing borderBox ] ]
+            [ h1 [] [ text "Heading 1" ]
+            , p []
+                [ text loremIpsum ]
+            , h2
+                []
+                [ text "Heading 2" ]
+            , p [] [ text loremIpsum ]
+            , h3
+                []
+                [ text "Heading 3" ]
+            , p [] [ text loremIpsum ]
+            , h4
+                []
+                [ text "Heading 4" ]
+            , p [] [ text loremIpsum ]
+            , h5
+                []
+                [ text "Heading 5" ]
+            , p [] [ text loremIpsum ]
+            , h6
+                []
+                [ text "Heading 6" ]
+            , p [] [ text loremIpsum ]
             ]
         ]
 

@@ -1,0 +1,66 @@
+@import "functions";
+
+@mixin h-common {
+    font-weight: inherit;
+    font-size: inherit;
+    margin: 0;
+    @include width-fit-content;
+
+    &:not(:first-child) {
+        margin-top: 1rem;
+    }
+}
+
+@mixin h-frame($seq) {
+    &::after {
+        content: ' #{$seq}'
+    }
+
+    &::before {
+        content: '#{$seq} '
+    }
+}
+
+@mixin h-underline-thick {
+    margin-bottom: 0.5rem;
+    border-bottom: 0.5rem solid currentColor;
+}
+
+@mixin h-underline {
+    margin-bottom: 1rem - $px;
+    border-bottom: $px solid currentColor;
+}
+
+h1 {
+    @include h-common;
+    @include h-frame('**');
+    @include h-underline-thick;
+}
+
+h2 {
+    @include h-common;
+    @include h-frame('*');
+    @include h-underline-thick;
+}
+
+h3 {
+    @include h-common;
+    @include h-underline-thick;
+}
+
+h4 {
+    @include h-common;
+    @include h-frame('**');
+    @include h-underline;
+}
+
+h5 {
+    @include h-common;
+    @include h-frame('*');
+    @include h-underline;
+}
+
+h6 {
+    @include h-common;
+    @include h-underline;
+}
