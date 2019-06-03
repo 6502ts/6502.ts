@@ -38,25 +38,25 @@ h1 {
 
 h2 {
     @include h-common;
-    @include h-frame('*');
-    @include h-underline-thick;
+    @include h-frame('**');
+    @include h-underline;
 }
 
 h3 {
     @include h-common;
+    @include h-frame('*');
     @include h-underline-thick;
 }
 
 h4 {
     @include h-common;
-    @include h-frame('**');
+    @include h-frame('*');
     @include h-underline;
 }
 
 h5 {
     @include h-common;
-    @include h-frame('*');
-    @include h-underline;
+    @include h-underline-thick;
 }
 
 h6 {

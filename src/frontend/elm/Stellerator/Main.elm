@@ -34,8 +34,12 @@ view model =
             Html.br [] []
     in
     let
+        flexItem width =
+            css [ flex (pct width), boxSizing borderBox ]
+    in
+    let
         panel i =
-            div [ Dos.panel, Dos.panelLabel ("panel " ++ String.fromInt i ++ ":"), css [ flex (pct 50), boxSizing borderBox ] ]
+            div [ Dos.panel, Dos.panelLabel ("panel " ++ String.fromInt i ++ ":"), flexItem 50 ]
                 [ p
                     []
                     [ text loremIpsum ]
@@ -108,7 +112,7 @@ view model =
                       ]
                     ]
             in
-            Html.form [ Dos.panel, Dos.panelLabel "Form:", css [ flex (pct 100) ] ] <| br :: compose items
+            Html.form [ Dos.panel, Dos.panelLabel "Form:", flexItem 100 ] <| br :: compose items
     in
     let
         headings =
@@ -119,7 +123,41 @@ view model =
                             (\i -> \h -> [ h [] [ text <| "Heading " ++ (String.fromInt <| i + 1) ], p [] [ text loremIpsum ] ])
                             [ h1, h2, h3, h4, h5, h6 ]
             in
-            div [ Dos.panel, Dos.panelLabel "Headings:" ] items
+            div [ Dos.panel, Dos.panelLabel "Headings:", flexItem 100 ] items
+    in
+    let
+        listItems elt =
+            let
+                sublist =
+                    elt [] <| List.map (\x -> li [] [ text x ]) [ "one", "two" ]
+            in
+            List.map (\x -> li [] [ text x, sublist ])
+                [ "Over there, a cat"
+                , "Look, it's chasin' a dog"
+                , "Both are getting eaten by an aardvark"
+                , "The Aardvark is trampled by a mammoth"
+                ]
+    in
+    let
+        unorderedList =
+            div [ Dos.panel, Dos.panelLabel "Unordered List:", flexItem 33.333 ] [ ul [] (listItems ul) ]
+    in
+    let
+        orderedList =
+            div [ Dos.panel, Dos.panelLabel "Ordered List:", flexItem 33.333 ] [ ol [] (listItems ol) ]
+    in
+    let
+        descriptionList =
+            div [ Dos.panel, Dos.panelLabel "Description List:", flexItem 33.333 ]
+                [ dl [] <|
+                    List.concat <|
+                        List.map (\x -> [ dt [] [ text (Tuple.first x) ], dd [] [ text (Tuple.second x) ] ])
+                            [ ( "a cat:", "is a small, feline predator" )
+                            , ( "a dog:", "is a slightly larger and dumber predator" )
+                            , ( "an aardvark:", "is a small, funky anteater" )
+                            , ( "a mammoth:", "is a huge, mean squishin' machine" )
+                            ]
+                ]
     in
     div
         [ class "panel"
@@ -137,6 +175,9 @@ view model =
             :: panel 2
             :: form
             :: headings
+            :: unorderedList
+            :: orderedList
+            :: descriptionList
             :: []
 
 
