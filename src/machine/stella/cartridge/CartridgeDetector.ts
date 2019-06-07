@@ -33,6 +33,7 @@ import CartridgeDPCPlus from './CartridgeDPCPlus';
 import CartridgeCDF from './CartridgeCDF';
 import Cartridge8040 from './Cartridge0840';
 import * as cartridgeUtil from './util';
+import CartridgeCV from './CartridgeCV';
 
 class CartridgeDetector {
     detectCartridgeType(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
@@ -40,7 +41,7 @@ class CartridgeDetector {
             return CartridgeInfo.CartridgeType.bankswitch_supercharger;
         }
 
-        if (buffer.length <= 0x0800) {
+        if (buffer.length < 0x0800) {
             return CartridgeInfo.CartridgeType.vanilla_2k;
         }
 
@@ -49,6 +50,9 @@ class CartridgeDetector {
         }
 
         switch (buffer.length) {
+            case 0x0800:
+                return this._detect2k(buffer);
+
             case 0x1000:
                 return CartridgeInfo.CartridgeType.vanilla_4k;
 
@@ -76,6 +80,14 @@ class CartridgeDetector {
             default:
                 return CartridgeInfo.CartridgeType.unknown;
         }
+    }
+
+    private _detect2k(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
+        if (CartridgeCV.matchesBuffer(buffer)) {
+            return CartridgeInfo.CartridgeType.bankswitch_2k_cv;
+        }
+
+        return CartridgeInfo.CartridgeType.vanilla_2k;
     }
 
     private _detect8k(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
