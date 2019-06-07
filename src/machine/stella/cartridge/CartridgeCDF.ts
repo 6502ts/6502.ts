@@ -123,7 +123,7 @@ class CartridgeCDF extends AbstractCartridge {
             startAddress = cartridgeUtil.searchForSignature(buffer, [...sig, -1, ...sig, -1, ...sig]);
 
         if (startAddress < 0) {
-            return null;
+            return CdfVersion.invalid;
         }
 
         switch (buffer[startAddress + 3]) {

@@ -1,3 +1,8 @@
+# 0.9.14
+
+ * Support for CDFJ banking
+ * CommaVideo cartridge support
+
 # 0.9.13
 
  * New CPU core with one bus access per cycle

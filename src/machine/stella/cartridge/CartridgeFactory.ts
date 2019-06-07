@@ -21,6 +21,7 @@
 
 import Cartridge2k from './Cartridge2k';
 import Cartridge4k from './Cartridge4k';
+import CartridgeCV from './CartridgeCV';
 import CartridgeF8 from './CartridgeF8';
 import CartridgeF6 from './CartridgeF6';
 import CartridgeE0 from './CartridgeE0';
@@ -72,6 +73,9 @@ export default class CartridgeFactory {
 
             case CartridgeInfo.CartridgeType.vanilla_4k:
                 return new Cartridge4k(buffer);
+
+            case CartridgeInfo.CartridgeType.bankswitch_2k_cv:
+                return new CartridgeCV(buffer);
 
             case CartridgeInfo.CartridgeType.bankswitch_8k_F8:
                 return new CartridgeF8(buffer);
