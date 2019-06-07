@@ -1,0 +1,45 @@
+ul {
+    list-style-type: none;
+    padding-left: 2 * $cw;
+
+    li {
+        position: relative;
+
+        &::before {
+            position: absolute;
+            content: "*";
+            top: 0;
+            left: -2 * $cw;
+        }
+    }
+}
+
+ol {
+    padding-left: 4 * $cw;
+    counter-reset: ol;
+    list-style-type: none;
+
+    li {
+        position: relative;
+
+        &::before {
+            counter-increment: ol;
+            position: absolute;
+            content: counter(ol) ")";
+            top: 0;
+            left: -4 * $cw;
+        }
+    }
+}
+
+dl {
+    dt {
+        &::before {
+            content: "* ";
+        }
+    }
+
+    dd {
+        margin-left: 2 * $cw;
+    }
+}
