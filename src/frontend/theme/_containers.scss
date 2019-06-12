@@ -5,19 +5,13 @@
     outline: $px solid $text-color-default;
     padding: 1rem #{2 * $cw};
     outline-offset: - 0.5rem;
+    background-color: $background-color-default;
 
     &[data-label]::before {
         content: attr(data-label);
         position: absolute;
         top: 0;
         left: 2 * $cw;
-        background-color: $background-color-default;
+        background-color: inherit;
     }
-}
-
-.panel-label {
-    position: absolute;
-    top: 0;
-    left: 2 * $cw;
-    background-color: $background-color-default;
 }
