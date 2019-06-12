@@ -39,3 +39,10 @@ p {
     margin-block-end: 1rem;
     margin-block-start: 1rem;
 }
+
+a {
+    &, &:visited, &:active, &:hover, &:focus {
+        color: inherit;
+        text-decoration: underline;
+    }
+}

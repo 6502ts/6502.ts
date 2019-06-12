@@ -8,8 +8,7 @@ function main(): void {
     attachFastclick(document.body);
     initializeRangetouch();
 
-    const node = document.getElementById('root');
-    Elm.Stellerator.Main.init({ node });
+    Elm.Stellerator.Main.init({});
 }
 
 window.addEventListener('load', main);

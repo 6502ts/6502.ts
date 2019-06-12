@@ -1,9 +1,7 @@
-interface ElmOptions {
-    node: Element;
-}
+interface ElmOptions {}
 
 interface Main {
-    init(options: ElmOptions): void;
+    init(options?: ElmOptions): void;
 }
 
 declare module Elm {

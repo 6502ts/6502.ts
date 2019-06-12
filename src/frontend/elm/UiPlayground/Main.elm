@@ -43,7 +43,7 @@ view model =
                 [ p
                     []
                     [ text loremIpsum ]
-                , p [] [ text "hello world!" ]
+                , p [] [ a [] [ text "This is a link" ] ]
                 ]
     in
     let
