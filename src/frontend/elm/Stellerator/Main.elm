@@ -16,7 +16,7 @@ init _ url key =
         route =
             parseRoute url |> Maybe.withDefault Cartridges
     in
-    ( { key = key, currentRoute = route, media = Wide }
+    ( { key = key, currentRoute = route, media = Wide, emulationState = Stopped }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)
         , Ports.watchMedia [ "(max-width: 800px)" ]

@@ -1,4 +1,4 @@
-module Stellerator.Model exposing (Media(..), Model, Msg(..), Route(..), update)
+module Stellerator.Model exposing (EmulationState(..), Media(..), Model, Msg(..), Route(..), update)
 
 import Browser.Navigation as Nav
 
@@ -15,10 +15,17 @@ type Media
     | Wide
 
 
+type EmulationState
+    = Stopped
+    | Paused
+    | Running (Maybe Float)
+
+
 type alias Model =
     { key : Nav.Key
     , currentRoute : Route
     , media : Media
+    , emulationState : EmulationState
     }
 
 
@@ -36,7 +43,22 @@ update msg model =
             ( model, Nav.pushUrl model.key url )
 
         ChangeRoute route ->
-            ( { model | currentRoute = route }, Cmd.none )
+            let
+                emulationState =
+                    case route of
+                        Cartridges ->
+                            Stopped
+
+                        Settings ->
+                            Paused
+
+                        Emulation ->
+                            Running (Just 3.55)
+
+                        Help ->
+                            Running Nothing
+            in
+            ( { model | currentRoute = route, emulationState = emulationState }, Cmd.none )
 
         ChangeMedia media ->
             ( { model | media = media }, Cmd.none )

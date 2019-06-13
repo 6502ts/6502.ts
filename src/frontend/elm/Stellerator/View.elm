@@ -1,34 +1,10 @@
-module Stellerator.View exposing (body, cartridges, emulation, help, navigation, settings, view)
+module Stellerator.View exposing (body, cartridges, emulation, help, settings, view)
 
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
 import Stellerator.Model exposing (..)
-import Stellerator.Routing exposing (serializeRoute)
-
-
-navigation : Model -> List (Html Msg)
-navigation model =
-    let
-        media =
-            case model.media of
-                Narrow ->
-                    "narrow"
-
-                Wide ->
-                    "wide"
-    in
-    [ ul [] <|
-        List.map
-            (\x -> li [] [ x ])
-            [ a [ href <| serializeRoute Cartridges ] [ text "Cartridges" ]
-            , a [ href <| serializeRoute Settings ] [ text "Settings" ]
-            , a [ href <| serializeRoute Emulation ] [ text "Emulation" ]
-            , a [ href <| serializeRoute Help ] [ text "Help" ]
-            ]
-    , div [] [ text ("media: " ++ media) ]
-    , br [] []
-    ]
+import Stellerator.View.Navigation exposing (navigation)
 
 
 cartridges : Model -> List (Html Msg)
@@ -71,5 +47,5 @@ body model =
 view : Model -> Browser.Document Msg
 view model =
     { title = "stellerator"
-    , body = body model
+    , body = body model |> List.map toUnstyled
     }
