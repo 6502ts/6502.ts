@@ -1,4 +1,4 @@
-module Stellerator.View exposing (view)
+module Stellerator.View exposing (body, cartridges, emulation, help, navigation, settings, view)
 
 import Browser
 import Html exposing (..)
@@ -26,10 +26,9 @@ navigation model =
             , a [ href <| serializeRoute Emulation ] [ text "Emulation" ]
             , a [ href <| serializeRoute Help ] [ text "Help" ]
             ]
+    , div [] [ text ("media: " ++ media) ]
+    , br [] []
     ]
-        ++ [ div [] [ text ("media: " ++ media) ]
-           , br [] []
-           ]
 
 
 cartridges : Model -> List (Html Msg)

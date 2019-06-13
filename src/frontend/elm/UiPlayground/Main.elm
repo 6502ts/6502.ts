@@ -11,12 +11,12 @@ type Model
     = Empty
 
 
-type Msg
-    = None
+type alias Msg =
+    ()
 
 
 update : Msg -> Model -> Model
-update msg model =
+update _ _ =
     Empty
 
 
@@ -28,7 +28,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 
 view : Model -> Html Msg
-view model =
+view _ =
     let
         br =
             Html.br [] []
@@ -101,9 +101,8 @@ view model =
                     , [ lbl "disabled checkbox:"
                       , input [ type_ "checkbox", A.disabled True ] []
                       ]
-                    , [ lbl "radios:"
-                      ]
-                        ++ radios
+                    , lbl "radios:"
+                        :: radios
                     , [ lbl "slider:"
                       , input [ type_ "range", css [ Dos.widthCw 20 ] ] []
                       ]
@@ -170,17 +169,17 @@ view model =
             , overflowX Css.hidden
             ]
         ]
-    <|
-        panel 1
-            :: panel 2
-            :: form
-            :: headings
-            :: unorderedList
-            :: orderedList
-            :: descriptionList
-            :: []
+        [ panel 1
+        , panel 2
+        , form
+        , headings
+        , unorderedList
+        , orderedList
+        , descriptionList
+        ]
 
 
+main : Platform.Program () Model Msg
 main =
     Browser.sandbox
         { init = Empty

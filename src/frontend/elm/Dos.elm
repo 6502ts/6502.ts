@@ -2,7 +2,7 @@ module Dos exposing (cw, marginRightCw, panel, panelLabel, select, widthCw)
 
 import Css exposing (..)
 import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes as Attributes exposing (..)
+import Html.Styled.Attributes exposing (..)
 
 
 panel : Html.Attribute msg

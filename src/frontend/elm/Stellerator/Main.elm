@@ -40,6 +40,7 @@ subscriptions _ =
         )
 
 
+main : Platform.Program () Model Msg
 main =
     Browser.application
         { init = init

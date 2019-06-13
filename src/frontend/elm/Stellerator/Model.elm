@@ -1,8 +1,6 @@
 module Stellerator.Model exposing (Media(..), Model, Msg(..), Route(..), update)
 
-import Browser
 import Browser.Navigation as Nav
-import Url exposing (Url)
 
 
 type Route
@@ -18,7 +16,10 @@ type Media
 
 
 type alias Model =
-    { key : Nav.Key, currentRoute : Route, media : Media }
+    { key : Nav.Key
+    , currentRoute : Route
+    , media : Media
+    }
 
 
 type Msg
