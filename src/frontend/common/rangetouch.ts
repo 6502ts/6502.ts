@@ -11,11 +11,11 @@ function registerOne(target: Element): void {
 function registerRecursive(target: Element): void {
     const selector = 'input[type=range]';
 
-    if (target.matches(selector)) {
+    if (target.matches && target.matches(selector)) {
         registerOne(target);
     }
 
-    target.querySelectorAll(selector).forEach(registerOne);
+    target.querySelectorAll && target.querySelectorAll(selector).forEach(registerOne);
 }
 
 let observer: MutationObserver | null = null;

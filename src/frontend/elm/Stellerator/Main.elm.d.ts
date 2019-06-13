@@ -1,7 +1,20 @@
 interface ElmOptions {}
 
-interface Main {
-    init(options?: ElmOptions): void;
+export interface Ports {
+    watchMedia: CommandPort<Array<string>>;
+    mediaUpdate: SubscriptionPort<Array<boolean>>;
+}
+
+interface CommandPort<T> {
+    subscribe(handler: (payload: T) => void): void;
+}
+
+interface SubscriptionPort<T> {
+    send(payload: T): void;
+}
+
+export interface Main {
+    init(options?: ElmOptions): { ports: Ports };
 }
 
 declare module Elm {
