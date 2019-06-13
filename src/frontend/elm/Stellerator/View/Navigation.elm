@@ -16,10 +16,10 @@ navigationLink model route label =
     let
         color =
             if model.currentRoute == route then
-                White
+                Dos.color White
 
             else
-                Black
+                Dos.color Black
     in
     let
         background =
@@ -33,7 +33,7 @@ navigationLink model route label =
         [ A.href <| serializeRoute route
         , A.css
             [ Css.property "padding" "0 var(--cw)"
-            , Dos.color color |> important
+            , color |> important
             , background |> important
             , textDecoration none |> important
             , display inlineBlock
