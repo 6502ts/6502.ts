@@ -9,7 +9,7 @@ function main(): void {
     attachFastclick(document.body);
     initializeRangetouch();
 
-    const { ports } = Elm.Stellerator.Main.init({});
+    const { ports } = Elm.Stellerator.Main.init();
 
     initMediaApi(ports);
 }
