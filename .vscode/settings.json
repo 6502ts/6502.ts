@@ -19,7 +19,5 @@
     "[scss]": {
         "editor.formatOnSave": true
     },
-    "typescript.tsdk": "./node_modules/typescript/lib",
-    "elm.analyseEnabled": true,
-    "elm.includeParamsInUserAutocomplete": false
+    "typescript.tsdk": "./node_modules/typescript/lib"
 }

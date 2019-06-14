@@ -161,7 +161,7 @@ slideoverMenu model =
                 [ transform <| translateX (pct -100) ]
     in
     div
-        [ A.class "panel"
+        [ Dos.panel
         , A.css <|
             [ position fixed
             , left (px 0)

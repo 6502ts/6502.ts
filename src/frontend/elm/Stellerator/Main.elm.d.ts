@@ -1,4 +1,47 @@
-interface ElmOptions {}
+import CartridgeInfo from '../../../machine/stella/cartridge/CartridgeInfo';
+
+export const enum TvMode {
+    pal = 'pal',
+    ntsc = 'ntsc',
+    secam = 'secam'
+}
+
+export const enum CpuEmulation {
+    cycle = 'cycle',
+    instruction = 'instruction'
+}
+
+export const enum AudioEmulation {
+    waveform = 'waveform',
+    pcm = 'pcm'
+}
+
+export interface Cartridge {
+    hash: string;
+    name: string;
+    cartridgeType: CartridgeInfo.CartridgeType;
+    tvMode: TvMode;
+    emulatePaddles: boolean;
+    rngSeed?: number;
+    firstVisibleLine?: number;
+    cpuEmulation?: CpuEmulation;
+    audioEmulation?: AudioEmulation;
+    volume: number;
+}
+
+export interface CartridgeType {
+    key: CartridgeInfo.CartridgeType;
+    description: string;
+}
+
+export interface Flags {
+    cartridges: Array<Cartridge>;
+    cartridgeTypes: Array<CartridgeType>;
+}
+
+export interface Options {
+    flags?: Flags;
+}
 
 export interface Ports {
     watchMedia: CommandPort<Array<string>>;
@@ -14,7 +57,7 @@ interface SubscriptionPort<T> {
 }
 
 export interface Main {
-    init(options?: ElmOptions): { ports: Ports };
+    init(options?: Options): { ports: Ports };
 }
 
 declare module Elm {

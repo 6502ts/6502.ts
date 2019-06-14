@@ -4,6 +4,7 @@ import Browser
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Stellerator.Model exposing (..)
+import Stellerator.View.Cartridges as Cartridges
 import Stellerator.View.Help as Help
 import Stellerator.View.Navigation as Navigation
 
@@ -11,7 +12,7 @@ import Stellerator.View.Navigation as Navigation
 cartridges : Model -> List (Html Msg)
 cartridges model =
     Navigation.navbar model
-        ++ [ div [] [ text "Happy scrappy cartridges page " ] ]
+        ++ Cartridges.page model
 
 
 settings : Model -> List (Html Msg)

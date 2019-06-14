@@ -3,6 +3,7 @@ module Stellerator.Main exposing (main)
 import Browser
 import Browser.Navigation as Nav
 import Http
+import Json.Decode exposing (..)
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
 import Stellerator.Routing exposing (..)
@@ -10,8 +11,30 @@ import Stellerator.View exposing (view)
 import Url exposing (Url)
 
 
-init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
-init _ url key =
+type alias Flags =
+    { cartridges : List Cartridge
+    , cartridgeTypes : List CartridgeType
+    }
+
+
+decodeFlags : Decoder Flags
+decodeFlags =
+    map2 Flags
+        (field "cartridges" <| list decodeCartridge)
+        (field "cartridgeTypes" <| list decodeCartridgeType)
+
+
+init : Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init flagsJson url key =
+    let
+        flags =
+            case decodeValue decodeFlags flagsJson of
+                Ok f ->
+                    f
+
+                Err _ ->
+                    { cartridges = [], cartridgeTypes = [] }
+    in
     let
         route : Route
         route =
@@ -32,6 +55,9 @@ init _ url key =
       , emulationState = Stopped
       , helppage = Nothing
       , sideMenu = False
+      , cartridges = flags.cartridges
+      , cartridgeTypes = flags.cartridgeTypes
+      , currentCartridgeHash = Nothing
       }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)
@@ -57,7 +83,7 @@ subscriptions _ =
         )
 
 
-main : Platform.Program () Model Msg
+main : Platform.Program Value Model Msg
 main =
     Browser.application
         { init = init
