@@ -66,7 +66,7 @@ update msg model =
             ( { model | media = media }, Cmd.none )
 
         SetHelpPage content ->
-            ( { model | helppage = Just (Debug.log "help page" content) }, Cmd.none )
+            ( { model | helppage = Just ("help page" content) }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
