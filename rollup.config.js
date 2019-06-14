@@ -19,7 +19,7 @@ const worker = ({ input, output }) => ({
         sourcemap: true
     },
     plugins: [
-        resolve(),
+        resolve({ preferBuiltins: true }),
         commonjs({
             ignore: [],
             namedExports: {
@@ -52,7 +52,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
         sourcemap: true
     },
     plugins: [
-        resolve(),
+        resolve({ preferBuiltins: true }),
         elm({
             compiler: {
                 optimize: !process.env.DEBUG_ELM_BUILD,
