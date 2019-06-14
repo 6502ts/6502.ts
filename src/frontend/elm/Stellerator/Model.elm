@@ -27,6 +27,7 @@ type alias Model =
     , media : Media
     , emulationState : EmulationState
     , helppage : Maybe String
+    , sideMenu : Bool
     }
 
 
@@ -35,6 +36,7 @@ type Msg
     | ChangeRoute Route
     | ChangeMedia Media
     | SetHelpPage String
+    | ToggleSideMenu
     | None
 
 
@@ -60,13 +62,22 @@ update msg model =
                         Help ->
                             Running Nothing
             in
-            ( { model | currentRoute = route, emulationState = emulationState }, Cmd.none )
+            ( { model
+                | currentRoute = route
+                , emulationState = emulationState
+                , sideMenu = False
+              }
+            , Cmd.none
+            )
 
         ChangeMedia media ->
             ( { model | media = media }, Cmd.none )
 
         SetHelpPage content ->
             ( { model | helppage = Just content }, Cmd.none )
+
+        ToggleSideMenu ->
+            ( { model | sideMenu = not model.sideMenu }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

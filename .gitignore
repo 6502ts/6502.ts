@@ -8,4 +8,4 @@ lib
 dist
 .rpt2_cache
 elm-stuff
-yarn.error
+yarn-error.log

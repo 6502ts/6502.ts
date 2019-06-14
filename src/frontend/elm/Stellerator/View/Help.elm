@@ -1,6 +1,7 @@
 module Stellerator.View.Help exposing (page)
 
 import Css exposing (..)
+import Css.Global exposing (global, selector)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Markdown
@@ -33,13 +34,20 @@ qualifyRelativeLinks base markdown =
     Maybe.withDefault markdown replacedMarkdown
 
 
-page : Model -> Html Msg
-page model =
+pageElement : Model -> Html Msg
+pageElement model =
     case model.helppage of
         Just content ->
-            div [ A.css [ property "padding" "0 var(--cw)" ] ]
+            div [ A.class "helppage", A.css [ property "padding" "0 var(--cw)" ] ]
                 [ Markdown.toHtml [] (qualifyRelativeLinks "doc/" content) |> fromUnstyled
                 ]
 
         Nothing ->
             text "loading..."
+
+
+page : Model -> List (Html Msg)
+page model =
+    [ pageElement model
+    , global <| [ selector ".helppage img" [ property "max-width" "calc(100vw - 2 * var(--cw))" ] ]
+    ]

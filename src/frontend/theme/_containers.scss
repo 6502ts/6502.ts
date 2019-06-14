@@ -2,7 +2,7 @@
 
 .panel {
     position: relative;
-    outline: $px solid $text-color-default;
+    outline: $px solid currentColor;
     padding: 1rem #{2 * $cw};
     outline-offset: - 0.5rem;
     background-color: $background-color-default;

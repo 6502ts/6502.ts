@@ -26,7 +26,7 @@ emulation model =
 
 help : Model -> List (Html Msg)
 help model =
-    Navigation.navbar model ++ [ Help.page model ]
+    Navigation.navbar model ++ Help.page model
 
 
 body : Model -> List (Html Msg)
