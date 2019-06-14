@@ -1,4 +1,4 @@
-module Stellerator.View.Navigation exposing (navigation)
+module Stellerator.View.Navigation exposing (navbar)
 
 import Css exposing (..)
 import Css.Global exposing (global, selector)
@@ -58,8 +58,8 @@ emulationState model =
             "running: " ++ format { usLocale | decimals = 2 } speed ++ " MHz"
 
 
-navigation : Model -> List (Html Msg)
-navigation model =
+navbar : Model -> List (Html Msg)
+navbar model =
     [ div
         [ A.css
             [ Css.width (vw 100)
@@ -67,12 +67,13 @@ navigation model =
             , position fixed
             , top (px 0)
             , left (px 0)
+            , zIndex (int 10)
             , Dos.color LightGray
             , Dos.backgroundColor Black
             ]
         ]
         [ div [ A.css [ textAlign center ] ] [ text "----====≡≡≡≡ 6502.ts / Stellerator ≡≡≡≡====----" ]
-        , div [ A.css [ Dos.backgroundColor LightGray, Dos.color Black ] ]
+        , nav [ A.css [ Dos.backgroundColor LightGray, Dos.color Black ] ]
             [ navigationLink model Cartridges "Cartridges"
             , navigationLink model Settings "Settings"
             , navigationLink model Emulation "Emulation"

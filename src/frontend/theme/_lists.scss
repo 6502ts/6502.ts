@@ -1,6 +1,6 @@
 ul {
     list-style-type: none;
-    padding-left: 2 * $cw;
+    padding-left: 3 * $cw;
 
     li {
         position: relative;
@@ -15,7 +15,7 @@ ul {
 }
 
 ol {
-    padding-left: 4 * $cw;
+    padding-left: 5 * $cw;
     counter-reset: ol;
     list-style-type: none;
 

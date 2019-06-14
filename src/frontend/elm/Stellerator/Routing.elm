@@ -38,4 +38,4 @@ onUrlChange : Url -> Msg
 onUrlChange =
     parseRoute
         >> Maybe.map ChangeRoute
-        >> Maybe.withDefault (serializeRoute Emulation |> NavigateToUrl)
+        >> Maybe.withDefault (serializeRoute Cartridges |> NavigateToUrl)

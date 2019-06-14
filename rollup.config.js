@@ -1,3 +1,5 @@
+'use strict';
+
 import typescript from 'rollup-plugin-typescript2';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
@@ -9,7 +11,7 @@ import scss from 'rollup-plugin-scss';
 import copy from 'rollup-plugin-copy';
 import path from 'path';
 
-const worker = (input, output) => ({
+const worker = ({ input, output }) => ({
     input,
     output: {
         file: output,
@@ -42,10 +44,10 @@ const worker = (input, output) => ({
     }
 });
 
-const elmFrontend = (input, outputDirectory, htmlTemplate) => ({
+const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
     input,
     output: {
-        file: path.join(outputDirectory, 'app.js'),
+        file: path.join(output, 'app.js'),
         format: 'cjs',
         sourcemap: true
     },
@@ -53,7 +55,7 @@ const elmFrontend = (input, outputDirectory, htmlTemplate) => ({
         resolve(),
         elm({
             compiler: {
-                optimize: true,
+                optimize: !process.env.DEBUG_ELM_BUILD,
                 pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm')
             }
         }),
@@ -80,20 +82,20 @@ const elmFrontend = (input, outputDirectory, htmlTemplate) => ({
         builtins(),
         terser(),
         html({
-            template: htmlTemplate,
-            dest: outputDirectory,
+            template: template,
+            dest: output,
             filename: 'index.html',
             inject: 'head',
             externals: [
                 {
-                    file: path.join(outputDirectory, 'app.css'),
+                    file: path.join(output, 'app.css'),
                     type: 'css'
                 }
             ]
         }),
         copy({
-            targets: ['src/frontend/theme/assets'],
-            outputFolder: outputDirectory
+            targets: ['src/frontend/theme/assets', ...extraAssets],
+            outputFolder: output
         })
     ],
     onwarn: (warning, warn) => {
@@ -103,8 +105,17 @@ const elmFrontend = (input, outputDirectory, htmlTemplate) => ({
 });
 
 export default [
-    worker('worker/src/main/stellerator.ts', 'dist/worker/stellerator.min.js'),
-    worker('worker/src/main/video-pipeline.ts', 'dist/worker/video-pipeline.min.js'),
-    elmFrontend('src/frontend/stellerator/index.ts', 'dist/frontend/stellerator', 'template/stellerator.html'),
-    elmFrontend('src/frontend/ui-playground/index.ts', 'dist/frontend/ui-playground', 'template/ui-playground.html')
+    worker({ input: 'worker/src/main/stellerator.ts', output: 'dist/worker/stellerator.min.js' }),
+    worker({ input: 'worker/src/main/video-pipeline.ts', output: 'dist/worker/video-pipeline.min.js' }),
+    elmFrontend({
+        input: 'src/frontend/stellerator/index.ts',
+        output: 'dist/frontend/stellerator',
+        template: 'template/stellerator.html',
+        extraAssets: ['doc']
+    }),
+    elmFrontend({
+        input: 'src/frontend/ui-playground/index.ts',
+        output: 'dist/frontend/ui-playground',
+        template: 'template/ui-playground.html'
+    })
 ];

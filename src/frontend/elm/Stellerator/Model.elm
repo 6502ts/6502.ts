@@ -26,6 +26,7 @@ type alias Model =
     , currentRoute : Route
     , media : Media
     , emulationState : EmulationState
+    , helppage : Maybe String
     }
 
 
@@ -33,6 +34,7 @@ type Msg
     = NavigateToUrl String
     | ChangeRoute Route
     | ChangeMedia Media
+    | SetHelpPage String
     | None
 
 
@@ -62,6 +64,9 @@ update msg model =
 
         ChangeMedia media ->
             ( { model | media = media }, Cmd.none )
+
+        SetHelpPage content ->
+            ( { model | helppage = Just (Debug.log "help page" content) }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

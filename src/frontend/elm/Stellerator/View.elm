@@ -4,28 +4,29 @@ import Browser
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Stellerator.Model exposing (..)
-import Stellerator.View.Navigation exposing (navigation)
+import Stellerator.View.Help as Help
+import Stellerator.View.Navigation as Navigation
 
 
 cartridges : Model -> List (Html Msg)
 cartridges model =
-    navigation model
+    Navigation.navbar model
         ++ [ div [] [ text "Happy scrappy cartridges page " ] ]
 
 
 settings : Model -> List (Html Msg)
 settings model =
-    navigation model ++ [ div [] [ text "Happy scrappy settings page" ] ]
+    Navigation.navbar model ++ [ div [] [ text "Happy scrappy settings page" ] ]
 
 
 emulation : Model -> List (Html Msg)
 emulation model =
-    navigation model ++ [ div [] [ text "Happy scrappy emulation page" ] ]
+    Navigation.navbar model ++ [ div [] [ text "Happy scrappy emulation page" ] ]
 
 
 help : Model -> List (Html Msg)
 help model =
-    navigation model ++ [ div [] [ text "Happy scrappy help page" ] ]
+    Navigation.navbar model ++ [ Help.page model ]
 
 
 body : Model -> List (Html Msg)
@@ -46,6 +47,6 @@ body model =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = "stellerator"
+    { title = "Stellerator"
     , body = body model |> List.map toUnstyled
     }

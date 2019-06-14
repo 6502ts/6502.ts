@@ -2,6 +2,7 @@ module Stellerator.Main exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
+import Http
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
 import Stellerator.Routing exposing (..)
@@ -16,10 +17,25 @@ init _ url key =
         route =
             parseRoute url |> Maybe.withDefault Cartridges
     in
-    ( { key = key, currentRoute = route, media = Wide, emulationState = Stopped }
+    let
+        handleHelppageResult r =
+            case r of
+                Ok content ->
+                    SetHelpPage content
+
+                Err _ ->
+                    None
+    in
+    ( { key = key
+      , currentRoute = route
+      , media = Wide
+      , emulationState = Stopped
+      , helppage = Nothing
+      }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)
         , Ports.watchMedia [ "(max-width: 800px)" ]
+        , Http.get { url = "doc/stellerator.md", expect = Http.expectString handleHelppageResult }
         ]
     )
 
