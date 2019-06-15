@@ -38,7 +38,7 @@ pageElement : Model -> Html Msg
 pageElement model =
     case model.helppage of
         Just content ->
-            div [ A.class "helppage", A.css [ property "padding" "0 var(--cw)" ] ]
+            div [ A.class "helppage", A.css [ property "padding" "0 var(--cw)", paddingTop (Css.em 1) ] ]
                 [ Markdown.toHtml [] (qualifyRelativeLinks "doc/" content) |> fromUnstyled
                 ]
 

@@ -9,6 +9,7 @@ import { terser } from 'rollup-plugin-terser';
 import html from 'rollup-plugin-bundle-html';
 import scss from 'rollup-plugin-scss';
 import copy from 'rollup-plugin-copy';
+import globals from 'rollup-plugin-node-globals';
 import path from 'path';
 
 const worker = ({ input, output }) => ({
@@ -35,6 +36,7 @@ const worker = ({ input, output }) => ({
             },
             tsconfig: 'worker/tsconfig.json'
         }),
+        globals(),
         builtins(),
         terser()
     ],
@@ -79,6 +81,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
             tsconfig: 'tsconfig.json',
             objectHashIgnoreUnknownHack: true
         }),
+        globals(),
         builtins(),
         terser(),
         html({

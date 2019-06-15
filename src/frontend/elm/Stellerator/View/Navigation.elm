@@ -102,7 +102,7 @@ navbarWide model =
             , span [ A.css [ float right, property "margin-right" "var(--cw)" ] ] [ text <| emulationState model ]
             ]
         ]
-    , global <| [ selector "body" [ paddingTop (Css.em 3) ] ]
+    , global <| [ selector "body" [ paddingTop (Css.em 2) ] ]
     ]
 
 
@@ -201,5 +201,5 @@ navbarNarrow model =
         , menuButton model
         , slideoverMenu model
         ]
-    , global <| [ selector "body" [ paddingTop (Css.em 3) ] ]
+    , global <| [ selector "body" [ paddingTop (Css.em 2) ] ]
     ]

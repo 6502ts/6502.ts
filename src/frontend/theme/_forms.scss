@@ -9,6 +9,10 @@ button {
     margin-right: 2 * $cw;
     margin-bottom: 1rem;
 
+    &:last-child {
+        margin-right: $cw;
+    }
+
     &:not(:disabled) {
         @include box-shadow(($cw) 0.5rem 0 $black);
     }

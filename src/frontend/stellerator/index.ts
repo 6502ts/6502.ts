@@ -6,6 +6,7 @@ import '../theme/dos.scss';
 import { initialize as initializeRangetouch } from '../common/rangetouch';
 import { initMediaApi } from './mediaApi';
 import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
+import { calculateFromString as md5 } from '../../tools/hash/md5';
 
 const cartridges: Array<Cartridge> = [
     {
@@ -27,7 +28,17 @@ const cartridges: Array<Cartridge> = [
         cpuEmulation: CpuEmulation.cycle,
         firstVisibleLine: 28,
         rngSeed: 42
-    }
+    },
+    ...['Crystal Castles (Atari)', 'Pitfall', 'Pitfall II', '[HB] Stay Frosty 2', 'Communist mutants from space'].map(
+        name => ({
+            hash: md5(name),
+            name,
+            cartridgeType: CartridgeInfo.CartridgeType.bankswitch_32k_F4,
+            tvMode: TvMode.ntsc,
+            emulatePaddles: false,
+            volume: 66
+        })
+    )
 ];
 
 function main(): void {
