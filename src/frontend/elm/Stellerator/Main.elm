@@ -58,6 +58,7 @@ init flagsJson url key =
       , cartridges = flags.cartridges
       , cartridgeTypes = flags.cartridgeTypes
       , currentCartridgeHash = Nothing
+      , cartridgeFilter = ""
       }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)

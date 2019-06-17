@@ -29,16 +29,21 @@ const cartridges: Array<Cartridge> = [
         firstVisibleLine: 28,
         rngSeed: 42
     },
-    ...['Crystal Castles (Atari)', 'Pitfall', 'Pitfall II', '[HB] Stay Frosty 2', 'Communist mutants from space'].map(
-        name => ({
-            hash: md5(name),
-            name,
-            cartridgeType: CartridgeInfo.CartridgeType.bankswitch_32k_F4,
-            tvMode: TvMode.ntsc,
-            emulatePaddles: false,
-            volume: 66
-        })
-    )
+    ...[
+        'Crystal Castles (Atari)',
+        'Pitfall',
+        'Pitfall II',
+        '[HB] Stay Frosty 2',
+        'Communist mutants from space',
+        'Winter Games (1987) (Epyx, Steven A. Baker, Tod Frye, Peter Engelbrite) (80561-00251) (PAL)'
+    ].map(name => ({
+        hash: md5(name),
+        name,
+        cartridgeType: CartridgeInfo.CartridgeType.bankswitch_32k_F4,
+        tvMode: TvMode.ntsc,
+        emulatePaddles: false,
+        volume: 66
+    }))
 ];
 
 function main(): void {

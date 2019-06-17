@@ -87,6 +87,7 @@ type alias Model =
     , cartridges : List Cartridge
     , currentCartridgeHash : Maybe String
     , cartridgeTypes : List CartridgeType
+    , cartridgeFilter : String
     }
 
 
@@ -100,6 +101,11 @@ type Msg
     | ChangeMedia Media
     | SetHelpPage String
     | ToggleSideMenu
+    | ChangeCartridgeFilter String
+    | ClearCartridgeFilter
+    | SelectCurrentCartridge String
+    | ClearCurrentCartridge
+    | DeleteCurrentCartridge
     | None
 
 
@@ -139,6 +145,30 @@ update msg model =
 
         ChangeMedia media ->
             ( { model | media = media }, Cmd.none )
+
+        ChangeCartridgeFilter cartridgeFilter ->
+            ( { model | cartridgeFilter = cartridgeFilter }, Cmd.none )
+
+        ClearCartridgeFilter ->
+            ( { model | cartridgeFilter = "" }, Cmd.none )
+
+        SelectCurrentCartridge hash ->
+            ( { model | currentCartridgeHash = Just hash }, Cmd.none )
+
+        ClearCurrentCartridge ->
+            ( { model | currentCartridgeHash = Nothing }, Cmd.none )
+
+        DeleteCurrentCartridge ->
+            ( { model
+                | cartridges =
+                    Maybe.map
+                        (\h -> List.filter (\c -> c.hash /= h) model.cartridges)
+                        model.currentCartridgeHash
+                        |> Maybe.withDefault model.cartridges
+                , currentCartridgeHash = Nothing
+              }
+            , Cmd.none
+            )
 
         SetHelpPage content ->
             ( { model | helppage = Just content }, Cmd.none )
