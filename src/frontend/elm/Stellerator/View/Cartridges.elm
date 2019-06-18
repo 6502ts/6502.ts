@@ -30,10 +30,9 @@ cartridgesMatchingSearch model =
         filterWords =
             model.cartridgeFilter |> String.toUpper |> String.words
     in
-    List.sortBy .name <|
-        List.filter
-            (\c -> List.all (\w -> String.contains w <| String.toUpper c.name) filterWords)
-            model.cartridges
+    List.filter
+        (\c -> List.all (\w -> String.contains w <| String.toUpper c.name) filterWords)
+        model.cartridges
 
 
 keyboardHandler : Model -> Int -> Msg
