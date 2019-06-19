@@ -1,13 +1,16 @@
 module Stellerator.View.Cartridges exposing (page)
 
 import Css exposing (..)
+import Css.Global as Sel exposing (children)
 import Dos exposing (Color(..))
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
 import Html.Styled.Keyed as Keyed
 import Json.Decode as Json
-import Stellerator.Model exposing (Cartridge, Model, Msg(..))
+import List.Extra as LE
+import Stellerator.Model exposing (Cartridge, ChangeCartridgeMsg(..), Model, Msg(..))
+import Stellerator.View.Form as Form
 
 
 onKeyDown : (Int -> Msg) -> Attribute Msg
@@ -128,8 +131,7 @@ cartridgeToolbar model =
                 , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
                 , A.placeholder "Search cartridges..."
                 , A.value model.cartridgeFilter
-                , E.onInput ChangeCartridgeFilter
-                , onKeyDown <| keyboardHandler model
+                , Form.onInput ChangeCartridgeFilter
                 ]
                 []
             , button
@@ -214,6 +216,52 @@ cartridgeList model =
                     (cartridgesMatchingSearch model)
 
 
+settings : Model -> List Style -> Html Msg
+settings model styles =
+    let
+        formItems cart =
+            let
+                changeCartridge msg =
+                    msg >> ChangeCartridge cart.hash
+            in
+            [ label [] [ text "Cartridge name:" ]
+            , input
+                [ A.type_ "text"
+                , A.value cart.name
+                , Form.onInput (changeCartridge ChangeCartridgeName)
+                ]
+                []
+            , label [] [ text "Cartridge type:" ]
+            , Form.picker
+                (List.map (\t -> ( t.key, t.description )) model.cartridgeTypes)
+                cart.cartridgeType
+                (changeCartridge ChangeCartridgeType)
+            ]
+    in
+    let
+        ifHaveSelection a b =
+            Maybe.map (\_ -> a) model.currentCartridgeHash |> Maybe.withDefault b
+    in
+    form
+        [ Dos.panel
+        , Dos.panelLabel "Settings:"
+        , A.css <|
+            [ displayFlex
+            , flexDirection column
+            , alignItems stretch
+            , paddingTop (Css.em 2)
+            , children [ Sel.label [ pseudoClass "not(:first-of-type)" [ paddingTop (Css.em 1) ] ] ]
+            ]
+                ++ ifHaveSelection [ alignItems stretch ] [ alignItems center, justifyContent center ]
+                ++ styles
+        ]
+    <|
+        (Maybe.andThen (\h -> LE.find (\c -> h == c.hash) model.cartridges) model.currentCartridgeHash
+            |> Maybe.map formItems
+            |> Maybe.withDefault [ text "no cartridge selected" ]
+        )
+
+
 page : Model -> List (Html Msg)
 page model =
     [ div
@@ -223,7 +271,11 @@ page model =
             , alignItems stretch
             , paddingTop (Css.em 1)
             , boxSizing borderBox
+            , borderStyle none |> important
+            , outlineStyle none |> important
             ]
+        , A.tabindex 0
+        , onKeyDown <| keyboardHandler model
         ]
         [ div
             [ A.css
@@ -232,22 +284,13 @@ page model =
                 , flexBasis (px 0)
                 , displayFlex
                 , flexDirection column
-                , borderStyle none |> important
-                , outlineStyle none |> important
                 ]
-            , A.tabindex 0
             , onKeyDown <| keyboardHandler model
             ]
             [ cartridgeToolbar model
             , cartridgeList
                 model
             ]
-        , div
-            [ Dos.panel
-            , Dos.panelLabel "Settings:"
-            , A.css
-                [ boxSizing borderBox, flexGrow (int 1), flexBasis (px 0) ]
-            ]
-            []
+        , settings model [ boxSizing borderBox, flexGrow (int 1), flexBasis (px 0) ]
         ]
     ]

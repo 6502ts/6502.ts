@@ -71,14 +71,11 @@ select {
     padding-right: 2 * $cw;
 
     cursor: pointer;
-
-    option {
-        -moz-appearance: auto;
-    }
 }
 
 .select-wrapper {
     position: relative;
+    @include width-fit-content;
 
     &::after {
         content: '\25bc';

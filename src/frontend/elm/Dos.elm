@@ -1,4 +1,4 @@
-module Dos exposing (Color(..), backgroundColor, color, colorVariable, cw, marginRightCw, panel, panelLabel, select, widthCw)
+module Dos exposing (Color(..), backgroundColor, color, colorVariable, cw, marginRightCw, panel, panelLabel, select, selectWithStyles, widthCw)
 
 import Css exposing (..)
 import Html.Styled as Html exposing (..)
@@ -34,14 +34,19 @@ panelLabel label =
     attribute "data-label" label
 
 
-select : List (Attribute msg) -> List ( String, String ) -> Html msg
-select attr values =
+selectWithStyles : List Style -> List (Attribute msg) -> List ( String, String ) -> String -> Html msg
+selectWithStyles styles attr values val =
     let
         createOption ( v, t ) =
-            option [ value v ] [ text t ]
+            option [ value v, selected <| v == val ] [ text t ]
     in
-    span [ class "select-wrapper" ]
-        [ Html.select attr <| List.map createOption values ]
+    span [ class "select-wrapper", css styles ]
+        [ Html.select (value val :: attr) <| List.map createOption values ]
+
+
+select : List (Attribute msg) -> List ( String, String ) -> String -> Html msg
+select =
+    selectWithStyles []
 
 
 cw : Float -> String

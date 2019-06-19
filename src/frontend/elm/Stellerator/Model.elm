@@ -2,6 +2,7 @@ module Stellerator.Model exposing
     ( AudioEmulation(..)
     , Cartridge
     , CartridgeType
+    , ChangeCartridgeMsg(..)
     , CpuEmulation(..)
     , EmulationState(..)
     , Media(..)
@@ -17,6 +18,7 @@ module Stellerator.Model exposing
 import Browser.Navigation as Nav
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline exposing (optional, required)
+import List.Extra as LE
 
 
 
@@ -95,6 +97,11 @@ type alias Model =
 -- MESSAGE
 
 
+type ChangeCartridgeMsg
+    = ChangeCartridgeName String
+    | ChangeCartridgeType String
+
+
 type Msg
     = NavigateToUrl String
     | ChangeRoute Route
@@ -106,6 +113,7 @@ type Msg
     | SelectCurrentCartridge String
     | ClearCurrentCartridge
     | DeleteCurrentCartridge
+    | ChangeCartridge String ChangeCartridgeMsg
     | None
 
 
@@ -113,8 +121,26 @@ type Msg
 -- UPDATE
 
 
+updateCartridge : List CartridgeType -> ChangeCartridgeMsg -> Cartridge -> Cartridge
+updateCartridge cartridgeTypes msg cartridge =
+    case msg of
+        ChangeCartridgeName name ->
+            { cartridge | name = name }
+
+        ChangeCartridgeType type_ ->
+            let
+                newType =
+                    LE.find (\ct -> ct.key == type_) cartridgeTypes |> Maybe.map .key |> Maybe.withDefault cartridge.cartridgeType
+            in
+            { cartridge | cartridgeType = newType }
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    let
+        noop x =
+            ( x, Cmd.none )
+    in
     case msg of
         NavigateToUrl url ->
             ( model, Nav.pushUrl model.key url )
@@ -135,49 +161,62 @@ update msg model =
                         Help ->
                             Running Nothing
             in
-            ( { model
-                | currentRoute = route
-                , emulationState = emulationState
-                , sideMenu = False
-              }
-            , Cmd.none
-            )
+            noop
+                { model
+                    | currentRoute = route
+                    , emulationState = emulationState
+                    , sideMenu = False
+                }
 
         ChangeMedia media ->
-            ( { model | media = media }, Cmd.none )
+            noop { model | media = media }
 
         ChangeCartridgeFilter cartridgeFilter ->
-            ( { model | cartridgeFilter = cartridgeFilter }, Cmd.none )
+            noop { model | cartridgeFilter = cartridgeFilter }
 
         ClearCartridgeFilter ->
-            ( { model | cartridgeFilter = "" }, Cmd.none )
+            noop { model | cartridgeFilter = "" }
 
         SelectCurrentCartridge hash ->
-            ( { model | currentCartridgeHash = Just hash }, Cmd.none )
+            noop { model | currentCartridgeHash = Just hash }
 
         ClearCurrentCartridge ->
-            ( { model | currentCartridgeHash = Nothing }, Cmd.none )
+            noop { model | currentCartridgeHash = Nothing }
 
         DeleteCurrentCartridge ->
-            ( { model
-                | cartridges =
-                    Maybe.map
-                        (\h -> List.filter (\c -> c.hash /= h) model.cartridges)
-                        model.currentCartridgeHash
-                        |> Maybe.withDefault model.cartridges
-                , currentCartridgeHash = Nothing
-              }
-            , Cmd.none
-            )
+            noop
+                { model
+                    | cartridges =
+                        Maybe.map
+                            (\h -> List.filter (\c -> c.hash /= h) model.cartridges)
+                            model.currentCartridgeHash
+                            |> Maybe.withDefault model.cartridges
+                    , currentCartridgeHash = Nothing
+                }
+
+        ChangeCartridge hash msg_ ->
+            noop
+                { model
+                    | cartridges =
+                        List.map
+                            (\c ->
+                                if c.hash == hash then
+                                    updateCartridge model.cartridgeTypes msg_ c
+
+                                else
+                                    c
+                            )
+                            model.cartridges
+                }
 
         SetHelpPage content ->
-            ( { model | helppage = Just content }, Cmd.none )
+            noop { model | helppage = Just content }
 
         ToggleSideMenu ->
-            ( { model | sideMenu = not model.sideMenu }, Cmd.none )
+            noop { model | sideMenu = not model.sideMenu }
 
         _ ->
-            ( model, Cmd.none )
+            noop model
 
 
 
