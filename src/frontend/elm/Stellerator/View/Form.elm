@@ -6,7 +6,6 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
 import Json.Decode as Decode
-import List.Extra as LE
 
 
 onInput : (String -> msg) -> Attribute msg
@@ -33,26 +32,17 @@ picker items tagger value =
         value
 
 
-radioGroup : List (Attribute msg) -> String -> List ( a, String ) -> (a -> msg) -> a -> Html msg
-radioGroup attributes name items tagger value =
+radioGroup : List (Attribute msg) -> List ( a, String ) -> (a -> msg) -> a -> Html msg
+radioGroup attributes items tagger value =
     let
-        radio idx item =
-            let
-                id =
-                    name ++ "-" ++ String.fromInt idx
-            in
-            span [ A.css [ whiteSpace noWrap, Dos.marginRightCw 2 ] ]
-                [ label
-                    [ A.css
-                        [ property "padding-right" "var(--cw)"
-                        ]
-                    , A.for id
-                    ]
-                    [ text <| Tuple.second item ]
+        radio item =
+            label
+                [ A.css [ cursor pointer, Dos.marginRightCw 2, whiteSpace noWrap ] ]
+                [ text <| Tuple.second item
                 , input
                     [ A.type_ "radio"
+                    , A.css [ property "margin-left" "var(--cw)" ]
                     , A.checked <| value == Tuple.first item
-                    , A.id id
                     , E.preventDefaultOn "change"
                         << Decode.map (\m -> ( m, True ))
                         << Decode.andThen
@@ -69,4 +59,4 @@ radioGroup attributes name items tagger value =
                     []
                 ]
     in
-    span attributes <| List.indexedMap radio items
+    span attributes <| List.map radio items

@@ -47,6 +47,23 @@ cartridgesMatchingSearch model =
         model.cartridges
 
 
+haveSelection : Model -> Bool
+haveSelection model =
+    Maybe.map
+        (\h -> List.any (\c -> c.hash == h) <| cartridgesMatchingSearch model)
+        model.currentCartridgeHash
+        |> Maybe.withDefault False
+
+
+ifHaveSelection : Model -> a -> a -> a
+ifHaveSelection model a b =
+    if haveSelection model then
+        a
+
+    else
+        b
+
+
 keyboardHandler : Model -> Int -> Msg
 keyboardHandler model code =
     let
@@ -126,14 +143,7 @@ cartridgeToolbar model =
                 )
                 children
     in
-    let
-        hasSelection =
-            Maybe.map
-                (\h -> List.any (\c -> c.hash == h) <| cartridgesMatchingSearch model)
-                model.currentCartridgeHash
-                |> Maybe.withDefault False
-    in
-    form [ Dos.panel, A.css [ displayFlex, flexDirection column ] ]
+    form [ Dos.panel ]
         [ div [ A.css [ displayFlex ] ]
             [ input
                 [ A.type_ "text"
@@ -153,7 +163,7 @@ cartridgeToolbar model =
         , div
             [ A.css [ position relative ] ]
             [ btn [] [ text "Add new" ]
-            , btn [ A.disabled <| not hasSelection, E.onClick DeleteCurrentCartridge ] [ text "Delete" ]
+            , btn [ A.disabled <| not <| haveSelection model, E.onClick DeleteCurrentCartridge ] [ text "Delete" ]
             , btn [] [ text "Run" ]
             ]
         ]
@@ -183,11 +193,10 @@ cartridgeList model =
                     , nthChild "even"
                         [ Dos.backgroundColor <| ifSelected DarkGray LightGray
                         ]
-                    , Dos.color Black
+                    , ifSelected (Dos.color White) (Dos.color Black)
                     , property "padding-left" "var(--cw)"
                     , cursor pointer
                     ]
-                        ++ ifSelected [ Dos.color White ] []
                 , E.onClick <| SelectCurrentCartridge cart.hash
                 ]
                 [ text <| " * " ++ cart.name ]
@@ -202,10 +211,33 @@ cartridgeList model =
                     , flexDirection column
                     , textAlign center
                     , justifyContent center
-                    , overflow hidden
                     ]
                 ]
                 [ text msg ]
+    in
+    let
+        list =
+            div
+                [ Dos.panel
+                , A.css
+                    [ displayFlex
+                    , flexGrow (int 1)
+                    , alignItems stretch
+                    , overflowY hidden
+                    ]
+                ]
+                [ Keyed.node "div"
+                    [ A.css
+                        [ flexGrow (int 1)
+                        , overflowY scroll
+                        , property "-webkit-overflow-scrolling" "touch"
+                        ]
+                    ]
+                  <|
+                    List.map
+                        (\c -> ( c.hash, entry c ))
+                        (cartridgesMatchingSearch model)
+                ]
     in
     case List.map List.length [ model.cartridges, cartridgesMatchingSearch model ] of
         [ 0, _ ] ->
@@ -215,18 +247,11 @@ cartridgeList model =
             message "no cartridges match the search"
 
         _ ->
-            Keyed.node "div"
-                [ Dos.panel
-                , A.css [ flexGrow (int 1) ]
-                ]
-            <|
-                List.map
-                    (\c -> ( c.hash, entry c ))
-                    (cartridgesMatchingSearch model)
+            list
 
 
-settings : Model -> List Style -> Html Msg
-settings model styles =
+settingsItems : Model -> Cartridge -> List (Html Msg)
+settingsItems model cart =
     let
         oneline lbl control =
             label [ A.for "nothing" ]
@@ -236,133 +261,138 @@ settings model styles =
     in
     let
         checkbox lbl control =
-            label []
+            label [ A.css [ cursor pointer ] ]
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
                 , control
                 ]
     in
     let
-        formItems cart =
-            let
-                changeCartridge msg =
-                    msg >> ChangeCartridge cart.hash
-            in
-            let
-                optionalNumberInput tagger value =
-                    input
-                        [ A.type_ "text"
-                        , A.placeholder "Auto"
-                        , A.css [ property "width" "calc(10 * var(--cw))" ]
-                        , A.value <| Maybe.withDefault "" << Maybe.map String.fromInt <| value
-                        , Form.onInput <|
-                            \s ->
-                                if s == "" then
-                                    changeCartridge tagger <| Nothing
-
-                                else
-                                    s
-                                        |> String.toInt
-                                        |> Maybe.map
-                                            (\x ->
-                                                if x >= 0 then
-                                                    changeCartridge tagger <| Just x
-
-                                                else
-                                                    None
-                                            )
-                                        |> Maybe.withDefault None
-                        ]
-                        []
-            in
-            [ label [] [ text "Cartridge name:" ]
-            , input
-                [ A.type_ "text"
-                , A.value cart.name
-                , Form.onInput (changeCartridge ChangeCartridgeName)
-                ]
-                []
-            , label [] [ text "Cartridge type:" ]
-            , Form.picker
-                (List.map (\t -> ( t.key, t.description )) model.cartridgeTypes)
-                (changeCartridge ChangeCartridgeType)
-                cart.cartridgeType
-            , oneline "TV mode:" <|
-                Form.radioGroup
-                    []
-                    "cart-tv-mode"
-                    [ ( PAL, "PAL" ), ( NTSC, "NTSC" ), ( SECAM, "SECAM" ) ]
-                    (changeCartridge ChangeCartridgeTvMode)
-                    cart.tvMode
-            , checkbox "Emulate paddles:" <|
-                input
-                    [ A.type_ "checkbox"
-                    , Form.onCheckChange (changeCartridge ChangeCartridgeEmulatePaddles)
-                    , A.checked cart.emulatePaddles
-                    ]
-                    []
-            , oneline "RNG seed:" <| optionalNumberInput ChangeCartridgeRngSeed cart.rngSeed
-            , oneline "First visible line:" <| optionalNumberInput ChangeCartridgeFirstVisibleLine cart.firstVisibleLine
-            , oneline "CPU Emulation:" <|
-                Form.radioGroup
-                    []
-                    "cart-cpu-emulation"
-                    [ ( Nothing, "Default" ), ( Just Instruction, "Instruction" ), ( Just Cycle, "Cycle" ) ]
-                    (changeCartridge ChangeCartridgeCpuEmulation)
-                    cart.cpuEmulation
-            , oneline "Audio Emulation:" <|
-                Form.radioGroup
-                    []
-                    "cart-audio-emulation"
-                    [ ( Nothing, "Default" ), ( Just PCM, "PCM" ), ( Just Waveform, "Waveform" ) ]
-                    (changeCartridge ChangeCartridgeAudioEmulation)
-                    cart.audioEmulation
-            , oneline "Volume:" <|
-                span []
-                    [ input
-                        [ A.css [ property "width" "calc(30 * var(--cw))", Dos.marginRightCw 2 ]
-                        , A.type_ "range"
-                        , A.min "0"
-                        , A.max "100"
-                        , A.value <| String.fromInt cart.volume
-                        , Form.onInput <|
-                            String.toInt
-                                >> Maybe.map
-                                    (\x ->
-                                        if x >= 0 && x <= 100 then
-                                            changeCartridge ChangeCartridgeVolume <| x
-
-                                        else
-                                            None
-                                    )
-                                >> Maybe.withDefault None
-                        ]
-                        []
-                    , text <| String.fromInt cart.volume ++ "%"
-                    ]
-            ]
+        changeCartridge msg =
+            msg >> ChangeCartridge cart.hash
     in
     let
-        ifHaveSelection a b =
-            Maybe.map (\_ -> a) model.currentCartridgeHash |> Maybe.withDefault b
+        optionalNumberInput tagger value =
+            input
+                [ A.type_ "text"
+                , A.placeholder "Auto"
+                , A.css [ property "width" "calc(10 * var(--cw))" ]
+                , A.value <| Maybe.withDefault "" << Maybe.map String.fromInt <| value
+                , Form.onInput <|
+                    \s ->
+                        if s == "" then
+                            changeCartridge tagger <| Nothing
+
+                        else
+                            case String.toInt s of
+                                Just x ->
+                                    if x >= 0 then
+                                        changeCartridge tagger <| Just x
+
+                                    else
+                                        None
+
+                                Nothing ->
+                                    None
+                ]
+                []
     in
-    form
+    [ label [] [ text "Cartridge name:" ]
+    , input
+        [ A.type_ "text"
+        , A.value cart.name
+        , A.css [ width (pct 100) ]
+        , Form.onInput (changeCartridge ChangeCartridgeName)
+        ]
+        []
+    , label [] [ text "Cartridge type:" ]
+    , Form.picker
+        (List.map (\t -> ( t.key, t.description )) model.cartridgeTypes)
+        (changeCartridge ChangeCartridgeType)
+        cart.cartridgeType
+    , oneline "TV mode:" <|
+        Form.radioGroup
+            []
+            [ ( PAL, "PAL" ), ( NTSC, "NTSC" ), ( SECAM, "SECAM" ) ]
+            (changeCartridge ChangeCartridgeTvMode)
+            cart.tvMode
+    , checkbox "Emulate paddles:" <|
+        input
+            [ A.type_ "checkbox"
+            , Form.onCheckChange (changeCartridge ChangeCartridgeEmulatePaddles)
+            , A.checked cart.emulatePaddles
+            ]
+            []
+    , oneline "RNG seed:" <| optionalNumberInput ChangeCartridgeRngSeed cart.rngSeed
+    , oneline "First visible line:" <| optionalNumberInput ChangeCartridgeFirstVisibleLine cart.firstVisibleLine
+    , oneline "CPU Emulation:" <|
+        Form.radioGroup
+            []
+            [ ( Nothing, "Default" ), ( Just Instruction, "Instruction" ), ( Just Cycle, "Cycle" ) ]
+            (changeCartridge ChangeCartridgeCpuEmulation)
+            cart.cpuEmulation
+    , oneline "Audio Emulation:" <|
+        Form.radioGroup
+            []
+            [ ( Nothing, "Default" ), ( Just PCM, "PCM" ), ( Just Waveform, "Waveform" ) ]
+            (changeCartridge ChangeCartridgeAudioEmulation)
+            cart.audioEmulation
+    , oneline "Volume:" <|
+        span []
+            [ input
+                [ A.css [ property "width" "calc(30 * var(--cw))", Dos.marginRightCw 2 ]
+                , A.type_ "range"
+                , A.min "0"
+                , A.max "100"
+                , A.value <| String.fromInt cart.volume
+                , Form.onInput <|
+                    String.toInt
+                        >> Maybe.map
+                            (\x ->
+                                if x >= 0 && x <= 100 then
+                                    changeCartridge ChangeCartridgeVolume <| x
+
+                                else
+                                    None
+                            )
+                        >> Maybe.withDefault None
+                ]
+                []
+            , text <| String.fromInt cart.volume ++ "%"
+            ]
+    ]
+
+
+settings : Model -> List Style -> Html Msg
+settings model styles =
+    let
+        formContainer items =
+            form
+                [ A.css
+                    [ displayFlex
+                    , flexDirection column
+                    , alignItems flexStart
+                    , paddingTop (Css.em 1)
+                    , overflowY scroll
+                    , property "-webkit-overflow-scrolling" "touch"
+                    , flexGrow (int 1)
+                    , children [ Sel.label [ pseudoClass "not(:first-of-type)" [ paddingTop (Css.em 1) ] ] ]
+                    ]
+                ]
+                items
+    in
+    div
         [ Dos.panel
         , Dos.panelLabel "Settings:"
         , A.css <|
-            [ displayFlex
-            , flexDirection column
-            , alignItems stretch
-            , paddingTop (Css.em 2)
-            , children [ Sel.label [ pseudoClass "not(:first-of-type)" [ paddingTop (Css.em 1) ] ] ]
-            ]
-                ++ ifHaveSelection [ alignItems stretch ] [ alignItems center, justifyContent center ]
+            [ displayFlex ]
+                ++ ifHaveSelection model [ alignItems stretch ] [ alignItems center, justifyContent center ]
                 ++ styles
         ]
     <|
-        (Maybe.andThen (\h -> LE.find (\c -> h == c.hash) model.cartridges) model.currentCartridgeHash
-            |> Maybe.map formItems
-            |> Maybe.withDefault [ text "no cartridge selected" ]
-        )
+        [ Maybe.andThen (\h -> LE.find (\c -> h == c.hash) <| cartridgesMatchingSearch model) model.currentCartridgeHash
+            |> Maybe.map (formContainer << settingsItems model)
+            |> Maybe.withDefault (text "no cartridge selected")
+        ]
 
 
 page : Model -> List (Html Msg)
@@ -388,7 +418,6 @@ page model =
                 , displayFlex
                 , flexDirection column
                 ]
-            , onKeyDown <| keyboardHandler model
             ]
             [ cartridgeToolbar model
             , cartridgeList
