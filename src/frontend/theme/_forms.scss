@@ -56,13 +56,18 @@ button {
     }
 }
 
-input[type=text] {
+input[type=text], input[type=number] {
     @include text;
 
     cursor: text;
 
     &::placeholder {
         color: $dark-gray;
+    }
+
+    &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+        @include appearance-none;
+        margin: 0;
     }
 }
 

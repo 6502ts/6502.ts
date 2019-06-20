@@ -7,9 +7,18 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
 import Html.Styled.Keyed as Keyed
-import Json.Decode as Json
+import Json.Decode as Decode
 import List.Extra as LE
-import Stellerator.Model exposing (Cartridge, ChangeCartridgeMsg(..), Model, Msg(..))
+import Stellerator.Model
+    exposing
+        ( AudioEmulation(..)
+        , Cartridge
+        , ChangeCartridgeMsg(..)
+        , CpuEmulation(..)
+        , Model
+        , Msg(..)
+        , TvMode(..)
+        )
 import Stellerator.View.Form as Form
 
 
@@ -24,7 +33,7 @@ onKeyDown tagger =
                 _ ->
                     ( m, True )
     in
-    E.preventDefaultOn "keydown" (Json.map t <| Json.map tagger E.keyCode)
+    E.preventDefaultOn "keydown" (Decode.map t <| Decode.map tagger E.keyCode)
 
 
 cartridgesMatchingSearch : Model -> List Cartridge
@@ -219,10 +228,51 @@ cartridgeList model =
 settings : Model -> List Style -> Html Msg
 settings model styles =
     let
+        oneline lbl control =
+            label [ A.for "nothing" ]
+                [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
+                , control
+                ]
+    in
+    let
+        checkbox lbl control =
+            label []
+                [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
+                , control
+                ]
+    in
+    let
         formItems cart =
             let
                 changeCartridge msg =
                     msg >> ChangeCartridge cart.hash
+            in
+            let
+                optionalNumberInput tagger value =
+                    input
+                        [ A.type_ "text"
+                        , A.placeholder "Auto"
+                        , A.css [ property "width" "calc(10 * var(--cw))" ]
+                        , A.value <| Maybe.withDefault "" << Maybe.map String.fromInt <| value
+                        , Form.onInput <|
+                            \s ->
+                                if s == "" then
+                                    changeCartridge tagger <| Nothing
+
+                                else
+                                    s
+                                        |> String.toInt
+                                        |> Maybe.map
+                                            (\x ->
+                                                if x >= 0 then
+                                                    changeCartridge tagger <| Just x
+
+                                                else
+                                                    None
+                                            )
+                                        |> Maybe.withDefault None
+                        ]
+                        []
             in
             [ label [] [ text "Cartridge name:" ]
             , input
@@ -234,8 +284,61 @@ settings model styles =
             , label [] [ text "Cartridge type:" ]
             , Form.picker
                 (List.map (\t -> ( t.key, t.description )) model.cartridgeTypes)
-                cart.cartridgeType
                 (changeCartridge ChangeCartridgeType)
+                cart.cartridgeType
+            , oneline "TV mode:" <|
+                Form.radioGroup
+                    []
+                    "cart-tv-mode"
+                    [ ( PAL, "PAL" ), ( NTSC, "NTSC" ), ( SECAM, "SECAM" ) ]
+                    (changeCartridge ChangeCartridgeTvMode)
+                    cart.tvMode
+            , checkbox "Emulate paddles:" <|
+                input
+                    [ A.type_ "checkbox"
+                    , Form.onCheckChange (changeCartridge ChangeCartridgeEmulatePaddles)
+                    , A.checked cart.emulatePaddles
+                    ]
+                    []
+            , oneline "RNG seed:" <| optionalNumberInput ChangeCartridgeRngSeed cart.rngSeed
+            , oneline "First visible line:" <| optionalNumberInput ChangeCartridgeFirstVisibleLine cart.firstVisibleLine
+            , oneline "CPU Emulation:" <|
+                Form.radioGroup
+                    []
+                    "cart-cpu-emulation"
+                    [ ( Nothing, "Default" ), ( Just Instruction, "Instruction" ), ( Just Cycle, "Cycle" ) ]
+                    (changeCartridge ChangeCartridgeCpuEmulation)
+                    cart.cpuEmulation
+            , oneline "Audio Emulation:" <|
+                Form.radioGroup
+                    []
+                    "cart-audio-emulation"
+                    [ ( Nothing, "Default" ), ( Just PCM, "PCM" ), ( Just Waveform, "Waveform" ) ]
+                    (changeCartridge ChangeCartridgeAudioEmulation)
+                    cart.audioEmulation
+            , oneline "Volume:" <|
+                span []
+                    [ input
+                        [ A.css [ property "width" "calc(30 * var(--cw))", Dos.marginRightCw 2 ]
+                        , A.type_ "range"
+                        , A.min "0"
+                        , A.max "100"
+                        , A.value <| String.fromInt cart.volume
+                        , Form.onInput <|
+                            String.toInt
+                                >> Maybe.map
+                                    (\x ->
+                                        if x >= 0 && x <= 100 then
+                                            changeCartridge ChangeCartridgeVolume <| x
+
+                                        else
+                                            None
+                                    )
+                                >> Maybe.withDefault None
+                        ]
+                        []
+                    , text <| String.fromInt cart.volume ++ "%"
+                    ]
             ]
     in
     let

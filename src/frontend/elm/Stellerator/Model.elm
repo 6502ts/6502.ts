@@ -100,6 +100,13 @@ type alias Model =
 type ChangeCartridgeMsg
     = ChangeCartridgeName String
     | ChangeCartridgeType String
+    | ChangeCartridgeTvMode TvMode
+    | ChangeCartridgeEmulatePaddles Bool
+    | ChangeCartridgeRngSeed (Maybe Int)
+    | ChangeCartridgeFirstVisibleLine (Maybe Int)
+    | ChangeCartridgeCpuEmulation (Maybe CpuEmulation)
+    | ChangeCartridgeAudioEmulation (Maybe AudioEmulation)
+    | ChangeCartridgeVolume Int
 
 
 type Msg
@@ -133,6 +140,27 @@ updateCartridge cartridgeTypes msg cartridge =
                     LE.find (\ct -> ct.key == type_) cartridgeTypes |> Maybe.map .key |> Maybe.withDefault cartridge.cartridgeType
             in
             { cartridge | cartridgeType = newType }
+
+        ChangeCartridgeTvMode tvMode ->
+            { cartridge | tvMode = tvMode }
+
+        ChangeCartridgeEmulatePaddles emulatePaddles ->
+            { cartridge | emulatePaddles = emulatePaddles }
+
+        ChangeCartridgeRngSeed seed ->
+            { cartridge | rngSeed = seed }
+
+        ChangeCartridgeFirstVisibleLine line ->
+            { cartridge | firstVisibleLine = line }
+
+        ChangeCartridgeCpuEmulation emulation ->
+            { cartridge | cpuEmulation = emulation }
+
+        ChangeCartridgeAudioEmulation emulation ->
+            { cartridge | audioEmulation = emulation }
+
+        ChangeCartridgeVolume vol ->
+            { cartridge | volume = vol }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
