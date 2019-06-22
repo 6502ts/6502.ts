@@ -62,7 +62,7 @@ init flagsJson url key =
       }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)
-        , Ports.watchMedia [ "(max-width: 800px)" ]
+        , Ports.watchMedia [ "(max-width: 750px)" ]
         , Http.get { url = "doc/stellerator.md", expect = Http.expectString handleHelppageResult }
         ]
     )

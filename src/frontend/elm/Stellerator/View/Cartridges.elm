@@ -15,11 +15,16 @@ import Stellerator.Model
         , Cartridge
         , ChangeCartridgeMsg(..)
         , CpuEmulation(..)
+        , Media(..)
         , Model
         , Msg(..)
         , TvMode(..)
         )
 import Stellerator.View.Form as Form
+
+
+
+-- COMMON
 
 
 onKeyDown : (Int -> Msg) -> Attribute Msg
@@ -129,125 +134,6 @@ keyboardHandler model code =
 
         _ ->
             None
-
-
-cartridgeToolbar : Model -> Html Msg
-cartridgeToolbar model =
-    let
-        btn attr children =
-            button
-                ([ A.type_ "button"
-                 , A.css [ property "width" "calc(10 * var(--cw))" ]
-                 ]
-                    ++ attr
-                )
-                children
-    in
-    form [ Dos.panel ]
-        [ div [ A.css [ displayFlex ] ]
-            [ input
-                [ A.type_ "text"
-                , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
-                , A.placeholder "Search cartridges..."
-                , A.value model.cartridgeFilter
-                , Form.onInput ChangeCartridgeFilter
-                ]
-                []
-            , button
-                [ A.type_ "button"
-                , A.disabled <| model.cartridgeFilter == ""
-                , E.onClick ClearCartridgeFilter
-                ]
-                [ text "Clear" ]
-            ]
-        , div
-            [ A.css [ position relative ] ]
-            [ btn [] [ text "Add new" ]
-            , btn [ A.disabled <| not <| haveSelection model, E.onClick DeleteCurrentCartridge ] [ text "Delete" ]
-            , btn [] [ text "Run" ]
-            ]
-        ]
-
-
-cartridgeList : Model -> Html Msg
-cartridgeList model =
-    let
-        entry cart =
-            let
-                selected =
-                    Maybe.map (\s -> s == cart.hash) model.currentCartridgeHash |> Maybe.withDefault False
-            in
-            let
-                ifSelected x y =
-                    if selected then
-                        x
-
-                    else
-                        y
-            in
-            div
-                [ A.css <|
-                    [ nthChild "odd"
-                        [ Dos.backgroundColor <| ifSelected DarkGray Cyan
-                        ]
-                    , nthChild "even"
-                        [ Dos.backgroundColor <| ifSelected DarkGray LightGray
-                        ]
-                    , ifSelected (Dos.color White) (Dos.color Black)
-                    , property "padding-left" "var(--cw)"
-                    , cursor pointer
-                    ]
-                , E.onClick <| SelectCurrentCartridge cart.hash
-                ]
-                [ text <| " * " ++ cart.name ]
-    in
-    let
-        message msg =
-            div
-                [ Dos.panel
-                , A.css
-                    [ flexGrow (int 1)
-                    , displayFlex
-                    , flexDirection column
-                    , textAlign center
-                    , justifyContent center
-                    ]
-                ]
-                [ text msg ]
-    in
-    let
-        list =
-            div
-                [ Dos.panel
-                , A.css
-                    [ displayFlex
-                    , flexGrow (int 1)
-                    , alignItems stretch
-                    , overflowY hidden
-                    ]
-                ]
-                [ Keyed.node "div"
-                    [ A.css
-                        [ flexGrow (int 1)
-                        , overflowY scroll
-                        , property "-webkit-overflow-scrolling" "touch"
-                        ]
-                    ]
-                  <|
-                    List.map
-                        (\c -> ( c.hash, entry c ))
-                        (cartridgesMatchingSearch model)
-                ]
-    in
-    case List.map List.length [ model.cartridges, cartridgesMatchingSearch model ] of
-        [ 0, _ ] ->
-            message "start by clicking \"Add new\" to add a ROM image"
-
-        [ _, 0 ] ->
-            message "no cartridges match the search"
-
-        _ ->
-            list
 
 
 settingsItems : Model -> Cartridge -> List (Html Msg)
@@ -362,8 +248,145 @@ settingsItems model cart =
     ]
 
 
-settings : Model -> List Style -> Html Msg
-settings model styles =
+page : Model -> List (Html Msg)
+page model =
+    case model.media of
+        Wide ->
+            pageWide model
+
+        Narrow ->
+            pageNarrow model
+
+
+
+-- WIDE
+
+
+cartridgeToolbarWide : Model -> Html Msg
+cartridgeToolbarWide model =
+    let
+        searchInput =
+            div [ A.css <| [ displayFlex ] ]
+                [ input
+                    [ A.type_ "text"
+                    , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
+                    , A.placeholder "Search cartridges..."
+                    , A.value model.cartridgeFilter
+                    , Form.onInput ChangeCartridgeFilter
+                    ]
+                    []
+                , button
+                    [ A.type_ "button"
+                    , A.disabled <| model.cartridgeFilter == ""
+                    , E.onClick ClearCartridgeFilter
+                    ]
+                    [ text "Clear" ]
+                ]
+    in
+    let
+        btn attr children =
+            button
+                ([ A.type_ "button"
+                 , A.css [ property "width" "calc(10 * var(--cw))" ]
+                 ]
+                    ++ attr
+                )
+                children
+    in
+    form [ Dos.panel ]
+        [ searchInput
+        , div
+            [ A.css [ position relative ] ]
+            [ btn [] [ text "Add new" ]
+            , btn [ A.disabled <| not <| haveSelection model, E.onClick DeleteCurrentCartridge ] [ text "Delete" ]
+            , btn [] [ text "Run" ]
+            ]
+        ]
+
+
+cartridgeListWide : Model -> Html Msg
+cartridgeListWide model =
+    let
+        entry cart =
+            let
+                selected =
+                    Maybe.map (\s -> s == cart.hash) model.currentCartridgeHash |> Maybe.withDefault False
+            in
+            let
+                ifSelected x y =
+                    if selected then
+                        x
+
+                    else
+                        y
+            in
+            div
+                [ A.css <|
+                    [ nthChild "odd"
+                        [ Dos.backgroundColor <| ifSelected DarkGray Cyan
+                        ]
+                    , nthChild "even"
+                        [ Dos.backgroundColor <| ifSelected DarkGray LightGray
+                        ]
+                    , ifSelected (Dos.color White) (Dos.color Black)
+                    , property "padding-left" "var(--cw)"
+                    , cursor pointer
+                    ]
+                , E.onClick <| SelectCurrentCartridge cart.hash
+                ]
+                [ text <| " * " ++ cart.name ]
+    in
+    let
+        message msg =
+            div
+                [ Dos.panel
+                , A.css
+                    [ flexGrow (int 1)
+                    , displayFlex
+                    , flexDirection column
+                    , textAlign center
+                    , justifyContent center
+                    ]
+                ]
+                [ text msg ]
+    in
+    let
+        list =
+            div
+                [ Dos.panel
+                , A.css
+                    [ displayFlex
+                    , flexGrow (int 1)
+                    , alignItems stretch
+                    , overflowY hidden
+                    ]
+                ]
+                [ Keyed.node "div"
+                    [ A.css
+                        [ flexGrow (int 1)
+                        , overflowY scroll
+                        , property "-webkit-overflow-scrolling" "touch"
+                        ]
+                    ]
+                  <|
+                    List.map
+                        (\c -> ( c.hash, entry c ))
+                        (cartridgesMatchingSearch model)
+                ]
+    in
+    case List.map List.length [ model.cartridges, cartridgesMatchingSearch model ] of
+        [ 0, _ ] ->
+            message "start by clicking \"Add new\" to add a ROM image"
+
+        [ _, 0 ] ->
+            message "no cartridges match the search"
+
+        _ ->
+            list
+
+
+settingsWide : Model -> List Style -> Html Msg
+settingsWide model styles =
     let
         formContainer items =
             form
@@ -395,8 +418,8 @@ settings model styles =
         ]
 
 
-page : Model -> List (Html Msg)
-page model =
+pageWide : Model -> List (Html Msg)
+pageWide model =
     [ div
         [ A.css
             [ height <| calc (vh 100) minus (Css.em 2)
@@ -419,10 +442,143 @@ page model =
                 , flexDirection column
                 ]
             ]
-            [ cartridgeToolbar model
-            , cartridgeList
+            [ cartridgeToolbarWide model
+            , cartridgeListWide
                 model
             ]
-        , settings model [ boxSizing borderBox, flexGrow (int 1), flexBasis (px 0) ]
+        , settingsWide model [ boxSizing borderBox, flexGrow (int 1), flexBasis (px 0) ]
         ]
     ]
+
+
+
+-- NARROW
+
+
+searchInputNarrow : Model -> Html Msg
+searchInputNarrow model =
+    form [ A.css <| [ displayFlex, flexShrink (int 0) ], Dos.panel ]
+        [ input
+            [ A.type_ "text"
+            , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
+            , A.placeholder "Search cartridges..."
+            , A.value model.cartridgeFilter
+            , Form.onInput ChangeCartridgeFilter
+            ]
+            []
+        , button
+            [ A.type_ "button"
+            , A.disabled <| model.cartridgeFilter == ""
+            , E.onClick ClearCartridgeFilter
+            ]
+            [ text "Clear" ]
+        ]
+
+
+cartridgeListNarrow : Model -> Html Msg
+cartridgeListNarrow model =
+    let
+        entry cart =
+            let
+                selected =
+                    Maybe.map (\s -> s == cart.hash) model.currentCartridgeHash |> Maybe.withDefault False
+            in
+            let
+                ifSelected x y =
+                    if selected then
+                        x
+
+                    else
+                        y
+            in
+            div
+                [ A.css <|
+                    [ nthChild "odd"
+                        [ Dos.backgroundColor <| ifSelected DarkGray Cyan
+                        ]
+                    , nthChild "even"
+                        [ Dos.backgroundColor <| ifSelected DarkGray LightGray
+                        ]
+                    , ifSelected (Dos.color White) (Dos.color Black)
+                    , property "padding-left" "var(--cw)"
+                    , cursor pointer
+                    , textAlign center
+                    , paddingTop (Css.em 1)
+                    , paddingBottom (Css.em 1)
+                    , textOverflow ellipsis
+                    ]
+                , E.onClick <| SelectCurrentCartridge cart.hash
+                ]
+                [ text cart.name ]
+    in
+    let
+        message msg =
+            div
+                [ Dos.panel
+                , A.css
+                    [ flexGrow (int 1)
+                    , displayFlex
+                    , flexDirection column
+                    , textAlign center
+                    , justifyContent center
+                    ]
+                ]
+                [ text msg ]
+    in
+    let
+        list =
+            div
+                [ A.css
+                    [ displayFlex
+                    , flexGrow (int 1)
+                    , alignItems stretch
+                    , overflowY hidden
+                    ]
+                , Dos.panel
+                ]
+                [ Keyed.node "div"
+                    [ A.css
+                        [ flexGrow (int 1)
+                        , overflowY scroll
+                        , property "-webkit-overflow-scrolling" "touch"
+                        ]
+                    ]
+                  <|
+                    List.map
+                        (\c -> ( c.hash, entry c ))
+                        (cartridgesMatchingSearch model)
+                ]
+    in
+    case List.map List.length [ model.cartridges, cartridgesMatchingSearch model ] of
+        [ 0, _ ] ->
+            message "start by clicking \"Add new\" to add a ROM image"
+
+        [ _, 0 ] ->
+            message "no cartridges match the search"
+
+        _ ->
+            list
+
+
+cartridgeSubpageNarrow : Model -> Html Msg
+cartridgeSubpageNarrow model =
+    div
+        [ A.css
+            [ position absolute
+            , top (Css.em 2)
+            , left (px 0)
+            , width (vw 100)
+            , property "height" "calc(100vh - 2em)"
+            , displayFlex
+            , alignItems stretch
+            , flexDirection column
+            ]
+        ]
+        [ searchInputNarrow model
+        , cartridgeListNarrow model
+        ]
+
+
+pageNarrow : Model -> List (Html Msg)
+pageNarrow model =
+    [ cartridgeSubpageNarrow model ]
