@@ -321,7 +321,8 @@ cartridgeListWide model =
                         y
             in
             div
-                [ A.css <|
+                [ A.id cart.hash
+                , A.css <|
                     [ nthChild "odd"
                         [ Dos.backgroundColor <| ifSelected DarkGray Cyan
                         ]

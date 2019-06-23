@@ -19,6 +19,7 @@ import Browser.Navigation as Nav
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline exposing (optional, required)
 import List.Extra as LE
+import Stellerator.Ports as Ports
 
 
 
@@ -189,12 +190,28 @@ update msg model =
                         Help ->
                             Running Nothing
             in
-            noop
-                { model
-                    | currentRoute = route
-                    , emulationState = emulationState
-                    , sideMenu = False
-                }
+            let
+                cmd =
+                    case route of
+                        Cartridges ->
+                            if model.currentRoute /= Cartridges then
+                                Maybe.map (\h -> Ports.scrollIntoView h) model.currentCartridgeHash |> Maybe.withDefault Cmd.none
+
+                            else
+                                Cmd.none
+
+                        _ ->
+                            Cmd.none
+            in
+            let
+                newModel =
+                    { model
+                        | currentRoute = route
+                        , emulationState = emulationState
+                        , sideMenu = False
+                    }
+            in
+            ( newModel, cmd )
 
         ChangeMedia media ->
             noop { model | media = media }

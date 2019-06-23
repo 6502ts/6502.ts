@@ -7,6 +7,7 @@ import { initialize as initializeRangetouch } from '../common/rangetouch';
 import { initMediaApi } from './mediaApi';
 import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 import { calculateFromString as md5 } from '../../tools/hash/md5';
+import { initSrollIntoView } from './scrollIntoView';
 
 const cartridges: Array<Cartridge> = [
     {
@@ -35,7 +36,10 @@ const cartridges: Array<Cartridge> = [
         'Pitfall II',
         '[HB] Stay Frosty 2',
         'Communist mutants from space',
-        'Winter Games (1987) (Epyx, Steven A. Baker, Tod Frye, Peter Engelbrite) (80561-00251) (PAL)'
+        'Winter Games (1987) (Epyx, Steven A. Baker, Tod Frye, Peter Engelbrite) (80561-00251) (PAL)',
+        ...Array(50)
+            .fill(undefined)
+            .map((_, i) => `game ${i + 1}`)
     ].map(name => ({
         hash: md5(name),
         name,
@@ -63,6 +67,7 @@ function main(): void {
     });
 
     initMediaApi(ports);
+    initSrollIntoView(ports);
 }
 
 window.addEventListener('load', main);
