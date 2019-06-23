@@ -192,10 +192,10 @@ update msg model =
             in
             let
                 cmd =
-                    case route of
-                        Cartridges ->
+                    case ( route, model.currentCartridgeHash ) of
+                        ( Cartridges, Just hash ) ->
                             if model.currentRoute /= Cartridges then
-                                Maybe.map (\h -> Ports.scrollIntoView h) model.currentCartridgeHash |> Maybe.withDefault Cmd.none
+                                Ports.scrollIntoView hash
 
                             else
                                 Cmd.none
