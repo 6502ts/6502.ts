@@ -7,6 +7,7 @@ import Json.Decode exposing (..)
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
 import Stellerator.Routing exposing (..)
+import Stellerator.Update exposing (..)
 import Stellerator.View exposing (view)
 import Url exposing (Url)
 

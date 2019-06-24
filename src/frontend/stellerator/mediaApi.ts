@@ -3,9 +3,9 @@ import { Ports } from '../elm/Stellerator/Main.elm';
 export function initMediaApi(ports: Ports): void {
     let queries: Array<MediaQueryList> = [];
 
-    const updateQueries = () => ports.mediaUpdate.send(queries.map(q => q.matches));
+    const updateQueries = () => ports.mediaUpdate_.send(queries.map(q => q.matches));
 
-    ports.watchMedia.subscribe(queryList => {
+    ports.watchMedia_.subscribe(queryList => {
         queries.forEach(q => {
             if (q.removeEventListener) {
                 q.removeEventListener('change', updateQueries);

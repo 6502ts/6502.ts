@@ -10,16 +10,18 @@ module Stellerator.Model exposing
     , Msg(..)
     , Route(..)
     , TvMode(..)
+    , cartridgesMatchingSearch
     , decodeCartridge
     , decodeCartridgeType
-    , update
+    , nextCartridge
+    , previousCartridge
+    , selectionInSearchResults
     )
 
 import Browser.Navigation as Nav
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline exposing (optional, required)
 import List.Extra as LE
-import Stellerator.Ports as Ports
 
 
 
@@ -118,150 +120,74 @@ type Msg
     | ToggleSideMenu
     | ChangeCartridgeFilter String
     | ClearCartridgeFilter
-    | SelectCurrentCartridge String
-    | ClearCurrentCartridge
-    | DeleteCurrentCartridge
+    | SelectCartridge String
+    | SelectNextCartridgeMatchingSearch String
+    | SelectPreviousCartridgeMatchingSearch String
+    | SelectFirstCartridgeMatchingSearch
+    | SelectLastCartridgeMatchingSearch
+    | ClearSelectedCartridge
+    | DeleteCartridge String
     | ChangeCartridge String ChangeCartridgeMsg
     | None
 
 
 
--- UPDATE
+-- HELPERS AND SELECTORS
 
 
-updateCartridge : List CartridgeType -> ChangeCartridgeMsg -> Cartridge -> Cartridge
-updateCartridge cartridgeTypes msg cartridge =
-    case msg of
-        ChangeCartridgeName name ->
-            { cartridge | name = name }
-
-        ChangeCartridgeType type_ ->
-            let
-                newType =
-                    LE.find (\ct -> ct.key == type_) cartridgeTypes |> Maybe.map .key |> Maybe.withDefault cartridge.cartridgeType
-            in
-            { cartridge | cartridgeType = newType }
-
-        ChangeCartridgeTvMode tvMode ->
-            { cartridge | tvMode = tvMode }
-
-        ChangeCartridgeEmulatePaddles emulatePaddles ->
-            { cartridge | emulatePaddles = emulatePaddles }
-
-        ChangeCartridgeRngSeed seed ->
-            { cartridge | rngSeed = seed }
-
-        ChangeCartridgeFirstVisibleLine line ->
-            { cartridge | firstVisibleLine = line }
-
-        ChangeCartridgeCpuEmulation emulation ->
-            { cartridge | cpuEmulation = emulation }
-
-        ChangeCartridgeAudioEmulation emulation ->
-            { cartridge | audioEmulation = emulation }
-
-        ChangeCartridgeVolume vol ->
-            { cartridge | volume = vol }
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+cartridgesMatchingSearch : Model -> List Cartridge
+cartridgesMatchingSearch model =
     let
-        noop x =
-            ( x, Cmd.none )
+        filterWords =
+            model.cartridgeFilter |> String.toUpper |> String.words
     in
-    case msg of
-        NavigateToUrl url ->
-            ( model, Nav.pushUrl model.key url )
+    List.filter
+        (\c -> List.all (\w -> String.contains w <| String.toUpper c.name) filterWords)
+        model.cartridges
 
-        ChangeRoute route ->
-            let
-                emulationState =
-                    case route of
-                        Cartridges ->
-                            Stopped
 
-                        Settings ->
-                            Paused
+selectionInSearchResults : Model -> Maybe String
+selectionInSearchResults model =
+    model.currentCartridgeHash
+        |> Maybe.andThen
+            (\h -> LE.find (\c -> c.hash == h) <| cartridgesMatchingSearch model)
+        >> Maybe.map (\c -> c.hash)
 
-                        Emulation ->
-                            Running (Just 3.55)
 
-                        Help ->
-                            Running Nothing
-            in
-            let
-                cmd =
-                    case ( route, model.currentCartridgeHash ) of
-                        ( Cartridges, Just hash ) ->
-                            if model.currentRoute /= Cartridges then
-                                Ports.scrollIntoView hash
+nextCartridge : List Cartridge -> String -> Maybe Cartridge
+nextCartridge cartridges hash =
+    let
+        next_ c =
+            case c of
+                h1 :: h2 :: tail ->
+                    if h1.hash == hash then
+                        Just h2
 
-                            else
-                                Cmd.none
+                    else
+                        next_ <| h2 :: tail
 
-                        _ ->
-                            Cmd.none
-            in
-            let
-                newModel =
-                    { model
-                        | currentRoute = route
-                        , emulationState = emulationState
-                        , sideMenu = False
-                    }
-            in
-            ( newModel, cmd )
+                _ ->
+                    List.head cartridges
+    in
+    next_ <| cartridges ++ cartridges ++ cartridges
 
-        ChangeMedia media ->
-            noop { model | media = media }
 
-        ChangeCartridgeFilter cartridgeFilter ->
-            noop { model | cartridgeFilter = cartridgeFilter }
+previousCartridge : List Cartridge -> String -> Maybe Cartridge
+previousCartridge cartridges hash =
+    let
+        previous_ c =
+            case c of
+                h1 :: h2 :: tail ->
+                    if h2.hash == hash then
+                        Just h1
 
-        ClearCartridgeFilter ->
-            noop { model | cartridgeFilter = "" }
+                    else
+                        previous_ <| h2 :: tail
 
-        SelectCurrentCartridge hash ->
-            noop { model | currentCartridgeHash = Just hash }
-
-        ClearCurrentCartridge ->
-            noop { model | currentCartridgeHash = Nothing }
-
-        DeleteCurrentCartridge ->
-            noop
-                { model
-                    | cartridges =
-                        Maybe.map
-                            (\h -> List.filter (\c -> c.hash /= h) model.cartridges)
-                            model.currentCartridgeHash
-                            |> Maybe.withDefault model.cartridges
-                    , currentCartridgeHash = Nothing
-                }
-
-        ChangeCartridge hash msg_ ->
-            noop
-                { model
-                    | cartridges =
-                        List.map
-                            (\c ->
-                                if c.hash == hash then
-                                    updateCartridge model.cartridgeTypes msg_ c
-
-                                else
-                                    c
-                            )
-                            model.cartridges
-                }
-
-        SetHelpPage content ->
-            noop { model | helppage = Just content }
-
-        ToggleSideMenu ->
-            noop { model | sideMenu = not model.sideMenu }
-
-        _ ->
-            noop model
+                _ ->
+                    List.head <| List.reverse cartridges
+    in
+    previous_ <| cartridges ++ cartridges ++ cartridges
 
 
 

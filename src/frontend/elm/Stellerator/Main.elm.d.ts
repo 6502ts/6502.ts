@@ -44,10 +44,10 @@ export interface Options {
 }
 
 export interface Ports {
-    watchMedia: CommandPort<Array<string>>;
-    mediaUpdate: SubscriptionPort<Array<boolean>>;
+    watchMedia_: CommandPort<Array<string>>;
+    mediaUpdate_: SubscriptionPort<Array<boolean>>;
 
-    scrollIntoView: CommandPort<String>;
+    scrollIntoView_: CommandPort<[ScrollLogicalPosition, string]>;
 }
 
 interface CommandPort<T> {

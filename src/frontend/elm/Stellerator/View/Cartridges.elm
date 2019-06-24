@@ -19,6 +19,10 @@ import Stellerator.Model
         , Model
         , Msg(..)
         , TvMode(..)
+        , cartridgesMatchingSearch
+        , nextCartridge
+        , previousCartridge
+        , selectionInSearchResults
         )
 import Stellerator.View.Form as Form
 
@@ -41,96 +45,19 @@ onKeyDown tagger =
     E.preventDefaultOn "keydown" (Decode.map t <| Decode.map tagger E.keyCode)
 
 
-cartridgesMatchingSearch : Model -> List Cartridge
-cartridgesMatchingSearch model =
-    let
-        filterWords =
-            model.cartridgeFilter |> String.toUpper |> String.words
-    in
-    List.filter
-        (\c -> List.all (\w -> String.contains w <| String.toUpper c.name) filterWords)
-        model.cartridges
-
-
-haveSelection : Model -> Bool
-haveSelection model =
-    Maybe.map
-        (\h -> List.any (\c -> c.hash == h) <| cartridgesMatchingSearch model)
-        model.currentCartridgeHash
-        |> Maybe.withDefault False
-
-
 ifHaveSelection : Model -> a -> a -> a
 ifHaveSelection model a b =
-    if haveSelection model then
-        a
-
-    else
-        b
+    Maybe.map (\_ -> a) (selectionInSearchResults model) |> Maybe.withDefault b
 
 
 keyboardHandler : Model -> Int -> Msg
 keyboardHandler model code =
-    let
-        matchingCartridges =
-            cartridgesMatchingSearch model
-    in
-    let
-        selectFirst =
-            matchingCartridges |> List.head |> Maybe.map (SelectCurrentCartridge << .hash) |> Maybe.withDefault None
-    in
-    let
-        selectLast =
-            matchingCartridges |> List.reverse |> List.head |> Maybe.map (SelectCurrentCartridge << .hash) |> Maybe.withDefault None
-    in
-    let
-        next hash =
-            let
-                next_ l =
-                    case l of
-                        h1 :: h2 :: tail ->
-                            if h1 == hash then
-                                SelectCurrentCartridge h2
-
-                            else
-                                next_ (h2 :: tail)
-
-                        _ ->
-                            selectFirst
-            in
-            let
-                hashes =
-                    List.map .hash <| matchingCartridges
-            in
-            next_ <| hashes ++ hashes ++ hashes
-    in
-    let
-        previous hash =
-            let
-                previous_ l =
-                    case l of
-                        h1 :: h2 :: tail ->
-                            if h2 == hash then
-                                SelectCurrentCartridge h1
-
-                            else
-                                previous_ (h2 :: tail)
-
-                        _ ->
-                            selectLast
-            in
-            let
-                hashes =
-                    List.map .hash <| matchingCartridges
-            in
-            previous_ <| hashes ++ hashes ++ hashes
-    in
     case code of
         38 ->
-            Maybe.map previous model.currentCartridgeHash |> Maybe.withDefault selectLast
+            Maybe.map SelectPreviousCartridgeMatchingSearch model.currentCartridgeHash |> Maybe.withDefault SelectLastCartridgeMatchingSearch
 
         40 ->
-            Maybe.map next model.currentCartridgeHash |> Maybe.withDefault selectFirst
+            Maybe.map SelectNextCartridgeMatchingSearch model.currentCartridgeHash |> Maybe.withDefault SelectFirstCartridgeMatchingSearch
 
         _ ->
             None
@@ -298,7 +225,11 @@ cartridgeToolbarWide model =
         , div
             [ A.css [ position relative ] ]
             [ btn [] [ text "Add new" ]
-            , btn [ A.disabled <| not <| haveSelection model, E.onClick DeleteCurrentCartridge ] [ text "Delete" ]
+            , btn
+                [ A.disabled <| ifHaveSelection model False True
+                , E.onClick <| Maybe.withDefault None <| Maybe.map DeleteCartridge model.currentCartridgeHash
+                ]
+                [ text "Delete" ]
             , btn [] [ text "Run" ]
             ]
         ]
@@ -333,7 +264,7 @@ cartridgeListWide model =
                     , property "padding-left" "var(--cw)"
                     , cursor pointer
                     ]
-                , E.onClick <| SelectCurrentCartridge cart.hash
+                , E.onClick <| SelectCartridge cart.hash
                 ]
                 [ text <| " * " ++ cart.name ]
     in
@@ -508,7 +439,7 @@ cartridgeListNarrow model =
                     , paddingBottom (Css.em 1)
                     , textOverflow ellipsis
                     ]
-                , E.onClick <| SelectCurrentCartridge cart.hash
+                , E.onClick <| SelectCartridge cart.hash
                 ]
                 [ text cart.name ]
     in

@@ -1,7 +1,7 @@
 import { Ports } from '../elm/Stellerator/Main.elm';
 
 class Task {
-    constructor(private _id: string, private _timeout = 100) {}
+    constructor(private _position: ScrollLogicalPosition, private _id: string, private _timeout = 100) {}
 
     start(): void {
         setTimeout(() => this._observer.disconnect(), this._timeout);
@@ -25,7 +25,7 @@ class Task {
             this._observer.disconnect();
             clearTimeout(this._timeoutHandle);
 
-            node.scrollIntoView({ block: 'center' });
+            node.scrollIntoView({ block: this._position });
         }
     };
 
@@ -34,13 +34,13 @@ class Task {
 }
 
 export function initSrollIntoView(ports: Ports): void {
-    ports.scrollIntoView.subscribe((id: string) => {
+    ports.scrollIntoView_.subscribe(([position, id]) => {
         const node = document.getElementById(id);
 
         if (node) {
-            node.scrollIntoView({ block: 'center' });
+            node.scrollIntoView({ block: position });
         } else {
-            new Task(id).start();
+            new Task(position, id).start();
         }
     });
 }
