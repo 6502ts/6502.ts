@@ -165,6 +165,7 @@ update msg model =
                 | cartridges =
                     List.filter (\c -> c.hash /= hash) model.cartridges
                 , currentCartridgeHash = selection
+                , cartridgeViewMode = CartridgeViewCartridges
               }
             , cmd
             )

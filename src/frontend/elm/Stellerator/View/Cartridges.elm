@@ -108,7 +108,7 @@ settingsItems model cart =
     in
     let
         optionalNumberInput tagger value =
-            input
+            Form.textInput
                 [ A.type_ "text"
                 , A.placeholder "Auto"
                 , A.css [ property "width" "calc(10 * var(--cw))" ]
@@ -130,16 +130,14 @@ settingsItems model cart =
                                 Nothing ->
                                     None
                 ]
-                []
     in
     [ withLabel "Cartridge name:" <|
-        input
+        Form.textInput
             [ A.type_ "text"
             , A.value cart.name
             , A.css [ width (pct 100) ]
             , Form.onInput (changeCartridge ChangeCartridgeName)
             ]
-            []
     , withLabel "Cartridge type:" <|
         Form.picker
             (List.map (\t -> ( t.key, t.description )) model.cartridgeTypes)
@@ -226,14 +224,13 @@ cartridgeToolbarWide model =
     let
         searchInput =
             div [ A.css <| [ displayFlex ] ]
-                [ input
+                [ Form.textInput
                     [ A.type_ "text"
                     , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
                     , A.placeholder "Search cartridges..."
                     , A.value model.cartridgeFilter
                     , Form.onInput ChangeCartridgeFilter
                     ]
-                    []
                 , button
                     [ A.type_ "button"
                     , A.disabled <| model.cartridgeFilter == ""
@@ -414,14 +411,13 @@ pageWide model =
 searchInputNarrow : List Style -> Model -> Html Msg
 searchInputNarrow styles model =
     label [ A.css <| [ displayFlex ] ++ styles, Dos.panel ]
-        [ input
+        [ Form.textInput
             [ A.type_ "text"
             , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
             , A.placeholder "Search cartridges..."
             , A.value model.cartridgeFilter
             , Form.onChange ChangeCartridgeFilter
             ]
-            []
         , Form.mobileButton
             [ A.type_ "button"
             , A.disabled <| model.cartridgeFilter == ""
@@ -548,12 +544,12 @@ settingsSubpageNarrow model cart =
                 [ Dos.panel
                 , Dos.panelLabel "Settings:"
                 , A.css
-                    [ flexDirection column
+                    [ displayFlex
+                    , flexDirection column
                     , alignItems flexStart
                     , children
                         [ Sel.label
                             [ pseudoClass "not(:first-of-type)" [ paddingTop (Css.em 1) ]
-                            , display block
                             ]
                         ]
                     , marginTop (Css.em 4)
@@ -576,7 +572,7 @@ settingsSubpageNarrow model cart =
         , Dos.panel
         ]
         [ btn (ChangeCartridgeViewMode CartridgeViewCartridges) "Back"
-        , btn None "Delete"
+        , btn (DeleteCartridge cart.hash) "Delete"
         ]
     , settingsContainer <| settingsItems model cart
     ]

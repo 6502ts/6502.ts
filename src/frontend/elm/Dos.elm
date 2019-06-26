@@ -41,7 +41,7 @@ selectWithStyles styles attr values val =
             option [ value v, selected <| v == val ] [ text t ]
     in
     span [ class "select-wrapper", css styles ]
-        [ Html.select (value val :: attr) <| List.map createOption values ]
+        [ Html.select ([ value val, autocomplete False ] ++ attr) <| List.map createOption values ]
 
 
 select : List (Attribute msg) -> List ( String, String ) -> String -> Html msg

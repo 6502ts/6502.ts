@@ -5,6 +5,7 @@ module Stellerator.View.Form exposing
     , onInput
     , picker
     , radioGroup
+    , textInput
     )
 
 import Css exposing (..)
@@ -38,6 +39,19 @@ picker items tagger value =
         ]
         items
         value
+
+
+textInput : List (Attribute msg) -> Html msg
+textInput attr =
+    input
+        ([ A.type_ "text"
+         , A.autocomplete False
+         , A.attribute "autocorrect" "off"
+         , A.attribute "autocapitalize" "off"
+         ]
+            ++ attr
+        )
+        []
 
 
 mobileButton : List (Attribute msg) -> msg -> String -> Html msg
