@@ -1,5 +1,3 @@
-// import attachFastclick from 'fastclick';
-
 import Elm, { Cartridge, TvMode, AudioEmulation, CpuEmulation, CartridgeType } from '../elm/Stellerator/Main.elm';
 import '../theme/dos.scss';
 
@@ -51,7 +49,6 @@ const cartridges: Array<Cartridge> = [
 ];
 
 function main(): void {
-    // attachFastclick(document.body);
     initializeRangetouch();
 
     const cartridgeTypes: Array<CartridgeType> = CartridgeInfo.getAllTypes().map(cartridgeType => ({
