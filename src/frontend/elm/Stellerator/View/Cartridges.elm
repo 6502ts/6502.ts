@@ -1,9 +1,9 @@
 module Stellerator.View.Cartridges exposing (page)
 
 import Css exposing (..)
-import Css.Global as Sel exposing (children)
+import Css.Global as Sel exposing (children, global, selector)
 import Dos exposing (Color(..))
-import Html.Styled exposing (..)
+import Html.Styled as H exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
 import Html.Styled.Keyed as Keyed
@@ -47,17 +47,38 @@ onKeyDown tagger =
 
 ifHaveSelection : Model -> a -> a -> a
 ifHaveSelection model a b =
-    Maybe.map (\_ -> a) (selectionInSearchResults model) |> Maybe.withDefault b
+    case model.currentCartridgeHash of
+        Just _ ->
+            a
+
+        Nothing ->
+            b
+
+
+cartSelected : Cartridge -> Maybe String -> Bool
+cartSelected cartridge hash =
+    Maybe.map ((==) cartridge.hash) hash |> Maybe.withDefault False
+
+
+ifCartSelected : Cartridge -> Maybe String -> a -> a -> a
+ifCartSelected cartridge hash a b =
+    if cartSelected cartridge hash then
+        a
+
+    else
+        b
 
 
 keyboardHandler : Model -> Int -> Msg
 keyboardHandler model code =
     case code of
         38 ->
-            Maybe.map SelectPreviousCartridgeMatchingSearch model.currentCartridgeHash |> Maybe.withDefault SelectLastCartridgeMatchingSearch
+            Maybe.map SelectPreviousCartridgeMatchingSearch model.currentCartridgeHash
+                |> Maybe.withDefault SelectLastCartridgeMatchingSearch
 
         40 ->
-            Maybe.map SelectNextCartridgeMatchingSearch model.currentCartridgeHash |> Maybe.withDefault SelectFirstCartridgeMatchingSearch
+            Maybe.map SelectNextCartridgeMatchingSearch model.currentCartridgeHash
+                |> Maybe.withDefault SelectFirstCartridgeMatchingSearch
 
         _ ->
             None
@@ -223,7 +244,7 @@ cartridgeToolbarWide model =
     form [ Dos.panel ]
         [ searchInput
         , div
-            [ A.css [ position relative ] ]
+            []
             [ btn [] [ text "Add new" ]
             , btn
                 [ A.disabled <| ifHaveSelection model False True
@@ -240,27 +261,19 @@ cartridgeListWide model =
     let
         entry cart =
             let
-                selected =
-                    Maybe.map (\s -> s == cart.hash) model.currentCartridgeHash |> Maybe.withDefault False
-            in
-            let
-                ifSelected x y =
-                    if selected then
-                        x
-
-                    else
-                        y
+                ifSel =
+                    ifCartSelected cart model.currentCartridgeHash
             in
             div
                 [ A.id cart.hash
                 , A.css <|
                     [ nthChild "odd"
-                        [ Dos.backgroundColor <| ifSelected DarkGray Cyan
+                        [ Dos.backgroundColor <| ifSel DarkGray Cyan
                         ]
                     , nthChild "even"
-                        [ Dos.backgroundColor <| ifSelected DarkGray LightGray
+                        [ Dos.backgroundColor <| ifSel DarkGray LightGray
                         ]
-                    , ifSelected (Dos.color White) (Dos.color Black)
+                    , ifSel (Dos.color White) (Dos.color Black)
                     , property "padding-left" "var(--cw)"
                     , cursor pointer
                     ]
@@ -387,9 +400,9 @@ pageWide model =
 -- NARROW
 
 
-searchInputNarrow : Model -> Html Msg
-searchInputNarrow model =
-    form [ A.css <| [ displayFlex, flexShrink (int 0) ], Dos.panel ]
+searchInputNarrow : List Style -> Model -> Html Msg
+searchInputNarrow styles model =
+    label [ A.css <| [ displayFlex ] ++ styles, Dos.panel ]
         [ input
             [ A.type_ "text"
             , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
@@ -398,119 +411,120 @@ searchInputNarrow model =
             , Form.onInput ChangeCartridgeFilter
             ]
             []
-        , button
+        , Form.mobileButton
             [ A.type_ "button"
             , A.disabled <| model.cartridgeFilter == ""
-            , E.onClick ClearCartridgeFilter
+            , A.css [ marginBottom (Css.em 0.5) ]
             ]
-            [ text "Clear" ]
+            ClearCartridgeFilter
+            "Clear"
         ]
 
 
-cartridgeListNarrow : Model -> Html Msg
+cartridgeListNarrow : Model -> List (Html Msg)
 cartridgeListNarrow model =
     let
-        entry cart =
+        entryUnsel cart =
             let
-                selected =
-                    Maybe.map (\s -> s == cart.hash) model.currentCartridgeHash |> Maybe.withDefault False
-            in
-            let
-                ifSelected x y =
-                    if selected then
-                        x
-
-                    else
-                        y
+                ifSel =
+                    ifCartSelected cart model.currentCartridgeHash
             in
             div
-                [ A.css <|
-                    [ nthChild "odd"
-                        [ Dos.backgroundColor <| ifSelected DarkGray Cyan
-                        ]
-                    , nthChild "even"
-                        [ Dos.backgroundColor <| ifSelected DarkGray LightGray
-                        ]
-                    , ifSelected (Dos.color White) (Dos.color Black)
-                    , property "padding-left" "var(--cw)"
-                    , cursor pointer
+                [ A.id cart.hash
+                , A.css
+                    [ boxSizing borderBox
+                    , property "padding" "2.25em calc(2 * var(--cw))"
+                    , minHeight (Css.em 5)
                     , textAlign center
-                    , paddingTop (Css.em 1)
-                    , paddingBottom (Css.em 1)
-                    , textOverflow ellipsis
+                    , nthChild "odd" [ Dos.backgroundColor LightGray ]
+                    , nthChild "even" [ Dos.backgroundColor Cyan ]
+                    , Dos.color Black
+                    , cursor pointer
                     ]
                 , E.onClick <| SelectCartridge cart.hash
                 ]
                 [ text cart.name ]
     in
     let
-        message msg =
+        entrySel cart =
+            let
+                ifSel =
+                    ifCartSelected cart model.currentCartridgeHash
+            in
+            let
+                btn styles msg label =
+                    Form.mobileButton [ A.type_ "button", A.css <| property "width" "calc(8 * var(--cw))" :: styles ] msg label
+            in
             div
-                [ Dos.panel
+                [ A.id cart.hash
+                , Dos.panel
                 , A.css
-                    [ flexGrow (int 1)
-                    , displayFlex
-                    , flexDirection column
+                    [ boxSizing borderBox
+                    , minHeight (Css.em 4)
                     , textAlign center
-                    , justifyContent center
+                    , Dos.backgroundColor DarkGray
+                    , Dos.color White
+                    , cursor pointer
                     ]
                 ]
-                [ text msg ]
+                [ text cart.name
+                , div [ A.css [ textAlign left, marginTop (Css.em 1), marginBottom (Css.em -0.5) ] ]
+                    [ btn [] None "Edit"
+                    , btn [ float right ] None "Run"
+                    ]
+                ]
     in
     let
-        list =
-            div
-                [ A.css
-                    [ displayFlex
-                    , flexGrow (int 1)
-                    , alignItems stretch
-                    , overflowY hidden
-                    ]
-                , Dos.panel
-                ]
-                [ Keyed.node "div"
-                    [ A.css
-                        [ flexGrow (int 1)
-                        , overflowY scroll
-                        , property "-webkit-overflow-scrolling" "touch"
-                        ]
-                    ]
-                  <|
-                    List.map
-                        (\c -> ( c.hash, entry c ))
-                        (cartridgesMatchingSearch model)
-                ]
+        entry cart =
+            ifCartSelected cart model.currentCartridgeHash entrySel entryUnsel <| cart
     in
-    case List.map List.length [ model.cartridges, cartridgesMatchingSearch model ] of
-        [ 0, _ ] ->
-            message "start by clicking \"Add new\" to add a ROM image"
-
-        [ _, 0 ] ->
-            message "no cartridges match the search"
-
-        _ ->
-            list
-
-
-cartridgeSubpageNarrow : Model -> Html Msg
-cartridgeSubpageNarrow model =
-    div
+    [ Keyed.node "div"
         [ A.css
-            [ position absolute
-            , top (Css.em 2)
-            , left (px 0)
-            , width (vw 100)
-            , property "height" "calc(100vh - 2em)"
-            , displayFlex
-            , alignItems stretch
-            , flexDirection column
+            [ boxSizing borderBox
+            , width (Css.vw 100)
+            , paddingTop (Css.em 3.5)
             ]
         ]
-        [ searchInputNarrow model
-        , cartridgeListNarrow model
+      <|
+        List.map (\c -> ( c.hash, entry c )) (cartridgesMatchingSearch model)
+    ]
+
+
+addCartridgeButton : Html Msg
+addCartridgeButton =
+    button
+        [ A.css
+            [ textAlign center
+            , position fixed
+            , right (Css.em 0)
+            , bottom (Css.em 0)
+            , padding2 (Css.em 1) (Css.em 0.75)
+            , Dos.backgroundColor LightBlue |> important
+            , Dos.color LightGray
+            , zIndex (int 10)
+            , active [ Dos.backgroundColor Blue |> important ]
+            ]
         ]
+        [ text "─┼─" ]
+
+
+cartridgeSubpageNarrow : Model -> List (Html Msg)
+cartridgeSubpageNarrow model =
+    searchInputNarrow
+        [ width (vw 100)
+        , position fixed
+        , top (Css.em 2)
+        , left (px 0)
+        , boxSizing borderBox
+        , zIndex (int 10)
+        ]
+        model
+        :: addCartridgeButton
+        :: global
+            [ selector "body" [ paddingBottom (Css.em 5) ] ]
+        :: cartridgeListNarrow model
 
 
 pageNarrow : Model -> List (Html Msg)
-pageNarrow model =
-    [ cartridgeSubpageNarrow model ]
+pageNarrow =
+    cartridgeSubpageNarrow

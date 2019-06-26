@@ -100,10 +100,22 @@ update msg model =
             noop { model | media = media }
 
         ChangeCartridgeFilter cartridgeFilter ->
-            noop { model | cartridgeFilter = cartridgeFilter }
+            let
+                newModel =
+                    { model | cartridgeFilter = cartridgeFilter }
+            in
+            let
+                cmd =
+                    selectionInSearchResults newModel |> Maybe.map (Ports.scrollIntoView Ports.Nearest) |> Maybe.withDefault Cmd.none
+            in
+            ( newModel, cmd )
 
         ClearCartridgeFilter ->
-            noop { model | cartridgeFilter = "" }
+            let
+                cmd =
+                    model.currentCartridgeHash |> Maybe.map (Ports.scrollIntoView Ports.Nearest) |> Maybe.withDefault Cmd.none
+            in
+            ( { model | cartridgeFilter = "" }, cmd )
 
         SelectCartridge hash ->
             noop { model | currentCartridgeHash = Just hash }

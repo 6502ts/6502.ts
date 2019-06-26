@@ -1,4 +1,10 @@
-module Stellerator.View.Form exposing (onCheckChange, onInput, picker, radioGroup)
+module Stellerator.View.Form exposing
+    ( mobileButton
+    , onCheckChange
+    , onInput
+    , picker
+    , radioGroup
+    )
 
 import Css exposing (..)
 import Dos
@@ -30,6 +36,20 @@ picker items tagger value =
         ]
         items
         value
+
+
+mobileButton : List (Attribute msg) -> msg -> String -> Html msg
+mobileButton attr msg label =
+    span
+        [ E.custom "click" <|
+            Decode.succeed
+                { message = msg
+                , stopPropagation = True
+                , preventDefault = True
+                }
+        ]
+        [ button attr [ text label ]
+        ]
 
 
 radioGroup : List (Attribute msg) -> List ( a, String ) -> (a -> msg) -> a -> Html msg
