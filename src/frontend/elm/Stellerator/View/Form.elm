@@ -1,5 +1,6 @@
 module Stellerator.View.Form exposing
     ( mobileButton
+    , onChange
     , onCheckChange
     , onInput
     , picker
@@ -24,15 +25,16 @@ onCheckChange tagger =
     E.preventDefaultOn "change" <| Decode.map (tagger >> (\m -> ( m, True ))) E.targetChecked
 
 
+onChange : (String -> msg) -> Attribute msg
+onChange tagger =
+    E.preventDefaultOn "change" <| Decode.map (tagger >> (\m -> ( m, True ))) E.targetValue
+
+
 picker : List ( String, String ) -> (String -> msg) -> String -> Html msg
 picker items tagger value =
-    let
-        onChange =
-            E.preventDefaultOn "change" <| Decode.map (tagger >> (\m -> ( m, True ))) E.targetValue
-    in
     Dos.select
         [ A.css [ width (pct 100) ]
-        , onChange
+        , onChange tagger
         ]
         items
         value

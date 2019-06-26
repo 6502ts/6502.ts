@@ -408,7 +408,7 @@ searchInputNarrow styles model =
             , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
             , A.placeholder "Search cartridges..."
             , A.value model.cartridgeFilter
-            , Form.onInput ChangeCartridgeFilter
+            , Form.onChange ChangeCartridgeFilter
             ]
             []
         , Form.mobileButton
