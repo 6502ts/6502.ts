@@ -1,4 +1,10 @@
-port module Stellerator.Ports exposing (ScrollPosition(..), mediaUpdate, scrollIntoView, watchMedia)
+port module Stellerator.Ports exposing
+    ( ScrollPosition(..)
+    , addCartridge
+    , mediaUpdate
+    , scrollIntoView
+    , watchMedia
+    )
 
 import Json.Encode as Encode
 
@@ -55,3 +61,15 @@ scrollIntoView scrollPosition id =
                     "nearest"
     in
     scrollIntoView_ ( encodedScrollPosition, id )
+
+
+
+-- AddCartridge
+
+
+port addCartridge_ : () -> Cmd msg
+
+
+addCartridge : Cmd msg
+addCartridge =
+    addCartridge_ ()

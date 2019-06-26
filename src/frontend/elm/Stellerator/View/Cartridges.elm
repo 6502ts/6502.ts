@@ -253,7 +253,7 @@ cartridgeToolbarWide model =
         [ searchInput
         , div
             []
-            [ btn [] [ text "Add new" ]
+            [ btn [ E.onClick AddCartridge ] [ text "Add new" ]
             , btn
                 [ A.disabled <| ifHaveSelection model False True
                 , E.onClick <| Maybe.withDefault None <| Maybe.map DeleteCartridge model.currentCartridgeHash
@@ -511,6 +511,7 @@ addCartridgeButton =
             , zIndex (int 10)
             , active [ Dos.backgroundColor Blue |> important ]
             ]
+        , E.onClick AddCartridge
         ]
         [ text "─┼─" ]
 

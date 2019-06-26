@@ -6,6 +6,7 @@ import { initMediaApi } from './mediaApi';
 import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 import { calculateFromString as md5 } from '../../tools/hash/md5';
 import { initSrollIntoView } from './scrollIntoView';
+import { initAddCartridge } from './addCartridge';
 
 const cartridges: Array<Cartridge> = [
     {
@@ -65,6 +66,7 @@ function main(): void {
 
     initMediaApi(ports);
     initSrollIntoView(ports);
+    initAddCartridge(ports);
 }
 
 window.addEventListener('load', main);

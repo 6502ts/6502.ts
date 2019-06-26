@@ -136,6 +136,7 @@ type Msg
     | DeleteCartridge String
     | ChangeCartridge String ChangeCartridgeMsg
     | ChangeCartridgeViewMode CartridgeViewMode
+    | AddCartridge
     | None
 
 

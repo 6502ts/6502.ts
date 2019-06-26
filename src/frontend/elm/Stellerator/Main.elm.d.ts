@@ -48,6 +48,8 @@ export interface Ports {
     mediaUpdate_: SubscriptionPort<Array<boolean>>;
 
     scrollIntoView_: CommandPort<[ScrollLogicalPosition, string]>;
+
+    addCartridge_: CommandPort<void>;
 }
 
 interface CommandPort<T> {

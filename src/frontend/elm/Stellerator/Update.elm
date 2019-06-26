@@ -212,5 +212,8 @@ update msg model =
             in
             ( { model | cartridgeViewMode = newViewMode }, cmd )
 
+        AddCartridge ->
+            ( model, Ports.addCartridge )
+
         _ ->
             noop model
