@@ -43,7 +43,8 @@ picker items tagger value =
 mobileButton : List (Attribute msg) -> msg -> String -> Html msg
 mobileButton attr msg label =
     span
-        [ E.custom "click" <|
+        [ A.css [ display inlineBlock ]
+        , E.custom "click" <|
             Decode.succeed
                 { message = msg
                 , stopPropagation = True

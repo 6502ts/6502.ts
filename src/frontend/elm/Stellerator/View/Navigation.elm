@@ -65,9 +65,9 @@ emulationState model =
             "running: " ++ format { usLocale | decimals = 2 } speed ++ " MHz"
 
 
-navbar : Model -> List (Html Msg)
-navbar model =
-    case model.media of
+navbar : Model -> Media -> List (Html Msg)
+navbar model media =
+    case media of
         Wide ->
             navbarWide model
 

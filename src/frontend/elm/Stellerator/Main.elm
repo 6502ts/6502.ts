@@ -52,7 +52,7 @@ init flagsJson url key =
     in
     ( { key = key
       , currentRoute = route
-      , media = Wide
+      , media = Nothing
       , emulationState = Stopped
       , helppage = Nothing
       , sideMenu = False
@@ -60,6 +60,7 @@ init flagsJson url key =
       , cartridgeTypes = flags.cartridgeTypes
       , currentCartridgeHash = Nothing
       , cartridgeFilter = ""
+      , cartridgeViewMode = CartridgeViewCartridges
       }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)

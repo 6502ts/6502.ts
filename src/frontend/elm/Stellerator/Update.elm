@@ -97,7 +97,16 @@ update msg model =
             ( newModel, cmd )
 
         ChangeMedia media ->
-            noop { model | media = media }
+            let
+                cmd =
+                    case ( model.currentRoute, selectionInSearchResults model ) of
+                        ( Cartridges, Just hash ) ->
+                            Ports.scrollIntoView Ports.Center hash
+
+                        _ ->
+                            Cmd.none
+            in
+            ( { model | media = Just media, cartridgeViewMode = CartridgeViewCartridges }, cmd )
 
         ChangeCartridgeFilter cartridgeFilter ->
             let
@@ -180,6 +189,27 @@ update msg model =
 
         ToggleSideMenu ->
             noop { model | sideMenu = not model.sideMenu }
+
+        ChangeCartridgeViewMode mode ->
+            let
+                newViewMode =
+                    case ( mode, model.currentCartridgeHash ) of
+                        ( CartridgeViewSettings, Just _ ) ->
+                            CartridgeViewSettings
+
+                        _ ->
+                            CartridgeViewCartridges
+            in
+            let
+                cmd =
+                    case ( newViewMode, model.cartridgeViewMode, selectionInSearchResults model ) of
+                        ( CartridgeViewCartridges, CartridgeViewSettings, Just hash ) ->
+                            Ports.scrollIntoView Ports.Center hash
+
+                        _ ->
+                            Cmd.none
+            in
+            ( { model | cartridgeViewMode = newViewMode }, cmd )
 
         _ ->
             noop model

@@ -2,6 +2,7 @@ module Stellerator.Model exposing
     ( AudioEmulation(..)
     , Cartridge
     , CartridgeType
+    , CartridgeViewMode(..)
     , ChangeCartridgeMsg(..)
     , CpuEmulation(..)
     , EmulationState(..)
@@ -62,6 +63,11 @@ type AudioEmulation
     | PCM
 
 
+type CartridgeViewMode
+    = CartridgeViewCartridges
+    | CartridgeViewSettings
+
+
 type alias Cartridge =
     { hash : String
     , name : String
@@ -85,7 +91,7 @@ type alias CartridgeType =
 type alias Model =
     { key : Nav.Key
     , currentRoute : Route
-    , media : Media
+    , media : Maybe Media
     , emulationState : EmulationState
     , helppage : Maybe String
     , sideMenu : Bool
@@ -93,6 +99,7 @@ type alias Model =
     , currentCartridgeHash : Maybe String
     , cartridgeTypes : List CartridgeType
     , cartridgeFilter : String
+    , cartridgeViewMode : CartridgeViewMode
     }
 
 
@@ -128,6 +135,7 @@ type Msg
     | ClearSelectedCartridge
     | DeleteCartridge String
     | ChangeCartridge String ChangeCartridgeMsg
+    | ChangeCartridgeViewMode CartridgeViewMode
     | None
 
 

@@ -3,7 +3,7 @@ module Stellerator.View.Cartridges exposing (page)
 import Css exposing (..)
 import Css.Global as Sel exposing (children, global, selector)
 import Dos exposing (Color(..))
-import Html.Styled as H exposing (..)
+import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
 import Html.Styled.Keyed as Keyed
@@ -13,6 +13,7 @@ import Stellerator.Model
     exposing
         ( AudioEmulation(..)
         , Cartridge
+        , CartridgeViewMode(..)
         , ChangeCartridgeMsg(..)
         , CpuEmulation(..)
         , Media(..)
@@ -20,9 +21,6 @@ import Stellerator.Model
         , Msg(..)
         , TvMode(..)
         , cartridgesMatchingSearch
-        , nextCartridge
-        , previousCartridge
-        , selectionInSearchResults
         )
 import Stellerator.View.Form as Form
 
@@ -196,9 +194,9 @@ settingsItems model cart =
     ]
 
 
-page : Model -> List (Html Msg)
-page model =
-    case model.media of
+page : Model -> Media -> List (Html Msg)
+page model media =
+    case media of
         Wide ->
             pageWide model
 
@@ -425,10 +423,6 @@ cartridgeListNarrow : Model -> List (Html Msg)
 cartridgeListNarrow model =
     let
         entryUnsel cart =
-            let
-                ifSel =
-                    ifCartSelected cart model.currentCartridgeHash
-            in
             div
                 [ A.id cart.hash
                 , A.css
@@ -448,12 +442,8 @@ cartridgeListNarrow model =
     let
         entrySel cart =
             let
-                ifSel =
-                    ifCartSelected cart model.currentCartridgeHash
-            in
-            let
-                btn styles msg label =
-                    Form.mobileButton [ A.type_ "button", A.css <| property "width" "calc(8 * var(--cw))" :: styles ] msg label
+                btn msg label =
+                    Form.mobileButton [ A.type_ "button", A.css [ property "width" "calc(8 * var(--cw))" ] ] msg label
             in
             div
                 [ A.id cart.hash
@@ -468,9 +458,17 @@ cartridgeListNarrow model =
                     ]
                 ]
                 [ text cart.name
-                , div [ A.css [ textAlign left, marginTop (Css.em 1), marginBottom (Css.em -0.5) ] ]
-                    [ btn [] None "Edit"
-                    , btn [ float right ] None "Run"
+                , div
+                    [ A.css
+                        [ displayFlex
+                        , textAlign left
+                        , marginTop (Css.em 1)
+                        , marginBottom (Css.em -0.5)
+                        , justifyContent spaceBetween
+                        ]
+                    ]
+                    [ btn (ChangeCartridgeViewMode CartridgeViewSettings) "Edit"
+                    , btn None "Run"
                     ]
                 ]
     in
@@ -482,7 +480,7 @@ cartridgeListNarrow model =
         [ A.css
             [ boxSizing borderBox
             , width (Css.vw 100)
-            , paddingTop (Css.em 3.5)
+            , marginTop (Css.em 3.5)
             ]
         ]
       <|
@@ -525,6 +523,36 @@ cartridgeSubpageNarrow model =
         :: cartridgeListNarrow model
 
 
+settingsSubpageNarrow : Model -> List (Html Msg)
+settingsSubpageNarrow _ =
+    let
+        btn msg label =
+            Form.mobileButton [ A.type_ "button", A.css [ property "width" "calc(10 * var(--cw))" ] ] msg label
+    in
+    [ form
+        [ A.css
+            [ paddingBottom (Css.em 0.5)
+            , displayFlex
+            , justifyContent spaceBetween
+            , position fixed
+            , top (Css.em 2)
+            , left (px 0)
+            , width (vw 100)
+            , boxSizing borderBox
+            ]
+        , Dos.panel
+        ]
+        [ btn (ChangeCartridgeViewMode CartridgeViewCartridges) "Back"
+        , btn None "Delete"
+        ]
+    ]
+
+
 pageNarrow : Model -> List (Html Msg)
-pageNarrow =
-    cartridgeSubpageNarrow
+pageNarrow model =
+    case model.cartridgeViewMode of
+        CartridgeViewCartridges ->
+            cartridgeSubpageNarrow model
+
+        CartridgeViewSettings ->
+            settingsSubpageNarrow model

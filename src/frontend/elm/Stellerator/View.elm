@@ -1,4 +1,4 @@
-module Stellerator.View exposing (body, cartridges, emulation, help, settings, view)
+module Stellerator.View exposing (view)
 
 import Browser
 import Html.Styled exposing (..)
@@ -9,41 +9,41 @@ import Stellerator.View.Help as Help
 import Stellerator.View.Navigation as Navigation
 
 
-cartridges : Model -> List (Html Msg)
-cartridges model =
-    Navigation.navbar model
-        ++ Cartridges.page model
+settings : List (Html Msg)
+settings =
+    [ div [] [ text "Happy scrappy settings page" ] ]
 
 
-settings : Model -> List (Html Msg)
-settings model =
-    Navigation.navbar model ++ [ div [] [ text "Happy scrappy settings page" ] ]
-
-
-emulation : Model -> List (Html Msg)
-emulation model =
-    Navigation.navbar model ++ [ div [] [ text "Happy scrappy emulation page" ] ]
-
-
-help : Model -> List (Html Msg)
-help model =
-    Navigation.navbar model ++ Help.page model
+emulation : List (Html Msg)
+emulation =
+    [ div [] [ text "Happy scrappy emulation page" ] ]
 
 
 body : Model -> List (Html Msg)
 body model =
-    case model.currentRoute of
-        Cartridges ->
-            cartridges model
+    let
+        navbar =
+            Maybe.map (Navigation.navbar model) model.media |> Maybe.withDefault []
+    in
+    let
+        content =
+            case ( model.currentRoute, model.media ) of
+                ( Cartridges, Just media ) ->
+                    Cartridges.page model media
 
-        Settings ->
-            settings model
+                ( Settings, Just _ ) ->
+                    settings
 
-        Emulation ->
-            emulation model
+                ( Emulation, Just _ ) ->
+                    emulation
 
-        Help ->
-            help model
+                ( Help, Just _ ) ->
+                    Help.page model
+
+                _ ->
+                    []
+    in
+    navbar ++ content
 
 
 view : Model -> Browser.Document Msg
