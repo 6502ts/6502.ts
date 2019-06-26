@@ -33,7 +33,7 @@ onChange tagger =
 picker : List ( String, String ) -> (String -> msg) -> String -> Html msg
 picker items tagger value =
     Dos.select
-        [ A.css [ width (pct 100) ]
+        [ A.css [ maxWidth (pct 100) ]
         , onChange tagger
         ]
         items
@@ -60,7 +60,7 @@ radioGroup attributes items tagger value =
     let
         radio item =
             label
-                [ A.css [ cursor pointer, Dos.marginRightCw 2, whiteSpace noWrap ] ]
+                [ A.css [ cursor pointer, whiteSpace noWrap, pseudoClass "not(:first-of-type)" [ property "margin-left" "calc(2 * var(--cw))" ] ] ]
                 [ text <| Tuple.second item
                 , input
                     [ A.type_ "radio"

@@ -98,6 +98,7 @@ select {
     border: none;
     outline: none;
     background: none;
+    display: inline; /* Our good friend iOS needs this for some reason or another */
 
     cursor: pointer;
 

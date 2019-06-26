@@ -99,6 +99,10 @@ settingsItems model cart =
                 ]
     in
     let
+        withLabel lbl control =
+            label [ A.css [ display block, width (pct 100) ] ] [ text lbl, br [] [], control ]
+    in
+    let
         changeCartridge msg =
             msg >> ChangeCartridge cart.hash
     in
@@ -128,19 +132,19 @@ settingsItems model cart =
                 ]
                 []
     in
-    [ label [] [ text "Cartridge name:" ]
-    , input
-        [ A.type_ "text"
-        , A.value cart.name
-        , A.css [ width (pct 100) ]
-        , Form.onInput (changeCartridge ChangeCartridgeName)
-        ]
-        []
-    , label [] [ text "Cartridge type:" ]
-    , Form.picker
-        (List.map (\t -> ( t.key, t.description )) model.cartridgeTypes)
-        (changeCartridge ChangeCartridgeType)
-        cart.cartridgeType
+    [ withLabel "Cartridge name:" <|
+        input
+            [ A.type_ "text"
+            , A.value cart.name
+            , A.css [ width (pct 100) ]
+            , Form.onInput (changeCartridge ChangeCartridgeName)
+            ]
+            []
+    , withLabel "Cartridge type:" <|
+        Form.picker
+            (List.map (\t -> ( t.key, t.description )) model.cartridgeTypes)
+            (changeCartridge ChangeCartridgeType)
+            cart.cartridgeType
     , oneline "TV mode:" <|
         Form.radioGroup
             []
@@ -170,8 +174,17 @@ settingsItems model cart =
             cart.audioEmulation
     , oneline "Volume:" <|
         span []
-            [ input
-                [ A.css [ property "width" "calc(30 * var(--cw))", Dos.marginRightCw 2 ]
+            [ let
+                w =
+                    case model.media of
+                        Just Narrow ->
+                            "calc(100vw - 10 * var(--cw))"
+
+                        _ ->
+                            "calc(40 * var(--cw))"
+              in
+              input
+                [ A.css [ property "width" w, Dos.marginRightCw 2 ]
                 , A.type_ "range"
                 , A.min "0"
                 , A.max "100"
@@ -523,11 +536,31 @@ cartridgeSubpageNarrow model =
         :: cartridgeListNarrow model
 
 
-settingsSubpageNarrow : Model -> List (Html Msg)
-settingsSubpageNarrow _ =
+settingsSubpageNarrow : Model -> Cartridge -> List (Html Msg)
+settingsSubpageNarrow model cart =
     let
         btn msg label =
             Form.mobileButton [ A.type_ "button", A.css [ property "width" "calc(10 * var(--cw))" ] ] msg label
+    in
+    let
+        settingsContainer items =
+            form
+                [ Dos.panel
+                , Dos.panelLabel "Settings:"
+                , A.css
+                    [ flexDirection column
+                    , alignItems flexStart
+                    , children
+                        [ Sel.label
+                            [ pseudoClass "not(:first-of-type)" [ paddingTop (Css.em 1) ]
+                            , display block
+                            ]
+                        ]
+                    , marginTop (Css.em 4)
+                    , paddingTop (Css.em 2)
+                    ]
+                ]
+                items
     in
     [ form
         [ A.css
@@ -545,14 +578,15 @@ settingsSubpageNarrow _ =
         [ btn (ChangeCartridgeViewMode CartridgeViewCartridges) "Back"
         , btn None "Delete"
         ]
+    , settingsContainer <| settingsItems model cart
     ]
 
 
 pageNarrow : Model -> List (Html Msg)
 pageNarrow model =
-    case model.cartridgeViewMode of
-        CartridgeViewCartridges ->
-            cartridgeSubpageNarrow model
+    case ( model.cartridgeViewMode, Maybe.andThen (\h -> LE.find ((==) h << .hash) model.cartridges) model.currentCartridgeHash ) of
+        ( CartridgeViewSettings, Just cart ) ->
+            settingsSubpageNarrow model cart
 
-        CartridgeViewSettings ->
-            settingsSubpageNarrow model
+        _ ->
+            cartridgeSubpageNarrow model
