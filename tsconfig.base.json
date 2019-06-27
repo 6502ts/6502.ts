@@ -18,6 +18,7 @@
         "noImplicitThis": true,
         "removeComments": true,
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "esModuleInterop": true,
         "plugins": [
             {

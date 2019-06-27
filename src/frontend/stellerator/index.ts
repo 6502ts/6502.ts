@@ -1,12 +1,16 @@
+import 'reflect-metadata';
+
 import Elm, { Cartridge, TvMode, AudioEmulation, CpuEmulation, CartridgeType } from '../elm/Stellerator/Main.elm';
 import '../theme/dos.scss';
 
 import { initialize as initializeRangetouch } from '../common/rangetouch';
-import { initMediaApi } from './mediaApi';
 import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 import { calculateFromString as md5 } from '../../tools/hash/md5';
-import { initSrollIntoView } from './scrollIntoView';
-import { initAddCartridge } from './addCartridge';
+
+import { createContainer } from './service/di';
+import MediaApi from './service/MediaApi';
+import ScrollIntoView from './service/ScrollIntoView';
+import AddCartridge from './service/AddCartridge';
 
 const cartridges: Array<Cartridge> = [
     {
@@ -57,6 +61,8 @@ function main(): void {
         description: CartridgeInfo.describeCartridgeType(cartridgeType)
     }));
 
+    const container = createContainer();
+
     const { ports } = Elm.Stellerator.Main.init({
         flags: {
             cartridges,
@@ -64,9 +70,9 @@ function main(): void {
         }
     });
 
-    initMediaApi(ports);
-    initSrollIntoView(ports);
-    initAddCartridge(ports);
+    container.get(MediaApi).init(ports);
+    container.get(ScrollIntoView).init(ports);
+    container.get(AddCartridge).init(ports);
 }
 
 window.addEventListener('load', main);

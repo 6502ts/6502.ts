@@ -20,8 +20,10 @@
   },
   "dependencies": {
     "async-mutex": "^0.1.3",
+    "inversify": "^5.0.1",
     "md5": "^2.2.1",
     "microevent.ts": "^0.2.1",
+    "reflect-metadata": "^0.1.13",
     "screenfull": "^4.2.0",
     "seedrandom": "^3.0.1",
     "setimmediate2": "^3.0.0",

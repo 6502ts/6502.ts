@@ -1,4 +1,22 @@
-import { Ports } from '../elm/Stellerator/Main.elm';
+import { Ports } from '../../elm/Stellerator/Main.elm';
+import { injectable } from 'inversify';
+
+@injectable()
+class ScrollIntoView {
+    init(ports: Ports): void {
+        ports.scrollIntoView_.subscribe(this._scrollIntoView);
+    }
+
+    private _scrollIntoView = ([position, id]: [ScrollLogicalPosition, string]) => {
+        const node = document.getElementById(id);
+
+        if (node) {
+            node.scrollIntoView({ block: position });
+        } else {
+            new Task(position, id).start();
+        }
+    };
+}
 
 class Task {
     constructor(private _position: ScrollLogicalPosition, private _id: string, private _timeout = 100) {}
@@ -33,14 +51,4 @@ class Task {
     private _timeoutHandle: any = null;
 }
 
-export function initSrollIntoView(ports: Ports): void {
-    ports.scrollIntoView_.subscribe(([position, id]) => {
-        const node = document.getElementById(id);
-
-        if (node) {
-            node.scrollIntoView({ block: position });
-        } else {
-            new Task(position, id).start();
-        }
-    });
-}
+export default ScrollIntoView;
