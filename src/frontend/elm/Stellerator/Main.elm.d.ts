@@ -45,11 +45,12 @@ export interface Options {
 
 export interface Ports {
     watchMedia_: CommandPort<Array<string>>;
-    mediaUpdate_: SubscriptionPort<Array<boolean>>;
+    onMediaUpdate_: SubscriptionPort<Array<boolean>>;
 
     scrollIntoView_: CommandPort<[ScrollLogicalPosition, string]>;
 
     addCartridge_: CommandPort<void>;
+    onNewCartridges_: SubscriptionPort<Array<Cartridge>>;
 }
 
 interface CommandPort<T> {

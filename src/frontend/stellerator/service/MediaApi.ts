@@ -30,7 +30,7 @@ class MediaApi {
         this._updateQueries();
     };
 
-    private _updateQueries = (): void => this._ports.mediaUpdate_.send(this._queries.map(q => q.matches));
+    private _updateQueries = (): void => this._ports.onMediaUpdate_.send(this._queries.map(q => q.matches));
 
     private _ports: Ports;
     private _queries: Array<MediaQueryList> = [];

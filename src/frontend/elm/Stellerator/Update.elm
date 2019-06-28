@@ -1,6 +1,7 @@
 module Stellerator.Update exposing (update)
 
 import Browser.Navigation as Nav
+import Dict
 import List.Extra as LE
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
@@ -238,6 +239,12 @@ update msg model =
 
         AddCartridge ->
             ( model, Ports.addCartridge )
+
+        AddNewCartridges cartridges ->
+            noop
+                { model
+                    | cartridges = List.foldl (\c d -> Dict.insert c.hash c d) Dict.empty (model.cartridges ++ cartridges) |> Dict.values
+                }
 
         _ ->
             noop model

@@ -72,18 +72,21 @@ init flagsJson url key =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Ports.mediaUpdate
-        (List.head
-            >> Maybe.map
-                (\x ->
-                    if x then
-                        ChangeMedia Narrow
+    Sub.batch
+        [ Ports.onMediaUpdate
+            (List.head
+                >> Maybe.map
+                    (\x ->
+                        if x then
+                            ChangeMedia Narrow
 
-                    else
-                        ChangeMedia Wide
-                )
-            >> Maybe.withDefault None
-        )
+                        else
+                            ChangeMedia Wide
+                    )
+                >> Maybe.withDefault None
+            )
+        , Ports.onNewCartridges <| Maybe.map AddNewCartridges >> Maybe.withDefault None
+        ]
 
 
 main : Platform.Program Value Model Msg

@@ -39,10 +39,7 @@ const cartridges: Array<Cartridge> = [
         'Pitfall II',
         '[HB] Stay Frosty 2',
         'Communist mutants from space',
-        'Winter Games (1987) (Epyx, Steven A. Baker, Tod Frye, Peter Engelbrite) (80561-00251) (PAL)',
-        ...Array(50)
-            .fill(undefined)
-            .map((_, i) => `game ${i + 1}`)
+        'Winter Games (1987) (Epyx, Steven A. Baker, Tod Frye, Peter Engelbrite) (80561-00251) (PAL)'
     ].map(name => ({
         hash: md5(name),
         name,
