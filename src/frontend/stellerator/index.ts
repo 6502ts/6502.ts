@@ -7,10 +7,10 @@ import { initialize as initializeRangetouch } from '../common/rangetouch';
 import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 import { calculateFromString as md5 } from '../../tools/hash/md5';
 
-import { createContainer } from './service/di';
 import MediaApi from './service/MediaApi';
 import ScrollIntoView from './service/ScrollIntoView';
 import AddCartridge from './service/AddCartridge';
+import { Container } from 'inversify';
 
 const cartridges: Array<Cartridge> = [
     {
@@ -61,7 +61,7 @@ function main(): void {
         description: CartridgeInfo.describeCartridgeType(cartridgeType)
     }));
 
-    const container = createContainer();
+    const container = new Container({ autoBindInjectable: true, defaultScope: 'Singleton' });
 
     const { ports } = Elm.Stellerator.Main.init({
         flags: {
