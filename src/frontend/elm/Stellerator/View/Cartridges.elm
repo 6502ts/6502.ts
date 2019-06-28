@@ -107,6 +107,7 @@ settingsItems model cart =
             msg >> ChangeCartridge cart.hash
     in
     let
+        optionalNumberInput : (Maybe Int -> ChangeCartridgeMsg) -> Maybe Int -> Html Msg
         optionalNumberInput tagger value =
             Form.textInput
                 [ A.type_ "text"
@@ -119,16 +120,7 @@ settingsItems model cart =
                             changeCartridge tagger <| Nothing
 
                         else
-                            case String.toInt s of
-                                Just x ->
-                                    if x >= 0 then
-                                        changeCartridge tagger <| Just x
-
-                                    else
-                                        None
-
-                                Nothing ->
-                                    None
+                            Maybe.map (changeCartridge tagger << Just) (String.toInt s) |> Maybe.withDefault None
                 ]
     in
     [ withLabel "Cartridge name:" <|

@@ -26,10 +26,34 @@ updateCartridge cartridgeTypes msg cartridge =
             { cartridge | emulatePaddles = emulatePaddles }
 
         ChangeCartridgeRngSeed seed ->
-            { cartridge | rngSeed = seed }
+            let
+                newSeed =
+                    Maybe.andThen
+                        (\x ->
+                            if x >= 0 then
+                                Just x
+
+                            else
+                                cartridge.rngSeed
+                        )
+                        seed
+            in
+            { cartridge | rngSeed = newSeed }
 
         ChangeCartridgeFirstVisibleLine line ->
-            { cartridge | firstVisibleLine = line }
+            let
+                newLine =
+                    Maybe.andThen
+                        (\x ->
+                            if x >= 0 && x < 100 then
+                                Just x
+
+                            else
+                                cartridge.firstVisibleLine
+                        )
+                        line
+            in
+            { cartridge | firstVisibleLine = newLine }
 
         ChangeCartridgeCpuEmulation emulation ->
             { cartridge | cpuEmulation = emulation }
