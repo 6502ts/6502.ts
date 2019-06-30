@@ -85,7 +85,7 @@ subscriptions _ =
                     )
                 >> Maybe.withDefault None
             )
-        , Ports.onNewCartridges <| Maybe.map AddNewCartridges >> Maybe.withDefault None
+        , Ports.onNewCartridges AddNewCartridges
         ]
 
 

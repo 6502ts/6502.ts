@@ -243,7 +243,10 @@ update msg model =
         AddNewCartridges cartridges ->
             noop
                 { model
-                    | cartridges = List.foldl (\c d -> Dict.insert c.hash c d) Dict.empty (model.cartridges ++ cartridges) |> Dict.values
+                    | cartridges =
+                        List.foldl (\c d -> Dict.insert c.hash c d) Dict.empty (model.cartridges ++ cartridges)
+                            |> Dict.values
+                            |> List.sortBy .name
                 }
 
         _ ->

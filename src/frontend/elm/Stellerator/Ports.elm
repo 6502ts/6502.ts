@@ -81,16 +81,16 @@ addCartridge =
 port onNewCartridges_ : (Decode.Value -> msg) -> Sub msg
 
 
-onNewCartridges : (Maybe (List Cartridge) -> msg) -> Sub msg
+onNewCartridges : (List Cartridge -> msg) -> Sub msg
 onNewCartridges tagger =
     let
-        decoder : Decode.Value -> Maybe (List Cartridge)
+        decoder : Decode.Value -> List Cartridge
         decoder v =
             case Decode.decodeValue (Decode.list decodeCartridge) v of
                 Ok x ->
-                    Just x
+                    x
 
                 Err _ ->
-                    Nothing
+                    []
     in
     onNewCartridges_ <| tagger << decoder
