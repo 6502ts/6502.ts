@@ -30,7 +30,7 @@ import Stellerator.View.Form as Form
 -- COMMON
 
 
-onKeyDown : (( Bool, Int ) -> Msg) -> Attribute Msg
+onKeyDown : (( Bool, String ) -> Msg) -> Attribute Msg
 onKeyDown tagger =
     let
         t m =
@@ -42,7 +42,7 @@ onKeyDown tagger =
                     ( m, True )
     in
     E.preventDefaultOn "keydown"
-        (Decode.map2 Tuple.pair (Decode.field "ctrlKey" Decode.bool) (Decode.field "keyCode" Decode.int)
+        (Decode.map2 Tuple.pair (Decode.field "ctrlKey" Decode.bool) (Decode.field "key" Decode.string)
             |> Decode.map tagger
             |> Decode.map t
         )
@@ -72,18 +72,18 @@ ifCartSelected cartridge hash a b =
         b
 
 
-keyboardHandler : Model -> ( Bool, Int ) -> Msg
+keyboardHandler : Model -> ( Bool, String ) -> Msg
 keyboardHandler model code =
     case code of
-        ( False, 38 ) ->
+        ( False, "ArrowUp" ) ->
             Maybe.map SelectPreviousCartridgeMatchingSearch model.currentCartridgeHash
                 |> Maybe.withDefault SelectLastCartridgeMatchingSearch
 
-        ( False, 40 ) ->
+        ( False, "ArrowDown" ) ->
             Maybe.map SelectNextCartridgeMatchingSearch model.currentCartridgeHash
                 |> Maybe.withDefault SelectFirstCartridgeMatchingSearch
 
-        ( True, 68 ) ->
+        ( True, "d" ) ->
             Maybe.map DeleteCartridge (selectionInSearchResults model) |> Maybe.withDefault None
 
         _ ->
