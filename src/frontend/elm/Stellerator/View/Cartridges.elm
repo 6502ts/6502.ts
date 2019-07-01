@@ -50,7 +50,7 @@ onKeyDown tagger =
 
 ifHaveSelection : Model -> a -> a -> a
 ifHaveSelection model a b =
-    case model.currentCartridgeHash of
+    case selectionInSearchResults model of
         Just _ ->
             a
 

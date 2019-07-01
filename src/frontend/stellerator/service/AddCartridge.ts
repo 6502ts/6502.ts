@@ -1,4 +1,6 @@
 import { injectable } from 'inversify';
+import JSZip from 'jszip';
+
 import { Ports, Cartridge, TvMode } from '../../elm/Stellerator/Main.elm';
 import { calculateFromUint8Array as md5sum } from '../../../tools/hash/md5';
 import CartridgeDetector from '../../../machine/stella/cartridge/CartridgeDetector';
@@ -7,7 +9,7 @@ import CartridgeDetector from '../../../machine/stella/cartridge/CartridgeDetect
 class AddCartridge {
     constructor() {
         this._input.type = 'file';
-        this._input.accept = '.bin, .a26';
+        this._input.accept = '.bin, .a26, .zip';
         this._input.multiple = true;
 
         this._input.addEventListener('change', this._onCartridgeAdded);
@@ -26,14 +28,14 @@ class AddCartridge {
     private _onCartridgeAdded = async (e: Event): Promise<void> => {
         const target: HTMLInputElement = e.target as any;
 
-        const cartridges = await Promise.all<Cartridge | undefined>(
-            Array.prototype.map.call(target.files, (file: File) => this._processCartridge(file))
-        );
+        const cartridges = (await Promise.all(Array.prototype.map.call(target.files, (f: File) =>
+            this._processFile(f)
+        ) as Array<Array<Cartridge>>)).reduce((acc, x) => acc.concat(x), []);
 
-        this._ports.onNewCartridges_.send(cartridges.filter(c => !!c));
+        this._ports.onNewCartridges_.send(cartridges);
     };
 
-    private async _processCartridge(file: File): Promise<Cartridge | undefined> {
+    private async _processFile(file: File): Promise<Array<Cartridge>> {
         try {
             const content = await new Promise<Uint8Array>((resolve, reject) => {
                 const reader = new FileReader();
@@ -44,22 +46,38 @@ class AddCartridge {
                 reader.readAsArrayBuffer(file);
             });
 
-            const hash = md5sum(content);
-            const name = file.name.replace(/\..*?$/, '');
-            const tvMode = this._tvModeFromName(name);
-            const cartridgeType = this._detector.detectCartridgeType(content);
+            if (file.name.match(/.zip$/i)) {
+                const zip = new JSZip();
 
-            return {
-                hash,
-                name,
-                tvMode,
-                cartridgeType,
-                emulatePaddles: false,
-                volume: 100
-            };
+                await zip.loadAsync(content);
+
+                return await Promise.all(
+                    zip
+                        .file(/\.(bin|a26)$/i)
+                        .map(f => f.async('uint8array').then(c => this._createCartridge(f.name.replace(/.*\//, ''), c)))
+                );
+            } else {
+                return [this._createCartridge(file.name, content)];
+            }
         } catch (_) {
-            return undefined;
+            return [];
         }
+    }
+
+    private _createCartridge(filename: string, content: Uint8Array): Cartridge {
+        const hash = md5sum(content);
+        const name = filename.replace(/\..*?$/, '');
+        const tvMode = this._tvModeFromName(name);
+        const cartridgeType = this._detector.detectCartridgeType(content);
+
+        return {
+            hash,
+            name,
+            tvMode,
+            cartridgeType,
+            emulatePaddles: false,
+            volume: 100
+        };
     }
 
     private _tvModeFromName(name: string): TvMode {

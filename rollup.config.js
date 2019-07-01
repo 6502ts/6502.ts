@@ -10,6 +10,8 @@ import html from 'rollup-plugin-bundle-html';
 import scss from 'rollup-plugin-scss';
 import copy from 'rollup-plugin-copy';
 import globals from 'rollup-plugin-node-globals';
+import replace from 'rollup-plugin-replace';
+import sizes from 'rollup-plugin-sizes';
 import path from 'path';
 
 const worker = ({ input, output }) => ({
@@ -65,6 +67,12 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
             includePaths: [path.resolve(__dirname, 'node_modules')],
             outputStyle: 'compressed'
         }),
+        replace({
+            include: 'node_modules/jszip/**/*.js',
+            values: {
+                'readable-stream': `stream`
+            }
+        }),
         commonjs({
             namedExports: {
                 'node_modules/seedrandom/index.js': ['alea'],
@@ -99,7 +107,8 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
         copy({
             targets: ['src/frontend/theme/assets', ...extraAssets],
             outputFolder: output
-        })
+        }),
+        sizes()
     ],
     onwarn: (warning, warn) => {
         if (warning.code === 'EVAL' && warning.id.match(/thumbulator\.js$/)) return;
