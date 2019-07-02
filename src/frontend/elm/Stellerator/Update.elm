@@ -152,7 +152,7 @@ update msg model =
             ( { model | cartridgeFilter = "" }, cmd )
 
         SelectCartridge hash ->
-            noop { model | currentCartridgeHash = Just hash }
+            selectAndScrollToCart <| Just hash
 
         SelectNextCartridgeMatchingSearch hash ->
             selectAndScrollToCart <| Maybe.map .hash <| nextCartridge (cartridgesMatchingSearch model) hash
@@ -241,13 +241,21 @@ update msg model =
             ( model, Ports.addCartridge )
 
         AddNewCartridges cartridges ->
-            noop
-                { model
-                    | cartridges =
-                        List.foldl (\c d -> Dict.insert c.hash c d) Dict.empty (model.cartridges ++ cartridges)
-                            |> Dict.values
-                            |> List.sortBy .name
-                }
+            let
+                modelWithNewCartridges =
+                    { model
+                        | cartridges =
+                            List.foldl (\c d -> Dict.insert c.hash c d) Dict.empty (model.cartridges ++ cartridges)
+                                |> Dict.values
+                                |> List.sortBy (String.toUpper << .name)
+                    }
+            in
+            case cartridges of
+                hd :: _ ->
+                    update (SelectCartridge hd.hash) modelWithNewCartridges
+
+                _ ->
+                    noop modelWithNewCartridges
 
         _ ->
             noop model

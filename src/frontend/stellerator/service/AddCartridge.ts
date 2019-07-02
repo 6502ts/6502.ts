@@ -32,7 +32,9 @@ class AddCartridge {
             this._processFile(f)
         ) as Array<Promise<Array<Cartridge>>>)).reduce((acc, x) => acc.concat(x), []);
 
-        this._ports.onNewCartridges_.send(cartridges);
+        const cartridgesByHash = new Map(cartridges.map(c => [c.hash, c]));
+
+        this._ports.onNewCartridges_.send(Array.from(cartridgesByHash.values()));
     };
 
     private async _processFile(file: File): Promise<Array<Cartridge>> {
@@ -54,6 +56,7 @@ class AddCartridge {
                 return await Promise.all(
                     zip
                         .file(/\.(bin|a26)$/i)
+                        .filter(f => !f.dir)
                         .map(f => f.async('uint8array').then(c => this._createCartridge(f.name.replace(/.*\//, ''), c)))
                 );
             } else {
@@ -66,7 +69,7 @@ class AddCartridge {
 
     private _createCartridge(filename: string, content: Uint8Array): Cartridge {
         const hash = md5sum(content);
-        const name = filename.replace(/\..*?$/, '');
+        const name = filename.replace(/\.[^\.]*$/, '');
         const tvMode = this._tvModeFromName(name);
         const cartridgeType = this._detector.detectCartridgeType(content);
 
