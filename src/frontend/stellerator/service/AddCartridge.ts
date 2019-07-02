@@ -7,14 +7,6 @@ import CartridgeDetector from '../../../machine/stella/cartridge/CartridgeDetect
 
 @injectable()
 class AddCartridge {
-    constructor() {
-        this._input.type = 'file';
-        this._input.accept = '.bin, .a26, .zip';
-        this._input.multiple = true;
-
-        this._input.addEventListener('change', this._onCartridgeAdded);
-    }
-
     init(ports: Ports): void {
         this._ports = ports;
 
@@ -22,6 +14,17 @@ class AddCartridge {
     }
 
     private _addCartridge = (): void => {
+        if (this._input) {
+            this._input.removeEventListener('change', this._onCartridgeAdded);
+        }
+
+        this._input = document.createElement('input');
+        this._input.type = 'file';
+        this._input.accept = '.bin, .a26, .zip';
+        this._input.multiple = true;
+
+        this._input.addEventListener('change', this._onCartridgeAdded);
+
         this._input.click();
     };
 
@@ -95,7 +98,7 @@ class AddCartridge {
         return TvMode.ntsc;
     }
 
-    private _input = document.createElement('input');
+    private _input: HTMLInputElement = null;
     private _ports: Ports;
     private _detector = new CartridgeDetector();
 }
