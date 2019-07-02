@@ -30,7 +30,7 @@ class AddCartridge {
 
         const cartridges = (await Promise.all(Array.prototype.map.call(target.files, (f: File) =>
             this._processFile(f)
-        ) as Array<Array<Cartridge>>)).reduce((acc, x) => acc.concat(x), []);
+        ) as Array<Promise<Array<Cartridge>>>)).reduce((acc, x) => acc.concat(x), []);
 
         this._ports.onNewCartridges_.send(cartridges);
     };
