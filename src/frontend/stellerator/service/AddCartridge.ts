@@ -1,12 +1,15 @@
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import JSZip from 'jszip';
 
-import { Ports, Cartridge, TvMode } from '../../elm/Stellerator/Main.elm';
+import { Ports, TvMode } from '../../elm/Stellerator/Main.elm';
 import { calculateFromUint8Array as md5sum } from '../../../tools/hash/md5';
 import CartridgeDetector from '../../../machine/stella/cartridge/CartridgeDetector';
+import Storage, { CartridgeWithImage } from './Storage';
 
 @injectable()
 class AddCartridge {
+    constructor(@inject(Storage) private _storage: Storage) {}
+
     init(ports: Ports): void {
         this._ports = ports;
 
@@ -33,14 +36,16 @@ class AddCartridge {
 
         const cartridges = (await Promise.all(Array.prototype.map.call(target.files, (f: File) =>
             this._processFile(f)
-        ) as Array<Promise<Array<Cartridge>>>)).reduce((acc, x) => acc.concat(x), []);
+        ) as Array<Promise<Array<CartridgeWithImage>>>)).reduce((acc, x) => acc.concat(x), []);
 
-        const cartridgesByHash = new Map(cartridges.map(c => [c.hash, c]));
+        const cartridgesDeduped = Array.from(new Map(cartridges.map(c => [c.cartridge.hash, c])).values());
 
-        this._ports.onNewCartridges_.send(Array.from(cartridgesByHash.values()));
+        await this._storage.insertCartridges(cartridgesDeduped);
+
+        this._ports.onNewCartridges_.send(Array.from(cartridgesDeduped.map(c => c.cartridge)));
     };
 
-    private async _processFile(file: File): Promise<Array<Cartridge>> {
+    private async _processFile(file: File): Promise<Array<CartridgeWithImage>> {
         try {
             const content = await new Promise<Uint8Array>((resolve, reject) => {
                 const reader = new FileReader();
@@ -70,19 +75,22 @@ class AddCartridge {
         }
     }
 
-    private _createCartridge(filename: string, content: Uint8Array): Cartridge {
+    private _createCartridge(filename: string, content: Uint8Array): CartridgeWithImage {
         const hash = md5sum(content);
         const name = filename.replace(/\.[^\.]*$/, '');
         const tvMode = this._tvModeFromName(name);
         const cartridgeType = this._detector.detectCartridgeType(content);
 
         return {
-            hash,
-            name,
-            tvMode,
-            cartridgeType,
-            emulatePaddles: false,
-            volume: 100
+            cartridge: {
+                hash,
+                name,
+                tvMode,
+                cartridgeType,
+                emulatePaddles: false,
+                volume: 100
+            },
+            image: content
         };
     }
 
