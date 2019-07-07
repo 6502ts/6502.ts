@@ -19,6 +19,7 @@ const cartridges: Array<Cartridge> = [
         cartridgeType: CartridgeInfo.CartridgeType.bankswitch_32k_F4,
         tvMode: TvMode.ntsc,
         emulatePaddles: false,
+        phosphorEmulation: true,
         volume: 66
     },
     {

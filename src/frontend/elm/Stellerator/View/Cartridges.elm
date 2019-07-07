@@ -170,6 +170,12 @@ settingsItems model cart =
             [ ( Nothing, "Default" ), ( Just PCM, "PCM" ), ( Just Waveform, "Waveform" ) ]
             (changeCartridge ChangeCartridgeAudioEmulation)
             cart.audioEmulation
+    , oneline "Phosphor Emulation:" <|
+        Form.radioGroup
+            []
+            [ ( Nothing, "Default" ), ( Just True, "On" ), ( Just False, "Off" ) ]
+            (changeCartridge ChangeCartridgePhosphorEmulation)
+            cart.phosphorEmulation
     , oneline "Volume:" <|
         span []
             [ let

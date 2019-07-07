@@ -62,6 +62,9 @@ updateCartridge cartridgeTypes msg cartridge =
         ChangeCartridgeAudioEmulation emulation ->
             { cartridge | audioEmulation = emulation }
 
+        ChangeCartridgePhosphorEmulation emulation ->
+            { cartridge | phosphorEmulation = emulation }
+
         ChangeCartridgeVolume vol ->
             { cartridge | volume = vol }
 

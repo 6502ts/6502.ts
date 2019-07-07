@@ -78,6 +78,7 @@ type alias Cartridge =
     , firstVisibleLine : Maybe Int
     , cpuEmulation : Maybe CpuEmulation
     , audioEmulation : Maybe AudioEmulation
+    , phosphorEmulation : Maybe Bool
     , volume : Int
     }
 
@@ -116,6 +117,7 @@ type ChangeCartridgeMsg
     | ChangeCartridgeFirstVisibleLine (Maybe Int)
     | ChangeCartridgeCpuEmulation (Maybe CpuEmulation)
     | ChangeCartridgeAudioEmulation (Maybe AudioEmulation)
+    | ChangeCartridgePhosphorEmulation (Maybe Bool)
     | ChangeCartridgeVolume Int
 
 
@@ -270,6 +272,7 @@ decodeCartridge =
         |> optional "firstVisibleLine" (maybe int) Nothing
         |> optional "cpuEmulation" (maybe decodeCpuEmulation) Nothing
         |> optional "audioEmulation" (maybe decodeAudioEmulation) Nothing
+        |> optional "phosphorEmulation" (maybe bool) Nothing
         |> required "volume" int
 
 

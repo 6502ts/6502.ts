@@ -26,6 +26,7 @@ export interface Cartridge {
     firstVisibleLine?: number;
     cpuEmulation?: CpuEmulation;
     audioEmulation?: AudioEmulation;
+    phosphorEmulation?: boolean;
     volume: number;
 }
 
