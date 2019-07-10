@@ -20,7 +20,7 @@
  */
 
 import * as pathlib from 'path';
-import * as assert from 'assert';
+import assert from 'assert';
 import * as util from 'util';
 import Completer from '../../../src/cli/Completer';
 import NodeFilesystemProvider from '../../../src/fs/NodeFilesystemProvider';

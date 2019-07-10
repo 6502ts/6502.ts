@@ -40,7 +40,7 @@ const worker = ({ input, output }) => ({
         }),
         globals(),
         builtins(),
-        terser()
+        ...(process.env.DEV ? [] : [terser()])
     ],
     onwarn: (warning, warn) => {
         if (warning.code === 'EVAL' && warning.id.match(/thumbulator\.js$/)) return;
@@ -59,7 +59,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
         resolve({ preferBuiltins: true }),
         elm({
             compiler: {
-                optimize: !process.env.DEBUG_ELM_BUILD,
+                optimize: !process.env.DEV,
                 pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm')
             }
         }),
@@ -91,7 +91,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
         }),
         globals(),
         builtins(),
-        terser(),
+        ...(process.env.DEV ? [] : [terser()]),
         html({
             template: template,
             dest: output,

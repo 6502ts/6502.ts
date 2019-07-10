@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import * as assert from 'assert';
+import assert from 'assert';
 import * as util from 'util';
 import PeriodicScheduler from '../../../src/tools/scheduler/PeriodicScheduler';
 
