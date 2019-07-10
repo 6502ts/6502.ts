@@ -195,7 +195,7 @@ update msg model =
                 , currentCartridgeHash = selection
                 , cartridgeViewMode = CartridgeViewCartridges
               }
-            , cmd
+            , Cmd.batch [ cmd, Ports.deleteCartridge hash ]
             )
 
         ChangeCartridge hash msg_ ->

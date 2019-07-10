@@ -54,6 +54,8 @@ export interface Ports {
     onNewCartridges_: SubscriptionPort<Array<Cartridge>>;
 
     updateCartridge_: CommandPort<Cartridge>;
+
+    deleteCartridge_: CommandPort<String>;
 }
 
 interface CommandPort<T> {

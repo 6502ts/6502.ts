@@ -1,6 +1,7 @@
 port module Stellerator.Ports exposing
     ( ScrollPosition(..)
     , addCartridge
+    , deleteCartridge
     , onMediaUpdate
     , onNewCartridges
     , scrollIntoView
@@ -107,3 +108,15 @@ port updateCartridge_ : Encode.Value -> Cmd msg
 updateCartridge : Cartridge -> Cmd msg
 updateCartridge cart =
     encodeCartridge cart |> updateCartridge_
+
+
+
+-- DeleteCartridge
+
+
+port deleteCartridge_ : String -> Cmd msg
+
+
+deleteCartridge : String -> Cmd msg
+deleteCartridge =
+    deleteCartridge_

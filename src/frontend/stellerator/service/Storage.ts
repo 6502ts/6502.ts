@@ -46,6 +46,12 @@ class Storage {
         await this._database.cartridges.update(cartridge.hash, cartridge);
     }
 
+    deleteCartridge(hash: string): Promise<void> {
+        return this._database.transaction('rw', [this._database.cartridges, this._database.roms], async () => {
+            await Promise.all([this._database.cartridges.delete(hash), this._database.roms.delete(hash)]);
+        });
+    }
+
     private _database = new Database();
 }
 
