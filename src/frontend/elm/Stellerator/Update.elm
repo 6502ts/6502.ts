@@ -199,19 +199,23 @@ update msg model =
             )
 
         ChangeCartridge hash msg_ ->
-            noop
-                { model
-                    | cartridges =
-                        List.map
-                            (\c ->
-                                if c.hash == hash then
-                                    updateCartridge model.cartridgeTypes msg_ c
+            let
+                cartridgesNew =
+                    List.map
+                        (\c ->
+                            if c.hash == hash then
+                                updateCartridge model.cartridgeTypes msg_ c
 
-                                else
-                                    c
-                            )
-                            model.cartridges
-                }
+                            else
+                                c
+                        )
+                        model.cartridges
+            in
+            let
+                cmd =
+                    LE.find ((==) hash << .hash) cartridgesNew |> Maybe.map Ports.updateCartridge |> Maybe.withDefault Cmd.none
+            in
+            ( { model | cartridges = cartridgesNew }, cmd )
 
         SetHelpPage content ->
             noop { model | helppage = Just content }

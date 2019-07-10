@@ -11,6 +11,7 @@ import ScrollIntoView from './service/ScrollIntoView';
 import AddCartridge from './service/AddCartridge';
 import { Container } from 'inversify';
 import Storage from './service/Storage';
+import TrackCartridges from './service/TrackCartridges';
 
 async function main(): Promise<void> {
     initializeRangetouch();
@@ -33,6 +34,7 @@ async function main(): Promise<void> {
     container.get(MediaApi).init(ports);
     container.get(ScrollIntoView).init(ports);
     container.get(AddCartridge).init(ports);
+    container.get(TrackCartridges).init(ports);
 }
 
 window.addEventListener('load', main);

@@ -42,6 +42,10 @@ class Storage {
         });
     }
 
+    async updateCartridge(cartridge: Cartridge): Promise<void> {
+        await this._database.cartridges.update(cartridge.hash, cartridge);
+    }
+
     private _database = new Database();
 }
 

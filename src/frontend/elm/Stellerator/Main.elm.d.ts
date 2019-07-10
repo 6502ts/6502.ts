@@ -22,12 +22,12 @@ export interface Cartridge {
     cartridgeType: CartridgeInfo.CartridgeType;
     tvMode: TvMode;
     emulatePaddles: boolean;
+    volume: number;
     rngSeed?: number;
     firstVisibleLine?: number;
     cpuEmulation?: CpuEmulation;
     audioEmulation?: AudioEmulation;
     phosphorEmulation?: boolean;
-    volume: number;
 }
 
 export interface CartridgeType {
@@ -52,6 +52,8 @@ export interface Ports {
 
     addCartridge_: CommandPort<void>;
     onNewCartridges_: SubscriptionPort<Array<Cartridge>>;
+
+    updateCartridge_: CommandPort<Cartridge>;
 }
 
 interface CommandPort<T> {

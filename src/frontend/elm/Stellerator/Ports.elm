@@ -4,12 +4,13 @@ port module Stellerator.Ports exposing
     , onMediaUpdate
     , onNewCartridges
     , scrollIntoView
+    , updateCartridge
     , watchMedia
     )
 
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Stellerator.Model exposing (Cartridge, decodeCartridge)
+import Stellerator.Model exposing (Cartridge, decodeCartridge, encodeCartridge)
 
 
 
@@ -94,3 +95,15 @@ onNewCartridges tagger =
                     []
     in
     onNewCartridges_ <| tagger << decoder
+
+
+
+-- UpdateCartridge
+
+
+port updateCartridge_ : Encode.Value -> Cmd msg
+
+
+updateCartridge : Cartridge -> Cmd msg
+updateCartridge cart =
+    encodeCartridge cart |> updateCartridge_

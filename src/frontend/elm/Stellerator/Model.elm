@@ -12,16 +12,24 @@ module Stellerator.Model exposing
     , Route(..)
     , TvMode(..)
     , cartridgesMatchingSearch
+    , decodeAudioEmulation
     , decodeCartridge
     , decodeCartridgeType
+    , decodeCpuEmulation
+    , decodeTvMode
+    , encodeAudioEmulation
+    , encodeCartridge
+    , encodeCpuEmulation
+    , encodeTvMode
     , nextCartridge
     , previousCartridge
     , selectionInSearchResults
     )
 
 import Browser.Navigation as Nav
-import Json.Decode as Decode exposing (..)
-import Json.Decode.Pipeline exposing (optional, required)
+import Json.Decode as Decode
+import Json.Decode.Pipeline as Pipeline
+import Json.Encode as Encode
 import List.Extra as LE
 
 
@@ -74,12 +82,12 @@ type alias Cartridge =
     , cartridgeType : String
     , tvMode : TvMode
     , emulatePaddles : Bool
+    , volume : Int
     , rngSeed : Maybe Int
     , firstVisibleLine : Maybe Int
     , cpuEmulation : Maybe CpuEmulation
     , audioEmulation : Maybe AudioEmulation
     , phosphorEmulation : Maybe Bool
-    , volume : Int
     }
 
 
@@ -206,78 +214,132 @@ previousCartridge cartridges hash =
 -- DECODER / ENCODER
 
 
-decodeTvMode : Decoder TvMode
+decodeTvMode : Decode.Decoder TvMode
 decodeTvMode =
-    string
+    Decode.string
         |> Decode.andThen
             (\s ->
                 case s of
                     "pal" ->
-                        succeed PAL
+                        Decode.succeed PAL
 
                     "ntsc" ->
-                        succeed NTSC
+                        Decode.succeed NTSC
 
                     "secam" ->
-                        succeed SECAM
+                        Decode.succeed SECAM
 
                     _ ->
-                        fail "invalid TvMode value"
+                        Decode.fail "invalid TvMode value"
             )
 
 
-decodeCpuEmulation : Decoder CpuEmulation
+encodeTvMode : TvMode -> Encode.Value
+encodeTvMode tvMode =
+    case tvMode of
+        PAL ->
+            Encode.string "pal"
+
+        NTSC ->
+            Encode.string "ntsc"
+
+        SECAM ->
+            Encode.string "secam"
+
+
+decodeCpuEmulation : Decode.Decoder CpuEmulation
 decodeCpuEmulation =
-    string
+    Decode.string
         |> Decode.andThen
             (\s ->
                 case s of
                     "cycle" ->
-                        succeed Cycle
+                        Decode.succeed Cycle
 
                     "instruction" ->
-                        succeed Instruction
+                        Decode.succeed Instruction
 
                     _ ->
-                        fail "invalid CpuEmulation value"
+                        Decode.fail "invalid CpuEmulation value"
             )
 
 
-decodeAudioEmulation : Decoder AudioEmulation
+encodeCpuEmulation : CpuEmulation -> Encode.Value
+encodeCpuEmulation cpuEmulation =
+    case cpuEmulation of
+        Cycle ->
+            Encode.string "cycle"
+
+        Instruction ->
+            Encode.string "instruction"
+
+
+decodeAudioEmulation : Decode.Decoder AudioEmulation
 decodeAudioEmulation =
-    string
+    Decode.string
         |> Decode.andThen
             (\s ->
                 case s of
                     "pcm" ->
-                        succeed PCM
+                        Decode.succeed PCM
 
                     "waveform" ->
-                        succeed Waveform
+                        Decode.succeed Waveform
 
                     _ ->
-                        fail "invalid AudioEmulation value"
+                        Decode.fail "invalid AudioEmulation value"
             )
 
 
-decodeCartridge : Decoder Cartridge
+encodeAudioEmulation : AudioEmulation -> Encode.Value
+encodeAudioEmulation audioEmulation =
+    case audioEmulation of
+        PCM ->
+            Encode.string "pcm"
+
+        Waveform ->
+            Encode.string "waveform"
+
+
+decodeCartridge : Decode.Decoder Cartridge
 decodeCartridge =
-    succeed Cartridge
-        |> required "hash" string
-        |> required "name" string
-        |> required "cartridgeType" string
-        |> required "tvMode" decodeTvMode
-        |> required "emulatePaddles" bool
-        |> optional "rngSeed" (maybe int) Nothing
-        |> optional "firstVisibleLine" (maybe int) Nothing
-        |> optional "cpuEmulation" (maybe decodeCpuEmulation) Nothing
-        |> optional "audioEmulation" (maybe decodeAudioEmulation) Nothing
-        |> optional "phosphorEmulation" (maybe bool) Nothing
-        |> required "volume" int
+    Decode.succeed Cartridge
+        |> Pipeline.required "hash" Decode.string
+        |> Pipeline.required "name" Decode.string
+        |> Pipeline.required "cartridgeType" Decode.string
+        |> Pipeline.required "tvMode" decodeTvMode
+        |> Pipeline.required "emulatePaddles" Decode.bool
+        |> Pipeline.required "volume" Decode.int
+        |> Pipeline.optional "rngSeed" (Decode.maybe Decode.int) Nothing
+        |> Pipeline.optional "firstVisibleLine" (Decode.maybe Decode.int) Nothing
+        |> Pipeline.optional "cpuEmulation" (Decode.maybe decodeCpuEmulation) Nothing
+        |> Pipeline.optional "audioEmulation" (Decode.maybe decodeAudioEmulation) Nothing
+        |> Pipeline.optional "phosphorEmulation" (Decode.maybe Decode.bool) Nothing
 
 
-decodeCartridgeType : Decoder CartridgeType
+encodeCartridge : Cartridge -> Encode.Value
+encodeCartridge cartridge =
+    let
+        optional name encoder maybeValue list =
+            Maybe.map (\v -> ( name, encoder v ) :: list) maybeValue |> Maybe.withDefault list
+    in
+    [ ( "hash", Encode.string cartridge.hash )
+    , ( "name", Encode.string cartridge.name )
+    , ( "cartridgeType", Encode.string cartridge.cartridgeType )
+    , ( "tvMode", encodeTvMode cartridge.tvMode )
+    , ( "emulatePaddles", Encode.bool cartridge.emulatePaddles )
+    , ( "volume", Encode.int cartridge.volume )
+    ]
+        |> optional "rngSeed" Encode.int cartridge.rngSeed
+        |> optional "firstVisibleLine" Encode.int cartridge.firstVisibleLine
+        |> optional "cpuEmulation" encodeCpuEmulation cartridge.cpuEmulation
+        |> optional "audioEmulation" encodeAudioEmulation cartridge.audioEmulation
+        |> optional "phosphorEmulation" Encode.bool cartridge.phosphorEmulation
+        |> Encode.object
+
+
+decodeCartridgeType : Decode.Decoder CartridgeType
 decodeCartridgeType =
-    map2 CartridgeType
-        (field "key" string)
-        (field "description" string)
+    Decode.map2 CartridgeType
+        (Decode.field "key" Decode.string)
+        (Decode.field "description" Decode.string)
