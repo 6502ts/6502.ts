@@ -68,8 +68,8 @@
   },
   "scripts": {
     "test": "mocha --require ts-node/register -u tdd -R spec 'tests/ts/**/*.ts' && elm-test",
-    "build": "rollup -c rollup.config.js",
-    "watch": "rollup -c rollup.config.js -w",
+    "build": "rm -fr .rpt2_cache; rollup -c rollup.config.js",
+    "watch": "rm -fr .rpt2_cache; rollup -c rollup.config.js -w",
     "_prepublish": "rm -fr lib; tsc -p tsconfig.npm.json"
   }
 }

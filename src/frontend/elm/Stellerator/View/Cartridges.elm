@@ -211,6 +211,19 @@ settingsItems model cart =
     ]
 
 
+cartridgeListOrMessage : Model -> (String -> content) -> content -> content
+cartridgeListOrMessage model message list =
+    case List.map List.length [ model.cartridges, cartridgesMatchingSearch model ] of
+        [ 0, _ ] ->
+            message "start by clicking \"Add new\" to add a ROM image"
+
+        [ _, 0 ] ->
+            message "no cartridges match the search"
+
+        _ ->
+            list
+
+
 page : Model -> Media -> List (Html Msg)
 page model media =
     case media of
@@ -333,15 +346,7 @@ cartridgeListWide model =
                         (cartridgesMatchingSearch model)
                 ]
     in
-    case List.map List.length [ model.cartridges, cartridgesMatchingSearch model ] of
-        [ 0, _ ] ->
-            message "start by clicking \"Add new\" to add a ROM image"
-
-        [ _, 0 ] ->
-            message "no cartridges match the search"
-
-        _ ->
-            list
+    cartridgeListOrMessage model message list
 
 
 settingsWide : Model -> List Style -> Html Msg
@@ -491,16 +496,34 @@ cartridgeListNarrow model =
         entry cart =
             ifCartSelected cart model.currentCartridgeHash entrySel entryUnsel <| cart
     in
-    [ Keyed.node "div"
-        [ A.css
-            [ boxSizing borderBox
-            , width (Css.vw 100)
-            , marginTop (Css.em 3.5)
+    let
+        list =
+            [ Keyed.node "div"
+                [ A.css
+                    [ boxSizing borderBox
+                    , width (Css.vw 100)
+                    , marginTop (Css.em 3.5)
+                    ]
+                ]
+              <|
+                List.map (\c -> ( c.hash, entry c )) (cartridgesMatchingSearch model)
             ]
-        ]
-      <|
-        List.map (\c -> ( c.hash, entry c )) (cartridgesMatchingSearch model)
-    ]
+    in
+    let
+        message msg =
+            [ div
+                [ A.css
+                    [ width (vw 100)
+                    , marginTop (Css.em 3.5)
+                    , property "padding" "3em calc(2 * var(--cw)) 0 calc(2 * var(--cw))"
+                    , textAlign center
+                    , boxSizing borderBox
+                    ]
+                ]
+                [ text msg ]
+            ]
+    in
+    cartridgeListOrMessage model message list
 
 
 addCartridgeButton : Html Msg
