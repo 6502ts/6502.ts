@@ -107,7 +107,7 @@ view _ =
                       , input [ type_ "range", css [ Dos.widthCw 20 ] ] []
                       ]
                     , [ lbl "dropdown:"
-                      , Dos.select [ css [ Dos.widthCw 20 ] ] [ ( "hanni", "Hanni" ), ( "nanni", "Nanni" ), ( "fanni", "Fanni" ) ]
+                      , Dos.select [ css [ Dos.widthCw 20 ] ] [ ( "hanni", "Hanni" ), ( "nanni", "Nanni" ), ( "fanni", "Fanni" ) ] "fanni"
                       ]
                     ]
             in

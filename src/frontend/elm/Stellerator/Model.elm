@@ -38,37 +38,37 @@ import List.Extra as LE
 
 
 type Route
-    = Cartridges
-    | Settings
-    | Emulation
-    | Help
+    = RouteCartridges
+    | RouteSettings
+    | RouteEmulation
+    | RouteHelp
 
 
 type Media
-    = Narrow
-    | Wide
+    = MediaNarrow
+    | MediaWide
 
 
 type EmulationState
-    = Stopped
-    | Paused
-    | Running (Maybe Float)
+    = EmulationStopped
+    | EmulationPaused
+    | EmulationRunning (Maybe Float)
 
 
 type TvMode
-    = PAL
-    | NTSC
-    | SECAM
+    = TvPAL
+    | TvNTSC
+    | TvSECAM
 
 
 type CpuEmulation
-    = Cycle
-    | Instruction
+    = AccuracyCycle
+    | AccuracyInstruction
 
 
 type AudioEmulation
-    = Waveform
-    | PCM
+    = AudioWaveform
+    | AudioPCM
 
 
 type CartridgeViewMode
@@ -221,13 +221,13 @@ decodeTvMode =
             (\s ->
                 case s of
                     "pal" ->
-                        Decode.succeed PAL
+                        Decode.succeed TvPAL
 
                     "ntsc" ->
-                        Decode.succeed NTSC
+                        Decode.succeed TvNTSC
 
                     "secam" ->
-                        Decode.succeed SECAM
+                        Decode.succeed TvSECAM
 
                     _ ->
                         Decode.fail "invalid TvMode value"
@@ -237,13 +237,13 @@ decodeTvMode =
 encodeTvMode : TvMode -> Encode.Value
 encodeTvMode tvMode =
     case tvMode of
-        PAL ->
+        TvPAL ->
             Encode.string "pal"
 
-        NTSC ->
+        TvNTSC ->
             Encode.string "ntsc"
 
-        SECAM ->
+        TvSECAM ->
             Encode.string "secam"
 
 
@@ -254,10 +254,10 @@ decodeCpuEmulation =
             (\s ->
                 case s of
                     "cycle" ->
-                        Decode.succeed Cycle
+                        Decode.succeed AccuracyCycle
 
                     "instruction" ->
-                        Decode.succeed Instruction
+                        Decode.succeed AccuracyInstruction
 
                     _ ->
                         Decode.fail "invalid CpuEmulation value"
@@ -267,10 +267,10 @@ decodeCpuEmulation =
 encodeCpuEmulation : CpuEmulation -> Encode.Value
 encodeCpuEmulation cpuEmulation =
     case cpuEmulation of
-        Cycle ->
+        AccuracyCycle ->
             Encode.string "cycle"
 
-        Instruction ->
+        AccuracyInstruction ->
             Encode.string "instruction"
 
 
@@ -281,10 +281,10 @@ decodeAudioEmulation =
             (\s ->
                 case s of
                     "pcm" ->
-                        Decode.succeed PCM
+                        Decode.succeed AudioPCM
 
                     "waveform" ->
-                        Decode.succeed Waveform
+                        Decode.succeed AudioWaveform
 
                     _ ->
                         Decode.fail "invalid AudioEmulation value"
@@ -294,10 +294,10 @@ decodeAudioEmulation =
 encodeAudioEmulation : AudioEmulation -> Encode.Value
 encodeAudioEmulation audioEmulation =
     case audioEmulation of
-        PCM ->
+        AudioPCM ->
             Encode.string "pcm"
 
-        Waveform ->
+        AudioWaveform ->
             Encode.string "waveform"
 
 

@@ -52,26 +52,26 @@ navigationLink cssExtra model route label =
 emulationState : Model -> String
 emulationState model =
     case model.emulationState of
-        Stopped ->
+        EmulationStopped ->
             "stopped"
 
-        Paused ->
+        EmulationPaused ->
             "paused"
 
-        Running Nothing ->
+        EmulationRunning Nothing ->
             "running"
 
-        Running (Just speed) ->
+        EmulationRunning (Just speed) ->
             "running: " ++ format { usLocale | decimals = 2 } speed ++ " MHz"
 
 
 navbar : Model -> Media -> List (Html Msg)
 navbar model media =
     case media of
-        Wide ->
+        MediaWide ->
             navbarWide model
 
-        Narrow ->
+        MediaNarrow ->
             navbarNarrow model
 
 
@@ -95,10 +95,10 @@ navbarWide model =
         ]
         [ div [ A.css [ textAlign center ] ] [ text "----====≡≡≡≡ 6502.ts / Stellerator ≡≡≡≡====----" ]
         , nav [ A.css [ Dos.backgroundColor LightGray, Dos.color Black ] ]
-            [ navigationLink [] model Cartridges "Cartridges"
-            , navigationLink [] model Settings "Settings"
-            , navigationLink [] model Emulation "Emulation"
-            , navigationLink [] model Help "Help"
+            [ navigationLink [] model RouteCartridges "Cartridges"
+            , navigationLink [] model RouteSettings "Settings"
+            , navigationLink [] model RouteEmulation "Emulation"
+            , navigationLink [] model RouteHelp "Help"
             , span [ A.css [ float right, property "margin-right" "var(--cw)" ] ] [ text <| emulationState model ]
             ]
         ]
@@ -175,10 +175,10 @@ slideoverMenu model =
             ]
                 ++ slideCss
         ]
-        [ navigationLink linkCss model Cartridges "Cartridges"
-        , navigationLink linkCss model Settings "Settings"
-        , navigationLink linkCss model Emulation "Emulation"
-        , navigationLink linkCss model Help "Help"
+        [ navigationLink linkCss model RouteCartridges "Cartridges"
+        , navigationLink linkCss model RouteSettings "Settings"
+        , navigationLink linkCss model RouteEmulation "Emulation"
+        , navigationLink linkCss model RouteHelp "Help"
         ]
 
 

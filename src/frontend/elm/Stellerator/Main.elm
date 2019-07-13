@@ -39,7 +39,7 @@ init flagsJson url key =
     let
         route : Route
         route =
-            parseRoute url |> Maybe.withDefault Cartridges
+            parseRoute url |> Maybe.withDefault RouteCartridges
     in
     let
         handleHelppageResult r =
@@ -53,7 +53,7 @@ init flagsJson url key =
     ( { key = key
       , currentRoute = route
       , media = Nothing
-      , emulationState = Stopped
+      , emulationState = EmulationStopped
       , helppage = Nothing
       , sideMenu = False
       , cartridges = List.sortBy (.name >> String.toUpper) flags.cartridges
@@ -78,10 +78,10 @@ subscriptions _ =
                 >> Maybe.map
                     (\x ->
                         if x then
-                            ChangeMedia Narrow
+                            ChangeMedia MediaNarrow
 
                         else
-                            ChangeMedia Wide
+                            ChangeMedia MediaWide
                     )
                 >> Maybe.withDefault None
             )

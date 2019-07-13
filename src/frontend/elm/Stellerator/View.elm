@@ -28,16 +28,16 @@ body model =
     let
         content =
             case ( model.currentRoute, model.media ) of
-                ( Cartridges, Just media ) ->
+                ( RouteCartridges, Just media ) ->
                     Cartridges.page model media
 
-                ( Settings, Just _ ) ->
+                ( RouteSettings, Just _ ) ->
                     settings
 
-                ( Emulation, Just _ ) ->
+                ( RouteEmulation, Just _ ) ->
                     emulation
 
-                ( Help, Just _ ) ->
+                ( RouteHelp, Just _ ) ->
                     Help.page model
 
                 _ ->

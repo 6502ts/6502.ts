@@ -34,13 +34,13 @@ suite =
                 { hash = "abc"
                 , name = "somecart"
                 , cartridgeType = "CDF"
-                , tvMode = PAL
+                , tvMode = TvPAL
                 , emulatePaddles = False
                 , volume = 66
                 , rngSeed = Just 12366
                 , firstVisibleLine = Just 28
-                , cpuEmulation = Just Cycle
-                , audioEmulation = Just PCM
+                , cpuEmulation = Just AccuracyCycle
+                , audioEmulation = Just AudioPCM
                 , phosphorEmulation = Just True
                 }
           in
@@ -48,13 +48,13 @@ suite =
         , describe "TvMode" <|
             List.map
                 (roundTrip encodeTvMode decodeTvMode)
-                [ ( "PAL", PAL ), ( "NTSC", NTSC ), ( "SECAM", SECAM ) ]
+                [ ( "PAL", TvPAL ), ( "NTSC", TvNTSC ), ( "SECAM", TvSECAM ) ]
         , describe "AudioEmulation" <|
             List.map
                 (roundTrip encodeAudioEmulation decodeAudioEmulation)
-                [ ( "PCM", PCM ), ( "Waveform", Waveform ) ]
+                [ ( "PCM", AudioPCM ), ( "Waveform", AudioWaveform ) ]
         , describe "CpuEmulation" <|
             List.map
                 (roundTrip encodeCpuEmulation decodeCpuEmulation)
-                [ ( "Instruction", Instruction ), ( "Cycle", Cycle ) ]
+                [ ( "Instruction", AccuracyInstruction ), ( "Cycle", AccuracyCycle ) ]
         ]

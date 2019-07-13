@@ -7,10 +7,10 @@ import Url exposing (Url)
 
 routing : List ( Route, String )
 routing =
-    [ ( Emulation, "emulation" )
-    , ( Settings, "settings" )
-    , ( Cartridges, "cartridges" )
-    , ( Help, "help" )
+    [ ( RouteEmulation, "emulation" )
+    , ( RouteSettings, "settings" )
+    , ( RouteCartridges, "cartridges" )
+    , ( RouteHelp, "help" )
     ]
 
 
@@ -38,4 +38,4 @@ onUrlChange : Url -> Msg
 onUrlChange =
     parseRoute
         >> Maybe.map ChangeRoute
-        >> Maybe.withDefault (serializeRoute Cartridges |> NavigateToUrl)
+        >> Maybe.withDefault (serializeRoute RouteCartridges |> NavigateToUrl)

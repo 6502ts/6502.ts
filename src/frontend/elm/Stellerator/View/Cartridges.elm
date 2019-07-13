@@ -146,7 +146,7 @@ settingsItems model cart =
     , oneline "TV mode:" <|
         Form.radioGroup
             []
-            [ ( PAL, "PAL" ), ( NTSC, "NTSC" ), ( SECAM, "SECAM" ) ]
+            [ ( TvPAL, "PAL" ), ( TvNTSC, "NTSC" ), ( TvSECAM, "SECAM" ) ]
             (changeCartridge ChangeCartridgeTvMode)
             cart.tvMode
     , checkbox "Emulate paddles:" <|
@@ -161,13 +161,13 @@ settingsItems model cart =
     , oneline "CPU Emulation:" <|
         Form.radioGroup
             []
-            [ ( Nothing, "Default" ), ( Just Instruction, "Instruction" ), ( Just Cycle, "Cycle" ) ]
+            [ ( Nothing, "Default" ), ( Just AccuracyInstruction, "Instruction" ), ( Just AccuracyCycle, "Cycle" ) ]
             (changeCartridge ChangeCartridgeCpuEmulation)
             cart.cpuEmulation
     , oneline "Audio Emulation:" <|
         Form.radioGroup
             []
-            [ ( Nothing, "Default" ), ( Just PCM, "PCM" ), ( Just Waveform, "Waveform" ) ]
+            [ ( Nothing, "Default" ), ( Just AudioPCM, "PCM" ), ( Just AudioWaveform, "Waveform" ) ]
             (changeCartridge ChangeCartridgeAudioEmulation)
             cart.audioEmulation
     , oneline "Phosphor Emulation:" <|
@@ -181,7 +181,7 @@ settingsItems model cart =
             [ let
                 w =
                     case model.media of
-                        Just Narrow ->
+                        Just MediaNarrow ->
                             "calc(100vw - 10 * var(--cw))"
 
                         _ ->
@@ -227,10 +227,10 @@ cartridgeListOrMessage model message list =
 page : Model -> Media -> List (Html Msg)
 page model media =
     case media of
-        Wide ->
+        MediaWide ->
             pageWide model
 
-        Narrow ->
+        MediaNarrow ->
             pageNarrow model
 
 

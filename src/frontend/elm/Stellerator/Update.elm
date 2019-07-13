@@ -84,17 +84,17 @@ update msg model =
     let
         dummyEmulationState route =
             case route of
-                Cartridges ->
-                    Stopped
+                RouteCartridges ->
+                    EmulationStopped
 
-                Settings ->
-                    Paused
+                RouteSettings ->
+                    EmulationPaused
 
-                Emulation ->
-                    Running (Just 3.55)
+                RouteEmulation ->
+                    EmulationRunning (Just 3.55)
 
-                Help ->
-                    Running Nothing
+                RouteHelp ->
+                    EmulationRunning Nothing
     in
     case msg of
         NavigateToUrl url ->
@@ -104,8 +104,8 @@ update msg model =
             let
                 cmd =
                     case ( route, selectionInSearchResults model ) of
-                        ( Cartridges, Just hash ) ->
-                            if model.currentRoute /= Cartridges then
+                        ( RouteCartridges, Just hash ) ->
+                            if model.currentRoute /= RouteCartridges then
                                 Ports.scrollIntoView Ports.Center hash
 
                             else
@@ -128,7 +128,7 @@ update msg model =
             let
                 cmd =
                     case ( model.currentRoute, selectionInSearchResults model ) of
-                        ( Cartridges, Just hash ) ->
+                        ( RouteCartridges, Just hash ) ->
                             Ports.scrollIntoView Ports.Center hash
 
                         _ ->
