@@ -8,14 +8,20 @@ import Stellerator.Model
         ( AudioEmulation(..)
         , Cartridge
         , CpuEmulation(..)
+        , Media(..)
+        , Settings
         , TvMode(..)
         , decodeAudioEmulation
         , decodeCartridge
         , decodeCpuEmulation
+        , decodeMedia
+        , decodeSettings
         , decodeTvMode
         , encodeAudioEmulation
         , encodeCartridge
         , encodeCpuEmulation
+        , encodeMedia
+        , encodeSettings
         , encodeTvMode
         )
 import Test exposing (..)
@@ -45,6 +51,24 @@ suite =
                 }
           in
           roundTrip encodeCartridge decodeCartridge ( "Cartridge", cart )
+        , let
+            settings : Settings
+            settings =
+                { cpuEmulation = AccuracyCycle
+                , volume = 80
+                , audioEmulation = AudioPCM
+                , smoothScaling = True
+                , phosphorEmulation = True
+                , gammaCorrection = 2.3
+                , videoSync = True
+                , touchControls = Maybe.Just True
+                , leftHanded = False
+                , virtualJoystickSensitivity = 10
+                , uiMode = Maybe.Just MediaNarrow
+                , uiSize = 22
+                }
+          in
+          roundTrip encodeSettings decodeSettings ( "Settings", settings )
         , describe "TvMode" <|
             List.map
                 (roundTrip encodeTvMode decodeTvMode)
@@ -57,4 +81,8 @@ suite =
             List.map
                 (roundTrip encodeCpuEmulation decodeCpuEmulation)
                 [ ( "Instruction", AccuracyInstruction ), ( "Cycle", AccuracyCycle ) ]
+        , describe "Media" <|
+            List.map
+                (roundTrip encodeMedia decodeMedia)
+                [ ( "Narrow", MediaNarrow ), ( "Wide", MediaWide ) ]
         ]

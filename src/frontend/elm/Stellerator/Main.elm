@@ -3,7 +3,7 @@ module Stellerator.Main exposing (main)
 import Browser
 import Browser.Navigation as Nav
 import Http
-import Json.Decode exposing (..)
+import Json.Decode as Decode exposing (..)
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
 import Stellerator.Routing exposing (..)
@@ -15,14 +15,33 @@ import Url exposing (Url)
 type alias Flags =
     { cartridges : List Cartridge
     , cartridgeTypes : List CartridgeType
+    , settings : Maybe Settings
+    }
+
+
+defaultSettings : Settings
+defaultSettings =
+    { cpuEmulation = AccuracyCycle
+    , volume = 80
+    , audioEmulation = AudioPCM
+    , smoothScaling = True
+    , phosphorEmulation = True
+    , gammaCorrection = 1.0
+    , videoSync = True
+    , touchControls = Maybe.Nothing
+    , leftHanded = False
+    , virtualJoystickSensitivity = 10
+    , uiMode = Nothing
+    , uiSize = 100
     }
 
 
 decodeFlags : Decoder Flags
 decodeFlags =
-    map2 Flags
+    map3 Flags
         (field "cartridges" <| list decodeCartridge)
         (field "cartridgeTypes" <| list decodeCartridgeType)
+        (Decode.maybe (field "settings" <| decodeSettings))
 
 
 init : Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -34,7 +53,7 @@ init flagsJson url key =
                     f
 
                 Err _ ->
-                    { cartridges = [], cartridgeTypes = [] }
+                    { cartridges = [], cartridgeTypes = [], settings = Maybe.Nothing }
     in
     let
         route : Route
@@ -61,6 +80,7 @@ init flagsJson url key =
       , currentCartridgeHash = Nothing
       , cartridgeFilter = ""
       , cartridgeViewMode = CartridgeViewCartridges
+      , settings = Maybe.withDefault defaultSettings flags.settings
       }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)

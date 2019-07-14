@@ -43,7 +43,13 @@ class Storage {
     }
 
     async updateCartridge(cartridge: Cartridge): Promise<void> {
-        await this._database.cartridges.update(cartridge.hash, cartridge);
+        return this._database.transaction('rw', [this._database.cartridges], async () => {
+            if (!(await this._database.cartridges.get(cartridge.hash))) {
+                return;
+            }
+
+            await this._database.cartridges.put(cartridge);
+        });
     }
 
     deleteCartridge(hash: string): Promise<void> {

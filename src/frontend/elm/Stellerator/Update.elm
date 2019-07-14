@@ -69,6 +69,46 @@ updateCartridge cartridgeTypes msg cartridge =
             { cartridge | volume = vol }
 
 
+updateSettings : ChangeSettingsMsg -> Settings -> Settings
+updateSettings msg settings =
+    case msg of
+        ChangeSettingsCpuEmulation cpuEmulation ->
+            { settings | cpuEmulation = cpuEmulation }
+
+        ChangeSettingsVolume volume ->
+            { settings | volume = volume }
+
+        ChangeSettingsAudioEmulation audioEmulation ->
+            { settings | audioEmulation = audioEmulation }
+
+        ChangeSettingsSmoothScaling smoothScaling ->
+            { settings | smoothScaling = smoothScaling }
+
+        ChangeSettingsPhosphorEmulation phosphorEmulation ->
+            { settings | phosphorEmulation = phosphorEmulation }
+
+        ChangeSettingsGammaCorrection gammaCorrection ->
+            { settings | gammaCorrection = gammaCorrection }
+
+        ChangeSettingsVideoSync videoSync ->
+            { settings | videoSync = videoSync }
+
+        ChangeSettingsTouchControls touchControls ->
+            { settings | touchControls = touchControls }
+
+        ChangeSettingsLeftHanded leftHanded ->
+            { settings | leftHanded = leftHanded }
+
+        ChangeSettingsVirtualJoystickSensitivity sensitivity ->
+            { settings | virtualJoystickSensitivity = sensitivity }
+
+        ChangeSettingsUiMode uiMode ->
+            { settings | uiMode = uiMode }
+
+        ChangeSettingsUiSize size ->
+            { settings | uiSize = size }
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
@@ -263,6 +303,9 @@ update msg model =
 
                 _ ->
                     noop modelWithNewCartridges
+
+        ChangeSettings changeSettingsMsg ->
+            noop { model | settings = updateSettings changeSettingsMsg model.settings }
 
         _ ->
             noop model
