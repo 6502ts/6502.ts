@@ -150,64 +150,43 @@ settingsItems model cart =
             (changeCartridge ChangeCartridgeTvMode)
             cart.tvMode
     , checkbox "Emulate paddles:" <|
-        input
-            [ A.type_ "checkbox"
-            , Form.onCheckChange (changeCartridge ChangeCartridgeEmulatePaddles)
-            , A.checked cart.emulatePaddles
-            ]
-            []
+        Form.checkbox (changeCartridge ChangeCartridgeEmulatePaddles) cart.emulatePaddles
     , oneline "RNG seed:" <| optionalNumberInput ChangeCartridgeRngSeed cart.rngSeed
     , oneline "First visible line:" <| optionalNumberInput ChangeCartridgeFirstVisibleLine cart.firstVisibleLine
-    , oneline "CPU Emulation:" <|
+    , oneline "CPU emulation:" <|
         Form.radioGroup
             []
             [ ( Nothing, "Default" ), ( Just AccuracyInstruction, "Instruction" ), ( Just AccuracyCycle, "Cycle" ) ]
             (changeCartridge ChangeCartridgeCpuEmulation)
             cart.cpuEmulation
-    , oneline "Audio Emulation:" <|
+    , oneline "Audio emulation:" <|
         Form.radioGroup
             []
             [ ( Nothing, "Default" ), ( Just AudioPCM, "PCM" ), ( Just AudioWaveform, "Waveform" ) ]
             (changeCartridge ChangeCartridgeAudioEmulation)
             cart.audioEmulation
-    , oneline "Phosphor Emulation:" <|
+    , oneline "Phosphor emulation:" <|
         Form.radioGroup
             []
             [ ( Nothing, "Default" ), ( Just True, "On" ), ( Just False, "Off" ) ]
             (changeCartridge ChangeCartridgePhosphorEmulation)
             cart.phosphorEmulation
     , oneline "Volume:" <|
-        span []
-            [ let
-                w =
-                    case model.media of
-                        Just MediaNarrow ->
-                            "calc(100vw - 10 * var(--cw))"
+        let
+            w =
+                case model.media of
+                    Just MediaNarrow ->
+                        "calc(100vw - 10 * var(--cw))"
 
-                        _ ->
-                            "calc(40 * var(--cw))"
-              in
-              input
-                [ A.css [ property "width" w, Dos.marginRightCw 2 ]
-                , A.type_ "range"
-                , A.min "0"
-                , A.max "100"
-                , A.value <| String.fromInt cart.volume
-                , Form.onInput <|
-                    String.toInt
-                        >> Maybe.map
-                            (\x ->
-                                if x >= 0 && x <= 100 then
-                                    changeCartridge ChangeCartridgeVolume <| x
-
-                                else
-                                    None
-                            )
-                        >> Maybe.withDefault None
-                ]
-                []
-            , text <| String.fromInt cart.volume ++ "%"
-            ]
+                    _ ->
+                        "calc(40 * var(--cw))"
+        in
+        Form.slider
+            [ property "width" w ]
+            ( 0, 100 )
+            (Maybe.map (changeCartridge ChangeCartridgeVolume) >> Maybe.withDefault None)
+            (\x -> String.fromInt x ++ "%")
+            cart.volume
     ]
 
 

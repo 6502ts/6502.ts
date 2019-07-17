@@ -1,10 +1,12 @@
 module Stellerator.View.Form exposing
-    ( mobileButton
+    ( checkbox
+    , mobileButton
     , onChange
     , onCheckChange
     , onInput
     , picker
     , radioGroup
+    , slider
     , textInput
     )
 
@@ -97,3 +99,49 @@ radioGroup attributes items tagger value =
                 ]
     in
     span attributes <| List.map radio items
+
+
+slider : List Style -> ( Int, Int ) -> (Maybe Int -> msg) -> (Int -> String) -> Int -> Html msg
+slider styles ( min, max ) tagger formatter value =
+    span
+        [ A.css (styles ++ [ display inlineFlex ]) ]
+        [ input
+            [ A.css [ flexGrow (int 1) ]
+            , A.type_ "range"
+            , A.min <| String.fromInt min
+            , A.max <| String.fromInt max
+            , A.value <| String.fromInt value
+            , onInput
+                (String.toInt
+                    >> Maybe.andThen
+                        (\i ->
+                            if i >= min && i <= max then
+                                Just i
+
+                            else
+                                Nothing
+                        )
+                    >> tagger
+                )
+            ]
+            []
+        , span
+            [ A.css
+                [ display block
+                , property "padding-left" "calc(2 * var(--cw))"
+                , flexGrow (int 0)
+                , flexShrink (int 0)
+                ]
+            ]
+            [ text <| formatter value ]
+        ]
+
+
+checkbox : (Bool -> msg) -> Bool -> Html msg
+checkbox tagger value =
+    input
+        [ A.type_ "checkbox"
+        , onCheckChange tagger
+        , A.checked value
+        ]
+        []

@@ -7,11 +7,7 @@ import Stellerator.Model exposing (..)
 import Stellerator.View.Cartridges as Cartridges
 import Stellerator.View.Help as Help
 import Stellerator.View.Navigation as Navigation
-
-
-settings : List (Html Msg)
-settings =
-    [ div [] [ text "Happy scrappy settings page" ] ]
+import Stellerator.View.Settings as Settings
 
 
 emulation : List (Html Msg)
@@ -32,7 +28,7 @@ body model =
                     Cartridges.page model media
 
                 ( RouteSettings, Just _ ) ->
-                    settings
+                    Settings.page model
 
                 ( RouteEmulation, Just _ ) ->
                     emulation
