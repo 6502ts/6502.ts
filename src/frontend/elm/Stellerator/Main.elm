@@ -19,23 +19,6 @@ type alias Flags =
     }
 
 
-defaultSettings : Settings
-defaultSettings =
-    { cpuEmulation = AccuracyCycle
-    , volume = 80
-    , audioEmulation = AudioPCM
-    , smoothScaling = True
-    , phosphorEmulation = True
-    , gammaCorrection = 1.0
-    , videoSync = True
-    , touchControls = Maybe.Nothing
-    , leftHanded = False
-    , virtualJoystickSensitivity = 10
-    , uiMode = Nothing
-    , uiSize = 100
-    }
-
-
 decodeFlags : Decoder Flags
 decodeFlags =
     map3 Flags

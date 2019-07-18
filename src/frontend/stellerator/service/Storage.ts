@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import { Cartridge } from '../../elm/Stellerator/Main.elm';
+import { Cartridge, Settings } from '../../elm/Stellerator/Main.elm';
 import { injectable } from 'inversify';
 
 export interface CartridgeWithImage {
@@ -12,19 +12,24 @@ interface RomImage {
     image: Uint8Array;
 }
 
+const SETTINGS_ID = 0;
+
 class Database extends Dexie {
     constructor() {
         super('stellerator-ng');
 
         this.version(1).stores({
             cartridges: '&hash',
-            roms: '&hash'
+            roms: '&hash',
+            settings: '&id'
         });
     }
 
     cartridges: Dexie.Table<Cartridge, string>;
 
     roms: Dexie.Table<RomImage, string>;
+
+    settings: Dexie.Table<Settings & { id: number }, number>;
 }
 
 @injectable()
@@ -56,6 +61,21 @@ class Storage {
         return this._database.transaction('rw', [this._database.cartridges, this._database.roms], async () => {
             await Promise.all([this._database.cartridges.delete(hash), this._database.roms.delete(hash)]);
         });
+    }
+
+    async getSettings(): Promise<Settings | undefined> {
+        const record = await this._database.settings.get(SETTINGS_ID);
+
+        if (!record) {
+            return undefined;
+        }
+
+        const { id, ...settings } = record;
+        return settings;
+    }
+
+    async saveSettings(settings: Settings): Promise<void> {
+        await this._database.settings.put({ ...settings, id: SETTINGS_ID });
     }
 
     private _database = new Database();

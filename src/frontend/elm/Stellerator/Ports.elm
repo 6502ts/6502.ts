@@ -6,12 +6,20 @@ port module Stellerator.Ports exposing
     , onNewCartridges
     , scrollIntoView
     , updateCartridge
+    , updateSettings
     , watchMedia
     )
 
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Stellerator.Model exposing (Cartridge, decodeCartridge, encodeCartridge)
+import Stellerator.Model
+    exposing
+        ( Cartridge
+        , Settings
+        , decodeCartridge
+        , encodeCartridge
+        , encodeSettings
+        )
 
 
 
@@ -120,3 +128,15 @@ port deleteCartridge_ : String -> Cmd msg
 deleteCartridge : String -> Cmd msg
 deleteCartridge =
     deleteCartridge_
+
+
+
+-- UpdateSettings
+
+
+port updateSettings_ : Encode.Value -> Cmd msg
+
+
+updateSettings : Settings -> Cmd msg
+updateSettings =
+    encodeSettings >> updateSettings_

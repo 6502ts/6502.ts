@@ -12,6 +12,7 @@ import AddCartridge from './service/AddCartridge';
 import { Container } from 'inversify';
 import Storage from './service/Storage';
 import TrackCartridges from './service/TrackCartridges';
+import TrackSettings from './service/TrackSettings';
 
 async function main(): Promise<void> {
     initializeRangetouch();
@@ -27,7 +28,8 @@ async function main(): Promise<void> {
     const { ports } = Elm.Stellerator.Main.init({
         flags: {
             cartridges: await storage.getAllCartridges(),
-            cartridgeTypes
+            cartridgeTypes,
+            settings: await storage.getSettings()
         }
     });
 
@@ -35,6 +37,7 @@ async function main(): Promise<void> {
     container.get(ScrollIntoView).init(ports);
     container.get(AddCartridge).init(ports);
     container.get(TrackCartridges).init(ports);
+    container.get(TrackSettings).init(ports);
 }
 
 window.addEventListener('load', main);

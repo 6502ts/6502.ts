@@ -305,7 +305,11 @@ update msg model =
                     noop modelWithNewCartridges
 
         ChangeSettings changeSettingsMsg ->
-            noop { model | settings = updateSettings changeSettingsMsg model.settings }
+            let
+                newSettings =
+                    updateSettings changeSettingsMsg model.settings
+            in
+            ( { model | settings = newSettings }, Ports.updateSettings newSettings )
 
         _ ->
             noop model

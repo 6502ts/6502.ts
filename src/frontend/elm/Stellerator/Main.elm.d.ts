@@ -16,6 +16,11 @@ export const enum AudioEmulation {
     pcm = 'pcm'
 }
 
+export const enum Media {
+    narrow = 'narrow',
+    wide = 'wide'
+}
+
 export interface Cartridge {
     hash: string;
     name: string;
@@ -30,6 +35,21 @@ export interface Cartridge {
     phosphorEmulation?: boolean;
 }
 
+export interface Settings {
+    cpuEmulation: CpuEmulation;
+    volume: Number;
+    audioEmulation: AudioEmulation;
+    smoothScaling: boolean;
+    phosphorEmulation: boolean;
+    gammaCorrection: number;
+    videoSync: number;
+    leftHanded: boolean;
+    virtualJoystickSensitivity: number;
+    uiSize: number;
+    touchControls?: boolean;
+    uiMode?: Media;
+}
+
 export interface CartridgeType {
     key: CartridgeInfo.CartridgeType;
     description: string;
@@ -38,6 +58,7 @@ export interface CartridgeType {
 export interface Flags {
     cartridges: Array<Cartridge>;
     cartridgeTypes: Array<CartridgeType>;
+    settings: Settings | undefined;
 }
 
 export interface Options {
@@ -56,6 +77,8 @@ export interface Ports {
     updateCartridge_: CommandPort<Cartridge>;
 
     deleteCartridge_: CommandPort<String>;
+
+    updateSettings_: CommandPort<Settings>;
 }
 
 interface CommandPort<T> {

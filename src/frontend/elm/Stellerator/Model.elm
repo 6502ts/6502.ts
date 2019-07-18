@@ -21,6 +21,7 @@ module Stellerator.Model exposing
     , decodeMedia
     , decodeSettings
     , decodeTvMode
+    , defaultSettings
     , encodeAudioEmulation
     , encodeCartridge
     , encodeCpuEmulation
@@ -136,8 +137,27 @@ type alias Model =
     }
 
 
-validUiSizes: List Int
-validUiSizes = [50, 75, 100, 125, 150]
+validUiSizes : List Int
+validUiSizes =
+    [ 50, 75, 100, 125, 150 ]
+
+
+defaultSettings : Settings
+defaultSettings =
+    { cpuEmulation = AccuracyCycle
+    , volume = 80
+    , audioEmulation = AudioPCM
+    , smoothScaling = True
+    , phosphorEmulation = True
+    , gammaCorrection = 1.0
+    , videoSync = True
+    , touchControls = Maybe.Nothing
+    , leftHanded = False
+    , virtualJoystickSensitivity = 10
+    , uiMode = Nothing
+    , uiSize = 100
+    }
+
 
 
 -- MESSAGE
