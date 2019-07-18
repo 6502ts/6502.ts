@@ -6,6 +6,7 @@ module Stellerator.View.Form exposing
     , onInput
     , picker
     , radioGroup
+    , responsiveButton
     , slider
     , textInput
     )
@@ -16,6 +17,7 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
 import Json.Decode as Decode
+import Stellerator.Model exposing (Media(..))
 
 
 onInput : (String -> msg) -> Attribute msg
@@ -69,6 +71,16 @@ mobileButton attr msg label =
         ]
         [ button attr [ text label ]
         ]
+
+
+responsiveButton : Media -> List (Attribute msg) -> msg -> String -> Html msg
+responsiveButton media attr msg label =
+    case media of
+        MediaNarrow ->
+            mobileButton attr msg label
+
+        MediaWide ->
+            button (E.onClick msg :: attr) [ text label ]
 
 
 radioGroup : List (Attribute msg) -> List ( a, String ) -> (a -> msg) -> a -> Html msg

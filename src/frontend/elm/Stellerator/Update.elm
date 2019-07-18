@@ -106,7 +106,7 @@ updateSettings msg settings =
             { settings | uiMode = uiMode }
 
         ChangeSettingsUiSize size ->
-            { settings | uiSize = size }
+            LE.find ((==) size) validUiSizes |> Maybe.map (\s -> { settings | uiSize = s }) |> Maybe.withDefault settings
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

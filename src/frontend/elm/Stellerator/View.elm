@@ -27,8 +27,8 @@ body model =
                 ( RouteCartridges, Just media ) ->
                     Cartridges.page model media
 
-                ( RouteSettings, Just _ ) ->
-                    Settings.page model
+                ( RouteSettings, Just media ) ->
+                    Settings.page model media
 
                 ( RouteEmulation, Just _ ) ->
                     emulation

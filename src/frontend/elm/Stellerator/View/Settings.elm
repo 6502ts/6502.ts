@@ -13,12 +13,13 @@ import Stellerator.Model
         , Model
         , Msg(..)
         , Settings
+        , validUiSizes
         )
 import Stellerator.View.Form as Form
 
 
-settingsList : Settings -> List (Html Msg)
-settingsList settings =
+settingsList : Settings -> Media -> List (Html Msg)
+settingsList settings media =
     let
         oneline lbl control =
             label [ A.for "nothing", A.css [ display block ] ]
@@ -109,12 +110,26 @@ settingsList settings =
                 [ ( Nothing, "Auto" ), ( Just MediaWide, "wide" ), ( Just MediaNarrow, "Narrow" ) ]
                 (ChangeSettings << ChangeSettingsUiMode)
                 settings.uiMode
+        , oneline "Scale:" <|
+            Form.picker
+                (List.map ((\s -> ( s, s ++ "%" )) << String.fromInt) validUiSizes)
+                (String.toInt >> Maybe.map (ChangeSettings << ChangeSettingsUiSize) >> Maybe.withDefault None)
+                (String.fromInt settings.uiSize)
+        ]
+    , h1 [] [ text "Reset" ]
+    , p [] <|
+        let
+            buttonWidth =
+                property "width" "calc(25*var(--cw))"
+        in
+        [ Form.responsiveButton media [ A.css [ buttonWidth ] ] None "Reset to defaults"
+        , Form.responsiveButton media [ A.css [ buttonWidth ] ] None "Delete all cartridges"
         ]
     ]
 
 
-page : Model -> List (Html Msg)
-page model =
+page : Model -> Media -> List (Html Msg)
+page model media =
     [ div
         [ A.css
             [ property "padding" "1rem var(--cw) 1rem var(--cw)"
@@ -123,5 +138,5 @@ page model =
             , descendants [ Sel.label [ pseudoClass "not(:first-of-type)" [ paddingTop (Css.em 1) ] ] ]
             ]
         ]
-        (settingsList model.settings)
+        (settingsList model.settings media)
     ]

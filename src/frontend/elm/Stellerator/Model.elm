@@ -30,6 +30,7 @@ module Stellerator.Model exposing
     , nextCartridge
     , previousCartridge
     , selectionInSearchResults
+    , validUiSizes
     )
 
 import Browser.Navigation as Nav
@@ -134,6 +135,9 @@ type alias Model =
     , settings : Settings
     }
 
+
+validUiSizes: List Int
+validUiSizes = [50, 75, 100, 125, 150]
 
 
 -- MESSAGE
