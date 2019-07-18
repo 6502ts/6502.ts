@@ -64,6 +64,10 @@ class Storage {
         });
     }
 
+    deleteAllCartridges(): Promise<void> {
+        return this._database.cartridges.clear();
+    }
+
     async getSettings(): Promise<Settings | undefined> {
         const record = await this._database.settings.get(SETTINGS_ID);
 

@@ -189,6 +189,7 @@ type ChangeSettingsMsg
     | ChangeSettingsVirtualJoystickSensitivity Int
     | ChangeSettingsUiMode (Maybe Media)
     | ChangeSettingsUiSize Int
+    | ChangeSettingsResetToDefault
 
 
 type Msg
@@ -206,6 +207,7 @@ type Msg
     | SelectLastCartridgeMatchingSearch
     | ClearSelectedCartridge
     | DeleteCartridge String
+    | DeleteAllCartridges
     | ChangeCartridge String ChangeCartridgeMsg
     | ChangeCartridgeViewMode CartridgeViewMode
     | AddCartridge

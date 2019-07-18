@@ -1,6 +1,7 @@
 port module Stellerator.Ports exposing
     ( ScrollPosition(..)
     , addCartridge
+    , deleteAllCartridges
     , deleteCartridge
     , onMediaUpdate
     , onNewCartridges
@@ -128,6 +129,14 @@ port deleteCartridge_ : String -> Cmd msg
 deleteCartridge : String -> Cmd msg
 deleteCartridge =
     deleteCartridge_
+
+
+port deleteAllCartridges_ : () -> Cmd msg
+
+
+deleteAllCartridges : Cmd msg
+deleteAllCartridges =
+    deleteAllCartridges_ ()
 
 
 

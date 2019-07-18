@@ -108,6 +108,9 @@ updateSettings msg settings =
         ChangeSettingsUiSize size ->
             LE.find ((==) size) validUiSizes |> Maybe.map (\s -> { settings | uiSize = s }) |> Maybe.withDefault settings
 
+        ChangeSettingsResetToDefault ->
+            defaultSettings
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -237,6 +240,9 @@ update msg model =
               }
             , Cmd.batch [ cmd, Ports.deleteCartridge hash ]
             )
+
+        DeleteAllCartridges ->
+            ( { model | cartridges = [], currentCartridgeHash = Nothing }, Ports.deleteAllCartridges )
 
         ChangeCartridge hash msg_ ->
             let

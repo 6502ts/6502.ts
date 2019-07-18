@@ -122,8 +122,8 @@ settingsList settings media =
             buttonWidth =
                 property "width" "calc(25*var(--cw))"
         in
-        [ Form.responsiveButton media [ A.css [ buttonWidth ] ] None "Reset to defaults"
-        , Form.responsiveButton media [ A.css [ buttonWidth ] ] None "Delete all cartridges"
+        [ Form.responsiveButton media [ A.css [ buttonWidth ] ] (ChangeSettings ChangeSettingsResetToDefault) "Reset to defaults"
+        , Form.responsiveButton media [ A.css [ buttonWidth ] ] DeleteAllCartridges "Delete all cartridges"
         ]
     ]
 

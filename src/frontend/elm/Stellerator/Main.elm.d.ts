@@ -79,6 +79,8 @@ export interface Ports {
     deleteCartridge_: CommandPort<String>;
 
     updateSettings_: CommandPort<Settings>;
+
+    deleteAllCartridges_: CommandPort<void>;
 }
 
 interface CommandPort<T> {
