@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import Elm, { CartridgeType } from '../elm/Stellerator/Main.elm';
+import Elm, { CartridgeType, Cartridge, Settings } from '../elm/Stellerator/Main.elm';
 import '../theme/dos.scss';
 
 import { initialize as initializeRangetouch } from '../common/rangetouch';
@@ -25,12 +25,19 @@ async function main(): Promise<void> {
     const container = new Container({ autoBindInjectable: true, defaultScope: 'Singleton' });
     const storage = container.get(Storage);
 
+    let cartridges: Array<Cartridge>;
+    let settings: Settings | undefined;
+
+    try {
+        [cartridges, settings] = await Promise.all([storage.getAllCartridges(), storage.getSettings()]);
+    } catch (e) {
+        await storage.dropDatabase();
+
+        [cartridges, settings] = await Promise.all([storage.getAllCartridges(), storage.getSettings()]);
+    }
+
     const { ports } = Elm.Stellerator.Main.init({
-        flags: {
-            cartridges: await storage.getAllCartridges(),
-            cartridgeTypes,
-            settings: await storage.getSettings()
-        }
+        flags: { cartridges, cartridgeTypes, settings }
     });
 
     container.get(MediaApi).init(ports);

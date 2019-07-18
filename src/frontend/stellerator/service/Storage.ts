@@ -13,10 +13,11 @@ interface RomImage {
 }
 
 const SETTINGS_ID = 0;
+const DB_NAME = 'stellerator-ng';
 
 class Database extends Dexie {
     constructor() {
-        super('stellerator-ng');
+        super(DB_NAME);
 
         this.version(1).stores({
             cartridges: '&hash',
@@ -76,6 +77,13 @@ class Storage {
 
     async saveSettings(settings: Settings): Promise<void> {
         await this._database.settings.put({ ...settings, id: SETTINGS_ID });
+    }
+
+    async dropDatabase(): Promise<void> {
+        this._database.close();
+        await indexedDB.deleteDatabase(DB_NAME);
+
+        this._database = new Database();
     }
 
     private _database = new Database();
