@@ -115,8 +115,36 @@ radioGroup attributes items tagger value =
 
 slider : List Style -> ( Int, Int ) -> (Maybe Int -> msg) -> (Int -> String) -> Int -> Html msg
 slider styles ( min, max ) tagger formatter value =
+    let
+        validateValue i =
+            if i >= min && i <= max then
+                Just i
+
+            else
+                Nothing
+    in
+    let
+        onKeyDown =
+            E.on "keydown" <|
+                Decode.andThen
+                    (\key ->
+                        case key of
+                            "ArrowLeft" ->
+                                validateValue (value - 1) |> tagger |> Decode.succeed
+
+                            "ArrowRight" ->
+                                validateValue (value + 1) |> tagger |> Decode.succeed
+
+                            _ ->
+                                Decode.fail ""
+                    )
+                    (Decode.field "key" Decode.string)
+    in
     span
-        [ A.css (styles ++ [ display inlineFlex ]) ]
+        [ A.css (styles ++ [ display inlineFlex ])
+        , A.tabindex 0
+        , onKeyDown
+        ]
         [ input
             [ A.css [ flexGrow (int 1) ]
             , A.type_ "range"
@@ -125,14 +153,7 @@ slider styles ( min, max ) tagger formatter value =
             , A.value <| String.fromInt value
             , onInput
                 (String.toInt
-                    >> Maybe.andThen
-                        (\i ->
-                            if i >= min && i <= max then
-                                Just i
-
-                            else
-                                Nothing
-                        )
+                    >> Maybe.andThen validateValue
                     >> tagger
                 )
             ]
@@ -141,6 +162,7 @@ slider styles ( min, max ) tagger formatter value =
             [ A.css
                 [ display block
                 , property "padding-left" "calc(2 * var(--cw))"
+                , property "min-width" "calc(4 * var(--cw))"
                 , flexGrow (int 0)
                 , flexShrink (int 0)
                 ]
