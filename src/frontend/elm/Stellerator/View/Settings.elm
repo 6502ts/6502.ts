@@ -2,6 +2,7 @@ module Stellerator.View.Settings exposing (page)
 
 import Css exposing (..)
 import Css.Global as Sel exposing (descendants)
+import Dos
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Stellerator.Model
@@ -34,8 +35,11 @@ settingsList settings media haveCartridges =
                 , Form.checkbox tagger value
                 ]
     in
-    [ h1 []
-        [ text "General" ]
+    let
+        section t =
+            h1 [ A.css [ Dos.color Dos.Cyan ] ] [ text t ]
+    in
+    [ section "General"
     , p
         []
         [ oneline "CPU emulation:" <|
@@ -45,7 +49,7 @@ settingsList settings media haveCartridges =
                 (ChangeSettings << ChangeSettingsCpuEmulation)
                 settings.cpuEmulation
         ]
-    , h1 [] [ text "Audio" ]
+    , section "Audio"
     , p []
         [ oneline "Audio emulation:" <|
             Form.radioGroup
@@ -65,7 +69,7 @@ settingsList settings media haveCartridges =
                 (\x -> String.fromInt x ++ "%")
                 settings.volume
         ]
-    , h1 [] [ text "Display" ]
+    , section "Display"
     , p []
         [ checkbox "Smooth scaling:" (ChangeSettings << ChangeSettingsSmoothScaling) settings.smoothScaling
         , checkbox "Phosphor emulation:" (ChangeSettings << ChangeSettingsPhosphorEmulation) settings.phosphorEmulation
@@ -80,7 +84,7 @@ settingsList settings media haveCartridges =
                 (\x -> String.fromFloat <| toFloat x / 10)
                 (Basics.round (settings.gammaCorrection * 10))
         ]
-    , h1 [] [ text "Controls" ]
+    , section "Controls"
     , p []
         [ oneline "Touch controls:" <|
             Form.radioGroup
@@ -102,7 +106,7 @@ settingsList settings media haveCartridges =
                 String.fromInt
                 settings.virtualJoystickSensitivity
         ]
-    , h1 [] [ text "Ui" ]
+    , section "Ui"
     , p []
         [ oneline "Display mode:" <|
             Form.radioGroup
@@ -116,7 +120,7 @@ settingsList settings media haveCartridges =
                 (String.toInt >> Maybe.map (ChangeSettings << ChangeSettingsUiSize) >> Maybe.withDefault None)
                 (String.fromInt settings.uiSize)
         ]
-    , h1 [] [ text "Reset" ]
+    , section "Reset"
     , p [] <|
         let
             buttonWidth =
