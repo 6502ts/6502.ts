@@ -18,8 +18,8 @@ import Stellerator.Model
 import Stellerator.View.Form as Form
 
 
-settingsList : Settings -> Media -> List (Html Msg)
-settingsList settings media =
+settingsList : Settings -> Media -> Bool -> List (Html Msg)
+settingsList settings media haveCartridges =
     let
         oneline lbl control =
             label [ A.for "nothing", A.css [ display block ] ]
@@ -123,7 +123,10 @@ settingsList settings media =
                 property "width" "calc(25*var(--cw))"
         in
         [ Form.responsiveButton media [ A.css [ buttonWidth ] ] (ChangeSettings ChangeSettingsResetToDefault) "Reset to defaults"
-        , Form.responsiveButton media [ A.css [ buttonWidth ] ] DeleteAllCartridges "Delete all cartridges"
+        , Form.responsiveButton media
+            [ A.css [ buttonWidth ], A.disabled <| not haveCartridges ]
+            (MessageNeedsConfirmation "Do you really want to delete all cartridges?" DeleteAllCartridges)
+            "Delete all cartridges"
         ]
     ]
 
@@ -138,5 +141,5 @@ page model media =
             , descendants [ Sel.label [ pseudoClass "not(:first-of-type)" [ paddingTop (Css.em 1) ] ] ]
             ]
         ]
-        (settingsList model.settings media)
+        (settingsList model.settings media (List.length model.cartridges > 0))
     ]

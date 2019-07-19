@@ -575,6 +575,7 @@ settingsSubpageNarrow model cart =
             , position fixed
             , top (Css.em 2)
             , left (px 0)
+            , zIndex (int 10)
             , width (vw 100)
             , boxSizing borderBox
             ]

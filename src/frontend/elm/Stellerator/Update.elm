@@ -317,5 +317,23 @@ update msg model =
             in
             ( { model | settings = newSettings }, Ports.updateSettings newSettings )
 
+        MessageNeedsConfirmation description message ->
+            noop { model | messageNeedsConfirmation = ( description, Just message ) }
+
+        RejectPendingMessage ->
+            noop { model | messageNeedsConfirmation = ( Tuple.first model.messageNeedsConfirmation, Nothing ) }
+
+        ConfirmPendingMessage ->
+            let
+                newModel =
+                    { model | messageNeedsConfirmation = ( Tuple.first model.messageNeedsConfirmation, Nothing ) }
+            in
+            case model.messageNeedsConfirmation of
+                ( _, Just m ) ->
+                    update m newModel
+
+                _ ->
+                    noop newModel
+
         _ ->
             noop model

@@ -64,6 +64,7 @@ init flagsJson url key =
       , cartridgeFilter = ""
       , cartridgeViewMode = CartridgeViewCartridges
       , settings = Maybe.withDefault defaultSettings flags.settings
+      , messageNeedsConfirmation = ( "", Nothing )
       }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)

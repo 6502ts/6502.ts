@@ -134,6 +134,7 @@ type alias Model =
     , cartridgeFilter : String
     , cartridgeViewMode : CartridgeViewMode
     , settings : Settings
+    , messageNeedsConfirmation :  ( String, Maybe Msg )
     }
 
 
@@ -213,6 +214,9 @@ type Msg
     | AddCartridge
     | AddNewCartridges (List Cartridge)
     | ChangeSettings ChangeSettingsMsg
+    | MessageNeedsConfirmation String Msg
+    | RejectPendingMessage
+    | ConfirmPendingMessage
     | None
 
 

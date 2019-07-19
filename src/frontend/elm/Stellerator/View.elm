@@ -6,6 +6,7 @@ import Html.Styled.Attributes exposing (..)
 import Stellerator.Model exposing (..)
 import Stellerator.View.Cartridges as Cartridges
 import Stellerator.View.Help as Help
+import Stellerator.View.Modal exposing (modal)
 import Stellerator.View.Navigation as Navigation
 import Stellerator.View.Settings as Settings
 
@@ -39,7 +40,9 @@ body model =
                 _ ->
                     []
     in
-    navbar ++ content
+    navbar
+        ++ (Maybe.map (modal model.messageNeedsConfirmation) model.media |> Maybe.withDefault [])
+        ++ content
 
 
 view : Model -> Browser.Document Msg
