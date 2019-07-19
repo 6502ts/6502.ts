@@ -32,6 +32,7 @@ module Stellerator.Model exposing
     , previousCartridge
     , selectionInSearchResults
     , validUiSizes
+    , effectiveMedia
     )
 
 import Browser.Navigation as Nav
@@ -278,7 +279,10 @@ previousCartridge cartridges hash =
     in
     previous_ <| cartridges ++ cartridges ++ cartridges
 
-
+effectiveMedia: Model -> Maybe Media
+effectiveMedia model = case model.settings.uiMode of
+    Just m -> Just m
+    Nothing -> model.media
 
 -- DECODER / ENCODER
 

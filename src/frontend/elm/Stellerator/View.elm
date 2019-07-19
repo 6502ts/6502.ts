@@ -19,17 +19,20 @@ emulation =
 body : Model -> List (Html Msg)
 body model =
     let
+        media = effectiveMedia model
+    in
+    let
         navbar =
-            Maybe.map (Navigation.navbar model) model.media |> Maybe.withDefault []
+            Maybe.map (Navigation.navbar model) media |> Maybe.withDefault []
     in
     let
         content =
-            case ( model.currentRoute, model.media ) of
-                ( RouteCartridges, Just media ) ->
-                    Cartridges.page model media
+            case ( model.currentRoute, media ) of
+                ( RouteCartridges, Just m ) ->
+                    Cartridges.page model m
 
-                ( RouteSettings, Just media ) ->
-                    Settings.page model media
+                ( RouteSettings, Just m ) ->
+                    Settings.page model m
 
                 ( RouteEmulation, Just _ ) ->
                     emulation
@@ -41,7 +44,7 @@ body model =
                     []
     in
     navbar
-        ++ (Maybe.map (modal model.messageNeedsConfirmation) model.media |> Maybe.withDefault [])
+        ++ (Maybe.map (modal model.messageNeedsConfirmation) media |> Maybe.withDefault [])
         ++ content
 
 

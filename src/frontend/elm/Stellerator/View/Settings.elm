@@ -111,7 +111,7 @@ settingsList settings media haveCartridges =
         [ oneline "Display mode:" <|
             Form.radioGroup
                 []
-                [ ( Nothing, "Auto" ), ( Just MediaWide, "wide" ), ( Just MediaNarrow, "Narrow" ) ]
+                [ ( Nothing, "Auto" ), ( Just MediaWide, "Wide" ), ( Just MediaNarrow, "Narrow" ) ]
                 (ChangeSettings << ChangeSettingsUiMode)
                 settings.uiMode
         , oneline "Scale:" <|
