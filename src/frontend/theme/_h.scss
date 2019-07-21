@@ -6,7 +6,7 @@
     margin: 0;
     @include width-fit-content;
 
-    margin-block-end: 1rem;
+    margin-block-end: 1em;
     margin-block-start: 0;
 }
 
@@ -21,12 +21,12 @@
 }
 
 @mixin h-underline-thick {
-    margin-bottom: 0.5rem;
-    border-bottom: 0.5rem solid currentColor;
+    margin-bottom: 0.5em;
+    border-bottom: 0.5em solid currentColor;
 }
 
 @mixin h-underline {
-    margin-bottom: 1rem - $px;
+    margin-bottom: 1em - $px;
     border-bottom: $px solid currentColor;
 }
 

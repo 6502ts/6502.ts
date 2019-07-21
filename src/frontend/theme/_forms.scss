@@ -7,14 +7,14 @@ button {
     color: $black;
     background: $light-gray;
     margin-right: 2 * $cw;
-    margin-bottom: 1rem;
+    margin-bottom: 1em;
 
     &:last-child {
         margin-right: $cw;
     }
 
     &:not(:disabled) {
-        @include box-shadow(($cw) 0.5rem 0 $black);
+        @include box-shadow(($cw) 0.5em 0 $black);
     }
 
     &:disabled {
@@ -43,7 +43,7 @@ button {
     outline: none;
     background: $cyan;
     color: $black;
-    height: 1rem;
+    height: 1em;
     border-radius: 0;
     padding: 0 $cw;
 
@@ -80,6 +80,7 @@ select {
 
 .select-wrapper {
     position: relative;
+    display: inline-block;
     @include width-fit-content;
 
     &::after {
@@ -141,7 +142,7 @@ input[type=range] {
     background: transparent;
     vertical-align: middle;
     cursor: pointer;
-    height: 1rem;
+    height: 1em;
     color: inherit;
 
     &::-webkit-slider-runnable-track {
@@ -158,11 +159,11 @@ input[type=range] {
     &::-webkit-slider-thumb {
         @include appearance-none;
 
-        height: 1rem;
+        height: 1em;
         width: $cw;
         background: currentColor;
         cursor: pointer;
-        margin-top: -0.5rem;
+        margin-top: -0.5em;
         border-radius: 0;
         outline: none;
         border: none;
@@ -182,7 +183,7 @@ input[type=range] {
     &::-moz-range-thumb {
         @include appearance-none;
 
-        height: 1rem;
+        height: 1em;
         width: $cw;
         border-radius: 0;
         background: currentColor;

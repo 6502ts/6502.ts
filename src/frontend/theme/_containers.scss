@@ -3,8 +3,8 @@
 .panel {
     position: relative;
     outline: $px solid currentColor;
-    padding: 1rem #{2 * $cw};
-    outline-offset: - 0.5rem;
+    padding: 1em #{2 * $cw};
+    outline-offset: - 0.5em;
     background-color: $background-color-default;
 
     &[data-label]::before {

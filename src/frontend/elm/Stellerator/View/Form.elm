@@ -61,7 +61,10 @@ textInput attr =
 mobileButton : List (Attribute msg) -> msg -> String -> Html msg
 mobileButton attr msg label =
     span
-        [ A.css [ display inlineBlock ]
+        [ A.css
+            [ display inlineBlock
+            , pseudoClass "not(:last-child)" [ property "margin-right" "var(--cw)" ]
+            ]
         , E.custom "click" <|
             Decode.succeed
                 { message = msg
@@ -69,7 +72,7 @@ mobileButton attr msg label =
                 , preventDefault = True
                 }
         ]
-        [ button attr [ text label ]
+        [ button (A.css [ property "margin-right" "var(--cw)" |> important ] :: attr) [ text label ]
         ]
 
 
