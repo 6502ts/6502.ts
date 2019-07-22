@@ -37,7 +37,7 @@ onChange tagger =
 
 picker : List ( String, String ) -> (String -> msg) -> String -> Html msg
 picker items tagger value =
-    Dos.select
+    Dos.selectWithStyles [ maxWidth (pct 100) ]
         [ A.css [ maxWidth (pct 100) ]
         , onChange tagger
         ]
