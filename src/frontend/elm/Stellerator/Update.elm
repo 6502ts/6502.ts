@@ -124,21 +124,6 @@ update msg model =
             , Maybe.map (Ports.scrollIntoView Ports.Nearest) hash |> Maybe.withDefault Cmd.none
             )
     in
-    let
-        dummyEmulationState route =
-            case route of
-                RouteCartridges ->
-                    EmulationStopped
-
-                RouteSettings ->
-                    EmulationPaused
-
-                RouteEmulation ->
-                    EmulationRunning (Just 3.55)
-
-                RouteHelp ->
-                    EmulationRunning Nothing
-    in
     case msg of
         NavigateToUrl url ->
             ( model, Nav.pushUrl model.key url )
@@ -161,7 +146,6 @@ update msg model =
                 newModel =
                     { model
                         | currentRoute = route
-                        , emulationState = dummyEmulationState route
                         , sideMenu = False
                     }
             in

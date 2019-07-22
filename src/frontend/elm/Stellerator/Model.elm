@@ -18,10 +18,12 @@ module Stellerator.Model exposing
     , decodeCartridge
     , decodeCartridgeType
     , decodeCpuEmulation
+    , decodeEmulationState
     , decodeMedia
     , decodeSettings
     , decodeTvMode
     , defaultSettings
+    , effectiveMedia
     , encodeAudioEmulation
     , encodeCartridge
     , encodeCpuEmulation
@@ -32,7 +34,6 @@ module Stellerator.Model exposing
     , previousCartridge
     , selectionInSearchResults
     , validUiSizes
-    , effectiveMedia
     )
 
 import Browser.Navigation as Nav
@@ -62,6 +63,7 @@ type EmulationState
     = EmulationStopped
     | EmulationPaused
     | EmulationRunning (Maybe Float)
+    | EmulationError String
 
 
 type TvMode
@@ -135,7 +137,7 @@ type alias Model =
     , cartridgeFilter : String
     , cartridgeViewMode : CartridgeViewMode
     , settings : Settings
-    , messageNeedsConfirmation :  ( String, Maybe Msg )
+    , messageNeedsConfirmation : ( String, Maybe Msg )
     }
 
 
@@ -279,10 +281,17 @@ previousCartridge cartridges hash =
     in
     previous_ <| cartridges ++ cartridges ++ cartridges
 
-effectiveMedia: Model -> Maybe Media
-effectiveMedia model = case model.settings.uiMode of
-    Just m -> Just m
-    Nothing -> model.media
+
+effectiveMedia : Model -> Maybe Media
+effectiveMedia model =
+    case model.settings.uiMode of
+        Just m ->
+            Just m
+
+        Nothing ->
+            model.media
+
+
 
 -- DECODER / ENCODER
 
@@ -479,3 +488,26 @@ decodeCartridgeType =
     Decode.map2 CartridgeType
         (Decode.field "key" Decode.string)
         (Decode.field "description" Decode.string)
+
+
+decodeEmulationState : Decode.Decoder EmulationState
+decodeEmulationState =
+    Decode.field "state" Decode.string
+        |> Decode.andThen
+            (\s ->
+                case s of
+                    "stopped" ->
+                        Decode.succeed EmulationStopped
+
+                    "paused" ->
+                        Decode.succeed EmulationPaused
+
+                    "running" ->
+                        Decode.field "frequency" Decode.float |> Decode.maybe |> Decode.map EmulationRunning
+
+                    "error" ->
+                        Decode.field "error" Decode.string |> Decode.map EmulationError
+
+                    _ ->
+                        Decode.fail "invalid emulation state"
+            )

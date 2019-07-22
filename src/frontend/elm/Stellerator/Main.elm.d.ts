@@ -21,6 +21,33 @@ export const enum Media {
     wide = 'wide'
 }
 
+export const enum EmulationStateKey {
+    stopped = 'stopped',
+    paused = 'paused',
+    running = 'running',
+    error = 'error'
+}
+
+export interface EmulationStateStopped {
+    state: EmulationStateKey.stopped;
+}
+
+export interface EmulationStatePaused {
+    state: EmulationStateKey.paused;
+}
+
+export interface EmulationStateRunning {
+    state: EmulationStateKey.running;
+    frequency?: number;
+}
+
+export interface EmulationStateError {
+    state: EmulationStateKey.error;
+    error: string;
+}
+
+export type EmulationState = EmulationStateStopped | EmulationStatePaused | EmulationStateRunning | EmulationStateError;
+
 export interface Cartridge {
     hash: string;
     name: string;
@@ -73,14 +100,16 @@ export interface Ports {
 
     addCartridge_: CommandPort<void>;
     onNewCartridges_: SubscriptionPort<Array<Cartridge>>;
-
     updateCartridge_: CommandPort<Cartridge>;
-
     deleteCartridge_: CommandPort<String>;
+    deleteAllCartridges_: CommandPort<void>;
 
     updateSettings_: CommandPort<Settings>;
 
-    deleteAllCartridges_: CommandPort<void>;
+    startEmulation_: CommandPort<string>;
+    stopEmulation_: CommandPort<void>;
+    pauseEmulation_: CommandPort<void>;
+    onEmulationStateChange_: SubscriptionPort<EmulationState>;
 }
 
 interface CommandPort<T> {

@@ -3,9 +3,13 @@ port module Stellerator.Ports exposing
     , addCartridge
     , deleteAllCartridges
     , deleteCartridge
+    , onEmulationStateChange
     , onMediaUpdate
     , onNewCartridges
+    , pauseEmulation
     , scrollIntoView
+    , startEmulation
+    , stopEmulation
     , updateCartridge
     , updateSettings
     , watchMedia
@@ -16,8 +20,11 @@ import Json.Encode as Encode
 import Stellerator.Model
     exposing
         ( Cartridge
+        , EmulationState
+        , Msg(..)
         , Settings
         , decodeCartridge
+        , decodeEmulationState
         , encodeCartridge
         , encodeSettings
         )
@@ -149,3 +156,39 @@ port updateSettings_ : Encode.Value -> Cmd msg
 updateSettings : Settings -> Cmd msg
 updateSettings =
     encodeSettings >> updateSettings_
+
+
+
+-- EmulationCommands
+
+
+port startEmulation_ : String -> Cmd msg
+
+
+startEmulation : String -> Cmd msg
+startEmulation =
+    startEmulation_
+
+
+port stopEmulation_ : () -> Cmd msg
+
+
+stopEmulation : Cmd msg
+stopEmulation =
+    stopEmulation_ ()
+
+
+port pauseEmulation_ : () -> Cmd msg
+
+
+pauseEmulation : Cmd msg
+pauseEmulation =
+    pauseEmulation_ ()
+
+
+port onEmulationStateChange_ : (Encode.Value -> msg) -> Sub msg
+
+
+onEmulationStateChange : (EmulationState -> Msg) -> Sub Msg
+onEmulationStateChange tagger =
+    onEmulationStateChange_ (Decode.decodeValue decodeEmulationState >> Result.map tagger >> Result.withDefault None)

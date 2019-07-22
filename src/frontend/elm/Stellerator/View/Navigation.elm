@@ -64,6 +64,9 @@ emulationState model =
         EmulationRunning (Just speed) ->
             "running: " ++ format { usLocale | decimals = 2 } speed ++ " MHz"
 
+        EmulationError _ ->
+            "error"
+
 
 navbar : Model -> Media -> List (Html Msg)
 navbar model media =
