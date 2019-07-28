@@ -61,6 +61,7 @@ class CartridgeFE extends AbstractCartridge {
     reset(): void {
         this._bank = this._bank0;
         this._lastAccessWasFE = false;
+        this._resetVectorWasRead = false;
         this._lastAddressBusValue = -1;
     }
 
@@ -86,18 +87,19 @@ class CartridgeFE extends AbstractCartridge {
     }
 
     private static _onBusAccess(accessType: Bus.AccessType, self: CartridgeFE): void {
-        const lastAddressBusValue = self._lastAddressBusValue;
-        self._lastAddressBusValue = self._bus.getLastAddresBusValue();
+        const previousAddressBusValue = self._lastAddressBusValue;
+        self._lastAddressBusValue = self._bus.getLastAddresBusValue() & 0x1fff;
 
-        if (self._lastAddressBusValue === lastAddressBusValue) {
+        if (self._lastAddressBusValue === previousAddressBusValue) {
             return;
         }
 
-        if (self._lastAccessWasFE) {
+        if (self._lastAccessWasFE && self._resetVectorWasRead) {
             self._bank = (self._bus.getLastDataBusValue() & 0x20) > 0 ? self._bank0 : self._bank1;
         }
 
-        self._lastAccessWasFE = self._bus.getLastAddresBusValue() === 0x01fe;
+        self._lastAccessWasFE = self._lastAddressBusValue === 0x01fe;
+        self._resetVectorWasRead = self._resetVectorWasRead || self._lastAddressBusValue === 0x1ffd;
     }
 
     private _bus: Bus;
@@ -107,6 +109,7 @@ class CartridgeFE extends AbstractCartridge {
     private _bank: Uint8Array;
 
     private _lastAccessWasFE = false;
+    private _resetVectorWasRead = false;
     private _lastAddressBusValue = -1;
 }
 
