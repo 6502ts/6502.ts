@@ -104,6 +104,59 @@ class Emulation {
         });
     }
 
+    async updateCartridge(cartridge: Cartridge): Promise<void> {
+        if (cartridge.hash !== this._currentCartridgeHash) {
+            return;
+        }
+
+        switch (this._emulationService.getState()) {
+            case EmulationServiceInterface.State.running:
+            case EmulationServiceInterface.State.paused:
+                break;
+
+            default:
+                return;
+        }
+
+        const settings = await this._storage.getSettings();
+
+        this._audioDriver.setMasterVolume((cartridge.volume * settings.volume) / 10000);
+        if (this._videoDriver) {
+            this._videoDriver.enablePovEmulation(
+                typeof cartridge.phosphorEmulation === 'undefined'
+                    ? settings.phosphorEmulation
+                    : cartridge.phosphorEmulation
+            );
+        }
+    }
+
+    async updateSettings(settings: Settings): Promise<void> {
+        switch (this._emulationService.getState()) {
+            case EmulationServiceInterface.State.running:
+            case EmulationServiceInterface.State.paused:
+                break;
+
+            default:
+                return;
+        }
+
+        const cartridge = await this._storage.getCartridge(this._currentCartridgeHash);
+
+        this._audioDriver.setMasterVolume((cartridge.volume * settings.volume) / 10000);
+
+        if (this._videoDriver) {
+            this._videoDriver
+                .enablePovEmulation(
+                    typeof cartridge.phosphorEmulation === 'undefined'
+                        ? settings.phosphorEmulation
+                        : cartridge.phosphorEmulation
+                )
+                .enableInterpolation(settings.smoothScaling)
+                .enableSyncRendering(settings.videoSync)
+                .setGamma(settings.gammaCorrection);
+        }
+    }
+
     private async _startEmulation(hash: string): Promise<void> {
         await this._emulationServiceReady;
         await this._emulationService.stop();
