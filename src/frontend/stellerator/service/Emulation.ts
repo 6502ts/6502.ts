@@ -7,6 +7,8 @@ import DriverManager from '../../../web/stella/service/DriverManager';
 import Config from '../../../machine/stella/Config';
 import CpuFactory from '../../../machine/cpu/Factory';
 import VideoDriver from '../../../web/driver/webgl/WebglVideo';
+import KeyboardDriver from '../../../web/stella/driver/KeyboardIO';
+import AudioDriver from '../../../web/stella/driver/WebAudio';
 
 import {
     Ports,
@@ -80,6 +82,7 @@ class Emulation {
         this._emulationServiceReady = this._emulationService.init();
 
         this._driverManager.bind(this._emulationService);
+        this._audioDriver.init();
     }
 
     init(ports: Ports): void {
@@ -102,6 +105,9 @@ class Emulation {
     }
 
     private async _startEmulation(hash: string): Promise<void> {
+        await this._emulationServiceReady;
+        await this._emulationService.stop();
+
         const [cartidge, image, settings]: readonly [Cartridge, Uint8Array, Settings] = await Promise.all([
             this._storage.getCartridge(hash),
             this._storage.getCartridgeImage(hash),
@@ -112,9 +118,22 @@ class Emulation {
             throw new Error(`invalid cartridge hash ${hash}`);
         }
 
+        const newConfig = config(cartidge, settings);
+
+        if (!this._currentConfig || this._currentConfig.pcmAudio !== newConfig.pcmAudio) {
+            this._driverManager.removeDriver(this._audioDriver);
+            this._driverManager.addDriver(this._audioDriver, (context, driver: AudioDriver) =>
+                driver.bind(
+                    newConfig.pcmAudio,
+                    newConfig.pcmAudio ? [context.getPCMChannel()] : context.getWaveformChannels()
+                )
+            );
+        }
+
+        this._audioDriver.setMasterVolume((cartidge.volume * settings.volume) / 10000);
+
         this._currentConfig = config(cartidge, settings);
 
-        await this._emulationServiceReady;
         await this._emulationService.start(image, this._currentConfig, cartidge.cartridgeType);
         await this._emulationService.resume();
 
@@ -159,11 +178,17 @@ class Emulation {
             .enableSyncRendering(settings.videoSync)
             .init();
 
-        this._driverManager.addDriver(this._videoDriver, context => this._videoDriver.bind(context.getVideo()));
+        this._driverManager.addDriver(this._videoDriver, (context, driver: VideoDriver) =>
+            driver.bind(context.getVideo())
+        );
     }
 
     private async _bindCanvas(canvas: HTMLCanvasElement): Promise<void> {
         await this._createAndBindVideoDriver(canvas);
+
+        this._driverManager.addDriver(this._keyboardDriver, (context, driver: KeyboardDriver) =>
+            driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+        );
     }
 
     private async _rebindCanvas(canvas: HTMLCanvasElement): Promise<void> {
@@ -171,6 +196,8 @@ class Emulation {
     }
 
     private async _unbindCanvas(): Promise<void> {
+        this._driverManager.removeDriver(this._keyboardDriver);
+
         await this._removeVideoDriver();
         this._canvas = null;
     }
@@ -265,6 +292,9 @@ class Emulation {
     private _canvas: HTMLCanvasElement = null;
     private _videoDriver: VideoDriver = null;
     private _mutationObserver = new MutationObserver(this._onMutation);
+
+    private _keyboardDriver = new KeyboardDriver(document);
+    private _audioDriver = new AudioDriver();
 
     private _currentConfig: Config = null;
 }
