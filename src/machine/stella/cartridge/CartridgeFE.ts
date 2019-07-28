@@ -86,18 +86,25 @@ class CartridgeFE extends AbstractCartridge {
     }
 
     private static _onBusAccess(accessType: Bus.AccessType, self: CartridgeFE): void {
-        const lastAddressBusValue = self._lastAddressBusValue;
-        self._lastAddressBusValue = self._bus.getLastAddresBusValue();
+        const previousAddressBusValue = self._lastAddressBusValue;
+        self._lastAddressBusValue = self._bus.getLastAddresBusValue() & 0x1fff;
 
-        if (self._lastAddressBusValue === lastAddressBusValue) {
+        if (self._lastAddressBusValue === previousAddressBusValue) {
             return;
         }
 
         if (self._lastAccessWasFE) {
-            self._bank = (self._bus.getLastDataBusValue() & 0x20) > 0 ? self._bank0 : self._bank1;
+            const dataBusHiBits = self._bus.getLastDataBusValue() & 0xe0;
+
+            self._bank =
+                dataBusHiBits === 0
+                    ? self._bank0
+                    : (self._bus.getLastDataBusValue() & 0x20) > 0
+                        ? self._bank0
+                        : self._bank1;
         }
 
-        self._lastAccessWasFE = self._bus.getLastAddresBusValue() === 0x01fe;
+        self._lastAccessWasFE = self._lastAddressBusValue === 0x01fe;
     }
 
     private _bus: Bus;
