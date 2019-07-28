@@ -257,7 +257,11 @@ cartridgeToolbarWide model =
                 , E.onClick <| Maybe.withDefault None <| Maybe.map DeleteCartridge model.currentCartridgeHash
                 ]
                 [ text "Delete" ]
-            , btn [] [ text "Run" ]
+            , btn
+                [ A.disabled <| ifHaveSelection model False True
+                , selectionInSearchResults model |> Maybe.map StartEmulation |> Maybe.withDefault None |> E.onClick
+                ]
+                [ text "Run" ]
             ]
         ]
 

@@ -7,6 +7,7 @@ port module Stellerator.Ports exposing
     , onMediaUpdate
     , onNewCartridges
     , pauseEmulation
+    , resumeEmulation
     , scrollIntoView
     , startEmulation
     , stopEmulation
@@ -184,6 +185,14 @@ port pauseEmulation_ : () -> Cmd msg
 pauseEmulation : Cmd msg
 pauseEmulation =
     pauseEmulation_ ()
+
+
+port resumeEmulation_ : () -> Cmd msg
+
+
+resumeEmulation : Cmd msg
+resumeEmulation =
+    resumeEmulation_ ()
 
 
 port onEmulationStateChange_ : (Encode.Value -> msg) -> Sub msg

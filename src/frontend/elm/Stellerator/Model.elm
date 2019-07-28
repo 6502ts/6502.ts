@@ -22,7 +22,6 @@ module Stellerator.Model exposing
     , decodeMedia
     , decodeSettings
     , decodeTvMode
-    , defaultSettings
     , effectiveMedia
     , encodeAudioEmulation
     , encodeCartridge
@@ -137,6 +136,7 @@ type alias Model =
     , cartridgeFilter : String
     , cartridgeViewMode : CartridgeViewMode
     , settings : Settings
+    , defaultSettings : Settings
     , messageNeedsConfirmation : ( String, Maybe Msg )
     }
 
@@ -144,23 +144,6 @@ type alias Model =
 validUiSizes : List Int
 validUiSizes =
     [ 50, 75, 100, 125, 150 ]
-
-
-defaultSettings : Settings
-defaultSettings =
-    { cpuEmulation = AccuracyCycle
-    , volume = 80
-    , audioEmulation = AudioPCM
-    , smoothScaling = True
-    , phosphorEmulation = True
-    , gammaCorrection = 1.0
-    , videoSync = True
-    , touchControls = Maybe.Nothing
-    , leftHanded = False
-    , virtualJoystickSensitivity = 10
-    , uiMode = Nothing
-    , uiSize = 100
-    }
 
 
 
@@ -220,6 +203,10 @@ type Msg
     | MessageNeedsConfirmation String Msg
     | RejectPendingMessage
     | ConfirmPendingMessage
+    | StartEmulation String
+    | PauseEmulaton
+    | StopEmulation
+    | UpdateEmulationState EmulationState
     | None
 
 

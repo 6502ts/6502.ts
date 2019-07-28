@@ -5,6 +5,7 @@ import Dict
 import List.Extra as LE
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
+import Stellerator.Routing as Routing
 
 
 updateCartridge : List CartridgeType -> ChangeCartridgeMsg -> Cartridge -> Cartridge
@@ -69,8 +70,8 @@ updateCartridge cartridgeTypes msg cartridge =
             { cartridge | volume = vol }
 
 
-updateSettings : ChangeSettingsMsg -> Settings -> Settings
-updateSettings msg settings =
+updateSettings : ChangeSettingsMsg -> Settings -> Settings -> Settings
+updateSettings msg defaultSettings settings =
     case msg of
         ChangeSettingsCpuEmulation cpuEmulation ->
             { settings | cpuEmulation = cpuEmulation }
@@ -130,17 +131,26 @@ update msg model =
 
         ChangeRoute route ->
             let
-                cmd =
+                scrollCmd =
                     case ( route, selectionInSearchResults model ) of
                         ( RouteCartridges, Just hash ) ->
                             if model.currentRoute /= RouteCartridges then
-                                Ports.scrollIntoView Ports.Center hash
+                                [ Ports.scrollIntoView Ports.Center hash ]
 
                             else
-                                Cmd.none
+                                []
 
                         _ ->
-                            Cmd.none
+                            []
+            in
+            let
+                emulationCmd =
+                    case route of
+                        RouteEmulation ->
+                            [ Ports.resumeEmulation ]
+
+                        _ ->
+                            [ Ports.pauseEmulation ]
             in
             let
                 newModel =
@@ -149,7 +159,7 @@ update msg model =
                         , sideMenu = False
                     }
             in
-            ( newModel, cmd )
+            ( newModel, Cmd.batch <| scrollCmd ++ emulationCmd )
 
         ChangeMedia media ->
             let
@@ -297,7 +307,7 @@ update msg model =
         ChangeSettings changeSettingsMsg ->
             let
                 newSettings =
-                    updateSettings changeSettingsMsg model.settings
+                    updateSettings changeSettingsMsg model.defaultSettings model.settings
             in
             ( { model | settings = newSettings }, Ports.updateSettings newSettings )
 
@@ -318,6 +328,18 @@ update msg model =
 
                 _ ->
                     noop newModel
+
+        StartEmulation hash ->
+            ( model, Cmd.batch [ Ports.startEmulation hash, Nav.pushUrl model.key <| Routing.serializeRoute RouteEmulation ] )
+
+        StopEmulation ->
+            ( model, Ports.stopEmulation )
+
+        PauseEmulaton ->
+            ( model, Ports.pauseEmulation )
+
+        UpdateEmulationState emulationState ->
+            noop { model | emulationState = emulationState }
 
         _ ->
             noop model

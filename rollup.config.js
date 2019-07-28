@@ -18,8 +18,9 @@ const worker = ({ input, output }) => ({
     input,
     output: {
         file: output,
-        format: 'cjs',
-        sourcemap: true
+        format: 'iife',
+        sourcemap: true,
+        name: 'worker'
     },
     plugins: [
         resolve({ preferBuiltins: true }),
@@ -52,8 +53,9 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
     input,
     output: {
         file: path.join(output, 'app.js'),
-        format: 'cjs',
-        sourcemap: true
+        format: 'iife',
+        sourcemap: true,
+        name: 'app'
     },
     plugins: [
         resolve({ preferBuiltins: true }),
@@ -123,7 +125,7 @@ export default [
         input: 'src/frontend/stellerator/index.ts',
         output: 'dist/frontend/stellerator',
         template: 'template/stellerator.html',
-        extraAssets: ['doc']
+        extraAssets: ['doc', 'dist/worker/stellerator.min.js', 'dist/worker/stellerator.min.js.map']
     }),
     elmFrontend({
         input: 'src/frontend/ui-playground/index.ts',

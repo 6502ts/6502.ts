@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import { Cartridge, Settings } from '../../elm/Stellerator/Main.elm';
+import { Cartridge, Settings, CpuEmulation, AudioEmulation } from '../../elm/Stellerator/Main.elm';
 import { injectable } from 'inversify';
 
 export interface CartridgeWithImage {
@@ -14,6 +14,21 @@ interface RomImage {
 
 const SETTINGS_ID = 0;
 const DB_NAME = 'stellerator-ng';
+
+export const DEFAULT_SETTINGS: Settings = {
+    cpuEmulation: CpuEmulation.cycle,
+    volume: 80,
+    audioEmulation: AudioEmulation.pcm,
+    smoothScaling: true,
+    phosphorEmulation: true,
+    gammaCorrection: 1.0,
+    videoSync: true,
+    touchControls: undefined,
+    leftHanded: false,
+    virtualJoystickSensitivity: 10,
+    uiMode: undefined,
+    uiSize: 100
+};
 
 class Database extends Dexie {
     constructor() {
@@ -68,11 +83,21 @@ class Storage {
         return this._database.cartridges.clear();
     }
 
+    getCartridge(hash: string): Promise<Cartridge | undefined> {
+        return this._database.cartridges.get(hash);
+    }
+
+    async getCartridgeImage(hash: string): Promise<Uint8Array | undefined> {
+        const rom = await this._database.roms.get(hash);
+
+        return rom && rom.image;
+    }
+
     async getSettings(): Promise<Settings | undefined> {
         const record = await this._database.settings.get(SETTINGS_ID);
 
         if (!record) {
-            return undefined;
+            return DEFAULT_SETTINGS;
         }
 
         const { id, ...settings } = record;

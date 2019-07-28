@@ -64,12 +64,12 @@ export interface Cartridge {
 
 export interface Settings {
     cpuEmulation: CpuEmulation;
-    volume: Number;
+    volume: number;
     audioEmulation: AudioEmulation;
     smoothScaling: boolean;
     phosphorEmulation: boolean;
     gammaCorrection: number;
-    videoSync: number;
+    videoSync: boolean;
     leftHanded: boolean;
     virtualJoystickSensitivity: number;
     uiSize: number;
@@ -85,7 +85,8 @@ export interface CartridgeType {
 export interface Flags {
     cartridges: Array<Cartridge>;
     cartridgeTypes: Array<CartridgeType>;
-    settings: Settings | undefined;
+    settings: Settings;
+    defaultSettings: Settings;
 }
 
 export interface Options {
@@ -109,6 +110,7 @@ export interface Ports {
     startEmulation_: CommandPort<string>;
     stopEmulation_: CommandPort<void>;
     pauseEmulation_: CommandPort<void>;
+    resumeEmulation_: CommandPort<void>;
     onEmulationStateChange_: SubscriptionPort<EmulationState>;
 }
 

@@ -33,7 +33,7 @@ class Task {
     }
 
     private _onMutation = (mutations: Array<MutationRecord>): void => {
-        if (!mutations.find(m => m.addedNodes)) {
+        if (!mutations.some(m => m.addedNodes)) {
             return;
         }
 

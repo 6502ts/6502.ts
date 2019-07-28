@@ -15,16 +15,35 @@ import Url exposing (Url)
 type alias Flags =
     { cartridges : List Cartridge
     , cartridgeTypes : List CartridgeType
-    , settings : Maybe Settings
+    , settings : Settings
+    , defaultSettings : Settings
     }
 
 
 decodeFlags : Decoder Flags
 decodeFlags =
-    map3 Flags
+    map4 Flags
         (field "cartridges" <| list decodeCartridge)
         (field "cartridgeTypes" <| list decodeCartridgeType)
-        (Decode.maybe (field "settings" <| decodeSettings))
+        (field "settings" <| decodeSettings)
+        (field "defaultSettings" <| decodeSettings)
+
+
+fallbackSettings : Settings
+fallbackSettings =
+    { cpuEmulation = AccuracyCycle
+    , volume = 80
+    , audioEmulation = AudioPCM
+    , smoothScaling = True
+    , phosphorEmulation = True
+    , gammaCorrection = 1.0
+    , videoSync = True
+    , touchControls = Maybe.Nothing
+    , leftHanded = False
+    , virtualJoystickSensitivity = 10
+    , uiMode = Nothing
+    , uiSize = 100
+    }
 
 
 init : Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -36,7 +55,11 @@ init flagsJson url key =
                     f
 
                 Err _ ->
-                    { cartridges = [], cartridgeTypes = [], settings = Maybe.Nothing }
+                    { cartridges = []
+                    , cartridgeTypes = []
+                    , settings = fallbackSettings
+                    , defaultSettings = fallbackSettings
+                    }
     in
     let
         route : Route
@@ -63,7 +86,8 @@ init flagsJson url key =
       , currentCartridgeHash = Nothing
       , cartridgeFilter = ""
       , cartridgeViewMode = CartridgeViewCartridges
-      , settings = Maybe.withDefault defaultSettings flags.settings
+      , settings = flags.settings
+      , defaultSettings = flags.defaultSettings
       , messageNeedsConfirmation = ( "", Nothing )
       }
     , Cmd.batch
@@ -90,6 +114,7 @@ subscriptions _ =
                 >> Maybe.withDefault None
             )
         , Ports.onNewCartridges AddNewCartridges
+        , Ports.onEmulationStateChange UpdateEmulationState
         ]
 
 

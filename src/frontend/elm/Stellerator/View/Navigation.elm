@@ -62,7 +62,7 @@ emulationState model =
             "running"
 
         EmulationRunning (Just speed) ->
-            "running: " ++ format { usLocale | decimals = 2 } speed ++ " MHz"
+            "running: " ++ format { usLocale | decimals = 2 } (speed / 1000000) ++ " MHz"
 
         EmulationError _ ->
             "error"

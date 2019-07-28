@@ -10,9 +10,10 @@ import MediaApi from './service/MediaApi';
 import ScrollIntoView from './service/ScrollIntoView';
 import AddCartridge from './service/AddCartridge';
 import { Container } from 'inversify';
-import Storage from './service/Storage';
+import Storage, { DEFAULT_SETTINGS } from './service/Storage';
 import TrackCartridges from './service/TrackCartridges';
 import TrackSettings from './service/TrackSettings';
+import Emulation from './service/Emulation';
 
 async function main(): Promise<void> {
     initializeRangetouch();
@@ -37,7 +38,7 @@ async function main(): Promise<void> {
     }
 
     const { ports } = Elm.Stellerator.Main.init({
-        flags: { cartridges, cartridgeTypes, settings }
+        flags: { cartridges, cartridgeTypes, settings, defaultSettings: DEFAULT_SETTINGS }
     });
 
     container.get(MediaApi).init(ports);
@@ -45,6 +46,7 @@ async function main(): Promise<void> {
     container.get(AddCartridge).init(ports);
     container.get(TrackCartridges).init(ports);
     container.get(TrackSettings).init(ports);
+    container.get(Emulation).init(ports);
 }
 
 window.addEventListener('load', main);
