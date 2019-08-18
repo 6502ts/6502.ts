@@ -107,8 +107,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
             ]
         }),
         copy({
-            targets: ['src/frontend/theme/assets', ...extraAssets],
-            outputFolder: output
+            targets: ['src/frontend/theme/assets', ...extraAssets].map(src => ({ src, dest: output }))
         }),
         sizes()
     ],
