@@ -3734,10 +3734,9 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-rollup-plugin-bundle-html@^0.2.0:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-bundle-html/-/rollup-plugin-bundle-html-0.2.1.tgz#1389242fb08625e277c046551bd76a3704e2f2be"
-  integrity sha512-9aYgD3kPytc55c/dF3zcU0Gg5/kVlFVyd/AJ5NTcFApThRR6E9kF67StOEvCA2TRSpK7bcldBHr9WG/EEOUY8w==
+"rollup-plugin-bundle-html@https://github.com/DirtyHairy/rollup-plugin-bundle-html/releases/download/0.2.0-cs/rollup-plugin-bundle-html-0.2.0-cs.tgz":
+  version "0.2.0"
+  resolved "https://github.com/DirtyHairy/rollup-plugin-bundle-html/releases/download/0.2.0-cs/rollup-plugin-bundle-html-0.2.0-cs.tgz#01a02fa2f1b8a153b046514deca23a04a06b0860"
   dependencies:
     cheerio "^1.0.0-rc.2"
     hasha "^3.0.0"

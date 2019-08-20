@@ -23,7 +23,7 @@ import {
 import Storage from './Storage';
 
 const CANVAS_ID = 'stellerator-canvas';
-const WORKER_URL = 'stellerator.min.js';
+const WORKER_URL = 'worker/stellerator.min.js';
 
 function error(msg: string): EmulationState {
     return {

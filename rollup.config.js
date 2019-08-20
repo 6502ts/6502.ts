@@ -37,11 +37,16 @@ const worker = ({ input, output }) => ({
                     module: 'es2015'
                 }
             },
-            tsconfig: 'worker/tsconfig.json'
+            tsconfig: 'worker/tsconfig.json',
+            objectHashIgnoreUnknownHack: true
         }),
         globals(),
         builtins(),
-        ...(process.env.DEV ? [] : [terser()])
+        ...(process.env.DEV ? [] : [terser()]),
+        copy({
+            targets: [output, `${output}.map`].map(src => ({ src, dest: 'dist/frontend/stellerator/worker' })),
+            hook: 'writeBundle'
+        })
     ],
     onwarn: (warning, warn) => {
         if (warning.code === 'EVAL' && warning.id.match(/thumbulator\.js$/)) return;
@@ -99,12 +104,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
             dest: output,
             filename: 'index.html',
             inject: 'head',
-            externals: [
-                {
-                    file: path.join(output, 'app.css'),
-                    type: 'css'
-                }
-            ]
+            ignore: /worker/
         }),
         copy({
             targets: ['src/frontend/theme/assets', ...extraAssets].map(src => ({ src, dest: output }))
@@ -124,7 +124,7 @@ export default [
         input: 'src/frontend/stellerator/index.ts',
         output: 'dist/frontend/stellerator',
         template: 'template/stellerator.html',
-        extraAssets: ['doc', 'dist/worker/stellerator.min.js', 'dist/worker/stellerator.min.js.map']
+        extraAssets: ['doc']
     }),
     elmFrontend({
         input: 'src/frontend/ui-playground/index.ts',

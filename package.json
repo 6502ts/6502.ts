@@ -51,7 +51,7 @@
     "rangetouch": "^2.0.0",
     "reflect-metadata": "^0.1.13",
     "rollup": "^1.19.4",
-    "rollup-plugin-bundle-html": "^0.2.0",
+    "rollup-plugin-bundle-html": "https://github.com/DirtyHairy/rollup-plugin-bundle-html/releases/download/0.2.0-cs/rollup-plugin-bundle-html-0.2.0-cs.tgz",
     "rollup-plugin-commonjs": "^10.0.2",
     "rollup-plugin-copy": "^3.1.0",
     "rollup-plugin-elm": "^2.0.0",
