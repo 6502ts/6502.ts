@@ -4,13 +4,16 @@ port module Stellerator.Ports exposing
     , deleteAllCartridges
     , deleteCartridge
     , onEmulationStateChange
+    , onInputDriverEvent
     , onMediaUpdate
     , onNewCartridges
     , pauseEmulation
+    , resetEmulation
     , resumeEmulation
     , scrollIntoView
     , startEmulation
     , stopEmulation
+    , toggleFullscreen
     , updateCartridge
     , updateSettings
     , watchMedia
@@ -22,10 +25,12 @@ import Stellerator.Model
     exposing
         ( Cartridge
         , EmulationState
+        , InputDriverEvent
         , Msg(..)
         , Settings
         , decodeCartridge
         , decodeEmulationState
+        , decodeInputDriverEvent
         , encodeCartridge
         , encodeSettings
         )
@@ -193,6 +198,30 @@ port resumeEmulation_ : () -> Cmd msg
 resumeEmulation : Cmd msg
 resumeEmulation =
     resumeEmulation_ ()
+
+
+port resetEmulation_ : () -> Cmd msg
+
+
+resetEmulation : Cmd msg
+resetEmulation =
+    resetEmulation_ ()
+
+
+port toggleFullscreen_ : () -> Cmd msg
+
+
+toggleFullscreen : Cmd msg
+toggleFullscreen =
+    toggleFullscreen_ ()
+
+
+port onInputDriverEvent_ : (Encode.Value -> msg) -> Sub msg
+
+
+onInputDriverEvent : (InputDriverEvent -> Msg) -> Sub Msg
+onInputDriverEvent tagger =
+    onInputDriverEvent_ (Decode.decodeValue decodeInputDriverEvent >> Result.map tagger >> Result.withDefault None)
 
 
 port onEmulationStateChange_ : (Encode.Value -> msg) -> Sub msg

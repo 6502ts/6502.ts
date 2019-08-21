@@ -18,9 +18,11 @@ import {
     EmulationStateKey,
     CpuEmulation,
     TvMode,
-    AudioEmulation
+    AudioEmulation,
+    InputDriverEvent
 } from '../../elm/Stellerator/Main.elm';
 import Storage from './Storage';
+import FullscreenVideoDriver from '../../../web/driver/FullscreenVideo';
 
 const CANVAS_ID = 'stellerator-canvas';
 const WORKER_URL = 'worker/stellerator.min.js';
@@ -83,6 +85,10 @@ class Emulation {
 
         this._driverManager.bind(this._emulationService);
         this._audioDriver.init();
+
+        this._keyboardDriver.hardReset.addHandler(this._onInputReset);
+        this._keyboardDriver.togglePause.addHandler(this._onInputTogglePause);
+        this._keyboardDriver.toggleFullscreen.addHandler(this._onInputToggleFullscreen);
     }
 
     init(ports: Ports): void {
@@ -92,6 +98,8 @@ class Emulation {
         ports.stopEmulation_.subscribe(this._onEmulationStopped);
         ports.pauseEmulation_.subscribe(this._onEmulationPaused);
         ports.resumeEmulation_.subscribe(this._onEmulationResumed);
+        ports.resetEmulation_.subscribe(this._onEmulationReset);
+        ports.toggleFullscreen_.subscribe(this._onToggleFullscreen);
 
         this._emulationService.stateChanged.addHandler(Emulation._onEmulationStateChange, this);
         this._emulationService.frequencyUpdate.addHandler(Emulation._onFrequencyChange, this);
@@ -209,6 +217,16 @@ class Emulation {
         }
     }
 
+    private async _resetEmulation(): Promise<void> {
+        await this._emulationService.reset();
+    }
+
+    private _toggleFullscreen(): void {
+        if (this._fullscreenDriver) {
+            this._fullscreenDriver.toggle();
+        }
+    }
+
     private async _createAndBindVideoDriver(canvas: HTMLCanvasElement): Promise<void> {
         this._removeVideoDriver();
 
@@ -234,6 +252,8 @@ class Emulation {
         this._driverManager.addDriver(this._videoDriver, (context, driver: VideoDriver) =>
             driver.bind(context.getVideo())
         );
+
+        this._fullscreenDriver = new FullscreenVideoDriver(this._videoDriver);
     }
 
     private async _bindCanvas(canvas: HTMLCanvasElement): Promise<void> {
@@ -263,6 +283,9 @@ class Emulation {
         this._driverManager.removeDriver(this._videoDriver);
 
         this._videoDriver = null;
+
+        this._fullscreenDriver.disengage();
+        this._fullscreenDriver = null;
     }
 
     private _emulationState(stateIncoming: EmulationServiceInterface.State): EmulationState {
@@ -297,6 +320,16 @@ class Emulation {
     private _onEmulationPaused = () => this._emulationMutex.runExclusive(() => this._pauseEmulation());
 
     private _onEmulationResumed = () => this._emulationMutex.runExclusive(() => this._resumeEmulation());
+
+    private _onEmulationReset = () => this._emulationMutex.runExclusive(() => this._resetEmulation());
+
+    private _onToggleFullscreen = () => this._toggleFullscreen();
+
+    private _onInputTogglePause = () => this._ports.onInputDriverEvent_.send(InputDriverEvent.togglePause);
+
+    private _onInputReset = () => this._ports.onInputDriverEvent_.send(InputDriverEvent.reset);
+
+    private _onInputToggleFullscreen = () => this._ports.onInputDriverEvent_.send(InputDriverEvent.toggleFullscreen);
 
     private _onMutation = (mutations: Array<MutationRecord>): void => {
         if (!mutations.some(m => m.addedNodes)) {
@@ -344,6 +377,7 @@ class Emulation {
 
     private _canvas: HTMLCanvasElement = null;
     private _videoDriver: VideoDriver = null;
+    private _fullscreenDriver: FullscreenVideoDriver = null;
     private _mutationObserver = new MutationObserver(this._onMutation);
 
     private _keyboardDriver = new KeyboardDriver(document);

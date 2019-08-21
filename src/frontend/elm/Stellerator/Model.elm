@@ -7,6 +7,7 @@ module Stellerator.Model exposing
     , ChangeSettingsMsg(..)
     , CpuEmulation(..)
     , EmulationState(..)
+    , InputDriverEvent(..)
     , Media(..)
     , Model
     , Msg(..)
@@ -19,6 +20,7 @@ module Stellerator.Model exposing
     , decodeCartridgeType
     , decodeCpuEmulation
     , decodeEmulationState
+    , decodeInputDriverEvent
     , decodeMedia
     , decodeSettings
     , decodeTvMode
@@ -138,6 +140,7 @@ type alias Model =
     , settings : Settings
     , defaultSettings : Settings
     , messageNeedsConfirmation : ( String, Maybe Msg )
+    , emulationPaused : Bool
     }
 
 
@@ -179,6 +182,12 @@ type ChangeSettingsMsg
     | ChangeSettingsResetToDefault
 
 
+type InputDriverEvent
+    = EventTogglePause
+    | EventReset
+    | EventToggleFullscreen
+
+
 type Msg
     = NavigateToUrl String
     | ChangeRoute Route
@@ -207,6 +216,7 @@ type Msg
     | PauseEmulaton
     | StopEmulation
     | UpdateEmulationState EmulationState
+    | IncomingInputDriverEvent InputDriverEvent
     | None
 
 
@@ -497,4 +507,24 @@ decodeEmulationState =
 
                     _ ->
                         Decode.fail "invalid emulation state"
+            )
+
+
+decodeInputDriverEvent : Decode.Decoder InputDriverEvent
+decodeInputDriverEvent =
+    Decode.string
+        |> Decode.andThen
+            (\s ->
+                case s of
+                    "pause" ->
+                        Decode.succeed EventTogglePause
+
+                    "reset" ->
+                        Decode.succeed EventReset
+
+                    "fullscreen" ->
+                        Decode.succeed EventToggleFullscreen
+
+                    _ ->
+                        Decode.fail "invalid input driver event"
             )

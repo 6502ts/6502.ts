@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import * as screenfull from 'screenfull';
+import screenfull from 'screenfull';
 
 import VideoDriver from './VideoDriverInterface';
 

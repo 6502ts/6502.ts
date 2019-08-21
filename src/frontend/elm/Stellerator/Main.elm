@@ -89,6 +89,7 @@ init flagsJson url key =
       , settings = flags.settings
       , defaultSettings = flags.defaultSettings
       , messageNeedsConfirmation = ( "", Nothing )
+      , emulationPaused = False
       }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)
@@ -115,6 +116,7 @@ subscriptions _ =
             )
         , Ports.onNewCartridges AddNewCartridges
         , Ports.onEmulationStateChange UpdateEmulationState
+        , Ports.onInputDriverEvent IncomingInputDriverEvent
         ]
 
 

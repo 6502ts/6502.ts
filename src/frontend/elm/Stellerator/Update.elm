@@ -145,8 +145,8 @@ update msg model =
             in
             let
                 emulationCmd =
-                    case route of
-                        RouteEmulation ->
+                    case ( route, model.emulationPaused ) of
+                        ( RouteEmulation, False ) ->
                             [ Ports.resumeEmulation ]
 
                         _ ->
@@ -340,6 +340,27 @@ update msg model =
 
         UpdateEmulationState emulationState ->
             noop { model | emulationState = emulationState }
+
+        IncomingInputDriverEvent evt ->
+            case evt of
+                EventTogglePause ->
+                    let
+                        emulationPaused =
+                            not model.emulationPaused
+                    in
+                    ( { model | emulationPaused = emulationPaused }
+                    , if emulationPaused then
+                        Ports.pauseEmulation
+
+                      else
+                        Ports.resumeEmulation
+                    )
+
+                EventReset ->
+                    ( model, Ports.resetEmulation )
+
+                EventToggleFullscreen ->
+                    ( model, Ports.toggleFullscreen )
 
         _ ->
             noop model

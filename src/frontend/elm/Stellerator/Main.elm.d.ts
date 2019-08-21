@@ -28,6 +28,12 @@ export const enum EmulationStateKey {
     error = 'error'
 }
 
+export const enum InputDriverEvent {
+    togglePause = 'pause',
+    reset = 'reset',
+    toggleFullscreen = 'fullscreen'
+}
+
 export interface EmulationStateStopped {
     state: EmulationStateKey.stopped;
 }
@@ -111,7 +117,11 @@ export interface Ports {
     stopEmulation_: CommandPort<void>;
     pauseEmulation_: CommandPort<void>;
     resumeEmulation_: CommandPort<void>;
+    resetEmulation_: CommandPort<void>;
+    toggleFullscreen_: CommandPort<void>;
+
     onEmulationStateChange_: SubscriptionPort<EmulationState>;
+    onInputDriverEvent_: SubscriptionPort<InputDriverEvent>;
 }
 
 interface CommandPort<T> {
