@@ -3,7 +3,7 @@ module Stellerator.Main exposing (main)
 import Browser
 import Browser.Navigation as Nav
 import Http
-import Json.Decode as Decode exposing (..)
+import Json.Decode exposing (..)
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
 import Stellerator.Routing exposing (..)

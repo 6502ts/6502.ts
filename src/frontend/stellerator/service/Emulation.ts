@@ -89,6 +89,8 @@ class Emulation {
         this._keyboardDriver.hardReset.addHandler(this._onInputReset);
         this._keyboardDriver.togglePause.addHandler(this._onInputTogglePause);
         this._keyboardDriver.toggleFullscreen.addHandler(this._onInputToggleFullscreen);
+
+        window.addEventListener('resize', this._onWindowResize);
     }
 
     init(ports: Ports): void {
@@ -221,12 +223,6 @@ class Emulation {
         await this._emulationService.reset();
     }
 
-    private _toggleFullscreen(): void {
-        if (this._fullscreenDriver) {
-            this._fullscreenDriver.toggle();
-        }
-    }
-
     private async _createAndBindVideoDriver(canvas: HTMLCanvasElement): Promise<void> {
         this._removeVideoDriver();
 
@@ -323,13 +319,15 @@ class Emulation {
 
     private _onEmulationReset = () => this._emulationMutex.runExclusive(() => this._resetEmulation());
 
-    private _onToggleFullscreen = () => this._toggleFullscreen();
+    private _onToggleFullscreen = () => this._fullscreenDriver && this._fullscreenDriver.toggle();
 
     private _onInputTogglePause = () => this._ports.onInputDriverEvent_.send(InputDriverEvent.togglePause);
 
     private _onInputReset = () => this._ports.onInputDriverEvent_.send(InputDriverEvent.reset);
 
     private _onInputToggleFullscreen = () => this._ports.onInputDriverEvent_.send(InputDriverEvent.toggleFullscreen);
+
+    private _onWindowResize = () => this._videoDriver && this._videoDriver.resize();
 
     private _onMutation = (mutations: Array<MutationRecord>): void => {
         if (!mutations.some(m => m.addedNodes)) {
