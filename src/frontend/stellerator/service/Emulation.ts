@@ -245,9 +245,9 @@ class Emulation {
         });
 
         this._videoDriver
+            .init()
             .enableInterpolation(settings.smoothScaling)
-            .enableSyncRendering(settings.videoSync)
-            .init();
+            .enableSyncRendering(settings.videoSync);
 
         this._driverManager.addDriver(this._videoDriver, (context, driver: VideoDriver) =>
             driver.bind(context.getVideo())
