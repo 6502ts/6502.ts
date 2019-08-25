@@ -86,6 +86,9 @@ keyboardHandler model code =
         ( True, "d" ) ->
             Maybe.map DeleteCartridge (selectionInSearchResults model) |> Maybe.withDefault None
 
+        ( False, "Enter" ) ->
+            Maybe.map StartEmulation (selectionInSearchResults model) |> Maybe.withDefault None
+
         _ ->
             None
 
