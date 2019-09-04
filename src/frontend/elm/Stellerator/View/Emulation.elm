@@ -4,7 +4,8 @@ import Css exposing (..)
 import Dos
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
-import Stellerator.Model exposing (Model, Msg(..))
+import Html.Styled.Events as E
+import Stellerator.Model exposing (EmulationState(..), Model, Msg(..))
 import Stellerator.View.Form as Form
 
 
@@ -30,7 +31,19 @@ controlHelp =
 
 
 console : Model -> List (Html Msg)
-console _ =
+console model =
+    let
+        emulationActive =
+            case model.emulationState of
+                EmulationPaused ->
+                    True
+
+                EmulationRunning _ ->
+                    True
+
+                _ ->
+                    False
+    in
     let
         oneline lbl control =
             label [ A.for "nothing" ]
@@ -66,8 +79,24 @@ console _ =
     , checkbox "Limit framerate:" <| Form.checkbox (\_ -> None) True
     , br [] []
     , br [] []
-    , button [] [ text "Pause" ]
-    , button [] [ text "Hard Reset" ]
+    , button
+        [ E.onClick TogglePauseEmulation
+        , A.disabled <| not emulationActive
+        , A.css [ property "min-width" "calc(15 * var(--cw))" ]
+        ]
+        [ text <|
+            if model.emulationPaused then
+                "Resume"
+
+            else
+                "Pause"
+        ]
+    , button
+        [ E.onClick ResetEmulation
+        , A.disabled <| not emulationActive
+        , A.css [ property "min-width" "calc(15 * var(--cw))" ]
+        ]
+        [ text "Hard Reset" ]
     ]
 
 

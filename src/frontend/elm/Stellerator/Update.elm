@@ -335,8 +335,38 @@ update msg model =
         StopEmulation ->
             ( model, Ports.stopEmulation )
 
-        PauseEmulaton ->
+        PauseEmulation ->
             ( model, Ports.pauseEmulation )
+
+        ResetEmulation ->
+            ( model, Ports.resetEmulation )
+
+        TogglePauseEmulation ->
+            let
+                emulationPaused =
+                    not model.emulationPaused
+            in
+            let
+                newModel =
+                    { model | emulationPaused = emulationPaused }
+            in
+            let
+                cmd =
+                    if emulationPaused then
+                        Ports.pauseEmulation
+
+                    else
+                        Ports.resumeEmulation
+            in
+            case model.emulationState of
+                EmulationPaused ->
+                    ( newModel, cmd )
+
+                EmulationRunning _ ->
+                    ( newModel, cmd )
+
+                _ ->
+                    ( model, Cmd.none )
 
         UpdateEmulationState emulationState ->
             noop { model | emulationState = emulationState }
@@ -344,17 +374,7 @@ update msg model =
         IncomingInputDriverEvent evt ->
             case evt of
                 EventTogglePause ->
-                    let
-                        emulationPaused =
-                            not model.emulationPaused
-                    in
-                    ( { model | emulationPaused = emulationPaused }
-                    , if emulationPaused then
-                        Ports.pauseEmulation
-
-                      else
-                        Ports.resumeEmulation
-                    )
+                    update TogglePauseEmulation model
 
                 EventReset ->
                     ( model, Ports.resetEmulation )

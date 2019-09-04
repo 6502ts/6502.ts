@@ -213,8 +213,10 @@ type Msg
     | RejectPendingMessage
     | ConfirmPendingMessage
     | StartEmulation String
-    | PauseEmulaton
+    | PauseEmulation
     | StopEmulation
+    | ResetEmulation
+    | TogglePauseEmulation
     | UpdateEmulationState EmulationState
     | IncomingInputDriverEvent InputDriverEvent
     | None
