@@ -141,6 +141,7 @@ type alias Model =
     , defaultSettings : Settings
     , messageNeedsConfirmation : ( String, Maybe Msg )
     , emulationPaused : Bool
+    , limitFramerate : Bool
     }
 
 
@@ -217,6 +218,7 @@ type Msg
     | StopEmulation
     | ResetEmulation
     | TogglePauseEmulation
+    | ChangeLimitFramerate Bool
     | UpdateEmulationState EmulationState
     | IncomingInputDriverEvent InputDriverEvent
     | None

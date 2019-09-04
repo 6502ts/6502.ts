@@ -382,5 +382,8 @@ update msg model =
                 EventToggleFullscreen ->
                     ( model, Ports.toggleFullscreen )
 
+        ChangeLimitFramerate limitFramerate ->
+            ( { model | limitFramerate = limitFramerate }, Ports.setLimitFramerate limitFramerate )
+
         _ ->
             noop model

@@ -119,6 +119,7 @@ export interface Ports {
     resumeEmulation_: CommandPort<void>;
     resetEmulation_: CommandPort<void>;
     toggleFullscreen_: CommandPort<void>;
+    setLimitFramerate_: CommandPort<boolean>;
 
     onEmulationStateChange_: SubscriptionPort<EmulationState>;
     onInputDriverEvent_: SubscriptionPort<InputDriverEvent>;

@@ -90,6 +90,7 @@ init flagsJson url key =
       , defaultSettings = flags.defaultSettings
       , messageNeedsConfirmation = ( "", Nothing )
       , emulationPaused = False
+      , limitFramerate = True
       }
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)

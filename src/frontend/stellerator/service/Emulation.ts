@@ -102,6 +102,7 @@ class Emulation {
         ports.resumeEmulation_.subscribe(this._onEmulationResumed);
         ports.resetEmulation_.subscribe(this._onEmulationReset);
         ports.toggleFullscreen_.subscribe(this._onToggleFullscreen);
+        ports.setLimitFramerate_.subscribe(this._onSetLimitFramerate);
 
         this._emulationService.stateChanged.addHandler(Emulation._onEmulationStateChange, this);
         this._emulationService.frequencyUpdate.addHandler(Emulation._onFrequencyChange, this);
@@ -320,6 +321,8 @@ class Emulation {
     private _onEmulationReset = () => this._emulationMutex.runExclusive(() => this._resetEmulation());
 
     private _onToggleFullscreen = () => this._fullscreenDriver && this._fullscreenDriver.toggle();
+
+    private _onSetLimitFramerate = (limitFramerate: boolean) => this._emulationService.setRateLimit(limitFramerate);
 
     private _onInputTogglePause = () => this._ports.onInputDriverEvent_.send(InputDriverEvent.togglePause);
 

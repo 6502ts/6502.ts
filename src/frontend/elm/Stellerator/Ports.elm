@@ -11,6 +11,7 @@ port module Stellerator.Ports exposing
     , resetEmulation
     , resumeEmulation
     , scrollIntoView
+    , setLimitFramerate
     , startEmulation
     , stopEmulation
     , toggleFullscreen
@@ -230,3 +231,11 @@ port onEmulationStateChange_ : (Encode.Value -> msg) -> Sub msg
 onEmulationStateChange : (EmulationState -> Msg) -> Sub Msg
 onEmulationStateChange tagger =
     onEmulationStateChange_ (Decode.decodeValue decodeEmulationState >> Result.map tagger >> Result.withDefault None)
+
+
+port setLimitFramerate_ : Bool -> Cmd msg
+
+
+setLimitFramerate : Bool -> Cmd msg
+setLimitFramerate =
+    setLimitFramerate_

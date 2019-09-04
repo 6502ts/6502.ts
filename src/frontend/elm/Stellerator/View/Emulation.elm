@@ -76,7 +76,7 @@ console model =
             [ ( 1, "Color:" ), ( 2, "BW:" ) ]
             (\_ -> None)
             1
-    , checkbox "Limit framerate:" <| Form.checkbox (\_ -> None) True
+    , checkbox "Limit framerate:" <| Form.checkbox ChangeLimitFramerate model.limitFramerate
     , br [] []
     , br [] []
     , button
