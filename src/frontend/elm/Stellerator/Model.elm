@@ -5,7 +5,10 @@ module Stellerator.Model exposing
     , CartridgeViewMode(..)
     , ChangeCartridgeMsg(..)
     , ChangeSettingsMsg(..)
+    , ColorSwitch(..)
+    , ConsoleSwitches
     , CpuEmulation(..)
+    , DifficultySwitch(..)
     , EmulationState(..)
     , InputDriverEvent(..)
     , Media(..)
@@ -35,6 +38,7 @@ module Stellerator.Model exposing
     , previousCartridge
     , selectionInSearchResults
     , validUiSizes
+    , encodeConsoleSwitches
     )
 
 import Browser.Navigation as Nav
@@ -125,6 +129,23 @@ type alias CartridgeType =
     }
 
 
+type DifficultySwitch
+    = DifficultyPro
+    | DifficultyAmateur
+
+
+type ColorSwitch
+    = ColorColor
+    | ColorBW
+
+
+type alias ConsoleSwitches =
+    { difficultyP0 : DifficultySwitch
+    , difficultyP1 : DifficultySwitch
+    , color : ColorSwitch
+    }
+
+
 type alias Model =
     { key : Nav.Key
     , currentRoute : Route
@@ -142,6 +163,7 @@ type alias Model =
     , messageNeedsConfirmation : ( String, Maybe Msg )
     , emulationPaused : Bool
     , limitFramerate : Bool
+    , consoleSwitches : ConsoleSwitches
     }
 
 
@@ -221,6 +243,9 @@ type Msg
     | ChangeLimitFramerate Bool
     | UpdateEmulationState EmulationState
     | IncomingInputDriverEvent InputDriverEvent
+    | ChangeDifficultyP0 DifficultySwitch
+    | ChangeDifficultyP1 DifficultySwitch
+    | ChangeColorSwitch ColorSwitch
     | None
 
 
@@ -532,3 +557,32 @@ decodeInputDriverEvent =
                     _ ->
                         Decode.fail "invalid input driver event"
             )
+
+
+encodeDifficultySwitch : DifficultySwitch -> Encode.Value
+encodeDifficultySwitch difficultySwitch =
+    case difficultySwitch of
+        DifficultyPro ->
+            Encode.string "pro"
+
+        DifficultyAmateur ->
+            Encode.string "amateur"
+
+
+encodeColorSwitch : ColorSwitch -> Encode.Value
+encodeColorSwitch colorSwitch =
+    case colorSwitch of
+        ColorColor ->
+            Encode.string "color"
+
+        ColorBW ->
+            Encode.string "bw"
+
+
+encodeConsoleSwitches : ConsoleSwitches -> Encode.Value
+encodeConsoleSwitches consoleSwitches =
+    Encode.object
+        [ ( "difficultyP0", encodeDifficultySwitch consoleSwitches.difficultyP0 )
+        , ( "difficultyP1", encodeDifficultySwitch consoleSwitches.difficultyP1 )
+        , ( "color", encodeColorSwitch consoleSwitches.color )
+        ]

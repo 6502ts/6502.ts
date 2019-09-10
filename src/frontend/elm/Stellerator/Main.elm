@@ -75,23 +75,32 @@ init flagsJson url key =
                 Err _ ->
                     None
     in
-    ( { key = key
-      , currentRoute = route
-      , media = Nothing
-      , emulationState = EmulationStopped
-      , helppage = Nothing
-      , sideMenu = False
-      , cartridges = List.sortBy (.name >> String.toUpper) flags.cartridges
-      , cartridgeTypes = flags.cartridgeTypes
-      , currentCartridgeHash = Nothing
-      , cartridgeFilter = ""
-      , cartridgeViewMode = CartridgeViewCartridges
-      , settings = flags.settings
-      , defaultSettings = flags.defaultSettings
-      , messageNeedsConfirmation = ( "", Nothing )
-      , emulationPaused = False
-      , limitFramerate = True
-      }
+    let
+        model =
+            { key = key
+            , currentRoute = route
+            , media = Nothing
+            , emulationState = EmulationStopped
+            , helppage = Nothing
+            , sideMenu = False
+            , cartridges = List.sortBy (.name >> String.toUpper) flags.cartridges
+            , cartridgeTypes = flags.cartridgeTypes
+            , currentCartridgeHash = Nothing
+            , cartridgeFilter = ""
+            , cartridgeViewMode = CartridgeViewCartridges
+            , settings = flags.settings
+            , defaultSettings = flags.defaultSettings
+            , messageNeedsConfirmation = ( "", Nothing )
+            , emulationPaused = False
+            , limitFramerate = True
+            , consoleSwitches =
+                { difficultyP0 = DifficultyPro
+                , difficultyP1 = DifficultyPro
+                , color = ColorColor
+                }
+            }
+    in
+    ( model
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)
         , Ports.watchMedia [ "(max-width: 750px)" ]

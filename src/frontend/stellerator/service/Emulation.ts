@@ -19,7 +19,11 @@ import {
     CpuEmulation,
     TvMode,
     AudioEmulation,
-    InputDriverEvent
+    InputDriverEvent,
+    ConsoleSwitches,
+    DifficultySwitch,
+    ColorSwitch,
+    StartEmulationPayload
 } from '../../elm/Stellerator/Main.elm';
 import Storage from './Storage';
 import FullscreenVideoDriver from '../../../web/driver/FullscreenVideo';
@@ -103,6 +107,7 @@ class Emulation {
         ports.resetEmulation_.subscribe(this._onEmulationReset);
         ports.toggleFullscreen_.subscribe(this._onToggleFullscreen);
         ports.setLimitFramerate_.subscribe(this._onSetLimitFramerate);
+        ports.updateConsoleSwitches_.subscribe(this._onUpdateConsoleSwitches);
 
         this._emulationService.stateChanged.addHandler(Emulation._onEmulationStateChange, this);
         this._emulationService.frequencyUpdate.addHandler(Emulation._onFrequencyChange, this);
@@ -168,7 +173,7 @@ class Emulation {
         }
     }
 
-    private async _startEmulation(hash: string): Promise<void> {
+    private async _startEmulation(hash: string, switches: ConsoleSwitches): Promise<void> {
         await this._emulationServiceReady;
         await this._emulationService.stop();
 
@@ -199,6 +204,9 @@ class Emulation {
         this._currentConfig = config(cartidge, settings);
 
         await this._emulationService.start(image, this._currentConfig, cartidge.cartridgeType);
+
+        this._updateConsoleSwitches(switches);
+
         await this._emulationService.resume();
 
         this._currentCartridgeHash = hash;
@@ -222,6 +230,20 @@ class Emulation {
 
     private async _resetEmulation(): Promise<void> {
         await this._emulationService.reset();
+    }
+
+    private _updateConsoleSwitches(consoleSwitches: ConsoleSwitches): void {
+        const context = this._emulationService.getEmulationContext();
+
+        if (!context) {
+            return;
+        }
+
+        const controlPanel = context.getControlPanel();
+
+        controlPanel.getDifficultySwitchP0().toggle(consoleSwitches.difficultyP0 === DifficultySwitch.pro);
+        controlPanel.getDifficultySwitchP1().toggle(consoleSwitches.difficultyP1 === DifficultySwitch.pro);
+        controlPanel.getColorSwitch().toggle(consoleSwitches.color === ColorSwitch.bw);
     }
 
     private async _createAndBindVideoDriver(canvas: HTMLCanvasElement): Promise<void> {
@@ -304,9 +326,9 @@ class Emulation {
         }
     }
 
-    private _onEmulationStarted = async (hash: string) => {
+    private _onEmulationStarted = async ({ hash, switches }: StartEmulationPayload) => {
         try {
-            await this._emulationMutex.runExclusive(() => this._startEmulation(hash));
+            await this._emulationMutex.runExclusive(() => this._startEmulation(hash, switches));
         } catch (e) {
             this._ports.onEmulationStateChange_.send(error(e.message));
         }
@@ -331,6 +353,9 @@ class Emulation {
     private _onInputToggleFullscreen = () => this._ports.onInputDriverEvent_.send(InputDriverEvent.toggleFullscreen);
 
     private _onWindowResize = () => this._videoDriver && this._videoDriver.resize();
+
+    private _onUpdateConsoleSwitches = (switches: ConsoleSwitches) =>
+        this._emulationMutex.runExclusive(() => this._updateConsoleSwitches(switches));
 
     private _onMutation = (mutations: Array<MutationRecord>): void => {
         if (!mutations.some(m => m.addedNodes)) {

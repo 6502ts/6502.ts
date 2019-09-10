@@ -14,10 +14,12 @@
         "editor.formatOnSave": true
     },
     "[elm]": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
     },
     "[scss]": {
         "editor.formatOnSave": true
     },
-    "typescript.tsdk": "./node_modules/typescript/lib"
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    "elmLS.elmAnalyseTrigger": "save",
+    "elmLS.elmFormatPath": "/usr/local/bin/elm-format"
 }

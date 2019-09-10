@@ -48,12 +48,8 @@ picker items tagger value =
 textInput : List (Attribute msg) -> Html msg
 textInput attr =
     input
-        ([ A.type_ "text"
-         , A.autocomplete False
-         , A.attribute "autocorrect" "off"
-         , A.attribute "autocapitalize" "off"
-         ]
-            ++ attr
+        (A.type_ "text"
+            :: attr
         )
         []
 

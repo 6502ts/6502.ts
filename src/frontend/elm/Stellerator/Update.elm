@@ -330,7 +330,12 @@ update msg model =
                     noop newModel
 
         StartEmulation hash ->
-            ( model, Cmd.batch [ Ports.startEmulation hash, Nav.pushUrl model.key <| Routing.serializeRoute RouteEmulation ] )
+            ( model
+            , Cmd.batch
+                [ Ports.startEmulation hash model.consoleSwitches
+                , Nav.pushUrl model.key <| Routing.serializeRoute RouteEmulation
+                ]
+            )
 
         StopEmulation ->
             ( model, Ports.stopEmulation )
@@ -384,6 +389,39 @@ update msg model =
 
         ChangeLimitFramerate limitFramerate ->
             ( { model | limitFramerate = limitFramerate }, Ports.setLimitFramerate limitFramerate )
+
+        ChangeDifficultyP0 difficulty ->
+            let
+                switchesOld =
+                    model.consoleSwitches
+            in
+            let
+                consoleSwitches =
+                    { switchesOld | difficultyP0 = difficulty }
+            in
+            ( { model | consoleSwitches = consoleSwitches }, Ports.updateConsoleSwitches consoleSwitches )
+
+        ChangeDifficultyP1 difficulty ->
+            let
+                switchesOld =
+                    model.consoleSwitches
+            in
+            let
+                consoleSwitches =
+                    { switchesOld | difficultyP1 = difficulty }
+            in
+            ( { model | consoleSwitches = consoleSwitches }, Ports.updateConsoleSwitches consoleSwitches )
+
+        ChangeColorSwitch color ->
+            let
+                switchesOld =
+                    model.consoleSwitches
+            in
+            let
+                consoleSwitches =
+                    { switchesOld | color = color }
+            in
+            ( { model | consoleSwitches = consoleSwitches }, Ports.updateConsoleSwitches consoleSwitches )
 
         _ ->
             noop model

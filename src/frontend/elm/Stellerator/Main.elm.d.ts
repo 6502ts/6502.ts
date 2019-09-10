@@ -34,6 +34,16 @@ export const enum InputDriverEvent {
     toggleFullscreen = 'fullscreen'
 }
 
+export const enum DifficultySwitch {
+    pro = 'pro',
+    amateur = 'amateur'
+}
+
+export const enum ColorSwitch {
+    color = 'color',
+    bw = 'bw'
+}
+
 export interface EmulationStateStopped {
     state: EmulationStateKey.stopped;
 }
@@ -88,6 +98,12 @@ export interface CartridgeType {
     description: string;
 }
 
+export interface ConsoleSwitches {
+    difficultyP0: DifficultySwitch;
+    difficultyP1: DifficultySwitch;
+    color: ColorSwitch;
+}
+
 export interface Flags {
     cartridges: Array<Cartridge>;
     cartridgeTypes: Array<CartridgeType>;
@@ -97,6 +113,11 @@ export interface Flags {
 
 export interface Options {
     flags?: Flags;
+}
+
+export interface StartEmulationPayload {
+    hash: string;
+    switches: ConsoleSwitches;
 }
 
 export interface Ports {
@@ -113,13 +134,14 @@ export interface Ports {
 
     updateSettings_: CommandPort<Settings>;
 
-    startEmulation_: CommandPort<string>;
+    startEmulation_: CommandPort<StartEmulationPayload>;
     stopEmulation_: CommandPort<void>;
     pauseEmulation_: CommandPort<void>;
     resumeEmulation_: CommandPort<void>;
     resetEmulation_: CommandPort<void>;
     toggleFullscreen_: CommandPort<void>;
     setLimitFramerate_: CommandPort<boolean>;
+    updateConsoleSwitches_: CommandPort<ConsoleSwitches>;
 
     onEmulationStateChange_: SubscriptionPort<EmulationState>;
     onInputDriverEvent_: SubscriptionPort<InputDriverEvent>;

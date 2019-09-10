@@ -5,7 +5,7 @@ import Dos
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
-import Stellerator.Model exposing (EmulationState(..), Model, Msg(..))
+import Stellerator.Model exposing (ColorSwitch(..), DifficultySwitch(..), EmulationState(..), Model, Msg(..))
 import Stellerator.View.Form as Form
 
 
@@ -61,21 +61,21 @@ console model =
     [ oneline "Difficulty left:" <|
         Form.radioGroup
             []
-            [ ( 1, "A / Pro:" ), ( 2, "B / Amateur:" ) ]
-            (\_ -> None)
-            1
+            [ ( DifficultyPro, "A / Pro:" ), ( DifficultyAmateur, "B / Amateur:" ) ]
+            ChangeDifficultyP0
+            model.consoleSwitches.difficultyP0
     , oneline "Difficulty right:" <|
         Form.radioGroup
             []
-            [ ( 1, "A / Pro:" ), ( 2, "B / Amateur:" ) ]
-            (\_ -> None)
-            1
+            [ ( DifficultyPro, "A / Pro:" ), ( DifficultyAmateur, "B / Amateur:" ) ]
+            ChangeDifficultyP1
+            model.consoleSwitches.difficultyP1
     , oneline "TV mode:" <|
         Form.radioGroup
             []
-            [ ( 1, "Color:" ), ( 2, "BW:" ) ]
-            (\_ -> None)
-            1
+            [ ( ColorColor, "Color:" ), ( ColorBW, "BW:" ) ]
+            ChangeColorSwitch
+            model.consoleSwitches.color
     , checkbox "Limit framerate:" <| Form.checkbox ChangeLimitFramerate model.limitFramerate
     , br [] []
     , br [] []

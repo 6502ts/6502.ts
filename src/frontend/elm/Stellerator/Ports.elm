@@ -16,6 +16,7 @@ port module Stellerator.Ports exposing
     , stopEmulation
     , toggleFullscreen
     , updateCartridge
+    , updateConsoleSwitches
     , updateSettings
     , watchMedia
     )
@@ -25,6 +26,7 @@ import Json.Encode as Encode
 import Stellerator.Model
     exposing
         ( Cartridge
+        , ConsoleSwitches
         , EmulationState
         , InputDriverEvent
         , Msg(..)
@@ -33,6 +35,7 @@ import Stellerator.Model
         , decodeEmulationState
         , decodeInputDriverEvent
         , encodeCartridge
+        , encodeConsoleSwitches
         , encodeSettings
         )
 
@@ -169,12 +172,12 @@ updateSettings =
 -- EmulationCommands
 
 
-port startEmulation_ : String -> Cmd msg
+port startEmulation_ : Encode.Value -> Cmd msg
 
 
-startEmulation : String -> Cmd msg
-startEmulation =
-    startEmulation_
+startEmulation : String -> ConsoleSwitches -> Cmd msg
+startEmulation hash switches =
+    [ ( "hash", Encode.string hash ), ( "switches", encodeConsoleSwitches switches ) ] |> Encode.object |> startEmulation_
 
 
 port stopEmulation_ : () -> Cmd msg
@@ -239,3 +242,11 @@ port setLimitFramerate_ : Bool -> Cmd msg
 setLimitFramerate : Bool -> Cmd msg
 setLimitFramerate =
     setLimitFramerate_
+
+
+port updateConsoleSwitches_ : Encode.Value -> Cmd msg
+
+
+updateConsoleSwitches : ConsoleSwitches -> Cmd msg
+updateConsoleSwitches =
+    encodeConsoleSwitches >> updateConsoleSwitches_
