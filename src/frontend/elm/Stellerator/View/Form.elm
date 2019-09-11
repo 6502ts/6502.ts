@@ -16,6 +16,7 @@ import Dos
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
+import Html.Styled.Lazy as Lazy
 import Json.Decode as Decode
 import Stellerator.Model exposing (Media(..))
 
@@ -45,13 +46,17 @@ picker items tagger value =
         value
 
 
-textInput : List (Attribute msg) -> Html msg
+textInput : List (Attribute msg) -> String -> Html msg
 textInput attr =
-    input
-        (A.type_ "text"
-            :: attr
+    Lazy.lazy
+        (\v ->
+            input
+                (A.type_ "text"
+                    :: A.value v
+                    :: attr
+                )
+                []
         )
-        []
 
 
 mobileButton : List (Attribute msg) -> msg -> String -> Html msg

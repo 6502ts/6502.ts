@@ -124,7 +124,6 @@ settingsItems model cart =
                 [ A.type_ "text"
                 , A.placeholder "Auto"
                 , A.css [ property "width" "calc(10 * var(--cw))" ]
-                , A.value <| Maybe.withDefault "" << Maybe.map String.fromInt <| value
                 , Form.onInput <|
                     \s ->
                         if s == "" then
@@ -133,14 +132,19 @@ settingsItems model cart =
                         else
                             Maybe.map (changeCartridge tagger << Just) (String.toInt s) |> Maybe.withDefault None
                 ]
+            <|
+                Maybe.withDefault ""
+                    << Maybe.map String.fromInt
+                <|
+                    value
     in
     [ withLabel "Cartridge name:" <|
         Form.textInput
             [ A.type_ "text"
-            , A.value cart.name
             , A.css [ width (pct 100) ]
             , Form.onInput (changeCartridge ChangeCartridgeName)
             ]
+            cart.name
     , withLabel "Cartridge type:" <|
         Form.picker
             (List.map (\t -> ( t.key, t.description )) model.cartridgeTypes)
@@ -229,9 +233,9 @@ cartridgeToolbarWide model =
                     [ A.type_ "text"
                     , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
                     , A.placeholder "Search cartridges..."
-                    , A.value model.cartridgeFilter
                     , Form.onInput ChangeCartridgeFilter
                     ]
+                    model.cartridgeFilter
                 , button
                     [ A.type_ "button"
                     , A.disabled <| model.cartridgeFilter == ""
@@ -412,9 +416,9 @@ searchInputNarrow styles model =
             [ A.type_ "text"
             , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
             , A.placeholder "Search cartridges..."
-            , A.value model.cartridgeFilter
             , Form.onChange ChangeCartridgeFilter
             ]
+            model.cartridgeFilter
         , Form.mobileButton
             [ A.type_ "button"
             , A.disabled <| model.cartridgeFilter == ""
