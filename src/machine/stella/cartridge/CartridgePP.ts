@@ -50,6 +50,8 @@ class CartridgePP extends AbstractCartridge {
 
     reset(): void {
         this._switchLayout(0);
+
+        this._bankSwitchPending = false;
     }
 
     randomize(rng: RngInterface): void {
@@ -101,11 +103,12 @@ class CartridgePP extends AbstractCartridge {
     }
 
     private static _onBusAccess(accessType: Bus.AccessType, self: CartridgePP): void {
-        if (self._accessCounter >= 0 && self._accessCounter-- === 0) {
-            self._switchLayout(self._pendingBank);
-        }
-
         let address = self._bus.getLastAddresBusValue();
+
+        if (self._bankSwitchPending && address !== self._previousAddressBusValue && --self._accessCounter === 0) {
+            self._switchLayout(self._pendingBank);
+            self._bankSwitchPending = false;
+        }
 
         if (address & 0x1000) {
             return;
@@ -115,7 +118,8 @@ class CartridgePP extends AbstractCartridge {
 
         if (address >= 0x30 && address <= 0x3f) {
             self._pendingBank = address & 0x0f;
-            self._accessCounter = 2;
+            self._accessCounter = 3;
+            self._bankSwitchPending = true;
         }
     }
 
@@ -177,8 +181,10 @@ class CartridgePP extends AbstractCartridge {
 
     private _bus: Bus;
 
+    private _bankSwitchPending = false;
     private _pendingBank = 0;
     private _accessCounter = 0;
+    private _previousAddressBusValue = 0;
 }
 
 export default CartridgePP;
