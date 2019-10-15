@@ -20,6 +20,7 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
+import CartridgeInfo from './CartridgeInfo';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 import Bus from '../Bus';
 import { BufferInterface } from './util';
@@ -41,6 +42,10 @@ class CartridgePP extends AbstractCartridge {
         }
 
         this.reset();
+    }
+
+    getType(): CartridgeInfo.CartridgeType {
+        return CartridgeInfo.CartridgeType.bankswitch_8k_pp;
     }
 
     reset(): void {
@@ -110,7 +115,7 @@ class CartridgePP extends AbstractCartridge {
 
         if (address >= 0x30 && address <= 0x3f) {
             self._pendingBank = address & 0x0f;
-            self._accessCounter = 3;
+            self._accessCounter = 2;
         }
     }
 
