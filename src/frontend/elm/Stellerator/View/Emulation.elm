@@ -1,6 +1,7 @@
 module Stellerator.View.Emulation exposing (page)
 
 import Css exposing (..)
+import Css.Media as Media
 import Dos
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
@@ -46,7 +47,7 @@ console model =
     in
     let
         oneline lbl control =
-            label [ A.for "nothing" ]
+            label [ A.for "nothing", A.css [ display block ] ]
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
                 , control
                 ]
@@ -61,13 +62,13 @@ console model =
     [ oneline "Difficulty left:" <|
         Form.radioGroup
             []
-            [ ( DifficultyPro, "A / Pro:" ), ( DifficultyAmateur, "B / Amateur:" ) ]
+            [ ( DifficultyPro, "A/Pro:" ), ( DifficultyAmateur, "B/Amateur:" ) ]
             ChangeDifficultyP0
             model.consoleSwitches.difficultyP0
     , oneline "Difficulty right:" <|
         Form.radioGroup
             []
-            [ ( DifficultyPro, "A / Pro:" ), ( DifficultyAmateur, "B / Amateur:" ) ]
+            [ ( DifficultyPro, "A/Pro:" ), ( DifficultyAmateur, "B/Amateur:" ) ]
             ChangeDifficultyP1
             model.consoleSwitches.difficultyP1
     , oneline "TV mode:" <|
@@ -102,6 +103,10 @@ console model =
 
 page : Model -> List (Html Msg)
 page model =
+    let
+        small =
+            Media.withMedia [ Media.all [ Media.maxWidth (px 900) ] ]
+    in
     [ div
         [ A.css
             [ width (vw 100)
@@ -110,6 +115,8 @@ page model =
             , displayFlex
             , boxSizing borderBox
             , alignItems stretch
+            , flexDirection row
+            , small [ display block ]
             ]
         ]
         [ div
@@ -118,6 +125,7 @@ page model =
                 [ displayFlex
                 , alignItems stretch
                 , flexGrow (int 1)
+                , small [ property "height" "calc(75vh - 4em)", maxHeight (px 600) ]
                 ]
             ]
             [ div
@@ -134,13 +142,13 @@ page model =
             [ A.css
                 [ flexGrow (num 0)
                 , flexShrink (int 0)
-                , property "flex-basis" "calc(60 * var(--cw))"
+                , property "flex-basis" "calc(50 * var(--cw))"
                 , displayFlex
                 , flexDirection column
                 , alignItems stretch
                 ]
             ]
-            [ div [ Dos.panel, Dos.panelLabel "Cosole:" ] <| console model
+            [ div [ Dos.panel, Dos.panelLabel "Console:" ] <| console model
             , div [ Dos.panel, Dos.panelLabel "Help:", A.css [ flexGrow (int 1) ] ]
                 controlHelp
             ]

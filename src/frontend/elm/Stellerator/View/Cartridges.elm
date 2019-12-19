@@ -361,7 +361,7 @@ settingsWide model styles =
         [ Dos.panel
         , Dos.panelLabel "Settings:"
         , A.css <|
-            [ displayFlex ]
+            [ displayFlex, overflowX hidden ]
                 ++ ifHaveSelection model [ alignItems stretch ] [ alignItems center, justifyContent center ]
                 ++ styles
         ]
