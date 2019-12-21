@@ -92,6 +92,7 @@ init flagsJson url key =
             , defaultSettings = flags.defaultSettings
             , messageNeedsConfirmation = ( "", Nothing )
             , emulationPaused = False
+            , showMessageOnPause = False
             , limitFramerate = True
             , consoleSwitches =
                 { difficultyP0 = DifficultyPro

@@ -30,6 +30,7 @@ module Stellerator.Model exposing
     , effectiveMedia
     , encodeAudioEmulation
     , encodeCartridge
+    , encodeConsoleSwitches
     , encodeCpuEmulation
     , encodeMedia
     , encodeSettings
@@ -38,7 +39,6 @@ module Stellerator.Model exposing
     , previousCartridge
     , selectionInSearchResults
     , validUiSizes
-    , encodeConsoleSwitches
     )
 
 import Browser.Navigation as Nav
@@ -162,6 +162,7 @@ type alias Model =
     , defaultSettings : Settings
     , messageNeedsConfirmation : ( String, Maybe Msg )
     , emulationPaused : Bool
+    , showMessageOnPause : Bool
     , limitFramerate : Bool
     , consoleSwitches : ConsoleSwitches
     }

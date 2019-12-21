@@ -157,6 +157,7 @@ update msg model =
                     { model
                         | currentRoute = route
                         , sideMenu = False
+                        , showMessageOnPause = route == RouteEmulation
                     }
             in
             ( newModel, Cmd.batch <| scrollCmd ++ emulationCmd )
@@ -330,7 +331,7 @@ update msg model =
                     noop newModel
 
         StartEmulation hash ->
-            ( model
+            ( { model | emulationPaused = False }
             , Cmd.batch
                 [ Ports.startEmulation hash model.consoleSwitches
                 , Nav.pushUrl model.key <| Routing.serializeRoute RouteEmulation
@@ -353,7 +354,7 @@ update msg model =
             in
             let
                 newModel =
-                    { model | emulationPaused = emulationPaused }
+                    { model | emulationPaused = emulationPaused, showMessageOnPause = False }
             in
             let
                 cmd =

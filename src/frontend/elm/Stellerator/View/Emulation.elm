@@ -101,6 +101,114 @@ console model =
     ]
 
 
+emulationCanvas : Model -> Html Msg
+emulationCanvas model =
+    let
+        visibility_ =
+            case ( model.emulationState, model.showMessageOnPause ) of
+                ( EmulationRunning _, _ ) ->
+                    visibility visible
+
+                ( EmulationPaused, False ) ->
+                    visibility visible
+
+                _ ->
+                    visibility hidden
+    in
+    canvas
+        [ A.id "stellerator-canvas"
+        , A.css
+            [ width (pct 100)
+            , height (pct 100)
+            , position absolute
+            , left (px 0)
+            , top (px 0)
+            , zIndex (int 10)
+            , visibility_
+            ]
+        ]
+        []
+
+
+message : Model -> Html Msg
+message model =
+    let
+        visibility_ =
+            case ( model.emulationState, model.showMessageOnPause ) of
+                ( EmulationRunning _, _ ) ->
+                    visibility hidden
+
+                ( EmulationPaused, False ) ->
+                    visibility hidden
+
+                _ ->
+                    visibility visible
+    in
+    let
+        backgroundColor_ =
+            case model.emulationState of
+                EmulationError _ ->
+                    Dos.backgroundColor Dos.Red
+
+                _ ->
+                    Dos.backgroundColor Dos.Green
+    in
+    let
+        content =
+            case model.emulationState of
+                EmulationStopped ->
+                    [ text "emulation stopped" ]
+
+                EmulationPaused ->
+                    [ text "emulation paused" ]
+
+                EmulationError msg ->
+                    [ text <| "ERROR: " ++ msg ]
+
+                _ ->
+                    []
+    in
+    div
+        [ A.css
+            [ height (pct 100)
+            , width (pct 100)
+            , displayFlex
+            , justifyContent center
+            , alignItems center
+            , textAlign center
+            , position absolute
+            , left (px 0)
+            , top (px 0)
+            , zIndex (int 10)
+            , Dos.color Dos.White
+            , visibility_
+            , backgroundColor_
+            ]
+        ]
+        content
+
+
+stopMessage : Model -> Html Msg
+stopMessage model =
+    div
+        [ A.css
+            [ height (pct 100)
+            , width (pct 100)
+            , displayFlex
+            , justifyContent center
+            , alignItems center
+            , Dos.color Dos.White
+            , Dos.backgroundColor Dos.Green
+            , if model.emulationState == EmulationStopped then
+                visibility visible
+
+              else
+                visibility hidden
+            ]
+        ]
+        [ text "emulation stopped" ]
+
+
 page : Model -> List (Html Msg)
 page model =
     let
@@ -133,9 +241,11 @@ page model =
                     [ flexGrow (int 1)
                     , property "padding" "1em calc(2 * var(--cw))"
                     , Dos.backgroundColor Dos.Black
+                    , position relative
                     ]
                 ]
-                [ canvas [ A.id "stellerator-canvas", A.css [ width (pct 100), height (pct 100) ] ] []
+                [ emulationCanvas model
+                , message model
                 ]
             ]
         , div
