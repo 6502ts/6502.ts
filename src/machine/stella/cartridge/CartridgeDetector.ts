@@ -116,11 +116,7 @@ class CartridgeDetector {
             return CartridgeInfo.CartridgeType.bankswitch_8k_econobanking;
         }
 
-        if (CartridgeF8.matchesBuffer(buffer)) {
-            return CartridgeInfo.CartridgeType.bankswitch_8k_F8;
-        }
-
-        return CartridgeInfo.CartridgeType.bankswitch_8k_pp;
+        return CartridgeInfo.CartridgeType.bankswitch_8k_F8;
     }
 
     private _detect16k(buffer: cartridgeUtil.BufferInterface): CartridgeInfo.CartridgeType {
