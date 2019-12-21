@@ -149,8 +149,17 @@ page model =
                 ]
             ]
             [ div [ Dos.panel, Dos.panelLabel "Console:" ] <| console model
-            , div [ Dos.panel, Dos.panelLabel "Help:", A.css [ flexGrow (int 1) ] ]
-                controlHelp
+            , div [ Dos.panel, Dos.panelLabel "Help:", A.css [ flexGrow (int 1), overflow hidden ] ]
+                [ div
+                    [ A.css
+                        [ width <| pct 100
+                        , height <| pct 100
+                        , overflowY scroll
+                        , property "-webkit-overflow-scrolling" "touch"
+                        ]
+                    ]
+                    controlHelp
+                ]
             ]
         ]
     ]
