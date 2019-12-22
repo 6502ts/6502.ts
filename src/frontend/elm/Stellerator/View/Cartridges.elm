@@ -293,6 +293,7 @@ cartridgeListWide model =
                     , ifSel (Dos.color White) (Dos.color Black)
                     , property "padding-left" "var(--cw)"
                     , cursor pointer
+                    , property "word-break" "break-word"
                     ]
                 , E.onClick <| SelectCartridge cart.hash
                 ]
@@ -444,6 +445,7 @@ cartridgeListNarrow model =
                     , nthChild "even" [ Dos.backgroundColor Cyan ]
                     , Dos.color Black
                     , cursor pointer
+                    , property "word-break" "break-word"
                     ]
                 , E.onClick <| SelectCartridge cart.hash
                 ]
@@ -465,6 +467,7 @@ cartridgeListNarrow model =
                     , Dos.backgroundColor DarkGray
                     , Dos.color White
                     , cursor pointer
+                    , property "word-break" "break-word"
                     ]
                 ]
                 [ text cart.name
@@ -478,7 +481,7 @@ cartridgeListNarrow model =
                         ]
                     ]
                     [ btn (ChangeCartridgeViewMode CartridgeViewSettings) "Edit"
-                    , btn None "Run"
+                    , btn (selectionInSearchResults model |> Maybe.map StartEmulation |> Maybe.withDefault None) "Run"
                     ]
                 ]
     in

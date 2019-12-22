@@ -37,6 +37,7 @@ module Stellerator.Model exposing
     , encodeTvMode
     , nextCartridge
     , previousCartridge
+    , runningCartridge
     , selectionInSearchResults
     , validUiSizes
     )
@@ -155,6 +156,7 @@ type alias Model =
     , sideMenu : Bool
     , cartridges : List Cartridge
     , currentCartridgeHash : Maybe String
+    , runningCartridgeHash : Maybe String
     , cartridgeTypes : List CartridgeType
     , cartridgeFilter : String
     , cartridgeViewMode : CartridgeViewMode
@@ -317,6 +319,11 @@ effectiveMedia model =
 
         Nothing ->
             model.media
+
+
+runningCartridge : Model -> Maybe Cartridge
+runningCartridge model =
+    model.runningCartridgeHash |> Maybe.andThen (\h -> LE.find (.hash >> (==) h) model.cartridges)
 
 
 

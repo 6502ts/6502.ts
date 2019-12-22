@@ -9,7 +9,7 @@ import FormatNumber.Locales exposing (usLocale)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
-import Stellerator.Model exposing (EmulationState(..), Media(..), Model, Msg(..), Route(..))
+import Stellerator.Model exposing (EmulationState(..), Media(..), Model, Msg(..), Route(..), runningCartridge)
 import Stellerator.Routing exposing (serializeRoute)
 
 
@@ -78,12 +78,35 @@ navbar model media =
             navbarNarrow model
 
 
+titlebar : String -> String -> String -> List Style -> Html Msg
+titlebar delLeft delRight title styles =
+    let
+        delimiter x =
+            div [ A.css <| [ display inlineBlock, whiteSpace noWrap, padding2 (Css.em 0) (Css.em 1), flexShrink (int 0) ] ]
+                [ text x ]
+    in
+    div [ A.css <| [ displayFlex, justifyContent center, overflow hidden ] ++ styles ]
+        [ delimiter delLeft
+        , div [ A.css [ display inlineBlock, whiteSpace noWrap, overflow hidden, textOverflow ellipsis ] ] [ text title ]
+        , delimiter delRight
+        ]
+
+
 
 -- WIDE
 
 
 navbarWide : Model -> List (Html Msg)
 navbarWide model =
+    let
+        title =
+            runningCartridge model |> Maybe.map .name |> Maybe.withDefault "6502.ts / Stellerator"
+    in
+    let
+        delimiter x =
+            div [ A.css [ display inlineBlock, whiteSpace noWrap, padding2 (Css.em 0) (Css.em 1), flexShrink (int 0) ] ]
+                [ text x ]
+    in
     [ div
         [ A.css
             [ Css.width (vw 100)
@@ -96,7 +119,7 @@ navbarWide model =
             , Dos.backgroundColor Black
             ]
         ]
-        [ div [ A.css [ textAlign center ] ] [ text "----====≡≡≡≡ 6502.ts / Stellerator ≡≡≡≡====----" ]
+        [ titlebar "----====≡≡≡≡" "≡≡≡≡====----" title []
         , nav [ A.css [ Dos.backgroundColor LightGray, Dos.color Black ] ]
             [ navigationLink [] model RouteCartridges "Cartridges"
             , navigationLink [] model RouteSettings "Settings"
@@ -187,6 +210,10 @@ slideoverMenu model =
 
 navbarNarrow : Model -> List (Html Msg)
 navbarNarrow model =
+    let
+        title =
+            runningCartridge model |> Maybe.map .name |> Maybe.withDefault "Stellerator"
+    in
     [ div
         [ A.css
             [ Css.width (vw 100)
@@ -199,7 +226,7 @@ navbarNarrow model =
             , Dos.backgroundColor Black
             ]
         ]
-        [ div [ A.css [ textAlign center, property "padding-left" "calc(4 * var(--cw))" ] ] [ text "--==≡≡ Stellerator ≡≡==--" ]
+        [ titlebar "--==≡≡" "≡≡==--" title [ property "padding-left" "calc(4 * var(--cw))" ]
         , div [ A.css [ Dos.backgroundColor LightGray, Dos.color Black, textAlign right ] ] [ text <| emulationState model ]
         , menuButton model
         , slideoverMenu model

@@ -86,6 +86,7 @@ init flagsJson url key =
             , cartridges = List.sortBy (.name >> String.toUpper) flags.cartridges
             , cartridgeTypes = flags.cartridgeTypes
             , currentCartridgeHash = Nothing
+            , runningCartridgeHash = Nothing
             , cartridgeFilter = ""
             , cartridgeViewMode = CartridgeViewCartridges
             , settings = flags.settings

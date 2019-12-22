@@ -58,6 +58,6 @@ body model =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = "Stellerator"
+    { title = runningCartridge model |> Maybe.map (\x -> "Stellerator: " ++ x.name) |> Maybe.withDefault "Stellerator"
     , body = body model |> List.map toUnstyled
     }

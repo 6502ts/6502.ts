@@ -331,7 +331,7 @@ update msg model =
                     noop newModel
 
         StartEmulation hash ->
-            ( { model | emulationPaused = False }
+            ( { model | emulationPaused = False, runningCartridgeHash = Just hash }
             , Cmd.batch
                 [ Ports.startEmulation hash model.consoleSwitches
                 , Nav.pushUrl model.key <| Routing.serializeRoute RouteEmulation
