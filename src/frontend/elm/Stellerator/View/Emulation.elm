@@ -6,29 +6,80 @@ import Dos
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
-import Stellerator.Model exposing (ColorSwitch(..), DifficultySwitch(..), EmulationState(..), Model, Msg(..))
+import Stellerator.Model
+    exposing
+        ( ColorSwitch(..)
+        , DifficultySwitch(..)
+        , EmulationState(..)
+        , Model
+        , Msg(..)
+        , touchEnabled
+        )
 import Stellerator.View.Form as Form
 
 
-controlHelp : List (Html msg)
-controlHelp =
+controlHelp : Model -> List (Html msg)
+controlHelp model =
     let
         item x =
             li [] [ text x ]
     in
-    [ p [ A.css [ margin (px 0) ] ]
-        [ text "Keyboard controls: "
-        , ul []
-            [ item "LEFT JOYSTICK: wasd / arrows + v / space"
-            , item "RIGHT JOYSTICK: ijkl + b"
-            , item "RESET: shift-enter"
-            , item "SELECT: shifht-space"
-            , item "TOGGLE FULLSCREEN: enter"
-            , item "HARD RESET: shift-r"
-            , item "PAUSE: p"
+    let
+        keyboardHelp =
+            [ h1 [] [ text "Keyboard controls" ]
+            , p []
+                [ ul []
+                    [ item "LEFT JOYSTICK: wasd / arrows + v / space"
+                    , item "RIGHT JOYSTICK: ijkl + b"
+                    , item "RESET: shift-enter"
+                    , item "SELECT: shifht-space"
+                    , item "TOGGLE FULLSCREEN: enter"
+                    , item "HARD RESET: shift-r"
+                    , item "PAUSE: p"
+                    ]
+                ]
             ]
-        ]
-    ]
+    in
+    let
+        touchSchemeUrl =
+            if model.settings.leftHanded then
+                "doc/images/2600_touch_lh.jpg"
+
+            else
+                "doc/images/2600_touch.jpg"
+    in
+    let
+        touchSchemeAltUrl =
+            if model.settings.leftHanded then
+                "doc/images/2600_touch_alt_lh.jpg"
+
+            else
+                "doc/images/2600_touch_alt.jpg"
+    in
+    let
+        touchHelp =
+            [ h1 [] [ text "Touch controls" ]
+            , p []
+                [ img
+                    [ A.src touchSchemeUrl
+                    , A.alt "touch controls"
+                    , A.css [ width (pct 100) ]
+                    ]
+                    []
+                , img
+                    [ A.src touchSchemeAltUrl
+                    , A.alt "touch controls, alt mode"
+                    , A.css [ marginTop (Css.em 1), width (pct 100) ]
+                    ]
+                    []
+                ]
+            ]
+    in
+    if touchEnabled model then
+        touchHelp ++ keyboardHelp
+
+    else
+        keyboardHelp
 
 
 console : Model -> List (Html Msg)
@@ -154,13 +205,21 @@ message model =
                     Dos.backgroundColor Dos.Green
     in
     let
+        emulationPausedContent =
+            if touchEnabled model then
+                [ text "emulation paused", br [] [], text "tap to resume" ]
+
+            else
+                [ text "emulation paused" ]
+    in
+    let
         content =
             case model.emulationState of
                 EmulationStopped ->
                     [ text "emulation stopped" ]
 
                 EmulationPaused ->
-                    [ text "emulation paused" ]
+                    emulationPausedContent
 
                 EmulationError msg ->
                     [ text <| "ERROR: " ++ msg ]
@@ -184,29 +243,14 @@ message model =
             , visibility_
             , backgroundColor_
             ]
+        , E.onClick <|
+            if model.emulationState == EmulationPaused && touchEnabled model then
+                TogglePauseEmulation
+
+            else
+                None
         ]
         content
-
-
-stopMessage : Model -> Html Msg
-stopMessage model =
-    div
-        [ A.css
-            [ height (pct 100)
-            , width (pct 100)
-            , displayFlex
-            , justifyContent center
-            , alignItems center
-            , Dos.color Dos.White
-            , Dos.backgroundColor Dos.Green
-            , if model.emulationState == EmulationStopped then
-                visibility visible
-
-              else
-                visibility hidden
-            ]
-        ]
-        [ text "emulation stopped" ]
 
 
 page : Model -> List (Html Msg)
@@ -259,16 +303,27 @@ page model =
                 ]
             ]
             [ div [ Dos.panel, Dos.panelLabel "Console:" ] <| console model
-            , div [ Dos.panel, Dos.panelLabel "Help:", A.css [ flexGrow (int 1), overflow hidden ] ]
+            , div
+                [ Dos.panel
+                , Dos.panelLabel "Help:"
+                , A.css
+                    [ flexGrow (int 1)
+                    , overflow hidden
+                    , displayFlex
+                    , alignItems stretch
+                    ]
+                ]
                 [ div
                     [ A.css
                         [ width <| pct 100
                         , height <| pct 100
                         , overflowY scroll
                         , property "-webkit-overflow-scrolling" "touch"
+                        , flexGrow (int 1)
                         ]
                     ]
-                    controlHelp
+                  <|
+                    controlHelp model
                 ]
             ]
         ]

@@ -27,6 +27,7 @@ import {
 } from '../../elm/Stellerator/Main.elm';
 import Storage from './Storage';
 import FullscreenVideoDriver from '../../../web/driver/FullscreenVideo';
+import TouchIO from '../../../web/stella/driver/TouchIO';
 
 const CANVAS_ID = 'stellerator-canvas';
 const WORKER_URL = 'worker/stellerator.min.js';
@@ -173,6 +174,19 @@ class Emulation {
         }
     }
 
+    private static _onEmulationStateChange(state: EmulationServiceInterface.State, self: Emulation) {
+        self._ports.onEmulationStateChange_.send(self._emulationState(state));
+    }
+
+    private static _onFrequencyChange(frequency: number, self: Emulation): void {
+        if (self._emulationService.getState() === EmulationServiceInterface.State.running) {
+            self._ports.onEmulationStateChange_.send({
+                state: EmulationStateKey.running,
+                frequency
+            });
+        }
+    }
+
     private async _startEmulation(hash: string, switches: ConsoleSwitches): Promise<void> {
         await this._emulationServiceReady;
         await this._emulationService.stop();
@@ -276,11 +290,23 @@ class Emulation {
     }
 
     private async _bindCanvas(canvas: HTMLCanvasElement): Promise<void> {
+        const settings = await this._storage.getSettings();
         await this._createAndBindVideoDriver(canvas);
 
         this._driverManager.addDriver(this._keyboardDriver, (context, driver: KeyboardDriver) =>
             driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
         );
+
+        if (settings.touchControls ?? TouchIO.isSupported()) {
+            this._touchDriver = new TouchIO(canvas, settings.virtualJoystickSensitivity, settings.leftHanded);
+
+            this._touchDriver.toggleFullscreen.addHandler(this._onInputToggleFullscreen);
+            this._touchDriver.togglePause.addHandler(() => this._onInputTogglePause);
+
+            this._driverManager.addDriver(this._touchDriver, (context, driver: TouchIO) =>
+                driver.bind(context.getJoystick(0), context.getControlPanel())
+            );
+        }
     }
 
     private async _rebindCanvas(canvas: HTMLCanvasElement): Promise<void> {
@@ -289,6 +315,11 @@ class Emulation {
 
     private async _unbindCanvas(): Promise<void> {
         this._driverManager.removeDriver(this._keyboardDriver);
+
+        if (this._touchDriver) {
+            this._driverManager.removeDriver(this._touchDriver);
+            this._touchDriver = null;
+        }
 
         await this._removeVideoDriver();
         this._canvas = null;
@@ -377,19 +408,6 @@ class Emulation {
         }
     };
 
-    private static _onEmulationStateChange(state: EmulationServiceInterface.State, self: Emulation) {
-        self._ports.onEmulationStateChange_.send(self._emulationState(state));
-    }
-
-    private static _onFrequencyChange(frequency: number, self: Emulation): void {
-        if (self._emulationService.getState() === EmulationServiceInterface.State.running) {
-            self._ports.onEmulationStateChange_.send({
-                state: EmulationStateKey.running,
-                frequency
-            });
-        }
-    }
-
     private _ports: Ports;
 
     private _emulationMutex = new Mutex();
@@ -408,6 +426,7 @@ class Emulation {
 
     private _keyboardDriver = new KeyboardDriver(document);
     private _audioDriver = new AudioDriver();
+    private _touchDriver: TouchIO = null;
 
     private _currentConfig: Config = null;
 }

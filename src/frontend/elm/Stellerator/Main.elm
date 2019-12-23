@@ -17,16 +17,18 @@ type alias Flags =
     , cartridgeTypes : List CartridgeType
     , settings : Settings
     , defaultSettings : Settings
+    , touchSupport : Bool
     }
 
 
 decodeFlags : Decoder Flags
 decodeFlags =
-    map4 Flags
+    map5 Flags
         (field "cartridges" <| list decodeCartridge)
         (field "cartridgeTypes" <| list decodeCartridgeType)
         (field "settings" <| decodeSettings)
         (field "defaultSettings" <| decodeSettings)
+        (field "touchSupport" <| bool)
 
 
 fallbackSettings : Settings
@@ -59,6 +61,7 @@ init flagsJson url key =
                     , cartridgeTypes = []
                     , settings = fallbackSettings
                     , defaultSettings = fallbackSettings
+                    , touchSupport = False
                     }
     in
     let
@@ -80,6 +83,7 @@ init flagsJson url key =
             { key = key
             , currentRoute = route
             , media = Nothing
+            , touchSupport = flags.touchSupport
             , emulationState = EmulationStopped
             , helppage = Nothing
             , sideMenu = False

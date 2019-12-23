@@ -109,6 +109,7 @@ export interface Flags {
     cartridgeTypes: Array<CartridgeType>;
     settings: Settings;
     defaultSettings: Settings;
+    touchSupport: boolean;
 }
 
 export interface Options {
@@ -129,7 +130,7 @@ export interface Ports {
     addCartridge_: CommandPort<void>;
     onNewCartridges_: SubscriptionPort<Array<Cartridge>>;
     updateCartridge_: CommandPort<Cartridge>;
-    deleteCartridge_: CommandPort<String>;
+    deleteCartridge_: CommandPort<string>;
     deleteAllCartridges_: CommandPort<void>;
 
     updateSettings_: CommandPort<Settings>;
@@ -159,8 +160,8 @@ export interface Main {
     init(options?: Options): { ports: Ports };
 }
 
-declare module Elm {
-    export module Stellerator {
+declare namespace Elm {
+    export namespace Stellerator {
         const Main: Main;
     }
 }

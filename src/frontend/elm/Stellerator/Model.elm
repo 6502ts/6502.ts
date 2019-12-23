@@ -39,6 +39,7 @@ module Stellerator.Model exposing
     , previousCartridge
     , runningCartridge
     , selectionInSearchResults
+    , touchEnabled
     , validUiSizes
     )
 
@@ -151,6 +152,7 @@ type alias Model =
     { key : Nav.Key
     , currentRoute : Route
     , media : Maybe Media
+    , touchSupport : Bool
     , emulationState : EmulationState
     , helppage : Maybe String
     , sideMenu : Bool
@@ -324,6 +326,11 @@ effectiveMedia model =
 runningCartridge : Model -> Maybe Cartridge
 runningCartridge model =
     model.runningCartridgeHash |> Maybe.andThen (\h -> LE.find (.hash >> (==) h) model.cartridges)
+
+
+touchEnabled : Model -> Bool
+touchEnabled model =
+    Maybe.withDefault model.touchSupport model.settings.touchControls
 
 
 

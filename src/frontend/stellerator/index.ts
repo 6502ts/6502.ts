@@ -14,6 +14,7 @@ import Storage, { DEFAULT_SETTINGS } from './service/Storage';
 import TrackCartridges from './service/TrackCartridges';
 import TrackSettings from './service/TrackSettings';
 import Emulation from './service/Emulation';
+import TouchIO from '../../web/stella/driver/TouchIO';
 
 async function main(): Promise<void> {
     initializeRangetouch();
@@ -38,7 +39,13 @@ async function main(): Promise<void> {
     }
 
     const { ports } = Elm.Stellerator.Main.init({
-        flags: { cartridges, cartridgeTypes, settings, defaultSettings: DEFAULT_SETTINGS }
+        flags: {
+            cartridges,
+            cartridgeTypes,
+            settings,
+            defaultSettings: DEFAULT_SETTINGS,
+            touchSupport: TouchIO.isSupported()
+        }
     });
 
     container.get(MediaApi).init(ports);

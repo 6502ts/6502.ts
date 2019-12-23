@@ -41,6 +41,10 @@ class TouchIO {
         this.toggleFullscreen = this._fullscreenDoubleTapDetector.trigger;
     }
 
+    static isSupported(): boolean {
+        return 'ontouchstart' in window;
+    }
+
     bind(joystick: DigitalJoystickInterface, controlPanel: ControlPanelInterface): void {
         if (this._bound) {
             return;
