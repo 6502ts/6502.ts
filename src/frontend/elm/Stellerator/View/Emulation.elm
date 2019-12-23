@@ -63,13 +63,13 @@ controlHelp model =
                 [ img
                     [ A.src touchSchemeUrl
                     , A.alt "touch controls"
-                    , A.css [ width (pct 100) ]
+                    , A.css [ width (pct 100), maxWidth (Css.em 20) ]
                     ]
                     []
                 , img
                     [ A.src touchSchemeAltUrl
                     , A.alt "touch controls, alt mode"
-                    , A.css [ marginTop (Css.em 1), width (pct 100) ]
+                    , A.css [ marginTop (Css.em 1), width (pct 100), maxWidth (Css.em 20) ]
                     ]
                     []
                 ]
@@ -311,13 +311,12 @@ page model =
                     , overflow hidden
                     , displayFlex
                     , alignItems stretch
+                    , flexDirection column
                     ]
                 ]
                 [ div
                     [ A.css
-                        [ width <| pct 100
-                        , height <| pct 100
-                        , overflowY scroll
+                        [ overflowY scroll
                         , property "-webkit-overflow-scrolling" "touch"
                         , flexGrow (int 1)
                         ]

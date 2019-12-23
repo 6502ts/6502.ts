@@ -301,7 +301,7 @@ class Emulation {
             this._touchDriver = new TouchIO(canvas, settings.virtualJoystickSensitivity, settings.leftHanded);
 
             this._touchDriver.toggleFullscreen.addHandler(this._onInputToggleFullscreen);
-            this._touchDriver.togglePause.addHandler(() => this._onInputTogglePause);
+            this._touchDriver.togglePause.addHandler(this._onInputTogglePause);
 
             this._driverManager.addDriver(this._touchDriver, (context, driver: TouchIO) =>
                 driver.bind(context.getJoystick(0), context.getControlPanel())

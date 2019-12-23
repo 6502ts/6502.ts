@@ -100,12 +100,7 @@ navbarWide : Model -> List (Html Msg)
 navbarWide model =
     let
         title =
-            runningCartridge model |> Maybe.map .name |> Maybe.withDefault "6502.ts / Stellerator"
-    in
-    let
-        delimiter x =
-            div [ A.css [ display inlineBlock, whiteSpace noWrap, padding2 (Css.em 0) (Css.em 1), flexShrink (int 0) ] ]
-                [ text x ]
+            runningCartridge model |> Maybe.map (\x -> "Stellerator: " ++ x.name) |> Maybe.withDefault "6502.ts / Stellerator"
     in
     [ div
         [ A.css
