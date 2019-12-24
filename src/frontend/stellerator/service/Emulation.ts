@@ -322,6 +322,8 @@ class Emulation {
         }
 
         await this._removeVideoDriver();
+
+        this._handledCanvasElements.delete(this._canvas);
         this._canvas = null;
     }
 
@@ -395,8 +397,12 @@ class Emulation {
 
         const canvas: HTMLCanvasElement = document.getElementById(CANVAS_ID) as any;
 
-        if (canvas === this._canvas) {
+        if (canvas === this._canvas || this._handledCanvasElements.has(canvas)) {
             return;
+        }
+
+        if (canvas) {
+            this._handledCanvasElements.add(canvas);
         }
 
         if (canvas && this._canvas) {
@@ -429,6 +435,8 @@ class Emulation {
     private _touchDriver: TouchIO = null;
 
     private _currentConfig: Config = null;
+
+    private _handledCanvasElements = new WeakSet<HTMLCanvasElement>();
 }
 
 export default Emulation;

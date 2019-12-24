@@ -277,7 +277,7 @@ page model =
                 [ displayFlex
                 , alignItems stretch
                 , flexGrow (int 1)
-                , small [ property "height" "calc(75vh - 4em)", maxHeight (px 600) ]
+                , small [ property "height" "calc(70vh - 4em)", maxHeight (px 600) ]
                 ]
             ]
             [ div

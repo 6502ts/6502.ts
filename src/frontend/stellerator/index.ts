@@ -54,6 +54,8 @@ async function main(): Promise<void> {
     container.get(TrackCartridges).init(ports);
     container.get(TrackSettings).init(ports);
     container.get(Emulation).init(ports);
+
+    ports.scrollToTop_.subscribe(() => window.scrollTo(0, 0));
 }
 
 window.addEventListener('load', main);

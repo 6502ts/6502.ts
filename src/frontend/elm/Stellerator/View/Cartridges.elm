@@ -254,7 +254,7 @@ cartridgeToolbarWide model =
                 )
                 children
     in
-    form [ Dos.panel ]
+    form [ Dos.panel, E.onSubmit None ]
         [ searchInput
         , div
             []
@@ -355,6 +355,7 @@ settingsWide model styles =
                     , flexGrow (int 1)
                     , children [ Sel.label [ pseudoClass "not(:first-of-type)" [ paddingTop (Css.em 1) ] ] ]
                     ]
+                , E.onSubmit None
                 ]
                 items
     in
@@ -566,6 +567,7 @@ settingsSubpageNarrow model cart =
             form
                 [ Dos.panel
                 , Dos.panelLabel "Settings:"
+                , E.onSubmit None
                 , A.css
                     [ displayFlex
                     , flexDirection column
@@ -593,6 +595,7 @@ settingsSubpageNarrow model cart =
             , width (vw 100)
             , boxSizing borderBox
             ]
+        , E.onSubmit None
         , Dos.panel
         ]
         [ btn (ChangeCartridgeViewMode CartridgeViewCartridges) "Back"

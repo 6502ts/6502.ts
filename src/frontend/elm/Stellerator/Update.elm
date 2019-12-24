@@ -141,7 +141,7 @@ update msg model =
                                 []
 
                         _ ->
-                            []
+                            [ Ports.scrollToTop ]
             in
             let
                 emulationCmd =

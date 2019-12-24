@@ -126,6 +126,7 @@ export interface Ports {
     onMediaUpdate_: SubscriptionPort<Array<boolean>>;
 
     scrollIntoView_: CommandPort<[ScrollLogicalPosition, string]>;
+    scrollToTop_: CommandPort<void>;
 
     addCartridge_: CommandPort<void>;
     onNewCartridges_: SubscriptionPort<Array<Cartridge>>;

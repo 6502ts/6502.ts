@@ -11,6 +11,7 @@ port module Stellerator.Ports exposing
     , resetEmulation
     , resumeEmulation
     , scrollIntoView
+    , scrollToTop
     , setLimitFramerate
     , startEmulation
     , stopEmulation
@@ -61,7 +62,7 @@ onMediaUpdate =
 
 
 
--- ScrollIntoView
+-- Scrolliing
 
 
 type ScrollPosition
@@ -92,6 +93,14 @@ scrollIntoView scrollPosition id =
                     "nearest"
     in
     scrollIntoView_ ( encodedScrollPosition, id )
+
+
+port scrollToTop_ : () -> Cmd msg
+
+
+scrollToTop : Cmd msg
+scrollToTop =
+    scrollToTop_ ()
 
 
 
