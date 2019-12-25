@@ -22,8 +22,9 @@
 import * as screenfull from 'screenfull';
 
 import VideoDriver from './VideoDriverInterface';
+import { isIOS } from '../../tools/browser';
 
-const noFullscrenApi = !!navigator.platform.match(/iPhone|iPad|iPod/);
+const noFullscrenApi = isIOS;
 
 export default class FullscreenVideoDriver {
     constructor(

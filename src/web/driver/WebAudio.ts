@@ -27,8 +27,9 @@ import PCMChannel from './audio/PCMChannel';
 
 import WaveformAudioOutputInterface from '../../machine/io/WaveformAudioOutputInterface';
 import PCMAudioEndpointInterface from './PCMAudioEndpointInterface';
+import { isIOS, isSafari } from '../../tools/browser';
 
-const audioNeedsInteraction = !!navigator.platform.match(/iPhone|iPad|iPod/) || !!(window as any).safari;
+const audioNeedsInteraction = isIOS || isSafari;
 const INTERACTION_EVENTS = ['touchstart', 'click', 'keydown'];
 
 type AudioContextType = typeof AudioContext;
@@ -146,9 +147,7 @@ class WebAudioDriver {
 
         if (waveformSources.length !== this._waveformChannels.length) {
             throw new Error(
-                `invalid number of waveform sources: expected ${this._waveformChannels.length}, got ${
-                    waveformSources.length
-                }`
+                `invalid number of waveform sources: expected ${this._waveformChannels.length}, got ${waveformSources.length}`
             );
         }
 
