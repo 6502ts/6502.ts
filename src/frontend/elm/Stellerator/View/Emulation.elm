@@ -63,13 +63,13 @@ controlHelp model =
                 [ img
                     [ A.src touchSchemeUrl
                     , A.alt "touch controls"
-                    , A.css [ width (pct 100), maxWidth (Css.em 20) ]
+                    , A.css [ display block, width (pct 100), maxWidth (Css.em 20) ]
                     ]
                     []
                 , img
                     [ A.src touchSchemeAltUrl
                     , A.alt "touch controls, alt mode"
-                    , A.css [ marginTop (Css.em 1), width (pct 100), maxWidth (Css.em 20) ]
+                    , A.css [ display block, marginTop (Css.em 1), width (pct 100), maxWidth (Css.em 20) ]
                     ]
                     []
                 ]
