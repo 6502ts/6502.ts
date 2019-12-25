@@ -109,7 +109,7 @@ navbarWide model =
             , position fixed
             , top (px 0)
             , left (px 0)
-            , zIndex (int 10)
+            , zIndex (int 20)
             , Dos.color LightGray
             , Dos.backgroundColor Black
             ]

@@ -176,6 +176,7 @@ emulationCanvas model =
             , top (px 0)
             , zIndex (int 10)
             , visibility_
+            , touchAction none
             ]
         ]
         []
