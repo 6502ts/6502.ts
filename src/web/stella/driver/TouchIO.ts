@@ -233,8 +233,8 @@ class TouchIO {
                 continue;
             }
 
-            const deltaX = touch.clientX - normalizedTouch.touch.clientX,
-                deltaY = touch.clientY - normalizedTouch.touch.clientY,
+            const deltaX = touch.clientX - normalizedTouch.x0,
+                deltaY = touch.clientY - normalizedTouch.y0,
                 abs = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
                 sin = Math.abs(deltaY / abs),
                 cos = Math.abs(deltaX / abs),
@@ -244,6 +244,11 @@ class TouchIO {
             this._joystick.getRight().toggle(trigger && deltaX > 0 && cos > 0.5);
             this._joystick.getUp().toggle(trigger && deltaY < 0 && sin > 0.5);
             this._joystick.getDown().toggle(trigger && deltaY > 0 && sin > 0.5);
+
+            if (abs > 2 * this._joystickSensitivity) {
+                normalizedTouch.x0 += (deltaX / abs) * (abs - 2 * this._joystickSensitivity);
+                normalizedTouch.y0 += (deltaY / abs) * (abs - 2 * this._joystickSensitivity);
+            }
         }
 
         if (cancel) {
@@ -273,7 +278,13 @@ class NormalizedTouch {
 
         this.x = (touch.clientX - boundingRect.left) / boundingRect.width;
         this.y = (touch.clientY - boundingRect.top) / boundingRect.height;
+
+        this.x0 = touch.clientX;
+        this.y0 = touch.clientY;
     }
+
+    x0: number;
+    y0: number;
 
     x: number;
     y: number;
