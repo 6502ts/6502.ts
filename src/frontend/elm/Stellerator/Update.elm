@@ -3,6 +3,7 @@ module Stellerator.Update exposing (update)
 import Browser.Navigation as Nav
 import Dict
 import List.Extra as LE
+import Stellerator.Media exposing (watchMediaCommand)
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
 import Stellerator.Routing as Routing
@@ -310,7 +311,15 @@ update msg model =
                 newSettings =
                     updateSettings changeSettingsMsg model.defaultSettings model.settings
             in
-            ( { model | settings = newSettings }, Ports.updateSettings newSettings )
+            let
+                mediaCommand =
+                    if model.settings.uiSize /= newSettings.uiSize then
+                        watchMediaCommand newSettings.uiSize
+
+                    else
+                        Cmd.none
+            in
+            ( { model | settings = newSettings }, Cmd.batch [ Ports.updateSettings newSettings, mediaCommand ] )
 
         MessageNeedsConfirmation description message ->
             noop { model | messageNeedsConfirmation = ( description, Just message ) }

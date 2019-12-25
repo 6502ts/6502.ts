@@ -4,6 +4,7 @@ import Browser
 import Browser.Navigation as Nav
 import Http
 import Json.Decode exposing (..)
+import Stellerator.Media exposing (..)
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
 import Stellerator.Routing exposing (..)
@@ -109,7 +110,7 @@ init flagsJson url key =
     ( model
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)
-        , Ports.watchMedia [ "(max-width: 750px)" ]
+        , watchMediaCommand model.settings.uiSize
         , Http.get { url = "doc/stellerator.md", expect = Http.expectString handleHelppageResult }
         ]
     )
@@ -118,18 +119,7 @@ init flagsJson url key =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Ports.onMediaUpdate
-            (List.head
-                >> Maybe.map
-                    (\x ->
-                        if x then
-                            ChangeMedia MediaNarrow
-
-                        else
-                            ChangeMedia MediaWide
-                    )
-                >> Maybe.withDefault None
-            )
+        [ watchMediaSubscription
         , Ports.onNewCartridges AddNewCartridges
         , Ports.onEmulationStateChange UpdateEmulationState
         , Ports.onInputDriverEvent IncomingInputDriverEvent

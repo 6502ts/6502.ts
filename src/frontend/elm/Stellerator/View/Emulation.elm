@@ -258,7 +258,7 @@ page : Model -> List (Html Msg)
 page model =
     let
         small =
-            Media.withMedia [ Media.all [ Media.maxWidth (px 900) ] ]
+            Media.withMedia [ Media.all [ Media.maxWidth (px <| toFloat ((900 * model.settings.uiSize) // 100)) ] ]
     in
     [ div
         [ A.css

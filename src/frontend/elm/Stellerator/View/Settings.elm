@@ -114,7 +114,7 @@ settingsList settings media haveCartridges =
                 [ ( Nothing, "Auto" ), ( Just MediaWide, "Wide" ), ( Just MediaNarrow, "Narrow" ) ]
                 (ChangeSettings << ChangeSettingsUiMode)
                 settings.uiMode
-        , oneline "Scale:" <|
+        , oneline "Size:" <|
             Form.picker
                 (List.map ((\s -> ( s, s ++ "%" )) << String.fromInt) validUiSizes)
                 (String.toInt >> Maybe.map (ChangeSettings << ChangeSettingsUiSize) >> Maybe.withDefault None)
