@@ -56,6 +56,7 @@ async function main(): Promise<void> {
     container.get(Emulation).init(ports);
 
     ports.scrollToTop_.subscribe(() => window.scrollTo(0, 0));
+    ports.blurCurrentElement_.subscribe(() => (document.activeElement as HTMLElement).blur());
 }
 
 window.addEventListener('load', main);

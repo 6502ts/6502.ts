@@ -127,6 +127,7 @@ export interface Ports {
 
     scrollIntoView_: CommandPort<[ScrollLogicalPosition, string]>;
     scrollToTop_: CommandPort<void>;
+    blurCurrentElement_: CommandPort<void>;
 
     addCartridge_: CommandPort<void>;
     onNewCartridges_: SubscriptionPort<Array<Cartridge>>;

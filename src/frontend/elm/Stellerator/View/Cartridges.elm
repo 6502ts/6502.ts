@@ -418,7 +418,8 @@ searchInputNarrow styles model =
             [ A.type_ "text"
             , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
             , A.placeholder "Search cartridges..."
-            , Form.onChange ChangeCartridgeFilter
+            , Form.onInput ChangeCartridgeFilter
+            , Form.onChange (\_ -> BlurCurrentElement)
             ]
             model.cartridgeFilter
         , Form.mobileButton

@@ -180,11 +180,7 @@ update msg model =
                 newModel =
                     { model | cartridgeFilter = cartridgeFilter }
             in
-            let
-                cmd =
-                    selectionInSearchResults newModel |> Maybe.map (Ports.scrollIntoView Ports.Nearest) |> Maybe.withDefault Cmd.none
-            in
-            ( newModel, cmd )
+            ( newModel, Ports.scrollToTop )
 
         ClearCartridgeFilter ->
             let
@@ -432,6 +428,9 @@ update msg model =
                     { switchesOld | color = color }
             in
             ( { model | consoleSwitches = consoleSwitches }, Ports.updateConsoleSwitches consoleSwitches )
+
+        BlurCurrentElement ->
+            ( model, Ports.blurCurrentElement )
 
         _ ->
             noop model

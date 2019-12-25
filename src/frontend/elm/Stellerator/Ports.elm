@@ -1,6 +1,7 @@
 port module Stellerator.Ports exposing
     ( ScrollPosition(..)
     , addCartridge
+    , blurCurrentElement
     , deleteAllCartridges
     , deleteCartridge
     , onEmulationStateChange
@@ -62,7 +63,7 @@ onMediaUpdate =
 
 
 
--- Scrolliing
+-- DOM Handling
 
 
 type ScrollPosition
@@ -101,6 +102,14 @@ port scrollToTop_ : () -> Cmd msg
 scrollToTop : Cmd msg
 scrollToTop =
     scrollToTop_ ()
+
+
+port blurCurrentElement_ : () -> Cmd msg
+
+
+blurCurrentElement : Cmd msg
+blurCurrentElement =
+    blurCurrentElement_ ()
 
 
 

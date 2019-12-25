@@ -251,6 +251,7 @@ type Msg
     | ChangeDifficultyP0 DifficultySwitch
     | ChangeDifficultyP1 DifficultySwitch
     | ChangeColorSwitch ColorSwitch
+    | BlurCurrentElement
     | None
 
 
