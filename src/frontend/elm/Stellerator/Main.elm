@@ -43,7 +43,7 @@ fallbackSettings =
     , videoSync = True
     , touchControls = Maybe.Nothing
     , leftHanded = False
-    , virtualJoystickSensitivity = 10
+    , virtualJoystickSensitivity = 20
     , uiMode = Nothing
     , uiSize = 100
     }

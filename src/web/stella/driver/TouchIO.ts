@@ -245,9 +245,9 @@ class TouchIO {
             this._joystick.getUp().toggle(trigger && deltaY < 0 && sin > 0.5);
             this._joystick.getDown().toggle(trigger && deltaY > 0 && sin > 0.5);
 
-            if (abs > 2 * this._joystickSensitivity) {
-                normalizedTouch.x0 += (deltaX / abs) * (abs - 2 * this._joystickSensitivity);
-                normalizedTouch.y0 += (deltaY / abs) * (abs - 2 * this._joystickSensitivity);
+            if (abs > 3 * this._joystickSensitivity) {
+                normalizedTouch.x0 += (deltaX / abs) * (abs - 3 * this._joystickSensitivity);
+                normalizedTouch.y0 += (deltaY / abs) * (abs - 3 * this._joystickSensitivity);
             }
         }
 
