@@ -63,10 +63,10 @@ interface EmulationServiceInterface {
 
 namespace EmulationServiceInterface {
     export enum State {
-        stopped,
-        running,
-        paused,
-        error
+        stopped = 'stopped',
+        running = 'running',
+        paused = 'paused',
+        error = 'error'
     }
 }
 

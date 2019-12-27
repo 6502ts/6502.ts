@@ -176,6 +176,12 @@ class Emulation {
 
     private static _onEmulationStateChange(state: EmulationServiceInterface.State, self: Emulation) {
         self._ports.onEmulationStateChange_.send(self._emulationState(state));
+
+        if (state === EmulationServiceInterface.State.running) {
+            self._audioDriver.resume();
+        } else {
+            self._audioDriver.pause();
+        }
     }
 
     private static _onFrequencyChange(frequency: number, self: Emulation): void {

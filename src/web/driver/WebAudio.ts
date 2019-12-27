@@ -182,7 +182,11 @@ class WebAudioDriver {
     }
 
     pause(): Promise<void> {
-        return this._mutex.runExclusive(() => {
+        return this._mutex.runExclusive((): any => {
+            if (this._suspended) {
+                return;
+            }
+
             this._suspended = true;
 
             return new Promise(resolve => {
@@ -193,7 +197,11 @@ class WebAudioDriver {
     }
 
     resume(): Promise<void> {
-        return this._mutex.runExclusive(() => {
+        return this._mutex.runExclusive((): any => {
+            if (!this._suspended) {
+                return;
+            }
+
             this._suspended = false;
 
             return new Promise(resolve => {
