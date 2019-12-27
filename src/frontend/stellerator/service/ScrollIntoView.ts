@@ -19,7 +19,7 @@ class ScrollIntoView {
 }
 
 class Task {
-    constructor(private _position: ScrollLogicalPosition, private _id: string, private _timeout = 100) {}
+    constructor(private _position: ScrollLogicalPosition, private _id: string, private _timeout = 500) {}
 
     start(): void {
         setTimeout(() => this._observer.disconnect(), this._timeout);

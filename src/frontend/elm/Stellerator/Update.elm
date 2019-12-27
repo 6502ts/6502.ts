@@ -185,7 +185,12 @@ update msg model =
         ClearCartridgeFilter ->
             let
                 cmd =
-                    model.currentCartridgeHash |> Maybe.map (Ports.scrollIntoView Ports.Nearest) |> Maybe.withDefault Cmd.none
+                    case model.media of
+                        Just MediaNarrow ->
+                            Ports.scrollToTop
+
+                        _ ->
+                            model.currentCartridgeHash |> Maybe.map (Ports.scrollIntoView Ports.Nearest) |> Maybe.withDefault Cmd.none
             in
             ( { model | cartridgeFilter = "" }, cmd )
 
@@ -277,6 +282,9 @@ update msg model =
                         ( CartridgeViewCartridges, CartridgeViewSettings, Just hash ) ->
                             Ports.scrollIntoView Ports.Center hash
 
+                        ( CartridgeViewSettings, CartridgeViewCartridges, _ ) ->
+                            Ports.scrollToTop
+
                         _ ->
                             Cmd.none
             in
@@ -293,6 +301,7 @@ update msg model =
                             List.foldl (\c d -> Dict.insert c.hash c d) Dict.empty (model.cartridges ++ cartridges)
                                 |> Dict.values
                                 |> List.sortBy (String.toUpper << .name)
+                        , cartridgeFilter = ""
                     }
             in
             case cartridges of
