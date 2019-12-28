@@ -129,7 +129,7 @@ settingsList settings media haveCartridges =
         [ Form.responsiveButton media [ A.css [ buttonWidth ] ] (ChangeSettings ChangeSettingsResetToDefault) "Reset to defaults"
         , Form.responsiveButton media
             [ A.css [ buttonWidth ], A.disabled <| not haveCartridges ]
-            (MessageNeedsConfirmation "Do you really want to delete all cartridges?" DeleteAllCartridges)
+            (MessageNeedsConfirmOrReject "Do you really want to delete all cartridges?" ( "OK", "Cancel" ) DeleteAllCartridges)
             "Delete all cartridges"
         ]
     ]

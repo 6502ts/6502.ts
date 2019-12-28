@@ -12,6 +12,7 @@ import copy from 'rollup-plugin-copy';
 import globals from 'rollup-plugin-node-globals';
 import replace from 'rollup-plugin-replace';
 import sizes from 'rollup-plugin-sizes';
+import rollupGitVersion from 'rollup-plugin-git-version';
 import path from 'path';
 
 const worker = ({ input, output }) => ({
@@ -74,6 +75,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
             includePaths: [path.resolve(__dirname, 'node_modules')],
             outputStyle: 'compressed'
         }),
+        rollupGitVersion(),
         replace({
             include: 'node_modules/jszip/**/*.js',
             values: {

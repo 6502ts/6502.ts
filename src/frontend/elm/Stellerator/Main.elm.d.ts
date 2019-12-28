@@ -110,6 +110,8 @@ export interface Flags {
     settings: Settings;
     defaultSettings: Settings;
     touchSupport: boolean;
+    version: string;
+    wasUpdated: boolean;
 }
 
 export interface Options {

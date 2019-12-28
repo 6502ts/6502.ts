@@ -52,7 +52,7 @@ body model =
     in
     configureSize
         :: navbar
-        ++ (Maybe.map (modal model.messageNeedsConfirmation) media |> Maybe.withDefault [])
+        ++ (Maybe.map (modal model.messagePending) media |> Maybe.withDefault [])
         ++ content
 
 

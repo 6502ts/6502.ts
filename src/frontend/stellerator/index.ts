@@ -3,6 +3,8 @@ import 'reflect-metadata';
 import Elm, { CartridgeType, Cartridge, Settings } from '../elm/Stellerator/Main.elm';
 import '../theme/dos.scss';
 
+import { version as packageVersion } from '../../../package.json';
+
 import { initialize as initializeRangetouch } from '../common/rangetouch';
 import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 
@@ -15,6 +17,8 @@ import TrackCartridges from './service/TrackCartridges';
 import TrackSettings from './service/TrackSettings';
 import Emulation from './service/Emulation';
 import TouchIO from '../../web/stella/driver/TouchIO';
+
+const VERSION_STORAGE_KEY = 'stellerator-ng-version';
 
 async function main(): Promise<void> {
     initializeRangetouch();
@@ -38,13 +42,20 @@ async function main(): Promise<void> {
         [cartridges, settings] = await Promise.all([storage.getAllCartridges(), storage.getSettings()]);
     }
 
+    const version = packageVersion.replace(/^(.*)\+.*\.([0-9a-fA-F]+)$/, '$1 build $2');
+    const wasUpdated = localStorage.getItem(VERSION_STORAGE_KEY) !== version;
+
+    localStorage.setItem(VERSION_STORAGE_KEY, version);
+
     const { ports } = Elm.Stellerator.Main.init({
         flags: {
             cartridges,
             cartridgeTypes,
             settings,
             defaultSettings: DEFAULT_SETTINGS,
-            touchSupport: TouchIO.isSupported()
+            touchSupport: TouchIO.isSupported(),
+            version,
+            wasUpdated
         }
     });
 

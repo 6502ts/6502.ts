@@ -12,6 +12,8 @@ module Stellerator.Model exposing
     , EmulationState(..)
     , InputDriverEvent(..)
     , Media(..)
+    , MessagePending
+    , MessagePendingMetadata(..)
     , Model
     , Msg(..)
     , Route(..)
@@ -148,6 +150,15 @@ type alias ConsoleSwitches =
     }
 
 
+type MessagePendingMetadata
+    = MessagePendingConfirmOrReject String ( String, String )
+    | MessagePendingAck String String
+
+
+type alias MessagePending =
+    ( Maybe Msg, MessagePendingMetadata )
+
+
 type alias Model =
     { key : Nav.Key
     , currentRoute : Route
@@ -164,11 +175,12 @@ type alias Model =
     , cartridgeViewMode : CartridgeViewMode
     , settings : Settings
     , defaultSettings : Settings
-    , messageNeedsConfirmation : ( String, Maybe Msg )
+    , messagePending : MessagePending
     , emulationPaused : Bool
     , showMessageOnPause : Bool
     , limitFramerate : Bool
     , consoleSwitches : ConsoleSwitches
+    , version : String
     }
 
 
@@ -237,7 +249,8 @@ type Msg
     | AddCartridge
     | AddNewCartridges (List Cartridge)
     | ChangeSettings ChangeSettingsMsg
-    | MessageNeedsConfirmation String Msg
+    | MessageNeedsConfirmOrReject String ( String, String ) Msg
+    | MessageNeedsAck String String Msg
     | RejectPendingMessage
     | ConfirmPendingMessage
     | StartEmulation String

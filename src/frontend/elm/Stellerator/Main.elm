@@ -19,17 +19,21 @@ type alias Flags =
     , settings : Settings
     , defaultSettings : Settings
     , touchSupport : Bool
+    , version : String
+    , wasUpdated : Bool
     }
 
 
 decodeFlags : Decoder Flags
 decodeFlags =
-    map5 Flags
+    map7 Flags
         (field "cartridges" <| list decodeCartridge)
         (field "cartridgeTypes" <| list decodeCartridgeType)
         (field "settings" <| decodeSettings)
         (field "defaultSettings" <| decodeSettings)
         (field "touchSupport" <| bool)
+        (field "version" <| string)
+        (field "wasUpdated" <| bool)
 
 
 fallbackSettings : Settings
@@ -63,6 +67,8 @@ init flagsJson url key =
                     , settings = fallbackSettings
                     , defaultSettings = fallbackSettings
                     , touchSupport = False
+                    , version = "[unknown]"
+                    , wasUpdated = False
                     }
     in
     let
@@ -96,7 +102,14 @@ init flagsJson url key =
             , cartridgeViewMode = CartridgeViewCartridges
             , settings = flags.settings
             , defaultSettings = flags.defaultSettings
-            , messageNeedsConfirmation = ( "", Nothing )
+            , messagePending =
+                if flags.wasUpdated then
+                    ( Just None
+                    , MessagePendingAck ("Stellerator has been updated to version " ++ flags.version ++ ".") "Close"
+                    )
+
+                else
+                    ( Nothing, MessagePendingAck "" "" )
             , emulationPaused = False
             , showMessageOnPause = False
             , limitFramerate = True
@@ -105,6 +118,7 @@ init flagsJson url key =
                 , difficultyP1 = DifficultyPro
                 , color = ColorColor
                 }
+            , version = "[unknown]"
             }
     in
     ( model

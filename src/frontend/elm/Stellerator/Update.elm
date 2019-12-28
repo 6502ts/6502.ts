@@ -326,23 +326,21 @@ update msg model =
             in
             ( { model | settings = newSettings }, Cmd.batch [ Ports.updateSettings newSettings, mediaCommand ] )
 
-        MessageNeedsConfirmation description message ->
-            noop { model | messageNeedsConfirmation = ( description, Just message ) }
+        MessageNeedsConfirmOrReject description buttonLabels message ->
+            noop { model | messagePending = ( Just message, MessagePendingConfirmOrReject description buttonLabels ) }
+
+        MessageNeedsAck description buttonLabel message ->
+            noop { model | messagePending = ( Just message, MessagePendingAck description buttonLabel ) }
 
         RejectPendingMessage ->
-            noop { model | messageNeedsConfirmation = ( Tuple.first model.messageNeedsConfirmation, Nothing ) }
+            noop { model | messagePending = ( Nothing, Tuple.second model.messagePending ) }
 
         ConfirmPendingMessage ->
             let
                 newModel =
-                    { model | messageNeedsConfirmation = ( Tuple.first model.messageNeedsConfirmation, Nothing ) }
+                    { model | messagePending = ( Nothing, Tuple.second model.messagePending ) }
             in
-            case model.messageNeedsConfirmation of
-                ( _, Just m ) ->
-                    update m newModel
-
-                _ ->
-                    noop newModel
+            model.messagePending |> Tuple.first |> Maybe.map (\m -> update m newModel) |> Maybe.withDefault (noop newModel)
 
         StartEmulation hash ->
             ( { model | emulationPaused = False, runningCartridgeHash = Just hash }
