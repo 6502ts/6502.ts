@@ -36,6 +36,11 @@ decodeFlags =
         (field "wasUpdated" <| bool)
 
 
+
+-- Attention unwary reader: this are not the default settings, but just a fallback
+-- to satisfy the build system. The defaults are found in Storage.ts .
+
+
 fallbackSettings : Settings
 fallbackSettings =
     { cpuEmulation = AccuracyCycle
@@ -47,7 +52,7 @@ fallbackSettings =
     , videoSync = True
     , touchControls = Maybe.Nothing
     , leftHanded = False
-    , virtualJoystickSensitivity = 20
+    , virtualJoystickSensitivity = 10
     , uiMode = Nothing
     , uiSize = 100
     }

@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS: Settings = {
     cpuEmulation: CpuEmulation.cycle,
     volume: 80,
     audioEmulation: AudioEmulation.pcm,
-    smoothScaling: true,
+    smoothScaling: false,
     phosphorEmulation: true,
     gammaCorrection: 1.0,
     videoSync: true,
