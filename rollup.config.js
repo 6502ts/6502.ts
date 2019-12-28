@@ -14,6 +14,10 @@ import replace from 'rollup-plugin-replace';
 import sizes from 'rollup-plugin-sizes';
 import rollupGitVersion from 'rollup-plugin-git-version';
 import path from 'path';
+const { generateSW } = require('rollup-plugin-workbox');
+
+const DEVELOPMENT = !!process.env.DEVELOPMENT;
+const dist = p => path.join(DEVELOPMENT ? 'dist-dev' : 'dist', p);
 
 const worker = ({ input, output }) => ({
     input,
@@ -43,9 +47,9 @@ const worker = ({ input, output }) => ({
         }),
         globals(),
         builtins(),
-        ...(process.env.DEV ? [] : [terser()]),
+        ...(DEVELOPMENT ? [] : [terser()]),
         copy({
-            targets: [output, `${output}.map`].map(src => ({ src, dest: 'dist/frontend/stellerator/worker' })),
+            targets: [output, `${output}.map`].map(src => ({ src, dest: dist('frontend/stellerator/worker') })),
             hook: 'writeBundle'
         })
     ],
@@ -55,7 +59,7 @@ const worker = ({ input, output }) => ({
     }
 });
 
-const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
+const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker }) => ({
     input,
     output: {
         file: path.join(output, 'app.js'),
@@ -67,7 +71,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
         resolve({ preferBuiltins: true }),
         elm({
             compiler: {
-                optimize: !process.env.DEV,
+                optimize: !DEVELOPMENT,
                 pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm')
             }
         }),
@@ -82,6 +86,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
                 'readable-stream': `stream`
             }
         }),
+        replace({ 'process.env.DEVELOPMENT': JSON.stringify(DEVELOPMENT) }),
         commonjs({
             namedExports: {
                 'node_modules/seedrandom/index.js': ['alea'],
@@ -100,7 +105,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
         }),
         globals(),
         builtins(),
-        ...(process.env.DEV ? [] : [terser()]),
+        ...(DEVELOPMENT ? [] : [terser()]),
         html({
             template: template,
             dest: output,
@@ -108,6 +113,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
             inject: 'head',
             ignore: /worker/
         }),
+        ...(serviceWorker && !DEVELOPMENT ? [generateSW(serviceWorker)] : []),
         copy({
             targets: ['src/frontend/theme/assets', 'assets', ...extraAssets].map(src => ({ src, dest: output }))
         }),
@@ -120,17 +126,25 @@ const elmFrontend = ({ input, output, template, extraAssets = [] }) => ({
 });
 
 export default [
-    worker({ input: 'worker/src/main/stellerator.ts', output: 'dist/worker/stellerator.min.js' }),
-    worker({ input: 'worker/src/main/video-pipeline.ts', output: 'dist/worker/video-pipeline.min.js' }),
+    worker({ input: 'worker/src/main/stellerator.ts', output: dist('worker/stellerator.min.js') }),
+    worker({ input: 'worker/src/main/video-pipeline.ts', output: dist('worker/video-pipeline.min.js') }),
     elmFrontend({
         input: 'src/frontend/stellerator/index.ts',
-        output: 'dist/frontend/stellerator',
+        output: dist('frontend/stellerator'),
         template: 'template/stellerator.html',
-        extraAssets: ['doc']
+        extraAssets: ['doc'],
+        serviceWorker: {
+            swDest: dist('frontend/stellerator/service-worker.js'),
+            globDirectory: dist('frontend/stellerator'),
+            globPatterns: ['**/*'],
+            globIgnores: ['**/*.map', '**/doc/images/orig/**'],
+            importWorkboxFrom: 'cdn',
+            cacheId: 'stellerator-ng'
+        }
     }),
     elmFrontend({
         input: 'src/frontend/ui-playground/index.ts',
-        output: 'dist/frontend/ui-playground',
+        output: dist('frontend/ui-playground'),
         template: 'template/ui-playground.html'
     })
 ];

@@ -6,6 +6,7 @@ build
 typedoc
 lib
 dist
+dist-dev
 .rpt2_cache
 elm-stuff
 yarn-error.log

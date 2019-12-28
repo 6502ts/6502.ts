@@ -20,6 +20,10 @@ import TouchIO from '../../web/stella/driver/TouchIO';
 
 const VERSION_STORAGE_KEY = 'stellerator-ng-version';
 
+if (navigator.serviceWorker && !process.env.DEVELOPMENT) {
+    navigator.serviceWorker.register('./service-worker.js', { scope: './' });
+}
+
 async function main(): Promise<void> {
     initializeRangetouch();
 

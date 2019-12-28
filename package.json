@@ -55,6 +55,7 @@
     "rollup-plugin-commonjs": "^10.0.2",
     "rollup-plugin-copy": "^3.1.0",
     "rollup-plugin-elm": "^2.0.0",
+    "rollup-plugin-git-version": "^0.2.1",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-node-resolve": "^5.2.0",
@@ -63,7 +64,7 @@
     "rollup-plugin-sizes": "^1.0.1",
     "rollup-plugin-terser": "^5.1.1",
     "rollup-plugin-typescript2": "^0.25.3",
-    "rollup-plugin-git-version": "^0.2.1",
+    "rollup-plugin-workbox": "^4.0.0",
     "ts-node": "^8.3.0",
     "tslint": "^5.20.0",
     "typescript": "^3.5.3"
@@ -71,7 +72,7 @@
   "scripts": {
     "test": "mocha --require ts-node/register -u tdd -R spec 'tests/ts/**/*.ts' && elm-test",
     "build": "rm -fr .rpt2_cache; rollup -c rollup.config.js",
-    "watch": "rm -fr .rpt2_cache; rollup -c rollup.config.js -w",
+    "watch": "rm -fr .rpt2_cache; DEVELOPMENT=1 rollup -c rollup.config.js -w",
     "_prepublish": "rm -fr lib; tsc -p tsconfig.npm.json"
   }
 }
