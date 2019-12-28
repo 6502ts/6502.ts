@@ -113,4 +113,5 @@ emulator. Initial 2600 audio code was contributed by Martin Schröder. ARM
 support in DPC+ is powered by David Welch's
 [thumbulator](https://github.com/dwelch67/thumbulator), transpiled to JS with
 [emscripten](http://kripken.github.io/emscripten-site/). Cycle-accurate PCM
-audio is derives from work done by Chris Brenner.
+audio is derives from work done by Chris Brenner. The favicon and homescreen icons
+in Stellerator were taken from Stella.
