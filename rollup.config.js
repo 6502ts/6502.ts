@@ -140,7 +140,8 @@ export default [
             globIgnores: ['**/*.map', '**/doc/images/orig/**'],
             importWorkboxFrom: 'cdn',
             cacheId: 'stellerator-ng',
-            skipWaiting: true
+            skipWaiting: true,
+            clientsClaim: true
         }
     }),
     elmFrontend({
