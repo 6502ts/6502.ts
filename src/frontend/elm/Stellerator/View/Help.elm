@@ -47,6 +47,7 @@ pageElement model =
                     ]
                 ]
                 [ Markdown.toHtml [] (qualifyRelativeLinks "doc/" content) |> fromUnstyled
+                , div [] [ text <| "=== version " ++ model.version ++ " ===" ]
                 ]
 
         Nothing ->

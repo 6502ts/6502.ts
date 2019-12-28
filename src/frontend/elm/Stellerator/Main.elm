@@ -118,7 +118,7 @@ init flagsJson url key =
                 , difficultyP1 = DifficultyPro
                 , color = ColorColor
                 }
-            , version = "[unknown]"
+            , version = flags.version
             }
     in
     ( model
