@@ -17,46 +17,88 @@ It currently provides
 The projects targets both NodeJS and the browser as runtime environments (no video or audio on node,
 of course).
 
-# Pre-build applications
-
-You can find recent builds of the various applications on the project's github.io page.
-
- * [vanilla debugger](https://6502ts.github.io/dev/debugger.html)
- * [hardware monitor frontend / debugger](https://6502ts.github.io/dev/)
- * [Atari 2600 debugger frontend](https://6502ts.github.io/dev/stella.html)
- * [Atari 2600 stellerator, development build](https://6502ts.github.io/dev/stellerator.html)
- * [Atari 2600 stellerator, production build](https://6502ts.github.io/stellerator)
-
 # Atari 2600 emulation
 
 6502.ts implements a full-fledged emulator for the Atari 2600 VCS. Apart from the
 debugger, there are two ways to use the emulator
 
  * **Stellerator** allows to import, manage and play VCS ROMs in the browser. ROMs are
-   stored locally in the browser. Stellerator is hosted on github.io
-   [here](https://6502ts.github.io/stellerator).
+   stored locally in the browser. It is responsive and can be used offline as a homescreen
+   application on iOS. Stellerator is hosted on github.io [here](https://6502ts.github.io/stellerator-ng).
+ * **Stellerator (legacy)** is the old version of Stellerator. It is not developed anymore, but
+   still hosted on github.io [here](https://6502ts.github.io/stellerator).
  * **Stellerator embedded** offers a rich API to embed VCS emulation into web sites
    and web applications. Please check out the
    [documentation](https://6502ts.github.io/typedoc/stellerator-embedded/)
    for more information.
 
+# Tooling
+
+The emulation core is written in [Typescript](https://www.typescriptlang.org).
+The Stellerator frontend is mostly written in the [Elm](https://elm-lang.org) and uses
+a custom CSS theme written in [SASS](https://sass-lang.com). Builds are currently
+created with [rollup](https://rollupjs.org), and [Yarn](https://yarnpkg.com/lang/en/)
+is used for package management.
+
 # Building and development
 
 6502.ts uses [Yarn](https://yarnpkg.com/lang/en/) for package management, so you'll
-have to install it first. After checking out the repos, doing
+have to install it first. After checking out the repos, do
 
+```
     yarn install
-    grunt initial
+```
 
-will initialize the development environment. You can then do a development build of all
-apps with a simple `grunt`. Production versions can be build with `grunt build` (currently
-only stellerator). `grunt test` will run the testsuite. A web server can be fired up with
-`grunt serve`.
+to pull in the required packages.
 
-After building, additional NodeJS applications for commandline debugging can be found in
-`bin`.
+## Tests
 
-Please check the `Gruntfile.js` for more build targets.
+Test are run with
+
+```
+    yarn test
+```
+
+## Stellerator
+
+The Stellerator frontend is built by doing
+
+```
+    yarn build
+```
+
+After the build has finished, the compiled frontend can be found in the `dist` directory.
+
+For development, rollup can be run in watch mode via
+
+```
+    yarn watch
+```
+
+Development builds are written to `dist-dev`. For these builds, Elm runs in development mode,
+the compiled code is unminified, and the service worker registration is skipped.
+
+Rollup does not bundle a development server, so [live-server](https://www.npmjs.com/package/live-server)
+is used instead. Running
+
+```
+    yarn stellerator
+```
+
+will fire up live-server and serve the development build of Stellerator on `localhost:8080` with
+live reloading.
+
+## CLI
+
+Several tools are available as CLI only (notably the ehBasic hardware monitor). Those can be
+built by doing
+
+```
+    yarn tsc
+```
+
+After building, the compiled (modularized) code is available in the `compiled` directory,
+and the tools are availabe in `compiled/bin`.
 
 # NPM package
 
