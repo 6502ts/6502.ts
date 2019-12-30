@@ -24,9 +24,9 @@ debugger, there are two ways to use the emulator
 
  * **Stellerator** allows to import, manage and play VCS ROMs in the browser. ROMs are
    stored locally in the browser. It is responsive and can be used offline as a homescreen
-   application on iOS. Stellerator is hosted on github.io [here](https://6502ts.github.io/stellerator-ng).
+   application on iOS. Stellerator is hosted on [github.io](https://6502ts.github.io/stellerator-ng).
  * **Stellerator (legacy)** is the old version of Stellerator. It is not developed anymore, but
-   still hosted on github.io [here](https://6502ts.github.io/stellerator).
+   still hosted on [github.io](https://6502ts.github.io/stellerator).
  * **Stellerator embedded** offers a rich API to embed VCS emulation into web sites
    and web applications. Please check out the
    [documentation](https://6502ts.github.io/typedoc/stellerator-embedded/)
