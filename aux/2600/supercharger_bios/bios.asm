@@ -37,29 +37,7 @@
 ;;   ==========================================================================
         processor 6502
 
-VSYNC   equ  $00
 VBLANK  equ  $01
-WSYNC   equ  $02
-COLUPF  equ  $08
-COLUBK  equ  $09
-CTRLPF  equ  $0a
-PF0     equ  $0d
-PF1     equ  $0e
-PF2     equ  $0f
-RESP0   equ  $10
-RESP1   equ  $11
-AUDC0   equ  $15
-AUDF0   equ  $17
-AUDV0   equ  $19
-AUDV1   equ  $1a
-GRP0    equ  $1b
-GRP1    equ  $1c
-ENAM0   equ  $1d
-ENAM1   equ  $1e
-ENABL   equ  $1f
-HMP0    equ  $20
-HMP1    equ  $21
-HMOVE   equ  $2a
 
         SEG code
 ; ===
