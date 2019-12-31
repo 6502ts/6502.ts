@@ -22,10 +22,6 @@
 ;;   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;;   SOFTWARE.
 ;;   ==========================================================================
-;;   This is the source for the stub BIOS used in supercharger emulation. It is
-;;   a heavily modified version of the BIOS included in Stella, which in turn
-;;   is based on code developed by Eckard Stolberg.
-;;   ==========================================================================
 ;;   Interface:
 ;;
 ;;   * The BIOS code should be relocated to the beginning of the ROM bank
@@ -71,7 +67,7 @@ HMOVE   equ  $2a
 ; ===
         org $F800
 
-; grap the requested load ID and store it away at $80...
+; grab the requested load ID and store it away at $80...
         LDA $FA
         STA $80
 ; ... then jump to the load routing
@@ -89,8 +85,8 @@ start:
         LDA #0
         LDX #$FF
         TXS
-        TAX
-        TAY
+        LDX #0
+        LDY #0
 
 clearmem:
 ; the regular init dance
@@ -101,129 +97,30 @@ clearmem:
         JMP load
 
 load:
+; Blank the screen
+        LDA #2
+        STA VBLANK
+
 ; Configure banking and enable RAM writes
         LDX #0
         LDA $F006
         STA $FFF8
 
-; Clear some of the 2600's RAM and TIA registers like the real SC BIOS does
+; Clear TIA registers
         LDY #$00
         LDX #$28
-mlclr1:
+tiaclr:
         STY $04,X
         DEX
-        BPL mlclr1
-
-        LDX #$1C
-mlclr2:
-        STY $81,X
-        DEX
-        BPL mlclr2
-
-; emulated loads bars
-startbars:
-        LDA #$00
-        STA GRP0
-        STA GRP1
-        STA ENAM0
-        STA ENAM1
-        STA ENABL
-        STA AUDV0
-        STA AUDV1
-        STA COLUPF
-        STA VBLANK
-
-        LDA #$10
-        STA HMP1
-        STA WSYNC
-        LDX #$07
-        DEX
-pos:
-        DEX
-        BNE pos
-        LDA #$00
-        STA HMP0
-        STA RESP0
-        STA RESP1
-        STA WSYNC
-        STA HMOVE
-
-        LDA #%00000101
-        STA CTRLPF
-        LDA #$FF
-        STA PF0
-        STA PF1
-        STA PF2
-        STA $84
-        STA $85
-        LDA #$F0
-        STA $83
-        LDA #$74
-        STA COLUBK
-        LDA #$0C
-        STA AUDC0
-        LDA #$1F
-        STA AUDF0
-        STA $82
-        LDA #$07
-        STA AUDV0
-a1:
-        LDX #$08
-        LDY #$00
-a2:
-        STA WSYNC
-        DEY
-        BNE a2
-        STA WSYNC
-        STA WSYNC
-        LDA #$02
-        STA WSYNC
-        STA VSYNC
-        STA WSYNC
-        STA WSYNC
-        STA WSYNC
-        LDA #$00
-        STA VSYNC
-        DEX
-        BPL a2
-        ASL $83
-        ROR $84
-        ROL $85
-        LDA $83
-        STA PF0
-        LDA $84
-        STA PF1
-        LDA $85
-        STA PF2
-        LDX $82
-        DEX
-        STX $82
-        STX AUDF0
-        CPX #$0A
-        BNE a1
-
-        LDA #%00000010
-        STA VBLANK
-
-        LDX #$1C
-        LDY #$00
-        STY AUDV0
-        STY COLUBK
+        BPL tiaclr
 
 ; Clear memory (skip $80 though as it still contains the requested multiload ID)
+        LDX #$81
+        LDY #0
 clear:
-        STY $81,x
-        DEX
-        BPL clear
-
-; Clear bank 0, page 7
-        LDX #0
-clearp7:
-        LDY $F000
-        NOP
-        LDY $F700,x
+        STY $0,x
         INX
-        BNE clearp7
+        BNE clear
 
 ; Copy wait-for-load snipped to RIOT RAM (11 bytes)
         LDX #11
