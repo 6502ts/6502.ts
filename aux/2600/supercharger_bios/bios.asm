@@ -45,10 +45,8 @@ VBLANK  equ  $01
 ; ===
         org $F800
 
-; grab the requested load ID and store it away at $80...
+; Load the target bank and jump
         LDA $FA
-        STA $80
-; ... then jump to the load routing
         JMP load
 
 ; ===
@@ -63,8 +61,8 @@ start:
         LDA #0
         LDX #$FF
         TXS
-        LDX #0
-        LDY #0
+        TAX
+        TAY
 
 clearmem:
 ; the regular init dance
@@ -76,13 +74,12 @@ clearmem:
 
 load:
 ; Blank the screen
-        LDA #2
-        STA VBLANK
+        LDX #2
+        STX VBLANK
 
 ; Configure banking and enable RAM writes
-        LDX #0
-        LDA $F006
-        STA $FFF8
+        LDX $F006
+        STX $FFF8
 
 ; Clear TIA registers
         LDY #$00
@@ -96,20 +93,19 @@ tiaclr:
         LDX #$81
         LDY #0
 clear:
-        STY $0,x
+        STY $0,X
         INX
         BNE clear
 
 ; Copy wait-for-load snipped to RIOT RAM (11 bytes)
         LDX #11
 copywaitforload:
-        LDA waitforload,X
-        STA $F0,X
+        LDY waitforload,X
+        STY $F0,X
         DEX
         BPL copywaitforload
 
-; Move the multiload ID to A, then jump to wait-for-load
-        LDA $80
+; Jump to wait-for-load
         JMP $F0
 
 ; The load is done; copy the trampoline to RIOT RAM (6 bytes)
@@ -126,7 +122,7 @@ copyexec:
         LDX $FFF0
         STX $80
         LDY $F000,X
-; The next value is random value to stick into A
+; Load random value for A
         LDA $FFF1
 ; The entry point comes next; patch it into the trampoline
         LDX $FFF2
