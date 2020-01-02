@@ -90,7 +90,7 @@ tiaclr:
         BPL tiaclr
 
 ; Clear memory (skip $80 though as it still contains the requested multiload ID)
-        LDX #$81
+        LDX #$80
         LDY #0
 clear:
         STY $0,X
