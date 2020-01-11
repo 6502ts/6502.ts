@@ -81,6 +81,9 @@ emulationState model =
         EmulationStopped ->
             "stopped"
 
+        EmulationStarting ->
+            "starting"
+
         EmulationPaused ->
             "paused"
 

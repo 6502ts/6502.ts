@@ -245,6 +245,9 @@ message model =
                 EmulationStopped ->
                     [ text "emulation stopped" ]
 
+                EmulationStarting ->
+                    [ text "emulation starting" ]
+
                 EmulationPaused ->
                     emulationPausedContent
 

@@ -369,7 +369,7 @@ update msg model =
             model.messagePending |> Tuple.first |> Maybe.map (\m -> update m newModel) |> Maybe.withDefault (noop newModel)
 
         StartEmulation hash ->
-            ( { model | emulationPaused = False, runningCartridgeHash = Just hash }
+            ( { model | emulationPaused = False, runningCartridgeHash = Just hash, emulationState = EmulationStarting }
             , Cmd.batch
                 [ Ports.startEmulation hash model.consoleSwitches
                 , Nav.pushUrl model.key <| Routing.serializeRoute RouteEmulation
@@ -413,7 +413,16 @@ update msg model =
                     ( model, Cmd.none )
 
         UpdateEmulationState emulationState ->
-            noop { model | emulationState = emulationState }
+            let
+                newEmulationState =
+                    case ( model.emulationState, emulationState ) of
+                        ( EmulationStarting, EmulationStopped ) ->
+                            EmulationStarting
+
+                        _ ->
+                            emulationState
+            in
+            noop { model | emulationState = newEmulationState }
 
         IncomingInputDriverEvent evt ->
             case evt of

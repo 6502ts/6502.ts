@@ -99,6 +99,7 @@ type EmulationState
     | EmulationPaused
     | EmulationRunning (Maybe Float)
     | EmulationError String
+    | EmulationStarting
 
 
 type TvMode
