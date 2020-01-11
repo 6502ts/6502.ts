@@ -53,6 +53,7 @@ import {
 import Storage from './Storage';
 import FullscreenVideoDriver from '../../../web/driver/FullscreenVideo';
 import TouchIO from '../../../web/stella/driver/TouchIO';
+import MouseAsPaddleDriver from '../../../web/driver/MouseAsPaddle';
 
 const CANVAS_ID = 'stellerator-canvas';
 const WORKER_URL = 'worker/stellerator.min.js';
@@ -119,6 +120,12 @@ class Emulation {
         this._keyboardDriver.hardReset.addHandler(this._onInputReset);
         this._keyboardDriver.togglePause.addHandler(this._onInputTogglePause);
         this._keyboardDriver.toggleFullscreen.addHandler(this._onInputToggleFullscreen);
+
+        this._driverManager
+            .addDriver(this._keyboardDriver, (context, driver: KeyboardDriver) =>
+                driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+            )
+            .addDriver(this._paddleDriver, (context, driver: MouseAsPaddleDriver) => driver.bind(context.getPaddle(0)));
 
         window.addEventListener('resize', this._onWindowResize);
     }
@@ -324,10 +331,6 @@ class Emulation {
         const settings = await this._storage.getSettings();
         await this._createAndBindVideoDriver(canvas);
 
-        this._driverManager.addDriver(this._keyboardDriver, (context, driver: KeyboardDriver) =>
-            driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
-        );
-
         if (settings.touchControls ?? TouchIO.isSupported()) {
             this._touchDriver = new TouchIO(canvas, settings.virtualJoystickSensitivity, settings.leftHanded);
 
@@ -345,8 +348,6 @@ class Emulation {
     }
 
     private async _unbindCanvas(): Promise<void> {
-        this._driverManager.removeDriver(this._keyboardDriver);
-
         if (this._touchDriver) {
             this._driverManager.removeDriver(this._touchDriver);
             this._touchDriver = null;
@@ -462,6 +463,7 @@ class Emulation {
     private _mutationObserver = new MutationObserver(this._onMutation);
 
     private _keyboardDriver = new KeyboardDriver(document);
+    private _paddleDriver = new MouseAsPaddleDriver();
     private _audioDriver = new AudioDriver();
     private _touchDriver: TouchIO = null;
 
