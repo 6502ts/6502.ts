@@ -320,7 +320,6 @@ update msg model =
                         | cartridges =
                             List.foldl (\c d -> Dict.insert c.hash c d) Dict.empty (model.cartridges ++ cartridges)
                                 |> Dict.values
-                                |> List.sortBy (String.toUpper << .name)
                         , cartridgeFilter = ""
                     }
             in

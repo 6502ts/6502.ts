@@ -33,6 +33,7 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
 import Html.Styled.Keyed as Keyed
+import Html.Styled.Lazy as Lazy
 import Json.Decode as Decode
 import List.Extra as LE
 import Stellerator.Model
@@ -47,6 +48,7 @@ import Stellerator.Model
         , Msg(..)
         , TvMode(..)
         , cartridgesMatchingSearch
+        , filterCartridgesBy
         , selectionInSearchResults
         )
 import Stellerator.View.Form as Form
@@ -334,27 +336,35 @@ cartridgeListWide model =
                 [ text msg ]
 
         list =
-            div
-                [ Dos.panel
-                , A.css
-                    [ displayFlex
-                    , flexGrow (int 1)
-                    , alignItems stretch
-                    , overflowY hidden
-                    ]
-                ]
-                [ Keyed.node "div"
-                    [ A.css
-                        [ flexGrow (int 1)
-                        , overflowY scroll
-                        , property "-webkit-overflow-scrolling" "touch"
+            Lazy.lazy2
+                (\filter cartridges ->
+                    div
+                        [ Dos.panel
+                        , A.css
+                            [ displayFlex
+                            , flexGrow (int 1)
+                            , alignItems stretch
+                            , overflowY hidden
+                            ]
                         ]
-                    ]
-                  <|
-                    List.map
-                        (\c -> ( c.hash, entry c ))
-                        (cartridgesMatchingSearch model)
-                ]
+                        [ Keyed.node "div"
+                            [ A.css
+                                [ flexGrow (int 1)
+                                , overflowY scroll
+                                , property "-webkit-overflow-scrolling" "touch"
+                                ]
+                            ]
+                          <|
+                            (cartridges
+                                |> filterCartridgesBy filter
+                                |> List.sortBy (.name >> String.toUpper)
+                                |> List.map
+                                    (\c -> ( c.hash, entry c ))
+                            )
+                        ]
+                )
+                model.cartridgeFilter
+                model.cartridges
     in
     cartridgeListOrMessage model message list
 
@@ -509,15 +519,20 @@ cartridgeListNarrow model =
             ifCartSelected cart model.currentCartridgeHash entrySel entryUnsel <| cart
 
         list =
-            [ Keyed.node "div"
-                [ A.css
-                    [ boxSizing borderBox
-                    , width (Css.vw 100)
-                    , marginTop (Css.em 3.5)
-                    ]
-                ]
-              <|
-                List.map (\c -> ( c.hash, entry c )) (cartridgesMatchingSearch model)
+            [ Lazy.lazy2
+                (\filter cartridges ->
+                    Keyed.node "div"
+                        [ A.css
+                            [ boxSizing borderBox
+                            , width (Css.vw 100)
+                            , marginTop (Css.em 3.5)
+                            ]
+                        ]
+                    <|
+                        List.map (\c -> ( c.hash, entry c )) (cartridges |> filterCartridgesBy filter |> List.sortBy (.name >> String.toUpper))
+                )
+                model.cartridgeFilter
+                model.cartridges
             ]
 
         message msg =

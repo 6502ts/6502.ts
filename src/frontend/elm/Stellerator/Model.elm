@@ -63,6 +63,7 @@ module Stellerator.Model exposing
     , encodeMedia
     , encodeSettings
     , encodeTvMode
+    , filterCartridgesBy
     , nextCartridge
     , previousCartridge
     , runningCartridge
@@ -299,15 +300,20 @@ type Msg
 -- HELPERS AND SELECTORS
 
 
-cartridgesMatchingSearch : Model -> List Cartridge
-cartridgesMatchingSearch model =
+filterCartridgesBy : String -> List Cartridge -> List Cartridge
+filterCartridgesBy filter cartridges =
     let
         filterWords =
-            model.cartridgeFilter |> String.toUpper |> String.words
+            filter |> String.toUpper |> String.words
     in
     List.filter
         (\c -> List.all (\w -> String.contains w <| String.toUpper c.name) filterWords)
-        model.cartridges
+        cartridges
+
+
+cartridgesMatchingSearch : Model -> List Cartridge
+cartridgesMatchingSearch model =
+    filterCartridgesBy model.cartridgeFilter model.cartridges
 
 
 selectionInSearchResults : Model -> Maybe String
