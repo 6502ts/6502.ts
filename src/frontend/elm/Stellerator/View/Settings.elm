@@ -53,15 +53,13 @@ settingsList settings media haveCartridges =
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
                 , control
                 ]
-    in
-    let
+
         checkbox lbl tagger value =
             label [ A.css [ cursor pointer, display block ] ]
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
                 , Form.checkbox tagger value
                 ]
-    in
-    let
+
         section t =
             h1 [ A.css [ Dos.color Dos.Cyan ] ] [ text t ]
     in

@@ -49,8 +49,7 @@ controlHelp model =
     let
         item x =
             li [] [ text x ]
-    in
-    let
+
         keyboardHelp =
             [ h1 [] [ text "Keyboard controls" ]
             , p []
@@ -65,24 +64,21 @@ controlHelp model =
                     ]
                 ]
             ]
-    in
-    let
+
         touchSchemeUrl =
             if model.settings.leftHanded then
                 "doc/images/2600_touch_lh.jpg"
 
             else
                 "doc/images/2600_touch.jpg"
-    in
-    let
+
         touchSchemeAltUrl =
             if model.settings.leftHanded then
                 "doc/images/2600_touch_alt_lh.jpg"
 
             else
                 "doc/images/2600_touch_alt.jpg"
-    in
-    let
+
         touchHelp =
             [ h1 [] [ text "Touch controls" ]
             , p []
@@ -121,15 +117,13 @@ console model =
 
                 _ ->
                     False
-    in
-    let
+
         oneline lbl control =
             label [ A.for "nothing", A.css [ display block ] ]
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
                 , control
                 ]
-    in
-    let
+
         checkbox lbl control =
             label [ A.css [ cursor pointer ] ]
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
@@ -221,8 +215,7 @@ message model =
 
                 _ ->
                     visibility visible
-    in
-    let
+
         backgroundColor_ =
             case model.emulationState of
                 EmulationError _ ->
@@ -230,16 +223,14 @@ message model =
 
                 _ ->
                     Dos.backgroundColor Dos.Green
-    in
-    let
+
         emulationPausedContent =
             if touchEnabled model then
                 [ text "emulation paused", br [] [], text "tap to resume" ]
 
             else
                 [ text "emulation paused" ]
-    in
-    let
+
         content =
             case model.emulationState of
                 EmulationStopped ->

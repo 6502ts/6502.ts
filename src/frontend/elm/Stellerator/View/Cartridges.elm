@@ -127,23 +127,19 @@ settingsItems model cart =
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
                 , control
                 ]
-    in
-    let
+
         checkbox lbl control =
             label [ A.css [ cursor pointer ] ]
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
                 , control
                 ]
-    in
-    let
+
         withLabel lbl control =
             label [ A.css [ display block, width (pct 100) ] ] [ text lbl, br [] [], control ]
-    in
-    let
+
         changeCartridge msg =
             msg >> ChangeCartridge cart.hash
-    in
-    let
+
         optionalNumberInput : (Maybe Int -> ChangeCartridgeMsg) -> Maybe Int -> Html Msg
         optionalNumberInput tagger value =
             Form.textInput
@@ -269,8 +265,7 @@ cartridgeToolbarWide model =
                     ]
                     [ text "Clear" ]
                 ]
-    in
-    let
+
         btn attr children =
             button
                 ([ A.type_ "button"
@@ -324,8 +319,7 @@ cartridgeListWide model =
                 , E.onClick <| SelectCartridge cart.hash
                 ]
                 [ text <| " * " ++ cart.name ]
-    in
-    let
+
         message msg =
             div
                 [ Dos.panel
@@ -338,8 +332,7 @@ cartridgeListWide model =
                     ]
                 ]
                 [ text msg ]
-    in
-    let
+
         list =
             div
                 [ Dos.panel
@@ -478,8 +471,7 @@ cartridgeListNarrow model =
                 , E.onClick <| SelectCartridge cart.hash
                 ]
                 [ text cart.name ]
-    in
-    let
+
         entrySel cart =
             let
                 btn msg label =
@@ -512,12 +504,10 @@ cartridgeListNarrow model =
                     , btn (selectionInSearchResults model |> Maybe.map StartEmulation |> Maybe.withDefault None) "Run"
                     ]
                 ]
-    in
-    let
+
         entry cart =
             ifCartSelected cart model.currentCartridgeHash entrySel entryUnsel <| cart
-    in
-    let
+
         list =
             [ Keyed.node "div"
                 [ A.css
@@ -529,8 +519,7 @@ cartridgeListNarrow model =
               <|
                 List.map (\c -> ( c.hash, entry c )) (cartridgesMatchingSearch model)
             ]
-    in
-    let
+
         message msg =
             [ div
                 [ A.css
@@ -588,8 +577,7 @@ settingsSubpageNarrow model cart =
     let
         btn msg label =
             Form.mobileButton [ A.type_ "button", A.css [ property "width" "calc(10 * var(--cw))" ] ] msg label
-    in
-    let
+
         settingsContainer items =
             form
                 [ Dos.panel

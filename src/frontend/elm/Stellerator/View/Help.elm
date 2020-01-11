@@ -51,8 +51,7 @@ qualifyRelativeLinks base markdown =
 
                 _ ->
                     ""
-    in
-    let
+
         replacedMarkdown : Maybe String
         replacedMarkdown =
             Maybe.map (\r -> R.replace r replaceMatch markdown) relativeUrlRegex

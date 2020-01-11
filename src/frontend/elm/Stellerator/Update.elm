@@ -145,8 +145,7 @@ update msg model =
     let
         noop x =
             ( x, Cmd.none )
-    in
-    let
+
         selectAndScrollToCart hash =
             ( { model | currentCartridgeHash = hash }
             , Maybe.map (Ports.scrollIntoView Ports.Nearest) hash |> Maybe.withDefault Cmd.none
@@ -169,8 +168,7 @@ update msg model =
 
                         _ ->
                             [ Ports.scrollToTop ]
-            in
-            let
+
                 emulationCmd =
                     case ( route, model.emulationPaused ) of
                         ( RouteEmulation, False ) ->
@@ -178,8 +176,7 @@ update msg model =
 
                         _ ->
                             [ Ports.pauseEmulation ]
-            in
-            let
+
                 newModel =
                     { model
                         | currentRoute = route
@@ -246,8 +243,7 @@ update msg model =
 
                     else
                         model.currentCartridgeHash
-            in
-            let
+
                 cmd =
                     if selection /= model.currentCartridgeHash then
                         Maybe.map (Ports.scrollIntoView Ports.Nearest) selection |> Maybe.withDefault Cmd.none
@@ -279,8 +275,7 @@ update msg model =
                                 c
                         )
                         model.cartridges
-            in
-            let
+
                 cmd =
                     LE.find ((==) hash << .hash) cartridgesNew |> Maybe.map Ports.updateCartridge |> Maybe.withDefault Cmd.none
             in
@@ -301,8 +296,7 @@ update msg model =
 
                         _ ->
                             CartridgeViewCartridges
-            in
-            let
+
                 cmd =
                     case ( newViewMode, model.cartridgeViewMode, selectionInSearchResults model ) of
                         ( CartridgeViewCartridges, CartridgeViewSettings, Just hash ) ->
@@ -341,8 +335,7 @@ update msg model =
             let
                 newSettings =
                     updateSettings changeSettingsMsg model.defaultSettings model.settings
-            in
-            let
+
                 mediaCommand =
                     if model.settings.uiSize /= newSettings.uiSize then
                         watchMediaCommand newSettings.uiSize
@@ -389,12 +382,10 @@ update msg model =
             let
                 emulationPaused =
                     not model.emulationPaused
-            in
-            let
+
                 newModel =
                     { model | emulationPaused = emulationPaused, showMessageOnPause = False }
-            in
-            let
+
                 cmd =
                     if emulationPaused then
                         Ports.pauseEmulation
@@ -442,8 +433,7 @@ update msg model =
             let
                 switchesOld =
                     model.consoleSwitches
-            in
-            let
+
                 consoleSwitches =
                     { switchesOld | difficultyP0 = difficulty }
             in
@@ -453,8 +443,7 @@ update msg model =
             let
                 switchesOld =
                     model.consoleSwitches
-            in
-            let
+
                 consoleSwitches =
                     { switchesOld | difficultyP1 = difficulty }
             in
@@ -464,8 +453,7 @@ update msg model =
             let
                 switchesOld =
                     model.consoleSwitches
-            in
-            let
+
                 consoleSwitches =
                     { switchesOld | color = color }
             in

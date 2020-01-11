@@ -76,8 +76,7 @@ dialog messagePending media =
 
                 ( _, MessagePendingConfirmOrReject t _ ) ->
                     t
-    in
-    let
+
         buttons styles =
             case messagePending of
                 ( _, MessagePendingAck _ l ) ->

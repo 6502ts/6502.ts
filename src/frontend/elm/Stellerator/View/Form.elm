@@ -152,8 +152,7 @@ slider styles ( min, max ) tagger formatter value =
 
             else
                 Nothing
-    in
-    let
+
         onKeyDown =
             E.on "keydown" <|
                 Decode.andThen

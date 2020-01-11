@@ -52,8 +52,7 @@ navigationLink cssExtra model route label =
 
             else
                 Dos.color Black
-    in
-    let
+
         background =
             if model.currentRoute == route then
                 Dos.backgroundColor DarkGray
@@ -201,8 +200,7 @@ slideoverMenu model =
             , paddingBottom (Css.em 1)
             , textAlign center
             ]
-    in
-    let
+
         slideCss =
             if model.sideMenu then
                 []

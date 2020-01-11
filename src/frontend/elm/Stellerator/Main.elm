@@ -101,13 +101,11 @@ init flagsJson url key =
                     , version = "[unknown]"
                     , wasUpdated = False
                     }
-    in
-    let
+
         route : Route
         route =
             parseRoute url |> Maybe.withDefault RouteCartridges
-    in
-    let
+
         handleHelppageResult r =
             case r of
                 Ok content ->
@@ -115,8 +113,7 @@ init flagsJson url key =
 
                 Err _ ->
                     None
-    in
-    let
+
         model =
             { key = key
             , currentRoute = route
