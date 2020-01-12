@@ -44,6 +44,46 @@ const { generateSW } = require('rollup-plugin-workbox');
 const DEVELOPMENT = !!process.env.DEVELOPMENT;
 const dist = p => path.join(DEVELOPMENT ? 'dist-dev' : 'dist', p);
 
+const cfg = {
+    commonjs: {
+        ignore: [],
+        namedExports: {
+            'node_modules/seedrandom/index.js': ['alea'],
+            'node_modules/setimmediate2/dist/setImmediate.js': ['setImmediate']
+        }
+    },
+    typescript: {
+        tsconfigOverride: {
+            compilerOptions: {
+                module: 'es2015'
+            }
+        },
+        tsconfig: 'tsconfig.json',
+        objectHashIgnoreUnknownHack: true
+    },
+    replace: {
+        include: 'node_modules/jszip/**/*.js',
+        values: {
+            'readable-stream': `stream`
+        }
+    },
+    elm: {
+        compiler: {
+            optimize: !DEVELOPMENT,
+            pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm')
+        }
+    },
+    scss: {
+        includePaths: [path.resolve(__dirname, 'node_modules')],
+        outputStyle: 'compressed'
+    }
+};
+
+const onwarn = (warning, warn) => {
+    if (warning.code === 'EVAL' && warning.id.match(/thumbulator\.js$/)) return;
+    warn(warning);
+};
+
 const worker = ({ input, output, distributeTo }) => ({
     input,
     output: {
@@ -54,22 +94,8 @@ const worker = ({ input, output, distributeTo }) => ({
     },
     plugins: [
         resolve({ preferBuiltins: true }),
-        commonjs({
-            ignore: [],
-            namedExports: {
-                'node_modules/seedrandom/index.js': ['alea'],
-                'node_modules/setimmediate2/dist/setImmediate.js': ['setImmediate']
-            }
-        }),
-        typescript({
-            tsconfigOverride: {
-                compilerOptions: {
-                    module: 'es2015'
-                }
-            },
-            tsconfig: 'worker/tsconfig.json',
-            objectHashIgnoreUnknownHack: true
-        }),
+        commonjs(cfg.commonjs),
+        typescript({ ...cfg.typescript, config: 'worker/tsconfig.json' }),
         globals(),
         builtins(),
         ...(DEVELOPMENT ? [] : [terser()]),
@@ -85,10 +111,7 @@ const worker = ({ input, output, distributeTo }) => ({
             : []),
         sizes()
     ],
-    onwarn: (warning, warn) => {
-        if (warning.code === 'EVAL' && warning.id.match(/thumbulator\.js$/)) return;
-        warn(warning);
-    }
+    onwarn
 });
 
 const library = ({ input, output, name, copy: copyCfg }) => ({
@@ -101,32 +124,15 @@ const library = ({ input, output, name, copy: copyCfg }) => ({
     },
     plugins: [
         resolve({ preferBuiltins: true }),
-        commonjs({
-            ignore: [],
-            namedExports: {
-                'node_modules/seedrandom/index.js': ['alea'],
-                'node_modules/setimmediate2/dist/setImmediate.js': ['setImmediate']
-            }
-        }),
-        typescript({
-            tsconfigOverride: {
-                compilerOptions: {
-                    module: 'es2015'
-                }
-            },
-            tsconfig: 'tsconfig.json',
-            objectHashIgnoreUnknownHack: true
-        }),
+        commonjs(cfg.commonjs),
+        typescript(cfg.typescript),
         globals(),
         builtins(),
         ...(DEVELOPMENT ? [] : [terser()]),
         ...(copyCfg ? [copy(copyCfg)] : []),
         sizes()
     ],
-    onwarn: (warning, warn) => {
-        if (warning.code === 'EVAL' && warning.id.match(/thumbulator\.js$/)) return;
-        warn(warning);
-    }
+    onwarn
 });
 
 const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker }) => ({
@@ -139,40 +145,13 @@ const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker 
     },
     plugins: [
         resolve({ preferBuiltins: true }),
-        elm({
-            compiler: {
-                optimize: !DEVELOPMENT,
-                pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm')
-            }
-        }),
-        scss({
-            includePaths: [path.resolve(__dirname, 'node_modules')],
-            outputStyle: 'compressed'
-        }),
+        elm(cfg.elm),
+        scss(cfg.scss),
         rollupGitVersion(),
-        replace({
-            include: 'node_modules/jszip/**/*.js',
-            values: {
-                'readable-stream': `stream`
-            }
-        }),
+        replace(cfg.replace),
         replace({ 'process.env.DEVELOPMENT': JSON.stringify(DEVELOPMENT) }),
-        commonjs({
-            namedExports: {
-                'node_modules/seedrandom/index.js': ['alea'],
-                'node_modules/setimmediate2/dist/setImmediate.js': ['setImmediate']
-            },
-            extensions: ['.js']
-        }),
-        typescript({
-            tsconfigOverride: {
-                compilerOptions: {
-                    module: 'es2015'
-                }
-            },
-            tsconfig: 'tsconfig.json',
-            objectHashIgnoreUnknownHack: true
-        }),
+        commonjs(cfg.commonjs),
+        typescript(cfg.typescript),
         globals(),
         builtins(),
         ...(DEVELOPMENT ? [] : [terser()]),
@@ -189,10 +168,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker 
         }),
         sizes()
     ],
-    onwarn: (warning, warn) => {
-        if (warning.code === 'EVAL' && warning.id.match(/thumbulator\.js$/)) return;
-        warn(warning);
-    }
+    onwarn
 });
 
 export default [
