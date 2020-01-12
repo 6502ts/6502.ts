@@ -23,7 +23,7 @@
     "elm-test": "^0.19.1-revision2",
     "md5": "^2.2.1",
     "microevent.ts": "^0.2.1",
-    "screenfull": "^4.2.1",
+    "screenfull": "^5.0.0",
     "seedrandom": "^3.0.3",
     "setimmediate2": "^3.0.0",
     "thumbulator.ts": "^0.3.0",
