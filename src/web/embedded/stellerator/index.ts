@@ -25,6 +25,6 @@
 
 import Stellerator from './Stellerator';
 
-export = {
+export default {
     Stellerator
 };

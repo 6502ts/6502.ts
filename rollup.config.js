@@ -44,7 +44,7 @@ const { generateSW } = require('rollup-plugin-workbox');
 const DEVELOPMENT = !!process.env.DEVELOPMENT;
 const dist = p => path.join(DEVELOPMENT ? 'dist-dev' : 'dist', p);
 
-const worker = ({ input, output }) => ({
+const worker = ({ input, output, distributeTo }) => ({
     input,
     output: {
         file: output,
@@ -73,10 +73,55 @@ const worker = ({ input, output }) => ({
         globals(),
         builtins(),
         ...(DEVELOPMENT ? [] : [terser()]),
-        copy({
-            targets: [output, `${output}.map`].map(src => ({ src, dest: dist('frontend/stellerator/worker') })),
-            hook: 'writeBundle'
-        })
+        ...(distributeTo
+            ? [
+                  copy({
+                      targets: [output, `${output}.map`]
+                          .map(src => distributeTo.map(x => ({ src, dest: dist(x) })))
+                          .reduce((acc, x) => acc.concat(x), []),
+                      hook: 'writeBundle'
+                  })
+              ]
+            : []),
+        sizes()
+    ],
+    onwarn: (warning, warn) => {
+        if (warning.code === 'EVAL' && warning.id.match(/thumbulator\.js$/)) return;
+        warn(warning);
+    }
+});
+
+const library = ({ input, output, name, copy: copyCfg }) => ({
+    input,
+    output: {
+        file: output,
+        format: 'umd',
+        sourcemap: true,
+        name
+    },
+    plugins: [
+        resolve({ preferBuiltins: true }),
+        commonjs({
+            ignore: [],
+            namedExports: {
+                'node_modules/seedrandom/index.js': ['alea'],
+                'node_modules/setimmediate2/dist/setImmediate.js': ['setImmediate']
+            }
+        }),
+        typescript({
+            tsconfigOverride: {
+                compilerOptions: {
+                    module: 'es2015'
+                }
+            },
+            tsconfig: 'tsconfig.json',
+            objectHashIgnoreUnknownHack: true
+        }),
+        globals(),
+        builtins(),
+        ...(DEVELOPMENT ? [] : [terser()]),
+        ...(copyCfg ? [copy(copyCfg)] : []),
+        sizes()
     ],
     onwarn: (warning, warn) => {
         if (warning.code === 'EVAL' && warning.id.match(/thumbulator\.js$/)) return;
@@ -151,8 +196,24 @@ const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker 
 });
 
 export default [
-    worker({ input: 'worker/src/main/stellerator.ts', output: dist('worker/stellerator.min.js') }),
-    worker({ input: 'worker/src/main/video-pipeline.ts', output: dist('worker/video-pipeline.min.js') }),
+    worker({
+        input: 'worker/src/main/stellerator.ts',
+        output: dist('worker/stellerator.min.js'),
+        distributeTo: ['frontend/stellerator/worker', 'stellerator-embedded/worker']
+    }),
+    worker({
+        input: 'worker/src/main/video-pipeline.ts',
+        output: dist('worker/video-pipeline.min.js'),
+        distributeTo: ['frontend/stellerator/worker']
+    }),
+    library({
+        input: 'src/web/embedded/stellerator/index.ts',
+        output: dist('stellerator-embedded/stellerator-embedded.min.js'),
+        name: '$6502',
+        copy: {
+            targets: [{ src: 'template/stellerator-embedded.html', dest: dist('stellerator-embedded') }]
+        }
+    }),
     elmFrontend({
         input: 'src/frontend/stellerator/index.ts',
         output: dist('frontend/stellerator'),
