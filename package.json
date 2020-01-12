@@ -69,6 +69,9 @@
     "tslint": "^5.20.0",
     "typescript": "^3.5.3"
   },
+  "resolutions":{
+    "find-elm-dependencies": "DirtyHairy/find-elm-dependencies#fix-leading-block-comment"
+  },
   "scripts": {
     "test": "mocha --require ts-node/register -u tdd -R spec 'tests/ts/**/*.ts' && elm-test",
     "build": "rm -fr .rpt2_cache; rollup -c rollup.config.js",
