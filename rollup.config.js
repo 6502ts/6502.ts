@@ -26,8 +26,8 @@
 'use strict';
 
 import typescript from 'rollup-plugin-typescript2';
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import builtins from 'rollup-plugin-node-builtins';
 import elm from 'rollup-plugin-elm';
 import { terser } from 'rollup-plugin-terser';
@@ -35,7 +35,7 @@ import html from 'rollup-plugin-bundle-html';
 import scss from 'rollup-plugin-scss';
 import copy from 'rollup-plugin-copy';
 import globals from 'rollup-plugin-node-globals';
-import replace from 'rollup-plugin-replace';
+import replace from '@rollup/plugin-replace';
 import sizes from 'rollup-plugin-sizes';
 import rollupGitVersion from 'rollup-plugin-git-version';
 import path from 'path';
