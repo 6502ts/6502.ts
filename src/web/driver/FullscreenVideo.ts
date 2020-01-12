@@ -23,12 +23,13 @@
  *   SOFTWARE.
  */
 
-import screenfull from 'screenfull';
+import _screenfull, { Screenfull } from 'screenfull';
 
 import VideoDriver from './VideoDriverInterface';
 import { isIOS } from '../../tools/browser';
 
 const noFullscrenApi = isIOS;
+const screenfull = _screenfull as Screenfull;
 
 export default class FullscreenVideoDriver {
     constructor(
