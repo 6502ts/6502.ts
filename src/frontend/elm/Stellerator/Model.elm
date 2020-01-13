@@ -327,6 +327,9 @@ selectionInSearchResults model =
 nextCartridge : List Cartridge -> String -> Maybe Cartridge
 nextCartridge cartridges hash =
     let
+        cartridgesSorted =
+            List.sortBy (.name >> String.toUpper) cartridges
+
         next_ c =
             case c of
                 h1 :: h2 :: tail ->
@@ -337,14 +340,17 @@ nextCartridge cartridges hash =
                         next_ <| h2 :: tail
 
                 _ ->
-                    List.head cartridges
+                    List.head cartridgesSorted
     in
-    next_ <| cartridges ++ cartridges ++ cartridges
+    next_ <| cartridgesSorted ++ cartridgesSorted ++ cartridgesSorted
 
 
 previousCartridge : List Cartridge -> String -> Maybe Cartridge
 previousCartridge cartridges hash =
     let
+        cartridgesSorted =
+            List.sortBy (.name >> String.toUpper) cartridges
+
         previous_ c =
             case c of
                 h1 :: h2 :: tail ->
@@ -355,9 +361,9 @@ previousCartridge cartridges hash =
                         previous_ <| h2 :: tail
 
                 _ ->
-                    List.head <| List.reverse cartridges
+                    List.head <| List.reverse cartridgesSorted
     in
-    previous_ <| cartridges ++ cartridges ++ cartridges
+    previous_ <| cartridgesSorted ++ cartridgesSorted ++ cartridgesSorted
 
 
 effectiveMedia : Model -> Maybe Media

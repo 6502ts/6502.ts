@@ -1,13 +1,17 @@
-# 1.0.0-beta2
+# 1.0.0-beta.3
+
+ * Fix keyboard navigation order
+
+# 1.0.0-beta.2
 
  * Minor bug fixes, UI improvements and optimizations in Stellerator
  * Reenable forgotten paddle driver. Ups. Paddles work again
  * Reenable stellerator-embedded in build system
  * Change license back to MIT
  * Remove "curtain" screen when loading supercharger loads in order to steer
-   100% clear of potential GPL vs. MIT issues.
+   100% clear of potential GPL vs. MIT issues
 
-# 1.0.0-beta1
+# 1.0.0-beta.1
 
  * Stellerator frontend rewritten in Elm
  * Replace deprecated cache manifest for Stellerator with service worker
