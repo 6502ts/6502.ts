@@ -1,3 +1,22 @@
+# 1.0.0-beta2
+
+ * Minor bug fixes, UI improvements and optimizations in Stellerator
+ * Reenable forgotten paddle driver. Ups. Paddles work again
+ * Reenable stellerator-embedded in build system
+ * Change license back to MIT
+ * Remove "curtain" screen when loading supercharger loads in order to steer
+   100% clear of potential GPL vs. MIT issues.
+
+# 1.0.0-beta1
+
+ * Stellerator frontend rewritten in Elm
+ * Replace deprecated cache manifest for Stellerator with service worker
+ * Build system replaced with yarn scripts + Rollup
+ * Support for the Pink Panther prototype banking scheme
+ * Workaround for startup issues in Activison Decathlon
+ * Stellerator-embedded and debug frontends temporarily removed from build
+ * Travis deployment temporarily disabled
+
 # 0.9.14
 
  * Support for CDFJ banking
