@@ -220,27 +220,27 @@ class Tia implements VideoOutputInterface {
         // Only keep the lowest four bits
         switch (address & 0x0f) {
             case Tia.Registers.inpt0:
-                result = this._config.emulatePaddles ? this._paddles[0].inpt() : 0;
+                result = (this._config.emulatePaddles ? this._paddles[0].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt1:
-                result = this._config.emulatePaddles ? this._paddles[1].inpt() : 0;
+                result = (this._config.emulatePaddles ? this._paddles[1].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt2:
-                result = this._config.emulatePaddles ? this._paddles[2].inpt() : 0;
+                result = (this._config.emulatePaddles ? this._paddles[2].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt3:
-                result = this._config.emulatePaddles ? this._paddles[3].inpt() : 0;
+                result = (this._config.emulatePaddles ? this._paddles[3].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt4:
-                result = this._input0.inpt();
+                result = this._input0.inpt() | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt5:
-                result = this._input1.inpt();
+                result = this._input1.inpt() | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.cxm0p:
@@ -915,7 +915,9 @@ class Tia implements VideoOutputInterface {
 
     private _resxCounter(): number {
         return this._hstate === HState.blank
-            ? this._hctr >= ResxCounter.lateHblankThreshold ? ResxCounter.lateHblank : ResxCounter.hblank
+            ? this._hctr >= ResxCounter.lateHblankThreshold
+                ? ResxCounter.lateHblank
+                : ResxCounter.hblank
             : ResxCounter.frame;
     }
 
@@ -1094,7 +1096,7 @@ namespace Tia {
     }
 
     export class TrapPayload {
-        constructor(public reason: TrapReason, public tia: Tia, public message?: string) { }
+        constructor(public reason: TrapReason, public tia: Tia, public message?: string) {}
     }
 }
 
