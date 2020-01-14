@@ -95,7 +95,7 @@ const worker = ({ input, output, distributeTo }) => ({
     plugins: [
         resolve({ preferBuiltins: true }),
         commonjs(cfg.commonjs),
-        typescript({ ...cfg.typescript, config: 'worker/tsconfig.json' }),
+        typescript({ ...cfg.typescript, tsconfig: 'worker/tsconfig.json' }),
         globals(),
         builtins(),
         ...(DEVELOPMENT ? [] : [terser()]),
