@@ -98,4 +98,4 @@ No functional changes.
 
 # 0.9.1
 
- * Initial release.
+ * Initial release of stellerator-embedded.
