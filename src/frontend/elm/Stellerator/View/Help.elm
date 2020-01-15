@@ -81,7 +81,7 @@ pageElement model =
                 [ A.css
                     [ property "padding" "0 var(--cw)"
                     , paddingTop (Css.em 1)
-                    , descendants [ selector "img" [ height (Css.em 15) ] ]
+                    , descendants [ selector "img" [ height (Css.em 13), property "max-width" "calc(100vw - 2*var(--cw))" ] ]
                     ]
                 ]
                 [ helppage

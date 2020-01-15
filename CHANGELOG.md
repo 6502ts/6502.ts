@@ -1,3 +1,7 @@
+# 1.0.0-beta.5
+
+ * Styling fixes on help page.
+
 # 1.0.0-beta.4
 
  * Release keyboard and mouse on leaving emulation view -> fixes nonfunctional
