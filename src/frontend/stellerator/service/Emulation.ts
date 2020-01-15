@@ -121,12 +121,6 @@ class Emulation {
         this._keyboardDriver.togglePause.addHandler(this._onInputTogglePause);
         this._keyboardDriver.toggleFullscreen.addHandler(this._onInputToggleFullscreen);
 
-        this._driverManager
-            .addDriver(this._keyboardDriver, (context, driver: KeyboardDriver) =>
-                driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
-            )
-            .addDriver(this._paddleDriver, (context, driver: MouseAsPaddleDriver) => driver.bind(context.getPaddle(0)));
-
         window.addEventListener('resize', this._onWindowResize);
     }
 
@@ -341,6 +335,12 @@ class Emulation {
                 driver.bind(context.getJoystick(0), context.getControlPanel())
             );
         }
+
+        this._driverManager
+            .addDriver(this._keyboardDriver, (context, driver: KeyboardDriver) =>
+                driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+            )
+            .addDriver(this._paddleDriver, (context, driver: MouseAsPaddleDriver) => driver.bind(context.getPaddle(0)));
     }
 
     private async _rebindCanvas(canvas: HTMLCanvasElement): Promise<void> {
@@ -352,6 +352,8 @@ class Emulation {
             this._driverManager.removeDriver(this._touchDriver);
             this._touchDriver = null;
         }
+
+        this._driverManager.removeDriver(this._keyboardDriver).removeDriver(this._paddleDriver);
 
         await this._removeVideoDriver();
 
