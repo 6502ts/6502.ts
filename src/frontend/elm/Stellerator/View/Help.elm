@@ -76,7 +76,7 @@ pageElement model =
                 |> Maybe.withDefault (div [] [ text "loading changelog..." ])
     in
     case model.helppage of
-        Just content ->
+        Just _ ->
             div
                 [ A.css
                     [ property "padding" "0 var(--cw)"
