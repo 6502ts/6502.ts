@@ -194,7 +194,7 @@ export default [
         input: 'src/frontend/stellerator/index.ts',
         output: dist('frontend/stellerator'),
         template: 'template/stellerator.html',
-        extraAssets: ['doc'],
+        extraAssets: ['doc', 'CHANGELOG.md'],
         serviceWorker: {
             swDest: dist('frontend/stellerator/service-worker.js'),
             globDirectory: dist('frontend/stellerator'),

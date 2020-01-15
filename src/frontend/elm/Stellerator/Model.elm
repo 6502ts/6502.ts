@@ -88,6 +88,7 @@ type Route
     | RouteSettings
     | RouteEmulation
     | RouteHelp
+    | RouteChangelog
 
 
 type Media
@@ -194,6 +195,7 @@ type alias Model =
     , touchSupport : Bool
     , emulationState : EmulationState
     , helppage : Maybe String
+    , changelog : Maybe String
     , sideMenu : Bool
     , cartridges : List Cartridge
     , currentCartridgeHash : Maybe String
@@ -261,6 +263,7 @@ type Msg
     | ChangeRoute Route
     | ChangeMedia Media
     | SetHelpPage String
+    | SetChangelog String
     | ToggleSideMenu
     | ChangeCartridgeFilter String
     | ClearCartridgeFilter
@@ -293,6 +296,7 @@ type Msg
     | ChangeDifficultyP1 DifficultySwitch
     | ChangeColorSwitch ColorSwitch
     | BlurCurrentElement
+    | NavigateToChangelog
     | None
 
 

@@ -106,13 +106,15 @@ init flagsJson url key =
         route =
             parseRoute url |> Maybe.withDefault RouteCartridges
 
-        handleHelppageResult r =
-            case r of
-                Ok content ->
-                    SetHelpPage content
+        handleRequestResult a =
+            Http.expectString <|
+                \r ->
+                    case r of
+                        Ok content ->
+                            a content
 
-                Err _ ->
-                    None
+                        Err _ ->
+                            None
 
         model =
             { key = key
@@ -121,6 +123,7 @@ init flagsJson url key =
             , touchSupport = flags.touchSupport
             , emulationState = EmulationStopped
             , helppage = Nothing
+            , changelog = Nothing
             , sideMenu = False
             , cartridges = flags.cartridges
             , cartridgeTypes = flags.cartridgeTypes
@@ -132,8 +135,8 @@ init flagsJson url key =
             , defaultSettings = flags.defaultSettings
             , messagePending =
                 if flags.wasUpdated then
-                    ( Just None
-                    , MessagePendingAck ("Stellerator has been updated to version " ++ flags.version ++ ".") "Close"
+                    ( Just NavigateToChangelog
+                    , MessagePendingConfirmOrReject ("Stellerator has been updated to version " ++ flags.version ++ ".") ( "Changelog", "Close" )
                     )
 
                 else
@@ -153,7 +156,8 @@ init flagsJson url key =
     , Cmd.batch
         [ Nav.replaceUrl key (serializeRoute route)
         , watchMediaCommand model.settings.uiSize
-        , Http.get { url = "doc/stellerator.md", expect = Http.expectString handleHelppageResult }
+        , Http.get { url = "doc/stellerator.md", expect = handleRequestResult SetHelpPage }
+        , Http.get { url = "CHANGELOG.md", expect = handleRequestResult SetChangelog }
         ]
     )
 

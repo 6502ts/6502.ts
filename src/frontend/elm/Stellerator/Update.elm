@@ -148,7 +148,7 @@ update msg model =
 
         selectAndScrollToCart hash =
             ( { model | currentCartridgeHash = hash }
-            , Maybe.map (Ports.scrollIntoView Ports.Nearest) hash |> Maybe.withDefault Cmd.none
+            , Maybe.map (Ports.scrollIntoView Ports.ScrollNearest) hash |> Maybe.withDefault Cmd.none
             )
     in
     case msg of
@@ -161,10 +161,13 @@ update msg model =
                     case ( route, selectionInSearchResults model ) of
                         ( RouteCartridges, Just hash ) ->
                             if model.currentRoute /= RouteCartridges then
-                                [ Ports.scrollIntoView Ports.Center hash ]
+                                [ Ports.scrollIntoView Ports.ScrollCenter hash ]
 
                             else
                                 []
+
+                        ( RouteChangelog, _ ) ->
+                            [ Ports.scrollIntoView Ports.ScrollStart "version" ]
 
                         _ ->
                             [ Ports.scrollToTop ]
@@ -191,7 +194,7 @@ update msg model =
                 cmd =
                     case ( model.currentRoute, selectionInSearchResults model ) of
                         ( RouteCartridges, Just hash ) ->
-                            Ports.scrollIntoView Ports.Center hash
+                            Ports.scrollIntoView Ports.ScrollCenter hash
 
                         _ ->
                             Cmd.none
@@ -213,7 +216,7 @@ update msg model =
                             Ports.scrollToTop
 
                         _ ->
-                            model.currentCartridgeHash |> Maybe.map (Ports.scrollIntoView Ports.Nearest) |> Maybe.withDefault Cmd.none
+                            model.currentCartridgeHash |> Maybe.map (Ports.scrollIntoView Ports.ScrollNearest) |> Maybe.withDefault Cmd.none
             in
             ( { model | cartridgeFilter = "" }, cmd )
 
@@ -246,7 +249,7 @@ update msg model =
 
                 cmd =
                     if selection /= model.currentCartridgeHash then
-                        Maybe.map (Ports.scrollIntoView Ports.Nearest) selection |> Maybe.withDefault Cmd.none
+                        Maybe.map (Ports.scrollIntoView Ports.ScrollNearest) selection |> Maybe.withDefault Cmd.none
 
                     else
                         Cmd.none
@@ -284,6 +287,9 @@ update msg model =
         SetHelpPage content ->
             noop { model | helppage = Just content }
 
+        SetChangelog content ->
+            noop { model | changelog = Just content }
+
         ToggleSideMenu ->
             noop { model | sideMenu = not model.sideMenu }
 
@@ -300,7 +306,7 @@ update msg model =
                 cmd =
                     case ( newViewMode, model.cartridgeViewMode, selectionInSearchResults model ) of
                         ( CartridgeViewCartridges, CartridgeViewSettings, Just hash ) ->
-                            Ports.scrollIntoView Ports.Center hash
+                            Ports.scrollIntoView Ports.ScrollCenter hash
 
                         ( CartridgeViewSettings, CartridgeViewCartridges, _ ) ->
                             Ports.scrollToTop
@@ -461,5 +467,8 @@ update msg model =
         BlurCurrentElement ->
             ( model, Ports.blurCurrentElement )
 
-        _ ->
+        NavigateToChangelog ->
+            ( model, Nav.pushUrl model.key <| Routing.serializeRoute RouteChangelog )
+
+        None ->
             noop model

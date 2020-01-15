@@ -93,10 +93,10 @@ onMediaUpdate =
 
 
 type ScrollPosition
-    = Start
-    | Center
-    | End
-    | Nearest
+    = ScrollStart
+    | ScrollCenter
+    | ScrollEnd
+    | ScrollNearest
 
 
 port scrollIntoView_ : ( String, String ) -> Cmd msg
@@ -107,16 +107,16 @@ scrollIntoView scrollPosition id =
     let
         encodedScrollPosition =
             case scrollPosition of
-                Start ->
+                ScrollStart ->
                     "start"
 
-                Center ->
+                ScrollCenter ->
                     "center"
 
-                End ->
+                ScrollEnd ->
                     "end"
 
-                Nearest ->
+                ScrollNearest ->
                     "nearest"
     in
     scrollIntoView_ ( encodedScrollPosition, id )

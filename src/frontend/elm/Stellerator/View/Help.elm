@@ -28,6 +28,7 @@ module Stellerator.View.Help exposing (page)
 
 import Css exposing (..)
 import Css.Global exposing (descendants, selector)
+import Dos exposing (Color(..), color)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Markdown
@@ -61,18 +62,43 @@ qualifyRelativeLinks base markdown =
 
 pageElement : Model -> Html Msg
 pageElement model =
+    let
+        helppage =
+            Maybe.map
+                (\content -> Markdown.toHtml [] (qualifyRelativeLinks "doc/" content) |> fromUnstyled)
+                model.helppage
+                |> Maybe.withDefault (div [] [ text "loading help..." ])
+
+        changelog =
+            Maybe.map
+                (\content -> Markdown.toHtml [] content |> fromUnstyled)
+                model.changelog
+                |> Maybe.withDefault (div [] [ text "loading changelog..." ])
+    in
     case model.helppage of
         Just content ->
             div
-                [ A.class "helppage"
-                , A.css
+                [ A.css
                     [ property "padding" "0 var(--cw)"
                     , paddingTop (Css.em 1)
-                    , descendants [ selector "img" [ property "max-width" "calc(100vw - 2 * var(--cw))" ] ]
+                    , descendants [ selector "img" [ height (Css.em 15) ] ]
                     ]
                 ]
-                [ Markdown.toHtml [] (qualifyRelativeLinks "doc/" content) |> fromUnstyled
-                , div [] [ text <| "=== version " ++ model.version ++ " ===" ]
+                [ helppage
+                , div
+                    [ A.id "version"
+                    , A.css
+                        [ property "border-top" "var(--cw) solid"
+                        , property "border-bottom" "var(--cw) solid"
+                        , property "padding" "var(--cw) 0"
+                        , marginBottom (Css.em 1)
+                        , textAlign center
+                        , Dos.color Cyan
+                        ]
+                    ]
+                    [ text <| "=== version " ++ model.version ++ " ===" ]
+                , div [ A.css [ textAlign center, marginBottom (Css.em 1) ] ] [ text "** CHANGELOG **" ]
+                , changelog
                 ]
 
         Nothing ->

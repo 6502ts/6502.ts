@@ -37,6 +37,7 @@ routing =
     , ( RouteSettings, "settings" )
     , ( RouteCartridges, "cartridges" )
     , ( RouteHelp, "help" )
+    , ( RouteChangelog, "changelog" )
     ]
 
 

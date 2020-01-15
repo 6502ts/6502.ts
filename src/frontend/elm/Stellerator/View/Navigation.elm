@@ -46,15 +46,23 @@ import Stellerator.Routing exposing (serializeRoute)
 navigationLink : List Css.Style -> Model -> Route -> String -> Html msg
 navigationLink cssExtra model route label =
     let
+        currentRoute =
+            case model.currentRoute of
+                RouteChangelog ->
+                    RouteHelp
+
+                x ->
+                    x
+
         color =
-            if model.currentRoute == route then
+            if currentRoute == route then
                 Dos.color White
 
             else
                 Dos.color Black
 
         background =
-            if model.currentRoute == route then
+            if currentRoute == route then
                 Dos.backgroundColor DarkGray
 
             else

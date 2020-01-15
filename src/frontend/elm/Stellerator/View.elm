@@ -70,6 +70,9 @@ body model =
                 ( RouteHelp, Just _ ) ->
                     Help.page model
 
+                ( RouteChangelog, Just _ ) ->
+                    Help.page model
+
                 _ ->
                     []
     in

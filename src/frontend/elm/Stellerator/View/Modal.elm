@@ -91,17 +91,21 @@ dialog messagePending media =
                         ]
 
                 ( _, MessagePendingConfirmOrReject _ ( lConfirm, lReject ) ) ->
+                    let
+                        buttonWidth =
+                            "calc(" ++ String.fromInt (4 + max (String.length lConfirm) (String.length lReject)) ++ "*var(--cw))"
+                    in
                     div
                         [ A.css <| [ displayFlex, justifyContent spaceBetween ] ++ styles
                         ]
                         [ Form.responsiveButton
                             media
-                            [ A.css [ property "width" "calc(8*var(--cw))" ] ]
+                            [ A.css [ property "width" buttonWidth ] ]
                             RejectPendingMessage
                             lReject
                         , Form.responsiveButton
                             media
-                            [ A.css [ property "width" "calc(8*var(--cw))" ] ]
+                            [ A.css [ property "width" buttonWidth ] ]
                             ConfirmPendingMessage
                             lConfirm
                         ]

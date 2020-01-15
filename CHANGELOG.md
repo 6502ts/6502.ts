@@ -1,3 +1,10 @@
+# 1.0.0-beta.4
+
+ * Release keyboard and mouse on leaving emulation view -> fixes nonfunctional
+   keys after starting emulation
+ * Add changelog to help page
+ * Offer changelog after update
+
 # 1.0.0-beta.3
 
  * Fix keyboard navigation order
