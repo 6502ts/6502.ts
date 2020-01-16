@@ -24,57 +24,52 @@
 -}
 
 
-module Stellerator.View.Help exposing (page)
+module Stellerator.View.About exposing (page)
 
 import Css exposing (..)
-import Css.Global exposing (descendants, selector)
 import Dos exposing (Color(..), color)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Markdown
-import Regex as R exposing (Regex)
 import Stellerator.Model exposing (Model, Msg)
-
-
-relativeUrlRegex : Maybe Regex
-relativeUrlRegex =
-    R.fromString "(\\[.*?\\])\\((?!/|https?://)(.*?)\\)"
-
-
-qualifyRelativeLinks : String -> String -> String
-qualifyRelativeLinks base markdown =
-    let
-        replaceMatch : R.Match -> String
-        replaceMatch m =
-            case m.submatches of
-                [ Just labelExp, Just url ] ->
-                    labelExp ++ "(" ++ base ++ url ++ ")"
-
-                _ ->
-                    ""
-
-        replacedMarkdown : Maybe String
-        replacedMarkdown =
-            Maybe.map (\r -> R.replace r replaceMatch markdown) relativeUrlRegex
-    in
-    Maybe.withDefault markdown replacedMarkdown
 
 
 pageElement : Model -> Html Msg
 pageElement model =
-    case model.helppage of
-        Just content ->
-            div
-                [ A.css
-                    [ property "padding" "0 var(--cw)"
-                    , paddingTop (Css.em 1)
-                    , descendants [ selector "img" [ width (Css.em 25), property "max-width" "calc(100vw - 2*var(--cw))" ] ]
-                    ]
-                ]
-                [ Markdown.toHtml [] (qualifyRelativeLinks "doc/" content) |> fromUnstyled ]
+    let
+        changelog =
+            Maybe.map
+                (\content -> Markdown.toHtml [] content |> fromUnstyled)
+                model.changelog
+                |> Maybe.withDefault (div [] [ text "loading changelog..." ])
 
-        Nothing ->
-            text "loading..."
+        license =
+            Maybe.map
+                (\content -> Markdown.toHtml [] content |> fromUnstyled)
+                model.license
+                |> Maybe.withDefault (div [] [ text "loading license..." ])
+    in
+    div
+        [ A.css
+            [ property "padding" "0 var(--cw)"
+            , paddingTop (Css.em 1)
+            ]
+        ]
+        [ div
+            [ A.id "version"
+            , A.css
+                [ textAlign center
+                , Dos.color Dos.Cyan
+                , marginBottom (Css.em 1)
+                ]
+            ]
+            [ text <| "Version " ++ model.version ]
+        , div [ A.css [ textAlign center, marginBottom (Css.em 1) ] ] [ text "** CHANGELOG **" ]
+        , changelog
+        , div [ A.css [ Dos.backgroundColor Dos.Cyan, height (Css.em 0.5), marginBottom (Css.em 1.5) ] ] []
+        , div [ A.css [ textAlign center, marginBottom (Css.em 1) ] ] [ text "** LICENSE **" ]
+        , license
+        ]
 
 
 page : Model -> List (Html Msg)

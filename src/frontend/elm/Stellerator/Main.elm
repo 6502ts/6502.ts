@@ -124,6 +124,7 @@ init flagsJson url key =
             , emulationState = EmulationStopped
             , helppage = Nothing
             , changelog = Nothing
+            , license = Nothing
             , sideMenu = False
             , cartridges = flags.cartridges
             , cartridgeTypes = flags.cartridgeTypes
@@ -135,7 +136,7 @@ init flagsJson url key =
             , defaultSettings = flags.defaultSettings
             , messagePending =
                 if flags.wasUpdated then
-                    ( Just NavigateToChangelog
+                    ( Just NavigateToAboutPage
                     , MessagePendingConfirmOrReject ("Stellerator has been updated to version " ++ flags.version ++ ".") ( "Changelog", "Close" )
                     )
 
@@ -158,6 +159,7 @@ init flagsJson url key =
         , watchMediaCommand model.settings.uiSize
         , Http.get { url = "doc/stellerator.md", expect = handleRequestResult SetHelpPage }
         , Http.get { url = "CHANGELOG.md", expect = handleRequestResult SetChangelog }
+        , Http.get { url = "LICENSE.md", expect = handleRequestResult SetLicense }
         ]
     )
 

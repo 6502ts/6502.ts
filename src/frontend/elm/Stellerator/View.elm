@@ -32,6 +32,7 @@ import Css.Global as G
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Stellerator.Model exposing (..)
+import Stellerator.View.About as About
 import Stellerator.View.Cartridges as Cartridges
 import Stellerator.View.Emulation as Emulation
 import Stellerator.View.Help as Help
@@ -70,8 +71,8 @@ body model =
                 ( RouteHelp, Just _ ) ->
                     Help.page model
 
-                ( RouteChangelog, Just _ ) ->
-                    Help.page model
+                ( RouteAbout, Just _ ) ->
+                    About.page model
 
                 _ ->
                     []

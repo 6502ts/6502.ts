@@ -1,5 +1,3 @@
-# About
-
 Stellerator is an emulator for the Atari 2600 VCS (Stella) developed as part
 of the 6502.ts project. Stellerator runs the vast majority of
 games for the VCS flawlessly, including both original games, demos and homebrews. Most
@@ -10,13 +8,13 @@ Among other things, it supports hardware accelerated graphics with POV /
 phosphor simulation and jitter-free audio emulation. Cartridges are stored
 locally in the browser, no data is transferred over the web.
 
-The source is available under the MIT (see below) on
+The source is available under the MIT license on
 [github](https://github.com/6502ts/6502.ts). Feel free to fork, explore and contribute.
 
-# Loading and running cartridge images
+# Loading and running ROMs
 
-The "Cartridges" page allows you to import, configure and run cartridge images. Cartridge
-images can be loaded directly from ZIP files.
+The "Cartridges" page allows you to import, configure and run ROM image files.
+Image files can be loaded directly from ZIP files.
 
 ## Available Settings
 
@@ -247,25 +245,3 @@ worker can can help as well.
  * Only the first paddle can be controlled.
  * Audio on Safari on both iOS and MacOS may require a touch or click to start. This is a restriction
    imposed by Apple, and nothing can be done about it.
-
-## License
-
-Copyright (c) 2014 -- 2020 Christian Speckner and contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.

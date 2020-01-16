@@ -135,7 +135,7 @@ modal messagePending media =
     in
     [ backdrop isVisible
     , div
-        [ A.css
+        [ A.css <|
             [ position fixed
             , top (px 0)
             , left (px 0)
@@ -143,13 +143,14 @@ modal messagePending media =
             , zIndex (int 150)
             , displayFlex
             , justifyContent center
-            , Tr.transition [ Tr.transform 300 ]
-            , if isVisible then
-                transform <| translateY (pct 0)
-
-              else
-                transform <| translateY (pct -100)
+            , Tr.transition [ Tr.transform 300, Tr.visibility 300 ]
             ]
+                ++ (if isVisible then
+                        [ transform <| translateY (pct 0), visibility visible ]
+
+                    else
+                        [ transform <| translateY (pct -100), visibility hidden ]
+                   )
         ]
         [ dialog messagePending media ]
     ]

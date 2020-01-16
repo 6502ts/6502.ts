@@ -88,7 +88,7 @@ type Route
     | RouteSettings
     | RouteEmulation
     | RouteHelp
-    | RouteChangelog
+    | RouteAbout
 
 
 type Media
@@ -196,6 +196,7 @@ type alias Model =
     , emulationState : EmulationState
     , helppage : Maybe String
     , changelog : Maybe String
+    , license : Maybe String
     , sideMenu : Bool
     , cartridges : List Cartridge
     , currentCartridgeHash : Maybe String
@@ -264,6 +265,7 @@ type Msg
     | ChangeMedia Media
     | SetHelpPage String
     | SetChangelog String
+    | SetLicense String
     | ToggleSideMenu
     | ChangeCartridgeFilter String
     | ClearCartridgeFilter
@@ -296,7 +298,7 @@ type Msg
     | ChangeDifficultyP1 DifficultySwitch
     | ChangeColorSwitch ColorSwitch
     | BlurCurrentElement
-    | NavigateToChangelog
+    | NavigateToAboutPage
     | None
 
 

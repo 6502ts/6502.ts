@@ -166,9 +166,6 @@ update msg model =
                             else
                                 []
 
-                        ( RouteChangelog, _ ) ->
-                            [ Ports.scrollIntoView Ports.ScrollStart "version" ]
-
                         _ ->
                             [ Ports.scrollToTop ]
 
@@ -289,6 +286,9 @@ update msg model =
 
         SetChangelog content ->
             noop { model | changelog = Just content }
+
+        SetLicense content ->
+            noop { model | license = Just content }
 
         ToggleSideMenu ->
             noop { model | sideMenu = not model.sideMenu }
@@ -467,8 +467,8 @@ update msg model =
         BlurCurrentElement ->
             ( model, Ports.blurCurrentElement )
 
-        NavigateToChangelog ->
-            ( model, Nav.pushUrl model.key <| Routing.serializeRoute RouteChangelog )
+        NavigateToAboutPage ->
+            ( model, Nav.pushUrl model.key <| Routing.serializeRoute RouteAbout )
 
         None ->
             noop model

@@ -46,23 +46,15 @@ import Stellerator.Routing exposing (serializeRoute)
 navigationLink : List Css.Style -> Model -> Route -> String -> Html msg
 navigationLink cssExtra model route label =
     let
-        currentRoute =
-            case model.currentRoute of
-                RouteChangelog ->
-                    RouteHelp
-
-                x ->
-                    x
-
         color =
-            if currentRoute == route then
+            if model.currentRoute == route then
                 Dos.color White
 
             else
                 Dos.color Black
 
         background =
-            if currentRoute == route then
+            if model.currentRoute == route then
                 Dos.backgroundColor DarkGray
 
             else
@@ -156,6 +148,7 @@ navbarWide model =
             , navigationLink [] model RouteSettings "Settings"
             , navigationLink [] model RouteEmulation "Emulation"
             , navigationLink [] model RouteHelp "Help"
+            , navigationLink [] model RouteAbout "About"
             , span [ A.css [ float right, property "margin-right" "var(--cw)" ] ] [ text <| emulationState model ]
             ]
         ]
@@ -211,10 +204,10 @@ slideoverMenu model =
 
         slideCss =
             if model.sideMenu then
-                []
+                [ visibility visible ]
 
             else
-                [ transform <| translateX (pct -100) ]
+                [ transform <| translateX (pct -100), visibility hidden ]
     in
     div
         [ Dos.panel
@@ -225,7 +218,7 @@ slideoverMenu model =
             , width (vw 70)
             , Dos.backgroundColor LightGray
             , Dos.color Black
-            , Tr.transition [ Tr.transform 300 ]
+            , Tr.transition [ Tr.transform 300, Tr.visibility 300 ]
             , displayFlex
             , flexDirection column
             ]
@@ -235,6 +228,7 @@ slideoverMenu model =
         , navigationLink linkCss model RouteSettings "Settings"
         , navigationLink linkCss model RouteEmulation "Emulation"
         , navigationLink linkCss model RouteHelp "Help"
+        , navigationLink linkCss model RouteAbout "About"
         ]
 
 
