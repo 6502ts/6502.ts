@@ -106,11 +106,11 @@
 
 ## Stellerator
 
- * Stellerator: UI fixes for mobile devices
+ * UI fixes for mobile devices
 
 ## Stellerator embedded
 
- * Stellerator embedded: reduce default volume to 70%.
+ * Reduce default volume to 70%.
 
 ## All
 
@@ -127,7 +127,7 @@
 
 # 0.9.6
 
-## Aöö
+## All
 
  * Override maxHeight and maxWidth in fullscreen mode for simpler styling.
 
