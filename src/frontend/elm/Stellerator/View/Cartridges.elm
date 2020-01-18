@@ -218,6 +218,14 @@ settingsItems model cart =
             (Maybe.map (changeCartridge ChangeCartridgeVolume) >> Maybe.withDefault None)
             (\x -> String.fromInt x ++ "%")
             cart.volume
+    , div []
+        [ button
+            [ A.type_ "button"
+            , E.onClick <| SaveCartridge cart.hash
+            , A.css [ marginTop (Css.em 1), padding2 (px 0) (Css.em 1) ]
+            ]
+            [ text "Save cartridge image" ]
+        ]
     ]
 
 

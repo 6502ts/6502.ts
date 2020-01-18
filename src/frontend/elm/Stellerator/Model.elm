@@ -281,6 +281,7 @@ type Msg
     | ChangeCartridgeViewMode CartridgeViewMode
     | AddCartridge
     | AddNewCartridges (List Cartridge)
+    | SaveCartridge String
     | ChangeSettings ChangeSettingsMsg
     | MessageNeedsConfirmOrReject String ( String, String ) Msg
     | MessageNeedsAck String String Msg

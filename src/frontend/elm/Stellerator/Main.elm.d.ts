@@ -161,6 +161,7 @@ export interface Ports {
     updateCartridge_: CommandPort<Cartridge>;
     deleteCartridge_: CommandPort<string>;
     deleteAllCartridges_: CommandPort<void>;
+    saveCartridge_: CommandPort<string>;
 
     updateSettings_: CommandPort<Settings>;
 

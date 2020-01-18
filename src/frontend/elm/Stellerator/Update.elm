@@ -336,6 +336,9 @@ update msg model =
                 _ ->
                     noop modelWithNewCartridges
 
+        SaveCartridge hash ->
+            ( model, Ports.saveCartridge hash )
+
         ChangeSettings changeSettingsMsg ->
             let
                 newSettings =

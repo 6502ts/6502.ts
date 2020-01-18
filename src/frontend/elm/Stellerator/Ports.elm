@@ -37,6 +37,7 @@ port module Stellerator.Ports exposing
     , pauseEmulation
     , resetEmulation
     , resumeEmulation
+    , saveCartridge
     , scrollIntoView
     , scrollToTop
     , setLimitFramerate
@@ -198,6 +199,18 @@ port deleteAllCartridges_ : () -> Cmd msg
 deleteAllCartridges : Cmd msg
 deleteAllCartridges =
     deleteAllCartridges_ ()
+
+
+
+-- SaveCartridge
+
+
+port saveCartridge_ : String -> Cmd msg
+
+
+saveCartridge : String -> Cmd msg
+saveCartridge =
+    saveCartridge_
 
 
 

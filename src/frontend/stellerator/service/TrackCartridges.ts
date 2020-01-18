@@ -28,6 +28,7 @@ import { Ports, Cartridge } from '../../elm/Stellerator/Main.elm';
 import Storage from './Storage';
 import Emulation from './Emulation';
 import { Mutex } from 'async-mutex';
+import FileSaver from 'file-saver';
 
 @injectable()
 class TrackCartridges {
@@ -37,6 +38,7 @@ class TrackCartridges {
         ports.updateCartridge_.subscribe(this._onCartridgeUpdated);
         ports.deleteCartridge_.subscribe(this._onCartridgeDeleted);
         ports.deleteAllCartridges_.subscribe(this._onDeleteAllCartridges);
+        ports.saveCartridge_.subscribe(this._onSaveCartridge);
     }
 
     private async _updateCartridge(cartridge: Cartridge): Promise<void> {
@@ -50,6 +52,21 @@ class TrackCartridges {
     private _onCartridgeDeleted = (hash: string) => this._storage.deleteCartridge(hash);
 
     private _onDeleteAllCartridges = () => this._storage.deleteAllCartridges();
+
+    private _onSaveCartridge = async (hash: string) => {
+        const [cartridge, image] = await Promise.all([
+            this._storage.getCartridge(hash),
+            this._storage.getCartridgeImage(hash)
+        ]);
+
+        if (!cartridge || !image) {
+            return;
+        }
+
+        FileSaver.saveAs(new Blob([image], { type: 'application/octet-stream' }), cartridge.name + '.bin', {
+            autoBom: false
+        });
+    };
 
     private _mutex = new Mutex();
 }
