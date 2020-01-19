@@ -32,6 +32,7 @@ import ControlDriver from './ControlDriver';
 import WaveformAudioDriver from './WaveformAudioDriver';
 import PCMAudioDriver from './PCMAudioDriver';
 import EmulationContext from '../vanilla/EmulationContext';
+import DataTapDriver from '../../driver/DataTap';
 
 import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, SetupMessage } from './messages';
 
@@ -58,7 +59,10 @@ class EmulationBackend {
             videoDriver = new VideoDriver(this._rpc),
             controlDriver = new ControlDriver(this._rpc),
             waveformAduioDrivers = [0, 1].map(i => new WaveformAudioDriver(i, this._rpc)),
-            pcmAudioDriver = new PCMAudioDriver(0, this._rpc);
+            pcmAudioDriver = new PCMAudioDriver(0, this._rpc),
+            dataTapDriver = new DataTapDriver();
+
+        dataTapDriver.message.addHandler(message => this._rpc.signal(SIGNAL_TYPE.messageFromDataTap, message));
 
         this._videoDriver = videoDriver;
         controlDriver.init();
@@ -71,6 +75,7 @@ class EmulationBackend {
             .addDriver(pcmAudioDriver, (context: EmulationContext, driver: PCMAudioDriver) =>
                 driver.bind(context.getPCMChannel())
             )
+            .addDriver(dataTapDriver, (context: EmulationContext, driver: DataTapDriver) => driver.bind(context))
             .bind(this._service);
 
         for (let i = 0; i < 2; i++) {

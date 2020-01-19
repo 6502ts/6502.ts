@@ -30,6 +30,7 @@ import PaddleInterface from '../../../machine/io/PaddleInterface';
 import WaveformAudioOutputInterface from '../../../machine/io/WaveformAudioOutputInterface';
 import PCMAudioEndpointInterface from '../../driver/PCMAudioEndpointInterface';
 import Config from '../../../machine/stella/Config';
+import DataTapInterface from '../../../machine/io/DataTapInterface';
 
 interface EmulationContextInterface {
     getConfig(): Config;
@@ -45,6 +46,8 @@ interface EmulationContextInterface {
     getWaveformChannels(): Array<WaveformAudioOutputInterface>;
 
     getPCMChannel(): PCMAudioEndpointInterface;
+
+    getDataTap(): DataTapInterface | undefined;
 }
 
-export { EmulationContextInterface as default };
+export default EmulationContextInterface;

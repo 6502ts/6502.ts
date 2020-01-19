@@ -35,12 +35,12 @@ import ControlProxy from './ControlProxy';
 import WaveformAudioProxy from './WaveformAudioProxy';
 import PCMAudioProxy from './PCMAudioProxy';
 
-import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
 import { Mutex } from 'async-mutex';
 
 import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, SetupMessage } from './messages';
+import DataTapProxy from './DataTapProxy';
 
 const CONTROL_PROXY_UPDATE_INTERVAL = 25;
 
@@ -64,15 +64,18 @@ class EmulationService implements EmulationServiceInterface {
         }
 
         const videoProxy = new VideoProxy(this._rpc),
-            controlProxy = new ControlProxy(this._rpc);
+            controlProxy = new ControlProxy(this._rpc),
+            dataTapProxy = new DataTapProxy(this._rpc);
 
+        dataTapProxy.init();
         videoProxy.init();
 
         this._emulationContext = new EmulationContext(
             videoProxy,
             controlProxy,
             this._waveformChannels,
-            this._pcmChannel
+            this._pcmChannel,
+            dataTapProxy
         );
 
         this._worker.onmessage = messageEvent => this._rpc.dispatch(messageEvent.data);
@@ -88,7 +91,7 @@ class EmulationService implements EmulationServiceInterface {
 
     async start(
         buffer: { [i: number]: number; length: number },
-        config: StellaConfig,
+        config: EmulationServiceInterface.Config,
         cartridgeType?: CartridgeInfo.CartridgeType,
         videoProcessing?: Array<VideoProcessorConfig>
     ): Promise<EmulationServiceInterface.State> {
@@ -106,12 +109,12 @@ class EmulationService implements EmulationServiceInterface {
             );
 
             if (state === EmulationServiceInterface.State.paused) {
-                this._saveConfig = config;
+                this._savedConfig = config;
                 this._emulationContext.setConfig(config);
 
                 await this._startProxies(config);
             } else {
-                this._saveConfig = null;
+                this._savedConfig = null;
             }
 
             return this._applyState(state);
@@ -145,9 +148,9 @@ class EmulationService implements EmulationServiceInterface {
                 this._state === EmulationServiceInterface.State.error &&
                 (state === EmulationServiceInterface.State.running ||
                     state === EmulationServiceInterface.State.paused) &&
-                this._saveConfig
+                this._savedConfig
             ) {
-                await this._startProxies(this._saveConfig);
+                await this._startProxies(this._savedConfig);
             }
 
             return this._applyState(state);
@@ -237,7 +240,7 @@ class EmulationService implements EmulationServiceInterface {
         this.stateChanged.dispatch(this._state);
     }
 
-    private async _startProxies(config: StellaConfig): Promise<void> {
+    private async _startProxies(config: EmulationServiceInterface.Config): Promise<void> {
         await this._emulationContext.getVideoProxy().start();
 
         for (let i = 0; i < this._waveformChannels.length; i++) {
@@ -343,7 +346,7 @@ class EmulationService implements EmulationServiceInterface {
     private _controlProxyUpdateHandle: any = null;
     private _proxyState = ProxyState.stopped;
 
-    private _saveConfig: StellaConfig = null;
+    private _savedConfig: EmulationServiceInterface.Config = null;
 }
 
 export { EmulationService as default };

@@ -23,60 +23,21 @@
  *   SOFTWARE.
  */
 
-import { EventInterface } from 'microevent.ts';
+import DataTapInterface from '../../../../machine/io/DataTapInterface';
+import { RpcProviderInterface } from 'worker-rpc';
+import { SIGNAL_TYPE } from './messages';
+import { Event } from 'microevent.ts';
 
-import BusInterface from '../bus/BusInterface';
-import CpuInterface from '../cpu/CpuInterface';
-import TimerInterface from './TimerInterface';
+class DataTapProxy implements DataTapInterface {
+    constructor(private _rpc: RpcProviderInterface) {}
 
-interface BoardInterface {
-    getBus(): BusInterface;
+    init(): void {
+        this._rpc.registerSignalHandler<Array<number>>(SIGNAL_TYPE.messageFromDataTap, data =>
+            this.message.dispatch(data)
+        );
+    }
 
-    getCpu(): CpuInterface;
-
-    getTimer(): TimerInterface;
-
-    reset(hard: boolean): BoardInterface;
-
-    boot(): BoardInterface;
-
-    suspend(): void;
-
-    resume(): void;
-
-    getClockMode(): BoardInterface.ClockMode;
-
-    setClockMode(clockMode: BoardInterface.ClockMode): BoardInterface;
-
-    triggerTrap(reason: BoardInterface.TrapReason, message?: string): BoardInterface;
-
-    getBoardStateDebug(): string;
-
-    trap: EventInterface<BoardInterface.TrapPayload>;
-
-    cpuClock: EventInterface<number>;
-
-    clock: EventInterface<number>;
-
-    systemReset: EventInterface<void>;
+    message = new Event<Array<number>>();
 }
 
-namespace BoardInterface {
-    export const enum TrapReason {
-        cpu,
-        bus,
-        debug,
-        board
-    }
-
-    export const enum ClockMode {
-        instruction,
-        lazy
-    }
-
-    export class TrapPayload {
-        constructor(public reason: TrapReason, public board: BoardInterface, public message?: string) {}
-    }
-}
-
-export { BoardInterface as default };
+export default DataTapProxy;

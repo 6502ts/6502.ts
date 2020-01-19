@@ -121,7 +121,7 @@ class Board implements BoardInterface {
         return this._cpu;
     }
 
-    getBus(): BusInterface {
+    getBus(): Bus {
         return this._bus;
     }
 
@@ -159,6 +159,8 @@ class Board implements BoardInterface {
 
         this._subClock = 0;
         this._cpuCycles = 0;
+
+        this.systemReset.dispatch();
 
         return this;
     }
@@ -359,6 +361,8 @@ class Board implements BoardInterface {
     clock = new Event<number>();
 
     cpuClock = new Event<number>();
+
+    systemReset = new Event<void>();
 
     private _cpu: CpuInterface;
     private _bus: Bus;

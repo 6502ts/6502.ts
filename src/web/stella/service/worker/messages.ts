@@ -23,7 +23,7 @@
  *   SOFTWARE.
  */
 
-import StellaConfig from '../../../../machine/stella/Config';
+import EventServiceInterface from '../EmulationServiceInterface';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 
@@ -53,7 +53,8 @@ export const SIGNAL_TYPE = {
     pcmAudioNewFrame: (index: number) => `audio/pcm/newFrame/${index}`,
     pcmAudioTogglePause: (index: number) => `audio/pcm/togglePause/${index}`,
     pcmAudioReturnFrame: (index: number) => `audio/pcm/returnFrame/${index}`,
-    audioStop: 'audio/stop'
+    audioStop: 'audio/stop',
+    messageFromDataTap: 'data-tap/message'
 };
 Object.freeze(SIGNAL_TYPE);
 
@@ -63,7 +64,7 @@ export interface SetupMessage {
 
 export interface EmulationStartMessage {
     buffer: { [i: number]: number; length: number };
-    config: StellaConfig;
+    config: EventServiceInterface.Config;
     cartridgeType?: CartridgeInfo.CartridgeType;
     videoProcessing?: Array<VideoProcessorConfig>;
 }
@@ -118,3 +119,5 @@ export interface PCMAudioReturnFrameMessage {
     id: number;
     buffer: ArrayBuffer;
 }
+
+export type MessageFromDataTapMessage = Array<number>;

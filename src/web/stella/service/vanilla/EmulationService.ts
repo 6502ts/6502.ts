@@ -29,10 +29,10 @@ import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
 import Board from '../../../../machine/stella/Board';
 import BoardInterface from '../../../../machine/board/BoardInterface';
-import StellaConfig from '../../../../machine/stella/Config';
 import CartridgeFactory from '../../../../machine/stella/cartridge/CartridgeFactory';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
+import DataTap from '../../../../machine/stella/DataTap';
 import SchedulerFactory from '../../../../tools/scheduler/Factory';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
@@ -53,7 +53,7 @@ export default class EmulationService implements EmulationServiceInterface {
 
     start(
         buffer: { [i: number]: number; length: number },
-        config: StellaConfig,
+        config: EmulationServiceInterface.Config,
         cartridgeType?: CartridgeInfo.CartridgeType,
         videoProcessing?: Array<VideoProcessorConfig>
     ): Promise<EmulationServiceInterface.State> {
@@ -77,7 +77,12 @@ export default class EmulationService implements EmulationServiceInterface {
 
                 this._board = board;
                 this._board.trap.addHandler(EmulationService._trapHandler, this);
-                this._context = new EmulationContext(board, videoProcessing);
+
+                if (config.dataTap) {
+                    this._dataTap = new DataTap(board);
+                }
+
+                this._context = new EmulationContext(board, this._dataTap, videoProcessing);
 
                 this._clockProbe.attach(this._board.clock);
 
@@ -210,9 +215,11 @@ export default class EmulationService implements EmulationServiceInterface {
 
                 this._clockProbe.stop().detach();
             }
-            this._board = null;
 
+            this._board = null;
             this._context = null;
+            this._dataTap = undefined;
+
             this._setState(EmulationServiceInterface.State.stopped);
         } catch (e) {
             this._setError(e);
@@ -262,6 +269,7 @@ export default class EmulationService implements EmulationServiceInterface {
     private _lastError: Error = null;
     private _board: Board;
     private _context: EmulationContext;
+    private _dataTap: DataTap;
     private _scheduler: SchedulerInterface = null;
     private _clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_UPDATE_INTERVAL));
     private _mutex = new Mutex();

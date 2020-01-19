@@ -26,15 +26,6 @@
 import { injectable, inject } from 'inversify';
 import { Mutex } from 'async-mutex';
 
-import EmulationServiceInterface from '../../../web/stella/service/EmulationServiceInterface';
-import EmulationService from '../../../web/stella/service/worker/EmulationService';
-import DriverManager from '../../../web/stella/service/DriverManager';
-import Config from '../../../machine/stella/Config';
-import CpuFactory from '../../../machine/cpu/Factory';
-import VideoDriver from '../../../web/driver/webgl/WebglVideo';
-import KeyboardDriver from '../../../web/stella/driver/KeyboardIO';
-import AudioDriver from '../../../web/stella/driver/WebAudio';
-
 import {
     Ports,
     Cartridge,
@@ -50,6 +41,15 @@ import {
     ColorSwitch,
     StartEmulationPayload
 } from '../../elm/Stellerator/Main.elm';
+
+import EmulationServiceInterface from '../../../web/stella/service/EmulationServiceInterface';
+import EmulationService from '../../../web/stella/service/worker/EmulationService';
+import DriverManager from '../../../web/stella/service/DriverManager';
+import Config from '../../../machine/stella/Config';
+import CpuFactory from '../../../machine/cpu/Factory';
+import VideoDriver from '../../../web/driver/webgl/WebglVideo';
+import KeyboardDriver from '../../../web/stella/driver/KeyboardIO';
+import AudioDriver from '../../../web/stella/driver/WebAudio';
 import Storage from './Storage';
 import FullscreenVideoDriver from '../../../web/driver/FullscreenVideo';
 import TouchIO from '../../../web/stella/driver/TouchIO';
@@ -259,22 +259,27 @@ class Emulation {
     }
 
     private async _stopEmulation(): Promise<void> {
+        await this._emulationServiceReady;
         await this._emulationService.stop();
 
         this._currentCartridgeHash = null;
     }
 
     private async _pauseEmulation(): Promise<void> {
+        await this._emulationServiceReady;
         await this._emulationService.pause();
     }
 
     private async _resumeEmulation(): Promise<void> {
+        await this._emulationServiceReady;
+
         if (this._emulationService.getState() === EmulationServiceInterface.State.paused) {
             await this._emulationService.resume();
         }
     }
 
     private async _resetEmulation(): Promise<void> {
+        await this._emulationServiceReady;
         await this._emulationService.reset();
     }
 
@@ -293,6 +298,8 @@ class Emulation {
     }
 
     private async _createAndBindVideoDriver(canvas: HTMLCanvasElement): Promise<void> {
+        await this._emulationServiceReady;
+
         this._removeVideoDriver();
 
         const [settings, cartridge]: [Settings, Cartridge | undefined] = await Promise.all([

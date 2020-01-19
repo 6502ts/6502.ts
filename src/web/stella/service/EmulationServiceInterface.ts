@@ -35,7 +35,7 @@ interface EmulationServiceInterface {
 
     start(
         buffer: { [i: number]: number; length: number },
-        config: StellaConfig,
+        config: EmulationServiceInterface.Config,
         cartridgeType?: CartridgeInfo.CartridgeType,
         videoProcessing?: Array<VideoProcessorConfig>
     ): Promise<EmulationServiceInterface.State>;
@@ -71,6 +71,10 @@ namespace EmulationServiceInterface {
         running = 'running',
         paused = 'paused',
         error = 'error'
+    }
+
+    export interface Config extends StellaConfig {
+        dataTap?: boolean;
     }
 }
 

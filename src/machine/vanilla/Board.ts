@@ -68,6 +68,8 @@ class Board implements BoardInterface {
             this._bus.clear();
         }
 
+        this.systemReset.dispatch();
+
         return this;
     }
 
@@ -183,6 +185,8 @@ class Board implements BoardInterface {
     cpuClock: Event<number>;
 
     trap = new Event<BoardInterface.TrapPayload>();
+
+    systemReset = new Event<void>();
 
     protected _cpu: CpuInterface;
     protected _bus: Memory;

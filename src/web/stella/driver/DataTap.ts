@@ -23,60 +23,45 @@
  *   SOFTWARE.
  */
 
-import { EventInterface } from 'microevent.ts';
+import { Event } from 'microevent.ts';
+import EmulationContextInterface from '../service/EmulationContextInterface';
 
-import BusInterface from '../bus/BusInterface';
-import CpuInterface from '../cpu/CpuInterface';
-import TimerInterface from './TimerInterface';
+class DataTap {
+    bind(context: EmulationContextInterface): void {
+        if (this._context) {
+            return;
+        }
 
-interface BoardInterface {
-    getBus(): BusInterface;
+        const dataTap = context.getDataTap();
 
-    getCpu(): CpuInterface;
+        if (dataTap) {
+            dataTap.message.addHandler(DataTap._onDataTapMessage, this);
+        }
 
-    getTimer(): TimerInterface;
+        this._context = context;
+    }
 
-    reset(hard: boolean): BoardInterface;
+    unbind(): void {
+        if (!this._context) {
+            return;
+        }
 
-    boot(): BoardInterface;
+        const dataTap = this._context.getDataTap();
 
-    suspend(): void;
+        if (dataTap) {
+            dataTap.message.removeHandler(DataTap._onDataTapMessage, this);
+        }
 
-    resume(): void;
+        this._context = null;
+    }
 
-    getClockMode(): BoardInterface.ClockMode;
+    private static _onDataTapMessage(message: ArrayLike<number>, self: DataTap): void {
+        self.message.dispatch(message);
+    }
 
-    setClockMode(clockMode: BoardInterface.ClockMode): BoardInterface;
+    message = new Event<ArrayLike<number>>();
 
-    triggerTrap(reason: BoardInterface.TrapReason, message?: string): BoardInterface;
-
-    getBoardStateDebug(): string;
-
-    trap: EventInterface<BoardInterface.TrapPayload>;
-
-    cpuClock: EventInterface<number>;
-
-    clock: EventInterface<number>;
-
-    systemReset: EventInterface<void>;
+    private _context: EmulationContextInterface = null;
 }
 
-namespace BoardInterface {
-    export const enum TrapReason {
-        cpu,
-        bus,
-        debug,
-        board
-    }
-
-    export const enum ClockMode {
-        instruction,
-        lazy
-    }
-
-    export class TrapPayload {
-        constructor(public reason: TrapReason, public board: BoardInterface, public message?: string) {}
-    }
-}
-
-export { BoardInterface as default };
+export default DataTap;
