@@ -2,7 +2,6 @@
     "extends": "../tsconfig.base.json",
     "compilerOptions": {
         "lib": [
-            "es5",
             "es6",
             "webworker"
         ],
