@@ -50,6 +50,7 @@ import ControlPanel from './ControlPanel';
 import ControlPanelProxy from './ControlPanelProxy';
 import { Target } from '../../driver/gamepad/Mapping';
 import CpuFactory from '../../../machine/cpu/Factory';
+import DataTap from '../../stella/driver/DataTap';
 
 function cpuType(config = Stellerator.CpuAccuracy.cycle): CpuFactory.Type {
     switch (config) {
@@ -350,7 +351,11 @@ class Stellerator {
             await this._serviceInitialized;
 
             return (this._state = this._mapState(
-                await this._emulationService.start(cartridge, stellaConfig, config.cartridgeType)
+                await this._emulationService.start(
+                    cartridge,
+                    { ...stellaConfig, dataTap: config.dataTap },
+                    config.cartridgeType
+                )
             ));
         });
     }
@@ -567,6 +572,10 @@ class Stellerator {
 
             this._driverManager.addDriver(this._paddle, context => this._paddle.bind(context.getPaddle(0)));
         }
+
+        this._dataTap = new DataTap();
+        this.dataTapMessage = this._dataTap.message;
+        this._driverManager.addDriver(this._dataTap, (context, driver: DataTap) => driver.bind(context));
     }
 
     private _mapState(state: EmulationServiceInterface.State): Stellerator.State {
@@ -604,6 +613,15 @@ class Stellerator {
     frequencyUpdate: Event<number>;
 
     /**
+     * Subscribe to this event to receive messages that are sent from the ROM running
+     * inside the emulator via the data tap.
+     *
+     * @type {Event<ArrayLike<number>>}
+     * @memberof Stellerator
+     */
+    dataTapMessage: Event<ArrayLike<number>>;
+
+    /**
      * This event is dispatched whenever emulation state changes. Check out the
      * [microevent.ts](https://github.com/DirtyHairy/microevent)
      * documentation on the event API.
@@ -631,6 +649,7 @@ class Stellerator {
     private _fullscreenVideo: FullscreenDriver = null;
     private _audioDriver: AudioDriver = null;
     private _keyboardIO: KeyboardIO = null;
+    private _dataTap: DataTap = null;
     private _touchIO: TouchIO = null;
     private _paddle: Paddle = null;
     private _gamepad: Gamepad = null;
@@ -835,6 +854,13 @@ namespace Stellerator {
          * Default: cycle (high precision)
          */
         cpuAccuracy: CpuAccuracy;
+
+        /**
+         * Enable the data tap.
+         *
+         * Default: false
+         */
+        dataTap: boolean;
     }
 
     /**
