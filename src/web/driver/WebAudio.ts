@@ -46,6 +46,13 @@ declare namespace window {
 
 const audioContextCtor = window.AudioContext || window.webkitAudioContext;
 
+function waitMax<T>(waitFor: Promise<T>, timeout: number = 500): Promise<void> {
+    return new Promise(r => {
+        waitFor.then(() => r());
+        setTimeout(r, timeout);
+    });
+}
+
 class PreallocatedContext {
     constructor() {
         if (!audioContextCtor) {
@@ -73,12 +80,12 @@ class PreallocatedContext {
         this.interactionRequired = false;
         INTERACTION_EVENTS.forEach(event => document.removeEventListener(event, this._interactionListener));
 
-        this.mutex.runExclusive(() => {
-            context.resume();
+        this.mutex.runExclusive(async () => {
+            await waitMax(context.resume());
 
             return new Promise(r =>
-                setTimeout(() => {
-                    context.suspend();
+                setTimeout(async () => {
+                    await waitMax(context.suspend());
                     r();
                 }, 100)
             );
@@ -186,32 +193,26 @@ class WebAudioDriver {
     }
 
     pause(): Promise<void> {
-        return this._mutex.runExclusive((): any => {
+        return this._mutex.runExclusive(async () => {
             if (this._suspended) {
                 return;
             }
 
             this._suspended = true;
 
-            return new Promise(resolve => {
-                this._context.suspend().then(resolve, resolve);
-                setTimeout(resolve, 200);
-            });
+            await waitMax(this._context.suspend());
         });
     }
 
     resume(): Promise<void> {
-        return this._mutex.runExclusive((): any => {
+        return this._mutex.runExclusive(async () => {
             if (!this._suspended) {
                 return;
             }
 
             this._suspended = false;
 
-            return new Promise(resolve => {
-                this._context.resume().then(resolve, resolve);
-                setTimeout(resolve, 200);
-            });
+            await waitMax(this._context.resume());
         });
     }
 

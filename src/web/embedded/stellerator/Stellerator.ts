@@ -30,8 +30,6 @@ import EmulationServiceInterface from '../../stella/service/EmulationServiceInte
 import EmulationService from '../../stella/service/worker/EmulationService';
 import DriverManager from '../../stella/service/DriverManager';
 
-import VideoDriverInterface from '../../driver/VideoDriverInterface';
-import CanvasVideo from '../../driver/SimpleCanvasVideo';
 import WebglVideo from '../../driver/webgl/WebglVideo';
 
 import AudioDriver from '../../stella/driver/WebAudio';
@@ -104,7 +102,11 @@ class Stellerator {
      * customize emulator behavior. See [[Config]] for a full explanation of the values
      * and their default.
      */
-    constructor(canvasElt: HTMLCanvasElement, workerUrl: string, config: Partial<Stellerator.Config> = {}) {
+    constructor(
+        canvasElt: HTMLCanvasElement | null = null,
+        workerUrl: string,
+        config: Partial<Stellerator.Config> = {}
+    ) {
         this._canvasElt = canvasElt;
 
         this._config = {
@@ -156,9 +158,11 @@ class Stellerator {
      * @param gamma
      */
     setGamma(gamma: number): this {
-        if (this._webglVideo) {
-            this._webglVideo.setGamma(gamma);
+        if (this._videoDriver) {
+            this._videoDriver.setGamma(gamma);
         }
+
+        this._config.gamma = gamma;
 
         return this;
     }
@@ -169,7 +173,7 @@ class Stellerator {
      * @returns {number}
      */
     getGamma(): number {
-        return this._webglVideo ? this._webglVideo.getGamma() : 1;
+        return this._videoDriver ? this._videoDriver.getGamma() : this._config.gamma;
     }
 
     /**
@@ -180,9 +184,11 @@ class Stellerator {
      * @returns {this}
      */
     enablePovSimulation(povEnabled: boolean): this {
-        if (this._webglVideo) {
-            this._webglVideo.enablePovEmulation(povEnabled);
+        if (this._videoDriver) {
+            this._videoDriver.enablePovEmulation(povEnabled);
         }
+
+        this._config.simulatePov = povEnabled;
 
         return this;
     }
@@ -193,7 +199,7 @@ class Stellerator {
      * @returns {boolean}
      */
     isPovSimulationEnabled(): boolean {
-        return this._webglVideo ? this._webglVideo.povEmulationEnabled() : false;
+        return this._videoDriver ? this._videoDriver.povEmulationEnabled() : this._config.simulatePov;
     }
 
     /**
@@ -203,7 +209,9 @@ class Stellerator {
      * @returns {this}
      */
     enableSmoothScaling(smoothScalingEnabled: boolean): this {
-        this._videoDriver.enableInterpolation(smoothScalingEnabled);
+        if (this._videoDriver) {
+            this._videoDriver.enableInterpolation(smoothScalingEnabled);
+        }
 
         return this;
     }
@@ -214,7 +222,7 @@ class Stellerator {
      * @returns {boolean}
      */
     smoothScalingEnabled(): boolean {
-        return this._videoDriver.interpolationEnabled();
+        return this._videoDriver ? this._videoDriver.interpolationEnabled() : this._config.smoothScaling;
     }
 
     /**
@@ -224,6 +232,10 @@ class Stellerator {
      * @returns {this}
      */
     toggleFullscreen(fullscreen?: boolean): this {
+        if (!this._fullscreenVideo) {
+            return this;
+        }
+
         if (typeof fullscreen === 'undefined') {
             this._fullscreenVideo.toggle();
         } else {
@@ -239,7 +251,7 @@ class Stellerator {
      * @returns {boolean}
      */
     isFullscreen(): boolean {
-        return this._fullscreenVideo.isEngaged();
+        return this._fullscreenVideo ? this._fullscreenVideo.isEngaged() : false;
     }
 
     /**
@@ -279,7 +291,9 @@ class Stellerator {
      * the canvas element. This will cause the driver to adjust the resolution to match.
      */
     resize(): this {
-        this._videoDriver.resize();
+        if (this._videoDriver) {
+            this._videoDriver.resize();
+        }
 
         return this;
     }
@@ -299,6 +313,24 @@ class Stellerator {
      */
     getControlPanel(): ControlPanel {
         return this._controlPanel;
+    }
+
+    setCanvas(canvas: HTMLCanvasElement): this {
+        this._canvasElt = canvas;
+
+        this._createVideoDriver();
+        this._createTouchDriver();
+
+        return this;
+    }
+
+    releaseCanvas(): this {
+        this._removeVideoDriver();
+        this._removeTouchDriver();
+
+        this._canvasElt = null;
+
+        return this;
     }
 
     /**
@@ -473,21 +505,7 @@ class Stellerator {
     }
 
     private _createDrivers(): void {
-        try {
-            this._webglVideo = this._videoDriver = new WebglVideo(this._canvasElt, {
-                povEmulation: this._config.simulatePov,
-                gamma: this._config.gamma
-            }).init();
-        } catch (e) {
-            this._webglVideo = null;
-            this._videoDriver = new CanvasVideo(this._canvasElt).init();
-        }
-
-        this._videoDriver.enableInterpolation(this._config.smoothScaling);
-
-        this._driverManager.addDriver(this._videoDriver, context => this._videoDriver.bind(context.getVideo()));
-
-        this._fullscreenVideo = new FullscreenDriver(this._videoDriver);
+        this._createVideoDriver();
 
         if (this._config.audio) {
             try {
@@ -498,22 +516,22 @@ class Stellerator {
                 this._driverManager.addDriver(this._audioDriver, context =>
                     this._audioDriver.bind(true, [context.getPCMChannel()])
                 );
+
+                this._emulationService.stateChanged.addHandler(newState => {
+                    switch (newState) {
+                        case EmulationServiceInterface.State.running:
+                            this._audioDriver.resume();
+                            break;
+
+                        default:
+                            this._audioDriver.pause();
+                            break;
+                    }
+                });
             } catch (e) {
                 console.error(`failed to initialize audio: ${e && e.message}`);
             }
         }
-
-        const pauseHandler = () => {
-            switch (this._emulationService.getState()) {
-                case EmulationServiceInterface.State.paused:
-                    this.resume();
-                    break;
-
-                case EmulationServiceInterface.State.running:
-                    this.pause();
-                    break;
-            }
-        };
 
         if (this._config.enableKeyboard) {
             this._keyboardIO = new KeyboardIO(this._config.keyboardTarget);
@@ -523,36 +541,18 @@ class Stellerator {
             );
 
             if (this._config.fullscreenViaKeyboard) {
-                this._keyboardIO.toggleFullscreen.addHandler(() => this._fullscreenVideo.toggle());
+                this._keyboardIO.toggleFullscreen.addHandler(
+                    () => this._fullscreenVideo && this._fullscreenVideo.toggle()
+                );
             }
 
             if (this._config.pauseViaKeyboard) {
-                this._keyboardIO.togglePause.addHandler(pauseHandler);
+                this._keyboardIO.togglePause.addHandler(this._pauseHandler);
             }
         }
 
         if (this._config.resetViaKeyboard) {
             this._keyboardIO.hardReset.addHandler(() => this.reset());
-        }
-
-        if (this._config.enableTouch) {
-            this._touchIO = new TouchIO(
-                this._canvasElt,
-                this._config.touchJoystickSensitivity,
-                this._config.touchLeftHanded
-            );
-
-            this._driverManager.addDriver(this._touchIO, context =>
-                this._touchIO.bind(context.getJoystick(0), context.getControlPanel())
-            );
-
-            if (this._config.pauseViaTouch) {
-                this._touchIO.togglePause.addHandler(pauseHandler);
-            }
-
-            if (this._config.fullscreenViaTouch) {
-                this._touchIO.toggleFullscreen.addHandler(() => this._fullscreenVideo.toggle());
-            }
         }
 
         if (this._config.enableGamepad) {
@@ -578,6 +578,81 @@ class Stellerator {
         this._driverManager.addDriver(this._dataTap, (context, driver: DataTap) => driver.bind(context));
     }
 
+    private _removeVideoDriver(): void {
+        if (!this._videoDriver) {
+            return;
+        }
+
+        this._videoDriver.unbind();
+
+        this._driverManager.removeDriver(this._videoDriver);
+
+        this._fullscreenVideo.disengage();
+
+        this._fullscreenVideo = null;
+        this._videoDriver = null;
+    }
+
+    private _createVideoDriver(): void {
+        if (this._videoDriver) {
+            this._removeVideoDriver();
+        }
+
+        if (!this._canvasElt) {
+            return;
+        }
+
+        this._videoDriver = new WebglVideo(this._canvasElt, {
+            povEmulation: this._config.simulatePov,
+            gamma: this._config.gamma
+        }).init();
+
+        this._videoDriver.enableInterpolation(this._config.smoothScaling);
+
+        this._driverManager.addDriver(this._videoDriver, context => this._videoDriver.bind(context.getVideo()));
+
+        this._fullscreenVideo = new FullscreenDriver(this._videoDriver);
+    }
+
+    private _removeTouchDriver() {
+        if (!this._touchIO) {
+            return;
+        }
+
+        this._touchIO.unbind();
+
+        this._driverManager.removeDriver(this._touchIO);
+
+        this._touchIO = null;
+    }
+
+    private _createTouchDriver() {
+        if (this._touchIO) {
+            this._removeTouchDriver();
+        }
+        if (this._config.enableTouch) {
+            this._touchIO = new TouchIO(
+                this._canvasElt,
+                this._config.touchJoystickSensitivity,
+                this._config.touchLeftHanded
+            );
+
+            this._driverManager.addDriver(this._touchIO, context =>
+                this._touchIO.bind(context.getJoystick(0), context.getControlPanel())
+            );
+
+            if (this._config.pauseViaTouch) {
+                this._touchIO.togglePause.addHandler(this._pauseHandler);
+            }
+
+            if (this._config.fullscreenViaTouch) {
+                this._touchIO.toggleFullscreen.addHandler(
+                    () => this._fullscreenVideo && this._fullscreenVideo.toggle()
+                );
+            }
+        }
+    }
+
     private _mapState(state: EmulationServiceInterface.State): Stellerator.State {
         switch (state) {
             case EmulationServiceInterface.State.stopped:
@@ -596,6 +671,18 @@ class Stellerator {
                 throw new Error('cannot happen');
         }
     }
+
+    private _pauseHandler: () => void = () => {
+        switch (this._emulationService.getState()) {
+            case EmulationServiceInterface.State.paused:
+                this.resume();
+                break;
+
+            case EmulationServiceInterface.State.running:
+                this.pause();
+                break;
+        }
+    };
 
     /**
      * Subscribe to this event to receive periodic updates on the frequency of the
@@ -639,13 +726,12 @@ class Stellerator {
      */
     stateChange: Event<Stellerator.State>;
 
-    private _canvasElt: HTMLCanvasElement;
+    private _canvasElt: HTMLCanvasElement = null;
     private _config: Stellerator.Config = null;
     private _emulationService: EmulationServiceInterface = null;
     private _serviceInitialized: Promise<void> = null;
 
-    private _videoDriver: VideoDriverInterface = null;
-    private _webglVideo: WebglVideo = null;
+    private _videoDriver: WebglVideo = null;
     private _fullscreenVideo: FullscreenDriver = null;
     private _audioDriver: AudioDriver = null;
     private _keyboardIO: KeyboardIO = null;
