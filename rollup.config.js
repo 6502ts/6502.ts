@@ -200,7 +200,6 @@ export default [
             globDirectory: dist('frontend/stellerator'),
             globPatterns: ['**/*'],
             globIgnores: ['**/*.map', '**/doc/images/orig/**'],
-            importWorkboxFrom: 'cdn',
             cacheId: 'stellerator-ng',
             skipWaiting: true,
             clientsClaim: true
