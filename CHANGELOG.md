@@ -1,3 +1,16 @@
+# 1.0.0-beta.7
+
+## Stellerator
+
+ * Re-add the possibility to save ROMs (currently defunct on iOS)
+ * Performance improvements in ARM games
+
+## Stellerator-embedded
+
+ * Allow to run without canvas
+ * Allow to change canvas element at runtime
+ * Add data tap for sending data from 6507 code to the host
+
 # 1.0.0-beta.6
 
 ## Stellerator
