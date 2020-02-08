@@ -25,7 +25,7 @@
 
 'use strict';
 
-import typescript from 'rollup-plugin-typescript2';
+import typescript from '@rollup/plugin-typescript';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import builtins from 'rollup-plugin-node-builtins';
@@ -53,13 +53,8 @@ const cfg = {
         }
     },
     typescript: {
-        tsconfigOverride: {
-            compilerOptions: {
-                module: 'es2015'
-            }
-        },
-        tsconfig: 'tsconfig.json',
-        objectHashIgnoreUnknownHack: true
+        module: 'es2015',
+        tsconfig: 'tsconfig.json'
     },
     replace: {
         include: 'node_modules/jszip/**/*.js',
