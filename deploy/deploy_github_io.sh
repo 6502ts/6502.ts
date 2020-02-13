@@ -9,7 +9,7 @@ source "`pwd`/deploy/setup_ssh.sh"
 
 git clone git@github.com:6502ts/6502ts.github.io.git "$DEST"
 
-rm -fr "$DEST/dev" "$DEST/stellerator-ng"
+rm -fr "$DEST/stellerator-ng"
 cp -rv dist/frontend/stellerator "$DEST/stellerator-ng"
 
 pushd 6502ts.github.io
