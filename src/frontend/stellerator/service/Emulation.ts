@@ -54,6 +54,8 @@ import Storage from './Storage';
 import FullscreenVideoDriver from '../../../web/driver/FullscreenVideo';
 import TouchIO from '../../../web/stella/driver/TouchIO';
 import MouseAsPaddleDriver from '../../../web/driver/MouseAsPaddle';
+import GamepadDriver from '../../../web/driver/Gamepad';
+import { Target } from '../../../web/driver/gamepad/Mapping';
 
 const CANVAS_ID = 'stellerator-canvas';
 const WORKER_URL = 'worker/stellerator.min.js';
@@ -121,6 +123,14 @@ class Emulation {
         this._keyboardDriver.togglePause.addHandler(this._onInputTogglePause);
         this._keyboardDriver.toggleFullscreen.addHandler(this._onInputToggleFullscreen);
 
+        this._driverManager.addDriver(this._gamepadDriver, (context, driver: GamepadDriver) =>
+            driver.bind([context.getJoystick(0), context.getJoystick(1)], {
+                [Target.start]: context.getControlPanel().getResetButton(),
+                [Target.select]: context.getControlPanel().getSelectSwitch()
+            })
+        );
+        this._gamepadDriver.init();
+
         window.addEventListener('resize', this._onWindowResize);
     }
 
@@ -138,6 +148,12 @@ class Emulation {
 
         this._emulationService.stateChanged.addHandler(Emulation._onEmulationStateChange, this);
         this._emulationService.frequencyUpdate.addHandler(Emulation._onFrequencyChange, this);
+
+        this._gamepadDriver.gamepadCountChanged.addHandler(n => {
+            console.log(n);
+            this._ports.onUpdateGamepadCount_.send(n);
+        });
+        this._ports.onUpdateGamepadCount_.send(GamepadDriver.probeGamepadCount());
 
         this._mutationObserver.observe(document.body, {
             attributes: false,
@@ -474,6 +490,7 @@ class Emulation {
     private _keyboardDriver = new KeyboardDriver(document);
     private _paddleDriver = new MouseAsPaddleDriver();
     private _audioDriver = new AudioDriver();
+    private _gamepadDriver = new GamepadDriver();
     private _touchDriver: TouchIO = null;
 
     private _currentConfig: Config = null;

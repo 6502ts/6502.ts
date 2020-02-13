@@ -473,5 +473,8 @@ update msg model =
         NavigateToAboutPage ->
             ( model, Nav.pushUrl model.key <| Routing.serializeRoute RouteAbout )
 
+        UpdateGamepadCount x ->
+            ( { model | gamepadCount = x }, Cmd.none )
+
         None ->
             noop model

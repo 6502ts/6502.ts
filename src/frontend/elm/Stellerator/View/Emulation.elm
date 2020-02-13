@@ -96,12 +96,36 @@ controlHelp model =
                     []
                 ]
             ]
+
+        gamepadHelp =
+            case model.gamepadCount of
+                0 ->
+                    []
+
+                1 ->
+                    [ h1 [] [ text "Gamepad controls" ]
+                    , p []
+                        [ ul []
+                            [ item "Gamepad 1: left joystick"
+                            ]
+                        ]
+                    ]
+
+                _ ->
+                    [ h1 [] [ text "Gamepad controls" ]
+                    , p []
+                        [ ul []
+                            [ item "Gamepad 1: left joystick"
+                            , item "Gamepad 2: right joystick"
+                            ]
+                        ]
+                    ]
     in
     if touchEnabled model then
-        touchHelp ++ keyboardHelp
+        touchHelp ++ gamepadHelp ++ keyboardHelp
 
     else
-        keyboardHelp
+        keyboardHelp ++ gamepadHelp
 
 
 console : Model -> List (Html Msg)

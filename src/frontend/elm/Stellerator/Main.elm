@@ -47,12 +47,13 @@ type alias Flags =
     , touchSupport : Bool
     , version : String
     , wasUpdated : Bool
+    , gamepadCount : Int
     }
 
 
 decodeFlags : Decoder Flags
 decodeFlags =
-    map7 Flags
+    map8 Flags
         (field "cartridges" <| list decodeCartridge)
         (field "cartridgeTypes" <| list decodeCartridgeType)
         (field "settings" <| decodeSettings)
@@ -60,6 +61,7 @@ decodeFlags =
         (field "touchSupport" <| bool)
         (field "version" <| string)
         (field "wasUpdated" <| bool)
+        (field "gamepadCount" <| int)
 
 
 
@@ -100,6 +102,7 @@ init flagsJson url key =
                     , touchSupport = False
                     , version = "[unknown]"
                     , wasUpdated = False
+                    , gamepadCount = 0
                     }
 
         route : Route
@@ -150,6 +153,7 @@ init flagsJson url key =
                 , difficultyP1 = DifficultyPro
                 , color = ColorColor
                 }
+            , gamepadCount = flags.gamepadCount
             , version = flags.version
             }
     in
@@ -171,6 +175,7 @@ subscriptions _ =
         , Ports.onNewCartridges AddNewCartridges
         , Ports.onEmulationStateChange UpdateEmulationState
         , Ports.onInputDriverEvent IncomingInputDriverEvent
+        , Ports.onUpdateGamepadCount UpdateGamepadCount
         ]
 
 

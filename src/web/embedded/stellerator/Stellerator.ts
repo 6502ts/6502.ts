@@ -562,7 +562,7 @@ class Stellerator {
             this._driverManager.addDriver(this._gamepad, context =>
                 this._gamepad.bind([context.getJoystick(0), context.getJoystick(1)], {
                     [Target.start]: context.getControlPanel().getResetButton(),
-                    [Target.start]: context.getControlPanel().getSelectSwitch()
+                    [Target.select]: context.getControlPanel().getSelectSwitch()
                 })
             );
         }

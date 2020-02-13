@@ -76,24 +76,39 @@ navigationLink cssExtra model route label =
 
 emulationState : Model -> String
 emulationState model =
-    case model.emulationState of
-        EmulationStopped ->
-            "stopped"
+    let
+        runState =
+            case model.emulationState of
+                EmulationStopped ->
+                    "stopped"
 
-        EmulationStarting ->
-            "starting"
+                EmulationStarting ->
+                    "starting"
 
-        EmulationPaused ->
-            "paused"
+                EmulationPaused ->
+                    "paused"
 
-        EmulationRunning Nothing ->
-            "running"
+                EmulationRunning Nothing ->
+                    "running"
 
-        EmulationRunning (Just speed) ->
-            "running: " ++ format { usLocale | decimals = 2 } (speed / 1000000) ++ " MHz"
+                EmulationRunning (Just speed) ->
+                    "running: " ++ format { usLocale | decimals = 2 } (speed / 1000000) ++ " MHz"
 
-        EmulationError _ ->
-            "error"
+                EmulationError _ ->
+                    "error"
+
+        gamepadState =
+            case model.gamepadCount of
+                0 ->
+                    ""
+
+                1 ->
+                    "Gamepads: 1▕ "
+
+                _ ->
+                    "Gamepads: 2▕ "
+    in
+    gamepadState ++ runState
 
 
 navbar : Model -> Media -> List (Html Msg)

@@ -56,6 +56,20 @@ export default class GamepadDriver {
         this.setMapping(defaultMapping);
     }
 
+    static probeGamepadCount(): number {
+        let cnt = 0;
+
+        const gamepads = navigator.getGamepads();
+
+        for (let i = 0; i < gamepads.length; i++) {
+            if (gamepads[i]) {
+                cnt++;
+            }
+        }
+
+        return cnt;
+    }
+
     init(): void {
         if (!navigator.getGamepads) {
             throw new Error(`gamepad API not available`);
@@ -150,15 +164,7 @@ export default class GamepadDriver {
     }
 
     private probeGamepads(): void {
-        let cnt = 0;
-
-        const gamepads = navigator.getGamepads();
-
-        for (let i = 0; i < gamepads.length; i++) {
-            if (gamepads[i]) {
-                cnt++;
-            }
-        }
+        const cnt = GamepadDriver.probeGamepadCount();
 
         if (cnt !== this._gamepadCount) {
             this._gamepadCount = cnt;

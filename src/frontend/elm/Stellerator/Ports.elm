@@ -34,6 +34,7 @@ port module Stellerator.Ports exposing
     , onInputDriverEvent
     , onMediaUpdate
     , onNewCartridges
+    , onUpdateGamepadCount
     , pauseEmulation
     , resetEmulation
     , resumeEmulation
@@ -307,3 +308,11 @@ port updateConsoleSwitches_ : Encode.Value -> Cmd msg
 updateConsoleSwitches : ConsoleSwitches -> Cmd msg
 updateConsoleSwitches =
     encodeConsoleSwitches >> updateConsoleSwitches_
+
+
+port onUpdateGamepadCount_ : (Int -> msg) -> Sub msg
+
+
+onUpdateGamepadCount : (Int -> msg) -> Sub msg
+onUpdateGamepadCount =
+    onUpdateGamepadCount_

@@ -42,6 +42,7 @@ import TrackCartridges from './service/TrackCartridges';
 import TrackSettings from './service/TrackSettings';
 import Emulation from './service/Emulation';
 import TouchIO from '../../web/stella/driver/TouchIO';
+import GamepadDriver from '../../web/driver/Gamepad';
 
 const VERSION_STORAGE_KEY = 'stellerator-ng-version';
 
@@ -85,7 +86,8 @@ async function main(): Promise<void> {
             defaultSettings: DEFAULT_SETTINGS,
             touchSupport: TouchIO.isSupported(),
             version,
-            wasUpdated
+            wasUpdated,
+            gamepadCount: GamepadDriver.probeGamepadCount()
         }
     });
 

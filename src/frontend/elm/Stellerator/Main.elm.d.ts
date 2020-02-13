@@ -137,6 +137,7 @@ export interface Flags {
     touchSupport: boolean;
     version: string;
     wasUpdated: boolean;
+    gamepadCount: number;
 }
 
 export interface Options {
@@ -176,6 +177,8 @@ export interface Ports {
 
     onEmulationStateChange_: SubscriptionPort<EmulationState>;
     onInputDriverEvent_: SubscriptionPort<InputDriverEvent>;
+
+    onUpdateGamepadCount_: SubscriptionPort<number>;
 }
 
 interface CommandPort<T> {

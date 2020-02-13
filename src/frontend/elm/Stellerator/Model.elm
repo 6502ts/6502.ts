@@ -212,6 +212,7 @@ type alias Model =
     , limitFramerate : Bool
     , consoleSwitches : ConsoleSwitches
     , version : String
+    , gamepadCount : Int
     }
 
 
@@ -300,6 +301,7 @@ type Msg
     | ChangeColorSwitch ColorSwitch
     | BlurCurrentElement
     | NavigateToAboutPage
+    | UpdateGamepadCount Int
     | None
 
 

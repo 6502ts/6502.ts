@@ -65,6 +65,7 @@ const cfg = {
     elm: {
         compiler: {
             optimize: !DEVELOPMENT,
+            debug: !!DEVELOPMENT,
             pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm')
         }
     },
