@@ -4,3 +4,9 @@ node_js:
 script:
   - yarn test
   - yarn build
+deploy:
+  - provider: script
+    script: deploy/deploy_github_io.sh
+    skip_cleanup: true
+    on:
+      tag: true

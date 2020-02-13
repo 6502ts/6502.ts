@@ -1,3 +1,13 @@
+# 1.0.0-beta.8
+
+## Stellerator
+
+ * Re-enable gamepad supports
+
+## Stellerator-embedded
+
+ * Fix gamepad mapping for select
+
 # 1.0.0-beta.7
 
 ## Stellerator
