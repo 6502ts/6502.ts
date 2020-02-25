@@ -36,7 +36,7 @@ import VideoProxy from './VideoProxy';
 import ControlProxy from './ControlProxy';
 import WaveformAudioProxy from './WaveformAudioProxy';
 import PCMAudioProxy from './PCMAudioProxy';
-import DataTapProxy from './DataTapProxy';
+import AsyncIOProxy from './AsyncIOProxy';
 
 class EmulationContext implements EmulationContextInterface {
     constructor(
@@ -44,7 +44,7 @@ class EmulationContext implements EmulationContextInterface {
         private _controlProxy: ControlProxy,
         private _waveformChannels: Array<WaveformAudioProxy>,
         private _pcmChannel: PCMAudioProxy,
-        private _dataTapProxy: DataTapProxy
+        private _asyncIOProxy: AsyncIOProxy
     ) {
         if (this._waveformChannels.length !== 2) {
             throw new Error(`invalid channel count ${this._waveformChannels.length}`);
@@ -87,8 +87,8 @@ class EmulationContext implements EmulationContextInterface {
         return this._videoProxy;
     }
 
-    getDataTap(): DataTapProxy {
-        return this._dataTapProxy;
+    getAsyncIO(): AsyncIOProxy {
+        return this._asyncIOProxy;
     }
 
     private _config: Config = null;

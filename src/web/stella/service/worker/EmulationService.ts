@@ -40,7 +40,7 @@ import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 import { Mutex } from 'async-mutex';
 
 import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, SetupMessage } from './messages';
-import DataTapProxy from './DataTapProxy';
+import AsyncIOProxy from './AsyncIOProxy';
 
 const CONTROL_PROXY_UPDATE_INTERVAL = 25;
 
@@ -65,9 +65,9 @@ class EmulationService implements EmulationServiceInterface {
 
         const videoProxy = new VideoProxy(this._rpc),
             controlProxy = new ControlProxy(this._rpc),
-            dataTapProxy = new DataTapProxy(this._rpc);
+            asyncIOProxy = new AsyncIOProxy(this._rpc);
 
-        dataTapProxy.init();
+        asyncIOProxy.init();
         videoProxy.init();
 
         this._emulationContext = new EmulationContext(
@@ -75,7 +75,7 @@ class EmulationService implements EmulationServiceInterface {
             controlProxy,
             this._waveformChannels,
             this._pcmChannel,
-            dataTapProxy
+            asyncIOProxy
         );
 
         this._worker.onmessage = messageEvent => this._rpc.dispatch(messageEvent.data);

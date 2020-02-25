@@ -54,7 +54,8 @@ export const SIGNAL_TYPE = {
     pcmAudioTogglePause: (index: number) => `audio/pcm/togglePause/${index}`,
     pcmAudioReturnFrame: (index: number) => `audio/pcm/returnFrame/${index}`,
     audioStop: 'audio/stop',
-    messageFromDataTap: 'data-tap/message'
+    messageFromAsyncIO: 'asyncIO/messageFrom',
+    messageToAsyncIO: 'asyncIO/messageTo'
 };
 Object.freeze(SIGNAL_TYPE);
 
@@ -120,4 +121,6 @@ export interface PCMAudioReturnFrameMessage {
     buffer: ArrayBuffer;
 }
 
-export type MessageFromDataTapMessage = Array<number>;
+export type MessageFromAsyncIOMessage = ArrayLike<number>;
+
+export type MessageToAsyncIOMessage = Array<number>;

@@ -36,12 +36,12 @@ import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOu
 import PCMAudioEndpointInterface from '../../../driver/PCMAudioEndpointInterface';
 import PCMAudioEndpoint from '../../../driver/PCMAudioEndpoint';
 import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
-import DataTapInterface from '../../../../machine/io/DataTapInterface';
+import AsyncIOInterface from '../../../../machine/io/AsyncIOInterface';
 
 export default class EmulationContext implements EmulationContextInterface {
     constructor(
         private _board: Board,
-        private _dataTap?: DataTapInterface,
+        private _asyncIO?: AsyncIOInterface,
         private _videoProcessing?: Array<VideoProcessorConfig>
     ) {}
 
@@ -102,8 +102,8 @@ export default class EmulationContext implements EmulationContextInterface {
         return this._board.getVideoOutput();
     }
 
-    getDataTap(): DataTapInterface {
-        return this._dataTap;
+    getAsyncIO(): AsyncIOInterface {
+        return this._asyncIO;
     }
 
     private _videoEndpoint: VideoEndpoint = null;

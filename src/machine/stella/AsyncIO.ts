@@ -27,37 +27,46 @@ import { Event } from 'microevent.ts';
 
 import Bus from './Bus';
 import Board from './Board';
-import DataTapInterface from '../io/DataTapInterface';
+import AsyncIOInterface from '../io/AsyncIOInterface';
 
-class DataTap implements DataTapInterface {
+class AsyncIO implements AsyncIOInterface {
     constructor(private _board: Board) {
         this._bus = this._board.getBus();
 
-        this._board.systemReset.addHandler(DataTap._onReset, this);
-        this._bus.event.write.addHandler(DataTap._onWrite, this);
+        this._board.systemReset.addHandler(AsyncIO._onReset, this);
+        this._bus.event.write.addHandler(AsyncIO._onWrite, this);
+        this._bus.event.read.addHandler(AsyncIO._onRead, this);
 
         this.reset();
     }
 
     reset(): this {
-        for (let i = 0; i < this._buffer.length; i++) {
-            this._buffer[i] = 0;
+        for (let i = 0; i < this._bufferOut.length; i++) {
+            this._bufferOut[i] = 0;
         }
 
-        this._bufferIndex = 0;
+        this._indexBufferOut = 0;
 
         return this;
     }
 
-    private static _onWrite(accessType: Bus.AccessType, self: DataTap): void {
+    send(message: ArrayLike<number>): void {
+        this._indexBufferIn = message.length > 256 ? 255 : message.length - 1;
+
+        for (let i = 0; i <= this._indexBufferIn; i++) {
+            this._bufferIn[i] = message[i];
+        }
+    }
+
+    private static _onWrite(accessType: Bus.AccessType, self: AsyncIO): void {
         if (accessType !== Bus.AccessType.tia) {
             return;
         }
 
         switch (self._bus.getLastAddresBusValue()) {
             case 0x30:
-                self._buffer[self._bufferIndex] = self._bus.getLastDataBusValue();
-                self._bufferIndex = (self._bufferIndex + 1) % self._buffer.length;
+                self._bufferOut[self._indexBufferOut] = self._bus.getLastDataBusValue();
+                self._indexBufferOut = (self._indexBufferOut + 1) % self._bufferOut.length;
 
                 break;
 
@@ -66,10 +75,10 @@ class DataTap implements DataTapInterface {
                 const data = new Uint8Array(count);
 
                 for (let i = 0; i < count; i++) {
-                    const j = (self._bufferIndex - 1 + self._buffer.length) % self._buffer.length;
+                    const j = (self._indexBufferOut - 1 + self._bufferOut.length) % self._bufferOut.length;
 
-                    data[count - i - 1] = self._buffer[j];
-                    self._bufferIndex = j;
+                    data[count - i - 1] = self._bufferOut[j];
+                    self._indexBufferOut = j;
                 }
 
                 self.message.dispatch(data);
@@ -79,15 +88,37 @@ class DataTap implements DataTapInterface {
         }
     }
 
-    private static _onReset(payload: void, self: DataTap): void {
+    private static _onRead(accessType: Bus.AccessType, self: AsyncIO): void {
+        if (accessType !== Bus.AccessType.tia) {
+            return;
+        }
+
+        switch (self._bus.getLastAddresBusValue()) {
+            case 0x30:
+                self._bus.setDataBusValue(self._indexBufferIn >= 0 ? self._bufferIn[self._indexBufferIn--] : 0);
+
+                break;
+
+            case 0x31: {
+                self._bus.setDataBusValue(self._indexBufferIn >= 0 ? self._indexBufferIn + 1 : 0);
+
+                break;
+            }
+        }
+    }
+
+    private static _onReset(payload: void, self: AsyncIO): void {
         self.reset();
     }
 
     message = new Event<Uint8Array>();
 
-    private readonly _buffer = new Uint8Array(256);
-    private _bufferIndex = 0;
+    private readonly _bufferOut = new Uint8Array(256);
+    private readonly _bufferIn = new Uint8Array(256);
+    private _indexBufferOut = 0;
+    private _indexBufferIn = -1;
+
     private _bus: Bus = null;
 }
 
-export default DataTap;
+export default AsyncIO;

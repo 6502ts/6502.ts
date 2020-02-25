@@ -74,7 +74,7 @@ namespace EmulationServiceInterface {
     }
 
     export interface Config extends StellaConfig {
-        dataTap?: boolean;
+        asyncIO?: boolean;
     }
 }
 

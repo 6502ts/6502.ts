@@ -122,10 +122,14 @@ class Bus implements BusInterface {
     }
 
     // Stub
-    poke(address: number, value: number) { }
+    poke(address: number, value: number) {}
 
     getLastDataBusValue(): number {
         return this._lastDataBusValue;
+    }
+
+    setDataBusValue(value: number): void {
+        this._lastDataBusValue = value;
     }
 
     getLastAddresBusValue(): number {
@@ -168,7 +172,7 @@ namespace Bus {
     }
 
     export class TrapPayload {
-        constructor(public reason: TrapReason, public bus: Bus, public message?: string) { }
+        constructor(public reason: TrapReason, public bus: Bus, public message?: string) {}
     }
 }
 

@@ -25,8 +25,10 @@
 
 import { EventInterface } from 'microevent.ts';
 
-interface DataTapInterface {
+interface AsyncIOInterface {
+    send(message: ArrayLike<number>): void;
+
     message: EventInterface<ArrayLike<number>>;
 }
 
-export default DataTapInterface;
+export default AsyncIOInterface;

@@ -32,9 +32,9 @@ import ControlDriver from './ControlDriver';
 import WaveformAudioDriver from './WaveformAudioDriver';
 import PCMAudioDriver from './PCMAudioDriver';
 import EmulationContext from '../vanilla/EmulationContext';
-import DataTapDriver from '../../driver/DataTap';
+import AsyncIODriver from '../../../driver/AsyncIO';
 
-import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, SetupMessage } from './messages';
+import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, SetupMessage, MessageToAsyncIOMessage } from './messages';
 
 class EmulationBackend {
     constructor(private _rpc: RpcProviderInterface) {
@@ -42,6 +42,13 @@ class EmulationBackend {
     }
 
     startup(): void {
+        const driverManager = new DriverManager(),
+            videoDriver = new VideoDriver(this._rpc),
+            controlDriver = new ControlDriver(this._rpc),
+            waveformAduioDrivers = [0, 1].map(i => new WaveformAudioDriver(i, this._rpc)),
+            pcmAudioDriver = new PCMAudioDriver(0, this._rpc),
+            asyncIODriver = new AsyncIODriver();
+
         this._rpc
             .registerRpcHandler(RPC_TYPE.setup, this._onSetup.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationFetchLastError, this._onFetchLastError.bind(this))
@@ -50,19 +57,15 @@ class EmulationBackend {
             .registerRpcHandler(RPC_TYPE.emulationResume, this._onEmulationResume.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationSetRateLimit, this._onEmulationSetRateLimit.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationStart, this._onEmulationStart.bind(this))
-            .registerRpcHandler(RPC_TYPE.emulationStop, this._onEmulationStop.bind(this));
+            .registerRpcHandler(RPC_TYPE.emulationStop, this._onEmulationStop.bind(this))
+            .registerSignalHandler<MessageToAsyncIOMessage>(SIGNAL_TYPE.messageToAsyncIO, data =>
+                asyncIODriver.send(data)
+            );
+
+        asyncIODriver.message.addHandler(message => this._rpc.signal(SIGNAL_TYPE.messageFromAsyncIO, message));
 
         this._service.frequencyUpdate.addHandler(EmulationBackend._onFrequencyUpdate, this);
         this._service.emulationError.addHandler(EmulationBackend._onEmulationError, this);
-
-        const driverManager = new DriverManager(),
-            videoDriver = new VideoDriver(this._rpc),
-            controlDriver = new ControlDriver(this._rpc),
-            waveformAduioDrivers = [0, 1].map(i => new WaveformAudioDriver(i, this._rpc)),
-            pcmAudioDriver = new PCMAudioDriver(0, this._rpc),
-            dataTapDriver = new DataTapDriver();
-
-        dataTapDriver.message.addHandler(message => this._rpc.signal(SIGNAL_TYPE.messageFromDataTap, message));
 
         this._videoDriver = videoDriver;
         controlDriver.init();
@@ -75,7 +78,9 @@ class EmulationBackend {
             .addDriver(pcmAudioDriver, (context: EmulationContext, driver: PCMAudioDriver) =>
                 driver.bind(context.getPCMChannel())
             )
-            .addDriver(dataTapDriver, (context: EmulationContext, driver: DataTapDriver) => driver.bind(context))
+            .addDriver(asyncIODriver, (context: EmulationContext, driver: AsyncIODriver) =>
+                driver.bind(context.getAsyncIO())
+            )
             .bind(this._service);
 
         for (let i = 0; i < 2; i++) {

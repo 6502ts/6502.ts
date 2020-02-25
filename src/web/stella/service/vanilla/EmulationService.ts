@@ -32,7 +32,7 @@ import BoardInterface from '../../../../machine/board/BoardInterface';
 import CartridgeFactory from '../../../../machine/stella/cartridge/CartridgeFactory';
 import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
-import DataTap from '../../../../machine/stella/DataTap';
+import AsyncIO from '../../../../machine/stella/AsyncIO';
 import SchedulerFactory from '../../../../tools/scheduler/Factory';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
@@ -78,11 +78,11 @@ export default class EmulationService implements EmulationServiceInterface {
                 this._board = board;
                 this._board.trap.addHandler(EmulationService._trapHandler, this);
 
-                if (config.dataTap) {
-                    this._dataTap = new DataTap(board);
+                if (config.asyncIO) {
+                    this._asyncIO = new AsyncIO(board);
                 }
 
-                this._context = new EmulationContext(board, this._dataTap, videoProcessing);
+                this._context = new EmulationContext(board, this._asyncIO, videoProcessing);
 
                 this._clockProbe.attach(this._board.clock);
 
@@ -218,7 +218,7 @@ export default class EmulationService implements EmulationServiceInterface {
 
             this._board = null;
             this._context = null;
-            this._dataTap = undefined;
+            this._asyncIO = undefined;
 
             this._setState(EmulationServiceInterface.State.stopped);
         } catch (e) {
@@ -269,7 +269,7 @@ export default class EmulationService implements EmulationServiceInterface {
     private _lastError: Error = null;
     private _board: Board;
     private _context: EmulationContext;
-    private _dataTap: DataTap;
+    private _asyncIO: AsyncIO;
     private _scheduler: SchedulerInterface = null;
     private _clockProbe = new ClockProbe(new PeriodicScheduler(CLOCK_UPDATE_INTERVAL));
     private _mutex = new Mutex();

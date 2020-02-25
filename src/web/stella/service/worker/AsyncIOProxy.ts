@@ -23,45 +23,25 @@
  *   SOFTWARE.
  */
 
+import AsyncIOInterface from '../../../../machine/io/AsyncIOInterface';
+import { RpcProviderInterface } from 'worker-rpc';
+import { SIGNAL_TYPE, MessageToAsyncIOMessage } from './messages';
 import { Event } from 'microevent.ts';
-import EmulationContextInterface from '../service/EmulationContextInterface';
 
-class DataTap {
-    bind(context: EmulationContextInterface): void {
-        if (this._context) {
-            return;
-        }
+class AsyncIOProxy implements AsyncIOInterface {
+    constructor(private _rpc: RpcProviderInterface) {}
 
-        const dataTap = context.getDataTap();
-
-        if (dataTap) {
-            dataTap.message.addHandler(DataTap._onDataTapMessage, this);
-        }
-
-        this._context = context;
+    init(): void {
+        this._rpc.registerSignalHandler<Array<number>>(SIGNAL_TYPE.messageFromAsyncIO, data =>
+            this.message.dispatch(data)
+        );
     }
 
-    unbind(): void {
-        if (!this._context) {
-            return;
-        }
-
-        const dataTap = this._context.getDataTap();
-
-        if (dataTap) {
-            dataTap.message.removeHandler(DataTap._onDataTapMessage, this);
-        }
-
-        this._context = null;
+    send(message: ArrayLike<number>): void {
+        this._rpc.signal<MessageToAsyncIOMessage>(SIGNAL_TYPE.messageToAsyncIO, Array.from(message));
     }
 
-    private static _onDataTapMessage(message: ArrayLike<number>, self: DataTap): void {
-        self.message.dispatch(message);
-    }
-
-    message = new Event<ArrayLike<number>>();
-
-    private _context: EmulationContextInterface = null;
+    message = new Event<Array<number>>();
 }
 
-export default DataTap;
+export default AsyncIOProxy;

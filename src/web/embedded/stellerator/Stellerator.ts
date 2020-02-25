@@ -48,7 +48,7 @@ import ControlPanel from './ControlPanel';
 import ControlPanelProxy from './ControlPanelProxy';
 import { Target } from '../../driver/gamepad/Mapping';
 import CpuFactory from '../../../machine/cpu/Factory';
-import DataTap from '../../stella/driver/DataTap';
+import AsyncIO from '../../driver/AsyncIO';
 
 function cpuType(config = Stellerator.CpuAccuracy.cycle): CpuFactory.Type {
     switch (config) {
@@ -385,7 +385,7 @@ class Stellerator {
             return (this._state = this._mapState(
                 await this._emulationService.start(
                     cartridge,
-                    { ...stellaConfig, dataTap: config.dataTap },
+                    { ...stellaConfig, asyncIO: config.asyncIO },
                     config.cartridgeType
                 )
             ));
@@ -488,6 +488,12 @@ class Stellerator {
         return this._emulationService.getLastError();
     }
 
+    asyncIOSend(message: ArrayLike<number>): this {
+        this._asyncIO.send(message);
+
+        return this;
+    }
+
     private _convertTvMode(tvMode: Stellerator.TvMode): StellaConfig.TvMode {
         switch (tvMode) {
             case Stellerator.TvMode.ntsc:
@@ -573,9 +579,9 @@ class Stellerator {
             this._driverManager.addDriver(this._paddle, context => this._paddle.bind(context.getPaddle(0)));
         }
 
-        this._dataTap = new DataTap();
-        this.dataTapMessage = this._dataTap.message;
-        this._driverManager.addDriver(this._dataTap, (context, driver: DataTap) => driver.bind(context));
+        this._asyncIO = new AsyncIO();
+        this.asyncIOMessage = this._asyncIO.message;
+        this._driverManager.addDriver(this._asyncIO, (context, driver: AsyncIO) => driver.bind(context.getAsyncIO()));
     }
 
     private _removeVideoDriver(): void {
@@ -706,7 +712,7 @@ class Stellerator {
      * @type {Event<ArrayLike<number>>}
      * @memberof Stellerator
      */
-    dataTapMessage: Event<ArrayLike<number>>;
+    asyncIOMessage: Event<ArrayLike<number>>;
 
     /**
      * This event is dispatched whenever emulation state changes. Check out the
@@ -735,7 +741,7 @@ class Stellerator {
     private _fullscreenVideo: FullscreenDriver = null;
     private _audioDriver: AudioDriver = null;
     private _keyboardIO: KeyboardIO = null;
-    private _dataTap: DataTap = null;
+    private _asyncIO: AsyncIO = null;
     private _touchIO: TouchIO = null;
     private _paddle: Paddle = null;
     private _gamepad: Gamepad = null;
@@ -946,7 +952,7 @@ namespace Stellerator {
          *
          * Default: false
          */
-        dataTap: boolean;
+        asyncIO: boolean;
     }
 
     /**

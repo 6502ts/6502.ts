@@ -23,21 +23,45 @@
  *   SOFTWARE.
  */
 
-import DataTapInterface from '../../../../machine/io/DataTapInterface';
-import { RpcProviderInterface } from 'worker-rpc';
-import { SIGNAL_TYPE } from './messages';
 import { Event } from 'microevent.ts';
+import AsyncIOInterface from '../../machine/io/AsyncIOInterface';
 
-class DataTapProxy implements DataTapInterface {
-    constructor(private _rpc: RpcProviderInterface) {}
+class AsyncIO {
+    bind(io: AsyncIOInterface | null): void {
+        if (this._io) {
+            return;
+        }
 
-    init(): void {
-        this._rpc.registerSignalHandler<Array<number>>(SIGNAL_TYPE.messageFromDataTap, data =>
-            this.message.dispatch(data)
-        );
+        if (io) {
+            io.message.addHandler(AsyncIO._onAsyncIOMessage, this);
+        }
+
+        this._io = io;
     }
 
-    message = new Event<Array<number>>();
+    unbind(): void {
+        if (!this._io) {
+            return;
+        }
+
+        this._io.message.removeHandler(AsyncIO._onAsyncIOMessage, this);
+
+        this._io = null;
+    }
+
+    send(message: ArrayLike<number>): void {
+        if (this._io) {
+            this._io.send(message);
+        }
+    }
+
+    private static _onAsyncIOMessage(message: ArrayLike<number>, self: AsyncIO): void {
+        self.message.dispatch(message);
+    }
+
+    message = new Event<ArrayLike<number>>();
+
+    private _io: AsyncIOInterface = null;
 }
 
-export default DataTapProxy;
+export default AsyncIO;
