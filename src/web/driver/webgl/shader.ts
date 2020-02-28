@@ -41,4 +41,40 @@ export namespace fsh {
             gamma = 'u_Gamma'
         }
     }
+
+    export namespace phosphor {
+        export const source = `
+            precision mediump float;
+
+            varying vec2 v_TextureCoordinate;
+
+            uniform float u_PhosphorLevel;
+            uniform sampler2D u_Sampler_NewImage;
+            uniform sampler2D u_Sampler_PreviousImage;
+
+            float applyPhosphor(float new, float previous) {
+                float decayed = previous * u_PhosphorLevel;
+
+                return new > decayed ? new : decayed;
+            }
+
+            void main() {
+                vec4 new = texture2D(u_Sampler_NewImage, v_TextureCoordinate);
+                vec4 previous = texture2D(u_Sampler_PreviousImage, v_TextureCoordinate);
+
+                gl_FragColor = vec4(
+                    applyPhosphor(new.r, previous.r),
+                    applyPhosphor(new.g, previous.g),
+                    applyPhosphor(new.b, previous.b),
+                    1.0
+                );
+            }
+        `;
+
+        export const enum uniform {
+            level = 'u_PhosphorLevel',
+            textureUnitNew = 'u_Sampler_NewImage',
+            textureUnitPrevious = 'u_Sampler_PreviousImage'
+        }
+    }
 }

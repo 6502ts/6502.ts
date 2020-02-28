@@ -54,7 +54,7 @@ export function getUniformLocation(
 ): WebGLUniformLocation {
     const location = gl.getUniformLocation(program, name);
 
-    if (location < 0) {
+    if (location === null) {
         throw new Error(`unable to locate uniform ${name}`);
     }
 

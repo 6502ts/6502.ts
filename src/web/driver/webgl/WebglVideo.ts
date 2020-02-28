@@ -27,23 +27,20 @@ import VideoEndpointInterface from '../VideoEndpointInterface';
 import { fsh, vsh } from './shader';
 import { Program, compileProgram, getAttributeLocation, getUniformLocation } from './util';
 import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
+import PhosphorProcessor from './PhosphorProcessor';
 
 class WebglVideo {
     constructor(private _canvas: HTMLCanvasElement, config: Partial<WebglVideo.Config> = {}) {
         const defaultConfig = {
             gamma: 1,
             scalingMode: WebglVideo.ScalingMode.qis,
-            phosphorDecay: 0.7
+            phosphorLevel: 0.5
         };
 
         this._config = {
             ...defaultConfig,
             ...config
         };
-    }
-
-    init(): this {
-        this.close();
 
         this._gl = this._canvas.getContext('webgl');
 
@@ -55,6 +52,12 @@ class WebglVideo {
             throw new Error('unable to acquire webgl context');
         }
 
+        this._phosphorProcessor = new PhosphorProcessor(this._gl);
+    }
+
+    init(): this {
+        this.close();
+
         this._updateCanvasSize();
 
         this._mainProgram = compileProgram(this._gl, vsh.plain.source, fsh.blitWithGamma.source);
@@ -62,6 +65,8 @@ class WebglVideo {
         this._createVertexCoordinateBuffer();
         this._createTextureCoordinateBuffer();
         this._configureSourceTexture();
+
+        this._phosphorProcessor.init();
 
         this._initialized = true;
 
@@ -108,6 +113,8 @@ class WebglVideo {
 
         this._video = video;
         this._video.newFrame.addHandler(WebglVideo._frameHandler, this);
+
+        this._phosphorProcessor.configure(video.getWidth(), video.getHeight(), this._config.phosphorLevel);
 
         return this;
     }
@@ -172,6 +179,11 @@ class WebglVideo {
             return;
         }
 
+        this._phosphorProcessor.render(this._sourceTexture);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this._phosphorProcessor.getTexture());
+
         const vertexCoordinateLocation = getAttributeLocation(
             gl,
             this._mainProgram.program,
@@ -186,15 +198,12 @@ class WebglVideo {
         gl.useProgram(this._mainProgram.program);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexCoordinateBuffer);
-        gl.enableVertexAttribArray(vertexCoordinateLocation);
         gl.vertexAttribPointer(vertexCoordinateLocation, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(vertexCoordinateLocation);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._textureCoordinateBuffer);
-        gl.enableVertexAttribArray(textureCoordinateLocation);
         gl.vertexAttribPointer(textureCoordinateLocation, 2, gl.FLOAT, false, 0, 0);
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this._sourceTexture);
+        gl.enableVertexAttribArray(textureCoordinateLocation);
 
         gl.uniform1i(getUniformLocation(gl, this._mainProgram.program, fsh.blitWithGamma.uniform.textureUnit), 0);
         gl.uniform1f(
@@ -204,6 +213,7 @@ class WebglVideo {
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, this._canvas.width, this._canvas.height);
+        gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -304,6 +314,8 @@ class WebglVideo {
 
     private _initialized = false;
     private _anmiationFrameHandle = 0;
+
+    private _phosphorProcessor: PhosphorProcessor = null;
 }
 
 namespace WebglVideo {
@@ -316,7 +328,7 @@ namespace WebglVideo {
     export interface Config {
         gamma: number;
         scalingMode: ScalingMode;
-        phosphorDecay: number;
+        phosphorLevel: number;
     }
 }
 
