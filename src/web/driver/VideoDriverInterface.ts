@@ -30,14 +30,6 @@ interface VideoDriverInterface {
 
     getCanvas(): HTMLCanvasElement;
 
-    enableInterpolation(enable: boolean): this;
-
-    interpolationEnabled(): boolean;
-
-    enableSyncRendering(enable: boolean): this;
-
-    syncRenderingEnabled(): boolean;
-
     init(): this;
 
     close(): this;

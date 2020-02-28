@@ -181,11 +181,7 @@ class Emulation {
 
         this._audioDriver.setMasterVolume((cartridge.volume * settings.volume) / 10000);
         if (this._videoDriver) {
-            this._videoDriver.enablePovEmulation(
-                typeof cartridge.phosphorEmulation === 'undefined'
-                    ? settings.phosphorEmulation
-                    : cartridge.phosphorEmulation
-            );
+            // FIXMEs
         }
     }
 
@@ -204,15 +200,7 @@ class Emulation {
         this._audioDriver.setMasterVolume((cartridge.volume * settings.volume) / 10000);
 
         if (this._videoDriver) {
-            this._videoDriver
-                .enablePovEmulation(
-                    typeof cartridge.phosphorEmulation === 'undefined'
-                        ? settings.phosphorEmulation
-                        : cartridge.phosphorEmulation
-                )
-                .enableInterpolation(settings.smoothScaling)
-                .enableSyncRendering(settings.videoSync)
-                .setGamma(settings.gammaCorrection);
+            // FIXME
         }
     }
 
@@ -322,20 +310,13 @@ class Emulation {
             this._storage.getSettings(),
             this._currentCartridgeHash && this._storage.getCartridge(this._currentCartridgeHash)
         ]);
+        console.log(settings, cartridge);
 
         this._canvas = canvas;
-        this._videoDriver = new VideoDriver(this._canvas, {
-            gamma: settings.gammaCorrection,
-            povEmulation:
-                cartridge && typeof cartridge.phosphorEmulation !== 'undefined'
-                    ? cartridge.phosphorEmulation
-                    : settings.phosphorEmulation
-        });
+        // FIXME: config
+        this._videoDriver = new VideoDriver(this._canvas);
 
-        this._videoDriver
-            .init()
-            .enableInterpolation(settings.smoothScaling)
-            .enableSyncRendering(settings.videoSync);
+        this._videoDriver.init();
 
         this._driverManager.addDriver(this._videoDriver, (context, driver: VideoDriver) =>
             driver.bind(context.getVideo())

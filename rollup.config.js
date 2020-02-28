@@ -39,6 +39,7 @@ import replace from '@rollup/plugin-replace';
 import sizes from 'rollup-plugin-sizes';
 import rollupGitVersion from 'rollup-plugin-git-version';
 import path from 'path';
+
 const { generateSW } = require('rollup-plugin-workbox');
 
 const DEVELOPMENT = !!process.env.DEVELOPMENT;

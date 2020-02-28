@@ -159,7 +159,7 @@ class Stellerator {
      */
     setGamma(gamma: number): this {
         if (this._videoDriver) {
-            this._videoDriver.setGamma(gamma);
+            // FIXME
         }
 
         this._config.gamma = gamma;
@@ -173,7 +173,9 @@ class Stellerator {
      * @returns {number}
      */
     getGamma(): number {
-        return this._videoDriver ? this._videoDriver.getGamma() : this._config.gamma;
+        // return this._videoDriver ? this._videoDriver.getGamma() : this._config.gamma;
+        // FIXME
+        return 1;
     }
 
     /**
@@ -185,7 +187,8 @@ class Stellerator {
      */
     enablePovSimulation(povEnabled: boolean): this {
         if (this._videoDriver) {
-            this._videoDriver.enablePovEmulation(povEnabled);
+            // this._videoDriver.enablePovEmulation(povEnabled);
+            // FIXME
         }
 
         this._config.simulatePov = povEnabled;
@@ -199,7 +202,9 @@ class Stellerator {
      * @returns {boolean}
      */
     isPovSimulationEnabled(): boolean {
-        return this._videoDriver ? this._videoDriver.povEmulationEnabled() : this._config.simulatePov;
+        // return this._videoDriver ? this._videoDriver.povEmulationEnabled() : this._config.simulatePov;
+        // FIXME
+        return false;
     }
 
     /**
@@ -210,7 +215,8 @@ class Stellerator {
      */
     enableSmoothScaling(smoothScalingEnabled: boolean): this {
         if (this._videoDriver) {
-            this._videoDriver.enableInterpolation(smoothScalingEnabled);
+            // this._videoDriver.enableInterpolation(smoothScalingEnabled);
+            // FIXME
         }
 
         return this;
@@ -222,7 +228,9 @@ class Stellerator {
      * @returns {boolean}
      */
     smoothScalingEnabled(): boolean {
-        return this._videoDriver ? this._videoDriver.interpolationEnabled() : this._config.smoothScaling;
+        // return this._videoDriver ? this._videoDriver.interpolationEnabled() : this._config.smoothScaling;
+        // FIXME
+        return false;
     }
 
     /**
@@ -608,12 +616,8 @@ class Stellerator {
             return;
         }
 
-        this._videoDriver = new WebglVideo(this._canvasElt, {
-            povEmulation: this._config.simulatePov,
-            gamma: this._config.gamma
-        }).init();
-
-        this._videoDriver.enableInterpolation(this._config.smoothScaling);
+        // FIXME: configuration
+        this._videoDriver = new WebglVideo(this._canvasElt).init();
 
         this._driverManager.addDriver(this._videoDriver, context => this._videoDriver.bind(context.getVideo()));
 
