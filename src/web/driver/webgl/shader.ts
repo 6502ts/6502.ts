@@ -206,7 +206,11 @@ export namespace fsh {
                 return yiq * yiq2rgb_mat;
             }
 
-            #define fetch_offset(offset) texture2D(u_Sampler0, v_TextureCoordinate + vec2(float(offset) / 960.0, 0.0)).rgb
+            vec3 fetch_offset(int offset) {
+                float x = v_TextureCoordinate.x + float(offset) / 960.0;
+
+                return x < 0.0 ? vec3(0) : x > 1.0 ? vec3(0) : texture2D(u_Sampler0, vec2(x, v_TextureCoordinate.y)).rgb;
+            }
 
             void main() {
                 float one_x = 1.0 / 960.0;
