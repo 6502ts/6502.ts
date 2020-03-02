@@ -30,6 +30,7 @@ import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
 import PhosphorProcessor from './PhosphorProcessor';
 import NtscProcessor from './NtscProcessor';
 import ScanlineProcessor from './ScanlineProcessor';
+import IntegerScalingProcessor from './IntegerScalingProcessor';
 
 class WebglVideo {
     constructor(private _canvas: HTMLCanvasElement, config: Partial<WebglVideo.Config> = {}) {
@@ -58,6 +59,7 @@ class WebglVideo {
         this._phosphorProcessor = new PhosphorProcessor(this._gl);
         this._ntscProcessor = new NtscProcessor(this._gl);
         this._scanlineProcessor = new ScanlineProcessor(this._gl);
+        this._integerScalingProcessor = new IntegerScalingProcessor(this._gl);
     }
 
     init(): this {
@@ -74,6 +76,7 @@ class WebglVideo {
         this._phosphorProcessor.init();
         this._ntscProcessor.init();
         this._scanlineProcessor.init();
+        this._integerScalingProcessor.init();
 
         this._initialized = true;
 
@@ -190,9 +193,21 @@ class WebglVideo {
         this._ntscProcessor.render(this._sourceTexture);
         this._phosphorProcessor.render(this._ntscProcessor.getTexture());
         this._scanlineProcessor.render(this._phosphorProcessor.getTexture());
+        this._integerScalingProcessor.render(this._scanlineProcessor.getTexture());
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this._scanlineProcessor.getTexture());
+        gl.bindTexture(gl.TEXTURE_2D, this._integerScalingProcessor.getTexture());
+
+        gl.texParameteri(
+            gl.TEXTURE_2D,
+            gl.TEXTURE_MIN_FILTER,
+            this._config.scalingMode === WebglVideo.ScalingMode.none ? gl.NEAREST : gl.LINEAR
+        );
+        gl.texParameteri(
+            gl.TEXTURE_2D,
+            gl.TEXTURE_MAG_FILTER,
+            this._config.scalingMode === WebglVideo.ScalingMode.none ? gl.NEAREST : gl.LINEAR
+        );
 
         const vertexCoordinateLocation = getAttributeLocation(
             gl,
@@ -299,16 +314,8 @@ class WebglVideo {
 
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(
-            gl.TEXTURE_2D,
-            gl.TEXTURE_MIN_FILTER,
-            this._config.scalingMode === WebglVideo.ScalingMode.none ? gl.LINEAR : gl.NEAREST
-        );
-        gl.texParameteri(
-            gl.TEXTURE_2D,
-            gl.TEXTURE_MAG_FILTER,
-            this._config.scalingMode === WebglVideo.ScalingMode.none ? gl.LINEAR : gl.NEAREST
-        );
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
     }
@@ -319,15 +326,24 @@ class WebglVideo {
         }
 
         this._ntscProcessor.configure(this._video.getWidth(), this._video.getHeight());
+
         this._phosphorProcessor.configure(
             this._ntscProcessor.getWidth(),
             this._ntscProcessor.getHeight(),
             this._config.phosphorLevel
         );
+
         this._scanlineProcessor.configure(
             this._phosphorProcessor.getWidth(),
             this._phosphorProcessor.getHeight(),
             this._config.scanlineLevel
+        );
+
+        this._integerScalingProcessor.configure(
+            this._scanlineProcessor.getWidth(),
+            this._scanlineProcessor.getHeight(),
+            this._canvas.width,
+            this._canvas.height
         );
     }
 
@@ -346,6 +362,7 @@ class WebglVideo {
     private _phosphorProcessor: PhosphorProcessor = null;
     private _ntscProcessor: NtscProcessor = null;
     private _scanlineProcessor: ScanlineProcessor = null;
+    private _integerScalingProcessor: IntegerScalingProcessor = null;
 }
 
 namespace WebglVideo {

@@ -20,6 +20,24 @@ export namespace vsh {
 }
 
 export namespace fsh {
+    export namespace blit {
+        export const source = `
+            precision mediump float;
+
+            varying vec2 v_TextureCoordinate;
+
+            uniform sampler2D u_Sampler0;
+
+            void main() {
+                gl_FragColor = vec4(texture2D(u_Sampler0, v_TextureCoordinate).rgb, 1.0);
+            }
+        `;
+
+        export const enum uniform {
+            textureUnit = 'u_Sampler0'
+        }
+    }
+
     export namespace blitWithGamma {
         export const source = `
             precision mediump float;
