@@ -239,4 +239,28 @@ export namespace fsh {
             textureUnit = 'u_Sampler0'
         }
     }
+
+    export namespace scanlines {
+        export const source = `
+            precision mediump float;
+
+            uniform sampler2D u_Sampler0;
+            uniform float u_Level;
+            uniform float u_Height;
+
+            varying vec2 v_TextureCoordinate;
+
+            void main() {
+                vec3 texel = texture2D(u_Sampler0, v_TextureCoordinate).rgb;
+
+                gl_FragColor = vec4(mod(v_TextureCoordinate.y * u_Height, 2.0) >= 1.0 ? u_Level * texel : texel, 1.0);
+            }
+        `;
+
+        export const enum uniform {
+            textureUnit = 'u_Sampler0',
+            level = 'u_Level',
+            height = 'u_Height'
+        }
+    }
 }

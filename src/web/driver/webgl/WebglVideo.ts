@@ -29,13 +29,15 @@ import { Program, compileProgram, getAttributeLocation, getUniformLocation } fro
 import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
 import PhosphorProcessor from './PhosphorProcessor';
 import NtscProcessor from './NtscProcessor';
+import ScanlineProcessor from './ScanlineProcessor';
 
 class WebglVideo {
     constructor(private _canvas: HTMLCanvasElement, config: Partial<WebglVideo.Config> = {}) {
-        const defaultConfig = {
+        const defaultConfig: WebglVideo.Config = {
             gamma: 1,
             scalingMode: WebglVideo.ScalingMode.qis,
-            phosphorLevel: 0.5
+            phosphorLevel: 0.5,
+            scanlineLevel: 0.3
         };
 
         this._config = {
@@ -55,6 +57,7 @@ class WebglVideo {
 
         this._phosphorProcessor = new PhosphorProcessor(this._gl);
         this._ntscProcessor = new NtscProcessor(this._gl);
+        this._scanlineProcessor = new ScanlineProcessor(this._gl);
     }
 
     init(): this {
@@ -70,6 +73,7 @@ class WebglVideo {
 
         this._phosphorProcessor.init();
         this._ntscProcessor.init();
+        this._scanlineProcessor.init();
 
         this._initialized = true;
 
@@ -99,6 +103,7 @@ class WebglVideo {
         this._updateVertexBuffer();
 
         if (this._video) {
+            this._configureProcessors();
             this._scheduleDraw();
         }
 
@@ -117,12 +122,7 @@ class WebglVideo {
         this._video = video;
         this._video.newFrame.addHandler(WebglVideo._frameHandler, this);
 
-        this._ntscProcessor.configure(video.getWidth(), video.getHeight());
-        this._phosphorProcessor.configure(
-            this._ntscProcessor.getWidth(),
-            this._ntscProcessor.getHeight(),
-            this._config.phosphorLevel
-        );
+        this._configureProcessors();
 
         return this;
     }
@@ -189,9 +189,10 @@ class WebglVideo {
 
         this._ntscProcessor.render(this._sourceTexture);
         this._phosphorProcessor.render(this._ntscProcessor.getTexture());
+        this._scanlineProcessor.render(this._phosphorProcessor.getTexture());
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this._phosphorProcessor.getTexture());
+        gl.bindTexture(gl.TEXTURE_2D, this._scanlineProcessor.getTexture());
 
         const vertexCoordinateLocation = getAttributeLocation(
             gl,
@@ -312,6 +313,24 @@ class WebglVideo {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
     }
 
+    private _configureProcessors() {
+        if (!this._video) {
+            return;
+        }
+
+        this._ntscProcessor.configure(this._video.getWidth(), this._video.getHeight());
+        this._phosphorProcessor.configure(
+            this._ntscProcessor.getWidth(),
+            this._ntscProcessor.getHeight(),
+            this._config.phosphorLevel
+        );
+        this._scanlineProcessor.configure(
+            this._phosphorProcessor.getWidth(),
+            this._phosphorProcessor.getHeight(),
+            this._config.scanlineLevel
+        );
+    }
+
     private _config: WebglVideo.Config = null;
     private _gl: WebGLRenderingContext = null;
     private _video: VideoEndpointInterface = null;
@@ -326,6 +345,7 @@ class WebglVideo {
 
     private _phosphorProcessor: PhosphorProcessor = null;
     private _ntscProcessor: NtscProcessor = null;
+    private _scanlineProcessor: ScanlineProcessor = null;
 }
 
 namespace WebglVideo {
@@ -339,6 +359,7 @@ namespace WebglVideo {
         gamma: number;
         scalingMode: ScalingMode;
         phosphorLevel: number;
+        scanlineLevel: number;
     }
 }
 
