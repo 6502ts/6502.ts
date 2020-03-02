@@ -26,6 +26,8 @@ class PhosphorProcessor implements Processor {
 
         gl.deleteFramebuffer(this._framebuffer);
         gl.deleteProgram(this._program.program);
+        gl.deleteShader(this._program.fsh);
+        gl.deleteShader(this._program.vsh);
         gl.deleteBuffer(this._vertexCoordinateBuffer);
         gl.deleteBuffer(this._textureCoordinateBuffer);
 
@@ -51,9 +53,13 @@ class PhosphorProcessor implements Processor {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
         gl.activeTexture(gl.TEXTURE1);
         gl.bindTexture(gl.TEXTURE_2D, this._texture0);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexCoordinateBuffer);
         gl.vertexAttribPointer(vertexCoordinateLocation, 2, gl.FLOAT, false, 0, 0);

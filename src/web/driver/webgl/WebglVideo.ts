@@ -28,6 +28,7 @@ import { fsh, vsh } from './shader';
 import { Program, compileProgram, getAttributeLocation, getUniformLocation } from './util';
 import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
 import PhosphorProcessor from './PhosphorProcessor';
+import NtscProcessor from './NtscProcessor';
 
 class WebglVideo {
     constructor(private _canvas: HTMLCanvasElement, config: Partial<WebglVideo.Config> = {}) {
@@ -53,6 +54,7 @@ class WebglVideo {
         }
 
         this._phosphorProcessor = new PhosphorProcessor(this._gl);
+        this._ntscProcessor = new NtscProcessor(this._gl);
     }
 
     init(): this {
@@ -67,6 +69,7 @@ class WebglVideo {
         this._configureSourceTexture();
 
         this._phosphorProcessor.init();
+        this._ntscProcessor.init();
 
         this._initialized = true;
 
@@ -114,7 +117,12 @@ class WebglVideo {
         this._video = video;
         this._video.newFrame.addHandler(WebglVideo._frameHandler, this);
 
-        this._phosphorProcessor.configure(video.getWidth(), video.getHeight(), this._config.phosphorLevel);
+        this._ntscProcessor.configure(video.getWidth(), video.getHeight());
+        this._phosphorProcessor.configure(
+            this._ntscProcessor.getWidth(),
+            this._ntscProcessor.getHeight(),
+            this._config.phosphorLevel
+        );
 
         return this;
     }
@@ -179,7 +187,8 @@ class WebglVideo {
             return;
         }
 
-        this._phosphorProcessor.render(this._sourceTexture);
+        this._ntscProcessor.render(this._sourceTexture);
+        this._phosphorProcessor.render(this._ntscProcessor.getTexture());
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this._phosphorProcessor.getTexture());
@@ -316,6 +325,7 @@ class WebglVideo {
     private _anmiationFrameHandle = 0;
 
     private _phosphorProcessor: PhosphorProcessor = null;
+    private _ntscProcessor: NtscProcessor = null;
 }
 
 namespace WebglVideo {
