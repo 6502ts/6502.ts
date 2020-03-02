@@ -51,8 +51,6 @@ class NtscProcessor implements Processor {
 
     render(texture: WebGLTexture): void {
         this._pass(texture, this._targetPass1, this._programPass1.program, 960, (gl, program) => {
-            // gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass1.uniform.frameCount), this._frameCount);
-            // gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass1.uniform.height), this._height);
             gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass1.uniform.textureUnit), 0);
         });
 
@@ -97,11 +95,11 @@ class NtscProcessor implements Processor {
             gl.texImage2D(
                 gl.TEXTURE_2D,
                 0,
-                gl.RGBA,
+                gl.RGB,
                 texture === this._targetPass1 ? 960 : 480,
                 height,
                 0,
-                gl.RGBA,
+                gl.RGB,
                 texture === this._targetPass1 ? gl.FLOAT : gl.UNSIGNED_BYTE,
                 null
             );

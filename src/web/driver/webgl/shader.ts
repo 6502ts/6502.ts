@@ -139,13 +139,67 @@ export namespace fsh {
         `;
 
         export const enum uniform {
-            frameCount = 'u_FrameCount',
-            height = 'u_Height',
             textureUnit = 'u_Sampler0'
         }
     }
 
     export namespace ntscPass2 {
+        const lumaFilter = [
+            0.00001202,
+            0.000022146,
+            0.000013155,
+            0.00001202,
+            0.000049979,
+            0.00011394,
+            0.00012215,
+            0.000005612,
+            0.000170516,
+            0.000237199,
+            0.00016964,
+            0.000285688,
+            0.000984574,
+            0.002018683,
+            0.002002275,
+            -0.000909882,
+            -0.007049081,
+            -0.01322286,
+            -0.012606931,
+            0.00246086,
+            0.035868225,
+            0.084016453,
+            0.1355635,
+            0.175261268,
+            0.190176552
+        ];
+
+        const chromaFilter = [
+            0.000118847,
+            0.000271306,
+            0.000502642,
+            0.000930833,
+            0.001451013,
+            0.002064744,
+            0.002700432,
+            0.003241276,
+            0.003524948,
+            -0.003350284,
+            -0.002491729,
+            -0.000721149,
+            0.002164659,
+            0.006313635,
+            0.011789103,
+            0.01854566,
+            0.026414396,
+            0.03510071,
+            0.044196567,
+            0.053207202,
+            0.061590275,
+            0.068803602,
+            0.074356193,
+            0.077856564,
+            0.079052396
+        ];
+
         export const source = `
             precision mediump float;
 
@@ -172,79 +226,26 @@ export namespace fsh {
                 return col * yiq_mat;
             }
 
-            float luma_filter1 = -0.000012020;
-            float luma_filter2 = -0.000022146;
-            float luma_filter3 = -0.000013155;
-            float luma_filter4 = -0.000012020;
-            float luma_filter5 = -0.000049979;
-            float luma_filter6 = -0.000113940;
-            float luma_filter7 = -0.000122150;
-            float luma_filter8 = -0.000005612;
-            float luma_filter9 = 0.000170516;
-            float luma_filter10 = 0.000237199;
-            float luma_filter11 = 0.000169640;
-            float luma_filter12 = 0.000285688;
-            float luma_filter13 = 0.000984574;
-            float luma_filter14 = 0.002018683;
-            float luma_filter15 = 0.002002275;
-            float luma_filter16 = -0.000909882;
-            float luma_filter17 = -0.007049081;
-            float luma_filter18 = -0.013222860;
-            float luma_filter19 = -0.012606931;
-            float luma_filter20 = 0.002460860;
-            float luma_filter21 = 0.035868225;
-            float luma_filter22 = 0.084016453;
-            float luma_filter23 = 0.135563500;
-            float luma_filter24 = 0.175261268;
-            float luma_filter25 = 0.190176552;
 
-            float chroma_filter1 = -0.000118847;
-            float chroma_filter2 = -0.000271306;
-            float chroma_filter3 = -0.000502642;
-            float chroma_filter4 = -0.000930833;
-            float chroma_filter5 = -0.001451013;
-            float chroma_filter6 = -0.002064744;
-            float chroma_filter7 = -0.002700432;
-            float chroma_filter8 = -0.003241276;
-            float chroma_filter9 = -0.003524948;
-            float chroma_filter10 = -0.003350284;
-            float chroma_filter11 = -0.002491729;
-            float chroma_filter12 = -0.000721149;
-            float chroma_filter13 = 0.002164659;
-            float chroma_filter14 = 0.006313635;
-            float chroma_filter15 = 0.011789103;
-            float chroma_filter16 = 0.018545660;
-            float chroma_filter17 = 0.026414396;
-            float chroma_filter18 = 0.035100710;
-            float chroma_filter19 = 0.044196567;
-            float chroma_filter20 = 0.053207202;
-            float chroma_filter21 = 0.061590275;
-            float chroma_filter22 = 0.068803602;
-            float chroma_filter23 = 0.074356193;
-            float chroma_filter24 = 0.077856564;
-            float chroma_filter25 = 0.079052396;
-
-            #define fetch_offset(offset, one_x) texture2D(u_Sampler0, v_TextureCoordinate + vec2((offset) * (one_x), 0.0)).rgb
+            #define fetch_offset(offset) texture2D(u_Sampler0, v_TextureCoordinate + vec2(float(offset) / 960.0, 0.0)).rgb
 
             void main() {
                 float one_x = 1.0 / 960.0;
                 vec3 signal = vec3(0.0);
-                float offset;
-                vec3 sums;
 
                 ${new Array(24)
                     .fill(0)
                     .map(
                         (_, i) => `
-                offset = float(${i});
-                sums = fetch_offset(offset - 24., one_x) + fetch_offset(24. - offset, one_x);
-                signal += sums * vec3(luma_filter${i + 1}, chroma_filter${i + 1}, chroma_filter${i + 1});
+                signal +=
+                    (fetch_offset(${i - 24}) + fetch_offset(${24 - i})) *
+                        vec3(${lumaFilter[i]}, ${chromaFilter[i]}, ${chromaFilter[i]});
                 `
                     )
                     .join('\n')}
 
                 signal += texture2D(u_Sampler0, v_TextureCoordinate).rgb *
-                    vec3(luma_filter25, chroma_filter25, chroma_filter25);
+                    vec3(${lumaFilter[24]}, ${chromaFilter[24]}, ${chromaFilter[24]});
 
                 vec3 rgb = yiq2rgb(signal);
                 gl_FragColor = vec4(rgb, 1.0);
