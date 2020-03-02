@@ -8,6 +8,8 @@ class NtscProcessor implements Processor {
     init(): void {
         const gl = this._gl;
 
+        gl.getExtension('OES_texture_float');
+
         this._programPass1 = compileProgram(gl, vsh.plain.source, fsh.ntscPass1.source);
         this._programPass2 = compileProgram(gl, vsh.plain.source, fsh.ntscPass2.source);
 
@@ -48,13 +50,13 @@ class NtscProcessor implements Processor {
     }
 
     render(texture: WebGLTexture): void {
-        this._pass(texture, this._targetPass1, this._programPass1.program, (gl, program) => {
-            gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass1.uniform.frameCount), this._frameCount);
-            gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass1.uniform.height), this._height);
+        this._pass(texture, this._targetPass1, this._programPass1.program, 960, (gl, program) => {
+            // gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass1.uniform.frameCount), this._frameCount);
+            // gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass1.uniform.height), this._height);
             gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass1.uniform.textureUnit), 0);
         });
 
-        this._pass(this._targetPass1, this._targetPass2, this._programPass2.program, (gl, program) => {
+        this._pass(this._targetPass1, this._targetPass2, this._programPass2.program, 480, (gl, program) => {
             gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass2.uniform.textureUnit), 0);
         });
 
@@ -62,7 +64,7 @@ class NtscProcessor implements Processor {
     }
 
     getWidth(): number {
-        return 1280;
+        return 480;
     }
 
     getHeight(): number {
@@ -92,14 +94,22 @@ class NtscProcessor implements Processor {
 
         for (const texture of [this._targetPass1, this._targetPass2]) {
             gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1280, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texImage2D(
+                gl.TEXTURE_2D,
+                0,
+                gl.RGBA,
+                texture === this._targetPass1 ? 960 : 480,
+                height,
+                0,
+                gl.RGBA,
+                texture === this._targetPass1 ? gl.FLOAT : gl.UNSIGNED_BYTE,
+                null
+            );
 
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
         }
     }
 
@@ -107,6 +117,7 @@ class NtscProcessor implements Processor {
         textureIn: WebGLTexture,
         textureOut: WebGLTexture,
         program: WebGLProgram,
+        width: number,
         setupUniforms: (gl: WebGLRenderingContext, program: WebGLProgram) => void
     ): void {
         const gl = this._gl;
@@ -135,7 +146,7 @@ class NtscProcessor implements Processor {
         gl.activeTexture(gl.TEXTURE1);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureOut, 0);
 
-        gl.viewport(0, 0, 1280, this._height);
+        gl.viewport(0, 0, width, this._height);
 
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
