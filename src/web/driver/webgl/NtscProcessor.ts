@@ -95,11 +95,11 @@ class NtscProcessor implements Processor {
             gl.texImage2D(
                 gl.TEXTURE_2D,
                 0,
-                gl.RGB,
+                gl.RGBA,
                 texture === this._targetPass1 ? 960 : 480,
                 height,
                 0,
-                gl.RGB,
+                gl.RGBA,
                 texture === this._targetPass1 ? gl.FLOAT : gl.UNSIGNED_BYTE,
                 null
             );

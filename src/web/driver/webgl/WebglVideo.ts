@@ -31,6 +31,9 @@ import PhosphorProcessor from './PhosphorProcessor';
 import NtscProcessor from './NtscProcessor';
 import ScanlineProcessor from './ScanlineProcessor';
 import IntegerScalingProcessor from './IntegerScalingProcessor';
+import RingBuffer from '../../../tools/RingBuffer';
+
+const MAX_CONSECUTIVE_UNDERFLOWS = 5;
 
 class WebglVideo {
     constructor(private _canvas: HTMLCanvasElement, config: Partial<WebglVideo.Config> = {}) {
@@ -127,6 +130,8 @@ class WebglVideo {
 
         this._configureProcessors();
 
+        this._scheduleDraw();
+
         return this;
     }
 
@@ -138,6 +143,9 @@ class WebglVideo {
         this._cancelDraw();
         this._video.newFrame.removeHandler(WebglVideo._frameHandler, this);
         this._video = null;
+
+        this._pendingFrames.forEach(f => f.release());
+        this._pendingFrames.clear();
 
         return this;
     }
@@ -151,17 +159,16 @@ class WebglVideo {
     }
 
     private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: WebglVideo): void {
-        const gl = self._gl;
-
         if (!self._initialized) {
             return;
         }
 
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, self._sourceTexture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageDataPoolMember.get());
+        if (self._pendingFrames.size() === self._pendingFrames.capacity()) {
+            self._pendingFrames.forEach(f => f.release());
+            self._pendingFrames.clear();
+        }
 
-        imageDataPoolMember.release();
+        self._pendingFrames.push(imageDataPoolMember);
 
         self._scheduleDraw();
     }
@@ -186,9 +193,24 @@ class WebglVideo {
         const gl = this._gl;
         this._anmiationFrameHandle = 0;
 
-        if (!this._initialized) {
+        if (!this._initialized || this._pendingFrames.size() === 0) {
+            if (this._consecutiveUnderflows++ <= MAX_CONSECUTIVE_UNDERFLOWS) {
+                this._scheduleDraw();
+            }
+
             return;
         }
+
+        this._consecutiveUnderflows = 0;
+        this._scheduleDraw();
+
+        const frame = this._pendingFrames.pop();
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this._sourceTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, frame.get());
+
+        frame.release();
 
         this._ntscProcessor.render(this._sourceTexture);
         this._phosphorProcessor.render(this._ntscProcessor.getTexture());
@@ -363,6 +385,9 @@ class WebglVideo {
     private _ntscProcessor: NtscProcessor = null;
     private _scanlineProcessor: ScanlineProcessor = null;
     private _integerScalingProcessor: IntegerScalingProcessor = null;
+
+    private _pendingFrames = new RingBuffer<PoolMemberInterface<ImageData>>(3);
+    private _consecutiveUnderflows = 0;
 }
 
 namespace WebglVideo {

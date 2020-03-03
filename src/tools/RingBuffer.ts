@@ -79,6 +79,10 @@ class RingBuffer<T> {
         return this;
     }
 
+    capacity(): number {
+        return this._capacity;
+    }
+
     private _size = 0;
     private _index = 0;
     private _buffer: Array<T>;

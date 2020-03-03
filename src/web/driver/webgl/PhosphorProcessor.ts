@@ -35,7 +35,7 @@ class PhosphorProcessor implements Processor {
         if (this._texture1) gl.deleteTexture(this._texture1);
     }
 
-    render(texture: WebGLTexture): void {
+    render(texture: WebGLTexture, level = this._level): void {
         const gl = this._gl;
 
         const vertexCoordinateLocation = getAttributeLocation(
@@ -69,7 +69,7 @@ class PhosphorProcessor implements Processor {
         gl.vertexAttribPointer(textureCoordinateLocation, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(textureCoordinateLocation);
 
-        gl.uniform1f(getUniformLocation(gl, this._program.program, fsh.phosphor.uniform.level), this._level);
+        gl.uniform1f(getUniformLocation(gl, this._program.program, fsh.phosphor.uniform.level), level);
         gl.uniform1i(getUniformLocation(gl, this._program.program, fsh.phosphor.uniform.textureUnitNew), 0);
         gl.uniform1i(getUniformLocation(gl, this._program.program, fsh.phosphor.uniform.textureUnitPrevious), 1);
 
