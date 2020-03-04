@@ -1,5 +1,5 @@
 import Processor from './Processor';
-import { Program, compileProgram, getAttributeLocation, getUniformLocation } from './util';
+import Program from './Program';
 import { vsh, fsh } from './shader';
 
 class NtscProcessor implements Processor {
@@ -8,10 +8,17 @@ class NtscProcessor implements Processor {
     init(): void {
         const gl = this._gl;
 
+        gl.getExtension('WEBGL_color_buffer_float');
         gl.getExtension('OES_texture_float');
 
-        this._programPass1 = compileProgram(gl, vsh.plain.source, fsh.ntscPass1.source);
-        this._programPass2 = compileProgram(gl, vsh.plain.source, fsh.ntscPass2.source);
+        this._programPass1 = Program.compile(gl, vsh.plain.source, fsh.ntscPass1.source);
+        this._programPass2 = Program.compile(gl, vsh.plain.source, fsh.ntscPass2.source);
+
+        this._programPass1.use();
+        this._programPass1.uniform1i(fsh.ntscPass1.uniform.textureUnit, 0);
+
+        this._programPass2.use();
+        this._programPass2.uniform1i(fsh.ntscPass2.uniform.textureUnit, 0);
 
         this._framebuffer = gl.createFramebuffer();
 
@@ -28,19 +35,10 @@ class NtscProcessor implements Processor {
     destroy(): void {
         const gl = this._gl;
 
-        gl.deleteProgram(this._programPass1.program);
-        gl.deleteProgram(this._programPass2.program);
+        this._programPass1.delete();
+        this._programPass2.delete();
 
         gl.deleteFramebuffer(this._framebuffer);
-
-        for (const shader of [
-            this._programPass1.fsh,
-            this._programPass1.vsh,
-            this._programPass2.fsh,
-            this._programPass2.vsh
-        ]) {
-            gl.deleteShader(shader);
-        }
 
         gl.deleteTexture(this._targetPass1);
         gl.deleteTexture(this._targetPass2);
@@ -50,15 +48,8 @@ class NtscProcessor implements Processor {
     }
 
     render(texture: WebGLTexture): void {
-        this._pass(texture, this._targetPass1, this._programPass1.program, 960, (gl, program) => {
-            gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass1.uniform.textureUnit), 0);
-        });
-
-        this._pass(this._targetPass1, this._targetPass2, this._programPass2.program, 480, (gl, program) => {
-            gl.uniform1i(getUniformLocation(gl, program, fsh.ntscPass2.uniform.textureUnit), 0);
-        });
-
-        this._frameCount = (this._frameCount + 1) % 2;
+        this._pass(texture, this._targetPass1, this._programPass1, 960);
+        this._pass(this._targetPass1, this._targetPass2, this._programPass2, 480);
     }
 
     getWidth(): number {
@@ -111,37 +102,37 @@ class NtscProcessor implements Processor {
         }
     }
 
-    private _pass(
-        textureIn: WebGLTexture,
-        textureOut: WebGLTexture,
-        program: WebGLProgram,
-        width: number,
-        setupUniforms: (gl: WebGLRenderingContext, program: WebGLProgram) => void
-    ): void {
+    private _pass(textureIn: WebGLTexture, textureOut: WebGLTexture, program: Program, width: number): void {
         const gl = this._gl;
 
-        const vertexCoordinateLocation = getAttributeLocation(gl, program, vsh.plain.attribute.vertexPosition);
-        const textureCoordinateLocation = getAttributeLocation(gl, program, vsh.plain.attribute.textureCoordinate);
+        program.use();
 
-        gl.useProgram(program);
+        program.bindVertexAttribArray(
+            vsh.plain.attribute.vertexPosition,
+            this._vertexCoordinateBuffer,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        );
+
+        program.bindVertexAttribArray(
+            vsh.plain.attribute.textureCoordinate,
+            this._textureCoordinateBuffer,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        );
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, textureIn);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexCoordinateBuffer);
-        gl.vertexAttribPointer(vertexCoordinateLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(vertexCoordinateLocation);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._textureCoordinateBuffer);
-        gl.vertexAttribPointer(textureCoordinateLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(textureCoordinateLocation);
-
-        setupUniforms(gl, program);
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer);
-        gl.activeTexture(gl.TEXTURE1);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureOut, 0);
 
         gl.viewport(0, 0, width, this._height);
@@ -153,7 +144,6 @@ class NtscProcessor implements Processor {
     }
 
     private _height = 0;
-    private _frameCount = 0;
 
     private _programPass1: Program = null;
     private _programPass2: Program = null;

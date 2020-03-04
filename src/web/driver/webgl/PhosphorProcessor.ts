@@ -1,5 +1,5 @@
 import Processor from './Processor';
-import { Program, compileProgram, getUniformLocation, getAttributeLocation } from './util';
+import Program from './Program';
 import { vsh, fsh } from './shader';
 
 class PhosphorProcessor implements Processor {
@@ -9,7 +9,11 @@ class PhosphorProcessor implements Processor {
         const gl = this._gl;
 
         this._framebuffer = gl.createFramebuffer();
-        this._program = compileProgram(gl, vsh.plain.source, fsh.phosphor.source);
+        this._program = Program.compile(gl, vsh.plain.source, fsh.phosphor.source);
+
+        this._program.use();
+        this._program.uniform1i(fsh.phosphor.uniform.textureUnitNew, 0);
+        this._program.uniform1i(fsh.phosphor.uniform.textureUnitPrevious, 1);
 
         this._vertexCoordinateBuffer = gl.createBuffer();
         this._textureCoordinateBuffer = gl.createBuffer();
@@ -24,10 +28,8 @@ class PhosphorProcessor implements Processor {
     destroy(): void {
         const gl = this._gl;
 
+        this._program.delete();
         gl.deleteFramebuffer(this._framebuffer);
-        gl.deleteProgram(this._program.program);
-        gl.deleteShader(this._program.fsh);
-        gl.deleteShader(this._program.vsh);
         gl.deleteBuffer(this._vertexCoordinateBuffer);
         gl.deleteBuffer(this._textureCoordinateBuffer);
 
@@ -38,18 +40,27 @@ class PhosphorProcessor implements Processor {
     render(texture: WebGLTexture, level = this._level): void {
         const gl = this._gl;
 
-        const vertexCoordinateLocation = getAttributeLocation(
-            gl,
-            this._program.program,
-            vsh.plain.attribute.vertexPosition
-        );
-        const textureCoordinateLocation = getAttributeLocation(
-            gl,
-            this._program.program,
-            vsh.plain.attribute.textureCoordinate
+        this._program.use();
+
+        this._program.bindVertexAttribArray(
+            vsh.plain.attribute.vertexPosition,
+            this._vertexCoordinateBuffer,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0
         );
 
-        gl.useProgram(this._program.program);
+        this._program.bindVertexAttribArray(
+            vsh.plain.attribute.textureCoordinate,
+            this._textureCoordinateBuffer,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        );
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -61,20 +72,7 @@ class PhosphorProcessor implements Processor {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexCoordinateBuffer);
-        gl.vertexAttribPointer(vertexCoordinateLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(vertexCoordinateLocation);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._textureCoordinateBuffer);
-        gl.vertexAttribPointer(textureCoordinateLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(textureCoordinateLocation);
-
-        gl.uniform1f(getUniformLocation(gl, this._program.program, fsh.phosphor.uniform.level), level);
-        gl.uniform1i(getUniformLocation(gl, this._program.program, fsh.phosphor.uniform.textureUnitNew), 0);
-        gl.uniform1i(getUniformLocation(gl, this._program.program, fsh.phosphor.uniform.textureUnitPrevious), 1);
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer);
-        gl.activeTexture(gl.TEXTURE2);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this._texture1, 0);
 
         gl.viewport(0, 0, this._width, this._height);
@@ -130,6 +128,9 @@ class PhosphorProcessor implements Processor {
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
             gl.clear(gl.COLOR_BUFFER_BIT);
         }
+
+        this._program.use();
+        this._program.uniform1f(fsh.phosphor.uniform.level, level);
     }
 
     private _width = 0;

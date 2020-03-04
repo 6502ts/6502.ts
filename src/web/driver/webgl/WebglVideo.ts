@@ -25,7 +25,7 @@
 
 import VideoEndpointInterface from '../VideoEndpointInterface';
 import { fsh, vsh } from './shader';
-import { Program, compileProgram, getAttributeLocation, getUniformLocation } from './util';
+import Program from './Program';
 import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
 import PhosphorProcessor from './PhosphorProcessor';
 import NtscProcessor from './NtscProcessor';
@@ -70,7 +70,11 @@ class WebglVideo {
 
         this._updateCanvasSize();
 
-        this._mainProgram = compileProgram(this._gl, vsh.plain.source, fsh.blitWithGamma.source);
+        this._mainProgram = Program.compile(this._gl, vsh.plain.source, fsh.blitWithGamma.source);
+
+        this._mainProgram.use();
+        this._mainProgram.uniform1i(fsh.blitWithGamma.uniform.textureUnit, 0);
+        this._mainProgram.uniform1f(fsh.blitWithGamma.uniform.gamma, this._config.gamma);
 
         this._createVertexCoordinateBuffer();
         this._createTextureCoordinateBuffer();
@@ -93,10 +97,7 @@ class WebglVideo {
 
         const gl = this._gl;
 
-        gl.deleteProgram(this._mainProgram.program);
-        gl.deleteShader(this._mainProgram.vsh);
-        gl.deleteShader(this._mainProgram.fsh);
-
+        this._mainProgram.delete();
         gl.deleteBuffer(this._vertexCoordinateBuffer);
         gl.deleteBuffer(this._textureCoordinateBuffer);
         gl.deleteTexture(this._sourceTexture);
@@ -231,31 +232,25 @@ class WebglVideo {
             this._config.scalingMode === WebglVideo.ScalingMode.none ? gl.NEAREST : gl.LINEAR
         );
 
-        const vertexCoordinateLocation = getAttributeLocation(
-            gl,
-            this._mainProgram.program,
-            vsh.plain.attribute.vertexPosition
+        this._mainProgram.use();
+        this._mainProgram.bindVertexAttribArray(
+            vsh.plain.attribute.vertexPosition,
+            this._vertexCoordinateBuffer,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0
         );
-        const textureCoordinateLocation = getAttributeLocation(
-            gl,
-            this._mainProgram.program,
-            vsh.plain.attribute.textureCoordinate
-        );
 
-        gl.useProgram(this._mainProgram.program);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexCoordinateBuffer);
-        gl.vertexAttribPointer(vertexCoordinateLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(vertexCoordinateLocation);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._textureCoordinateBuffer);
-        gl.vertexAttribPointer(textureCoordinateLocation, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(textureCoordinateLocation);
-
-        gl.uniform1i(getUniformLocation(gl, this._mainProgram.program, fsh.blitWithGamma.uniform.textureUnit), 0);
-        gl.uniform1f(
-            getUniformLocation(gl, this._mainProgram.program, fsh.blitWithGamma.uniform.gamma),
-            this._config.gamma
+        this._mainProgram.bindVertexAttribArray(
+            vsh.plain.attribute.textureCoordinate,
+            this._textureCoordinateBuffer,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0
         );
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
