@@ -332,9 +332,7 @@ class WebglVideo {
         }
 
         this._phosphorProcessor.configure(this._config.phosphorLevel);
-
         this._scanlineProcessor.configure(this._config.scanlineLevel);
-
         this._integerScalingProcessor.configure(this._canvas.width, this._canvas.height);
 
         let width = this._video.getWidth();
