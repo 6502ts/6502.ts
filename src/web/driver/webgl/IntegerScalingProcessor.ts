@@ -6,6 +6,8 @@ class IntegerScalingProcessor implements Processor {
     constructor(private _gl: WebGLRenderingContext) {}
 
     init(): void {
+        if (this._initialized) return;
+
         const gl = this._gl;
 
         this._framebuffer = gl.createFramebuffer();
@@ -22,9 +24,13 @@ class IntegerScalingProcessor implements Processor {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._textureCoordinateBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1, 1, 0, 1, 1, 0, 0, 0]), gl.STATIC_DRAW);
+
+        this._initialized = true;
     }
 
     destroy(): void {
+        if (!this._initialized) return;
+
         const gl = this._gl;
 
         this._program.delete();
@@ -33,6 +39,8 @@ class IntegerScalingProcessor implements Processor {
         gl.deleteBuffer(this._textureCoordinateBuffer);
 
         if (this._texture) gl.deleteTexture(this._texture);
+
+        this._initialized = false;
     }
 
     render(texture: WebGLTexture): void {
@@ -87,9 +95,38 @@ class IntegerScalingProcessor implements Processor {
         return this._texture;
     }
 
-    configure(widthFrom: number, heightFrom: number, widthTo: number, heightTo: number): void {
-        this._width = widthTo > widthFrom ? Math.floor(widthTo / widthFrom) * widthFrom : widthFrom;
-        this._height = heightTo > heightFrom ? Math.floor(heightTo / heightFrom) * heightFrom : heightFrom;
+    resize(width: number, height: number): void {
+        this._widthFrom = width;
+        this._heightFrom = height;
+
+        this._reconfigure();
+    }
+
+    configure(widthTo: number, heightTo: number): void {
+        this._widthTo = widthTo;
+        this._heightTo = heightTo;
+
+        this._reconfigure();
+    }
+
+    private _reconfigure(): void {
+        if (
+            this._widthFrom <= 0 ||
+            this._heightFrom <= 0 ||
+            this._widthTo <= 0 ||
+            this._heightTo <= 0 ||
+            !this._initialized
+        )
+            return;
+
+        this._width =
+            this._widthTo > this._widthFrom
+                ? Math.floor(this._widthTo / this._widthFrom) * this._widthFrom
+                : this._widthFrom;
+        this._height =
+            this._heightTo > this._heightFrom
+                ? Math.floor(this._heightTo / this._heightFrom) * this._heightFrom
+                : this._heightFrom;
 
         const gl = this._gl;
 
@@ -110,11 +147,18 @@ class IntegerScalingProcessor implements Processor {
     private _width = 0;
     private _height = 0;
 
+    private _widthFrom = 0;
+    private _heightFrom = 0;
+    private _widthTo = 0;
+    private _heightTo = 0;
+
     private _texture: WebGLTexture = null;
     private _program: Program = null;
     private _framebuffer: WebGLFramebuffer = null;
     private _vertexCoordinateBuffer: WebGLBuffer = null;
     private _textureCoordinateBuffer: WebGLBuffer = null;
+
+    private _initialized = false;
 }
 
 export default IntegerScalingProcessor;

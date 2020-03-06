@@ -32,6 +32,7 @@ import NtscProcessor from './NtscProcessor';
 import ScanlineProcessor from './ScanlineProcessor';
 import IntegerScalingProcessor from './IntegerScalingProcessor';
 import RingBuffer from '../../../tools/RingBuffer';
+import Processor from './Processor';
 
 const MAX_CONSECUTIVE_UNDERFLOWS = 5;
 
@@ -41,7 +42,8 @@ class WebglVideo {
             gamma: 1,
             scalingMode: WebglVideo.ScalingMode.qis,
             phosphorLevel: 0.5,
-            scanlineLevel: 0.3
+            scanlineLevel: 0.3,
+            tvEmulation: WebglVideo.TvEmulation.composite
         };
 
         this._config = {
@@ -66,41 +68,34 @@ class WebglVideo {
     }
 
     init(): this {
-        this.close();
-
         this._updateCanvasSize();
 
         this._mainProgram = Program.compile(this._gl, vsh.plain.source, fsh.blitWithGamma.source);
 
         this._mainProgram.use();
         this._mainProgram.uniform1i(fsh.blitWithGamma.uniform.textureUnit, 0);
-        this._mainProgram.uniform1f(fsh.blitWithGamma.uniform.gamma, this._config.gamma);
 
         this._createVertexCoordinateBuffer();
         this._createTextureCoordinateBuffer();
         this._configureSourceTexture();
 
-        this._phosphorProcessor.init();
-        this._ntscProcessor.init();
-        this._scanlineProcessor.init();
-        this._integerScalingProcessor.init();
-
-        this._initialized = true;
+        this._applyConfiguration();
 
         return this;
     }
 
     close(): this {
-        if (!this._initialized) {
-            return this;
-        }
-
         const gl = this._gl;
 
         this._mainProgram.delete();
         gl.deleteBuffer(this._vertexCoordinateBuffer);
         gl.deleteBuffer(this._textureCoordinateBuffer);
         gl.deleteTexture(this._sourceTexture);
+
+        this._ntscProcessor.destroy();
+        this._phosphorProcessor.destroy();
+        this._scanlineProcessor.destroy();
+        this._integerScalingProcessor.destroy();
 
         return this;
     }
@@ -160,10 +155,6 @@ class WebglVideo {
     }
 
     private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: WebglVideo): void {
-        if (!self._initialized) {
-            return;
-        }
-
         if (self._pendingFrames.size() === self._pendingFrames.capacity()) {
             self._pendingFrames.forEach(f => f.release());
             self._pendingFrames.clear();
@@ -194,7 +185,7 @@ class WebglVideo {
         const gl = this._gl;
         this._anmiationFrameHandle = 0;
 
-        if (!this._initialized || this._pendingFrames.size() === 0) {
+        if (this._pendingFrames.size() === 0) {
             if (this._consecutiveUnderflows++ <= MAX_CONSECUTIVE_UNDERFLOWS) {
                 this._scheduleDraw();
             }
@@ -213,13 +204,15 @@ class WebglVideo {
 
         frame.release();
 
-        this._ntscProcessor.render(this._sourceTexture);
-        this._phosphorProcessor.render(this._ntscProcessor.getTexture());
-        this._scanlineProcessor.render(this._phosphorProcessor.getTexture());
-        this._integerScalingProcessor.render(this._scanlineProcessor.getTexture());
+        let texture = this._sourceTexture;
+
+        for (const processor of this._processors) {
+            processor.render(texture);
+            texture = processor.getTexture();
+        }
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this._integerScalingProcessor.getTexture());
+        gl.bindTexture(gl.TEXTURE_2D, texture);
 
         gl.texParameteri(
             gl.TEXTURE_2D,
@@ -290,10 +283,6 @@ class WebglVideo {
     }
 
     private _updateVertexBuffer(): void {
-        if (!this._initialized) {
-            return;
-        }
-
         this._gl.deleteBuffer(this._vertexCoordinateBuffer);
         this._createVertexCoordinateBuffer();
     }
@@ -342,26 +331,49 @@ class WebglVideo {
             return;
         }
 
-        this._ntscProcessor.configure(this._video.getWidth(), this._video.getHeight());
+        this._phosphorProcessor.configure(this._config.phosphorLevel);
 
-        this._phosphorProcessor.configure(
-            this._ntscProcessor.getWidth(),
-            this._ntscProcessor.getHeight(),
-            this._config.phosphorLevel
-        );
+        this._scanlineProcessor.configure(this._config.scanlineLevel);
 
-        this._scanlineProcessor.configure(
-            this._phosphorProcessor.getWidth(),
-            this._phosphorProcessor.getHeight(),
-            this._config.scanlineLevel
-        );
+        this._integerScalingProcessor.configure(this._canvas.width, this._canvas.height);
 
-        this._integerScalingProcessor.configure(
-            this._scanlineProcessor.getWidth(),
-            this._scanlineProcessor.getHeight(),
-            this._canvas.width,
-            this._canvas.height
-        );
+        let width = this._video.getWidth();
+        let height = this._video.getHeight();
+
+        for (const processor of this._processors) {
+            processor.resize(width, height);
+
+            width = processor.getWidth();
+            height = processor.getHeight();
+        }
+    }
+
+    private _applyConfiguration(): void {
+        this._mainProgram.uniform1f(fsh.blitWithGamma.uniform.gamma, this._config.gamma);
+
+        this._processors = [];
+
+        if (this._config.tvEmulation !== WebglVideo.TvEmulation.none) {
+            this._ntscProcessor.init();
+            this._processors.push(this._ntscProcessor);
+        }
+
+        if (this._config.phosphorLevel > 0) {
+            this._phosphorProcessor.init();
+            this._processors.push(this._phosphorProcessor);
+        }
+
+        if (this._config.scanlineLevel > 0) {
+            this._scanlineProcessor.init();
+            this._processors.push(this._scanlineProcessor);
+        }
+
+        if (this._config.scalingMode === WebglVideo.ScalingMode.qis) {
+            this._integerScalingProcessor.init();
+            this._processors.push(this._integerScalingProcessor);
+        }
+
+        this._configureProcessors();
     }
 
     private _config: WebglVideo.Config = null;
@@ -373,13 +385,13 @@ class WebglVideo {
     private _textureCoordinateBuffer: WebGLBuffer = null;
     private _sourceTexture: WebGLTexture = null;
 
-    private _initialized = false;
     private _anmiationFrameHandle = 0;
 
     private _phosphorProcessor: PhosphorProcessor = null;
     private _ntscProcessor: NtscProcessor = null;
     private _scanlineProcessor: ScanlineProcessor = null;
     private _integerScalingProcessor: IntegerScalingProcessor = null;
+    private _processors: Array<Processor> = [];
 
     private _pendingFrames = new RingBuffer<PoolMemberInterface<ImageData>>(3);
     private _consecutiveUnderflows = 0;
@@ -392,11 +404,18 @@ namespace WebglVideo {
         none = 'none'
     }
 
+    export const enum TvEmulation {
+        composite = 'composite',
+        svideo = 'svideo',
+        none = 'none'
+    }
+
     export interface Config {
         gamma: number;
         scalingMode: ScalingMode;
         phosphorLevel: number;
         scanlineLevel: number;
+        tvEmulation: TvEmulation;
     }
 }
 

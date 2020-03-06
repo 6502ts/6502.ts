@@ -6,6 +6,8 @@ class NtscProcessor implements Processor {
     constructor(private _gl: WebGLRenderingContext) {}
 
     init(): void {
+        if (this._initialized) return;
+
         const gl = this._gl;
 
         gl.getExtension('WEBGL_color_buffer_float');
@@ -30,9 +32,13 @@ class NtscProcessor implements Processor {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._textureCoordinateBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1, 1, 0, 1, 1, 0, 0, 0]), gl.STATIC_DRAW);
+
+        this._initialized = true;
     }
 
     destroy(): void {
+        if (!this._initialized) return;
+
         const gl = this._gl;
 
         this._programPass1.delete();
@@ -45,6 +51,8 @@ class NtscProcessor implements Processor {
 
         gl.deleteBuffer(this._vertexCoordinateBuffer);
         gl.deleteBuffer(this._textureCoordinateBuffer);
+
+        this._initialized = false;
     }
 
     render(texture: WebGLTexture): void {
@@ -64,7 +72,9 @@ class NtscProcessor implements Processor {
         return this._targetPass2;
     }
 
-    configure(width: number, height: number): void {
+    resize(width: number, height: number): void {
+        if (!this._initialized) return;
+
         if (width !== 160) {
             throw new Error('NTSC postprocessor supports only for width = 160');
         }
@@ -152,6 +162,8 @@ class NtscProcessor implements Processor {
     private _framebuffer: WebGLFramebuffer = null;
     private _vertexCoordinateBuffer: WebGLBuffer = null;
     private _textureCoordinateBuffer: WebGLBuffer = null;
+
+    private _initialized = false;
 }
 
 export default NtscProcessor;

@@ -6,6 +6,8 @@ class PhosphorProcessor implements Processor {
     constructor(private _gl: WebGLRenderingContext) {}
 
     init(): void {
+        if (this._initialized) return;
+
         const gl = this._gl;
 
         this._framebuffer = gl.createFramebuffer();
@@ -23,9 +25,13 @@ class PhosphorProcessor implements Processor {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._textureCoordinateBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1, 1, 0, 1, 1, 0, 0, 0]), gl.STATIC_DRAW);
+
+        this._initialized = true;
     }
 
     destroy(): void {
+        if (!this._initialized) return;
+
         const gl = this._gl;
 
         this._program.delete();
@@ -35,9 +41,11 @@ class PhosphorProcessor implements Processor {
 
         if (this._texture0) gl.deleteTexture(this._texture0);
         if (this._texture1) gl.deleteTexture(this._texture1);
+
+        this._initialized = false;
     }
 
-    render(texture: WebGLTexture, level = this._level): void {
+    render(texture: WebGLTexture): void {
         const gl = this._gl;
 
         this._program.use();
@@ -98,10 +106,11 @@ class PhosphorProcessor implements Processor {
         return this._texture0;
     }
 
-    configure(width: number, height: number, level: number) {
+    resize(width: number, height: number): void {
+        if (!this._initialized) return;
+
         this._width = width;
         this._height = height;
-        this._level = level;
 
         const gl = this._gl;
 
@@ -128,6 +137,10 @@ class PhosphorProcessor implements Processor {
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
             gl.clear(gl.COLOR_BUFFER_BIT);
         }
+    }
+
+    configure(level: number) {
+        if (!this._initialized) return;
 
         this._program.use();
         this._program.uniform1f(fsh.phosphor.uniform.level, level);
@@ -135,7 +148,6 @@ class PhosphorProcessor implements Processor {
 
     private _width = 0;
     private _height = 0;
-    private _level = 0;
 
     private _texture0: WebGLTexture = null;
     private _texture1: WebGLTexture = null;
@@ -143,6 +155,8 @@ class PhosphorProcessor implements Processor {
     private _program: Program = null;
     private _vertexCoordinateBuffer: WebGLBuffer = null;
     private _textureCoordinateBuffer: WebGLBuffer = null;
+
+    private _initialized = false;
 }
 
 export default PhosphorProcessor;

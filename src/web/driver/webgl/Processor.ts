@@ -10,6 +10,8 @@ interface Processor {
     getHeight(): number;
 
     getTexture(): WebGLTexture;
+
+    resize(width: number, height: number): void;
 }
 
 export default Processor;
