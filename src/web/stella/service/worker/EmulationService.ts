@@ -50,9 +50,9 @@ const enum ProxyState {
 }
 
 class EmulationService implements EmulationServiceInterface {
-    constructor(private _stellaWorkerUri: string, private _videoWorkerUri?: string) {}
+    constructor(private _stellaWorkerUri: string) {}
 
-    init(): Promise<void> {
+    async init(): Promise<void> {
         this._worker = new Worker(this._stellaWorkerUri);
         this._rpc = new RpcProvider((message, transfer?) => this._worker.postMessage(message, transfer));
 
@@ -84,8 +84,6 @@ class EmulationService implements EmulationServiceInterface {
             .registerSignalHandler<string>(SIGNAL_TYPE.emulationError, this._onEmulationError.bind(this));
 
         this._controlProxy = controlProxy;
-
-        return this._startVideoProcessingPipeline().then(() => this.setRateLimit(this._rateLimitEnforced));
     }
 
     async start(
@@ -296,29 +294,6 @@ class EmulationService implements EmulationServiceInterface {
             clearInterval(this._controlProxyUpdateHandle);
             this._controlProxyUpdateHandle = null;
         }
-    }
-
-    private async _startVideoProcessingPipeline(): Promise<void> {
-        let channel: MessageChannel = null;
-
-        if (this._videoWorkerUri) {
-            channel = new MessageChannel();
-
-            const worker = new Worker(this._videoWorkerUri),
-                rpc = new RpcProvider((payload: any, transfer?: any) => worker.postMessage(payload, transfer));
-
-            worker.onmessage = (e: MessageEvent) => rpc.dispatch(e.data);
-
-            await rpc.rpc('/use-port', channel.port1, [channel.port1]);
-        }
-
-        await this._rpc.rpc<SetupMessage, any>(
-            RPC_TYPE.setup,
-            {
-                videoProcessorPort: channel && channel.port2
-            },
-            channel ? [channel.port2] : []
-        );
     }
 
     stateChanged = new Event<EmulationServiceInterface.State>();
