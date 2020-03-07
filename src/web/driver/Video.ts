@@ -23,16 +23,16 @@
  *   SOFTWARE.
  */
 
-import VideoEndpointInterface from '../VideoEndpointInterface';
-import { fsh, vsh } from './shader';
-import Program from './Program';
-import PoolMemberInterface from '../../../tools/pool/PoolMemberInterface';
-import PhosphorProcessor from './PhosphorProcessor';
-import NtscProcessor from './NtscProcessor';
-import ScanlineProcessor from './ScanlineProcessor';
-import IntegerScalingProcessor from './IntegerScalingProcessor';
-import RingBuffer from '../../../tools/RingBuffer';
-import Processor from './Processor';
+import VideoEndpointInterface from './VideoEndpointInterface';
+import { fsh, vsh } from './video/shader';
+import Program from './video/Program';
+import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
+import PhosphorProcessor from './video/PhosphorProcessor';
+import NtscProcessor from './video/NtscProcessor';
+import ScanlineProcessor from './video/ScanlineProcessor';
+import IntegerScalingProcessor from './video/IntegerScalingProcessor';
+import RingBuffer from '../../tools/RingBuffer';
+import Processor from './video/Processor';
 
 const MAX_CONSECUTIVE_UNDERFLOWS = 5;
 

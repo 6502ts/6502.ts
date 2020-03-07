@@ -47,7 +47,7 @@ import EmulationService from '../../../web/stella/service/worker/EmulationServic
 import DriverManager from '../../../web/stella/service/DriverManager';
 import Config from '../../../machine/stella/Config';
 import CpuFactory from '../../../machine/cpu/Factory';
-import VideoDriver from '../../../web/driver/webgl/WebglVideo';
+import VideoDriver from '../../../web/driver/Video';
 import KeyboardDriver from '../../../web/stella/driver/KeyboardIO';
 import AudioDriver from '../../../web/stella/driver/WebAudio';
 import Storage from './Storage';

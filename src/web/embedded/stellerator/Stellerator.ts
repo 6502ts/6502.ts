@@ -30,7 +30,7 @@ import EmulationServiceInterface from '../../stella/service/EmulationServiceInte
 import EmulationService from '../../stella/service/worker/EmulationService';
 import DriverManager from '../../stella/service/DriverManager';
 
-import WebglVideo from '../../driver/webgl/WebglVideo';
+import VideoDriber from '../../driver/Video';
 
 import AudioDriver from '../../stella/driver/WebAudio';
 import KeyboardIO from '../../stella/driver/KeyboardIO';
@@ -617,7 +617,7 @@ class Stellerator {
         }
 
         // FIXME: configuration
-        this._videoDriver = new WebglVideo(this._canvasElt).init();
+        this._videoDriver = new VideoDriber(this._canvasElt).init();
 
         this._driverManager.addDriver(this._videoDriver, context => this._videoDriver.bind(context.getVideo()));
 
@@ -741,7 +741,7 @@ class Stellerator {
     private _emulationService: EmulationServiceInterface = null;
     private _serviceInitialized: Promise<void> = null;
 
-    private _videoDriver: WebglVideo = null;
+    private _videoDriver: VideoDriber = null;
     private _fullscreenVideo: FullscreenDriver = null;
     private _audioDriver: AudioDriver = null;
     private _keyboardIO: KeyboardIO = null;

@@ -25,7 +25,7 @@
 
 import _screenfull, { Screenfull } from 'screenfull';
 
-import VideoDriver from './VideoDriverInterface';
+import VideoDriver from './Video';
 import { isIOS } from '../../tools/browser';
 
 const noFullscrenApi = isIOS;
