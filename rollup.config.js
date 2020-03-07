@@ -174,11 +174,6 @@ export default [
         output: dist('worker/stellerator.min.js'),
         distributeTo: ['frontend/stellerator/worker', 'stellerator-embedded/worker']
     }),
-    worker({
-        input: 'worker/src/main/video-pipeline.ts',
-        output: dist('worker/video-pipeline.min.js'),
-        distributeTo: ['frontend/stellerator/worker']
-    }),
     library({
         input: 'src/web/embedded/stellerator/index.ts',
         output: dist('stellerator-embedded/stellerator-embedded.min.js'),

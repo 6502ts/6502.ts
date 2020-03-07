@@ -28,7 +28,6 @@ import { EventInterface } from 'microevent.ts';
 import StellaConfig from '../../../machine/stella/Config';
 import CartridgeInfo from '../../../machine/stella/cartridge/CartridgeInfo';
 import EmulationContextInterface from './EmulationContextInterface';
-import { ProcessorConfig as VideoProcessorConfig } from '../../../video/processing/config';
 
 interface EmulationServiceInterface {
     init(): Promise<void>;
@@ -36,8 +35,7 @@ interface EmulationServiceInterface {
     start(
         buffer: { [i: number]: number; length: number },
         config: EmulationServiceInterface.Config,
-        cartridgeType?: CartridgeInfo.CartridgeType,
-        videoProcessing?: Array<VideoProcessorConfig>
+        cartridgeType?: CartridgeInfo.CartridgeType
     ): Promise<EmulationServiceInterface.State>;
 
     stop(): Promise<EmulationServiceInterface.State>;

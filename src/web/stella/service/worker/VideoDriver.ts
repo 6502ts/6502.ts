@@ -24,14 +24,12 @@
  */
 
 import { Mutex } from 'async-mutex';
-import { RpcProviderInterface, RpcProvider } from 'worker-rpc';
+import { RpcProviderInterface } from 'worker-rpc';
 
 import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
 import ObjectPool from '../../../../tools/pool/Pool';
 import ObjectPoolMember from '../../../../tools/pool/PoolMember';
 import ArrayBufferSurface from '../../../../video/surface/ArrayBufferSurface';
-import VideoPipelineClient from '../../../../video/processing/worker/PipelineClient';
-import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 
 import {
     SIGNAL_TYPE,
@@ -44,25 +42,10 @@ import {
 class VideoDriver {
     constructor(private _rpc: RpcProviderInterface) {}
 
-    init(videoPipelinePort?: MessagePort): void {
+    init(): void {
         this._rpc
             .registerSignalHandler(SIGNAL_TYPE.videoReturnSurface, this._onReturnSurfaceFromHost.bind(this))
             .registerRpcHandler(RPC_TYPE.getVideoParameters, this._onGetVideoParameters.bind(this));
-
-        if (videoPipelinePort) {
-            const videoPipelineRpc = new RpcProvider((data: any, transfer?: any) =>
-                videoPipelinePort.postMessage(data, transfer)
-            );
-            videoPipelinePort.onmessage = (e: MessageEvent) => videoPipelineRpc.dispatch(e.data);
-
-            this._videoPipelineClient = new VideoPipelineClient(videoPipelineRpc);
-
-            this._videoPipelineClient.emit.addHandler(VideoDriver._onEmitFromPipeline, this);
-        }
-    }
-
-    setVideoProcessingConfig(config: Array<VideoProcessorConfig>): void {
-        this._videoProcessingConfig = config;
     }
 
     bind(video: VideoOutputInterface): void {
@@ -71,32 +54,6 @@ class VideoDriver {
 
     unbind(): void {
         this._mutex.runExclusive(() => this._unbind());
-    }
-
-    private static _onEmitFromPipeline(surface: ObjectPoolMember<ArrayBufferSurface>, self: VideoDriver) {
-        if (!self._active) {
-            console.warn('surface emmited from pipeline to inactive driver');
-            return;
-        }
-
-        if (!self._ids.has(surface)) {
-            console.warn('surface not registered');
-            return;
-        }
-
-        const buffer = surface.get().getUnderlyingBuffer(),
-            id = self._ids.get(surface);
-
-        self._rpc.signal<VideoNewFrameMessage>(
-            SIGNAL_TYPE.videoNewFrame,
-            {
-                id,
-                width: self._width,
-                height: self._height,
-                buffer
-            },
-            [buffer]
-        );
     }
 
     private static _onNewFrame(surface: ArrayBufferSurface, self: VideoDriver): void {
@@ -110,11 +67,19 @@ class VideoDriver {
             return;
         }
 
-        if (self._bypassProcessingPipeline || !self._videoPipelineClient) {
-            VideoDriver._onEmitFromPipeline(self._managedSurfaces.get(surface), self);
-        } else {
-            self._videoPipelineClient.processSurface(self._managedSurfaces.get(surface));
-        }
+        const buffer = surface.getUnderlyingBuffer(),
+            id = self._ids.get(self._managedSurfaces.get(surface));
+
+        self._rpc.signal<VideoNewFrameMessage>(
+            SIGNAL_TYPE.videoNewFrame,
+            {
+                id,
+                width: self._width,
+                height: self._height,
+                buffer
+            },
+            [buffer]
+        );
     }
 
     private async _bind(video: VideoOutputInterface): Promise<void> {
@@ -137,32 +102,29 @@ class VideoDriver {
         this._managedSurfaces = new WeakMap<ArrayBufferSurface, ObjectPoolMember<ArrayBufferSurface>>();
         this._ids = new WeakMap<ObjectPoolMember<ArrayBufferSurface>, number>();
 
-        if (this._videoPipelineClient) {
-            await this._videoPipelineClient.configure(this._width, this._height, this._videoProcessingConfig);
-        }
+        this._video.setSurfaceFactory(
+            (): ArrayBufferSurface => {
+                const managedSurface = this._surfacePool.get(),
+                    surface = managedSurface.get();
 
-        this._video.setSurfaceFactory((): ArrayBufferSurface => {
-            const managedSurface = this._surfacePool.get(),
-                surface = managedSurface.get();
+                const isNewSurface = !this._ids.has(managedSurface);
 
-            const isNewSurface = !this._ids.has(managedSurface);
+                if (isNewSurface) {
+                    const id = this._nextId++;
 
-            if (isNewSurface) {
-                const id = this._nextId++;
+                    this._ids.set(managedSurface, id);
+                    this._managedSurfacesById.set(id, managedSurface);
+                    this._managedSurfaces.set(surface, managedSurface);
 
-                this._ids.set(managedSurface, id);
-                this._managedSurfacesById.set(id, managedSurface);
-                this._managedSurfaces.set(surface, managedSurface);
+                    surface.fill(0xff000000);
+                }
 
-                surface.fill(0xff000000);
+                return managedSurface.get();
             }
-
-            return managedSurface.get();
-        });
+        );
 
         this._video.newFrame.addHandler(VideoDriver._onNewFrame, this);
 
-        this._bypassProcessingPipeline = !this._videoProcessingConfig || this._videoProcessingConfig.length === 0;
         this._active = true;
     }
 
@@ -174,10 +136,6 @@ class VideoDriver {
 
         this._video.setSurfaceFactory(null);
         this._video.newFrame.removeHandler(VideoDriver._onNewFrame, this);
-
-        if (this._videoPipelineClient) {
-            await this._videoPipelineClient.flush();
-        }
 
         this._video = null;
         this._surfacePool = null;
@@ -213,10 +171,7 @@ class VideoDriver {
 
     private _video: VideoOutputInterface = null;
 
-    private _videoPipelineClient: VideoPipelineClient = null;
     private _mutex = new Mutex();
-    private _videoProcessingConfig: Array<VideoProcessorConfig> = null;
-    private _bypassProcessingPipeline = true;
 
     private _surfacePool: ObjectPool<ArrayBufferSurface> = null;
     private _managedSurfacesById: Map<number, ObjectPoolMember<ArrayBufferSurface>> = null;

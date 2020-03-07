@@ -29,7 +29,6 @@ import { RpcProvider } from 'worker-rpc';
 import EmulationServiceInterface from '../EmulationServiceInterface';
 import EmulationContext from './EmulationContext';
 import EmulationContextInterface from '../EmulationContextInterface';
-import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 import VideoProxy from './VideoProxy';
 import ControlProxy from './ControlProxy';
 import WaveformAudioProxy from './WaveformAudioProxy';
@@ -92,8 +91,7 @@ class EmulationService implements EmulationServiceInterface {
     async start(
         buffer: { [i: number]: number; length: number },
         config: EmulationServiceInterface.Config,
-        cartridgeType?: CartridgeInfo.CartridgeType,
-        videoProcessing?: Array<VideoProcessorConfig>
+        cartridgeType?: CartridgeInfo.CartridgeType
     ): Promise<EmulationServiceInterface.State> {
         await this.stop();
 
@@ -103,8 +101,7 @@ class EmulationService implements EmulationServiceInterface {
                 {
                     buffer,
                     config,
-                    cartridgeType,
-                    videoProcessing
+                    cartridgeType
                 }
             );
 

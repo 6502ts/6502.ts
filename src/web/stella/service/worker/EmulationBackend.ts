@@ -99,7 +99,7 @@ class EmulationBackend {
     }
 
     private _onSetup(msg: SetupMessage): void {
-        this._videoDriver.init(msg.videoProcessorPort);
+        this._videoDriver.init();
     }
 
     private _onFetchLastError(): string {
@@ -121,8 +121,6 @@ class EmulationBackend {
     }
 
     private _onEmulationStart(message: EmulationStartMessage): Promise<EmulationServiceInterface.State> {
-        this._videoDriver.setVideoProcessingConfig(message.videoProcessing);
-
         return this._service.start(message.buffer, message.config, message.cartridgeType);
     }
 

@@ -36,7 +36,6 @@ import AsyncIO from '../../../../machine/stella/AsyncIO';
 import SchedulerFactory from '../../../../tools/scheduler/Factory';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
-import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 import { Mutex } from 'async-mutex';
 
 const CLOCK_UPDATE_INTERVAL = 2000;
@@ -54,8 +53,7 @@ export default class EmulationService implements EmulationServiceInterface {
     start(
         buffer: { [i: number]: number; length: number },
         config: EmulationServiceInterface.Config,
-        cartridgeType?: CartridgeInfo.CartridgeType,
-        videoProcessing?: Array<VideoProcessorConfig>
+        cartridgeType?: CartridgeInfo.CartridgeType
     ): Promise<EmulationServiceInterface.State> {
         const factory = new CartridgeFactory();
 
@@ -82,7 +80,7 @@ export default class EmulationService implements EmulationServiceInterface {
                     this._asyncIO = new AsyncIO(board);
                 }
 
-                this._context = new EmulationContext(board, this._asyncIO, videoProcessing);
+                this._context = new EmulationContext(board, this._asyncIO);
 
                 this._clockProbe.attach(this._board.clock);
 

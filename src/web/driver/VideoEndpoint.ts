@@ -31,47 +31,35 @@ import PoolMemberInterface from '../../tools/pool/PoolMemberInterface';
 import ArrayBufferSurface from '../../video/surface/ArrayBufferSurface';
 import RGBASurfaceInterface from '../../video/surface/RGBASurfaceInterface';
 import VideoEndpointInterface from '../driver/VideoEndpointInterface';
-import InducedPool from '../../tools/pool/InducedPool';
-
-import VideoProcessorPipeline from '../../video/processing/ProcessorPipeline';
-import * as VideoProcessorConfig from '../../video/processing/config';
-import VideoProcessorInterface from '../../video/processing/ProcessorInterface';
 
 class VideoEndpoint implements VideoEndpointInterface {
-    constructor(private _video: VideoOutputInterface, videoProcessing?: Array<VideoProcessorConfig.ProcessorConfig>) {
-        this._videoProcessor = new VideoProcessorPipeline(videoProcessing);
-        this._videoProcessor.init(this._video.getWidth(), this._video.getHeight());
-
+    constructor(private _video: VideoOutputInterface) {
         this._pool = new ObjectPool<ImageData>(() => new ImageData(this._video.getWidth(), this._video.getHeight()));
 
-        this._video.setSurfaceFactory((): RGBASurfaceInterface => {
-            const poolMember = this._pool.get(),
-                imageData = poolMember.get();
+        this._video.setSurfaceFactory(
+            (): RGBASurfaceInterface => {
+                const poolMember = this._pool.get(),
+                    imageData = poolMember.get();
 
-            if (!this._surfaces.has(imageData)) {
-                const newSurface = ArrayBufferSurface.createFromArrayBuffer(
-                    imageData.width,
-                    imageData.height,
-                    imageData.data.buffer
-                );
+                if (!this._surfaces.has(imageData)) {
+                    const newSurface = ArrayBufferSurface.createFromArrayBuffer(
+                        imageData.width,
+                        imageData.height,
+                        imageData.data.buffer
+                    );
 
-                this._surfaces.set(imageData, newSurface.fill(0xff000000));
+                    this._surfaces.set(imageData, newSurface.fill(0xff000000));
+                }
+
+                const surface = this._surfaces.get(imageData);
+
+                this._poolMembers.set(surface, poolMember);
+
+                return surface;
             }
-
-            const surface = this._surfaces.get(imageData);
-
-            this._poolMembers.set(surface, poolMember);
-
-            return surface;
-        });
-
-        this._video.newFrame.addHandler(imageData =>
-            this._videoProcessor.processSurface(this._surfacePool.get(this._poolMembers.get(imageData)))
         );
 
-        this._videoProcessor.emit.addHandler(wrappedSurface =>
-            this.newFrame.dispatch(this._poolMembers.get(wrappedSurface.get()))
-        );
+        this._video.newFrame.addHandler(imageData => this.newFrame.dispatch(this._poolMembers.get(imageData)));
     }
 
     getWidth(): number {
@@ -87,9 +75,6 @@ class VideoEndpoint implements VideoEndpointInterface {
     private _pool: ObjectPool<ImageData>;
     private _poolMembers = new WeakMap<RGBASurfaceInterface, PoolMemberInterface<ImageData>>();
     private _surfaces = new WeakMap<ImageData, RGBASurfaceInterface>();
-    private _surfacePool = new InducedPool<ImageData, RGBASurfaceInterface>(imageData => this._surfaces.get(imageData));
-
-    private _videoProcessor: VideoProcessorInterface;
 }
 
 export { VideoEndpoint as default };

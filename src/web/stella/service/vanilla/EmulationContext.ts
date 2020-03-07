@@ -35,15 +35,10 @@ import VideoOutputInterface from '../../../../machine/io/VideoOutputInterface';
 import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOutputInterface';
 import PCMAudioEndpointInterface from '../../../driver/PCMAudioEndpointInterface';
 import PCMAudioEndpoint from '../../../driver/PCMAudioEndpoint';
-import { ProcessorConfig as VideoProcessorConfig } from '../../../../video/processing/config';
 import AsyncIOInterface from '../../../../machine/io/AsyncIOInterface';
 
 export default class EmulationContext implements EmulationContextInterface {
-    constructor(
-        private _board: Board,
-        private _asyncIO?: AsyncIOInterface,
-        private _videoProcessing?: Array<VideoProcessorConfig>
-    ) {}
+    constructor(private _board: Board, private _asyncIO?: AsyncIOInterface) {}
 
     getConfig(): Config {
         return this._board.getConfig();
@@ -51,7 +46,7 @@ export default class EmulationContext implements EmulationContextInterface {
 
     getVideo(): VideoEndpointInterface {
         if (!this._videoEndpoint) {
-            this._videoEndpoint = new VideoEndpoint(this._board.getVideoOutput(), this._videoProcessing);
+            this._videoEndpoint = new VideoEndpoint(this._board.getVideoOutput());
         }
 
         return this._videoEndpoint;
