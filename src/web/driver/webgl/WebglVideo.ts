@@ -37,7 +37,7 @@ import Processor from './Processor';
 const MAX_CONSECUTIVE_UNDERFLOWS = 5;
 
 class WebglVideo {
-    constructor(private _canvas: HTMLCanvasElement, config: Partial<WebglVideo.Config> = {}) {
+    constructor(canvas: HTMLCanvasElement, config: Partial<WebglVideo.Config> = {}) {
         const defaultConfig: WebglVideo.Config = {
             gamma: 1,
             scalingMode: WebglVideo.ScalingMode.qis,
@@ -51,10 +51,16 @@ class WebglVideo {
             ...config
         };
 
-        this._gl = this._canvas.getContext('webgl');
+        const contextOptions: WebGLContextAttributes = {
+            alpha: false,
+            depth: false,
+            antialias: false
+        };
+
+        this._gl = canvas.getContext('webgl', contextOptions);
 
         if (!this._gl) {
-            this._gl = this._canvas.getContext('experimental-webgl') as any;
+            this._gl = canvas.getContext('experimental-webgl', contextOptions) as any;
         }
 
         if (!this._gl) {
@@ -113,7 +119,7 @@ class WebglVideo {
     }
 
     getCanvas(): HTMLCanvasElement {
-        return this._canvas;
+        return this._gl.canvas as HTMLCanvasElement;
     }
 
     bind(video: VideoEndpointInterface): this {
@@ -247,7 +253,7 @@ class WebglVideo {
         );
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.viewport(0, 0, this._canvas.width, this._canvas.height);
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -256,8 +262,8 @@ class WebglVideo {
 
     private _createVertexCoordinateBuffer(): void {
         const gl = this._gl,
-            targetWidth = this._canvas.width,
-            targetHeight = this._canvas.height,
+            targetWidth = gl.drawingBufferWidth,
+            targetHeight = gl.drawingBufferHeight,
             scaleX = targetWidth > 0 ? 2 / targetWidth : 1,
             scaleY = targetHeight > 0 ? 2 / targetHeight : 1;
 
@@ -298,14 +304,14 @@ class WebglVideo {
 
     private _updateCanvasSize(width?: number, height?: number): void {
         if (typeof width === 'undefined' || typeof height === 'undefined') {
-            width = this._canvas.clientWidth;
-            height = this._canvas.clientHeight;
+            width = this.getCanvas().clientWidth;
+            height = this.getCanvas().clientHeight;
         }
 
         const pixelRatio = window.devicePixelRatio || 1;
 
-        this._canvas.width = width * pixelRatio;
-        this._canvas.height = height * pixelRatio;
+        this.getCanvas().width = width * pixelRatio;
+        this.getCanvas().height = height * pixelRatio;
     }
 
     private _configureSourceTexture(): void {
@@ -333,7 +339,7 @@ class WebglVideo {
 
         this._phosphorProcessor.configure(this._config.phosphorLevel);
         this._scanlineProcessor.configure(this._config.scanlineLevel);
-        this._integerScalingProcessor.configure(this._canvas.width, this._canvas.height);
+        this._integerScalingProcessor.configure(this._gl.drawingBufferWidth, this._gl.drawingBufferHeight);
 
         let width = this._video.getWidth();
         let height = this._video.getHeight();
