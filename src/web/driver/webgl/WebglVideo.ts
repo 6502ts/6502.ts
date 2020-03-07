@@ -115,6 +115,8 @@ class WebglVideo {
             this._scheduleDraw();
         }
 
+        if (this._hasFrame) this._draw();
+
         return this;
     }
 
@@ -176,7 +178,7 @@ class WebglVideo {
             return;
         }
 
-        this._anmiationFrameHandle = requestAnimationFrame(() => this._draw());
+        this._anmiationFrameHandle = requestAnimationFrame(() => this._onAnimationFrame());
     }
 
     private _cancelDraw(): void {
@@ -187,7 +189,7 @@ class WebglVideo {
         this._anmiationFrameHandle = 0;
     }
 
-    private _draw(): void {
+    private _onAnimationFrame(): void {
         const gl = this._gl;
         this._anmiationFrameHandle = 0;
 
@@ -209,6 +211,14 @@ class WebglVideo {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, frame.get());
 
         frame.release();
+
+        this._hasFrame = true;
+
+        this._draw();
+    }
+
+    private _draw(): void {
+        const gl = this._gl;
 
         let texture = this._sourceTexture;
 
@@ -399,6 +409,7 @@ class WebglVideo {
 
     private _pendingFrames = new RingBuffer<PoolMemberInterface<ImageData>>(3);
     private _consecutiveUnderflows = 0;
+    private _hasFrame = false;
 }
 
 namespace WebglVideo {
