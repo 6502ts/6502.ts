@@ -38,7 +38,7 @@ import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
 import { Mutex } from 'async-mutex';
 
-import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, SetupMessage } from './messages';
+import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage } from './messages';
 import AsyncIOProxy from './AsyncIOProxy';
 
 const CONTROL_PROXY_UPDATE_INTERVAL = 25;
