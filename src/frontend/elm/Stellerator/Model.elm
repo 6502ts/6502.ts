@@ -43,7 +43,9 @@ module Stellerator.Model exposing
     , Model
     , Msg(..)
     , Route(..)
+    , Scaling(..)
     , Settings
+    , TvEmulation(..)
     , TvMode(..)
     , cartridgesMatchingSearch
     , decodeAudioEmulation
@@ -125,6 +127,18 @@ type CartridgeViewMode
     | CartridgeViewSettings
 
 
+type TvEmulation
+    = TvEmulationComposite
+    | TvEmulationSvideo
+    | TvEmulationNone
+
+
+type Scaling
+    = ScalingQis
+    | ScalingBilinear
+    | ScalingNone
+
+
 type alias Cartridge =
     { hash : String
     , name : String
@@ -136,7 +150,7 @@ type alias Cartridge =
     , firstVisibleLine : Maybe Int
     , cpuEmulation : Maybe CpuEmulation
     , audioEmulation : Maybe AudioEmulation
-    , phosphorEmulation : Maybe Bool
+    , phosphorLevel : Maybe Int
     }
 
 
@@ -144,10 +158,11 @@ type alias Settings =
     { cpuEmulation : CpuEmulation
     , volume : Int
     , audioEmulation : AudioEmulation
-    , smoothScaling : Bool
-    , phosphorEmulation : Bool
     , gammaCorrection : Float
-    , videoSync : Bool
+    , tvEmulation : TvEmulation
+    , scaling : Scaling
+    , phosphorLevel : Int
+    , scanlineIntensity : Int
     , touchControls : Maybe Bool
     , leftHanded : Bool
     , virtualJoystickSensitivity : Int
@@ -234,18 +249,19 @@ type ChangeCartridgeMsg
     | ChangeCartridgeFirstVisibleLine (Maybe Int)
     | ChangeCartridgeCpuEmulation (Maybe CpuEmulation)
     | ChangeCartridgeAudioEmulation (Maybe AudioEmulation)
-    | ChangeCartridgePhosphorEmulation (Maybe Bool)
     | ChangeCartridgeVolume Int
+    | ChangePhosphorLevelPerCart (Maybe Int)
 
 
 type ChangeSettingsMsg
     = ChangeSettingsCpuEmulation CpuEmulation
     | ChangeSettingsVolume Int
     | ChangeSettingsAudioEmulation AudioEmulation
-    | ChangeSettingsSmoothScaling Bool
-    | ChangeSettingsPhosphorEmulation Bool
     | ChangeSettingsGammaCorrection Float
-    | ChangeSettingsVideoSync Bool
+    | ChangeTvEmulation TvEmulation
+    | ChangeScaling Scaling
+    | ChangePhosphorLevel Int
+    | ChangeScanlineIntensity Int
     | ChangeSettingsTouchControls (Maybe Bool)
     | ChangeSettingsLeftHanded Bool
     | ChangeSettingsVirtualJoystickSensitivity Int
@@ -518,16 +534,83 @@ encodeMedia media =
             Encode.string "narrow"
 
 
+decodeTvEmulation : Decode.Decoder TvEmulation
+decodeTvEmulation =
+    Decode.string
+        |> Decode.andThen
+            (\s ->
+                case s of
+                    "composite" ->
+                        Decode.succeed TvEmulationComposite
+
+                    "svideo" ->
+                        Decode.succeed TvEmulationSvideo
+
+                    "none" ->
+                        Decode.succeed TvEmulationNone
+
+                    _ ->
+                        Decode.fail "invalid tv emulation value"
+            )
+
+
+encodeTvEmulation : TvEmulation -> Encode.Value
+encodeTvEmulation tvEmulation =
+    case tvEmulation of
+        TvEmulationComposite ->
+            Encode.string "composite"
+
+        TvEmulationSvideo ->
+            Encode.string "svideo"
+
+        TvEmulationNone ->
+            Encode.string "none"
+
+
+decodeScaling : Decode.Decoder Scaling
+decodeScaling =
+    Decode.string
+        |> Decode.andThen
+            (\s ->
+                case s of
+                    "qis" ->
+                        Decode.succeed ScalingQis
+
+                    "bilinear" ->
+                        Decode.succeed ScalingBilinear
+
+                    "none" ->
+                        Decode.succeed ScalingNone
+
+                    _ ->
+                        Decode.fail "invalid scaling value"
+            )
+
+
+encodeScaling : Scaling -> Encode.Value
+encodeScaling scaling =
+    case scaling of
+        ScalingQis ->
+            Encode.string "qis"
+
+        ScalingBilinear ->
+            Encode.string "bilinear"
+
+        ScalingNone ->
+            Encode.string "none"
+
+
 decodeSettings : Decode.Decoder Settings
 decodeSettings =
     Decode.succeed Settings
         |> Pipeline.required "cpuEmulation" decodeCpuEmulation
         |> Pipeline.required "volume" Decode.int
         |> Pipeline.required "audioEmulation" decodeAudioEmulation
-        |> Pipeline.required "smoothScaling" Decode.bool
-        |> Pipeline.required "phosphorEmulation" Decode.bool
         |> Pipeline.required "gammaCorrection" Decode.float
-        |> Pipeline.required "videoSync" Decode.bool
+        |> Pipeline.required "tvEmulation" decodeTvEmulation
+        |> Pipeline.required "scaling" decodeScaling
+        |> Pipeline.required "phosphorLevel" Decode.int
+        |> Pipeline.required "scanlineIntensity" Decode.int
         |> Pipeline.optional "touchControls" (Decode.maybe Decode.bool) Nothing
         |> Pipeline.required "leftHanded" Decode.bool
         |> Pipeline.required "virtualJoystickSensitivity" Decode.int
@@ -540,10 +623,11 @@ encodeSettings settings =
     [ ( "cpuEmulation", encodeCpuEmulation settings.cpuEmulation )
     , ( "volume", Encode.int settings.volume )
     , ( "audioEmulation", encodeAudioEmulation settings.audioEmulation )
-    , ( "smoothScaling", Encode.bool settings.smoothScaling )
-    , ( "phosphorEmulation", Encode.bool settings.phosphorEmulation )
     , ( "gammaCorrection", Encode.float settings.gammaCorrection )
-    , ( "videoSync", Encode.bool settings.videoSync )
+    , ( "tvEmulation", encodeTvEmulation settings.tvEmulation )
+    , ( "scaling", encodeScaling settings.scaling )
+    , ( "phosphorLevel", Encode.int settings.phosphorLevel )
+    , ( "scanlineIntensity", Encode.int settings.scanlineIntensity )
     , ( "leftHanded", Encode.bool settings.leftHanded )
     , ( "virtualJoystickSensitivity", Encode.int settings.virtualJoystickSensitivity )
     , ( "uiSize", Encode.int settings.uiSize )
@@ -566,7 +650,7 @@ decodeCartridge =
         |> Pipeline.optional "firstVisibleLine" (Decode.maybe Decode.int) Nothing
         |> Pipeline.optional "cpuEmulation" (Decode.maybe decodeCpuEmulation) Nothing
         |> Pipeline.optional "audioEmulation" (Decode.maybe decodeAudioEmulation) Nothing
-        |> Pipeline.optional "phosphorEmulation" (Decode.maybe Decode.bool) Nothing
+        |> Pipeline.optional "phosphorLevel" (Decode.maybe Decode.int) Nothing
 
 
 encodeCartridge : Cartridge -> Encode.Value
@@ -582,7 +666,7 @@ encodeCartridge cartridge =
         |> encodeOptional "firstVisibleLine" Encode.int cartridge.firstVisibleLine
         |> encodeOptional "cpuEmulation" encodeCpuEmulation cartridge.cpuEmulation
         |> encodeOptional "audioEmulation" encodeAudioEmulation cartridge.audioEmulation
-        |> encodeOptional "phosphorEmulation" Encode.bool cartridge.phosphorEmulation
+        |> encodeOptional "phosphorLevel" Encode.int cartridge.phosphorLevel
         |> Encode.object
 
 

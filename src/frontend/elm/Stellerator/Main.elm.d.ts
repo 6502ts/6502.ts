@@ -69,6 +69,18 @@ export const enum ColorSwitch {
     bw = 'bw'
 }
 
+export const enum TvEmulation {
+    composite = 'composite',
+    svideo = 'svideo',
+    none = 'none'
+}
+
+export const enum Scaling {
+    qis = 'qis',
+    bilinear = 'bilinear',
+    none = 'none'
+}
+
 export interface EmulationStateStopped {
     state: EmulationStateKey.stopped;
 }
@@ -100,17 +112,18 @@ export interface Cartridge {
     firstVisibleLine?: number;
     cpuEmulation?: CpuEmulation;
     audioEmulation?: AudioEmulation;
-    phosphorEmulation?: boolean;
+    phosphorLevel?: number;
 }
 
 export interface Settings {
     cpuEmulation: CpuEmulation;
     volume: number;
     audioEmulation: AudioEmulation;
-    smoothScaling: boolean;
-    phosphorEmulation: boolean;
     gammaCorrection: number;
-    videoSync: boolean;
+    tvEmulation: TvEmulation;
+    scaling: Scaling;
+    phosphorLevel: number;
+    scanlineIntensity: number;
     leftHanded: boolean;
     virtualJoystickSensitivity: number;
     uiSize: number;

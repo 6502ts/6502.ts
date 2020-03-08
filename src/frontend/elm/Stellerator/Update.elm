@@ -90,11 +90,11 @@ updateCartridge cartridgeTypes msg cartridge =
         ChangeCartridgeAudioEmulation emulation ->
             { cartridge | audioEmulation = emulation }
 
-        ChangeCartridgePhosphorEmulation emulation ->
-            { cartridge | phosphorEmulation = emulation }
-
         ChangeCartridgeVolume vol ->
             { cartridge | volume = vol }
+
+        ChangePhosphorLevelPerCart level ->
+            { cartridge | phosphorLevel = level }
 
 
 updateSettings : ChangeSettingsMsg -> Settings -> Settings -> Settings
@@ -109,17 +109,20 @@ updateSettings msg defaultSettings settings =
         ChangeSettingsAudioEmulation audioEmulation ->
             { settings | audioEmulation = audioEmulation }
 
-        ChangeSettingsSmoothScaling smoothScaling ->
-            { settings | smoothScaling = smoothScaling }
-
-        ChangeSettingsPhosphorEmulation phosphorEmulation ->
-            { settings | phosphorEmulation = phosphorEmulation }
-
         ChangeSettingsGammaCorrection gammaCorrection ->
             { settings | gammaCorrection = gammaCorrection }
 
-        ChangeSettingsVideoSync videoSync ->
-            { settings | videoSync = videoSync }
+        ChangeTvEmulation tvEmulation ->
+            { settings | tvEmulation = tvEmulation }
+
+        ChangeScaling scaling ->
+            { settings | scaling = scaling }
+
+        ChangePhosphorLevel level ->
+            { settings | phosphorLevel = level }
+
+        ChangeScanlineIntensity intensity ->
+            { settings | scanlineIntensity = intensity }
 
         ChangeSettingsTouchControls touchControls ->
             { settings | touchControls = touchControls }

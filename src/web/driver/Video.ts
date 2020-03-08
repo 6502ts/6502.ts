@@ -375,6 +375,7 @@ class Video {
     }
 
     private _applyConfiguration(): void {
+        this._mainProgram.use();
         this._mainProgram.uniform1f(fsh.blitWithGamma.uniform.gamma, this._config.gamma);
 
         this._processors = [];

@@ -24,7 +24,14 @@
  */
 
 import Dexie from 'dexie';
-import { Cartridge, Settings, CpuEmulation, AudioEmulation } from '../../elm/Stellerator/Main.elm';
+import {
+    Cartridge,
+    Settings,
+    CpuEmulation,
+    AudioEmulation,
+    TvEmulation,
+    Scaling
+} from '../../elm/Stellerator/Main.elm';
 import { injectable } from 'inversify';
 
 export interface CartridgeWithImage {
@@ -44,10 +51,11 @@ export const DEFAULT_SETTINGS: Settings = {
     cpuEmulation: CpuEmulation.cycle,
     volume: 80,
     audioEmulation: AudioEmulation.pcm,
-    smoothScaling: false,
-    phosphorEmulation: true,
     gammaCorrection: 1.0,
-    videoSync: true,
+    tvEmulation: TvEmulation.composite,
+    scaling: Scaling.qis,
+    phosphorLevel: 50,
+    scanlineIntensity: 30,
     touchControls: undefined,
     leftHanded: false,
     virtualJoystickSensitivity: 10,
@@ -64,6 +72,36 @@ class Database extends Dexie {
             roms: '&hash',
             settings: '&id'
         });
+
+        this.version(2)
+            .stores({
+                cartridges: '&hash',
+                roms: '&hash',
+                settings: '&id'
+            })
+            .upgrade(transaction => {
+                transaction
+                    .table<Settings>('settings')
+                    .toCollection()
+                    .modify((settings: any) => {
+                        delete settings.smoothScaling;
+                        delete settings.phosphorEmulation;
+                        delete settings.videoSync;
+
+                        for (const key of Object.keys(DEFAULT_SETTINGS)) {
+                            if (!settings.hasOwnProperty(key)) {
+                                settings[key] = (DEFAULT_SETTINGS as any)[key];
+                            }
+                        }
+                    });
+
+                transaction
+                    .table<Cartridge>('cartridges')
+                    .toCollection()
+                    .modify(cartridge => {
+                        delete (cartridge as any).phosphorEmulation;
+                    });
+            });
     }
 
     cartridges: Dexie.Table<Cartridge, string>;

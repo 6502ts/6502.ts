@@ -39,7 +39,9 @@ import {
     ConsoleSwitches,
     DifficultySwitch,
     ColorSwitch,
-    StartEmulationPayload
+    StartEmulationPayload,
+    TvEmulation,
+    Scaling
 } from '../../elm/Stellerator/Main.elm';
 
 import EmulationServiceInterface from '../../../web/stella/service/EmulationServiceInterface';
@@ -107,6 +109,48 @@ function config(cartridge: Cartridge, settings: Settings): Config {
         frameStart: typeof cartridge.firstVisibleLine === 'undefined' ? -1 : cartridge.firstVisibleLine,
         pcmAudio: (cartridge.audioEmulation || settings.audioEmulation) === AudioEmulation.pcm,
         cpuType: cpuType(cartridge, settings)
+    };
+}
+
+function mapTvEmulation(tvEmulation: TvEmulation): VideoDriver.TvEmulation {
+    switch (tvEmulation) {
+        case TvEmulation.composite:
+            return VideoDriver.TvEmulation.composite;
+
+        case TvEmulation.svideo:
+            return VideoDriver.TvEmulation.svideo;
+
+        case TvEmulation.none:
+            return VideoDriver.TvEmulation.none;
+
+        default:
+            throw new Error(`invalid TV emulation setting: ${tvEmulation}`);
+    }
+}
+
+function mapScaling(scaling: Scaling): VideoDriver.ScalingMode {
+    switch (scaling) {
+        case Scaling.qis:
+            return VideoDriver.ScalingMode.qis;
+
+        case Scaling.bilinear:
+            return VideoDriver.ScalingMode.bilinear;
+
+        case Scaling.none:
+            return VideoDriver.ScalingMode.none;
+
+        default:
+            throw new Error(`invalid scaling setting`);
+    }
+}
+
+function videoSettings(cartridge: Cartridge | null, settings: Settings): VideoDriver.Config {
+    return {
+        gamma: settings.gammaCorrection,
+        tvEmulation: mapTvEmulation(settings.tvEmulation),
+        scalingMode: mapScaling(settings.scaling),
+        phosphorLevel: (cartridge?.phosphorLevel ?? settings.phosphorLevel) / 100,
+        scanlineLevel: settings.scanlineIntensity / 100
     };
 }
 
@@ -181,7 +225,7 @@ class Emulation {
 
         this._audioDriver.setMasterVolume((cartridge.volume * settings.volume) / 10000);
         if (this._videoDriver) {
-            // FIXMEs
+            this._videoDriver.updateConfig(videoSettings(cartridge, settings));
         }
     }
 
@@ -200,7 +244,7 @@ class Emulation {
         this._audioDriver.setMasterVolume((cartridge.volume * settings.volume) / 10000);
 
         if (this._videoDriver) {
-            // FIXME
+            this._videoDriver.updateConfig(videoSettings(cartridge, settings));
         }
     }
 
@@ -310,11 +354,9 @@ class Emulation {
             this._storage.getSettings(),
             this._currentCartridgeHash && this._storage.getCartridge(this._currentCartridgeHash)
         ]);
-        console.log(settings, cartridge);
 
         this._canvas = canvas;
-        // FIXME: config
-        this._videoDriver = new VideoDriver(this._canvas);
+        this._videoDriver = new VideoDriver(this._canvas, videoSettings(cartridge, settings));
 
         this._videoDriver.init();
 

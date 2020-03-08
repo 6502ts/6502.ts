@@ -95,10 +95,7 @@ settingsList settings media haveCartridges =
         ]
     , section "Display"
     , p []
-        [ checkbox "Smooth scaling:" (ChangeSettings << ChangeSettingsSmoothScaling) settings.smoothScaling
-        , checkbox "Phosphor emulation:" (ChangeSettings << ChangeSettingsPhosphorEmulation) settings.phosphorEmulation
-        , checkbox "Sync video:" (ChangeSettings << ChangeSettingsVideoSync) settings.videoSync
-        , oneline "Gamma correction:" <|
+        [ oneline "Gamma correction:" <|
             Form.slider
                 [ property "width" "calc(40*var(--cw))"
                 , property "max-width" "calc(100vw - 4*var(--cw))"
