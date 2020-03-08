@@ -83,6 +83,20 @@ suite('Ring buffer', () => {
         assert.deepEqual(getContent(buffer), [3, 4, 5]);
     });
 
+    test('evict is dispatched if an overflow happens', () => {
+        let calls = 0;
+        buffer.evict.addHandler(() => calls++);
+
+        buffer
+            .push(1)
+            .push(2)
+            .push(3)
+            .push(4)
+            .push(5);
+
+        assert.strictEqual(calls, 1);
+    });
+
     test('clear wipes the buffer', () => {
         buffer
             .push(1)

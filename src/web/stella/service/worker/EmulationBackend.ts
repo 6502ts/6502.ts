@@ -68,6 +68,7 @@ class EmulationBackend {
         this._service.emulationError.addHandler(EmulationBackend._onEmulationError, this);
 
         this._videoDriver = videoDriver;
+        videoDriver.init();
         controlDriver.init();
 
         driverManager

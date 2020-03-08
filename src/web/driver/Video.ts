@@ -71,6 +71,8 @@ class WebglVideo {
         this._ntscProcessor = new NtscProcessor(this._gl);
         this._scanlineProcessor = new ScanlineProcessor(this._gl);
         this._integerScalingProcessor = new IntegerScalingProcessor(this._gl);
+
+        this._pendingFrames.evict.addHandler(frame => frame.release());
     }
 
     init(): this {

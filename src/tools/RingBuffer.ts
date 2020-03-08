@@ -23,6 +23,8 @@
  *   SOFTWARE.
  */
 
+import { Event } from 'microevent.ts';
+
 class RingBuffer<T> {
     constructor(private _capacity: number) {
         this._buffer = new Array<T>(this._capacity);
@@ -52,7 +54,7 @@ class RingBuffer<T> {
 
     push(item: T): this {
         if (this._size === this._capacity) {
-            this.pop();
+            this.evict.dispatch(this.pop());
         }
 
         this._buffer[(this._index + this._size++) % this._capacity] = item;
@@ -82,6 +84,8 @@ class RingBuffer<T> {
     capacity(): number {
         return this._capacity;
     }
+
+    evict = new Event<T>();
 
     private _size = 0;
     private _index = 0;

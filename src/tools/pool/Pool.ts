@@ -101,14 +101,6 @@ namespace Pool {
     export interface FactoryInterface<T> {
         (): T;
     }
-
-    export interface RecycleCallbackInterface<T> {
-        (value: T): void;
-    }
-
-    export interface DisposeCallbackInterface<T> {
-        (value: T): void;
-    }
 }
 
 export { Pool as default };

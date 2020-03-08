@@ -28,6 +28,7 @@ import { Event } from 'microevent.ts';
 import VideoEndpointInterface from '../../../driver/VideoEndpointInterface';
 import { RpcProviderInterface } from 'worker-rpc';
 import PoolMemberInterface from '../../../../tools/pool/PoolMemberInterface';
+import Pool from '../../../../tools/pool/Pool';
 
 import {
     SIGNAL_TYPE,
@@ -38,7 +39,9 @@ import {
 } from './messages';
 
 class VideoProxy implements VideoEndpointInterface {
-    constructor(private _rpc: RpcProviderInterface) {}
+    constructor(private _rpc: RpcProviderInterface) {
+        this._framePool.event.release.addHandler(VideoProxy._onDisposeFrame, this);
+    }
 
     init(): void {
         this._rpc.registerSignalHandler(SIGNAL_TYPE.videoNewFrame, this._onNewFrame.bind(this));
@@ -54,12 +57,11 @@ class VideoProxy implements VideoEndpointInterface {
         this._active = true;
         this._width = videoParameters.width;
         this._height = videoParameters.height;
-        this._ids = new Set<number>();
+        this._frameMap = new WeakMap<ImageData, number>();
     }
 
     stop(): void {
         this._active = false;
-        this._ids = null;
     }
 
     getWidth(): number {
@@ -68,6 +70,27 @@ class VideoProxy implements VideoEndpointInterface {
 
     getHeight(): number {
         return this._height;
+    }
+
+    private static _onDisposeFrame(imageData: ImageData, self: VideoProxy): void {
+        if (!self._active) return;
+
+        if (!self._frameMap.has(imageData)) {
+            console.warn('unknown imageData returned to proxy');
+            return;
+        }
+
+        const id = self._frameMap.get(imageData);
+        self._frameMap.delete(imageData);
+
+        self._rpc.signal<VideoReturnSurfaceMessage>(
+            SIGNAL_TYPE.videoReturnSurface,
+            {
+                id,
+                buffer: imageData.data.buffer
+            },
+            [imageData.data.buffer]
+        );
     }
 
     private _onNewFrame(message: VideoNewFrameMessage): void {
@@ -81,40 +104,23 @@ class VideoProxy implements VideoEndpointInterface {
             return;
         }
 
-        this._ids.add(message.id);
-
+        const frame = this._framePool.get();
         const imageData = new ImageData(new Uint8ClampedArray(message.buffer), message.width, message.height);
 
-        this.newFrame.dispatch({
-            get: () => imageData,
+        frame.adopt(imageData);
+        this._frameMap.set(imageData, message.id);
 
-            release: () => {
-                if (this._active && this._ids.has(message.id)) {
-                    this._rpc.signal<VideoReturnSurfaceMessage>(
-                        SIGNAL_TYPE.videoReturnSurface,
-                        {
-                            id: message.id,
-                            buffer: message.buffer
-                        },
-                        [message.buffer]
-                    );
-                }
-            },
-
-            dispose: () => undefined,
-
-            adopt: () => {
-                throw new Error('adopt is not implemented');
-            }
-        });
+        this.newFrame.dispatch(frame);
     }
 
     newFrame = new Event<PoolMemberInterface<ImageData>>();
 
+    private _framePool = new Pool<ImageData>(() => null);
+    private _frameMap: WeakMap<ImageData, number> = null;
+
     private _active = false;
     private _width = 0;
     private _height = 0;
-    private _ids: Set<number> = null;
 }
 
 export { VideoProxy as default };

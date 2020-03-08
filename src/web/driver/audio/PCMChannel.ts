@@ -60,8 +60,9 @@ class PCMChannel implements ChannelInterface {
         this._lastFragment = null;
         this._bufferUnderrun = true;
         this._fragmentRing = new RingBuffer<PoolMemberInterface<Float32Array>>(
-            Math.ceil(4 * this._bufferSize / this._outputSampleRate / this._fragmentSize * this._inputSampleRate)
+            Math.ceil(((4 * this._bufferSize) / this._outputSampleRate / this._fragmentSize) * this._inputSampleRate)
         );
+        this._fragmentRing.evict.addHandler(b => b.release());
 
         this._audio.newFrame.addHandler(PCMChannel._onNewFragment, this);
 
