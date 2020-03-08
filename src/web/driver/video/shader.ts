@@ -106,17 +106,17 @@ export namespace fsh {
 
             #define SATURATION 1.0
             #define BRIGHTNESS 1.0
-            #define ARTIFACTING 1.0
-            #define FRINGING 1.0
 
             uniform sampler2D u_Sampler0;
+            uniform float u_Fringing;
+            uniform float u_Artifacting;
 
             varying vec2 v_TextureCoordinate;
 
             mat3 mix_mat = mat3(
-                BRIGHTNESS, FRINGING, FRINGING,
-                ARTIFACTING, 2.0 * SATURATION, 0.0,
-                ARTIFACTING, 0.0, 2.0 * SATURATION
+                BRIGHTNESS, u_Fringing, u_Fringing,
+                u_Artifacting, 2.0 * SATURATION, 0.0,
+                u_Artifacting, 0.0, 2.0 * SATURATION
             );
 
             const mat3 yiq_mat = mat3(
@@ -147,7 +147,9 @@ export namespace fsh {
         `;
 
         export const enum uniform {
-            textureUnit = 'u_Sampler0'
+            textureUnit = 'u_Sampler0',
+            artifacting = 'u_Artifacting',
+            fringing = 'u_Fringing'
         }
     }
 

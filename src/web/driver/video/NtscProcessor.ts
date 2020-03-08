@@ -112,6 +112,20 @@ class NtscProcessor implements Processor {
         }
     }
 
+    configure(mode: NtscProcessor.mode) {
+        if (!this._initialized) return;
+
+        this._programPass1.use();
+
+        if (mode === NtscProcessor.mode.composite) {
+            this._programPass1.uniform1f(fsh.ntscPass1.uniform.artifacting, 1);
+            this._programPass1.uniform1f(fsh.ntscPass1.uniform.fringing, 1);
+        } else {
+            this._programPass1.uniform1f(fsh.ntscPass1.uniform.artifacting, 0);
+            this._programPass1.uniform1f(fsh.ntscPass1.uniform.fringing, 0);
+        }
+    }
+
     private _pass(textureIn: WebGLTexture, textureOut: WebGLTexture, program: Program, width: number): void {
         const gl = this._gl;
 
@@ -164,6 +178,13 @@ class NtscProcessor implements Processor {
     private _textureCoordinateBuffer: WebGLBuffer = null;
 
     private _initialized = false;
+}
+
+namespace NtscProcessor {
+    export const enum mode {
+        composite = 'composite',
+        svideo = 'svideo'
+    }
 }
 
 export default NtscProcessor;

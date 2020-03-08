@@ -36,14 +36,14 @@ import Processor from './video/Processor';
 
 const MAX_CONSECUTIVE_UNDERFLOWS = 5;
 
-class WebglVideo {
-    constructor(canvas: HTMLCanvasElement, config: Partial<WebglVideo.Config> = {}) {
-        const defaultConfig: WebglVideo.Config = {
+class Video {
+    constructor(canvas: HTMLCanvasElement, config: Partial<Video.Config> = {}) {
+        const defaultConfig: Video.Config = {
             gamma: 1,
-            scalingMode: WebglVideo.ScalingMode.qis,
+            scalingMode: Video.ScalingMode.qis,
             phosphorLevel: 0.5,
             scanlineLevel: 0.3,
-            tvEmulation: WebglVideo.TvEmulation.composite
+            tvEmulation: Video.TvEmulation.composite
         };
 
         this._config = {
@@ -132,7 +132,7 @@ class WebglVideo {
         }
 
         this._video = video;
-        this._video.newFrame.addHandler(WebglVideo._frameHandler, this);
+        this._video.newFrame.addHandler(Video._frameHandler, this);
 
         this._configureProcessors();
 
@@ -147,7 +147,7 @@ class WebglVideo {
         }
 
         this._cancelDraw();
-        this._video.newFrame.removeHandler(WebglVideo._frameHandler, this);
+        this._video.newFrame.removeHandler(Video._frameHandler, this);
         this._video = null;
 
         this._pendingFrames.forEach(f => f.release());
@@ -156,15 +156,15 @@ class WebglVideo {
         return this;
     }
 
-    getConfig(): WebglVideo.Config {
+    getConfig(): Video.Config {
         return this._config;
     }
 
-    updateConfig(config: Partial<WebglVideo.Config>): this {
+    updateConfig(config: Partial<Video.Config>): this {
         return this;
     }
 
-    private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: WebglVideo): void {
+    private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: Video): void {
         if (self._pendingFrames.size() === self._pendingFrames.capacity()) {
             self._pendingFrames.forEach(f => f.release());
             self._pendingFrames.clear();
@@ -235,12 +235,12 @@ class WebglVideo {
         gl.texParameteri(
             gl.TEXTURE_2D,
             gl.TEXTURE_MIN_FILTER,
-            this._config.scalingMode === WebglVideo.ScalingMode.none ? gl.NEAREST : gl.LINEAR
+            this._config.scalingMode === Video.ScalingMode.none ? gl.NEAREST : gl.LINEAR
         );
         gl.texParameteri(
             gl.TEXTURE_2D,
             gl.TEXTURE_MAG_FILTER,
-            this._config.scalingMode === WebglVideo.ScalingMode.none ? gl.NEAREST : gl.LINEAR
+            this._config.scalingMode === Video.ScalingMode.none ? gl.NEAREST : gl.LINEAR
         );
 
         this._mainProgram.use();
@@ -353,6 +353,16 @@ class WebglVideo {
         this._scanlineProcessor.configure(this._config.scanlineLevel);
         this._integerScalingProcessor.configure(this._gl.drawingBufferWidth, this._gl.drawingBufferHeight);
 
+        switch (this._config.tvEmulation) {
+            case Video.TvEmulation.composite:
+                this._ntscProcessor.configure(NtscProcessor.mode.composite);
+                break;
+
+            case Video.TvEmulation.svideo:
+                this._ntscProcessor.configure(NtscProcessor.mode.svideo);
+                break;
+        }
+
         let width = this._video.getWidth();
         let height = this._video.getHeight();
 
@@ -369,7 +379,7 @@ class WebglVideo {
 
         this._processors = [];
 
-        if (this._config.tvEmulation !== WebglVideo.TvEmulation.none) {
+        if (this._config.tvEmulation !== Video.TvEmulation.none) {
             this._ntscProcessor.init();
             this._processors.push(this._ntscProcessor);
         }
@@ -384,7 +394,7 @@ class WebglVideo {
             this._processors.push(this._scanlineProcessor);
         }
 
-        if (this._config.scalingMode === WebglVideo.ScalingMode.qis) {
+        if (this._config.scalingMode === Video.ScalingMode.qis) {
             this._integerScalingProcessor.init();
             this._processors.push(this._integerScalingProcessor);
         }
@@ -392,7 +402,7 @@ class WebglVideo {
         this._configureProcessors();
     }
 
-    private _config: WebglVideo.Config = null;
+    private _config: Video.Config = null;
     private _gl: WebGLRenderingContext = null;
     private _video: VideoEndpointInterface = null;
 
@@ -414,7 +424,7 @@ class WebglVideo {
     private _hasFrame = false;
 }
 
-namespace WebglVideo {
+namespace Video {
     export const enum ScalingMode {
         qis = 'qis',
         bilinear = 'bilinear',
@@ -436,4 +446,4 @@ namespace WebglVideo {
     }
 }
 
-export default WebglVideo;
+export default Video;
