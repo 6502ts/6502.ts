@@ -33,6 +33,7 @@ import ScanlineProcessor from './video/ScanlineProcessor';
 import IntegerScalingProcessor from './video/IntegerScalingProcessor';
 import RingBuffer from '../../tools/RingBuffer';
 import Processor from './video/Processor';
+import { Capabilities, detect } from './video/Capabilities';
 
 const MAX_CONSECUTIVE_UNDERFLOWS = 5;
 
@@ -67,8 +68,11 @@ class Video {
             throw new Error('unable to acquire webgl context');
         }
 
+        this._capabilities = detect(this._gl);
+        console.log(this._capabilities);
+
         this._phosphorProcessor = new PhosphorProcessor(this._gl);
-        this._ntscProcessor = new NtscProcessor(this._gl);
+        this._ntscProcessor = new NtscProcessor(this._gl, this._capabilities);
         this._scanlineProcessor = new ScanlineProcessor(this._gl);
         this._integerScalingProcessor = new IntegerScalingProcessor(this._gl);
 
@@ -406,6 +410,7 @@ class Video {
     private _config: Video.Config = null;
     private _gl: WebGLRenderingContext = null;
     private _video: VideoEndpointInterface = null;
+    private _capabilities: Capabilities = null;
 
     private _mainProgram: Program = null;
     private _vertexCoordinateBuffer: WebGLBuffer = null;

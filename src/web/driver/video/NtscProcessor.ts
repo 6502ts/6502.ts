@@ -1,9 +1,10 @@
 import Processor from './Processor';
 import Program from './Program';
 import { vsh, fsh } from './shader';
+import { Capabilities } from './Capabilities';
 
 class NtscProcessor implements Processor {
-    constructor(private _gl: WebGLRenderingContext) {}
+    constructor(private _gl: WebGLRenderingContext, private _capabilities: Capabilities) {}
 
     init(): void {
         if (this._initialized) return;
@@ -101,7 +102,7 @@ class NtscProcessor implements Processor {
                 height,
                 0,
                 gl.RGBA,
-                texture === this._targetPass1 ? gl.FLOAT : gl.UNSIGNED_BYTE,
+                texture === this._targetPass1 ? this._textureType() : gl.UNSIGNED_BYTE,
                 null
             );
 
@@ -165,6 +166,20 @@ class NtscProcessor implements Processor {
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    private _textureType(): number {
+        const gl = this._gl;
+
+        if (this._capabilities.floatTextures) {
+            return gl.FLOAT;
+        }
+
+        if (this._capabilities.halfFloatTextures) {
+            return gl.getExtension('OES_texture_half_float').HALF_FLOAT_OES;
+        }
+
+        return gl.UNSIGNED_BYTE;
     }
 
     private _height = 0;
