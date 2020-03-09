@@ -142,6 +142,18 @@ settingsItems model cart =
         changeCartridge msg =
             msg >> ChangeCartridge cart.hash
 
+        slider =
+            let
+                w =
+                    case model.media of
+                        Just MediaNarrow ->
+                            "calc(100vw - 10 * var(--cw))"
+
+                        _ ->
+                            "calc(40 * var(--cw))"
+            in
+            Form.slider [ property "width" w ]
+
         optionalNumberInput : (Maybe Int -> ChangeCartridgeMsg) -> Maybe Int -> Html Msg
         optionalNumberInput tagger value =
             Form.textInput
@@ -197,30 +209,47 @@ settingsItems model cart =
             (changeCartridge ChangeCartridgeAudioEmulation)
             cart.audioEmulation
     , oneline "Volume:" <|
-        let
-            w =
-                case model.media of
-                    Just MediaNarrow ->
-                        "calc(100vw - 10 * var(--cw))"
-
-                    _ ->
-                        "calc(40 * var(--cw))"
-        in
-        Form.slider
-            [ property "width" w ]
+        slider
             ( 0, 100 )
             (Maybe.map (changeCartridge ChangeCartridgeVolume) >> Maybe.withDefault None)
             (\x -> String.fromInt x ++ "%")
             cart.volume
-    , div []
-        [ button
-            [ A.type_ "button"
-            , E.onClick <| SaveCartridge cart.hash
-            , A.css [ marginTop (Css.em 1), padding2 (px 0) (Css.em 1) ]
-            ]
-            [ text "Save cartridge image" ]
-        ]
+    , checkbox "Default phosphor:" <|
+        Form.checkbox
+            ((\x ->
+                if x then
+                    Nothing
+
+                else
+                    Just model.settings.phosphorLevel
+             )
+                >> ChangeCartridgePhosphorLevel
+                |> changeCartridge
+            )
+            (Maybe.map (\_ -> False) cart.phosphorLevel |> Maybe.withDefault True)
     ]
+        ++ (case cart.phosphorLevel of
+                Just level ->
+                    [ oneline "Phosphor level:" <|
+                        slider
+                            ( 0, 100 )
+                            (Maybe.map (Just >> ChangeCartridgePhosphorLevel |> changeCartridge) >> Maybe.withDefault None)
+                            (\x -> String.fromInt x ++ "%")
+                            level
+                    ]
+
+                Nothing ->
+                    []
+           )
+        ++ [ div []
+                [ button
+                    [ A.type_ "button"
+                    , E.onClick <| SaveCartridge cart.hash
+                    , A.css [ marginTop (Css.em 1), padding2 (px 0) (Css.em 1) ]
+                    ]
+                    [ text "Save cartridge image" ]
+                ]
+           ]
 
 
 cartridgeListOrMessage : Model -> (String -> content) -> content -> content

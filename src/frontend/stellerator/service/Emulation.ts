@@ -281,6 +281,8 @@ class Emulation {
             throw new Error(`invalid cartridge hash ${hash}`);
         }
 
+        this._currentCartridgeHash = hash;
+
         const newConfig = config(cartidge, settings);
 
         if (!this._currentConfig || this._currentConfig.pcmAudio !== newConfig.pcmAudio) {
@@ -295,6 +297,8 @@ class Emulation {
 
         this._audioDriver.setMasterVolume((cartidge.volume * settings.volume) / 10000);
 
+        if (this._videoDriver) this._videoDriver.updateConfig(videoSettings(cartidge, settings));
+
         this._currentConfig = config(cartidge, settings);
 
         await this._emulationService.start(image, this._currentConfig, cartidge.cartridgeType);
@@ -302,8 +306,6 @@ class Emulation {
         this._updateConsoleSwitches(switches);
 
         await this._emulationService.resume();
-
-        this._currentCartridgeHash = hash;
     }
 
     private async _stopEmulation(): Promise<void> {
@@ -350,10 +352,14 @@ class Emulation {
 
         this._removeVideoDriver();
 
-        const [settings, cartridge]: [Settings, Cartridge | undefined] = await Promise.all([
-            this._storage.getSettings(),
-            this._currentCartridgeHash && this._storage.getCartridge(this._currentCartridgeHash)
-        ]);
+        // We need to synchronize this with the mutex in order to avoid a data race ---
+        // _startEmulation can change the hash while dexie is busy.
+        const [settings, cartridge]: [Settings, Cartridge | undefined] = await this._emulationMutex.runExclusive(() =>
+            Promise.all([
+                this._storage.getSettings(),
+                this._currentCartridgeHash && this._storage.getCartridge(this._currentCartridgeHash)
+            ])
+        );
 
         this._canvas = canvas;
         this._videoDriver = new VideoDriver(this._canvas, videoSettings(cartridge, settings));

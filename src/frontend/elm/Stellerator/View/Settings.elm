@@ -56,6 +56,12 @@ settingsList settings media haveCartridges =
                 , control
                 ]
 
+        slider =
+            Form.slider
+                [ property "width" "calc(40*var(--cw))"
+                , property "max-width" "calc(100vw - 4*var(--cw))"
+                ]
+
         checkbox lbl tagger value =
             label [ A.css [ cursor pointer, display block ] ]
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
@@ -86,10 +92,7 @@ settingsList settings media haveCartridges =
         , oneline
             "Volume:"
           <|
-            Form.slider
-                [ property "width" "calc(40*var(--cw))"
-                , property "max-width" "calc(100vw - 4*var(--cw))"
-                ]
+            slider
                 ( 0, 100 )
                 (Maybe.map (ChangeSettings << ChangeSettingsVolume) >> Maybe.withDefault None)
                 (\x -> String.fromInt x ++ "%")
@@ -98,10 +101,7 @@ settingsList settings media haveCartridges =
     , section "Display"
     , p []
         [ oneline "Gamma correction:" <|
-            Form.slider
-                [ property "width" "calc(40*var(--cw))"
-                , property "max-width" "calc(100vw - 4*var(--cw))"
-                ]
+            slider
                 ( 0, 50 )
                 (Maybe.map (ChangeSettings << ChangeSettingsGammaCorrection << (\x -> x / 10) << toFloat) >> Maybe.withDefault None)
                 (\x -> String.fromFloat <| toFloat x / 10)
@@ -119,19 +119,13 @@ settingsList settings media haveCartridges =
                 (ChangeSettings << ChangeSettingsScaling)
                 settings.scaling
         , oneline "Phosphor level:" <|
-            Form.slider
-                [ property "width" "calc(40*var(--cw))"
-                , property "max-width" "calc(100vw - 4*var(--cw))"
-                ]
+            slider
                 ( 0, 100 )
                 (Maybe.map (ChangeSettingsPhosphorLevel >> ChangeSettings) >> Maybe.withDefault None)
                 (\x -> String.fromInt x ++ "%")
                 settings.phosphorLevel
         , oneline "Scanline intensity:" <|
-            Form.slider
-                [ property "width" "calc(40*var(--cw))"
-                , property "max-width" "calc(100vw - 4*var(--cw))"
-                ]
+            slider
                 ( 0, 100 )
                 (Maybe.map (ChangeSettingsScanlineIntensity >> ChangeSettings) >> Maybe.withDefault None)
                 (\x -> String.fromInt x ++ "%")
@@ -150,10 +144,7 @@ settingsList settings media haveCartridges =
             (ChangeSettings << ChangeSettingsLeftHanded)
             settings.leftHanded
         , oneline "Touch joystick sensitivity:" <|
-            Form.slider
-                [ property "width" "calc(40*var(--cw))"
-                , property "max-width" "calc(100vw - 4*var(--cw))"
-                ]
+            slider
                 ( 0, 100 )
                 (Maybe.map (ChangeSettings << ChangeSettingsVirtualJoystickSensitivity) >> Maybe.withDefault None)
                 String.fromInt

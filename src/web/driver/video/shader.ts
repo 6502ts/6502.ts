@@ -74,6 +74,7 @@ export namespace fsh {
 
             float applyPhosphor(float new, float previous) {
                 float decayed = previous * u_PhosphorLevel;
+                decayed = (previous - decayed) * 255.0 < 0.5 ? 0.0 : decayed;
 
                 return new > decayed ? new : decayed;
             }
