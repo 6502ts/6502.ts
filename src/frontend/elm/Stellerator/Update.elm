@@ -93,7 +93,7 @@ updateCartridge cartridgeTypes msg cartridge =
         ChangeCartridgeVolume vol ->
             { cartridge | volume = vol }
 
-        ChangePhosphorLevelPerCart level ->
+        ChangeCartridgePhosphorLevel level ->
             { cartridge | phosphorLevel = level }
 
 
@@ -112,16 +112,16 @@ updateSettings msg defaultSettings settings =
         ChangeSettingsGammaCorrection gammaCorrection ->
             { settings | gammaCorrection = gammaCorrection }
 
-        ChangeTvEmulation tvEmulation ->
+        ChangeSettingsTvEmulation tvEmulation ->
             { settings | tvEmulation = tvEmulation }
 
-        ChangeScaling scaling ->
+        ChangeSettingsScaling scaling ->
             { settings | scaling = scaling }
 
-        ChangePhosphorLevel level ->
+        ChangeSettingsPhosphorLevel level ->
             { settings | phosphorLevel = level }
 
-        ChangeScanlineIntensity intensity ->
+        ChangeSettingsScanlineIntensity intensity ->
             { settings | scanlineIntensity = intensity }
 
         ChangeSettingsTouchControls touchControls ->

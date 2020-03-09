@@ -66,7 +66,7 @@ decodeFlags =
 
 
 -- Attention unwary reader: this are not the default settings, but just a fallback
--- to satisfy the build system. The defaults are found in Storage.ts .
+-- to satisfy the compiler. The defaults are found in Storage.ts .
 
 
 fallbackSettings : Settings
@@ -78,7 +78,7 @@ fallbackSettings =
     , tvEmulation = TvEmulationComposite
     , scaling = ScalingQis
     , phosphorLevel = 50
-    , scanlineIntensity = 30
+    , scanlineIntensity = 20
     , touchControls = Maybe.Nothing
     , leftHanded = False
     , virtualJoystickSensitivity = 10

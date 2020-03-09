@@ -39,7 +39,9 @@ import Stellerator.Model
         , Media(..)
         , Model
         , Msg(..)
+        , Scaling(..)
         , Settings
+        , TvEmulation(..)
         , validUiSizes
         )
 import Stellerator.View.Form as Form
@@ -104,6 +106,36 @@ settingsList settings media haveCartridges =
                 (Maybe.map (ChangeSettings << ChangeSettingsGammaCorrection << (\x -> x / 10) << toFloat) >> Maybe.withDefault None)
                 (\x -> String.fromFloat <| toFloat x / 10)
                 (Basics.round (settings.gammaCorrection * 10))
+        , oneline "TV Emulation:" <|
+            Form.radioGroup
+                []
+                [ ( TvEmulationComposite, "Composite" ), ( TvEmulationSvideo, "S-Video" ), ( TvEmulationNone, "None" ) ]
+                (ChangeSettings << ChangeSettingsTvEmulation)
+                settings.tvEmulation
+        , oneline "Scaling:" <|
+            Form.radioGroup
+                []
+                [ ( ScalingQis, "QIS" ), ( ScalingBilinear, "Bilinear" ), ( ScalingNone, "Plain" ) ]
+                (ChangeSettings << ChangeSettingsScaling)
+                settings.scaling
+        , oneline "Phosphor level:" <|
+            Form.slider
+                [ property "width" "calc(40*var(--cw))"
+                , property "max-width" "calc(100vw - 4*var(--cw))"
+                ]
+                ( 0, 100 )
+                (Maybe.map (ChangeSettingsPhosphorLevel >> ChangeSettings) >> Maybe.withDefault None)
+                (\x -> String.fromInt x ++ "%")
+                settings.phosphorLevel
+        , oneline "Scanline intensity:" <|
+            Form.slider
+                [ property "width" "calc(40*var(--cw))"
+                , property "max-width" "calc(100vw - 4*var(--cw))"
+                ]
+                ( 0, 100 )
+                (Maybe.map (ChangeSettingsScanlineIntensity >> ChangeSettings) >> Maybe.withDefault None)
+                (\x -> String.fromInt x ++ "%")
+                settings.scanlineIntensity
         ]
     , section "Controls"
     , p []

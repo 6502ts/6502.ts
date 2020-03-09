@@ -250,7 +250,7 @@ type ChangeCartridgeMsg
     | ChangeCartridgeCpuEmulation (Maybe CpuEmulation)
     | ChangeCartridgeAudioEmulation (Maybe AudioEmulation)
     | ChangeCartridgeVolume Int
-    | ChangePhosphorLevelPerCart (Maybe Int)
+    | ChangeCartridgePhosphorLevel (Maybe Int)
 
 
 type ChangeSettingsMsg
@@ -258,10 +258,10 @@ type ChangeSettingsMsg
     | ChangeSettingsVolume Int
     | ChangeSettingsAudioEmulation AudioEmulation
     | ChangeSettingsGammaCorrection Float
-    | ChangeTvEmulation TvEmulation
-    | ChangeScaling Scaling
-    | ChangePhosphorLevel Int
-    | ChangeScanlineIntensity Int
+    | ChangeSettingsTvEmulation TvEmulation
+    | ChangeSettingsScaling Scaling
+    | ChangeSettingsPhosphorLevel Int
+    | ChangeSettingsScanlineIntensity Int
     | ChangeSettingsTouchControls (Maybe Bool)
     | ChangeSettingsLeftHanded Bool
     | ChangeSettingsVirtualJoystickSensitivity Int

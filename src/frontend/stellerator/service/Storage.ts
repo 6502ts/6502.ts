@@ -55,7 +55,7 @@ export const DEFAULT_SETTINGS: Settings = {
     tvEmulation: TvEmulation.composite,
     scaling: Scaling.qis,
     phosphorLevel: 50,
-    scanlineIntensity: 30,
+    scanlineIntensity: 20,
     touchControls: undefined,
     leftHanded: false,
     virtualJoystickSensitivity: 10,
@@ -83,16 +83,17 @@ class Database extends Dexie {
                 transaction
                     .table<Settings>('settings')
                     .toCollection()
-                    .modify((settings: any) => {
-                        delete settings.smoothScaling;
-                        delete settings.phosphorEmulation;
-                        delete settings.videoSync;
+                    .modify((settings: Settings) => {
+                        const _settings = settings as any;
 
-                        for (const key of Object.keys(DEFAULT_SETTINGS)) {
-                            if (!settings.hasOwnProperty(key)) {
-                                settings[key] = (DEFAULT_SETTINGS as any)[key];
-                            }
-                        }
+                        delete _settings.smoothScaling;
+                        delete _settings.phosphorEmulation;
+                        delete _settings.videoSync;
+
+                        settings.tvEmulation = TvEmulation.composite;
+                        settings.scaling = Scaling.qis;
+                        settings.phosphorLevel = 50;
+                        settings.scanlineIntensity = 20;
                     });
 
                 transaction

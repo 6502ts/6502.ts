@@ -42,7 +42,7 @@ class Video {
             gamma: 1,
             scalingMode: Video.ScalingMode.qis,
             phosphorLevel: 0.5,
-            scanlineLevel: 0.3,
+            scanlineLevel: 0.2,
             tvEmulation: Video.TvEmulation.composite
         };
 

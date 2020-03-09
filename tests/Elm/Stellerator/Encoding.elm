@@ -34,7 +34,9 @@ import Stellerator.Model
         , Cartridge
         , CpuEmulation(..)
         , Media(..)
+        , Scaling(..)
         , Settings
+        , TvEmulation(..)
         , TvMode(..)
         , decodeAudioEmulation
         , decodeCartridge
@@ -72,7 +74,7 @@ suite =
                 , firstVisibleLine = Just 28
                 , cpuEmulation = Just AccuracyCycle
                 , audioEmulation = Just AudioPCM
-                , phosphorEmulation = Just True
+                , phosphorLevel = Just 44
                 }
           in
           roundTrip encodeCartridge decodeCartridge ( "Cartridge", cart )
@@ -82,10 +84,11 @@ suite =
                 { cpuEmulation = AccuracyCycle
                 , volume = 80
                 , audioEmulation = AudioPCM
-                , smoothScaling = True
-                , phosphorEmulation = True
                 , gammaCorrection = 2.3
-                , videoSync = True
+                , tvEmulation = TvEmulationComposite
+                , scaling = ScalingQis
+                , phosphorLevel = 33
+                , scanlineIntensity = 77
                 , touchControls = Maybe.Just True
                 , leftHanded = False
                 , virtualJoystickSensitivity = 10

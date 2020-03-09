@@ -1,6 +1,8 @@
 export namespace vsh {
     export namespace plain {
         export const source = `
+            precision highp float;
+
             attribute vec2 a_VertexPosition;
             attribute vec2 a_TextureCoordinate;
 
@@ -22,7 +24,7 @@ export namespace vsh {
 export namespace fsh {
     export namespace blit {
         export const source = `
-            precision mediump float;
+            precision highp float;
 
             varying vec2 v_TextureCoordinate;
 
@@ -40,7 +42,7 @@ export namespace fsh {
 
     export namespace blitWithGamma {
         export const source = `
-            precision mediump float;
+            precision highp float;
 
             varying vec2 v_TextureCoordinate;
 
@@ -62,7 +64,7 @@ export namespace fsh {
 
     export namespace phosphor {
         export const source = `
-            precision mediump float;
+            precision highp float;
 
             varying vec2 v_TextureCoordinate;
 
@@ -98,7 +100,7 @@ export namespace fsh {
 
     export namespace ntscPass1 {
         export const source = `
-            precision mediump float;
+            precision highp float;
 
             #define PI 3.14159265
 
@@ -211,7 +213,7 @@ export namespace fsh {
         ];
 
         export const source = `
-            precision mediump float;
+            precision highp float;
 
             uniform sampler2D u_Sampler0;
             varying vec2 v_TextureCoordinate;
@@ -262,7 +264,7 @@ export namespace fsh {
 
     export namespace scanlines {
         export const source = `
-            precision mediump float;
+            precision highp float;
 
             uniform sampler2D u_Sampler0;
             uniform float u_Level;
