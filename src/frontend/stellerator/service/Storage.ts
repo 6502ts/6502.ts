@@ -45,7 +45,7 @@ interface RomImage {
 }
 
 const SETTINGS_ID = 0;
-const DB_NAME = 'stellerator-ng';
+const DB_NAME = process.env.DEVELOPMENT ? 'stellerator-ng-dev' : 'stellerator-ng';
 
 export const DEFAULT_SETTINGS: Settings = {
     cpuEmulation: CpuEmulation.cycle,

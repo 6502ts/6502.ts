@@ -44,7 +44,7 @@ import Emulation from './service/Emulation';
 import TouchIO from '../../web/stella/driver/TouchIO';
 import GamepadDriver from '../../web/driver/Gamepad';
 
-const VERSION_STORAGE_KEY = 'stellerator-ng-version';
+const VERSION_STORAGE_KEY = process.env.DEVELOPMENT ? 'stellerator-ng-version-dev' : 'stellerator-ng-version';
 
 if (navigator.serviceWorker && !process.env.DEVELOPMENT) {
     navigator.serviceWorker.register('./service-worker.js', { scope: './' });
