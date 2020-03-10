@@ -74,7 +74,7 @@ async function main(): Promise<void> {
 
     const version = packageVersion.replace(/^(.*)\+.*\.([0-9a-fA-F]+)$/, '$1 build $2');
     const oldVersion = localStorage.getItem(VERSION_STORAGE_KEY);
-    const wasUpdated = oldVersion && oldVersion !== version;
+    const wasUpdated = !!oldVersion && oldVersion !== version;
 
     localStorage.setItem(VERSION_STORAGE_KEY, version);
 
