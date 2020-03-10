@@ -29,7 +29,8 @@ module Stellerator.Main exposing (main)
 import Browser
 import Browser.Navigation as Nav
 import Http
-import Json.Decode exposing (..)
+import Json.Decode as Decode
+import Json.Decode.Pipeline as Pipeline
 import Stellerator.Media exposing (..)
 import Stellerator.Model exposing (..)
 import Stellerator.Ports as Ports
@@ -48,12 +49,27 @@ type alias Flags =
     , version : String
     , wasUpdated : Bool
     , gamepadCount : Int
+    , badGpu : Bool
     }
 
 
-decodeFlags : Decoder Flags
+decodeFlags : Decode.Decoder Flags
 decodeFlags =
-    map8 Flags
+    Decode.succeed Flags
+        |> Pipeline.required "cartridges" (Decode.list decodeCartridge)
+        |> Pipeline.required "cartridgeTypes" (Decode.list decodeCartridgeType)
+        |> Pipeline.required "settings" decodeSettings
+        |> Pipeline.required "defaultSettings" decodeSettings
+        |> Pipeline.required "touchSupport" Decode.bool
+        |> Pipeline.required "version" Decode.string
+        |> Pipeline.required "wasUpdated" Decode.bool
+        |> Pipeline.required "gamepadCount" Decode.int
+        |> Pipeline.required "badGpu" Decode.bool
+
+
+
+{--
+    map9 Flags
         (field "cartridges" <| list decodeCartridge)
         (field "cartridgeTypes" <| list decodeCartridgeType)
         (field "settings" <| decodeSettings)
@@ -62,9 +78,8 @@ decodeFlags =
         (field "version" <| string)
         (field "wasUpdated" <| bool)
         (field "gamepadCount" <| int)
-
-
-
+        (field "badGpu" <| int)
+--}
 -- Attention unwary reader: this are not the default settings, but just a fallback
 -- to satisfy the compiler. The defaults are found in Storage.ts .
 
@@ -87,11 +102,11 @@ fallbackSettings =
     }
 
 
-init : Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init : Decode.Value -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flagsJson url key =
     let
         flags =
-            case decodeValue decodeFlags flagsJson of
+            case Decode.decodeValue decodeFlags flagsJson of
                 Ok f ->
                     f
 
@@ -104,6 +119,7 @@ init flagsJson url key =
                     , version = "[unknown]"
                     , wasUpdated = False
                     , gamepadCount = 0
+                    , badGpu = False
                     }
 
         route : Route
@@ -156,6 +172,7 @@ init flagsJson url key =
                 }
             , gamepadCount = flags.gamepadCount
             , version = flags.version
+            , badGpu = flags.badGpu
             }
     in
     ( model
@@ -180,7 +197,7 @@ subscriptions _ =
         ]
 
 
-main : Platform.Program Value Model Msg
+main : Platform.Program Decode.Value Model Msg
 main =
     Browser.application
         { init = init

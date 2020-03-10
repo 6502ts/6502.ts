@@ -47,9 +47,12 @@ import Stellerator.Model
 import Stellerator.View.Form as Form
 
 
-settingsList : Settings -> Media -> Bool -> List (Html Msg)
-settingsList settings media haveCartridges =
+settingsList : Model -> Media -> Bool -> List (Html Msg)
+settingsList model media haveCartridges =
     let
+        settings =
+            model.settings
+
         oneline lbl control =
             label [ A.for "nothing", A.css [ display block ] ]
                 [ span [ A.css [ display inlineBlock, property "width" "calc(20 * var(--cw))" ] ] [ text lbl ]
@@ -99,7 +102,7 @@ settingsList settings media haveCartridges =
                 settings.volume
         ]
     , section "Display"
-    , p []
+    , p [] <|
         [ oneline "Gamma correction:" <|
             slider
                 ( 0, 50 )
@@ -112,25 +115,43 @@ settingsList settings media haveCartridges =
                 [ ( TvEmulationComposite, "Composite" ), ( TvEmulationSvideo, "S-Video" ), ( TvEmulationNone, "None" ) ]
                 (ChangeSettings << ChangeSettingsTvEmulation)
                 settings.tvEmulation
-        , oneline "Scaling:" <|
-            Form.radioGroup
-                []
-                [ ( ScalingQis, "QIS" ), ( ScalingBilinear, "Bilinear" ), ( ScalingNone, "Plain" ) ]
-                (ChangeSettings << ChangeSettingsScaling)
-                settings.scaling
-        , oneline "Phosphor level:" <|
-            slider
-                ( 0, 100 )
-                (Maybe.map (ChangeSettingsPhosphorLevel >> ChangeSettings) >> Maybe.withDefault None)
-                (\x -> String.fromInt x ++ "%")
-                settings.phosphorLevel
-        , oneline "Scanline intensity:" <|
-            slider
-                ( 0, 100 )
-                (Maybe.map (ChangeSettingsScanlineIntensity >> ChangeSettings) >> Maybe.withDefault None)
-                (\x -> String.fromInt x ++ "%")
-                settings.scanlineIntensity
         ]
+            ++ (if model.badGpu && settings.tvEmulation /= TvEmulationNone then
+                    [ div
+                        [ A.css
+                            [ Dos.color Dos.Red
+                            , property "width" "calc(60*var(--cw))"
+                            , property "max-width" "calc(100vw - 4*var(--cw))"
+                            ]
+                        ]
+                        [ text <|
+                            "WARNING: Your GPU lacks required features. "
+                                ++ "TV emulation will work, but colors will be slightly wrong."
+                        ]
+                    ]
+
+                else
+                    []
+               )
+            ++ [ oneline "Scaling:" <|
+                    Form.radioGroup
+                        []
+                        [ ( ScalingQis, "QIS" ), ( ScalingBilinear, "Bilinear" ), ( ScalingNone, "Plain" ) ]
+                        (ChangeSettings << ChangeSettingsScaling)
+                        settings.scaling
+               , oneline "Phosphor level:" <|
+                    slider
+                        ( 0, 100 )
+                        (Maybe.map (ChangeSettingsPhosphorLevel >> ChangeSettings) >> Maybe.withDefault None)
+                        (\x -> String.fromInt x ++ "%")
+                        settings.phosphorLevel
+               , oneline "Scanline intensity:" <|
+                    slider
+                        ( 0, 100 )
+                        (Maybe.map (ChangeSettingsScanlineIntensity >> ChangeSettings) >> Maybe.withDefault None)
+                        (\x -> String.fromInt x ++ "%")
+                        settings.scanlineIntensity
+               ]
     , section "Controls"
     , p []
         [ oneline "Touch controls:" <|
@@ -189,5 +210,5 @@ page model media =
             , descendants [ Sel.label [ pseudoClass "not(:first-of-type)" [ paddingTop (Css.em 1) ] ] ]
             ]
         ]
-        (settingsList model.settings media (List.length model.cartridges > 0))
+        (settingsList model media (List.length model.cartridges > 0))
     ]

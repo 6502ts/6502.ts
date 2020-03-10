@@ -151,6 +151,7 @@ export interface Flags {
     version: string;
     wasUpdated: boolean;
     gamepadCount: number;
+    badGpu: boolean;
 }
 
 export interface Options {

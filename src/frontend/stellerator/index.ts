@@ -25,7 +25,15 @@
 
 import 'reflect-metadata';
 
-import Elm, { CartridgeType, Cartridge, Settings } from '../elm/Stellerator/Main.elm';
+import Elm, {
+    CartridgeType,
+    Cartridge,
+    Settings,
+    CpuEmulation,
+    AudioEmulation,
+    TvEmulation,
+    Scaling
+} from '../elm/Stellerator/Main.elm';
 import '../theme/dos.scss';
 
 import { version as packageVersion } from '../../../package.json';
@@ -37,18 +45,35 @@ import MediaApi from './service/MediaApi';
 import ScrollIntoView from './service/ScrollIntoView';
 import AddCartridge from './service/AddCartridge';
 import { Container } from 'inversify';
-import Storage, { DEFAULT_SETTINGS } from './service/Storage';
+import Storage from './service/Storage';
 import TrackCartridges from './service/TrackCartridges';
 import TrackSettings from './service/TrackSettings';
 import Emulation from './service/Emulation';
 import TouchIO from '../../web/stella/driver/TouchIO';
 import GamepadDriver from '../../web/driver/Gamepad';
+import { Capabilities, detect as detectWebglCapabilities } from '../../web/driver/video/Capabilities';
 
 const VERSION_STORAGE_KEY = process.env.DEVELOPMENT ? 'stellerator-ng-version-dev' : 'stellerator-ng-version';
 
 if (navigator.serviceWorker && !process.env.DEVELOPMENT) {
     navigator.serviceWorker.register('./service-worker.js', { scope: './' });
 }
+
+export const defaultSettings = (capabilities: Capabilities): Settings => ({
+    cpuEmulation: CpuEmulation.cycle,
+    volume: 80,
+    audioEmulation: AudioEmulation.pcm,
+    gammaCorrection: 1.0,
+    tvEmulation: capabilities && capabilities.floatTextures ? TvEmulation.composite : TvEmulation.none,
+    scaling: capabilities && capabilities.floatTextures ? Scaling.qis : Scaling.bilinear,
+    phosphorLevel: 50,
+    scanlineIntensity: 20,
+    touchControls: undefined,
+    leftHanded: false,
+    virtualJoystickSensitivity: 10,
+    uiMode: undefined,
+    uiSize: 100
+});
 
 async function main(): Promise<void> {
     initializeRangetouch();
@@ -60,6 +85,9 @@ async function main(): Promise<void> {
 
     const container = new Container({ autoBindInjectable: true, defaultScope: 'Singleton' });
     const storage = container.get(Storage);
+    const capabilities = detectWebglCapabilities();
+
+    storage.setDefaults(defaultSettings(capabilities));
 
     let cartridges: Array<Cartridge>;
     let settings: Settings | undefined;
@@ -83,11 +111,12 @@ async function main(): Promise<void> {
             cartridges,
             cartridgeTypes,
             settings,
-            defaultSettings: DEFAULT_SETTINGS,
+            defaultSettings: defaultSettings(capabilities),
             touchSupport: TouchIO.isSupported(),
             version,
             wasUpdated,
-            gamepadCount: GamepadDriver.probeGamepadCount()
+            gamepadCount: GamepadDriver.probeGamepadCount(),
+            badGpu: !(capabilities && capabilities.floatTextures)
         }
     });
 

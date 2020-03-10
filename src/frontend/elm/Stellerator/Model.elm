@@ -228,6 +228,7 @@ type alias Model =
     , consoleSwitches : ConsoleSwitches
     , version : String
     , gamepadCount : Int
+    , badGpu : Bool
     }
 
 

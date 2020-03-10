@@ -47,7 +47,19 @@ function shaderSupportsPrecision(gl: WebGLRenderingContext, shaderType: number, 
     return !!format && format.precision > 0;
 }
 
-export function detect(gl: WebGLRenderingContext): Capabilities {
+export function detect(): Capabilities | null;
+export function detect(gl: WebGLRenderingContext): Capabilities;
+export function detect(gl: WebGLRenderingContext = null) {
+    if (!gl) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+
+        gl = canvas.getContext('webgl') || (canvas.getContext('experimental-webgl') as any);
+    }
+
+    if (!gl) return null;
+
     return {
         floatTextures: detectFloatTextureSupport(gl),
         halfFloatTextures: detectHalfFloatTextureSupport(gl),
