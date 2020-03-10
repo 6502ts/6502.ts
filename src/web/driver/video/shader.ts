@@ -1,7 +1,13 @@
+import { Capabilities } from './Capabilities';
+
+function precision(capabilities: Capabilities): string {
+    return `precision ${capabilities.highpSupport ? 'highp' : 'mediump'} float;`;
+}
+
 export namespace vsh {
     export namespace plain {
-        export const source = `
-            precision highp float;
+        export const source = (capabilities: Capabilities) => `
+            ${precision(capabilities)}
 
             attribute vec2 a_VertexPosition;
             attribute vec2 a_TextureCoordinate;
@@ -23,8 +29,8 @@ export namespace vsh {
 
 export namespace fsh {
     export namespace blit {
-        export const source = `
-            precision highp float;
+        export const source = (capabilities: Capabilities) => `
+            ${precision(capabilities)}
 
             varying vec2 v_TextureCoordinate;
 
@@ -41,8 +47,8 @@ export namespace fsh {
     }
 
     export namespace blitWithGamma {
-        export const source = `
-            precision highp float;
+        export const source = (capabilities: Capabilities) => `
+            ${precision(capabilities)}
 
             varying vec2 v_TextureCoordinate;
 
@@ -63,8 +69,8 @@ export namespace fsh {
     }
 
     export namespace phosphor {
-        export const source = `
-            precision highp float;
+        export const source = (capabilities: Capabilities) => `
+            ${precision(capabilities)}
 
             varying vec2 v_TextureCoordinate;
 
@@ -100,8 +106,8 @@ export namespace fsh {
     }
 
     export namespace ntscPass1 {
-        export const source = `
-            precision highp float;
+        export const source = (capabilities: Capabilities) => `
+            ${precision(capabilities)}
 
             #define PI 3.14159265
 
@@ -116,12 +122,6 @@ export namespace fsh {
 
             varying vec2 v_TextureCoordinate;
 
-            mat3 mix_mat = mat3(
-                BRIGHTNESS, u_Fringing, u_Fringing,
-                u_Artifacting, 2.0 * SATURATION, 0.0,
-                u_Artifacting, 0.0, 2.0 * SATURATION
-            );
-
             const mat3 yiq_mat = mat3(
                 0.2989, 0.5870, 0.1140,
                 0.5959, -0.2744, -0.3216,
@@ -132,7 +132,40 @@ export namespace fsh {
                 return col * yiq_mat;
             }
 
+            ${
+                capabilities.floatTextures || capabilities.halfFloatTextures
+                    ? ''
+                    : `
+                vec4 pack(vec3 yiq) {
+                    yiq += 1.2;
+                    yiq /= 3.4;
+
+                    int y_byte = int(yiq.r * 1024.0);
+                    int i_byte = int(yiq.g * 1024.0);
+                    int q_byte = int(yiq.b * 1024.0);
+
+                    int y_high = (y_byte / 4) * 4;
+                    int i_high = (i_byte / 4) * 4;
+                    int q_high = (q_byte / 4) * 4;
+                    int alpha = (q_byte - q_high) * 16 + (i_byte - i_high) * 4 + (y_byte - y_high);
+
+                    return vec4(
+                        float(y_high / 4) / 255.0,
+                        float(i_high / 4) / 255.0,
+                        float(q_high / 4) / 255.0,
+                        float(alpha) / 255.0
+                    );
+                }
+                `
+            }
+
             void main() {
+                mat3 mix_mat = mat3(
+                    BRIGHTNESS, u_Fringing, u_Fringing,
+                    u_Artifacting, 2.0 * SATURATION, 0.0,
+                    u_Artifacting, 0.0, 2.0 * SATURATION
+                );
+
                 vec3 col = texture2D(u_Sampler0, v_TextureCoordinate).rgb;
                 vec3 yiq = rgb2yiq(col);
 
@@ -145,7 +178,9 @@ export namespace fsh {
                 yiq *= mix_mat; // Cross-talk.
                 yiq.yz *= vec2(i_mod, q_mod); // Demodulate.
 
-                gl_FragColor = vec4(yiq, 1.0);
+                gl_FragColor = ${
+                    capabilities.floatTextures || capabilities.halfFloatTextures ? 'vec4(yiq, 1.0)' : 'pack(yiq)'
+                };
             }
         `;
 
@@ -213,8 +248,12 @@ export namespace fsh {
             0.079052396
         ];
 
-        export const source = `
-            precision highp float;
+        function maybeUnpack(capabilities: Capabilities, expr: string): string {
+            return capabilities.floatTextures || capabilities.halfFloatTextures ? expr : `unpack(${expr})`;
+        }
+
+        export const source = (capabilities: Capabilities) => `
+            ${precision(capabilities)}
 
             uniform sampler2D u_Sampler0;
             varying vec2 v_TextureCoordinate;
@@ -229,10 +268,35 @@ export namespace fsh {
                 return yiq * yiq2rgb_mat;
             }
 
+            ${
+                capabilities.floatTextures || capabilities.halfFloatTextures
+                    ? ''
+                    : `
+                vec3 unpack(vec4 yiqPacked) {
+                    int y_high = int(yiqPacked.r * 1024.0);
+                    int i_high = int(yiqPacked.g * 1024.0);
+                    int q_high = int(yiqPacked.b * 1024.0);
+                    int alpha = int(yiqPacked.a * 256.0);
+
+                    int y_low = alpha - (alpha / 4) * 4;
+                    int i_low = alpha - y_low - (alpha / 16) * 16;
+                    int q_low = alpha - i_low - y_low;
+
+                    return vec3(
+                        float(y_high + y_low) / 1023.0,
+                        float(i_high + i_low) / 1023.0,
+                        float(q_high + q_low) / 1023.0
+                    ) * 3.4 - 1.2;
+                }
+                `
+            }
+
             vec3 fetch_offset(int offset) {
                 float x = v_TextureCoordinate.x + float(offset) / 960.0;
 
-                return x < 0.0 ? vec3(0) : x > 1.0 ? vec3(0) : texture2D(u_Sampler0, vec2(x, v_TextureCoordinate.y)).rgb;
+                return x < 0.0 ? vec3(0) : x > 1.0
+                    ? vec3(0)
+                    : ${maybeUnpack(capabilities, 'texture2D(u_Sampler0, vec2(x, v_TextureCoordinate.y))')};
             }
 
             void main() {
@@ -250,7 +314,7 @@ export namespace fsh {
                     )
                     .join('\n')}
 
-                signal += texture2D(u_Sampler0, v_TextureCoordinate).rgb *
+                signal += ${maybeUnpack(capabilities, 'texture2D(u_Sampler0, v_TextureCoordinate)')} *
                     vec3(${lumaFilter[24]}, ${chromaFilter[24]}, ${chromaFilter[24]});
 
                 vec3 rgb = yiq2rgb(signal);
@@ -264,8 +328,8 @@ export namespace fsh {
     }
 
     export namespace scanlines {
-        export const source = `
-            precision highp float;
+        export const source = (capabilities: Capabilities) => `
+            ${precision(capabilities)}
 
             uniform sampler2D u_Sampler0;
             uniform float u_Level;

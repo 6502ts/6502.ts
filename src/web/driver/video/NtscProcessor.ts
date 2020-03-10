@@ -14,8 +14,16 @@ class NtscProcessor implements Processor {
         gl.getExtension('WEBGL_color_buffer_float');
         gl.getExtension('OES_texture_float');
 
-        this._programPass1 = Program.compile(gl, vsh.plain.source, fsh.ntscPass1.source);
-        this._programPass2 = Program.compile(gl, vsh.plain.source, fsh.ntscPass2.source);
+        this._programPass1 = Program.compile(
+            gl,
+            vsh.plain.source(this._capabilities),
+            fsh.ntscPass1.source(this._capabilities)
+        );
+        this._programPass2 = Program.compile(
+            gl,
+            vsh.plain.source(this._capabilities),
+            fsh.ntscPass2.source(this._capabilities)
+        );
 
         this._programPass1.use();
         this._programPass1.uniform1i(fsh.ntscPass1.uniform.textureUnit, 0);

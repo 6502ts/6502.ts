@@ -1,9 +1,10 @@
 import Processor from './Processor';
 import Program from './Program';
 import { fsh, vsh } from './shader';
+import { Capabilities } from './Capabilities';
 
 class ScanlineProcessor implements Processor {
-    constructor(private _gl: WebGLRenderingContext) {}
+    constructor(private _gl: WebGLRenderingContext, private _capabilities: Capabilities) {}
 
     init(): void {
         if (this._initialized) return;
@@ -11,7 +12,11 @@ class ScanlineProcessor implements Processor {
         const gl = this._gl;
 
         this._framebuffer = gl.createFramebuffer();
-        this._program = Program.compile(gl, vsh.plain.source, fsh.scanlines.source);
+        this._program = Program.compile(
+            gl,
+            vsh.plain.source(this._capabilities),
+            fsh.scanlines.source(this._capabilities)
+        );
 
         this._program.use();
         this._program.uniform1i(fsh.scanlines.uniform.textureUnit, 0);

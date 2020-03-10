@@ -69,12 +69,11 @@ class Video {
         }
 
         this._capabilities = detect(this._gl);
-        console.log(this._capabilities);
 
-        this._phosphorProcessor = new PhosphorProcessor(this._gl);
+        this._phosphorProcessor = new PhosphorProcessor(this._gl, this._capabilities);
         this._ntscProcessor = new NtscProcessor(this._gl, this._capabilities);
-        this._scanlineProcessor = new ScanlineProcessor(this._gl);
-        this._integerScalingProcessor = new IntegerScalingProcessor(this._gl);
+        this._scanlineProcessor = new ScanlineProcessor(this._gl, this._capabilities);
+        this._integerScalingProcessor = new IntegerScalingProcessor(this._gl, this._capabilities);
 
         this._pendingFrames.evict.addHandler(frame => frame.release());
     }
@@ -82,7 +81,11 @@ class Video {
     init(): this {
         this._updateCanvasSize();
 
-        this._mainProgram = Program.compile(this._gl, vsh.plain.source, fsh.blitWithGamma.source);
+        this._mainProgram = Program.compile(
+            this._gl,
+            vsh.plain.source(this._capabilities),
+            fsh.blitWithGamma.source(this._capabilities)
+        );
 
         this._mainProgram.use();
         this._mainProgram.uniform1i(fsh.blitWithGamma.uniform.textureUnit, 0);

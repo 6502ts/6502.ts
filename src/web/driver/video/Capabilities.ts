@@ -1,6 +1,7 @@
 export interface Capabilities {
     floatTextures: boolean;
     halfFloatTextures: boolean;
+    highpSupport: boolean;
 }
 
 function framebufferSupportTextureType(gl: WebGLRenderingContext, type: number): boolean {
@@ -40,9 +41,18 @@ function detectHalfFloatTextureSupport(gl: WebGLRenderingContext): boolean {
     return framebufferSupportTextureType(gl, extHalfFLoat.HALF_FLOAT_OES);
 }
 
+function shaderSupportsPrecision(gl: WebGLRenderingContext, shaderType: number, precisionType: number): boolean {
+    const format = gl.getShaderPrecisionFormat(shaderType, precisionType);
+
+    return !!format && format.precision > 0;
+}
+
 export function detect(gl: WebGLRenderingContext): Capabilities {
     return {
         floatTextures: detectFloatTextureSupport(gl),
-        halfFloatTextures: detectHalfFloatTextureSupport(gl)
+        halfFloatTextures: detectHalfFloatTextureSupport(gl),
+        highpSupport:
+            shaderSupportsPrecision(gl, gl.FRAGMENT_SHADER, gl.HIGH_FLOAT) &&
+            shaderSupportsPrecision(gl, gl.VERTEX_SHADER, gl.HIGH_FLOAT)
     };
 }
