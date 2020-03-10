@@ -58,11 +58,9 @@ class Video {
             antialias: false
         };
 
-        this._gl = canvas.getContext('webgl', contextOptions);
-
-        if (!this._gl) {
-            this._gl = canvas.getContext('experimental-webgl', contextOptions) as any;
-        }
+        this._gl =
+            canvas.getContext('webgl', contextOptions) ||
+            (canvas.getContext('experimental-webgl', contextOptions) as any);
 
         if (!this._gl) {
             throw new Error('unable to acquire webgl context');

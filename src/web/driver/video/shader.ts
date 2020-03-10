@@ -249,7 +249,7 @@ export namespace fsh {
         ];
 
         function maybeUnpack(capabilities: Capabilities, expr: string): string {
-            return capabilities.floatTextures || capabilities.halfFloatTextures ? expr : `unpack(${expr})`;
+            return capabilities.floatTextures || capabilities.halfFloatTextures ? `${expr}.rgb` : `unpack(${expr})`;
         }
 
         export const source = (capabilities: Capabilities) => `
