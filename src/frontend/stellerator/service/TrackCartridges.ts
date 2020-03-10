@@ -46,8 +46,15 @@ class TrackCartridges {
         await this._emulation.updateCartridge(cartridge);
     }
 
-    private _onCartridgeUpdated = async (cartridge: Cartridge) =>
-        this._mutex.runExclusive(() => this._updateCartridge(cartridge));
+    private _onCartridgeUpdated = (cartridge: Cartridge) => {
+        if (this._updateCartridgeHandle === null) {
+            this._updateCartridgeHandle = window.setTimeout(() => {
+                this._updateCartridgeHandle = null;
+
+                this._mutex.runExclusive(() => this._updateCartridge(cartridge));
+            }, 100);
+        }
+    };
 
     private _onCartridgeDeleted = (hash: string) => this._storage.deleteCartridge(hash);
 
@@ -68,6 +75,7 @@ class TrackCartridges {
         });
     };
 
+    private _updateCartridgeHandle: number = null;
     private _mutex = new Mutex();
 }
 

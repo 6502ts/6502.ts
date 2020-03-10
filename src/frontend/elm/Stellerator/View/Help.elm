@@ -28,7 +28,7 @@ module Stellerator.View.Help exposing (page)
 
 import Css exposing (..)
 import Css.Global exposing (descendants, selector)
-import Dos exposing (Color(..), color)
+import Dos exposing (Color(..))
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Markdown

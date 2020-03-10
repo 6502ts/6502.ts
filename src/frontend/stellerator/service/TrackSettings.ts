@@ -38,12 +38,19 @@ class TrackSettings {
     }
 
     private async updateSettings(settings: Settings): Promise<void> {
-        await this._storage.saveSettings(settings);
-        await this._emulation.updateSettings(settings);
+        if (this._updateSettingsHandle === null) {
+            this._updateSettingsHandle = window.setTimeout(async () => {
+                this._updateSettingsHandle = null;
+
+                await this._storage.saveSettings(settings);
+                await this._emulation.updateSettings(settings);
+            }, 100);
+        }
     }
 
     private _onSettingsUpdate = (settings: Settings) => this._mutex.runExclusive(() => this.updateSettings(settings));
 
+    private _updateSettingsHandle: number = null;
     private _mutex = new Mutex();
 }
 
