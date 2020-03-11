@@ -29,13 +29,14 @@ import Storage from './Storage';
 import Emulation from './Emulation';
 import { Mutex } from 'async-mutex';
 import FileSaver from 'file-saver';
+import Throttle from '../../../tools/Throttle';
 
 @injectable()
 class TrackCartridges {
     constructor(@inject(Storage) private _storage: Storage, @inject(Emulation) private _emulation: Emulation) {}
 
     init(ports: Ports): void {
-        ports.updateCartridge_.subscribe(this._onCartridgeUpdated);
+        ports.updateCartridge_.subscribe(this._updateCartridgeThrottle.run.bind(this._updateCartridgeThrottle));
         ports.deleteCartridge_.subscribe(this._onCartridgeDeleted);
         ports.deleteAllCartridges_.subscribe(this._onDeleteAllCartridges);
         ports.saveCartridge_.subscribe(this._onSaveCartridge);
@@ -45,16 +46,6 @@ class TrackCartridges {
         await this._storage.updateCartridge(cartridge);
         await this._emulation.updateCartridge(cartridge);
     }
-
-    private _onCartridgeUpdated = (cartridge: Cartridge) => {
-        if (this._updateCartridgeHandle === null) {
-            this._updateCartridgeHandle = window.setTimeout(() => {
-                this._updateCartridgeHandle = null;
-
-                this._mutex.runExclusive(() => this._updateCartridge(cartridge));
-            }, 100);
-        }
-    };
 
     private _onCartridgeDeleted = (hash: string) => this._storage.deleteCartridge(hash);
 
@@ -75,7 +66,9 @@ class TrackCartridges {
         });
     };
 
-    private _updateCartridgeHandle: number = null;
+    private _updateCartridgeThrottle = new Throttle<Cartridge>(250, cartridge =>
+        this._mutex.runExclusive(() => this._updateCartridge(cartridge))
+    );
     private _mutex = new Mutex();
 }
 

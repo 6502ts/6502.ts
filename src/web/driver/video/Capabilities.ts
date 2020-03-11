@@ -63,8 +63,6 @@ export function detect(gl: WebGLRenderingContext = null) {
     return {
         floatTextures: detectFloatTextureSupport(gl),
         halfFloatTextures: detectHalfFloatTextureSupport(gl),
-        highpSupport:
-            shaderSupportsPrecision(gl, gl.FRAGMENT_SHADER, gl.HIGH_FLOAT) &&
-            shaderSupportsPrecision(gl, gl.VERTEX_SHADER, gl.HIGH_FLOAT)
+        highpSupport: shaderSupportsPrecision(gl, gl.FRAGMENT_SHADER, gl.HIGH_FLOAT)
     };
 }

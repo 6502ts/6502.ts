@@ -28,29 +28,24 @@ import Storage from './Storage';
 import { Ports, Settings } from '../../elm/Stellerator/Main.elm';
 import Emulation from './Emulation';
 import { Mutex } from 'async-mutex';
+import Throttle from '../../../tools/Throttle';
 
 @injectable()
 class TrackSettings {
     constructor(@inject(Storage) private _storage: Storage, @inject(Emulation) private _emulation: Emulation) {}
 
     init(ports: Ports): void {
-        ports.updateSettings_.subscribe(this._onSettingsUpdate);
+        ports.updateSettings_.subscribe(this._throttle.run.bind(this._throttle));
     }
 
-    private async updateSettings(settings: Settings): Promise<void> {
-        if (this._updateSettingsHandle === null) {
-            this._updateSettingsHandle = window.setTimeout(async () => {
-                this._updateSettingsHandle = null;
-
-                await this._storage.saveSettings(settings);
-                await this._emulation.updateSettings(settings);
-            }, 100);
-        }
+    private _applyUpdate(settings: Settings): void {
+        this._mutex.runExclusive(async () => {
+            await this._storage.saveSettings(settings);
+            await this._emulation.updateSettings(settings);
+        });
     }
 
-    private _onSettingsUpdate = (settings: Settings) => this._mutex.runExclusive(() => this.updateSettings(settings));
-
-    private _updateSettingsHandle: number = null;
+    private _throttle = new Throttle<Settings>(250, this._applyUpdate.bind(this));
     private _mutex = new Mutex();
 }
 

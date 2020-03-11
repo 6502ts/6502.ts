@@ -51,7 +51,7 @@ import TrackSettings from './service/TrackSettings';
 import Emulation from './service/Emulation';
 import TouchIO from '../../web/stella/driver/TouchIO';
 import GamepadDriver from '../../web/driver/Gamepad';
-import { Capabilities, detect as detectWebglCapabilities } from '../../web/driver/video/Capabilities';
+import { detect as detectWebglCapabilities } from '../../web/driver/video/Capabilities';
 
 const VERSION_STORAGE_KEY = process.env.DEVELOPMENT ? 'stellerator-ng-version-dev' : 'stellerator-ng-version';
 
@@ -59,13 +59,13 @@ if (navigator.serviceWorker && !process.env.DEVELOPMENT) {
     navigator.serviceWorker.register('./service-worker.js', { scope: './' });
 }
 
-export const defaultSettings = (capabilities: Capabilities): Settings => ({
+const defaultSettings = (badGpu: boolean): Settings => ({
     cpuEmulation: CpuEmulation.cycle,
     volume: 80,
     audioEmulation: AudioEmulation.pcm,
     gammaCorrection: 1.0,
-    tvEmulation: capabilities && capabilities.floatTextures ? TvEmulation.composite : TvEmulation.none,
-    scaling: capabilities && capabilities.floatTextures ? Scaling.qis : Scaling.bilinear,
+    tvEmulation: badGpu ? TvEmulation.none : TvEmulation.composite,
+    scaling: badGpu ? Scaling.bilinear : Scaling.qis,
     phosphorLevel: 50,
     scanlineIntensity: 20,
     touchControls: undefined,
@@ -86,8 +86,9 @@ async function main(): Promise<void> {
     const container = new Container({ autoBindInjectable: true, defaultScope: 'Singleton' });
     const storage = container.get(Storage);
     const capabilities = detectWebglCapabilities();
+    const badGpu = !(capabilities && (capabilities.floatTextures || capabilities.halfFloatTextures));
 
-    storage.setDefaults(defaultSettings(capabilities));
+    storage.setDefaults(defaultSettings(badGpu));
 
     let cartridges: Array<Cartridge>;
     let settings: Settings | undefined;
@@ -111,12 +112,12 @@ async function main(): Promise<void> {
             cartridges,
             cartridgeTypes,
             settings,
-            defaultSettings: defaultSettings(capabilities),
+            defaultSettings: defaultSettings(badGpu),
             touchSupport: TouchIO.isSupported(),
             version,
             wasUpdated,
             gamepadCount: GamepadDriver.probeGamepadCount(),
-            badGpu: !(capabilities && capabilities.floatTextures)
+            badGpu
         }
     });
 

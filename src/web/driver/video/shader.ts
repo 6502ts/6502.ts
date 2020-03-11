@@ -7,8 +7,6 @@ function precision(capabilities: Capabilities): string {
 export namespace vsh {
     export namespace plain {
         export const source = (capabilities: Capabilities) => `
-            ${precision(capabilities)}
-
             attribute vec2 a_VertexPosition;
             attribute vec2 a_TextureCoordinate;
 
