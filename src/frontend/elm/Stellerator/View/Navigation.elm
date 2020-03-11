@@ -159,7 +159,7 @@ navbarWide model =
         ]
         [ titlebar "----====≡≡≡≡" "≡≡≡≡====----" title []
         , nav [ A.css [ Dos.backgroundColor LightGray, Dos.color Black ] ]
-            [ navigationLink [] model RouteCartridges "Cartridges"
+            [ navigationLink [] model RouteCartridges "ROMs"
             , navigationLink [] model RouteSettings "Settings"
             , navigationLink [] model RouteEmulation "Emulation"
             , navigationLink [] model RouteHelp "Help"
@@ -239,7 +239,7 @@ slideoverMenu model =
             ]
                 ++ slideCss
         ]
-        [ navigationLink linkCss model RouteCartridges "Cartridges"
+        [ navigationLink linkCss model RouteCartridges "ROMs"
         , navigationLink linkCss model RouteSettings "Settings"
         , navigationLink linkCss model RouteEmulation "Emulation"
         , navigationLink linkCss model RouteHelp "Help"

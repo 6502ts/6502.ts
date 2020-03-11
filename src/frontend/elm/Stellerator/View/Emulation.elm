@@ -57,7 +57,7 @@ controlHelp model =
                     [ item "LEFT JOYSTICK: wasd / arrows + v / space"
                     , item "RIGHT JOYSTICK: ijkl + b"
                     , item "RESET: shift-enter"
-                    , item "SELECT: shifht-space"
+                    , item "SELECT: shift-space"
                     , item "TOGGLE FULLSCREEN: enter"
                     , item "HARD RESET: shift-r"
                     , item "PAUSE: p"

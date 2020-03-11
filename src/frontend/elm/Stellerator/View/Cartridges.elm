@@ -174,14 +174,14 @@ settingsItems model cart =
                 <|
                     value
     in
-    [ withLabel "Cartridge name:" <|
+    [ withLabel "ROM name:" <|
         Form.textInput
             [ A.type_ "text"
             , A.css [ width (pct 100) ]
             , Form.onInput (changeCartridge ChangeCartridgeName)
             ]
             cart.name
-    , withLabel "Cartridge type:" <|
+    , withLabel "ROM type:" <|
         Form.picker
             (List.map (\t -> ( t.key, t.description )) model.cartridgeTypes)
             (changeCartridge ChangeCartridgeType)
@@ -247,7 +247,7 @@ settingsItems model cart =
                     , E.onClick <| SaveCartridge cart.hash
                     , A.css [ marginTop (Css.em 1), padding2 (px 0) (Css.em 1) ]
                     ]
-                    [ text "Save cartridge image" ]
+                    [ text "Save ROM image" ]
                 ]
            ]
 
@@ -259,7 +259,7 @@ cartridgeListOrMessage model message list =
             message "start by clicking \"Add new\" to add a ROM image"
 
         [ _, 0 ] ->
-            message "no cartridges match the search"
+            message "no ROMS match the search"
 
         _ ->
             list
@@ -287,7 +287,7 @@ cartridgeToolbarWide model =
                 [ Form.textInput
                     [ A.type_ "text"
                     , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
-                    , A.placeholder "Search cartridges..."
+                    , A.placeholder "Filter ROMs..."
                     , Form.onInput ChangeCartridgeFilter
                     ]
                     model.cartridgeFilter
@@ -350,6 +350,7 @@ cartridgeListWide model =
                     , property "word-break" "break-word"
                     ]
                 , E.onClick <| SelectCartridge cart.hash
+                , E.onDoubleClick <| StartEmulation cart.hash
                 ]
                 [ text <| " * " ++ cart.name ]
 
@@ -430,7 +431,7 @@ settingsWide model styles =
     <|
         [ Maybe.andThen (\h -> LE.find (\c -> h == c.hash) <| cartridgesMatchingSearch model) model.currentCartridgeHash
             |> Maybe.map (formContainer << settingsItems model)
-            |> Maybe.withDefault (text "no cartridge selected")
+            |> Maybe.withDefault (text "no ROMs selected")
         ]
 
 
@@ -477,7 +478,7 @@ searchInputNarrow styles model =
         [ Form.textInput
             [ A.type_ "text"
             , A.css [ flexGrow (int 1), Dos.marginRightCw 1 ]
-            , A.placeholder "Search cartridges..."
+            , A.placeholder "Filter ROMs..."
             , Form.onInput ChangeCartridgeFilter
             , Form.onChange (\_ -> BlurCurrentElement)
             ]
