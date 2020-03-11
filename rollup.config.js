@@ -39,11 +39,18 @@ import replace from '@rollup/plugin-replace';
 import sizes from 'rollup-plugin-sizes';
 import rollupGitVersion from 'rollup-plugin-git-version';
 import path from 'path';
+import { execSync } from 'child_process';
+import pkg from './package.json';
 
 const { generateSW } = require('rollup-plugin-workbox');
 
 const DEVELOPMENT = !!process.env.DEVELOPMENT;
 const dist = p => path.join(DEVELOPMENT ? 'dist-dev' : 'dist', p);
+
+const gitShortrev = execSync('git rev-parse --short HEAD', { cwd: __dirname })
+    .toString('utf8')
+    .replace(/\s/g, '');
+const VERSION = `${pkg.version}-${gitShortrev}${DEVELOPMENT ? '-dev' : ''}`;
 
 const cfg = {
     commonjs: {
@@ -146,7 +153,10 @@ const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker 
         scss(cfg.scss),
         rollupGitVersion(),
         replace(cfg.replace),
-        replace({ 'process.env.DEVELOPMENT': JSON.stringify(DEVELOPMENT) }),
+        replace({
+            'process.env.DEVELOPMENT': JSON.stringify(DEVELOPMENT),
+            'process.env.VERSION': JSON.stringify(VERSION)
+        }),
         commonjs(cfg.commonjs),
         typescript(cfg.typescript),
         globals(),

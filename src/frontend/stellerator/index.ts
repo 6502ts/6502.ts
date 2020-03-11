@@ -36,8 +36,6 @@ import Elm, {
 } from '../elm/Stellerator/Main.elm';
 import '../theme/dos.scss';
 
-import { version as packageVersion } from '../../../package.json';
-
 import { initialize as initializeRangetouch } from '../common/rangetouch';
 import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 
@@ -101,7 +99,7 @@ async function main(): Promise<void> {
         [cartridges, settings] = await Promise.all([storage.getAllCartridges(), storage.getSettings()]);
     }
 
-    const version = packageVersion.replace(/^(.*)\+.*\.([0-9a-fA-F]+)$/, '$1 build $2');
+    const version = process.env.VERSION;
     const oldVersion = localStorage.getItem(VERSION_STORAGE_KEY);
     const wasUpdated = !!oldVersion && oldVersion !== version;
 
