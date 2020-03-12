@@ -38,7 +38,7 @@ import { Capabilities, detect } from './video/Capabilities';
 const MAX_CONSECUTIVE_UNDERFLOWS = 5;
 
 class Video {
-    constructor(canvas: HTMLCanvasElement, config: Partial<Video.Config> = {}) {
+    constructor(private _canvas: HTMLCanvasElement, config: Partial<Video.Config> = {}) {
         const defaultConfig: Video.Config = {
             gamma: 1,
             scalingMode: Video.ScalingMode.qis,
@@ -52,31 +52,22 @@ class Video {
             ...config
         };
 
-        const contextOptions: WebGLContextAttributes = {
-            alpha: false,
-            depth: false,
-            antialias: false
-        };
+        this._getRenderingContext();
 
-        this._gl =
-            canvas.getContext('webgl', contextOptions) ||
-            (canvas.getContext('experimental-webgl', contextOptions) as any);
+        this._canvas.addEventListener('webglcontextlost', this._onContextLost);
+        this._canvas.addEventListener('webglcontextrestored', this._onContextRestored);
 
-        if (!this._gl) {
-            throw new Error('unable to acquire webgl context');
-        }
+        this._pendingFrames.evict.addHandler(frame => frame.release());
+    }
 
-        this._capabilities = detect(this._gl);
+    init(): this {
+        if (!this._gl) return this;
 
         this._phosphorProcessor = new PhosphorProcessor(this._gl, this._capabilities);
         this._ntscProcessor = new NtscProcessor(this._gl, this._capabilities);
         this._scanlineProcessor = new ScanlineProcessor(this._gl, this._capabilities);
         this._integerScalingProcessor = new IntegerScalingProcessor(this._gl, this._capabilities);
 
-        this._pendingFrames.evict.addHandler(frame => frame.release());
-    }
-
-    init(): this {
         this._updateCanvasSize();
 
         this._mainProgram = Program.compile(
@@ -100,17 +91,27 @@ class Video {
     close(): this {
         const gl = this._gl;
 
-        this._mainProgram.delete();
-        gl.deleteBuffer(this._vertexCoordinateBuffer);
-        gl.deleteBuffer(this._textureCoordinateBuffer);
-        gl.deleteTexture(this._sourceTexture);
+        this._cancelDraw();
+        this.unbind();
 
-        this._ntscProcessor.destroy();
-        this._phosphorProcessor.destroy();
-        this._scanlineProcessor.destroy();
-        this._integerScalingProcessor.destroy();
+        if (gl) {
+            this._mainProgram.delete();
+            gl.deleteBuffer(this._vertexCoordinateBuffer);
+            gl.deleteBuffer(this._textureCoordinateBuffer);
+            gl.deleteTexture(this._sourceTexture);
 
-        return this;
+            this._ntscProcessor.destroy();
+            this._phosphorProcessor.destroy();
+            this._scanlineProcessor.destroy();
+            this._integerScalingProcessor.destroy();
+
+            return this;
+        }
+
+        this._canvas.removeEventListener('webglcontextlost', this._onContextLost);
+        this._canvas.removeEventListener('webglcontextrestored', this._onContextRestored);
+
+        this._pendingFrames.forEach(f => f.release());
     }
 
     resize(width?: number, height?: number): this {
@@ -128,7 +129,7 @@ class Video {
     }
 
     getCanvas(): HTMLCanvasElement {
-        return this._gl.canvas as HTMLCanvasElement;
+        return this._canvas;
     }
 
     bind(video: VideoEndpointInterface): this {
@@ -180,6 +181,26 @@ class Video {
         self._scheduleDraw();
     }
 
+    private _getRenderingContext(): void {
+        const contextOptions: WebGLContextAttributes = {
+            alpha: false,
+            depth: false,
+            antialias: false
+        };
+
+        this._gl =
+            this._canvas.getContext('webgl', contextOptions) ||
+            (this._canvas.getContext('experimental-webgl', contextOptions) as any);
+
+        if (!this._gl) {
+            throw new Error('unable to acquire webgl context');
+        }
+
+        this._capabilities = detect(this._gl);
+
+        (window as any).csfoo = this._gl;
+    }
+
     private _scheduleDraw(): void {
         if (this._anmiationFrameHandle !== 0) {
             return;
@@ -213,6 +234,8 @@ class Video {
 
         const frame = this._pendingFrames.pop();
 
+        if (!gl) return;
+
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this._sourceTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, frame.get());
@@ -225,6 +248,8 @@ class Video {
     }
 
     private _draw(): void {
+        if (!this._gl) return;
+
         const gl = this._gl;
 
         let texture = this._sourceTexture;
@@ -278,6 +303,8 @@ class Video {
     }
 
     private _createVertexCoordinateBuffer(): void {
+        if (!this._gl) return;
+
         const gl = this._gl,
             targetWidth = gl.drawingBufferWidth,
             targetHeight = gl.drawingBufferHeight,
@@ -306,11 +333,15 @@ class Video {
     }
 
     private _updateVertexBuffer(): void {
+        if (!this._gl) return;
+
         this._gl.deleteBuffer(this._vertexCoordinateBuffer);
         this._createVertexCoordinateBuffer();
     }
 
     private _createTextureCoordinateBuffer(): void {
+        if (!this._gl) return;
+
         const gl = this._gl;
         const textureCoordinateData = [1, 1, 0, 1, 1, 0, 0, 0];
 
@@ -332,6 +363,8 @@ class Video {
     }
 
     private _configureSourceTexture(): void {
+        if (!this._gl) return;
+
         const gl = this._gl;
 
         if (!this._sourceTexture) {
@@ -350,9 +383,7 @@ class Video {
     }
 
     private _configureProcessors() {
-        if (!this._video) {
-            return;
-        }
+        if (!this._video || !this._gl) return;
 
         this._phosphorProcessor.configure(this._config.phosphorLevel);
         this._scanlineProcessor.configure(this._config.scanlineLevel);
@@ -380,6 +411,8 @@ class Video {
     }
 
     private _applyConfiguration(): void {
+        if (!this._gl) return;
+
         this._mainProgram.use();
         this._mainProgram.uniform1f(fsh.blitWithGamma.uniform.gamma, this._config.gamma);
 
@@ -407,6 +440,27 @@ class Video {
 
         this._configureProcessors();
     }
+
+    private _onContextLost = (e: Event): void => {
+        e.preventDefault();
+
+        this._gl = null;
+        this._mainProgram = null;
+        this._vertexCoordinateBuffer = null;
+        this._textureCoordinateBuffer = null;
+        this._sourceTexture = null;
+        this._phosphorProcessor = null;
+        this._ntscProcessor = null;
+        this._integerScalingProcessor = null;
+        this._scanlineProcessor = null;
+
+        this._processors = [];
+    };
+
+    private _onContextRestored = (): void => {
+        this._getRenderingContext();
+        this.init();
+    };
 
     private _config: Video.Config = null;
     private _gl: WebGLRenderingContext = null;

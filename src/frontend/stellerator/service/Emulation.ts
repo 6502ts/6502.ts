@@ -419,6 +419,7 @@ class Emulation {
         }
 
         this._driverManager.removeDriver(this._videoDriver);
+        this._videoDriver.close();
 
         this._videoDriver = null;
 
