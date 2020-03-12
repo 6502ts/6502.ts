@@ -197,8 +197,6 @@ class Video {
         }
 
         this._capabilities = detect(this._gl);
-
-        (window as any).csfoo = this._gl;
     }
 
     private _scheduleDraw(): void {
