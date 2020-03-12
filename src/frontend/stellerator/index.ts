@@ -84,7 +84,11 @@ async function main(): Promise<void> {
     const container = new Container({ autoBindInjectable: true, defaultScope: 'Singleton' });
     const storage = container.get(Storage);
     const capabilities = detectWebglCapabilities();
-    const badGpu = !(capabilities && (capabilities.floatTextures || capabilities.halfFloatTextures));
+    const badGpu = !(
+        capabilities &&
+        (capabilities.floatTextures || capabilities.halfFloatTextures) &&
+        capabilities.highpInFsh
+    );
 
     storage.setDefaults(defaultSettings(badGpu));
 

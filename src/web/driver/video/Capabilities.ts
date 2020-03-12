@@ -1,7 +1,8 @@
 export interface Capabilities {
     floatTextures: boolean;
     halfFloatTextures: boolean;
-    highpSupport: boolean;
+    highpInVsh: boolean;
+    highpInFsh: boolean;
 }
 
 function framebufferSupportTextureType(gl: WebGLRenderingContext, type: number): boolean {
@@ -63,6 +64,7 @@ export function detect(gl: WebGLRenderingContext = null) {
     return {
         floatTextures: detectFloatTextureSupport(gl),
         halfFloatTextures: detectHalfFloatTextureSupport(gl),
-        highpSupport: shaderSupportsPrecision(gl, gl.FRAGMENT_SHADER, gl.HIGH_FLOAT)
+        highpInFsh: shaderSupportsPrecision(gl, gl.FRAGMENT_SHADER, gl.HIGH_FLOAT),
+        highpInVsh: shaderSupportsPrecision(gl, gl.VERTEX_SHADER, gl.HIGH_FLOAT)
     };
 }

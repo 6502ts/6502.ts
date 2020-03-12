@@ -1,12 +1,18 @@
 import { Capabilities } from './Capabilities';
 
-function precision(capabilities: Capabilities): string {
-    return `precision ${capabilities.highpSupport ? 'highp' : 'mediump'} float;`;
+function precisionFsh(capabilities: Capabilities): string {
+    return `precision ${capabilities.highpInVsh ? 'highp' : 'mediump'} float;`;
+}
+
+function precisionVsh(capabilities: Capabilities): string {
+    return `precision ${capabilities.highpInVsh ? 'highp' : 'mediump'} float;`;
 }
 
 export namespace vsh {
     export namespace plain {
         export const source = (capabilities: Capabilities) => `
+            ${precisionVsh(capabilities)}
+
             attribute vec2 a_VertexPosition;
             attribute vec2 a_TextureCoordinate;
 
@@ -28,7 +34,7 @@ export namespace vsh {
 export namespace fsh {
     export namespace blit {
         export const source = (capabilities: Capabilities) => `
-            ${precision(capabilities)}
+            ${precisionFsh(capabilities)}
 
             varying vec2 v_TextureCoordinate;
 
@@ -46,7 +52,7 @@ export namespace fsh {
 
     export namespace blitWithGamma {
         export const source = (capabilities: Capabilities) => `
-            ${precision(capabilities)}
+            ${precisionFsh(capabilities)}
 
             varying vec2 v_TextureCoordinate;
 
@@ -68,7 +74,7 @@ export namespace fsh {
 
     export namespace phosphor {
         export const source = (capabilities: Capabilities) => `
-            ${precision(capabilities)}
+            ${precisionFsh(capabilities)}
 
             varying vec2 v_TextureCoordinate;
 
@@ -78,9 +84,9 @@ export namespace fsh {
 
             float applyPhosphor(float new, float previous) {
                 float decayed = previous * u_PhosphorLevel;
-                decayed = (previous - decayed) * 255.0 < 0.5 ? 0.0 : decayed;
+                decayed = step(0.5, (previous - decayed) * 255.0) * decayed;
 
-                return new > decayed ? new : decayed;
+                return max(new, decayed);
             }
 
             void main() {
@@ -105,7 +111,7 @@ export namespace fsh {
 
     export namespace ntscPass1 {
         export const source = (capabilities: Capabilities) => `
-            ${precision(capabilities)}
+            ${precisionFsh(capabilities)}
 
             #define PI 3.14159265
 
@@ -251,7 +257,7 @@ export namespace fsh {
         }
 
         export const source = (capabilities: Capabilities) => `
-            ${precision(capabilities)}
+            ${precisionFsh(capabilities)}
 
             uniform sampler2D u_Sampler0;
             varying vec2 v_TextureCoordinate;
@@ -292,9 +298,8 @@ export namespace fsh {
             vec3 fetch_offset(int offset) {
                 float x = v_TextureCoordinate.x + float(offset) / 960.0;
 
-                return x < 0.0 ? vec3(0) : x > 1.0
-                    ? vec3(0)
-                    : ${maybeUnpack(capabilities, 'texture2D(u_Sampler0, vec2(x, v_TextureCoordinate.y))')};
+                return step(0.0, x) * step(-1.0, -x) *
+                    ${maybeUnpack(capabilities, 'texture2D(u_Sampler0, vec2(x, v_TextureCoordinate.y))')};
             }
 
             void main() {
@@ -327,7 +332,7 @@ export namespace fsh {
 
     export namespace scanlines {
         export const source = (capabilities: Capabilities) => `
-            ${precision(capabilities)}
+            ${precisionFsh(capabilities)}
 
             uniform sampler2D u_Sampler0;
             uniform float u_Level;
@@ -338,7 +343,8 @@ export namespace fsh {
             void main() {
                 vec3 texel = texture2D(u_Sampler0, v_TextureCoordinate).rgb;
 
-                gl_FragColor = vec4(mod(v_TextureCoordinate.y * u_Height, 2.0) >= 1.0 ? u_Level * texel : texel, 1.0);
+                gl_FragColor = vec4(
+                    (step(1.0, mod(v_TextureCoordinate.y * u_Height, 2.0)) * (1.0 - u_Level) + u_Level) * texel, 1.0);
             }
         `;
 
