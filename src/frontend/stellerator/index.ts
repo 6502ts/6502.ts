@@ -92,17 +92,7 @@ async function main(): Promise<void> {
 
     storage.setDefaults(defaultSettings(badGpu));
 
-    let cartridges: Array<Cartridge>;
-    let settings: Settings | undefined;
-
-    try {
-        [cartridges, settings] = await Promise.all([storage.getAllCartridges(), storage.getSettings()]);
-    } catch (e) {
-        await storage.dropDatabase();
-
-        [cartridges, settings] = await Promise.all([storage.getAllCartridges(), storage.getSettings()]);
-    }
-
+    const [cartridges, settings] = await Promise.all([storage.getAllCartridges(), storage.getSettings()]);
     const version = process.env.VERSION;
     const oldVersion = localStorage.getItem(VERSION_STORAGE_KEY);
     const wasUpdated = !!oldVersion && oldVersion !== version;
