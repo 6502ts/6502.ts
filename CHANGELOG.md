@@ -1,3 +1,43 @@
+# 1.0.0-beta10
+
+## Stellerator
+
+ * Don't nuke stored data if an exception occurs during the initial load
+
+## Stellerator-embedded
+
+ * Defunct, still needs plumbing for the new video
+
+# 1.0.0-beta9
+
+## Stellerator
+
+ * New WebGL-only video infrastructure with GPU based postprocessing
+ * Phosphor simnualation modelled after Stella
+ * TV effects  based on a libretro shader by Themaister
+ * Scanlines
+ * QIS scaling
+ * More stable framerates
+
+## Stellerator-embedded
+
+ * Defunct, still needs plumbing for the new video
+
+# 1.0.0-beta9
+
+## Stellerator
+
+ * New WebGL-only video infrastructure with GPU based postprocessing
+ * Phosphor simnualation modelled after Stella
+ * TV effects  based on a libretro shader by Themaister
+ * Scanlines
+ * QIS scaling
+ * More stable framerates
+
+## Stellerator-embedded
+
+ * Still needs plumbing for the new video
+
 # 1.0.0-beta.8
 
 ## Stellerator
