@@ -27,7 +27,6 @@ import 'reflect-metadata';
 
 import Elm, {
     CartridgeType,
-    Cartridge,
     Settings,
     CpuEmulation,
     AudioEmulation,
