@@ -1,3 +1,19 @@
+# 1.0.0-beta11
+
+## All
+
+ * Fix an initialization issue in Missile emulation; fixes BMX Airmaster.
+
+## Stellerator
+
+ * Fix fullscreen toggle via touch on iOS 13.4. Unfortunately, this means that the "alt"
+   quadrant of the canvas can't be used as a handle for scrolling anymore.
+
+## Stellerator-embedded
+
+ * Defunct, still needs plumbing for the new video
+
+
 # 1.0.0-beta10
 
 ## Stellerator
@@ -214,7 +230,7 @@
 
 # 0.9.2
 
-## Aöö
+## All
 
  * NPM metadata update.
 
