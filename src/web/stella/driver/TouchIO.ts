@@ -85,13 +85,7 @@ class TouchIO {
         this._canvas.removeEventListener('touchmove', this._onTouchMove);
     }
 
-    private _cancelEvent(touch: NormalizedTouch): boolean {
-        return touch.type !== TouchType.alt;
-    }
-
     private _onTouchStart = (e: TouchEvent): void => {
-        let cancel = false;
-
         for (let i = 0; i < e.changedTouches.length; i++) {
             const normalizedTouch = new NormalizedTouch(e.changedTouches.item(i), this._canvas),
                 id = normalizedTouch.touch.identifier;
@@ -152,29 +146,17 @@ class TouchIO {
                 default:
                     throw new Error('invalid touch type');
             }
-
-            if (this._cancelEvent(normalizedTouch) || this._fullscreenDoubleTapDetector.isDispatching()) {
-                cancel = true;
-            }
         }
 
-        if (cancel) {
-            e.preventDefault();
-        }
+        e.preventDefault();
     };
 
     private _onTouchEnd = (e: TouchEvent): void => {
-        let cancel = false;
-
         for (let i = 0; i < e.changedTouches.length; i++) {
             const normalizedTouch = this._pendingTouches.get(e.changedTouches.item(i).identifier);
 
             if (!normalizedTouch) {
                 continue;
-            }
-
-            if (this._cancelEvent(normalizedTouch) || this._fullscreenDoubleTapDetector.isDispatching()) {
-                cancel = true;
             }
 
             switch (normalizedTouch.type) {
@@ -213,24 +195,16 @@ class TouchIO {
             this._pendingTouches.delete(normalizedTouch.touch.identifier);
         }
 
-        if (cancel) {
-            e.preventDefault();
-        }
+        e.preventDefault();
     };
 
     private _onTouchMove = (e: TouchEvent): void => {
-        let cancel = false;
-
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches.item(i),
                 normalizedTouch = this._pendingTouches.get(touch.identifier);
 
             if (!normalizedTouch) {
                 continue;
-            }
-
-            if (this._cancelEvent(normalizedTouch)) {
-                cancel = true;
             }
 
             if (normalizedTouch.type !== TouchType.joystick) {
@@ -255,9 +229,7 @@ class TouchIO {
             }
         }
 
-        if (cancel) {
-            e.preventDefault();
-        }
+        e.preventDefault();
     };
 
     toggleFullscreen: Event<void>;
