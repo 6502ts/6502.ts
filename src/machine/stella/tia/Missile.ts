@@ -46,7 +46,7 @@ class Missile {
         this._moving = false;
         this._hmmClocks = 0;
         this._decodes = decodesMissile[0];
-        this._resmp = -1;
+        this._resmp = 0;
         this._enam = false;
         this._effectiveWidth = 0;
         this._lastMovementTick = 0;
