@@ -45,42 +45,36 @@ import pkg from './package.json';
 const { generateSW } = require('rollup-plugin-workbox');
 
 const DEVELOPMENT = !!process.env.DEVELOPMENT;
-const dist = p => path.join(DEVELOPMENT ? 'dist-dev' : 'dist', p);
+const dist = (p) => path.join(DEVELOPMENT ? 'dist-dev' : 'dist', p);
 
-const gitShortrev = execSync('git rev-parse --short HEAD', { cwd: __dirname })
-    .toString('utf8')
-    .replace(/\s/g, '');
+const gitShortrev = execSync('git rev-parse --short HEAD', { cwd: __dirname }).toString('utf8').replace(/\s/g, '');
 const VERSION = `${pkg.version}-${gitShortrev}${DEVELOPMENT ? '-dev' : ''}`;
 
 const cfg = {
     commonjs: {
         ignore: [],
-        namedExports: {
-            'node_modules/seedrandom/index.js': ['alea'],
-            'node_modules/setimmediate2/dist/setImmediate.js': ['setImmediate']
-        }
     },
     typescript: {
         module: 'es2015',
-        tsconfig: 'tsconfig.json'
+        tsconfig: 'tsconfig.json',
     },
     replace: {
         include: 'node_modules/jszip/**/*.js',
         values: {
-            'readable-stream': `stream`
-        }
+            'readable-stream': `stream`,
+        },
     },
     elm: {
         compiler: {
             optimize: !DEVELOPMENT,
             debug: !!DEVELOPMENT,
-            pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm')
-        }
+            pathToElm: path.resolve(__dirname, 'node_modules/.bin/elm'),
+        },
     },
     scss: {
         includePaths: [path.resolve(__dirname, 'node_modules')],
-        outputStyle: 'compressed'
-    }
+        outputStyle: 'compressed',
+    },
 };
 
 const onwarn = (warning, warn) => {
@@ -94,7 +88,7 @@ const worker = ({ input, output, distributeTo }) => ({
         file: output,
         format: 'iife',
         sourcemap: true,
-        name: 'worker'
+        name: 'worker',
     },
     plugins: [
         resolve({ preferBuiltins: true }),
@@ -107,15 +101,15 @@ const worker = ({ input, output, distributeTo }) => ({
             ? [
                   copy({
                       targets: [output, `${output}.map`]
-                          .map(src => distributeTo.map(x => ({ src, dest: dist(x) })))
+                          .map((src) => distributeTo.map((x) => ({ src, dest: dist(x) })))
                           .reduce((acc, x) => acc.concat(x), []),
-                      hook: 'writeBundle'
-                  })
+                      hook: 'writeBundle',
+                  }),
               ]
             : []),
-        sizes()
+        sizes(),
     ],
-    onwarn
+    onwarn,
 });
 
 const library = ({ input, output, name, copy: copyCfg }) => ({
@@ -124,19 +118,19 @@ const library = ({ input, output, name, copy: copyCfg }) => ({
         file: output,
         format: 'umd',
         sourcemap: true,
-        name
+        name,
     },
     plugins: [
         resolve({ preferBuiltins: true }),
         commonjs(cfg.commonjs),
-        typescript(cfg.typescript),
+        typescript({ ...cfg.typescript, tsconfig: './tsconfig.rollup.json' }),
         globals(),
         builtins(),
         ...(DEVELOPMENT ? [] : [terser()]),
         ...(copyCfg ? [copy(copyCfg)] : []),
-        sizes()
+        sizes(),
     ],
-    onwarn
+    onwarn,
 });
 
 const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker }) => ({
@@ -145,7 +139,7 @@ const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker 
         file: path.join(output, 'app.js'),
         format: 'iife',
         sourcemap: true,
-        name: 'app'
+        name: 'app',
     },
     plugins: [
         resolve({ preferBuiltins: true }),
@@ -155,10 +149,10 @@ const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker 
         replace(cfg.replace),
         replace({
             'process.env.DEVELOPMENT': JSON.stringify(DEVELOPMENT),
-            'process.env.VERSION': JSON.stringify(VERSION)
+            'process.env.VERSION': JSON.stringify(VERSION),
         }),
         commonjs(cfg.commonjs),
-        typescript(cfg.typescript),
+        typescript({ ...cfg.typescript, tsconfig: './tsconfig.rollup.json' }),
         globals(),
         builtins(),
         ...(DEVELOPMENT ? [] : [terser()]),
@@ -167,30 +161,30 @@ const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker 
             dest: output,
             filename: 'index.html',
             inject: 'head',
-            ignore: /worker/
+            ignore: /worker/,
         }),
         ...(serviceWorker && !DEVELOPMENT ? [generateSW(serviceWorker)] : []),
         copy({
-            targets: ['src/frontend/theme/assets', 'assets', ...extraAssets].map(src => ({ src, dest: output }))
+            targets: ['src/frontend/theme/assets', 'assets', ...extraAssets].map((src) => ({ src, dest: output })),
         }),
-        sizes()
+        sizes(),
     ],
-    onwarn
+    onwarn,
 });
 
 export default [
     worker({
         input: 'worker/src/main/stellerator.ts',
         output: dist('worker/stellerator.min.js'),
-        distributeTo: ['frontend/stellerator/worker', 'stellerator-embedded/worker']
+        distributeTo: ['frontend/stellerator/worker', 'stellerator-embedded/worker'],
     }),
     library({
         input: 'src/web/embedded/stellerator/index.ts',
         output: dist('stellerator-embedded/stellerator-embedded.min.js'),
         name: '$6502',
         copy: {
-            targets: [{ src: 'template/stellerator-embedded.html', dest: dist('stellerator-embedded') }]
-        }
+            targets: [{ src: 'template/stellerator-embedded.html', dest: dist('stellerator-embedded') }],
+        },
     }),
     elmFrontend({
         input: 'src/frontend/stellerator/index.ts',
@@ -204,12 +198,12 @@ export default [
             globIgnores: ['**/*.map', '**/doc/images/orig/**'],
             cacheId: 'stellerator-ng',
             skipWaiting: true,
-            clientsClaim: true
-        }
+            clientsClaim: true,
+        },
     }),
     elmFrontend({
         input: 'src/frontend/ui-playground/index.ts',
         output: dist('frontend/ui-playground'),
-        template: 'template/ui-playground.html'
-    })
+        template: 'template/ui-playground.html',
+    }),
 ];

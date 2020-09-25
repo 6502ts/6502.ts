@@ -31,7 +31,7 @@ import CpuFactory from '../src/machine/cpu/Factory';
 
 enum CpuTypes {
     stateMachine = 'state-machine',
-    batchedAccess = 'batched-access'
+    batchedAccess = 'batched-access',
 }
 
 function cpuType(cliType: CpuTypes): CpuFactory.Type {
@@ -49,18 +49,18 @@ function cpuType(cliType: CpuTypes): CpuFactory.Type {
 
 const parser = new ArgumentParser({
     description: 'CLI interface for the ehBasic hardware monitor',
-    addHelp: true
+    add_help: true,
 });
 
-parser.addArgument('--cpu-type', {
+parser.add_argument('--cpu-type', {
     help: `one of ${CpuTypes.stateMachine} (default), ${CpuTypes.batchedAccess}`,
     choices: [CpuTypes.stateMachine, CpuTypes.batchedAccess],
-    defaultValue: CpuTypes.stateMachine
+    default: CpuTypes.stateMachine,
 });
-parser.addArgument(['--script', '-s'], { help: 'debugger script' });
-parser.addArgument(['--file', '-f'], { help: 'input to feed into the monitor' });
+parser.add_argument('--script', '-s', { help: 'debugger script' });
+parser.add_argument('--file', '-f', { help: 'input to feed into the monitor' });
 
-const args = parser.parseArgs();
+const args = parser.parse_args();
 
 const fsProvider = new NodeFilesystemProvider(),
     cli = new EhBasicCLI(fsProvider, cpuType(args['cpu_type'])),

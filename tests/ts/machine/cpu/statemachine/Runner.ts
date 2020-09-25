@@ -26,7 +26,7 @@
 import CpuInterface from '../../../../../src/machine/cpu/CpuInterface';
 import StateMachineInterface from '../../../../../src/machine/cpu/statemachine/StateMachineInterface';
 import { encode as toHex } from '../../../../../src/tools/hex';
-import deepEqual = require('deep-equal');
+import deepEqual from 'deep-equal';
 
 export const incrementP = (s: CpuInterface.State) => ({ ...s, p: (s.p + 1) & 0xffff });
 export const decrementS = (s: CpuInterface.State) => ({ ...s, s: (s.s - 1) & 0xffff });
@@ -42,8 +42,8 @@ export class Builder {
                 address,
                 value,
                 pollInterrupts: false,
-                nextStep: () => undefined
-            }
+                nextStep: () => undefined,
+            },
         };
 
         return this;
@@ -58,8 +58,8 @@ export class Builder {
                 address,
                 value,
                 pollInterrupts: false,
-                nextStep: () => undefined
-            }
+                nextStep: () => undefined,
+            },
         };
 
         return this;
@@ -111,7 +111,7 @@ class Runner<OperandT extends number | undefined = undefined> {
             getResult: (result: number) => null
         ) => StateMachineInterface<OperandT>
     ) {
-        this._stateMachine = createStateMachine(this._state, result => ((this._result = result), null));
+        this._stateMachine = createStateMachine(this._state, (result) => ((this._result = result), null));
     }
 
     run(operand: OperandT): this {
