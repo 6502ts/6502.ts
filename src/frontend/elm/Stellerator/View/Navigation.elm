@@ -31,7 +31,7 @@ import Css.Global exposing (global, selector)
 import Css.Transitions as Tr
 import Dos exposing (Color(..))
 import FormatNumber exposing (format)
-import FormatNumber.Locales exposing (usLocale)
+import FormatNumber.Locales exposing (Decimals(..), usLocale)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as A
 import Html.Styled.Events as E
@@ -92,7 +92,7 @@ emulationState model =
                     "running"
 
                 EmulationRunning (Just speed) ->
-                    "running: " ++ format { usLocale | decimals = 2 } (speed / 1000000) ++ " MHz"
+                    "running: " ++ format { usLocale | decimals = Exact 2 } (speed / 1000000) ++ " MHz"
 
                 EmulationError _ ->
                     "error"
