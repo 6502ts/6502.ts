@@ -3,6 +3,7 @@
     "compilerOptions": {
         "declaration": true,
         "outDir": "lib",
+        "module": "commonjs"
     },
     "include": [
         "src/**/*.ts"

@@ -89,7 +89,7 @@ class Pool<T> implements PoolInterface<T> {
 
     event = {
         release: new Event<T>(),
-        dispose: new Event<T>()
+        dispose: new Event<T>(),
     };
 
     private _pool: Array<PoolMember<T>> = [];

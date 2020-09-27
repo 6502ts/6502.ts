@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "es6",
         "moduleResolution": "node",
         "noImplicitAny": true,
         "noUnusedLocals": true,
@@ -21,6 +21,7 @@
         "emitDecoratorMetadata": true,
         "esModuleInterop": true,
         "resolveJsonModule": true,
+        "inlineSources": true,
         "plugins": [
             {
                 "name": "tslint-language-service"
