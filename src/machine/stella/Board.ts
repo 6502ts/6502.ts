@@ -93,9 +93,7 @@ class Board implements BoardInterface {
 
         pia.setBus(bus);
 
-        bus.setTia(tia)
-            .setPia(pia)
-            .setCartridge(cartridge);
+        bus.setTia(tia).setPia(pia).setCartridge(cartridge);
 
         this._bus = bus;
         this._cpu = cpu;
@@ -130,7 +128,7 @@ class Board implements BoardInterface {
     }
 
     getWaveformChannels(): Array<WaveformAudioOutputInterface> {
-        return [0, 1].map(i => this._tia.getWaveformChannel(i));
+        return [0, 1].map((i) => this._tia.getWaveformChannel(i));
     }
 
     getPCMChannel(): PCMAudioOutputInterface {
@@ -264,27 +262,7 @@ class Board implements BoardInterface {
         return (this._cpuCycles / Config.getClockHz(this._config)) * 3;
     }
 
-    private static _executeSlice(board: Board, _timeSlice?: number) {
-        const slice = _timeSlice ? Math.round((_timeSlice * board._clockHz) / 1000) : board._sliceSize;
-
-        return (board._tick(slice) / board._clockHz) * 1000;
-    }
-
-    private _updateAudioState(): void {
-        this._tia.setAudioEnabled(this._audioEnabled && !this._suspended);
-    }
-
-    private _cycle(): void {
-        this._tia.cycle();
-
-        if (this._subClock++ >= 2) {
-            this._pia.cycle();
-            this._cpu.cycle();
-            this._subClock = 0;
-        }
-    }
-
-    private _tick(requestedCycles: number): number {
+    tick(requestedCycles: number): number {
         let i = 0,
             cycles = 0,
             cpuCycles = 0,
@@ -328,6 +306,26 @@ class Board implements BoardInterface {
         }
 
         return cycles;
+    }
+
+    private static _executeSlice(board: Board, _timeSlice?: number) {
+        const slice = _timeSlice ? Math.round((_timeSlice * board._clockHz) / 1000) : board._sliceSize;
+
+        return (board.tick(slice) / board._clockHz) * 1000;
+    }
+
+    private _updateAudioState(): void {
+        this._tia.setAudioEnabled(this._audioEnabled && !this._suspended);
+    }
+
+    private _cycle(): void {
+        this._tia.cycle();
+
+        if (this._subClock++ >= 2) {
+            this._pia.cycle();
+            this._cpu.cycle();
+            this._subClock = 0;
+        }
     }
 
     private _start(scheduler: SchedulerInterface) {
@@ -388,10 +386,10 @@ class Board implements BoardInterface {
     private _sliceSize = 0;
 
     private _timer = {
-        tick: (clocks: number): number => this._tick(clocks),
+        tick: (clocks: number): number => this.tick(clocks),
         start: (scheduler: SchedulerInterface): void => this._start(scheduler),
         stop: (): void => this._stop(),
-        isRunning: (): boolean => !!this._runTask
+        isRunning: (): boolean => !!this._runTask,
     };
 
     private _rng: RngInterface;
