@@ -105,9 +105,13 @@ class Runner {
 }
 
 suite('binclock', () => {
-    test('memory is initialized', async () => {
-        const runner = await Runner.fromFile(path.join(__dirname, 'bitclock.asm'));
+    let runner: Runner;
 
+    setup(async () => {
+        runner = await Runner.fromFile(path.join(__dirname, 'bitclock.asm'));
+    });
+
+    test('memory is initialized', () => {
         runner.runUntil(() => runner.hasReachedLabel('InitComplete'));
 
         for (let i = 0xff; i >= 0x80; i--) {
@@ -115,9 +119,7 @@ suite('binclock', () => {
         }
     });
 
-    test('handles day-change properly', async () => {
-        const runner = await Runner.fromSource(fs.readFileSync(path.join(__dirname, 'bitclock.asm'), 'utf-8'));
-
+    test('handles day-change properly', () => {
         runner
             .runUntil(() => runner.hasReachedLabel('NextFrame'))
             .writeMemoryAt('hours', 23)
