@@ -37,13 +37,17 @@ class Runner {
         return self;
     }
 
+    static async fromFile(fileName: string): Promise<Runner> {
+        return this.fromSource(fs.readFileSync(fileName, 'utf-8'));
+    }
+
     runUntil(condition: (board: Board) => boolean, maxCycles = 500000): this {
         for (let i = 0; i < maxCycles; i++) {
             this._board.tick(3);
 
             this._clocks++;
 
-            if (this._board.getCpu().executionState === CpuInterface.ExecutionState.fetch && condition(this._board)) {
+            if (condition(this._board)) {
                 return this;
             }
         }
@@ -51,12 +55,13 @@ class Runner {
         throw new Error(`break condition not met after ${maxCycles} cycles`);
     }
 
-    atReachedLabel(label: string): boolean {
+    hasReachedLabel(label: string): boolean {
         if (!this._symbols.has(label)) {
             throw new Error(`invalid label ${label}`);
         }
 
-        return (this._board.getCpu().state.p & 0x1fff) === (this._symbols.get(label) & 0x1fff);
+        return (this._board.getCpu().executionState === CpuInterface.ExecutionState.fetch
+            && this._board.getCpu().state.p & 0x1fff) === (this._symbols.get(label) & 0x1fff);
     }
 
     getBoard(): Board {
@@ -98,9 +103,9 @@ class Runner {
 
 suite('binclock', () => {
     test('memory is initialized', async () => {
-        const runner = await Runner.fromSource(fs.readFileSync(path.join(__dirname, 'bitclock.asm'), 'utf-8'));
+        const runner = await Runner.fromFile(path.join(__dirname, 'bitclock.asm'));
 
-        runner.runUntil(() => runner.atReachedLabel('InitComplete'));
+        runner.runUntil(() => runner.hasReachedLabel('InitComplete'));
 
         for (let i = 0xff; i >= 0x80; i--) {
             strictEqual(runner.readMemory(i), 0, `located at 0x${i.toString(16).padStart(4, '0')}`);
@@ -110,13 +115,13 @@ suite('binclock', () => {
     test('handles day-change properly', async () => {
         const runner = await Runner.fromSource(fs.readFileSync(path.join(__dirname, 'bitclock.asm'), 'utf-8'));
 
-        runner.runUntil(() => runner.atReachedLabel('NextFrame'))
+        runner.runUntil(() => runner.hasReachedLabel('NextFrame'))
             .writeMemoryAt('hours', 23)
             .writeMemoryAt('minutes', 59)
             .writeMemoryAt('seconds', 59);
 
         for (let i = 0; i < 50; i++) {
-            runner.runUntil(() => runner.atReachedLabel('NextFrame'));
+            runner.runUntil(() => runner.hasReachedLabel('NextFrame'));
         }
 
         strictEqual(runner.readMemoryAt('hours'), 0);
