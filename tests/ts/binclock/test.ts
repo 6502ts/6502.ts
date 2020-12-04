@@ -45,6 +45,11 @@ class Runner {
         return this.runUntil((board) => board.getCpu().executionState !== CpuInterface.ExecutionState.boot);
     }
 
+    cld(): this {
+        this.getBoard().getCpu().state.flags &= ~CpuInterface.Flags.d;
+        return this;
+    }
+
     runUntil(condition: (board: Board) => boolean, maxCycles = 500000): this {
         for (let i = 0; i < maxCycles; i++) {
             this._board.tick(3);
@@ -60,23 +65,14 @@ class Runner {
     }
 
     hasReachedLabel(label: string): boolean {
-        if (!this._symbols.has(label)) {
-            throw new Error(`invalid label ${label}`);
-        }
-
         return (
-            (this._board.getCpu().executionState === CpuInterface.ExecutionState.fetch &&
-                this._board.getCpu().state.p & 0x1fff) ===
-            (this._symbols.get(label) & 0x1fff)
+            this._board.getCpu().executionState === CpuInterface.ExecutionState.fetch &&
+            (this._board.getCpu().state.p & 0x1fff) === (this._resolveLabel(label) & 0x1fff)
         );
     }
 
     jumpTo(label: string): this {
-        if (!this._symbols.has(label)) {
-            throw new Error(`invalid label ${label}`);
-        }
-
-        this.getBoard().getCpu().state.p = this._symbols.get(label) & 0xffff;
+        this.getBoard().getCpu().state.p = this._resolveLabel(label) & 0xffff;
 
         return this;
     }
@@ -94,21 +90,20 @@ class Runner {
     }
 
     writeMemoryAt(label: string, value: number): this {
-        if (!this._symbols.has(label)) {
-            throw new Error(`invalid label ${label}`);
-        }
-
-        this.getBoard().getBus().write(this._symbols.get(label), value);
-
+        this.getBoard().getBus().write(this._resolveLabel(label), value);
         return this;
     }
 
     readMemoryAt(label: string): number {
+        return this.getBoard().getBus().read(this._resolveLabel(label));
+    }
+
+    private _resolveLabel(label: string): number {
         if (!this._symbols.has(label)) {
             throw new Error(`invalid label ${label}`);
         }
 
-        return this.getBoard().getBus().read(this._symbols.get(label));
+        return this._symbols.get(label);
     }
 
     private _assembly: Uint8Array;
@@ -149,9 +144,10 @@ suite('binclock', () => {
         strictEqual(runner.readMemoryAt('seconds'), 0);
     });
 
-    test('handles day-change properly (direct)', () => {
+    test('handles day-change properly (unit test)', () => {
         runner
             .boot()
+            .cld()
             .jumpTo('AdvanceClock')
             .writeMemoryAt('hours', 23)
             .writeMemoryAt('minutes', 59)
