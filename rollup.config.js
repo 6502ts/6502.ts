@@ -31,7 +31,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import builtins from 'rollup-plugin-node-builtins';
 import elm from 'rollup-plugin-elm';
 import { terser } from 'rollup-plugin-terser';
-import html from 'rollup-plugin-bundle-html';
 import scss from 'rollup-plugin-scss';
 import copy from 'rollup-plugin-copy';
 import globals from 'rollup-plugin-node-globals';
@@ -130,7 +129,7 @@ const library = ({ input, output, name, copy: copyCfg }) => ({
     onwarn,
 });
 
-const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker }) => ({
+const elmFrontend = ({ input, output, copy: copyCfg, extraAssets = [], serviceWorker }) => ({
     input,
     output: {
         file: path.join(output, 'app.js'),
@@ -153,17 +152,11 @@ const elmFrontend = ({ input, output, template, extraAssets = [], serviceWorker 
         globals(),
         builtins(),
         ...(DEVELOPMENT ? [] : [terser()]),
-        html({
-            template: template,
-            dest: output,
-            filename: 'index.html',
-            inject: 'head',
-            ignore: /worker/,
-        }),
         ...(serviceWorker && !DEVELOPMENT ? [generateSW(serviceWorker)] : []),
         copy({
             targets: ['src/frontend/theme/assets', 'assets', ...extraAssets].map((src) => ({ src, dest: output })),
         }),
+        ...(copyCfg ? [copy(copyCfg)] : []),
         sizes(),
     ],
     onwarn,
@@ -186,7 +179,9 @@ export default [
     elmFrontend({
         input: 'src/frontend/stellerator/index.ts',
         output: dist('frontend/stellerator'),
-        template: 'template/stellerator.html',
+        copy: {
+            targets: [{ src: 'template/stellerator.html', dest: dist('frontend/stellerator'), rename: 'index.html'  }],
+        },
         extraAssets: ['doc', 'CHANGELOG.md', 'LICENSE.md'],
         serviceWorker: {
             swDest: dist('frontend/stellerator/service-worker.js'),
@@ -201,6 +196,8 @@ export default [
     elmFrontend({
         input: 'src/frontend/ui-playground/index.ts',
         output: dist('frontend/ui-playground'),
-        template: 'template/ui-playground.html',
+        copy: {
+            targets: [{ src: 'template/ui-playground.html', dest: dist('frontend/ui-playground'), rename: 'index.html'  }],
+        },
     }),
 ];
