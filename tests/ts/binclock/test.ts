@@ -10,7 +10,7 @@ import CpuInterface from '../../../src/machine/cpu/CpuInterface';
 import { strictEqual } from 'assert';
 
 class Runner {
-    private constructor() { }
+    private constructor() {}
 
     static async fromSource(source: string): Promise<Runner> {
         const self = new Runner();
@@ -60,8 +60,11 @@ class Runner {
             throw new Error(`invalid label ${label}`);
         }
 
-        return (this._board.getCpu().executionState === CpuInterface.ExecutionState.fetch
-            && this._board.getCpu().state.p & 0x1fff) === (this._symbols.get(label) & 0x1fff);
+        return (
+            (this._board.getCpu().executionState === CpuInterface.ExecutionState.fetch &&
+                this._board.getCpu().state.p & 0x1fff) ===
+            (this._symbols.get(label) & 0x1fff)
+        );
     }
 
     getBoard(): Board {
@@ -81,9 +84,9 @@ class Runner {
             throw new Error(`invalid label ${label}`);
         }
 
-        this.getBoard().getBus().write(this._symbols.get(label), value)
+        this.getBoard().getBus().write(this._symbols.get(label), value);
 
-        return this
+        return this;
     }
 
     readMemoryAt(label: string): number {
@@ -91,7 +94,7 @@ class Runner {
             throw new Error(`invalid label ${label}`);
         }
 
-        return this.getBoard().getBus().read(this._symbols.get(label))
+        return this.getBoard().getBus().read(this._symbols.get(label));
     }
 
     private _assembly: Uint8Array;
@@ -115,7 +118,8 @@ suite('binclock', () => {
     test('handles day-change properly', async () => {
         const runner = await Runner.fromSource(fs.readFileSync(path.join(__dirname, 'bitclock.asm'), 'utf-8'));
 
-        runner.runUntil(() => runner.hasReachedLabel('NextFrame'))
+        runner
+            .runUntil(() => runner.hasReachedLabel('NextFrame'))
             .writeMemoryAt('hours', 23)
             .writeMemoryAt('minutes', 59)
             .writeMemoryAt('seconds', 59);
