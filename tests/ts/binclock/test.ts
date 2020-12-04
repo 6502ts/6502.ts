@@ -41,6 +41,10 @@ class Runner {
         return this.fromSource(fs.readFileSync(fileName, 'utf-8'));
     }
 
+    boot(): this {
+        return this.runUntil((board) => board.getCpu().executionState !== CpuInterface.ExecutionState.boot);
+    }
+
     runUntil(condition: (board: Board) => boolean, maxCycles = 500000): this {
         for (let i = 0; i < maxCycles; i++) {
             this._board.tick(3);
@@ -65,6 +69,16 @@ class Runner {
                 this._board.getCpu().state.p & 0x1fff) ===
             (this._symbols.get(label) & 0x1fff)
         );
+    }
+
+    jumpTo(label: string): this {
+        if (!this._symbols.has(label)) {
+            throw new Error(`invalid label ${label}`);
+        }
+
+        this.getBoard().getCpu().state.p = this._symbols.get(label) & 0xffff;
+
+        return this;
     }
 
     getBoard(): Board {
@@ -119,19 +133,35 @@ suite('binclock', () => {
         }
     });
 
-    test('handles day-change properly', () => {
+    test('handles day-change properly (via mainloop)', () => {
         runner
-            .runUntil(() => runner.hasReachedLabel('NextFrame'))
+            .runUntil(() => runner.hasReachedLabel('AdvanceClock'))
             .writeMemoryAt('hours', 23)
             .writeMemoryAt('minutes', 59)
             .writeMemoryAt('seconds', 59);
 
         for (let i = 0; i < 50; i++) {
-            runner.runUntil(() => runner.hasReachedLabel('NextFrame'));
+            runner.runUntil(() => runner.hasReachedLabel('AdvanceClock'));
         }
 
         strictEqual(runner.readMemoryAt('hours'), 0);
         strictEqual(runner.readMemoryAt('minutes'), 0);
         strictEqual(runner.readMemoryAt('seconds'), 0);
+    });
+
+    test('handles day-change properly (direct)', () => {
+        runner
+            .boot()
+            .jumpTo('AdvanceClock')
+            .writeMemoryAt('hours', 23)
+            .writeMemoryAt('minutes', 59)
+            .writeMemoryAt('seconds', 59)
+            .writeMemoryAt('frames', 49)
+            .runUntil(() => runner.hasReachedLabel('ClockIncrementDone'));
+
+        strictEqual(runner.readMemoryAt('hours'), 0);
+        strictEqual(runner.readMemoryAt('minutes'), 0);
+        strictEqual(runner.readMemoryAt('seconds'), 0);
+        strictEqual(runner.readMemoryAt('frames'), 0);
     });
 });

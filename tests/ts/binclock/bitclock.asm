@@ -123,11 +123,7 @@ DisplaySecond
     LDA #43 ;; 42 * 64 cycles = 35.something lines
     STA TIM64T
 
-; TEST
-; INTIAL_STATE ...
-; CONDITION P = ClockIncrementDone
-; ASSERT H = ... M = ... S = ...
-NextFrame
+AdvanceClock
 
     LDA frames
     CLC
