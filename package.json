@@ -1,6 +1,6 @@
 {
   "name": "6502.ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A 6502 emulator written in typescript",
   "author": "cnspeckn@googlemail.com",
   "license": "MIT",
@@ -21,6 +21,7 @@
   "dependencies": {
     "@types/file-saver": "^2.0.1",
     "async-mutex": "^0.2.4",
+    "dasm": "^6.0.1",
     "md5": "^2.3.0",
     "microevent.ts": "^0.2.1",
     "screenfull": "^5.0.2",
@@ -43,7 +44,6 @@
     "@types/seedrandom": "^2.4.28",
     "argparse": "^2.0.1",
     "buffer": "^5.6.0",
-    "dasm": "^6.0.1",
     "deep-equal": "^2.0.3",
     "dexie": "^3.0.2",
     "elm": "^0.19.0-no-deps",
