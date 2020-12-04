@@ -1,3 +1,9 @@
+# 1.0.0
+
+## All
+
+ * Add VcsRunner for unit testing VCS software
+
 # 1.0.0-beta11
 
 ## All

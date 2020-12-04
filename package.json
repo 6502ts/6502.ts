@@ -1,6 +1,6 @@
 {
   "name": "6502.ts",
-  "version": "1.0.0-beta.11",
+  "version": "1.0.0",
   "description": "A 6502 emulator written in typescript",
   "author": "cnspeckn@googlemail.com",
   "license": "MIT",
@@ -83,6 +83,6 @@
     "watch": "rm -fr .rpt2_cache; DEVELOPMENT=1 rollup -c rollup.config.js -w",
     "stellerator-serve": "live-server dist-dev/frontend/stellerator",
     "stellerator": "run-p watch stellerator-serve",
-    "_prepublish": "rm -fr lib; tsc -p tsconfig.npm.json"
+    "prepublishOnly": "rm -fr lib; tsc -p tsconfig.npm.json"
   }
 }
