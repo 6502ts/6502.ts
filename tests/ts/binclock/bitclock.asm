@@ -127,6 +127,8 @@ DisplaySecond
 ; INTIAL_STATE ...
 ; CONDITION P = ClockIncrementDone
 ; ASSERT H = ... M = ... S = ...
+NextFrame
+
     LDA frames
     CLC
     ADC #1

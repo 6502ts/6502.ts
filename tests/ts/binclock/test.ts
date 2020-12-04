@@ -10,7 +10,7 @@ import CpuInterface from '../../../src/machine/cpu/CpuInterface';
 import { strictEqual } from 'assert';
 
 class Runner {
-    private constructor() {}
+    private constructor() { }
 
     static async fromSource(source: string): Promise<Runner> {
         const self = new Runner();
@@ -37,14 +37,14 @@ class Runner {
         return self;
     }
 
-    runUntil(condition: (board: Board) => boolean, maxCycles = 500000): void {
+    runUntil(condition: (board: Board) => boolean, maxCycles = 500000): this {
         for (let i = 0; i < maxCycles; i++) {
-            this._board.tick(1);
+            this._board.tick(3);
 
             this._clocks++;
 
             if (this._board.getCpu().executionState === CpuInterface.ExecutionState.fetch && condition(this._board)) {
-                return;
+                return this;
             }
         }
 
@@ -67,6 +67,28 @@ class Runner {
         return this._clocks;
     }
 
+    readMemory(address: number): number {
+        return this.getBoard().getBus().read(address);
+    }
+
+    writeMemoryAt(label: string, value: number): this {
+        if (!this._symbols.has(label)) {
+            throw new Error(`invalid label ${label}`);
+        }
+
+        this.getBoard().getBus().write(this._symbols.get(label), value)
+
+        return this
+    }
+
+    readMemoryAt(label: string): number {
+        if (!this._symbols.has(label)) {
+            throw new Error(`invalid label ${label}`);
+        }
+
+        return this.getBoard().getBus().read(this._symbols.get(label))
+    }
+
     private _assembly: Uint8Array;
     private _symbols: Map<string, number>;
     private _cartridge: CartridgeInterface;
@@ -74,53 +96,31 @@ class Runner {
     private _clocks = 0;
 }
 
-suite('foo', () => {
+suite('binclock', () => {
     test('memory is initialized', async () => {
         const runner = await Runner.fromSource(fs.readFileSync(path.join(__dirname, 'bitclock.asm'), 'utf-8'));
 
         runner.runUntil(() => runner.atReachedLabel('InitComplete'));
 
         for (let i = 0xff; i >= 0x80; i--) {
-            strictEqual(runner.getBoard().getBus().read(i), 0, `located at 0x${i.toString(16).padStart(4, '0')}`);
+            strictEqual(runner.readMemory(i), 0, `located at 0x${i.toString(16).padStart(4, '0')}`);
+        }
+    });
+
+    test('handles day-change properly', async () => {
+        const runner = await Runner.fromSource(fs.readFileSync(path.join(__dirname, 'bitclock.asm'), 'utf-8'));
+
+        runner.runUntil(() => runner.atReachedLabel('NextFrame'))
+            .writeMemoryAt('hours', 23)
+            .writeMemoryAt('minutes', 59)
+            .writeMemoryAt('seconds', 59);
+
+        for (let i = 0; i < 50; i++) {
+            runner.runUntil(() => runner.atReachedLabel('NextFrame'));
         }
 
-        /*
-        const runner = createRunner(
-            `
-                STA #$0
-            `,
-            initialState: {
-                memory: (mem) => undefined,
-                cpu: (cpuState) = undefined
-            }
-        );
-
-        runner.runUntil(() => Runner.atLabel('InitComplete'));
-
-        assert.strictEqual(runner.mem(0), 0);
-        */
+        strictEqual(runner.readMemoryAt('hours'), 0);
+        strictEqual(runner.readMemoryAt('minutes'), 0);
+        strictEqual(runner.readMemoryAt('seconds'), 0);
     });
-    /*
-    test('memory is initialized', () => {
-        const runner = createRunner(
-            `
-                ...
-            `
-            },
-            initialState: {}
-        );
-
-        runner
-            .runUntil(() => Runner.atLabel('memoryInitialized'))
-            .setMemoryAt('hours', 23)
-            .setMemoryAt('minutes', 59),
-            .setMemoryAt('seconds', 59);
-
-        for (let i = 0; i < 50; i++) Runner.runUntil(() => Runner.atLabel(newFrame));
-
-        assert.strictEqual(runner.memoryAt('hours'), 0);
-        assert.strictEqual(runner.memoryAt('minutes'), 0);
-        assert.strictEqual(runner.memoryAt('seconds'), 0);
-    });
-    */
 });
