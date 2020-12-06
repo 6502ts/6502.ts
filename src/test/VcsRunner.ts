@@ -40,7 +40,7 @@ class VcsRunner {
     }
 
     boot(): this {
-        return this.runUntil((board) => board.getCpu().executionState !== CpuInterface.ExecutionState.boot);
+        return this.runUntil(() => this._board.getCpu().executionState !== CpuInterface.ExecutionState.boot);
     }
 
     cld(): this {
@@ -48,13 +48,39 @@ class VcsRunner {
         return this;
     }
 
-    runUntil(condition: (board: Board) => boolean, maxCycles = 500000): this {
+    runUntil(
+        condition: (runner: this) => boolean,
+        maxCycles = 500000,
+        stepping = VcsRunner.Stepping.instruction
+    ): this {
         for (let i = 0; i < maxCycles; i++) {
-            this._board.tick(3);
+            switch (stepping) {
+                case VcsRunner.Stepping.colorClock:
+                    this._tick();
 
-            this._clocks++;
+                    break;
 
-            if (condition(this._board)) {
+                case VcsRunner.Stepping.cpuClock:
+                    do {
+                        this._tick();
+                    } while (this._board.getSubclock() !== 0);
+
+                    break;
+
+                case VcsRunner.Stepping.instruction:
+                    do {
+                        this._tick();
+                    } while (
+                        this._board.getSubclock() !== 0 ||
+                        this._board.getCpu().executionState !== CpuInterface.ExecutionState.fetch
+                    );
+
+                    break;
+            }
+
+            this._traps.forEach((trap) => trap.condition(this) && trap.handler());
+
+            if (condition(this)) {
                 return this;
             }
         }
@@ -62,11 +88,12 @@ class VcsRunner {
         throw new Error(`break condition not met after ${maxCycles} cycles`);
     }
 
+    runTo(label: string, maxCycles = 500000): this {
+        return this.runUntil(() => this.hasReachedLabel(label), maxCycles, VcsRunner.Stepping.instruction);
+    }
+
     hasReachedLabel(label: string): boolean {
-        return (
-            this._board.getCpu().executionState === CpuInterface.ExecutionState.fetch &&
-            (this._board.getCpu().state.p & 0x1fff) === (this._resolveLabel(label) & 0x1fff)
-        );
+        return (this._board.getCpu().state.p & 0x1fff) === (this._resolveLabel(label) & 0x1fff);
     }
 
     jumpTo(label: string): this {
@@ -79,8 +106,12 @@ class VcsRunner {
         return this._board;
     }
 
-    getClocks(): number {
-        return this._clocks;
+    getCpuCycles(): number {
+        return this._cpuClocks;
+    }
+
+    getColorClocks(): number {
+        return this._colorClocks;
     }
 
     readMemory(address: number): number {
@@ -96,6 +127,20 @@ class VcsRunner {
         return this.getBoard().getBus().read(this._resolveLabel(label));
     }
 
+    trap(condition: VcsRunner.Trap['condition'], handler: VcsRunner.Trap['handler']) {
+        this._traps.push({ condition, handler });
+
+        return this;
+    }
+
+    trapAt(label: string, handler: VcsRunner.Trap['handler']): this {
+        return this.trap(() => this.hasReachedLabel(label), handler);
+    }
+
+    trapAlways(handler: VcsRunner.Trap['handler']): this {
+        return this.trap(() => true, handler);
+    }
+
     private _resolveLabel(label: string): number {
         if (!this._symbols.has(label)) {
             throw new Error(`invalid label ${label}`);
@@ -104,11 +149,36 @@ class VcsRunner {
         return this._symbols.get(label);
     }
 
+    private _tick(): void {
+        this._board.tick(1);
+
+        this._colorClocks++;
+        if (this._board.getSubclock() === 0) {
+            this._cpuClocks++;
+        }
+    }
+
     private _assembly: Uint8Array;
     private _symbols: Map<string, number>;
     private _cartridge: CartridgeInterface;
     private _board: Board;
-    private _clocks = 0;
+
+    private _traps: Array<VcsRunner.Trap> = [];
+    private _cpuClocks = 0;
+    private _colorClocks = 0;
+}
+
+namespace VcsRunner {
+    export enum Stepping {
+        instruction,
+        cpuClock,
+        colorClock,
+    }
+
+    export interface Trap {
+        condition: (runner: VcsRunner) => boolean;
+        handler: () => void;
+    }
 }
 
 export default VcsRunner;

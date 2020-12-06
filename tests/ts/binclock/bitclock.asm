@@ -123,6 +123,7 @@ DisplaySecond
     LDA #43 ;; 42 * 64 cycles = 35.something lines
     STA TIM64T
 
+OverscanLogicStart
 AdvanceClock
 
     LDA frames
@@ -159,6 +160,7 @@ AdvanceClock
     STA hours
 
 ClockIncrementDone
+OverscanLogicEnd
 
 Exit
     LDA INTIM

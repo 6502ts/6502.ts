@@ -308,6 +308,10 @@ class Board implements BoardInterface {
         return cycles;
     }
 
+    getSubclock(): number {
+        return this._subClock;
+    }
+
     private static _executeSlice(board: Board, _timeSlice?: number) {
         const slice = _timeSlice ? Math.round((_timeSlice * board._clockHz) / 1000) : board._sliceSize;
 
