@@ -6,8 +6,11 @@ import CartridgeInfo from '../machine/stella/cartridge/CartridgeInfo';
 import Config from '../machine/stella/Config';
 import Board from '../machine/stella/Board';
 import CpuInterface from '../machine/cpu/CpuInterface';
+import Instruction from '../machine/cpu/Instruction';
 
 class VcsRunner {
+    private _defaultCycles = 500000;
+
     private constructor() {}
 
     static async fromSource(source: string): Promise<VcsRunner> {
@@ -48,9 +51,19 @@ class VcsRunner {
         return this;
     }
 
+    modifyCpuState(mapping: (state: CpuInterface.State) => Partial<CpuInterface.State>): this {
+        Object.assign(this.getBoard().getCpu().state, mapping(this.getBoard().getCpu().state));
+
+        return this;
+    }
+
+    getCpuState(): CpuInterface.State {
+        return this.getBoard().getCpu().state;
+    }
+
     runUntil(
         condition: (runner: this) => boolean,
-        maxCycles = 500000,
+        maxCycles = this._defaultCycles,
         stepping = VcsRunner.Stepping.instruction
     ): this {
         for (let i = 0; i < maxCycles; i++) {
@@ -88,12 +101,24 @@ class VcsRunner {
         throw new Error(`break condition not met after ${maxCycles} cycles`);
     }
 
-    runTo(label: string, maxCycles = 500000): this {
+    runTo(label: string, maxCycles = this._defaultCycles): this {
         return this.runUntil(() => this.hasReachedLabel(label), maxCycles, VcsRunner.Stepping.instruction);
+    }
+
+    runToRts(maxCycles = this._defaultCycles): this {
+        return this.runUntil(
+            () => this.nextInstruction().operation === Instruction.Operation.rts,
+            maxCycles,
+            VcsRunner.Stepping.instruction
+        );
     }
 
     hasReachedLabel(label: string): boolean {
         return (this._board.getCpu().state.p & 0x1fff) === (this._resolveLabel(label) & 0x1fff);
+    }
+
+    nextInstruction(): Instruction {
+        return Instruction.opcodes[this.getBoard().getBus().peek(this.getBoard().getCpu().state.p)];
     }
 
     jumpTo(label: string): this {
@@ -124,7 +149,7 @@ class VcsRunner {
     }
 
     readMemoryAt(label: string): number {
-        return this.getBoard().getBus().read(this._resolveLabel(label));
+        return this.getBoard().getBus().peek(this._resolveLabel(label));
     }
 
     trap(condition: VcsRunner.Trap['condition'], handler: VcsRunner.Trap['handler']) {
@@ -146,7 +171,7 @@ class VcsRunner {
             throw new Error(`invalid label ${label}`);
         }
 
-        return this._symbols.get(label);
+        return this._symbols.get(label) & 0xffff;
     }
 
     private _tick(): void {
