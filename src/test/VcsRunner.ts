@@ -1,9 +1,9 @@
 import fs from 'fs';
-import dasm from 'dasm';
+import dasm, { IOptions as DasmOptions } from 'dasm';
 import CartridgeFactory from '../machine/stella/cartridge/CartridgeFactory';
 import CartridgeInterface from '../machine/stella/cartridge/CartridgeInterface';
 import CartridgeInfo from '../machine/stella/cartridge/CartridgeInfo';
-import Config from '../machine/stella/Config';
+import StellaConfig from '../machine/stella/Config';
 import Board from '../machine/stella/Board';
 import CpuInterface from '../machine/cpu/CpuInterface';
 import Instruction from '../machine/cpu/Instruction';
@@ -13,12 +13,16 @@ class VcsRunner {
 
     private constructor() {}
 
-    static async fromSource(source: string): Promise<VcsRunner> {
+    static async fromSource(source: string, config: VcsRunner.Config = {}): Promise<VcsRunner> {
         const self = new VcsRunner();
+
+        config = { defaultCycles: self._defaultCycles, ...config };
+        self._defaultCycles = config.defaultCycles;
 
         const result = dasm(source, {
             format: 3,
             machine: 'atari2600',
+            includes: config.includes,
         });
 
         if (!result.success) {
@@ -33,13 +37,13 @@ class VcsRunner {
         const factory = new CartridgeFactory();
 
         self._cartridge = await factory.createCartridge(self._assembly, CartridgeInfo.CartridgeType.vanilla_4k);
-        self._board = new Board(Config.create(), self._cartridge);
+        self._board = new Board(StellaConfig.create(config.stellaConfig), self._cartridge);
 
         return self;
     }
 
-    static async fromFile(fileName: string): Promise<VcsRunner> {
-        return this.fromSource(fs.readFileSync(fileName, 'utf-8'));
+    static async fromFile(fileName: string, config?: VcsRunner.Config): Promise<VcsRunner> {
+        return this.fromSource(fs.readFileSync(fileName, 'utf-8'), config);
     }
 
     boot(): this {
@@ -101,11 +105,11 @@ class VcsRunner {
         throw new Error(`break condition not met after ${maxCycles} cycles`);
     }
 
-    runTo(label: string, maxCycles = this._defaultCycles): this {
+    runTo(label: string, maxCycles?: number): this {
         return this.runUntil(() => this.hasReachedLabel(label), maxCycles, VcsRunner.Stepping.instruction);
     }
 
-    runToRts(maxCycles = this._defaultCycles): this {
+    runToRts(maxCycles?: number): this {
         return this.runUntil(
             () => this.nextInstruction().operation === Instruction.Operation.rts,
             maxCycles,
@@ -203,6 +207,12 @@ namespace VcsRunner {
     export interface Trap {
         condition: (runner: VcsRunner) => boolean;
         handler: () => void;
+    }
+
+    export interface Config {
+        includes?: DasmOptions['includes'];
+        stellaConfig?: Partial<StellaConfig>;
+        defaultCycles?: number;
     }
 }
 
