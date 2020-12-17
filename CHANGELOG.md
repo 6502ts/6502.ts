@@ -1,3 +1,10 @@
+# 1.0.2
+
+## VcsRunner
+
+ * Support for running to RTS
+ * Conditional traps
+
 # 1.0.1
 
 ## All
