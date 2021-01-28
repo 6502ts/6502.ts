@@ -110,9 +110,11 @@ export class Stellerator {
         this._canvasElt = canvasElt;
 
         this._config = {
-            smoothScaling: true,
-            simulatePov: true,
             gamma: 1,
+            scalingMode: Stellerator.ScalingMode.qis,
+            tvEmulation: Stellerator.TvEmulation.composite,
+            phosphorLevel: 0.5,
+            scanlineLevel: 0.2,
             audio: true,
             volume: 0.5,
             enableKeyboard: true,
@@ -158,11 +160,8 @@ export class Stellerator {
      * @param gamma
      */
     setGamma(gamma: number): this {
-        if (this._videoDriver) {
-            // FIXME
-        }
-
         this._config.gamma = gamma;
+        this._createVideoDriver();
 
         return this;
     }
@@ -173,64 +172,83 @@ export class Stellerator {
      * @returns {number}
      */
     getGamma(): number {
-        // return this._videoDriver ? this._videoDriver.getGamma() : this._config.gamma;
-        // FIXME
-        return 1;
+        return this._config.gamma;
     }
 
     /**
-     * Enable / disable persistence of vision / phosphor simulation. POV is simulated
-     * by blending several frames and will work **only** if WebGL is available.
+     * Configures the scaling mode.
      *
-     * @param povEnabled
-     * @returns {this}
+     * @param scalingMode
      */
-    enablePovSimulation(povEnabled: boolean): this {
-        if (this._videoDriver) {
-            // this._videoDriver.enablePovEmulation(povEnabled);
-            // FIXME
-        }
-
-        this._config.simulatePov = povEnabled;
+    setScalingMode(scalingMode: Stellerator.ScalingMode): this {
+        this._config.scalingMode = scalingMode;
+        this._createVideoDriver();
 
         return this;
     }
 
     /**
-     * Query the state of persistence of vision / phosphor emulation.
-     *
-     * @returns {boolean}
+     * Query the current scaling mode.
      */
-    isPovSimulationEnabled(): boolean {
-        // return this._videoDriver ? this._videoDriver.povEmulationEnabled() : this._config.simulatePov;
-        // FIXME
-        return false;
+    getScalingMode(): Stellerator.ScalingMode {
+        return this._config.scalingMode;
     }
 
     /**
-     * Enable / disable smooth scaling of the TIA image.
+     * Configures the TV emulation mode.
      *
-     * @param smoothScalingEnabled
-     * @returns {this}
+     * @param tvEmulation
      */
-    enableSmoothScaling(smoothScalingEnabled: boolean): this {
-        if (this._videoDriver) {
-            // this._videoDriver.enableInterpolation(smoothScalingEnabled);
-            // FIXME
-        }
+    setTvEmulation(tvEmulation: Stellerator.TvEmulation): this {
+        this._config.tvEmulation = tvEmulation;
+        this._createVideoDriver();
 
         return this;
     }
 
     /**
-     * Query whether smooth scaling of the TIA image is enabled.
-     *
-     * @returns {boolean}
+     * Query the current TV emulation mode.
      */
-    smoothScalingEnabled(): boolean {
-        // return this._videoDriver ? this._videoDriver.interpolationEnabled() : this._config.smoothScaling;
-        // FIXME
-        return false;
+    getTvEmulation(): Stellerator.TvEmulation {
+        return this._config.tvEmulation;
+    }
+
+    /**
+     * Configure the phosphore level.
+     *
+     * @param phosphorLevel
+     */
+    setPhosphorLevel(phosphorLevel: number): this {
+        this._config.phosphorLevel = phosphorLevel;
+        this._createVideoDriver();
+
+        return this;
+    }
+
+    /**
+     * Query the current phosphor level
+     */
+    getPhosphorLevel(): number {
+        return this._config.phosphorLevel;
+    }
+
+    /**
+     * Configure the scanline level.
+     *
+     * @param scanlineLevel
+     */
+    setScanlineLevel(scanlineLevel: number): this {
+        this._config.scanlineLevel = scanlineLevel;
+        this._createVideoDriver();
+
+        return this;
+    }
+
+    /**
+     * Query the current scanline level.
+     */
+    getScanlineLevel(): number {
+        return this._config.scanlineLevel;
     }
 
     /**
@@ -617,7 +635,13 @@ export class Stellerator {
         }
 
         // FIXME: configuration
-        this._videoDriver = new VideoDriver(this._canvasElt).init();
+        this._videoDriver = new VideoDriver(this._canvasElt, {
+            gamma: this._config.gamma,
+            scalingMode: this._config.scalingMode as any,
+            tvEmulation: this._config.tvEmulation as any,
+            phosphorLevel: this._config.phosphorLevel,
+            scanlineLevel: this._config.scanlineLevel,
+        }).init();
 
         this._driverManager.addDriver(this._videoDriver, (context) => this._videoDriver.bind(context.getVideo()));
 
@@ -767,26 +791,40 @@ export namespace Stellerator {
      */
     export interface Config {
         /**
-         * Perform smooth scaling of the output image.
-         *
-         * Default: true
-         */
-        smoothScaling: boolean;
-
-        /**
-         * Simulate persistence of vision / phosphor by blending several frames. This will
-         * take effect **only** if WebGL is available.
-         *
-         * Default: true
-         */
-        simulatePov: boolean;
-
-        /**
          * Gamma correction. Will take effect **only** if WebGL is available.
          *
          * Default: true
          */
         gamma: number;
+
+        /**
+         * Scaling mode.
+         *
+         * Default: qis (quasi-integer scaling)
+         */
+        scalingMode: ScalingMode;
+
+        /**
+         * TV emulation
+         *
+         * Default: composite
+         */
+        tvEmulation: TvEmulation;
+
+        /**
+         * Phosphor level. Valid values are between 0 and 1.
+         * A value of 0 disables phosphor emulation.
+         *
+         * Default: 0.5
+         */
+        phosphorLevel: number;
+
+        /**
+         * Scanlone leve. Valid values are between 0 an 1. A value of 0 disables scanlines.
+         *
+         * Default: 0.2
+         */
+        scanlineLevel: number;
 
         /**
          * Enable audio.
@@ -905,6 +943,44 @@ export namespace Stellerator {
          * SECAM
          */
         secam = 'secam',
+    }
+
+    /**
+     * TV emulation modes. Enabling TV emulation may cause visual artifacts on some
+     * (ancient) GPUs
+     */
+    export enum TvEmulation {
+        /**
+         * Composite
+         */
+        composite = VideoDriver.TvEmulation.composite,
+        /**
+         * S-Video
+         */
+        svideo = VideoDriver.TvEmulation.svideo,
+        /**
+         * No TV emulation
+         */
+        none = VideoDriver.TvEmulation.none,
+    }
+
+    /**
+     * Scaling algorithm
+     */
+    export enum ScalingMode {
+        /**
+         * Quasi-integer scaling. This is slightly more expensive than bilinear scaling
+         * but gives a nice, sharp image while avoiding Moirée patterns.
+         */
+        qis = VideoDriver.ScalingMode.qis,
+        /**
+         * Plain bilinear scaling. Blurry and fast, avoids Moirée patterns.
+         */
+        bilinear = VideoDriver.ScalingMode.bilinear,
+        /**
+         * Nearest neighbour interpolation
+         */
+        none = VideoDriver.ScalingMode.none,
     }
 
     /**
