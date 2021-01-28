@@ -1,0 +1,10 @@
+{
+    "out": "typedoc/embedded",
+    "entryPoints": "src/web/embedded/stellerator",
+    "theme": "minimal",
+    "readme": "doc/stellerator_embedded.md",
+    "excludePrivate": true,
+    "excludeExternals": true,
+    "exclude": "**/+(index.ts|ControlPanelProxy.ts|SwitchProxy.ts)",
+    "name": "Stellerator Embedded"
+}

@@ -30,7 +30,7 @@ import EmulationServiceInterface from '../../stella/service/EmulationServiceInte
 import EmulationService from '../../stella/service/worker/EmulationService';
 import DriverManager from '../../stella/service/DriverManager';
 
-import VideoDriber from '../../driver/Video';
+import VideoDriver from '../../driver/Video';
 
 import AudioDriver from '../../stella/driver/WebAudio';
 import KeyboardIO from '../../stella/driver/KeyboardIO';
@@ -85,7 +85,7 @@ function cpuType(config = Stellerator.CpuAccuracy.cycle): CpuFactory.Type {
  *     stellerator.run(rom, Stellerator.TvMode.ntsc);
  * ```
  */
-class Stellerator {
+export class Stellerator {
     /**
      * Creates an instance of Stellerator.
      * @param canvasElt The canvas element that is used to display the TIA image.
@@ -128,7 +128,7 @@ class Stellerator {
             enableGamepad: true,
             resetViaKeyboard: true,
 
-            ...config
+            ...config,
         };
 
         this._emulationService = new EmulationService(workerUrl);
@@ -136,17 +136,17 @@ class Stellerator {
         this.frequencyUpdate = this._emulationService.frequencyUpdate;
 
         const stateChange = new EventImplementation<Stellerator.State>();
-        this._emulationService.stateChanged.addHandler(newState => stateChange.dispatch(this._mapState(newState)));
+        this._emulationService.stateChanged.addHandler((newState) => stateChange.dispatch(this._mapState(newState)));
         this.stateChange = stateChange;
 
         this._createDrivers();
 
-        this._driverManager.addDriver(this._controlPanel, context =>
+        this._driverManager.addDriver(this._controlPanel, (context) =>
             this._controlPanel.bind(context.getControlPanel())
         );
         this._driverManager.bind(this._emulationService);
 
-        this._serviceInitialized = this._emulationService.init().then(undefined, e => {
+        this._serviceInitialized = this._emulationService.init().then(undefined, (e) => {
             console.log(e);
             throw e;
         });
@@ -371,7 +371,7 @@ class Stellerator {
 
             const stellaConfig = StellaConfig.create({
                 tvMode: this._convertTvMode(tvMode),
-                pcmAudio: true
+                pcmAudio: true,
             });
 
             if (typeof config.randomSeed !== 'undefined' && config.randomSeed > 0) {
@@ -527,11 +527,11 @@ class Stellerator {
                 this._audioDriver.init();
                 this._audioDriver.setMasterVolume(this._config.volume);
 
-                this._driverManager.addDriver(this._audioDriver, context =>
+                this._driverManager.addDriver(this._audioDriver, (context) =>
                     this._audioDriver.bind(true, [context.getPCMChannel()])
                 );
 
-                this._emulationService.stateChanged.addHandler(newState => {
+                this._emulationService.stateChanged.addHandler((newState) => {
                     switch (newState) {
                         case EmulationServiceInterface.State.running:
                             this._audioDriver.resume();
@@ -550,7 +550,7 @@ class Stellerator {
         if (this._config.enableKeyboard) {
             this._keyboardIO = new KeyboardIO(this._config.keyboardTarget);
 
-            this._driverManager.addDriver(this._keyboardIO, context =>
+            this._driverManager.addDriver(this._keyboardIO, (context) =>
                 this._keyboardIO.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
             );
 
@@ -573,10 +573,10 @@ class Stellerator {
             this._gamepad = new Gamepad();
             this._gamepad.init();
 
-            this._driverManager.addDriver(this._gamepad, context =>
+            this._driverManager.addDriver(this._gamepad, (context) =>
                 this._gamepad.bind([context.getJoystick(0), context.getJoystick(1)], {
                     [Target.start]: context.getControlPanel().getResetButton(),
-                    [Target.select]: context.getControlPanel().getSelectSwitch()
+                    [Target.select]: context.getControlPanel().getSelectSwitch(),
                 })
             );
         }
@@ -584,7 +584,7 @@ class Stellerator {
         if (this._config.paddleViaMouse) {
             this._paddle = new Paddle();
 
-            this._driverManager.addDriver(this._paddle, context => this._paddle.bind(context.getPaddle(0)));
+            this._driverManager.addDriver(this._paddle, (context) => this._paddle.bind(context.getPaddle(0)));
         }
 
         this._asyncIO = new AsyncIO();
@@ -617,9 +617,9 @@ class Stellerator {
         }
 
         // FIXME: configuration
-        this._videoDriver = new VideoDriber(this._canvasElt).init();
+        this._videoDriver = new VideoDriver(this._canvasElt).init();
 
-        this._driverManager.addDriver(this._videoDriver, context => this._videoDriver.bind(context.getVideo()));
+        this._driverManager.addDriver(this._videoDriver, (context) => this._videoDriver.bind(context.getVideo()));
 
         this._fullscreenVideo = new FullscreenDriver(this._videoDriver);
     }
@@ -647,7 +647,7 @@ class Stellerator {
                 this._config.touchLeftHanded
             );
 
-            this._driverManager.addDriver(this._touchIO, context =>
+            this._driverManager.addDriver(this._touchIO, (context) =>
                 this._touchIO.bind(context.getJoystick(0), context.getControlPanel())
             );
 
@@ -741,7 +741,7 @@ class Stellerator {
     private _emulationService: EmulationServiceInterface = null;
     private _serviceInitialized: Promise<void> = null;
 
-    private _videoDriver: VideoDriber = null;
+    private _videoDriver: VideoDriver = null;
     private _fullscreenVideo: FullscreenDriver = null;
     private _audioDriver: AudioDriver = null;
     private _keyboardIO: KeyboardIO = null;
@@ -759,7 +759,7 @@ class Stellerator {
     private _mutex = new Mutex();
 }
 
-namespace Stellerator {
+export namespace Stellerator {
     /**
      * General emulator configuration. The configuration is set on construction of the
      * stellerator instance. Each setting is strictly optional and has a default
@@ -904,7 +904,7 @@ namespace Stellerator {
         /**
          * SECAM
          */
-        secam = 'secam'
+        secam = 'secam',
     }
 
     /**
@@ -1009,7 +1009,7 @@ namespace Stellerator {
         /**
          * Emulation has been stopped by an error.
          */
-        error = 'error'
+        error = 'error',
     }
 
     /**
@@ -1023,7 +1023,7 @@ namespace Stellerator {
         /**
          * Less accurate memory access patters. Slightly less accurate, but faster
          */
-        instruction = 'instruction'
+        instruction = 'instruction',
     }
 }
 
