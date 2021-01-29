@@ -11,7 +11,7 @@ You can find the comprehensive API documentation (including this document)
 # Example
 
 You can find a example of the embedded emulator
-[here](https://6502ts.github.io/stellerator_embedded).
+[here](https://6502ts.github.io/stellerator-embedded).
 The source code is available in the 6502.ts repository on GitHub
 [here](https://github.com/6502ts/6502.ts/blob/master/template/stellerator-embedded.html).
 
@@ -299,7 +299,7 @@ for details.
 If the emulator fails to work, please check the debug console for any errors. In
 particular, check the network tab whether the worker script is loaded correctly.
 Also, check whether the
-[example](https://6502ts.github.iostellerator_embedded)
+[example](https://6502ts.github.io/stellerator-embedded)
 works.
 
 If need help or think that you may have found an issue, please file a bug on the
