@@ -4,9 +4,15 @@ games for the VCS flawlessly, including both original games, demos and homebrews
 cartridge types and bankswitching schemes are supported, including ARM-based DPC+
 cartridges.
 
-Among other things, it supports hardware accelerated graphics with POV /
-phosphor simulation and jitter-free audio emulation. Cartridges are stored
-locally in the browser, no data is transferred over the web.
+Among other things, it supports hardware accelerated graphics with phosphor
+simulation, scanlines and TV effects. and jitter-free audio emulation.
+Cartridges are stored locally in the browser, no data is transferred over the
+web.
+
+The emulator UI is responsive and works well on mobile devices, too. The emulator
+uses a service worker and is able to load from the cache even if no internet access
+is available. On mobile devices, you can add the page to the homescreen to make it
+behave like a mobile application.
 
 The source is available under the MIT license on
 [github](https://github.com/6502ts/6502.ts). Feel free to fork, explore and contribute.
@@ -14,16 +20,17 @@ The source is available under the MIT license on
 # Loading and running ROMs
 
 The "Cartridges" page allows you to import, configure and run ROM image files.
-Image files can be loaded directly from ZIP files.
+Image files can be loaded directly from ZIP files. If you load a ZIP file, all
+ROMs in that file will be imported.
 
 ## Available Settings
 
- * **Name:** The cartridge name as displayed in the cartridge list. Defaults to the
+ * **ROM Name:** The cartridge name as displayed in the cartridge list. Defaults to the
    name of the image file.
+ * **ROM type:** Size and bankswitching type of the catridge. This is autodetected
+   and should not be changed under normal circumstances.
  * **TV mode:** Use this setting to change the emulated TV type.
    The default is guessed from the filename.
- * **Cartridge type:** Size and bankswitching type of the catridge. This is autodetected
-   and should not be changed under normal circumstances.
  * **Emulate paddles:** Normally, Stellerator emulates four paddles. Some games
    (notably Thrust) have their controls messed up by the presence of the paddles
    unless they are turned off by this option.
@@ -35,56 +42,52 @@ Image files can be loaded directly from ZIP files.
    The default is auto detection ("auto") and should work fine for the vast majority
    of ROMs. For problematic cases, this can be set to a fixed value. Typical values
    of real CRTs lie somewhere around 30 scanlines.
- * **CPU emulation accuracy:** Override the accuracy with which the CPU is emulated. See
+ * **CPU emulation:** Override the accuracy with which the CPU is emulated. See
    below for the different options.
- * **Audio Driver:** Override the audio driver configured in the settings. See below
+ * **Audio emulation:** Override the method of emulating audio configured in the settings. See below
   for a detailed description of the available choices.
  * **Volume:** Allows to control audio on a per-cartridge basis.
- * **Enable touch controls:** Enable / disable touch controls
- * **Left handed mode:** Switch touch controls to left handed mode (see below)
- * **Virtual joystick sensitivity:** Control the minimum drag distance for the virtual
-   joystick to respond. The lower you set this value, the more sensitive the joystick
-   will be to finger movement.
+ * **Default phosphor:** Use the global phosphor settings. If disabled, a per-ROM setting
+   can be configured.
+ * **Phosphor level:** Phosphor blend level for this ROM (if default phhosphor is disabled).
 
 # Global Settings
 
 The "Settings" page allows to configure global emulation settings.
 
-## General Settings
-
- * **Use worker:** Run the emulation core on a background worker. This is enabled
-   by default and allows for smoother framerates, but slow machines might
-   actually profit from disabling this option. Changing this setting will require
-   a page reload to apply.
+## General
 
 * **CPU emulation accuracy:** Change the default accuracy with which the CPU is emulated. See
    below for the different options.
 
-## Audio Settings
+## Audio
 
  * **Volume:** Overall volume.
 
  * **Audio Driver:** Switch the default audio driver. See below for a detailed description of
    the various options.
 
-## Video Settings
+## Display
 
- * **Smooth scaling:** Toggle smooth scaling of the image.
- * **WebGL rendering:** Stellerator uses hardware accelerated rendering to provide
-   phosphor simulation and gamma correction. Disable this if you are experiencing
-   video issues.
- * **POV / Phosphor emulation:** Toggle the simulation of persistence of vision / CRT phosphor
-   effects by averaging over consecutive frames. This affects WebGL rendering only.
- * **Gamma correction:** Adjust gamma correction. This affects WebGL rendering only.
- * **Reduce framerate:** Merge frames in pair. Reduces rendering load and provides another
-   way of emulating phosphor / POV. Note that enabling this together with POV / phosphor
-   emulation will yield an extreme phosphor effect.
+ * **Gamma correction:** Adjust gamma correction.
+ * **TV emulation:** TV emulation mode. Note that this uses hardware acceleration
+   and may cause visual artifacts on some ancient GPUs.
+ * **Scaling:** Scaling mode. See below for a detailed description of the options.
+ * **Phosphor level:** Phosphor blend level. A value of 0 disables phosphor simulation.
+ * **Scanline intensity:** Intensity of the scanline overlay.
 
-   **Note** Due to a bug in Safari 11.1, this functionality is currently disabled
-   on Safari and iOS.
- * **Sync rendering to browser redraw:** This syncs rendering to the browsers redraw
-   cycle and will avoid tearing (provided the system supports it). However, this can
-   lead to frame drop for displays with low refresh rates.
+## Controls
+
+ * **Touch controls:** Enable / disable touch controls. The default is "auto" and
+   there usually is no need to change it.
+ * **Left handed mode:** Swap touch controls for left handed users.
+ * **Touch joystick sensitivity:** Sensitivity of the virtual joystick used by the
+   touch controls.
+
+##  UI
+
+ * **Display mode:** Override the display size.
+ * **Size:** Choose a scling factor for the UI.
 
 # Emulation
 
@@ -97,7 +100,7 @@ on the right.
  * **TV mode:** Controls the corresponding switch (color / BW) on the VCS.
  * **Limit framerate:** Toggle frame rate limiting. Without limiting, emulation
    will run at the maximum speed the browser can deliver.
- * **Reset:** Hard reset the VCS. Note that RAM contents are preserved, which causes
+ * **Hard Reset:** Hard reset the VCS. Note that RAM contents are preserved, which causes
    some buggy games to restart in funky states.
  * **Pause / Resume:** Stop and resume the emulation.
 
@@ -217,6 +220,25 @@ is slightly worse.
 In practice, the only game known to habe issues with "Instruction" mode is Pole
 Position.
 
+# Scaling
+
+Stellerator offers three different algorithms for scaling the console image to
+the screen. Scaling is done on the GPU.
+
+## QIS (Quasi Integer Scaling)
+
+Scales to the nearest integer multiple and then does bilinear interpolation to the
+final size. This results in a crisp picture while still avoiding Moirée patterns.
+
+## Bilinear interpolation
+
+Avoids Moirée patterns, but blurs the image.
+
+## Plain
+
+Nearest Neighbour interploation. Generates a crisp image but is prone to cause
+Moirée patterns.
+
 # Browser support and emulation speed
 
 Stellerator aggressively uses many modern web technologies, some of which are
@@ -224,7 +246,7 @@ part of the ES6 standard. Therefore, a recent browser is required to run the
 emulator.
 
 Stellerator is tested and works fine on current versions of Chrome, Firefox
-and Safari. Microsoft Edge works, but performace is abysmal. Performance is best
+and Safari.  Performance is best
 in Chrome and Safari, Firefox may lag on DPC+ cartridges.
 
 The emulator runs at full speed (approximately 3.5 MHz / 60 FPS in NTSC mode)
