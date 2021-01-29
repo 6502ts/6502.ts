@@ -173,14 +173,17 @@ export default [
         output: dist('stellerator-embedded/stellerator-embedded.min.js'),
         name: '$6502',
         copy: {
-            targets: [{ src: 'template/stellerator-embedded.html', dest: dist('stellerator-embedded') }],
+            targets: [
+                { src: 'template/stellerator-embedded.html', dest: dist('stellerator-embedded'), rename: 'index.html' },
+                { src: 'aux/2600/flapping/flapping.bin', dest: dist('stellerator-embedded') },
+            ],
         },
     }),
     elmFrontend({
         input: 'src/frontend/stellerator/index.ts',
         output: dist('frontend/stellerator'),
         copy: {
-            targets: [{ src: 'template/stellerator.html', dest: dist('frontend/stellerator'), rename: 'index.html'  }],
+            targets: [{ src: 'template/stellerator.html', dest: dist('frontend/stellerator'), rename: 'index.html' }],
         },
         extraAssets: ['doc', 'CHANGELOG.md', 'LICENSE.md'],
         serviceWorker: {
@@ -197,7 +200,9 @@ export default [
         input: 'src/frontend/ui-playground/index.ts',
         output: dist('frontend/ui-playground'),
         copy: {
-            targets: [{ src: 'template/ui-playground.html', dest: dist('frontend/ui-playground'), rename: 'index.html'  }],
+            targets: [
+                { src: 'template/ui-playground.html', dest: dist('frontend/ui-playground'), rename: 'index.html' },
+            ],
         },
     }),
 ];

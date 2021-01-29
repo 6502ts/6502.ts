@@ -11,9 +11,9 @@ You can find the comprehensive API documentation (including this document)
 # Example
 
 You can find a example of the embedded emulator
-[here](https://6502ts.github.io/dev/stellerator_embedded_demo.html).
+[here](https://6502ts.github.io/stellerator_embedded).
 The source code is available in the 6502.ts repository on GitHub
-[here](https://github.com/6502ts/6502.ts/blob/master/web/stellerator_embedded_demo.html).
+[here](https://github.com/6502ts/6502.ts/blob/master/template/stellerator-embedded.html).
 
 The example exposes the Stellerator instance (see below) as `window.stellerator`, so
 you can access and explore it in the developer console.
@@ -29,7 +29,7 @@ activity on the web page.
 ## Frontend
 
 The frontend provides a single class called
-[`Stellerator`](https://6502ts.github.io/typedoc/stellerator-embedded/classes/stellerator_.stellerator.html).
+[`Stellerator`](https://6502ts.github.io/typedoc/stellerator-embedded/classes/stellerator.stellerator-2.html).
 It is available both as a prebuild bundle that can directly loaded via script tag
 and in the `6502.ts` package on NPM. The prebuilt script is most suitable
 for including the emulator in a web page, while the NPM package is mainly aimed at
@@ -151,6 +151,62 @@ as well as borders must be avoided. Please use a wrapper element to achieve
 those effects. In addition, fullscreen mode (see below) changes element styles on
 the canvas --- do not use element styles on the canvas in oder to avoid collisions.
 
+## Emulator options
+
+There are several options that influence the behavior of Stellerator. These can either
+be specified when the constructor is invoked or changed at runtime by invoking setters
+on the `Stellerator` instance. The following example code is taken from the example page:
+
+```javascript
+const stellerator = new $6502.Stellerator(
+  document.getElementById('stellerator-canvas'),
+  'worker/stellerator.min.js',
+  {
+      gamma: 1,
+      scalingMode: Stellerator.ScalingMode.qis,
+      tvEmulation: Stellerator.TvEmulation.composite,
+      phosphorLevel: 0.5,
+      scanlineLevel: 0.2
+  }
+);
+```
+
+## Video output
+
+Stellerator has serveral options that influence the video display
+
+### Gamma
+
+This adjusts the gamma correction factor that is applied to the image.
+
+### Scaling mode
+
+This changes the algorithm that is used to scale the emulator image to the canvas size
+
+* **QIS (Quasi Integer Scaling) (default)**: Produces a crisp image while avoiding
+  Moirée artifacts.
+* **Bilinear scaling:** Avoids Moirée artifacts, but introduces visible blurring.
+* **None:** Plain nearest neightbour scaling. A crisp image, but there will be
+  Moirée artifacts if the scaling factor is not an integer.
+
+### TV Emulation
+
+Stellerator emulates the effect of modulating / demodulating the video signal for
+the TV. This uses hardware acceleration and runs on the GPU and may cause visual
+artifacts on ancient GPUs.
+
+If you want to be 100% sure that everyone can use the emulator without artifacts
+you might want to disable TV emulation by setting `tvEmulation: Stellerator.TvEmulation.none`.
+
+### Phosphor
+
+Stellerator emulates the phosphor effect from CRT tubes. The blend facotor can be controlled
+with the `phosphotLevel` option. Setting this to 0 disables phosphor.
+
+### Scanlines
+
+The blend factor of the scanline overlay can be adjusted with `scalineLevel`.
+
 ## Fullscreen mode
 
 The display can be put in fullscreen mode either programmatically or (unless disabled)
@@ -243,7 +299,7 @@ for details.
 If the emulator fails to work, please check the debug console for any errors. In
 particular, check the network tab whether the worker script is loaded correctly.
 Also, check whether the
-[example](https://6502ts.github.io/dev/stellerator_embedded_demo.html)
+[example](https://6502ts.github.iostellerator_embedded)
 works.
 
 If need help or think that you may have found an issue, please file a bug on the
