@@ -1,3 +1,16 @@
+# 1.0.3
+
+## stellerator-embedded
+
+ * First release after the 1.x rewrite
+ * Support the new video settings
+ * Rework the documentation
+ * Example page: load the ROM via `fetch`
+
+## Stellerator
+
+ * Documentation
+
 # 1.0.2
 
 ## VcsRunner
