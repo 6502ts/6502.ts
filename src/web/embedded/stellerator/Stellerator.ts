@@ -565,6 +565,8 @@ export class Stellerator {
             }
         }
 
+        this._createTouchDriver();
+
         if (this._config.enableKeyboard) {
             this._keyboardIO = new KeyboardIO(this._config.keyboardTarget);
 

@@ -1,3 +1,10 @@
+# 1.0.4
+
+## stellerator-embedded
+
+ * Fix touch I/O
+
+
 # 1.0.3
 
 ## stellerator-embedded
