@@ -125,7 +125,7 @@ constructor and `run` support an optional argument that allows to adjust many pr
 of the emulator to the requirements of the embedding page, including ROM type, rendering options
 and input emulation. In addition, there are methods on the `Stellerator` class that
 enable interaction with the emulator at runtime. Please check out the full
-[API documentation](https://6502ts.github.io/typedoc/stellerator-embedded/classes/stellerator_.stellerator.html)
+[API documentation](https://6502ts.github.io/typedoc/stellerator-embedded/classes/stellerator.stellerator-2.html)
 for details.
 
 ## The canvas element
