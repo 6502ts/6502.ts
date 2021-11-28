@@ -1,3 +1,9 @@
+# 1.0.5
+
+## All
+
+ * Fix Moiré artifacts in composite effect on Apple silicon.
+
 # 1.0.4
 
 ## stellerator-embedded
