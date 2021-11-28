@@ -91,7 +91,7 @@ class NtscProcessor implements Processor {
 
     render(texture: WebGLTexture): void {
         this._pass(texture, this._targetPass1, this._programPass1, 960);
-        this._pass(this._targetPass1, this._targetPass2, this._programPass2, 480);
+        this._pass(this._targetPass1, this._targetPass2, this._programPass2, 960);
     }
 
     getWidth(): number {
@@ -131,7 +131,7 @@ class NtscProcessor implements Processor {
                 gl.TEXTURE_2D,
                 0,
                 gl.RGBA,
-                texture === this._targetPass1 ? 960 : 480,
+                960,
                 height,
                 0,
                 gl.RGBA,
@@ -231,7 +231,7 @@ class NtscProcessor implements Processor {
 namespace NtscProcessor {
     export const enum mode {
         composite = 'composite',
-        svideo = 'svideo'
+        svideo = 'svideo',
     }
 }
 
