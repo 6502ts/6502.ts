@@ -1,3 +1,8 @@
+# 1.0.6
+
+## All
+
+ * Better version of my 1.0.5 video fix.
 # 1.0.5
 
 ## All

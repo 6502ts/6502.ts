@@ -51,7 +51,7 @@ export namespace vsh {
 
         export const enum attribute {
             vertexPosition = 'a_VertexPosition',
-            textureCoordinate = 'a_TextureCoordinate'
+            textureCoordinate = 'a_TextureCoordinate',
         }
     }
 }
@@ -71,7 +71,7 @@ export namespace fsh {
         `;
 
         export const enum uniform {
-            textureUnit = 'u_Sampler0'
+            textureUnit = 'u_Sampler0',
         }
     }
 
@@ -93,7 +93,7 @@ export namespace fsh {
 
         export const enum uniform {
             textureUnit = 'u_Sampler0',
-            gamma = 'u_Gamma'
+            gamma = 'u_Gamma',
         }
     }
 
@@ -130,7 +130,7 @@ export namespace fsh {
         export const enum uniform {
             level = 'u_PhosphorLevel',
             textureUnitNew = 'u_Sampler_NewImage',
-            textureUnitPrevious = 'u_Sampler_PreviousImage'
+            textureUnitPrevious = 'u_Sampler_PreviousImage',
         }
     }
 
@@ -216,7 +216,7 @@ export namespace fsh {
         export const enum uniform {
             textureUnit = 'u_Sampler0',
             artifacting = 'u_Artifacting',
-            fringing = 'u_Fringing'
+            fringing = 'u_Fringing',
         }
     }
 
@@ -246,7 +246,7 @@ export namespace fsh {
             0.084016453,
             0.1355635,
             0.175261268,
-            0.190176552
+            0.190176552,
         ];
 
         const chromaFilter = [
@@ -274,7 +274,7 @@ export namespace fsh {
             0.068803602,
             0.074356193,
             0.077856564,
-            0.079052396
+            0.079052396,
         ];
 
         function maybeUnpack(capabilities: Capabilities, expr: string): string {
@@ -321,7 +321,7 @@ export namespace fsh {
             }
 
             vec3 fetch_offset(int offset) {
-                float x = v_TextureCoordinate.x + float(offset) / 960.0;
+                float x = (floor(v_TextureCoordinate.x * 960.0) + 0.5 + float(offset)) / 960.0;
 
                 return step(0.0, x) * step(-1.0, -x) *
                     ${maybeUnpack(capabilities, 'texture2D(u_Sampler0, vec2(x, v_TextureCoordinate.y))')};
@@ -351,7 +351,7 @@ export namespace fsh {
         `;
 
         export const enum uniform {
-            textureUnit = 'u_Sampler0'
+            textureUnit = 'u_Sampler0',
         }
     }
 
@@ -376,7 +376,7 @@ export namespace fsh {
         export const enum uniform {
             textureUnit = 'u_Sampler0',
             level = 'u_Level',
-            height = 'u_Height'
+            height = 'u_Height',
         }
     }
 }
