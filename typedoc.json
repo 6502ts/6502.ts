@@ -1,6 +1,6 @@
 {
     "$schema": "https://typedoc.org/schema.json",
-    "out": "dist/typedoc",
+    "out": "dist/typedoc/stellerator-embedded",
     "entryPoints": ["src/web/embedded/stellerator"],
     "readme": "doc/stellerator_embedded.md",
     "excludePrivate": true,

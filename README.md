@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/6502ts/6502.ts.svg?branch=master)](https://travis-ci.org/6502ts/6502.ts)
-
 # What is it?
 
 6502.ts strives to be a collection of emulators for 6502 based systems written in Typescript.
@@ -36,8 +34,8 @@ debugger, there are two ways to use the emulator
 
 The emulation core is written in [Typescript](https://www.typescriptlang.org).
 The Stellerator frontend is mostly written in the [Elm](https://elm-lang.org) and uses
-a custom CSS theme written in [SASS](https://sass-lang.com). Builds are currently
-created with [rollup](https://rollupjs.org), and [Yarn](https://yarnpkg.com/lang/en/)
+a custom DOS-style CSS theme written in [SASS](https://sass-lang.com). Builds are
+created with [webpack](https://webpack.js.org), and [Yarn](https://yarnpkg.com/lang/en/)
 is used for package management.
 
 # Building and development
@@ -69,24 +67,15 @@ The Stellerator frontend is built by doing
 
 After the build has finished, the compiled frontend can be found in the `dist` directory.
 
-For development, rollup can be run in watch mode via
+For development, a dev server on http://localhost:6502 in watch mode can be fired up with
 
 ```
-    yarn watch
+    yarn serve
 ```
 
 Development builds are written to `dist-dev`. For these builds, Elm runs in development mode,
 the compiled code is unminified, and the service worker registration is skipped.
 
-Rollup does not bundle a development server, so [live-server](https://www.npmjs.com/package/live-server)
-is used instead. Running
-
-```
-    yarn stellerator
-```
-
-will fire up live-server and serve the development build of Stellerator on `localhost:8080` with
-live reloading.
 
 ## CLI
 
