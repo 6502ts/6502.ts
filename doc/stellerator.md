@@ -71,7 +71,8 @@ The "Settings" page allows to configure global emulation settings.
 
  * **Gamma correction:** Adjust gamma correction.
  * **TV emulation:** TV emulation mode. Note that this uses hardware acceleration
-   and may cause visual artifacts on some ancient GPUs.
+   and may cause visual artifacts on some GPUs. In particular, `composite` does not
+   display cleanly on some iOS devices due to precision issues.
  * **Scaling:** Scaling mode. See below for a detailed description of the options.
  * **Phosphor level:** Phosphor blend level. A value of 0 disables phosphor simulation.
  * **Scanline intensity:** Intensity of the scanline overlay.

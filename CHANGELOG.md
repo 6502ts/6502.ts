@@ -1,3 +1,9 @@
+# 1.1.0
+
+## All
+
+ * Rewrite build process with webpack instead of rollup.
+
 # 1.0.6
 
 ## All

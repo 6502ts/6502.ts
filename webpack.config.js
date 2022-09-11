@@ -69,6 +69,8 @@ module.exports = (env, args) => {
             {
                 [`1|${dist}/worker/**/*`]: `${dist}/stellerator/worker`,
                 [`2|${dist}/worker/**/*`]: `${dist}/embedded/worker`,
+                [`${dist}/worker/stellerator.js`]: `${dist}/embedded-bundle/`,
+                [`${dist}/worker/stellerator.js.map`]: `${dist}/embedded-bundle/`,
             }
         ),
         buildConfig(
@@ -87,6 +89,8 @@ module.exports = (env, args) => {
             {
                 'html/stellerator-embedded.html': `${dist}/embedded/index.html`,
                 'aux/2600/flapping/flapping.bin': `${dist}/embedded/`,
+                [`${dist}/embedded/stellerator-embedded.js`]: `${dist}/embedded-bundle/`,
+                [`${dist}/embedded/stellerator-embedded.js.map`]: `${dist}/embedded-bundle/`,
             }
         ),
         buildConfig(
@@ -107,7 +111,8 @@ module.exports = (env, args) => {
                 'LICENSE.md': `${dist}/stellerator/`,
                 'README.md': `${dist}/stellerator/`,
                 'CHANGELOG.md': `${dist}/stellerator/`,
-                'doc/**/*': `${dist}/stellerator/doc`,
+                'doc/**/*': `${dist}/stellerator/doc/`,
+                'assets/**/*': `${dist}/stellerator/assets/`,
             }
         ),
     ];

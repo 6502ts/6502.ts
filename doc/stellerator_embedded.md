@@ -193,7 +193,8 @@ This changes the algorithm that is used to scale the emulator image to the canva
 
 Stellerator emulates the effect of modulating / demodulating the video signal for
 the TV. This uses hardware acceleration and runs on the GPU and may cause visual
-artifacts on ancient GPUs.
+artifacts on some GPUs. In particular, `composite` does not display cleanly on
+some iOS devices due to precision issues.
 
 If you want to be 100% sure that everyone can use the emulator without artifacts
 you might want to disable TV emulation by setting `tvEmulation: Stellerator.TvEmulation.none`.
