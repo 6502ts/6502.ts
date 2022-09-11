@@ -112,7 +112,7 @@ export class Stellerator {
         this._config = {
             gamma: 1,
             scalingMode: Stellerator.ScalingMode.qis,
-            tvEmulation: Stellerator.TvEmulation.composite,
+            tvEmulation: Stellerator.TvEmulation.svideo,
             phosphorLevel: 0.5,
             scanlineLevel: 0.2,
             audio: true,

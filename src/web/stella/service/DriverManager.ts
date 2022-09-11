@@ -101,7 +101,7 @@ class DriverManager {
             return;
         }
 
-        this._drivers.forEach(driverContext =>
+        this._drivers.forEach((driverContext) =>
             driverContext.binder(this._emulationService.getEmulationContext(), driverContext.driver)
         );
 
@@ -113,7 +113,7 @@ class DriverManager {
             return;
         }
 
-        this._drivers.forEach(driverContext => driverContext.driver.unbind());
+        this._drivers.forEach((driverContext) => driverContext.driver.unbind());
 
         this._driversBound = false;
     }

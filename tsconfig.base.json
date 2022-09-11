@@ -6,6 +6,7 @@
         "noUnusedLocals": true,
         "target": "es6",
         "sourceMap": true,
+        "strictNullChecks": false,
         "jsx": "react",
         "allowUnreachableCode": true,
         "downlevelIteration": true,

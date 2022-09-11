@@ -25,8 +25,9 @@
 
 import { Event } from 'microevent.ts';
 import AsyncIOInterface from '../../machine/io/AsyncIOInterface';
+import DriverManager from '../stella/service/DriverManager';
 
-class AsyncIO {
+class AsyncIO implements DriverManager.Driver {
     bind(io: AsyncIOInterface | null): void {
         if (this._io) {
             return;
