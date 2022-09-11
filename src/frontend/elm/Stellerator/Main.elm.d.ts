@@ -28,57 +28,57 @@ import CartridgeInfo from '../../../machine/stella/cartridge/CartridgeInfo';
 export const enum TvMode {
     pal = 'pal',
     ntsc = 'ntsc',
-    secam = 'secam'
+    secam = 'secam',
 }
 
 export const enum CpuEmulation {
     cycle = 'cycle',
-    instruction = 'instruction'
+    instruction = 'instruction',
 }
 
 export const enum AudioEmulation {
     waveform = 'waveform',
-    pcm = 'pcm'
+    pcm = 'pcm',
 }
 
 export const enum Media {
     narrow = 'narrow',
-    wide = 'wide'
+    wide = 'wide',
 }
 
 export const enum EmulationStateKey {
     stopped = 'stopped',
     paused = 'paused',
     running = 'running',
-    error = 'error'
+    error = 'error',
 }
 
 export const enum InputDriverEvent {
     togglePause = 'pause',
     reset = 'reset',
-    toggleFullscreen = 'fullscreen'
+    toggleFullscreen = 'fullscreen',
 }
 
 export const enum DifficultySwitch {
     pro = 'pro',
-    amateur = 'amateur'
+    amateur = 'amateur',
 }
 
 export const enum ColorSwitch {
     color = 'color',
-    bw = 'bw'
+    bw = 'bw',
 }
 
 export const enum TvEmulation {
     composite = 'composite',
     svideo = 'svideo',
-    none = 'none'
+    none = 'none',
 }
 
 export const enum Scaling {
     qis = 'qis',
     bilinear = 'bilinear',
-    none = 'none'
+    none = 'none',
 }
 
 export interface EmulationStateStopped {
@@ -207,10 +207,8 @@ export interface Main {
     init(options?: Options): { ports: Ports };
 }
 
-declare namespace Elm {
+export declare namespace Elm {
     export namespace Stellerator {
         const Main: Main;
     }
 }
-
-export default Elm;

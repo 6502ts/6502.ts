@@ -8,9 +8,6 @@
         "types": []
     },
     "include": [
-        "src/**/*.ts",
-        "../src/**/*.ts",
-        "../src/interface/setimmediate2.d.ts",
-        "../typings/globals/seedrandom/index.d.ts"
+        "../src/interface/**/*.d.ts",
     ]
 }

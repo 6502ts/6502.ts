@@ -69,7 +69,7 @@
             </div>
         </div>
 
-        <script src="stellerator-embedded.min.js"></script>
+        <script src="stellerator-embedded.js"></script>
         <script>
             // Wrap everything in an async self-executing function so that we can use async/await.
             (async function() {
@@ -86,7 +86,7 @@
                     // The canvas element
                     document.getElementById('stellerator-canvas'),
                     // The URL from which the web worker will be loaded
-                    'worker/stellerator.min.js',
+                    'worker/stellerator.js',
                     {
                         // You might want to adjust the following parameters. There are more options,
                         // check out the documentation:

@@ -31,9 +31,7 @@ import PCMChannel from './audio/PCMChannel';
 
 import WaveformAudioOutputInterface from '../../machine/io/WaveformAudioOutputInterface';
 import PCMAudioEndpointInterface from './PCMAudioEndpointInterface';
-import { isIOS, isSafari } from '../../tools/browser';
 
-const audioNeedsInteraction = isIOS || isSafari;
 const INTERACTION_EVENTS = ['touchstart', 'click', 'keydown'];
 
 type AudioContextType = typeof AudioContext;
@@ -47,7 +45,7 @@ declare namespace window {
 const audioContextCtor = window.AudioContext || window.webkitAudioContext;
 
 function waitMax<T>(waitFor: Promise<T>, timeout: number = 500): Promise<void> {
-    return new Promise(r => {
+    return new Promise((r) => {
         waitFor.then(() => r());
         setTimeout(r, timeout);
     });
@@ -67,23 +65,23 @@ class PreallocatedContext {
             console.warn('audio driver: failed to set channel count');
         }
 
-        INTERACTION_EVENTS.forEach(event => document.addEventListener(event, this._interactionListener));
+        INTERACTION_EVENTS.forEach((event) => document.addEventListener(event, this._interactionListener));
     }
 
     stopListening(): void {
-        INTERACTION_EVENTS.forEach(event => document.removeEventListener(event, this._interactionListener));
+        INTERACTION_EVENTS.forEach((event) => document.removeEventListener(event, this._interactionListener));
     }
 
     private _interactionListener = () => {
         const context = this.context;
 
         this.interactionRequired = false;
-        INTERACTION_EVENTS.forEach(event => document.removeEventListener(event, this._interactionListener));
+        INTERACTION_EVENTS.forEach((event) => document.removeEventListener(event, this._interactionListener));
 
         this.mutex.runExclusive(async () => {
             await waitMax(context.resume());
 
-            return new Promise(r =>
+            return new Promise<void>((r) =>
                 setTimeout(async () => {
                     await waitMax(context.suspend());
                     r();
@@ -97,7 +95,7 @@ class PreallocatedContext {
     public interactionRequired = true;
 }
 
-let preallocatedContext = audioNeedsInteraction ? new PreallocatedContext() : null;
+let preallocatedContext = new PreallocatedContext();
 
 class WebAudioDriver {
     constructor(waveformChannels = 0, pcmChannels = 0, fragmentSize?: number) {
@@ -116,36 +114,22 @@ class WebAudioDriver {
     }
 
     init(): void {
-        if (preallocatedContext) {
-            const p = preallocatedContext;
-            preallocatedContext = new PreallocatedContext();
+        const p = preallocatedContext;
+        preallocatedContext = new PreallocatedContext();
 
-            this._context = p.context;
-            p.stopListening();
+        this._context = p.context;
+        p.stopListening();
 
-            this._mutex = p.mutex;
+        this._mutex = p.mutex;
 
-            if (p.interactionRequired) {
-                INTERACTION_EVENTS.forEach(event => document.addEventListener(event, this._touchListener, true));
-            }
-        } else {
-            if (!audioContextCtor) {
-                throw new Error(`web audio is not supported by runtime`);
-            }
-
-            this._context = new audioContextCtor();
-
-            try {
-                this._context.destination.channelCount = 1;
-            } catch (e) {
-                console.warn('audio driver: failed to set channel count');
-            }
+        if (p.interactionRequired) {
+            INTERACTION_EVENTS.forEach((event) => document.addEventListener(event, this._touchListener, true));
         }
 
         this._merger = this._context.createChannelMerger(this._channels.length);
         this._merger.connect(this._context.destination);
 
-        this._channels.forEach(channel => channel.init(this._context, this._merger));
+        this._channels.forEach((channel) => channel.init(this._context, this._merger));
     }
 
     bind(
@@ -181,7 +165,7 @@ class WebAudioDriver {
             return;
         }
 
-        this._channels.forEach(channel => channel.unbind());
+        this._channels.forEach((channel) => channel.unbind());
 
         this._isBound = false;
 
@@ -221,7 +205,7 @@ class WebAudioDriver {
     }
 
     private _touchListener = () => {
-        INTERACTION_EVENTS.forEach(event => document.removeEventListener(event, this._touchListener, true));
+        INTERACTION_EVENTS.forEach((event) => document.removeEventListener(event, this._touchListener, true));
 
         if (!this._context) {
             return;

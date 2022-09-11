@@ -38,7 +38,7 @@ interface RomImage {
 }
 
 const SETTINGS_ID = 0;
-const DB_NAME = process.env.DEVELOPMENT ? 'stellerator-ng-dev' : 'stellerator-ng';
+const DB_NAME = process.env.NODE_ENV === 'development' ? 'stellerator-ng-dev' : 'stellerator-ng';
 
 class Database extends Dexie {
     constructor() {
@@ -47,16 +47,16 @@ class Database extends Dexie {
         this.version(1).stores({
             cartridges: '&hash',
             roms: '&hash',
-            settings: '&id'
+            settings: '&id',
         });
 
         this.version(2)
             .stores({
                 cartridges: '&hash',
                 roms: '&hash',
-                settings: '&id'
+                settings: '&id',
             })
-            .upgrade(transaction => {
+            .upgrade((transaction) => {
                 transaction
                     .table<Settings>('settings')
                     .toCollection()
@@ -76,7 +76,7 @@ class Database extends Dexie {
                 transaction
                     .table<Cartridge>('cartridges')
                     .toCollection()
-                    .modify(cartridge => {
+                    .modify((cartridge) => {
                         delete (cartridge as any).phosphorEmulation;
                     });
             });
@@ -102,8 +102,8 @@ class Storage {
     insertCartridges(cartridges: Array<CartridgeWithImage>): Promise<void> {
         return this._database.transaction('rw', [this._database.cartridges, this._database.roms], async () => {
             await Promise.all([
-                this._database.cartridges.bulkPut(cartridges.map(c => c.cartridge)),
-                this._database.roms.bulkPut(cartridges.map(c => ({ hash: c.cartridge.hash, image: c.image })))
+                this._database.cartridges.bulkPut(cartridges.map((c) => c.cartridge)),
+                this._database.roms.bulkPut(cartridges.map((c) => ({ hash: c.cartridge.hash, image: c.image }))),
             ]);
         });
     }

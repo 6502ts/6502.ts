@@ -24,8 +24,7 @@
  */
 
 import { injectable, inject } from 'inversify';
-import JSZip from 'jszip';
-
+import JSZip from '@progress/jszip-esm';
 import { Ports, TvMode } from '../../elm/Stellerator/Main.elm';
 import { calculateFromUint8Array as md5sum } from '../../../tools/hash/md5';
 import CartridgeDetector from '../../../machine/stella/cartridge/CartridgeDetector';
@@ -59,15 +58,19 @@ class AddCartridge {
     private _onCartridgeAdded = async (e: Event): Promise<void> => {
         const target: HTMLInputElement = e.target as any;
 
-        const cartridges = (await Promise.all(Array.prototype.map.call(target.files, (f: File) =>
-            this._processFile(f)
-        ) as Array<Promise<Array<CartridgeWithImage>>>)).reduce((acc, x) => acc.concat(x), []);
+        const cartridges = (
+            await Promise.all(
+                Array.prototype.map.call(target.files, (f: File) => this._processFile(f)) as Array<
+                    Promise<Array<CartridgeWithImage>>
+                >
+            )
+        ).reduce((acc, x) => acc.concat(x), []);
 
-        const cartridgesDeduped = Array.from(new Map(cartridges.map(c => [c.cartridge.hash, c])).values());
+        const cartridgesDeduped = Array.from(new Map(cartridges.map((c) => [c.cartridge.hash, c])).values());
 
         await this._storage.insertCartridges(cartridgesDeduped);
 
-        this._ports.onNewCartridges_.send(Array.from(cartridgesDeduped.map(c => c.cartridge)));
+        this._ports.onNewCartridges_.send(Array.from(cartridgesDeduped.map((c) => c.cartridge)));
     };
 
     private async _processFile(file: File): Promise<Array<CartridgeWithImage>> {
@@ -89,8 +92,10 @@ class AddCartridge {
                 return await Promise.all(
                     zip
                         .file(/\.(bin|a26)$/i)
-                        .filter(f => !f.dir)
-                        .map(f => f.async('uint8array').then(c => this._createCartridge(f.name.replace(/.*\//, ''), c)))
+                        .filter((f) => !f.dir)
+                        .map((f) =>
+                            f.async('uint8array').then((c) => this._createCartridge(f.name.replace(/.*\//, ''), c))
+                        )
                 );
             } else {
                 return [this._createCartridge(file.name, content)];
@@ -113,9 +118,9 @@ class AddCartridge {
                 tvMode,
                 cartridgeType,
                 emulatePaddles: false,
-                volume: 100
+                volume: 100,
             },
-            image: content
+            image: content,
         };
     }
 

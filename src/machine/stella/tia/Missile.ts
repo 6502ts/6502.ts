@@ -28,7 +28,7 @@ import { decodesMissile } from './drawCounterDecodes';
 import Player from './Player';
 
 const enum Count {
-    renderCounterOffset = -4
+    renderCounterOffset = -4,
 }
 
 class Missile {
@@ -216,7 +216,7 @@ class Missile {
     private _lastMovementTick = 0;
 
     private _rendering = false;
-    private _renderCounter = Count.renderCounterOffset;
+    private _renderCounter: number = Count.renderCounterOffset;
 
     private _decodes: Uint8Array;
     private _widths = new Uint8Array([1, 2, 4, 8]);

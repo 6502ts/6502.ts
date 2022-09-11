@@ -2,11 +2,9 @@
     "extends": "./tsconfig.base.json",
     "compilerOptions": {
         "outDir": "compiled",
-        "module": "commonjs",
+        "module": "commonjs"
     },
     "include": [
-        "bin/*.ts",
-        "src/**/*.ts",
-        "tests/**/*.ts"
+        "./src/interface/**/*.d.ts",
     ]
 }

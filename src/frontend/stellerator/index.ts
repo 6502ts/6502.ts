@@ -25,13 +25,14 @@
 
 import 'reflect-metadata';
 
-import Elm, {
+import {
+    Elm,
     CartridgeType,
     Settings,
     CpuEmulation,
     AudioEmulation,
     TvEmulation,
-    Scaling
+    Scaling,
 } from '../elm/Stellerator/Main.elm';
 import '../theme/dos.scss';
 
@@ -50,9 +51,10 @@ import TouchIO from '../../web/stella/driver/TouchIO';
 import GamepadDriver from '../../web/driver/Gamepad';
 import { detect as detectWebglCapabilities } from '../../web/driver/video/Capabilities';
 
-const VERSION_STORAGE_KEY = process.env.DEVELOPMENT ? 'stellerator-ng-version-dev' : 'stellerator-ng-version';
+const VERSION_STORAGE_KEY =
+    process.env.NODE_ENV === 'development' ? 'stellerator-ng-version-dev' : 'stellerator-ng-version';
 
-if (navigator.serviceWorker && !process.env.DEVELOPMENT) {
+if (navigator.serviceWorker && process.env.NODE_ENV !== 'development') {
     navigator.serviceWorker.register('./service-worker.js', { scope: './' });
 }
 
@@ -69,15 +71,15 @@ const defaultSettings = (badGpu: boolean): Settings => ({
     leftHanded: false,
     virtualJoystickSensitivity: 10,
     uiMode: undefined,
-    uiSize: 100
+    uiSize: 100,
 });
 
 async function main(): Promise<void> {
     initializeRangetouch();
 
-    const cartridgeTypes: Array<CartridgeType> = CartridgeInfo.getAllTypes().map(cartridgeType => ({
+    const cartridgeTypes: Array<CartridgeType> = CartridgeInfo.getAllTypes().map((cartridgeType) => ({
         key: cartridgeType,
-        description: CartridgeInfo.describeCartridgeType(cartridgeType)
+        description: CartridgeInfo.describeCartridgeType(cartridgeType),
     }));
 
     const container = new Container({ autoBindInjectable: true, defaultScope: 'Singleton' });
@@ -108,8 +110,8 @@ async function main(): Promise<void> {
             version,
             wasUpdated,
             gamepadCount: GamepadDriver.probeGamepadCount(),
-            badGpu
-        }
+            badGpu,
+        },
     });
 
     container.get(MediaApi).init(ports);

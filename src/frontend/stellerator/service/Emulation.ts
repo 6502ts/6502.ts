@@ -41,7 +41,7 @@ import {
     ColorSwitch,
     StartEmulationPayload,
     TvEmulation,
-    Scaling
+    Scaling,
 } from '../../elm/Stellerator/Main.elm';
 
 import EmulationServiceInterface from '../../../web/stella/service/EmulationServiceInterface';
@@ -60,12 +60,12 @@ import GamepadDriver from '../../../web/driver/Gamepad';
 import { Target } from '../../../web/driver/gamepad/Mapping';
 
 const CANVAS_ID = 'stellerator-canvas';
-const WORKER_URL = 'worker/stellerator.min.js';
+const WORKER_URL = 'worker/stellerator.js';
 
 function error(msg: string): EmulationState {
     return {
         state: EmulationStateKey.error,
-        error: msg
+        error: msg,
     };
 }
 
@@ -108,7 +108,7 @@ function config(cartridge: Cartridge, settings: Settings): Config {
         emulatePaddles: cartridge.emulatePaddles,
         frameStart: typeof cartridge.firstVisibleLine === 'undefined' ? -1 : cartridge.firstVisibleLine,
         pcmAudio: (cartridge.audioEmulation || settings.audioEmulation) === AudioEmulation.pcm,
-        cpuType: cpuType(cartridge, settings)
+        cpuType: cpuType(cartridge, settings),
     };
 }
 
@@ -150,7 +150,7 @@ function videoSettings(cartridge: Cartridge | null, settings: Settings): VideoDr
         tvEmulation: mapTvEmulation(settings.tvEmulation),
         scalingMode: mapScaling(settings.scaling),
         phosphorLevel: (cartridge?.phosphorLevel ?? settings.phosphorLevel) / 100,
-        scanlineLevel: settings.scanlineIntensity / 100
+        scanlineLevel: settings.scanlineIntensity / 100,
     };
 }
 
@@ -170,7 +170,7 @@ class Emulation {
         this._driverManager.addDriver(this._gamepadDriver, (context, driver: GamepadDriver) =>
             driver.bind([context.getJoystick(0), context.getJoystick(1)], {
                 [Target.start]: context.getControlPanel().getResetButton(),
-                [Target.select]: context.getControlPanel().getSelectSwitch()
+                [Target.select]: context.getControlPanel().getSelectSwitch(),
             })
         );
         this._gamepadDriver.init();
@@ -193,7 +193,7 @@ class Emulation {
         this._emulationService.stateChanged.addHandler(Emulation._onEmulationStateChange, this);
         this._emulationService.frequencyUpdate.addHandler(Emulation._onFrequencyChange, this);
 
-        this._gamepadDriver.gamepadCountChanged.addHandler(n => {
+        this._gamepadDriver.gamepadCountChanged.addHandler((n) => {
             console.log(n);
             this._ports.onUpdateGamepadCount_.send(n);
         });
@@ -203,7 +203,7 @@ class Emulation {
             attributes: false,
             characterData: false,
             childList: true,
-            subtree: true
+            subtree: true,
         });
     }
 
@@ -262,7 +262,7 @@ class Emulation {
         if (self._emulationService.getState() === EmulationServiceInterface.State.running) {
             self._ports.onEmulationStateChange_.send({
                 state: EmulationStateKey.running,
-                frequency
+                frequency,
             });
         }
     }
@@ -274,7 +274,7 @@ class Emulation {
         const [cartidge, image, settings]: readonly [Cartridge, Uint8Array, Settings] = await Promise.all([
             this._storage.getCartridge(hash),
             this._storage.getCartridgeImage(hash),
-            this._storage.getSettings()
+            this._storage.getSettings(),
         ]);
 
         if (!(cartidge && image)) {
@@ -357,7 +357,7 @@ class Emulation {
         const [settings, cartridge]: [Settings, Cartridge | undefined] = await this._emulationMutex.runExclusive(() =>
             Promise.all([
                 this._storage.getSettings(),
-                this._currentCartridgeHash && this._storage.getCartridge(this._currentCartridgeHash)
+                this._currentCartridgeHash && this._storage.getCartridge(this._currentCartridgeHash),
             ])
         );
 
@@ -478,7 +478,7 @@ class Emulation {
         this._emulationMutex.runExclusive(() => this._updateConsoleSwitches(switches));
 
     private _onMutation = (mutations: Array<MutationRecord>): void => {
-        if (!mutations.some(m => m.addedNodes)) {
+        if (!mutations.some((m) => m.addedNodes)) {
             return;
         }
 
