@@ -58,7 +58,7 @@ module.exports = (env, args) => {
                     VERSION:
                         args.mode === 'development'
                             ? `${package.version}-${getGitRev()}-dev`
-                            : `package.version-${getGitRev()}`,
+                            : `${package.version}-${getGitRev()}`,
                     PREVIEW: process.env.PREVIEW ? 'true' : '',
                 }),
             ],
