@@ -1,3 +1,9 @@
+# 1.1.2
+
+## stellerator-embedded
+
+ * Fix filenames in documentation.
+
 # 1.1.1
 
 ## stellerator-embedded
