@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: ${{env.NODE_VERSION}}
           registry-url: 'https://registry.npmjs.org'
+      - name: Create release
+        run: gh release create ${{ github.ref_name}} -d -t "6502.ts ${{ github.ref_name }}"
       - name: Install deps
         run: yarn install
       - name: Build
@@ -25,10 +27,8 @@ jobs:
       - name: Zip stellerator embedded
         working-directory: dist
         run: zip  -jr stellerator-embedded.zip embedded-bundle
-      - name: Create release
-        run: |
-          gh release create ${{ github.ref_name}} -d -t "6502.ts ${{ github.ref_name }}"
-          gh release upload ${{ github.ref_name}} dist/stellerator-embedded.zip
+      - name: Upload stellerator embedded
+        run: gh release upload ${{ github.ref_name}} dist/stellerator-embedded.zip
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.5.1
         with:
