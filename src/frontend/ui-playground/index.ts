@@ -23,7 +23,7 @@
  *   SOFTWARE.
  */
 
-import Elm from '../elm/UiPlayground/Main.elm';
+import { Elm } from '../elm/UiPlayground/Main.elm';
 import '../theme/dos.scss';
 import { initialize as initializeRangetouch } from '../common/rangetouch';
 

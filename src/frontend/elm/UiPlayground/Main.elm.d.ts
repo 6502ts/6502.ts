@@ -31,10 +31,8 @@ interface Main {
     init(options: ElmOptions): void;
 }
 
-declare module Elm {
+export declare module Elm {
     export module UiPlayground {
         const Main: Main;
     }
 }
-
-export default Elm;

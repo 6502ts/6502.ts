@@ -15,7 +15,7 @@ function getGitRev() {
 }
 
 module.exports = (env, args) => {
-    const buildConfig = (config, files = {}) =>
+    const buildConfig = (config, files) =>
         merge(config, {
             devtool: 'source-map',
             module: {
@@ -43,16 +43,20 @@ module.exports = (env, args) => {
                 new webpack.IgnorePlugin({
                     resourceRegExp: /^fs$/,
                 }),
-                new FileManagerPlugin({
-                    events: {
-                        onEnd: {
-                            copy: Object.entries(files).map(([source, destination]) => ({
-                                source: source.replace(/^.*\|/, ''),
-                                destination,
-                            })),
-                        },
-                    },
-                }),
+                ...(files
+                    ? [
+                          new FileManagerPlugin({
+                              events: {
+                                  onEnd: {
+                                      copy: Object.entries(files).map(([source, destination]) => ({
+                                          source: source.replace(/^.*\|/, ''),
+                                          destination,
+                                      })),
+                                  },
+                              },
+                          }),
+                      ]
+                    : []),
                 new webpack.EnvironmentPlugin({
                     NODE_ENV: args.mode,
                     VERSION:
@@ -127,6 +131,21 @@ module.exports = (env, args) => {
                 'doc/**/*': `${dist}/stellerator-ng/doc/`,
                 'assets/**/*': `${dist}/stellerator-ng/assets/`,
             }
+        ),
+        buildConfig(
+            {
+                entry: './src/frontend/ui-playground/index.ts',
+                plugins: [
+                    new MiniCssExtractPlugin({
+                        filename: 'app.css',
+                    }),
+                ],
+                output: {
+                    path: resolve(__dirname, `${dist}/ui-playground`),
+                    filename: 'app.js',
+                },
+            },
+            { 'html/ui-playground.html': `${dist}/ui-playground/index.html` }
         ),
     ];
 
