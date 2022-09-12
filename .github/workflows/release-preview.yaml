@@ -16,7 +16,7 @@ jobs:
       - name: Install deps
         run: yarn install
       - name: Build
-        run: yarn build
+        run: PREVIEW=1 yarn build
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.5.1
         with:
