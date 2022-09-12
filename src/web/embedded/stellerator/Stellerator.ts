@@ -583,10 +583,10 @@ export class Stellerator {
             if (this._config.pauseViaKeyboard) {
                 this._keyboardIO.togglePause.addHandler(this._pauseHandler);
             }
-        }
 
-        if (this._config.resetViaKeyboard) {
-            this._keyboardIO.hardReset.addHandler(() => this.reset());
+            if (this._config.resetViaKeyboard) {
+                this._keyboardIO.hardReset.addHandler(() => this.reset());
+            }
         }
 
         if (this._config.enableGamepad) {
