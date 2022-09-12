@@ -7,6 +7,7 @@ env:
   NODE_VERSION: 18
   PAGES_REPO_URL: git@github.com:6502ts/6502ts.github.io.git
   TAG: ${GITHUB_REF##*/}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   build_and_release:
     runs-on: ubuntu-20.04
