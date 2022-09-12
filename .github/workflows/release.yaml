@@ -1,0 +1,52 @@
+name: Build and release
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+env:
+  NODE_VERSION: 18
+  PAGES_REPO_URL: git@github.com:6502ts/6502ts.github.io.git
+  TAG: ${GITHUB_REF##*/}
+jobs:
+  build_and_release:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{env.NODE_VERSION}}
+      - name: Install deps
+        run: yarn install
+      - name: Build
+        run: yarn build
+      - name: Zip stellerator embedded
+        working-directory: dist
+        run: zip  -jr stellerator-embedded.zip embedded-bundle
+      - name: Create release
+        run: |
+          gh release create ${{ env.TAG }} -d -t "6502.ts ${GITHUB_REF##*/}"
+          gh release upload ${{ env.TAG }} dist/stellerator-embedded.zip
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.5.1
+        with:
+            ssh-private-key: ${{ secrets.SSH_DEPLOY_KEY }}
+      - name: Checkout pages source
+        run: git clone --depth 1 ${{env.PAGES_REPO_URL}}
+      - name: Copy and deploy page
+        working-directory: 6502ts.github.io
+        run: |
+          test -x stellerator-embedded && rm -fr stellerator-embedded
+          test -x stellerator-ng && rm -fr stellerator-ng
+          test -x typedoc && rm -fr typedoc
+          cp -r ../dist/stellerator-embedded ../dist/stellerator-ng ../dist/typedoc .
+          git add .
+          git config --global user.email "golem@nowhere.org"
+          git config --global user.name "The Golem"
+          git commit -m "Bump build."
+          git push
+      - name: Publish to NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

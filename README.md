@@ -70,7 +70,7 @@ After the build has finished, the compiled frontend can be found in the `dist` d
 For development, a dev server on http://localhost:6502 in watch mode can be fired up with
 
 ```
-    yarn serve
+    yarn start
 ```
 
 Development builds are written to `dist-dev`. For these builds, Elm runs in development mode,
