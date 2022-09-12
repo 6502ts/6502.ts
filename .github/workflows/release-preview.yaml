@@ -29,6 +29,7 @@ jobs:
           test -x preview && rm -fr preview
           mkdir preview
           cp -r ../dist/stellerator-embedded ../dist/stellerator-ng ../dist/typedoc ./preview
+          git add .
           git config --global user.email "golem@nowhere.org"
           git config --global user.name "The Golem"
           git commit -m "Bump dev build."
