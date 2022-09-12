@@ -38,11 +38,17 @@ interface RomImage {
 }
 
 const SETTINGS_ID = 0;
-const DB_NAME = process.env.NODE_ENV === 'development' ? 'stellerator-ng-dev' : 'stellerator-ng';
+
+function dbName(): string {
+    if (process.env.NODE_ENV === 'development') return 'stellerator-ng-dev';
+    if (process.env.PREVIEW) return 'stellerator-ng-preview';
+
+    return 'stellerator-ng';
+}
 
 class Database extends Dexie {
     constructor() {
-        super(DB_NAME);
+        super(dbName());
 
         this.version(1).stores({
             cartridges: '&hash',
@@ -155,7 +161,7 @@ class Storage {
 
     async dropDatabase(): Promise<void> {
         this._database.close();
-        await indexedDB.deleteDatabase(DB_NAME);
+        await indexedDB.deleteDatabase(dbName());
 
         this._database = new Database();
     }

@@ -21,5 +21,6 @@
     },
     "typescript.tsdk": "./node_modules/typescript/lib",
     "js/ts.implicitProjectConfig.strictNullChecks": false,
-    "js/ts.implicitProjectConfig.strictFunctionTypes": false
+    "js/ts.implicitProjectConfig.strictFunctionTypes": false,
+    "js/ts.implicitProjectConfig.experimentalDecorators": true,
 }

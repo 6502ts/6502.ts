@@ -47,6 +47,7 @@ module.exports = (env, args) => {
                 new webpack.EnvironmentPlugin({
                     NODE_ENV: args.mode,
                     VERSION: args.mode === 'development' ? `${package.version}-dev` : package.version,
+                    PREVIEW: process.env.PREVIEW ? 'true' : '',
                 }),
             ],
             performance: {
@@ -67,8 +68,8 @@ module.exports = (env, args) => {
                 },
             },
             {
-                [`1|${dist}/worker/**/*`]: `${dist}/stellerator/worker`,
-                [`2|${dist}/worker/**/*`]: `${dist}/embedded/worker`,
+                [`1|${dist}/worker/**/*`]: `${dist}/stellerator-ng/worker`,
+                [`2|${dist}/worker/**/*`]: `${dist}/stellerator-embedded/worker`,
                 [`${dist}/worker/stellerator.js`]: `${dist}/embedded-bundle/`,
                 [`${dist}/worker/stellerator.js.map`]: `${dist}/embedded-bundle/`,
             }
@@ -77,7 +78,7 @@ module.exports = (env, args) => {
             {
                 entry: './src/web/embedded/stellerator/index.ts',
                 output: {
-                    path: resolve(__dirname, `${dist}/embedded`),
+                    path: resolve(__dirname, `${dist}/stellerator-embedded`),
                     filename: 'stellerator-embedded.js',
                     library: {
                         name: '$6502',
@@ -87,10 +88,10 @@ module.exports = (env, args) => {
                 },
             },
             {
-                'html/stellerator-embedded.html': `${dist}/embedded/index.html`,
-                'aux/2600/flapping/flapping.bin': `${dist}/embedded/`,
-                [`${dist}/embedded/stellerator-embedded.js`]: `${dist}/embedded-bundle/`,
-                [`${dist}/embedded/stellerator-embedded.js.map`]: `${dist}/embedded-bundle/`,
+                'html/stellerator-embedded.html': `${dist}/stellerator-embedded/index.html`,
+                'aux/2600/flapping/flapping.bin': `${dist}/stellerator-embedded/`,
+                [`${dist}/stellerator-embedded/stellerator-embedded.js`]: `${dist}/embedded-bundle/`,
+                [`${dist}/stellerator-embedded/stellerator-embedded.js.map`]: `${dist}/embedded-bundle/`,
             }
         ),
         buildConfig(
@@ -102,17 +103,17 @@ module.exports = (env, args) => {
                     }),
                 ],
                 output: {
-                    path: resolve(__dirname, `${dist}/stellerator`),
+                    path: resolve(__dirname, `${dist}/stellerator-ng`),
                     filename: 'app.js',
                 },
             },
             {
-                'html/stellerator.html': `${dist}/stellerator/index.html`,
-                'LICENSE.md': `${dist}/stellerator/`,
-                'README.md': `${dist}/stellerator/`,
-                'CHANGELOG.md': `${dist}/stellerator/`,
-                'doc/**/*': `${dist}/stellerator/doc/`,
-                'assets/**/*': `${dist}/stellerator/assets/`,
+                'html/stellerator.html': `${dist}/stellerator-ng/index.html`,
+                'LICENSE.md': `${dist}/stellerator-ng/`,
+                'README.md': `${dist}/stellerator-ng/`,
+                'CHANGELOG.md': `${dist}/stellerator-ng/`,
+                'doc/**/*': `${dist}/stellerator-ng/doc/`,
+                'assets/**/*': `${dist}/stellerator-ng/assets/`,
             }
         ),
     ];
