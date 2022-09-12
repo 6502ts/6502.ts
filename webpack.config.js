@@ -3,7 +3,16 @@ const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 const { merge } = require('webpack-merge');
+const { execSync } = require('child_process');
 const package = require('./package.json');
+
+function getGitRev() {
+    const rev = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trimEnd();
+
+    if (!/^[0-9a-f]{7}$/.test(rev)) throw new Error(`unable to determine git revision; command returned ${rev}`);
+
+    return rev;
+}
 
 module.exports = (env, args) => {
     const buildConfig = (config, files = {}) =>
@@ -46,7 +55,10 @@ module.exports = (env, args) => {
                 }),
                 new webpack.EnvironmentPlugin({
                     NODE_ENV: args.mode,
-                    VERSION: args.mode === 'development' ? `${package.version}-dev` : package.version,
+                    VERSION:
+                        args.mode === 'development'
+                            ? `${package.version}-${getGitRev()}-dev`
+                            : `package.version-${getGitRev()}`,
                     PREVIEW: process.env.PREVIEW ? 'true' : '',
                 }),
             ],
