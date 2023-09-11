@@ -67,8 +67,10 @@ class Bus implements BusInterface {
 
     read(address: number): number {
         // Mask out bits 13-15
-        this._lastAddressBusValue = address;
         address &= 0x1fff;
+
+        this.event.transition.dispatch(address);
+        this._lastAddressBusValue = address;
 
         // Chip select A12 -> cartridge
         if (address & 0x1000) {
@@ -88,10 +90,12 @@ class Bus implements BusInterface {
 
     write(address: number, value: number): void {
         this._lastDataBusValue = value;
-        this._lastAddressBusValue = address;
 
         // Mask out bits 12-15
         address &= 0x1fff;
+
+        this.event.transition.dispatch(address);
+        this._lastAddressBusValue = address;
 
         // Chip select A12 -> cartridge
         if (address & 0x1000) {
@@ -147,7 +151,8 @@ class Bus implements BusInterface {
     event = {
         trap: new Event<Bus.TrapPayload>(),
         read: new Event<Bus.AccessType>(),
-        write: new Event<Bus.AccessType>()
+        write: new Event<Bus.AccessType>(),
+        transition: new Event<number>(),
     };
 
     private _tia: Tia = null;
@@ -162,13 +167,13 @@ namespace Bus {
     export const enum TrapReason {
         tia,
         pia,
-        cartridge
+        cartridge,
     }
 
     export const enum AccessType {
         tia,
         pia,
-        cartridge
+        cartridge,
     }
 
     export class TrapPayload {

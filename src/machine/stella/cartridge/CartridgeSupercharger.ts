@@ -33,7 +33,7 @@ import { bios } from './supercharger/blob';
 
 const enum BankType {
     ram,
-    rom
+    rom,
 }
 
 class CartridgeSupercharger extends AbstractCartridge {
@@ -90,8 +90,7 @@ class CartridgeSupercharger extends AbstractCartridge {
     setBus(bus: Bus): this {
         this._bus = bus;
 
-        this._bus.event.read.addHandler(CartridgeSupercharger._onBusAccess, this);
-        this._bus.event.write.addHandler(CartridgeSupercharger._onBusAccess, this);
+        this._bus.event.transition.addHandler(CartridgeSupercharger._onBusTransition, this);
 
         return this;
     }
@@ -126,15 +125,13 @@ class CartridgeSupercharger extends AbstractCartridge {
         return CartridgeInfo.CartridgeType.bankswitch_supercharger;
     }
 
-    private static _onBusAccess(type: Bus.AccessType, self: CartridgeSupercharger) {
-        const address = self._bus.getLastAddresBusValue();
+    private static _onBusTransition(address: number, self: CartridgeSupercharger) {
+        self._lastAddressBusValue = self._bus.getLastAddresBusValue();
 
         if (address !== self._lastAddressBusValue && !self._loadInProgress) {
             if (self._transitionCount <= 5) {
                 self._transitionCount++;
             }
-
-            self._lastAddressBusValue = address;
         }
     }
 
@@ -142,7 +139,7 @@ class CartridgeSupercharger extends AbstractCartridge {
         address &= 0x0fff;
 
         if (this._loadInProgress) {
-            if ((this._cpuTimeProvider() - this._loadTimestamp) > 1E-3) {
+            if (this._cpuTimeProvider() - this._loadTimestamp > 1e-3) {
                 this._loadInProgress = false;
             } else {
                 return value;
@@ -168,7 +165,7 @@ class CartridgeSupercharger extends AbstractCartridge {
             return readValue;
         }
 
-        if (address === 0x0ff9 && this._bank1Type === BankType.rom && ((this._lastAddressBusValue & 0x1fff) < 0xff)) {
+        if (address === 0x0ff9 && this._bank1Type === BankType.rom && (this._lastAddressBusValue & 0x1fff) < 0xff) {
             this._loadIntoRam(value);
 
             return readValue;

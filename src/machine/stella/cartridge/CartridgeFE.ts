@@ -50,7 +50,7 @@ class CartridgeFE extends AbstractCartridge {
             [0x20, 0x00, 0xd0, 0xc6, 0xc5], // JSR $D000; DEC $C5
             [0x20, 0xc3, 0xf8, 0xa5, 0x82], // JSR $F8C3; LDA $82
             [0xd0, 0xfb, 0x20, 0x73, 0xfe], // BNE $FB; JSR $FE73
-            [0x20, 0x00, 0xf0, 0x84, 0xd6] // JSR $F000; STY $D6
+            [0x20, 0x00, 0xf0, 0x84, 0xd6], // JSR $F000; STY $D6
         ]);
 
         for (let i = 0; i < signatureCounts.length; i++) {
@@ -91,7 +91,7 @@ class CartridgeFE extends AbstractCartridge {
 
     private static _onBusAccess(accessType: Bus.AccessType, self: CartridgeFE): void {
         const previousAddressBusValue = self._lastAddressBusValue;
-        self._lastAddressBusValue = self._bus.getLastAddresBusValue() & 0x1fff;
+        self._lastAddressBusValue = self._bus.getLastAddresBusValue();
 
         if (self._lastAddressBusValue === previousAddressBusValue) {
             return;
@@ -104,8 +104,8 @@ class CartridgeFE extends AbstractCartridge {
                 dataBusHiBits === 0
                     ? self._bank0
                     : (self._bus.getLastDataBusValue() & 0x20) > 0
-                        ? self._bank0
-                        : self._bank1;
+                    ? self._bank0
+                    : self._bank1;
         }
 
         self._lastAccessWasFE = self._lastAddressBusValue === 0x01fe;
