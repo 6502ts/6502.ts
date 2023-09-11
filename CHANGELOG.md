@@ -1,3 +1,11 @@
+# 1.1.3
+
+## All
+
+ * Fix handling of ZP memory in supercharge BIOS -> fixes loads in Survival Island
+ * Fix transition counting in supercharger emulation -> fixes bad opcode in
+   Survival Island
+
 # 1.1.2
 
 ## stellerator-embedded
