@@ -38,6 +38,7 @@
         processor 6502
 
 VBLANK  equ  $01
+TRAMPOLINE equ $81
 
         SEG code
 ; ===
@@ -81,6 +82,15 @@ load:
         LDX $F006
         STX $FFF8
 
+; Clear bank 1 / page 7
+        LDX #0
+clearscram:
+        LDY $F000
+        NOP
+        LDY $F700,X
+        DEX
+        BPL clearscram
+
 ; Clear TIA registers
         LDY #$00
         LDX #$28
@@ -89,31 +99,30 @@ tiaclr:
         DEX
         BPL tiaclr
 
-; Clear memory (skip $80 though as it still contains the requested multiload ID)
-        LDX #$80
-        LDY #0
+; Clear parts of memory (skip $80 though as it still contains the requested multiload ID)
+        LDX #$1C
 clear:
-        STY $0,X
-        INX
-        BNE clear
+        STY $81,X
+        DEX
+        BPL clear
 
 ; Copy wait-for-load snipped to RIOT RAM (11 bytes)
         LDX #11
 copywaitforload:
         LDY waitforload,X
-        STY $F0,X
+        STY TRAMPOLINE,X
         DEX
         BPL copywaitforload
 
 ; Jump to wait-for-load
-        JMP $F0
+        JMP TRAMPOLINE
 
 ; The load is done; copy the trampoline to RIOT RAM (6 bytes)
 prepareexec:
         LDX #6
 copyexec:
         LDA execute,X
-        STA $F0,X
+        STA TRAMPOLINE,X
         DEX
         BPL copyexec
 
@@ -126,9 +135,9 @@ copyexec:
         LDA $FFF1
 ; The entry point comes next; patch it into the trampoline
         LDX $FFF2
-        STX $F4
+        STX TRAMPOLINE+4
         LDX $FFF3
-        STX $F5
+        STX TRAMPOLINE+5
 
 ; Setup the registers (we have randomized A above)
         LDX #$FF
@@ -136,7 +145,7 @@ copyexec:
         TXS
 
 ; jump into the trampoline and continue execution
-        JMP $F0
+        JMP TRAMPOLINE
 
 ; ===
 ; Wait for the cartridge emulation to load the new multiload into RAM.
