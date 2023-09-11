@@ -44,12 +44,12 @@ class Video {
             scalingMode: Video.ScalingMode.qis,
             phosphorLevel: 0.5,
             scanlineLevel: 0.2,
-            tvEmulation: Video.TvEmulation.composite
+            tvEmulation: Video.TvEmulation.composite,
         };
 
         this._config = {
             ...defaultConfig,
-            ...config
+            ...config,
         };
 
         this._getRenderingContext();
@@ -57,7 +57,7 @@ class Video {
         this._canvas.addEventListener('webglcontextlost', this._onContextLost);
         this._canvas.addEventListener('webglcontextrestored', this._onContextRestored);
 
-        this._pendingFrames.evict.addHandler(frame => frame.release());
+        this._pendingFrames.evict.addHandler((frame) => frame.release());
     }
 
     init(): this {
@@ -111,7 +111,7 @@ class Video {
         this._canvas.removeEventListener('webglcontextlost', this._onContextLost);
         this._canvas.removeEventListener('webglcontextrestored', this._onContextRestored);
 
-        this._pendingFrames.forEach(f => f.release());
+        this._pendingFrames.forEach((f) => f.release());
     }
 
     resize(width?: number, height?: number): this {
@@ -156,7 +156,7 @@ class Video {
         this._video.newFrame.removeHandler(Video._frameHandler, this);
         this._video = null;
 
-        this._pendingFrames.forEach(f => f.release());
+        this._pendingFrames.forEach((f) => f.release());
         this._pendingFrames.clear();
 
         return this;
@@ -172,7 +172,7 @@ class Video {
 
     private static _frameHandler(imageDataPoolMember: PoolMemberInterface<ImageData>, self: Video): void {
         if (self._pendingFrames.size() === self._pendingFrames.capacity()) {
-            self._pendingFrames.forEach(f => f.release());
+            self._pendingFrames.forEach((f) => f.release());
             self._pendingFrames.clear();
         }
 
@@ -185,7 +185,7 @@ class Video {
         const contextOptions: WebGLContextAttributes = {
             alpha: false,
             depth: false,
-            antialias: false
+            antialias: false,
         };
 
         this._gl =
@@ -487,13 +487,13 @@ namespace Video {
     export const enum ScalingMode {
         qis = 'qis',
         bilinear = 'bilinear',
-        none = 'none'
+        none = 'none',
     }
 
     export const enum TvEmulation {
         composite = 'composite',
         svideo = 'svideo',
-        none = 'none'
+        none = 'none',
     }
 
     export interface Config {
