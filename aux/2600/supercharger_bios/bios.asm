@@ -38,7 +38,8 @@
         processor 6502
 
 VBLANK  equ  $01
-TRAMPOLINE equ $81
+TRAMPOLINE equ $FA
+WAIT equ $81
 
         SEG code
 ; ===
@@ -99,25 +100,28 @@ tiaclr:
         DEX
         BPL tiaclr
 
+; Copy wait-for-load snipped to RIOT RAM (11 bytes)
+        LDX #11
+copywaitforload:
+        LDY waitforload,X
+        STY WAIT,X
+        DEX
+        BPL copywaitforload
+
+; Jump to wait-for-load
+        JMP WAIT
+
+afterload:
+
 ; Clear parts of memory (skip $80 though as it still contains the requested multiload ID)
         LDX #$1C
+        LDY #0
 clear:
         STY $81,X
         DEX
         BPL clear
 
-; Copy wait-for-load snipped to RIOT RAM (11 bytes)
-        LDX #11
-copywaitforload:
-        LDY waitforload,X
-        STY TRAMPOLINE,X
-        DEX
-        BPL copywaitforload
-
-; Jump to wait-for-load
-        JMP TRAMPOLINE
-
-; The load is done; copy the trampoline to RIOT RAM (6 bytes)
+; Copy the trampoline to RIOT RAM (6 bytes)
 prepareexec:
         LDX #6
 copyexec:
@@ -162,7 +166,7 @@ wait:
         BNE wait
 ; We got 0? The cartridge is driving the bus again, so the load is finished, and
 ; we can continue
-        JMP prepareexec
+        JMP afterload
 
 ; ===
 ; Trampoline

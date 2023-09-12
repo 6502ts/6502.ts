@@ -26,5 +26,5 @@
 import { decode } from '../../../../tools/base64';
 
 export const bios = decode(
-    'pfpMGPj//3jYqQCi/5qqqJUA6ND7TBj4ogKGAa4G8I74/6IArADw6rwA98oQ9qAAoiiUBMoQ+6IclIHKEPuiC7xy+JSByhD4TIEAoga9ffiVgcoQ+K7w/4aAvADwrfH/rvL/hoWu8/+GhqL/oACaTIEAjfn/rfv/0PtMS/iN+P9MAAA='
+    'pfpMGPj//3jYqQCi/5qqqJUA6ND7TBj4ogKGAa4G8I74/6IArADw6rwA98oQ9qAAoiiUBMoQ+6ILvHT4lIHKEPhMgQCiHKAAlIHKEPuiBr1/+JX6yhD4rvD/hoC8APCt8f+u8v+G/q7z/4b/ov+gAJpM+gCN+f+t+//Q+0xE+I34/0wAAA=='
 );
