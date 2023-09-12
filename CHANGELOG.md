@@ -1,3 +1,10 @@
+# 1.1.4
+
+## All
+
+* Another supercharger BIOS fix -> fixes splash screen on Communist Mutants from
+  Space.
+
 # 1.1.3
 
 ## All
