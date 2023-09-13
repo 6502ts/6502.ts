@@ -13,7 +13,7 @@ export default class ProfilingProbe {
     }
 
     reset(): void {
-        this.cycles = this.busTransitions = this.busTransitionsCartridge = 0;
+        this.cycles = this.busTransitions = this.busTransitionsCartridge = this.busTransitionsZPRam = 0;
         this.lastBusAddress = -1;
     }
 
@@ -23,7 +23,9 @@ export default class ProfilingProbe {
                 (this.busTransitions / this.cycles) * 100
             )}% transitions, ${Math.round(
                 (this.busTransitionsCartridge / this.cycles) * 100
-            )}% transitions in cart space`
+            )}% transitions in cart space, ${Math.round(
+                (this.busTransitionsZPRam / this.cycles) * 100
+            )}% transitions in ZP RAM`
         );
     }
 
@@ -42,11 +44,13 @@ export default class ProfilingProbe {
 
         self.busTransitions++;
         if (accessType === Bus.AccessType.cartridge) self.busTransitionsCartridge++;
+        if (self.lastBusAddress <= 0xff && self.lastBusAddress >= 0x80) self.busTransitionsZPRam++;
     }
 
     private cycles = 0;
     private busTransitions = 0;
     private busTransitionsCartridge = 0;
+    private busTransitionsZPRam = 0;
 
     private lastBusAddress = -1;
     private bus: Bus;
