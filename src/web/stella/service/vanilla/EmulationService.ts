@@ -37,6 +37,7 @@ import SchedulerFactory from '../../../../tools/scheduler/Factory';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
 import { Mutex } from 'async-mutex';
+import ProfilingProbe from '../../../../machine/stella/ProfilingProbe';
 
 const CLOCK_UPDATE_INTERVAL = 2000;
 
@@ -75,6 +76,8 @@ export default class EmulationService implements EmulationServiceInterface {
 
                 this._board = board;
                 this._board.trap.addHandler(EmulationService._trapHandler, this);
+
+                this._profilingProbe = new ProfilingProbe(board);
 
                 if (config.asyncIO) {
                     this._asyncIO = new AsyncIO(board);
@@ -145,6 +148,8 @@ export default class EmulationService implements EmulationServiceInterface {
 
                         break;
                 }
+
+                this._profilingProbe.reset();
             } catch (e) {
                 this._setError(e);
             }
@@ -266,6 +271,7 @@ export default class EmulationService implements EmulationServiceInterface {
     private _state = EmulationServiceInterface.State.stopped;
     private _lastError: Error = null;
     private _board: Board;
+    private _profilingProbe: ProfilingProbe;
     private _context: EmulationContext;
     private _asyncIO: AsyncIO;
     private _scheduler: SchedulerInterface = null;
