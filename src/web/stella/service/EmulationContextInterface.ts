@@ -31,7 +31,6 @@ import WaveformAudioOutputInterface from '../../../machine/io/WaveformAudioOutpu
 import PCMAudioEndpointInterface from '../../driver/PCMAudioEndpointInterface';
 import Config from '../../../machine/stella/Config';
 import AsyncIOInterface from '../../../machine/io/AsyncIOInterface';
-
 interface EmulationContextInterface {
     getConfig(): Config;
 

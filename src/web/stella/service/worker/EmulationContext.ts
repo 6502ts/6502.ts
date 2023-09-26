@@ -37,7 +37,6 @@ import ControlProxy from './ControlProxy';
 import WaveformAudioProxy from './WaveformAudioProxy';
 import PCMAudioProxy from './PCMAudioProxy';
 import AsyncIOProxy from './AsyncIOProxy';
-
 class EmulationContext implements EmulationContextInterface {
     constructor(
         private _videoProxy: VideoProxy,

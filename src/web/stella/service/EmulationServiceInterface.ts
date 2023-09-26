@@ -46,6 +46,10 @@ interface EmulationServiceInterface {
 
     reset(): Promise<EmulationServiceInterface.State>;
 
+    peek(index: number): Promise<number>;
+
+    poke(index: number, value: number): Promise<void>;
+
     setRateLimit(enforce: boolean): Promise<void>;
 
     getRateLimit(): boolean;

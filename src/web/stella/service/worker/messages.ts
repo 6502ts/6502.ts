@@ -34,10 +34,12 @@ export const RPC_TYPE = {
     emulationStart: 'emulation/start',
     emulationStop: 'emulation/stop',
     emulationFetchLastError: 'emulation/fetchLastError',
+    emulationPeek: 'emulation/peek',
+    emulationPoke: 'emulation/poke',
     getVideoParameters: 'video/getParameters',
     getWaveformAudioParameters: (index: number) => `audio/waveform/getParameters/${index}`,
     getPCMAudioParameters: (index: number) => `audio/pcm/getParameters/${index}`,
-    setup: '/setup'
+    setup: '/setup',
 };
 Object.freeze(RPC_TYPE);
 
@@ -58,12 +60,17 @@ export const SIGNAL_TYPE = {
 };
 Object.freeze(SIGNAL_TYPE);
 
-export interface SetupMessage {}
+export interface SetupMessage { }
 
 export interface EmulationStartMessage {
     buffer: { [i: number]: number; length: number };
     config: EventServiceInterface.Config;
     cartridgeType?: CartridgeInfo.CartridgeType;
+}
+
+export interface EmulationPokeMessage {
+    index: number;
+    value: number;
 }
 
 export interface VideoParametersResponse {
