@@ -31,9 +31,10 @@ import PaddleInterface from '../../../../machine/io/PaddleInterface';
 import ControlPanelInterface from '../../../../machine/stella/ControlPanelInterface';
 
 import { SIGNAL_TYPE } from './messages';
+import KeypadControllerInterface from '../../../../machine/io/KeypadControllerInterface';
 
 class ControlDriver {
-    constructor(private _rpc: RpcProviderInterface) {}
+    constructor(private _rpc: RpcProviderInterface) { }
 
     init(): void {
         this._rpc.registerSignalHandler(SIGNAL_TYPE.controlStateUpdate, this._onControlStateUpdate.bind(this));
@@ -66,6 +67,10 @@ class ControlDriver {
             this._applyJoystickState(controlState.joystickState[i], this._emulationContext.getJoystick(i));
         }
 
+        for (let i = 0; i < 2; i++) {
+            this._applyKeypadState(controlState.keypadState[i], this._emulationContext.getKeypad(i));
+        }
+
         for (let i = 0; i < 4; i++) {
             this._applyPaddleState(controlState.paddleState[i], this._emulationContext.getPaddle(i));
         }
@@ -79,6 +84,14 @@ class ControlDriver {
         joystick.getLeft().toggle(state.left);
         joystick.getRight().toggle(state.right);
         joystick.getFire().toggle(state.fire);
+    }
+
+    private _applyKeypadState(state: ControlState.KeypadState, keypad: KeypadControllerInterface): void {
+        for (var row = 0; row < 4; row++) {
+            for (var col = 0; col < 3; col++) {
+                keypad.getKey(row, col).toggle(state.rows[row][col]);
+            }
+        }
     }
 
     private _applyPaddleState(state: ControlState.PaddleState, paddle: PaddleInterface): void {

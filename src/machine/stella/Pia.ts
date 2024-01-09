@@ -30,12 +30,14 @@ import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
 import Bus from './Bus';
 
 import RngInterface from '../../tools/rng/GeneratorInterface';
+import KeypadsReader from './KeypadsReader';
 
 class Pia {
     constructor(
         private _controlPanel: ControlPanelInterface,
         private _joystick0: DigitalJoystickInterface,
         private _joystick1: DigitalJoystickInterface,
+        private _keypads: KeypadsReader,
         private _rng?: RngInterface
     ) {
         this.reset();
@@ -112,7 +114,16 @@ class Pia {
         return this;
     }
 
-    private _writeIo(address: number, value: number): void {}
+    private _writeIo(address: number, value: number): void {
+        switch (address) {
+            case Pia.Registers.swcha:
+                this._keypads.swcha(value);
+                break;
+            case Pia.Registers.swacnt:
+                this._keypads.swacnt(value);
+                break;
+        }
+    }
 
     private _writeTimer(address: number, value: number): void {
         this._interruptFlag = 0;
@@ -237,7 +248,7 @@ namespace Pia {
     }
 
     export class TrapPayload {
-        constructor(public reason: TrapReason, public pia: Pia, public message?: string) {}
+        constructor(public reason: TrapReason, public pia: Pia, public message?: string) { }
     }
 }
 

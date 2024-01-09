@@ -36,9 +36,10 @@ import WaveformAudioOutputInterface from '../../../../machine/io/WaveformAudioOu
 import PCMAudioEndpointInterface from '../../../driver/PCMAudioEndpointInterface';
 import PCMAudioEndpoint from '../../../driver/PCMAudioEndpoint';
 import AsyncIOInterface from '../../../../machine/io/AsyncIOInterface';
+import KeypadControllerInterface from '../../../../machine/io/KeypadControllerInterface';
 
 export default class EmulationContext implements EmulationContextInterface {
-    constructor(private _board: Board, private _asyncIO?: AsyncIOInterface) {}
+    constructor(private _board: Board, private _asyncIO?: AsyncIOInterface) { }
 
     getConfig(): Config {
         return this._board.getConfig();
@@ -62,6 +63,19 @@ export default class EmulationContext implements EmulationContextInterface {
 
             default:
                 throw new Error(`invalid joystick index ${i}`);
+        }
+    }
+
+    getKeypad(i: number): KeypadControllerInterface {
+        switch (i) {
+            case 0:
+                return this._board.getKeypad0();
+
+            case 1:
+                return this._board.getKeypad1();
+
+            default:
+                throw new Error(`invalid keypad index ${i}`);
         }
     }
 

@@ -37,6 +37,7 @@ import ControlProxy from './ControlProxy';
 import WaveformAudioProxy from './WaveformAudioProxy';
 import PCMAudioProxy from './PCMAudioProxy';
 import AsyncIOProxy from './AsyncIOProxy';
+import KeypadControllerInterface from '../../../../machine/io/KeypadControllerInterface';
 class EmulationContext implements EmulationContextInterface {
     constructor(
         private _videoProxy: VideoProxy,
@@ -64,6 +65,10 @@ class EmulationContext implements EmulationContextInterface {
 
     getJoystick(i: number): JoystickInterface {
         return this._controlProxy.getJoystick(i);
+    }
+
+    getKeypad(i: number): KeypadControllerInterface {
+        return this._controlProxy.getKeypad(i);
     }
 
     getControlPanel(): ControlPanelInterface {

@@ -47,6 +47,7 @@ import PaddleReader from './PaddleReader';
 import FrameManager from './FrameManager';
 import DelayQueue from './DelayQueue';
 import * as palette from './palette';
+import KeypadsReader from '../KeypadsReader';
 
 const enum Metrics {
     frameLinesPAL = 312,
@@ -104,7 +105,8 @@ class Tia implements VideoOutputInterface {
         private _config: Config,
         joystick0: DigitalJoystickInterface,
         joystick1: DigitalJoystickInterface,
-        paddles: Array<Paddle>
+        paddles: Array<Paddle>,
+        keypads: KeypadsReader
     ) {
         this._frameManager = new FrameManager(this._config);
         this._frameManager.newFrame.addHandler(Tia._onNewFrame, this);
@@ -128,6 +130,8 @@ class Tia implements VideoOutputInterface {
         for (let i = 0; i < 4; i++) {
             this._paddles[i] = new PaddleReader(clockFreq, paddles[i]);
         }
+
+        this._keypads = keypads;
 
         this.reset();
     }
@@ -165,6 +169,8 @@ class Tia implements VideoOutputInterface {
         for (let i = 0; i < 4; i++) {
             this._paddles[i].reset();
         }
+
+        this._keypads.reset();
 
         if (this._cpu) {
             this._cpu.resume();
@@ -220,11 +226,11 @@ class Tia implements VideoOutputInterface {
         // Only keep the lowest four bits
         switch (address & 0x0f) {
             case Tia.Registers.inpt0:
-                result = (this._config.emulatePaddles ? this._paddles[0].inpt() : 0) | (lastDataBusValue & 0x40);
+                result = this._keypads.inpt(0) | (this._config.emulatePaddles ? this._paddles[0].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt1:
-                result = (this._config.emulatePaddles ? this._paddles[1].inpt() : 0) | (lastDataBusValue & 0x40);
+                result = this._keypads.inpt(1) | (this._config.emulatePaddles ? this._paddles[1].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt2:
@@ -236,7 +242,7 @@ class Tia implements VideoOutputInterface {
                 break;
 
             case Tia.Registers.inpt4:
-                result = this._input0.inpt() | (lastDataBusValue & 0x40);
+                result = this._keypads.inpt(2) | this._input0.inpt() | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt5:
@@ -326,6 +332,8 @@ class Tia implements VideoOutputInterface {
                 for (let i = 0; i < 4; i++) {
                     this._paddles[i].vblank(value);
                 }
+
+                this._keypads.vblank(value);
 
                 this._delayQueue.push(Tia.Registers.vblank, value, Delay.vblank);
                 break;
@@ -1019,6 +1027,8 @@ class Tia implements VideoOutputInterface {
     private _input1: LatchedInput;
 
     private _paddles: Array<PaddleReader>;
+    private _keypads: KeypadsReader;
+
 }
 
 namespace Tia {
@@ -1096,7 +1106,7 @@ namespace Tia {
     }
 
     export class TrapPayload {
-        constructor(public reason: TrapReason, public tia: Tia, public message?: string) {}
+        constructor(public reason: TrapReason, public tia: Tia, public message?: string) { }
     }
 }
 

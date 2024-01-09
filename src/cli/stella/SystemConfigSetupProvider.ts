@@ -28,7 +28,7 @@ import CommandInterpreter from '../CommandInterpreter';
 import Factory from '../../machine/cpu/Factory';
 
 export default class SystemConfigSetupProvider {
-    constructor(private _config: Config) {}
+    constructor(private _config: Config) { }
 
     getCommands(): CommandInterpreter.CommandTableInterface {
         return this._commands;

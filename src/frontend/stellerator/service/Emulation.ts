@@ -390,7 +390,12 @@ class Emulation {
 
         this._driverManager
             .addDriver(this._keyboardDriver, (context, driver: KeyboardDriver) =>
-                driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+                driver.bind(
+                    context.getJoystick(0),
+                    context.getJoystick(1),
+                    context.getKeypad(0),
+                    context.getKeypad(1),
+                    context.getControlPanel())
             )
             .addDriver(this._paddleDriver, (context, driver: MouseAsPaddleDriver) => driver.bind(context.getPaddle(0)));
     }

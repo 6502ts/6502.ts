@@ -31,12 +31,15 @@ import WaveformAudioOutputInterface from '../../../machine/io/WaveformAudioOutpu
 import PCMAudioEndpointInterface from '../../driver/PCMAudioEndpointInterface';
 import Config from '../../../machine/stella/Config';
 import AsyncIOInterface from '../../../machine/io/AsyncIOInterface';
+import KeypadControllerInterface from '../../../machine/io/KeypadControllerInterface';
 interface EmulationContextInterface {
     getConfig(): Config;
 
     getVideo(): VideoEndpointInterface;
 
     getJoystick(i: number): JoystickInterface;
+
+    getKeypad(i: number): KeypadControllerInterface;
 
     getControlPanel(): ControlPanelInterface;
 

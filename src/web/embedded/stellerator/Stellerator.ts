@@ -571,7 +571,12 @@ export class Stellerator {
             this._keyboardIO = new KeyboardIO(this._config.keyboardTarget);
 
             this._driverManager.addDriver(this._keyboardIO, (context) =>
-                this._keyboardIO.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+                this._keyboardIO.bind(
+                    context.getJoystick(0),
+                    context.getJoystick(1),
+                    context.getKeypad(0),
+                    context.getKeypad(1),
+                    context.getControlPanel())
             );
 
             if (this._config.fullscreenViaKeyboard) {

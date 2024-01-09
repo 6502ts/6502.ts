@@ -28,6 +28,7 @@ import { Event } from 'microevent.ts';
 import SwitchInterface from '../../../machine/io/SwitchInterface';
 import JoystickInterface from '../../../machine/io/DigitalJoystickInterface';
 import ControlPanelInterface from '../../../machine/stella/ControlPanelInterface';
+import KeypadControllerInterface from '../../../machine/io/KeypadControllerInterface';
 
 const enum DispatchType {
     swtch,
@@ -69,13 +70,20 @@ class KeyboardIO {
         this._compileMappings(mappings);
     }
 
-    bind(joystick0: JoystickInterface, joystick1: JoystickInterface, controlPanel: ControlPanelInterface): void {
+    bind(
+        joystick0: JoystickInterface,
+        joystick1: JoystickInterface,
+        keypad0: KeypadControllerInterface,
+        keypad1: KeypadControllerInterface,
+        controlPanel: ControlPanelInterface): void {
         if (this._joystick0) {
             return;
         }
 
         this._joystick0 = joystick0;
         this._joystick1 = joystick1;
+        this._keypad0 = keypad0;
+        this._keypad1 = keypad1;
         this._controlPanel = controlPanel;
 
         this._updateActionTable();
@@ -166,6 +174,30 @@ class KeyboardIO {
         this._dispatchTable[KeyboardIO.Action.up1] = mkSwitch(this._joystick1.getUp());
         this._dispatchTable[KeyboardIO.Action.down1] = mkSwitch(this._joystick1.getDown());
         this._dispatchTable[KeyboardIO.Action.fire1] = mkSwitch(this._joystick1.getFire());
+        this._dispatchTable[KeyboardIO.Action.keypad0r0c0] = mkSwitch(this._keypad0.getKey(0, 0));
+        this._dispatchTable[KeyboardIO.Action.keypad0r0c1] = mkSwitch(this._keypad0.getKey(0, 1));
+        this._dispatchTable[KeyboardIO.Action.keypad0r0c2] = mkSwitch(this._keypad0.getKey(0, 2));
+        this._dispatchTable[KeyboardIO.Action.keypad0r1c0] = mkSwitch(this._keypad0.getKey(1, 0));
+        this._dispatchTable[KeyboardIO.Action.keypad0r1c1] = mkSwitch(this._keypad0.getKey(1, 1));
+        this._dispatchTable[KeyboardIO.Action.keypad0r1c2] = mkSwitch(this._keypad0.getKey(1, 2));
+        this._dispatchTable[KeyboardIO.Action.keypad0r2c0] = mkSwitch(this._keypad0.getKey(2, 0));
+        this._dispatchTable[KeyboardIO.Action.keypad0r2c1] = mkSwitch(this._keypad0.getKey(2, 1));
+        this._dispatchTable[KeyboardIO.Action.keypad0r2c2] = mkSwitch(this._keypad0.getKey(2, 2));
+        this._dispatchTable[KeyboardIO.Action.keypad0r3c0] = mkSwitch(this._keypad0.getKey(3, 0));
+        this._dispatchTable[KeyboardIO.Action.keypad0r3c1] = mkSwitch(this._keypad0.getKey(3, 1));
+        this._dispatchTable[KeyboardIO.Action.keypad0r3c2] = mkSwitch(this._keypad0.getKey(3, 2));
+        this._dispatchTable[KeyboardIO.Action.keypad1r0c0] = mkSwitch(this._keypad1.getKey(0, 0));
+        this._dispatchTable[KeyboardIO.Action.keypad1r0c1] = mkSwitch(this._keypad1.getKey(0, 1));
+        this._dispatchTable[KeyboardIO.Action.keypad1r0c2] = mkSwitch(this._keypad1.getKey(0, 2));
+        this._dispatchTable[KeyboardIO.Action.keypad1r1c0] = mkSwitch(this._keypad1.getKey(1, 0));
+        this._dispatchTable[KeyboardIO.Action.keypad1r1c1] = mkSwitch(this._keypad1.getKey(1, 1));
+        this._dispatchTable[KeyboardIO.Action.keypad1r1c2] = mkSwitch(this._keypad1.getKey(1, 2));
+        this._dispatchTable[KeyboardIO.Action.keypad1r2c0] = mkSwitch(this._keypad1.getKey(2, 0));
+        this._dispatchTable[KeyboardIO.Action.keypad1r2c1] = mkSwitch(this._keypad1.getKey(2, 1));
+        this._dispatchTable[KeyboardIO.Action.keypad1r2c2] = mkSwitch(this._keypad1.getKey(2, 2));
+        this._dispatchTable[KeyboardIO.Action.keypad1r3c0] = mkSwitch(this._keypad1.getKey(3, 0));
+        this._dispatchTable[KeyboardIO.Action.keypad1r3c1] = mkSwitch(this._keypad1.getKey(3, 1));
+        this._dispatchTable[KeyboardIO.Action.keypad1r3c2] = mkSwitch(this._keypad1.getKey(3, 2));
     }
 
     private _compileMappings(mappings: Array<KeyboardIO.Mapping>): void {
@@ -204,6 +236,8 @@ class KeyboardIO {
 
     private _joystick0: JoystickInterface = null;
     private _joystick1: JoystickInterface = null;
+    private _keypad0: KeypadControllerInterface = null;
+    private _keypad1: KeypadControllerInterface = null;
     private _controlPanel: ControlPanelInterface = null;
 
     private _dispatchTable: { [action: number]: Dispatch } = {};
@@ -224,6 +258,32 @@ namespace KeyboardIO {
         down1,
         fire0,
         fire1,
+
+        keypad0r0c0,
+        keypad0r0c1,
+        keypad0r0c2,
+        keypad0r1c0,
+        keypad0r1c1,
+        keypad0r1c2,
+        keypad0r2c0,
+        keypad0r2c1,
+        keypad0r2c2,
+        keypad0r3c0,
+        keypad0r3c1,
+        keypad0r3c2,
+
+        keypad1r0c0,
+        keypad1r0c1,
+        keypad1r0c2,
+        keypad1r1c0,
+        keypad1r1c1,
+        keypad1r1c2,
+        keypad1r2c0,
+        keypad1r2c1,
+        keypad1r2c2,
+        keypad1r3c0,
+        keypad1r3c1,
+        keypad1r3c2,
 
         fullscreen,
         hardReset,
@@ -266,7 +326,7 @@ namespace KeyboardIO {
         {
             action: Action.left0,
             spec: [
-                65, // w
+                65, // a
                 37 // left
             ]
         },
@@ -334,6 +394,135 @@ namespace KeyboardIO {
             spec: 80 // p
         }
     ];
+
+    export const keypadMappings: Array<Mapping> = [
+        {
+            action: Action.select,
+            spec: {
+                keycode: 32, // space
+                modifiers: Modifier.shift
+            }
+        },
+        {
+            action: Action.reset,
+            spec: {
+                keycode: 13, // enter
+                modifiers: Modifier.shift
+            }
+        },
+        {
+            action: Action.keypad0r0c0,
+            spec: 49 // 0
+        },
+        {
+            action: Action.keypad0r0c1,
+            spec: 50 // 1
+        },
+        {
+            action: Action.keypad0r0c2,
+            spec: 51 // 2
+        },
+        {
+            action: Action.keypad0r1c0,
+            spec: 81 // q
+        },
+        {
+            action: Action.keypad0r1c1,
+            spec: 87 // w
+        },
+        {
+            action: Action.keypad0r1c2,
+            spec: 69 // e
+        },
+        {
+            action: Action.keypad0r2c0,
+            spec: 65 // a
+        },
+        {
+            action: Action.keypad0r2c1,
+            spec: 83 // s
+        },
+        {
+            action: Action.keypad0r2c2,
+            spec: 68 // d
+        },
+        {
+            action: Action.keypad0r3c0,
+            spec: 90 // z
+        },
+        {
+            action: Action.keypad0r3c1,
+            spec: 88 // x
+        },
+        {
+            action: Action.keypad0r3c2,
+            spec: 67 // c
+        },
+        {
+            action: Action.keypad1r0c0,
+            spec: 56// 8
+        },
+        {
+            action: Action.keypad1r0c1,
+            spec: 57 // 9
+        },
+        {
+            action: Action.keypad1r0c2,
+            spec: 48 // 0
+        },
+        {
+            action: Action.keypad1r1c0,
+            spec: 73 // i
+        },
+        {
+            action: Action.keypad1r1c1,
+            spec: 79 // o
+        },
+        {
+            action: Action.keypad1r1c2,
+            spec: 80 // p
+        },
+        {
+            action: Action.keypad1r2c0,
+            spec: 75 // k
+        },
+        {
+            action: Action.keypad1r2c1,
+            spec: 76 // l
+        },
+        {
+            action: Action.keypad1r2c2,
+            spec: 186 // ;
+        },
+        {
+            action: Action.keypad1r3c0,
+            spec: 188 // ,
+        },
+        {
+            action: Action.keypad1r3c1,
+            spec: 190 // .
+        },
+        {
+            action: Action.keypad1r3c2,
+            spec: 191 // /
+        },
+        {
+            action: Action.fullscreen,
+            spec: 13 // enter
+        },
+        {
+            action: Action.hardReset,
+            spec: {
+                keycode: 82, // r
+                modifiers: Modifier.shift
+            }
+        },
+        {
+            action: Action.togglePause,
+            spec: 80 // p
+        }
+    ];
+
 }
 
 export { KeyboardIO as default };
