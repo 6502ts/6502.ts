@@ -42,6 +42,7 @@ import {
     StartEmulationPayload,
     TvEmulation,
     Scaling,
+    ControllerType,
 } from '../../elm/Stellerator/Main.elm';
 
 import EmulationServiceInterface from '../../../web/stella/service/EmulationServiceInterface';
@@ -100,6 +101,22 @@ function tvMode(cartridge: Cartridge): Config.TvMode {
     }
 }
 
+function controllerType(controllerType: ControllerType): Config.ControllerType {
+    switch (controllerType) {
+        case ControllerType.joystick:
+            return Config.ControllerType.joystick;
+
+        case ControllerType.paddles:
+            return Config.ControllerType.paddles;
+
+        case ControllerType.keypad:
+            return Config.ControllerType.keypad;
+
+        default:
+            throw new Error(`cannot happen: invalid controller type ${controllerType}`);
+    }
+}
+
 function config(cartridge: Cartridge, settings: Settings): Config {
     return {
         tvMode: tvMode(cartridge),
@@ -109,6 +126,8 @@ function config(cartridge: Cartridge, settings: Settings): Config {
         frameStart: typeof cartridge.firstVisibleLine === 'undefined' ? -1 : cartridge.firstVisibleLine,
         pcmAudio: (cartridge.audioEmulation || settings.audioEmulation) === AudioEmulation.pcm,
         cpuType: cpuType(cartridge, settings),
+        controllerPort0: controllerType(cartridge.controllerPort0),
+        controllerPort1: controllerType(cartridge.controllerPort1),
     };
 }
 

@@ -42,6 +42,7 @@ import Stellerator.Model
         , Cartridge
         , CartridgeViewMode(..)
         , ChangeCartridgeMsg(..)
+        , ControllerType(..)
         , CpuEmulation(..)
         , Media(..)
         , Model
@@ -194,6 +195,18 @@ settingsItems model cart =
             cart.tvMode
     , checkbox "Emulate paddles:" <|
         Form.checkbox (changeCartridge ChangeCartridgeEmulatePaddles) cart.emulatePaddles
+    , oneline "Controller Port 0:" <|
+        Form.radioGroup
+            []
+            [ ( ControllerTypeJoystick, "Joystick" ), ( ControllerTypePaddles, "Paddles" ), ( ControllerTypeKeypad, "Keypad" ) ]
+            (changeCartridge ChangeCartridgeControllerPort0)
+            cart.controllerPort0
+    , oneline "Controller Port 1:" <|
+        Form.radioGroup
+            []
+            [ ( ControllerTypeJoystick, "Joystick" ), ( ControllerTypePaddles, "Paddles" ), ( ControllerTypeKeypad, "Keypad" ) ]
+            (changeCartridge ChangeCartridgeControllerPort1)
+            cart.controllerPort1
     , oneline "RNG seed:" <| optionalNumberInput ChangeCartridgeRngSeed cart.rngSeed
     , oneline "First visible line:" <| optionalNumberInput ChangeCartridgeFirstVisibleLine cart.firstVisibleLine
     , oneline "CPU emulation:" <|

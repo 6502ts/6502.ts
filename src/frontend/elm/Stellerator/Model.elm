@@ -33,6 +33,7 @@ module Stellerator.Model exposing
     , ChangeSettingsMsg(..)
     , ColorSwitch(..)
     , ConsoleSwitches
+    , ControllerType(..)
     , CpuEmulation(..)
     , DifficultySwitch(..)
     , EmulationState(..)
@@ -51,6 +52,7 @@ module Stellerator.Model exposing
     , decodeAudioEmulation
     , decodeCartridge
     , decodeCartridgeType
+    , decodeControllerType
     , decodeCpuEmulation
     , decodeEmulationState
     , decodeInputDriverEvent
@@ -139,12 +141,20 @@ type Scaling
     | ScalingNone
 
 
+type ControllerType
+    = ControllerTypeJoystick
+    | ControllerTypePaddles
+    | ControllerTypeKeypad
+
+
 type alias Cartridge =
     { hash : String
     , name : String
     , cartridgeType : String
     , tvMode : TvMode
     , emulatePaddles : Bool
+    , controllerPort0 : ControllerType
+    , controllerPort1 : ControllerType
     , volume : Int
     , rngSeed : Maybe Int
     , firstVisibleLine : Maybe Int
@@ -246,6 +256,8 @@ type ChangeCartridgeMsg
     | ChangeCartridgeType String
     | ChangeCartridgeTvMode TvMode
     | ChangeCartridgeEmulatePaddles Bool
+    | ChangeCartridgeControllerPort0 ControllerType
+    | ChangeCartridgeControllerPort1 ControllerType
     | ChangeCartridgeRngSeed (Maybe Int)
     | ChangeCartridgeFirstVisibleLine (Maybe Int)
     | ChangeCartridgeCpuEmulation (Maybe CpuEmulation)
@@ -600,6 +612,36 @@ encodeScaling scaling =
         ScalingNone ->
             Encode.string "none"
 
+decodeControllerType : Decode.Decoder ControllerType
+decodeControllerType =
+    Decode.string
+        |> Decode.andThen
+            (\s ->
+                case s of
+                    "joystick" ->
+                        Decode.succeed ControllerTypeJoystick
+
+                    "paddles" ->
+                        Decode.succeed ControllerTypePaddles
+
+                    "keypad" ->
+                        Decode.succeed ControllerTypeKeypad
+
+                    _ ->
+                        Decode.fail "invalid controller value"
+            )
+
+encodeControllerType : ControllerType -> Encode.Value
+encodeControllerType scaling =
+    case scaling of
+        ControllerTypeJoystick ->
+            Encode.string "joystick"
+
+        ControllerTypePaddles ->
+            Encode.string "paddles"
+
+        ControllerTypeKeypad ->
+            Encode.string "keypad"
 
 decodeSettings : Decode.Decoder Settings
 decodeSettings =
@@ -646,6 +688,8 @@ decodeCartridge =
         |> Pipeline.required "cartridgeType" Decode.string
         |> Pipeline.required "tvMode" decodeTvMode
         |> Pipeline.required "emulatePaddles" Decode.bool
+        |> Pipeline.required "controllerPort0" decodeControllerType
+        |> Pipeline.required "controllerPort1" decodeControllerType
         |> Pipeline.required "volume" Decode.int
         |> Pipeline.optional "rngSeed" (Decode.maybe Decode.int) Nothing
         |> Pipeline.optional "firstVisibleLine" (Decode.maybe Decode.int) Nothing
@@ -661,6 +705,8 @@ encodeCartridge cartridge =
     , ( "cartridgeType", Encode.string cartridge.cartridgeType )
     , ( "tvMode", encodeTvMode cartridge.tvMode )
     , ( "emulatePaddles", Encode.bool cartridge.emulatePaddles )
+    , ( "controllerPort0", encodeControllerType cartridge.controllerPort0 )
+    , ( "controllerPort1", encodeControllerType cartridge.controllerPort1 )
     , ( "volume", Encode.int cartridge.volume )
     ]
         |> encodeOptional "rngSeed" Encode.int cartridge.rngSeed

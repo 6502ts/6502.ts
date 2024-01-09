@@ -30,13 +30,16 @@ import KeypadControllerInterface from './KeypadControllerInterface';
 export default class KeypadController implements KeypadControllerInterface {
 
     constructor() {
-        for (let i = 0; i < 4; i++) {
-            this._rows[i] = new Array<Switch>(3);
+        for (let row = 0; row < 4; row++) {
+            this._rows[row] = new Array<Switch>(3);
+            for (let col = 0; col < 3; col++) {
+                this._rows[row][col] = new Switch();
+            }
         }
     }
 
-    getKey(row: number, column: number): SwitchInterface {
-        return this._rows[row][column];
+    getKey(row: number, col: number): SwitchInterface {
+        return this._rows[row][col];
     }
 
     private _rows = new Array<Array<Switch>>(4);

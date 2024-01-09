@@ -67,7 +67,7 @@ class KeyboardIO {
         // tslint:disable-next-line
         mappings: Array<KeyboardIO.Mapping> = KeyboardIO.defaultMappings
     ) {
-        this._compileMappings(mappings);
+        this._compileMappings(mappings, false);
     }
 
     bind(
@@ -146,6 +146,10 @@ class KeyboardIO {
         this._target.addEventListener('keyup', this._keyupListener);
     }
 
+    overlay(mappings: Array<KeyboardIO.Mapping>): void {
+        this._compileMappings(mappings, true);
+    }
+
     unbind(): void {
         if (!this._joystick0) {
             return;
@@ -200,13 +204,13 @@ class KeyboardIO {
         this._dispatchTable[KeyboardIO.Action.keypad1r3c2] = mkSwitch(this._keypad1.getKey(3, 2));
     }
 
-    private _compileMappings(mappings: Array<KeyboardIO.Mapping>): void {
+    private _compileMappings(mappings: Array<KeyboardIO.Mapping>, overwrite: boolean = false): void {
         const compileMapping = (action: KeyboardIO.Action, keycode: number, modifiers: number) => {
             if ((modifiers & ~(KeyboardIO.Modifier.shift | KeyboardIO.Modifier.ctrl | KeyboardIO.Modifier.alt)) !== 0) {
                 throw new Error(`invalid modifier set ${modifiers}`);
             }
 
-            if (!this._compiledMappings.has(keycode)) {
+            if (overwrite || !this._compiledMappings.has(keycode)) {
                 this._compiledMappings.set(keycode, new Map<number, KeyboardIO.Action>());
             }
 
@@ -395,32 +399,18 @@ namespace KeyboardIO {
         }
     ];
 
-    export const keypadMappings: Array<Mapping> = [
-        {
-            action: Action.select,
-            spec: {
-                keycode: 32, // space
-                modifiers: Modifier.shift
-            }
-        },
-        {
-            action: Action.reset,
-            spec: {
-                keycode: 13, // enter
-                modifiers: Modifier.shift
-            }
-        },
+    export const keypad0Mappings: Array<Mapping> = [
         {
             action: Action.keypad0r0c0,
-            spec: 49 // 0
+            spec: 49 // 1
         },
         {
             action: Action.keypad0r0c1,
-            spec: 50 // 1
+            spec: 50 // 2
         },
         {
             action: Action.keypad0r0c2,
-            spec: 51 // 2
+            spec: 51 // 3
         },
         {
             action: Action.keypad0r1c0,
@@ -457,7 +447,10 @@ namespace KeyboardIO {
         {
             action: Action.keypad0r3c2,
             spec: 67 // c
-        },
+        }
+    ];
+
+    export const keypad1Mappings: Array<Mapping> = [
         {
             action: Action.keypad1r0c0,
             spec: 56// 8
@@ -505,21 +498,6 @@ namespace KeyboardIO {
         {
             action: Action.keypad1r3c2,
             spec: 191 // /
-        },
-        {
-            action: Action.fullscreen,
-            spec: 13 // enter
-        },
-        {
-            action: Action.hardReset,
-            spec: {
-                keycode: 82, // r
-                modifiers: Modifier.shift
-            }
-        },
-        {
-            action: Action.togglePause,
-            spec: 80 // p
         }
     ];
 

@@ -81,6 +81,12 @@ export const enum Scaling {
     none = 'none',
 }
 
+export const enum ControllerType {
+    joystick = 'joystick',
+    paddles = 'paddles',
+    keypad = 'keypad',
+}
+
 export interface EmulationStateStopped {
     state: EmulationStateKey.stopped;
 }
@@ -107,6 +113,8 @@ export interface Cartridge {
     cartridgeType: CartridgeInfo.CartridgeType;
     tvMode: TvMode;
     emulatePaddles: boolean;
+    controllerPort0: ControllerType;
+    controllerPort1: ControllerType;
     volume: number;
     rngSeed?: number;
     firstVisibleLine?: number;

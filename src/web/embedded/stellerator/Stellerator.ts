@@ -400,11 +400,27 @@ export class Stellerator {
                 stellaConfig.emulatePaddles = config.emulatePaddles;
             }
 
+            if (typeof config.controllerPort0 !== 'undefined') {
+                stellaConfig.controllerPort0 = this._convertControllerType(config.controllerPort0);
+            }
+
+            if (typeof config.controllerPort1 !== 'undefined') {
+                stellaConfig.controllerPort1 = this._convertControllerType(config.controllerPort1);
+            }
+
             if (typeof config.frameStart !== 'undefined') {
                 stellaConfig.frameStart = config.frameStart;
             }
 
             stellaConfig.cpuType = cpuType(config.cpuAccuracy);
+
+            if (stellaConfig.controllerPort0 === StellaConfig.ControllerType.keypad) {
+                this._keyboardIO.overlay(KeyboardIO.keypad0Mappings);
+            }
+
+            if (stellaConfig.controllerPort1 === StellaConfig.ControllerType.keypad) {
+                this._keyboardIO.overlay(KeyboardIO.keypad1Mappings);
+            }
 
             await this._serviceInitialized;
 
@@ -533,6 +549,22 @@ export class Stellerator {
 
             default:
                 throw new Error(`invalid TV mode '${tvMode}'`);
+        }
+    }
+
+    private _convertControllerType(controllerType: Stellerator.ControllerType): StellaConfig.ControllerType {
+        switch (controllerType) {
+            case Stellerator.ControllerType.joystick:
+                return StellaConfig.ControllerType.joystick;
+
+            case Stellerator.ControllerType.paddles:
+                return StellaConfig.ControllerType.paddles;
+
+            case Stellerator.ControllerType.keypad:
+                return StellaConfig.ControllerType.keypad;
+
+            default:
+                throw new Error(`invalid controller type '${controllerType}'`);
         }
     }
 
@@ -952,6 +984,21 @@ export namespace Stellerator {
         secam = 'secam',
     }
 
+    export enum ControllerType {
+        /**
+         * Joystick
+         */
+        joystick = 'joystick',
+        /**
+         * PAL
+         */
+        paddles = 'paddles',
+        /**
+         * SECAM
+         */
+        keypad = 'keypad',
+    }
+
     /**
      * TV emulation modes. Enabling TV emulation may cause visual artifacts on some
      * (ancient) GPUs
@@ -1018,6 +1065,20 @@ export namespace Stellerator {
          * Default: true
          */
         emulatePaddles: boolean;
+
+        /**
+         * Enable specific controller type for port 0
+         *
+         * Default: true
+         */
+        controllerPort0: ControllerType;
+
+        /**
+         * Enable specific controllers
+         *
+         * Default: true
+         */
+        controllerPort1: ControllerType;
 
         /**
          * The first visible scanline of the frame. The default is autodetection, which

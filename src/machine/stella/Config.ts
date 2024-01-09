@@ -33,6 +33,8 @@ interface Config {
     frameStart: number;
     pcmAudio: boolean;
     cpuType: CpuFactory.Type;
+    controllerPort0: Config.ControllerType;
+    controllerPort1: Config.ControllerType;
 }
 
 namespace Config {
@@ -40,6 +42,12 @@ namespace Config {
         ntsc,
         pal,
         secam
+    }
+
+    export const enum ControllerType {
+        joystick,
+        paddles,
+        keypad
     }
 
     export function create(config: Partial<Config> = {}): Config {
@@ -51,6 +59,8 @@ namespace Config {
             frameStart: -1,
             pcmAudio: false,
             cpuType: CpuFactory.Type.stateMachine,
+            controllerPort0: ControllerType.joystick,
+            controllerPort1: ControllerType.joystick,
 
             ...config
         };

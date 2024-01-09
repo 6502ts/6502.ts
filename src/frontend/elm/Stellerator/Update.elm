@@ -54,6 +54,12 @@ updateCartridge cartridgeTypes msg cartridge =
         ChangeCartridgeEmulatePaddles emulatePaddles ->
             { cartridge | emulatePaddles = emulatePaddles }
 
+        ChangeCartridgeControllerPort0 controllerPort0 ->
+            { cartridge | controllerPort0 = controllerPort0 }
+
+        ChangeCartridgeControllerPort1 controllerPort1 ->
+            { cartridge | controllerPort1 = controllerPort1 }
+
         ChangeCartridgeRngSeed seed ->
             let
                 newSeed =

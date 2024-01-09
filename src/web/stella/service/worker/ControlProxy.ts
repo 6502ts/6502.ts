@@ -98,7 +98,7 @@ class ControlProxy {
             rows: new Array(4)
         };
         for (var row = 0; row < 4; row++) {
-            state.rows = new Array(3);
+            state.rows[row] = new Array(3);
             for (var col = 0; col < 3; col++) {
                 state.rows[row][col] = keypad.getKey(row, col).read();
             }

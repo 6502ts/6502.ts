@@ -25,7 +25,7 @@
 
 import KeypadController from '../io/KeypadController';
 
-const PROBE_DELAY = 400;
+const PROBE_DELAY = 0.0004; // 400 microseconds
 
 export default class KeypadsReader {
 
@@ -64,12 +64,12 @@ export default class KeypadsReader {
         let s = (currentTimestamp >= this._returnTimestamp) ? this._swcha_out : 0;
 
         let state = false;
-        for (let pad = 0; pad < 2; pad++) {
+        for (let pad = 1; pad >= 0; pad--) {
             for (let row = 0; row < 4; row++) {
-                if (0 === (s & 0x01)) {
-                    continue;
+                if (1 === (s & 0x01)) {
+                    state = state || this._keypads[pad].getKey(row, column).read();
                 }
-                state = state || this._keypads[pad].getKey(row, column).read();
+                s = s >> 1;
             }
 
         }

@@ -79,7 +79,7 @@ class Board implements BoardInterface {
             paddles[i] = new Paddle();
         }
 
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 2; i++) {
             keypadControllers[i] = new KeypadController();
         }
 
