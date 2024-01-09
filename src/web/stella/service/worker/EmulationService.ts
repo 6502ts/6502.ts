@@ -38,7 +38,7 @@ import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
 import { Mutex } from 'async-mutex';
 
-import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage } from './messages';
+import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, EmulationPokeMessage } from './messages';
 import AsyncIOProxy from './AsyncIOProxy';
 
 const CONTROL_PROXY_UPDATE_INTERVAL = 25;
@@ -172,7 +172,7 @@ class EmulationService implements EmulationServiceInterface {
     }
 
     poke(index: number, value: number): Promise<void> {
-        return this._rpc.rpc<number, void>(RPC_TYPE.emulationPoke, index, value);
+        return this._rpc.rpc<EmulationPokeMessage, void>(RPC_TYPE.emulationPoke, { index, value });
     }
 
     getFrequency(): number {
