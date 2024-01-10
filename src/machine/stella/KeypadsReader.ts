@@ -49,7 +49,7 @@ export default class KeypadsReader {
     }
 
     swcha(value: number): void {
-        this._swcha_out = value & this._swacnt;
+        this._swcha_out = (~value) & this._swacnt;
         const currentTimestamp = this._cpuTimeProvider();
         this._returnTimestamp = currentTimestamp + PROBE_DELAY;
     }

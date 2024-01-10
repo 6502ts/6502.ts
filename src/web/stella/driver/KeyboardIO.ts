@@ -67,7 +67,7 @@ class KeyboardIO {
         // tslint:disable-next-line
         mappings: Array<KeyboardIO.Mapping> = KeyboardIO.defaultMappings
     ) {
-        this._compileMappings(mappings, false);
+        this._compileMappings(mappings);
     }
 
     bind(
@@ -147,7 +147,7 @@ class KeyboardIO {
     }
 
     overlay(mappings: Array<KeyboardIO.Mapping>): void {
-        this._compileMappings(mappings, true);
+        this._compileMappings(mappings);
     }
 
     unbind(): void {
@@ -158,7 +158,7 @@ class KeyboardIO {
         this._target.removeEventListener('keydown', this._keydownListener);
         this._target.removeEventListener('keyup', this._keyupListener);
 
-        this._joystick0 = this._joystick1 = this._controlPanel = null;
+        this._joystick0 = this._joystick1 = this._keypad0 = this._keypad1 = this._controlPanel = null;
         this._keydownListener = this._keyupListener = null;
     }
 
@@ -204,13 +204,13 @@ class KeyboardIO {
         this._dispatchTable[KeyboardIO.Action.keypad1r3c2] = mkSwitch(this._keypad1.getKey(3, 2));
     }
 
-    private _compileMappings(mappings: Array<KeyboardIO.Mapping>, overwrite: boolean = false): void {
+    private _compileMappings(mappings: Array<KeyboardIO.Mapping>): void {
         const compileMapping = (action: KeyboardIO.Action, keycode: number, modifiers: number) => {
             if ((modifiers & ~(KeyboardIO.Modifier.shift | KeyboardIO.Modifier.ctrl | KeyboardIO.Modifier.alt)) !== 0) {
                 throw new Error(`invalid modifier set ${modifiers}`);
             }
 
-            if (overwrite || !this._compiledMappings.has(keycode)) {
+            if (!this._compiledMappings.has(keycode)) {
                 this._compiledMappings.set(keycode, new Map<number, KeyboardIO.Action>());
             }
 

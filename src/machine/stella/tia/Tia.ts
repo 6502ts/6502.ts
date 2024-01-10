@@ -222,9 +222,11 @@ class Tia implements VideoOutputInterface {
         const lastDataBusValue = this._bus.getLastDataBusValue();
 
         const usePaddlesPort0 =
-            this._config.emulatePaddles || (this._config.controllerPort0 === Config.ControllerType.paddles);
+            (this._config.emulatePaddles && (this._config.controllerPort0 == Config.ControllerType.joystick)) ||
+            (this._config.controllerPort0 === Config.ControllerType.paddles);
         const usePaddlesPort1 =
-            this._config.emulatePaddles || (this._config.controllerPort1 === Config.ControllerType.paddles);
+            (this._config.emulatePaddles && (this._config.controllerPort1 == Config.ControllerType.joystick)) ||
+            (this._config.controllerPort1 === Config.ControllerType.paddles);
         const useKeypads =
             (this._config.controllerPort0 === Config.ControllerType.keypad) ||
             (this._config.controllerPort1 === Config.ControllerType.keypad);
