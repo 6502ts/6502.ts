@@ -1,11 +1,11 @@
 {
     "$schema": "https://typedoc.org/schema.json",
     "out": "dist/typedoc/stellerator-embedded",
-    "entryPoints": ["src/web/embedded/stellerator"],
+    "entryPoints": ["src/web/embedded/stellerator/Stellerator.ts"],
     "readme": "doc/stellerator_embedded.md",
     "excludePrivate": true,
     "excludeExternals": true,
-    "exclude": ["**/+(index.ts|ControlPanelProxy.ts|SwitchProxy.ts)"],
+    "exclude": ["**/+(index.tx|ControlPanelProxy.ts|SwitchProxy.ts)"],
     "name": "Stellerator Embedded",
     "githubPages": true,
     "tsconfig": "tsconfig.npm.json"

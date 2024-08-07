@@ -63,7 +63,7 @@
     "sass-loader": "^13.0.2",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
-    "typedoc": "^0.23.14",
+    "typedoc": "^0.26.5",
     "typescript": "^4.8.3",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
@@ -76,7 +76,7 @@
   },
   "scripts": {
     "test": "mocha --require ts-node/register -u tdd -R spec 'tests/ts/**/*.ts' && elm-test",
-    "build": "rm -fr dist; webpack --mode production -c ./webpack.config.js && workbox generateSW ./workbox.config.js && typedoc" ,
+    "build": "rm -fr dist; webpack --mode production -c ./webpack.config.js && workbox generateSW ./workbox.config.js && typedoc",
     "watch": "rm -fr dist-dev; mkdir -p dist-dev && cp html/dev-index.html dist-dev/index.html && webpack --watch --mode development -c ./webpack.config.js",
     "serve": "node node_modules/.bin/live-server --no-browser --port=6502 --no-css-inject  ./dist-dev",
     "start": "run-p watch serve",

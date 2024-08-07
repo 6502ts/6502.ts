@@ -13,7 +13,7 @@ You can find the comprehensive API documentation (including this document)
 You can find a example of the embedded emulator
 [here](https://6502ts.github.io/stellerator-embedded).
 The source code is available in the 6502.ts repository on GitHub
-[here](https://github.com/6502ts/6502.ts/blob/master/template/stellerator-embedded.html).
+[here](https://github.com/6502ts/6502.ts/blob/master/html/stellerator-embedded.html).
 
 The example exposes the Stellerator instance (see below) as `window.stellerator`, so
 you can access and explore it in the developer console.
@@ -29,7 +29,7 @@ activity on the web page.
 ## Frontend
 
 The frontend provides a single class called
-[`Stellerator`](https://6502ts.github.io/typedoc/stellerator-embedded/classes/stellerator.stellerator-2.html).
+[`Stellerator`](https://6502ts.github.io/typedoc/stellerator-embedded/classes/Stellerator-1.html).
 It is available both as a prebuild bundle that can directly loaded via script tag
 and in the `6502.ts` package on NPM. The prebuilt script is most suitable
 for including the emulator in a web page, while the NPM package is mainly aimed at
@@ -44,26 +44,26 @@ and that needs to be hosted on the page / domain that embeds the emulation.
 
 ## Prebuilt browser bundle
 
-Download the `stellerator_embedded.zip` archive of the latest release from
+Download the `stellerator-embedded.zip` archive of the latest release from
 [GitHub](https://github.com/6502ts/6502.ts/releases).
 The archive contains two scripts that need to be hosted on your web server alonside
 the page that embeds the emulator.
 
- * `stellerator_embedded.js`: The emulation frontend. Load this via a script tag
+ * `stellerator-embedded.js`: The emulation frontend. Load this via a script tag
    in your HTML:
 
 ```html
-<script src="js/stellerator_embedded.js"></script>
+<script src="js/stellerator-embedded.js"></script>
 ```
 
    The `Stellerator` class is available on the global `$6502` object after the script has
    been loaded.
 
- * `stellerator_worker.js`: The web worker. The path to this script must be passed
+ * `stellerator.js`: The web worker. The path to this script must be passed
    to the constructor of the `Stellerator` instance:
 
 ```javascript
-const stellerator = new $6502.Stellerator(canvasElement, 'js/stellerator_worker.js');
+const stellerator = new $6502.Stellerator(canvasElement, 'js/stellerator.js');
 ```
 
 In addition to these two scripts, the archive also contains source maps for both. Place
@@ -109,7 +109,7 @@ page (which will display the TIA image) and create an instance of the `Stellerat
 class:
 
 ```javascript
-const stellerator = new Stellerator(canvasElement, 'js/stellerator_worker.js');
+const stellerator = new Stellerator(canvasElement, 'js/stellerator.js');
 ```
 
 The second argument of the constructor is the URL from which the web worker will be loaded.
@@ -125,7 +125,7 @@ constructor and `run` support an optional argument that allows to adjust many pr
 of the emulator to the requirements of the embedding page, including ROM type, rendering options
 and input emulation. In addition, there are methods on the `Stellerator` class that
 enable interaction with the emulator at runtime. Please check out the full
-[API documentation](https://6502ts.github.io/typedoc/stellerator-embedded/classes/stellerator.stellerator-2.html)
+[API documentation](https://6502ts.github.io/typedoc/stellerator-embedded/classes/Stellerator-1.html)
 for details.
 
 ## The canvas element
@@ -142,7 +142,7 @@ by CSS).
 
 If the canvas changes size while the emulator runs, the video driver should be
 notified using the
-[resize](https://6502ts.github.io/typedoc/stellerator-embedded/classes/stellerator_.stellerator.html#resize)
+[resize](https://6502ts.github.io/typedoc/stellerator-embedded/classes/Stellerator-1.html#resize)
 method on the stellerator instance. This does not apply to window size changes in
 fullscreen mode --- the video driver takes care of those automatically.
 
