@@ -1,7 +1,7 @@
 {
     "$schema": "https://typedoc.org/schema.json",
     "out": "dist/typedoc/stellerator-embedded",
-    "entryPoints": ["src/web/embedded/stellerator/Stellerator.ts"],
+    "entryPoints": ["src/web/embedded/stellerator/**/*.ts", "src/machine/stella/cartridge/CartridgeInfo.ts"],
     "readme": "doc/stellerator_embedded.md",
     "excludePrivate": true,
     "excludeExternals": true,

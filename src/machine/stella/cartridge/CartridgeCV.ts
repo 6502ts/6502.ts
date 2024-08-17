@@ -24,10 +24,10 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import RngGeneratorInterface from '../../../tools/rng/GeneratorInterface';
 import Bus from '../Bus';
 import { BufferInterface, searchForSignatures } from './util';
+import { CartridgeType } from './CartridgeInfo';
 
 class CartridgeCV extends AbstractCartridge {
     constructor(buffer: { [i: number]: number; length: number }) {
@@ -44,7 +44,10 @@ class CartridgeCV extends AbstractCartridge {
 
     static matchesBuffer(buffer: BufferInterface): boolean {
         // Signatures shamelessly stolen from Stella
-        const signatureCounts = searchForSignatures(buffer, [[0x9d, 0xff, 0xf3], [0x99, 0x00, 0xf4]]);
+        const signatureCounts = searchForSignatures(buffer, [
+            [0x9d, 0xff, 0xf3],
+            [0x99, 0x00, 0xf4],
+        ]);
 
         return signatureCounts[0] > 0 || signatureCounts[1] > 0;
     }
@@ -97,8 +100,8 @@ class CartridgeCV extends AbstractCartridge {
         return this._rom[address & 0x07ff];
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_2k_cv;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_2k_cv;
     }
 
     private _rom = new Uint8Array(0x0800);

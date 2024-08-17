@@ -25,7 +25,7 @@
 
 import { Event } from 'microevent.ts';
 
-import Switch from './Switch';
+import { Switch } from './Switch';
 import SwitchIO from '../../../machine/io/SwitchInterface';
 
 class SwitchProxy implements Switch {

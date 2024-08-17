@@ -27,23 +27,23 @@ import Thumbulator from 'thumbulator.ts';
 
 import HarmonySoc from './harmony/Soc';
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 import CartridgeInterface from './CartridgeInterface';
 import * as cartridgeUtil from './util';
+import { CartridgeType } from './CartridgeInfo';
 
 const enum ReservedStream {
     amplitudeCDF = 0x22,
     amplitudeCDFJ = 0x23,
     jump = 0x21,
-    comm = 0x20
+    comm = 0x20,
 }
 
 const enum CdfVersion {
     cdf0,
     cdf1,
     cdfj,
-    invalid
+    invalid,
 }
 
 class CartridgeCDF extends AbstractCartridge {
@@ -86,7 +86,7 @@ class CartridgeCDF extends AbstractCartridge {
         }
 
         this._soc = new HarmonySoc(version === CdfVersion.cdf0 ? this._handleBxCDF0 : this._handleBxCDF1);
-        this._soc.trap.addHandler(message => this.triggerTrap(CartridgeInterface.TrapReason.other, message));
+        this._soc.trap.addHandler((message) => this.triggerTrap(CartridgeInterface.TrapReason.other, message));
 
         /* ROM layout:
          *
@@ -123,7 +123,7 @@ class CartridgeCDF extends AbstractCartridge {
     }
 
     static getVersion(buffer: cartridgeUtil.BufferInterface): CdfVersion {
-        const sig = 'CDF'.split('').map(x => x.charCodeAt(0)),
+        const sig = 'CDF'.split('').map((x) => x.charCodeAt(0)),
             startAddress = cartridgeUtil.searchForSignature(buffer, [...sig, -1, ...sig, -1, ...sig]);
 
         if (startAddress < 0) {
@@ -177,8 +177,8 @@ class CartridgeCDF extends AbstractCartridge {
         this._clockAccumulator = 0;
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_cdf;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_cdf;
     }
 
     setBus(bus: Bus): this {
@@ -264,11 +264,12 @@ class CartridgeCDF extends AbstractCartridge {
                 } else {
                     let acc = 0;
                     for (let i = 0; i < 3; i++) {
-                        acc += this._displayRam[
-                            (this._getWaveform(i) +
-                                (this._musicStreams[i].counter >>> this._musicStreams[i].waveformSize)) &
-                                0x0fff
-                        ];
+                        acc +=
+                            this._displayRam[
+                                (this._getWaveform(i) +
+                                    (this._musicStreams[i].counter >>> this._musicStreams[i].waveformSize)) &
+                                    0x0fff
+                            ];
                     }
 
                     return acc;

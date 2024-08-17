@@ -26,16 +26,16 @@
 import { Event } from 'microevent.ts';
 
 import CartridgeInterface from './CartridgeInterface';
-import CartridgeInfo from './CartridgeInfo';
 import CpuInterface from '../../cpu/CpuInterface';
 import Bus from '../Bus';
 
 import RngInterface from '../../../tools/rng/GeneratorInterface';
+import { CartridgeType } from './CartridgeInfo';
 
 class AbstractCartridge implements CartridgeInterface {
-    async init(): Promise<void> { }
+    async init(): Promise<void> {}
 
-    reset(): void { }
+    reset(): void {}
 
     read(address: number): number {
         return 0;
@@ -45,10 +45,10 @@ class AbstractCartridge implements CartridgeInterface {
         return this.read(address);
     }
 
-    write(address: number, value: number) { }
+    write(address: number, value: number) {}
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.unknown;
+    getType(): CartridgeType {
+        return CartridgeType.unknown;
     }
 
     setCpu(cpu: CpuInterface): this {
@@ -67,9 +67,9 @@ class AbstractCartridge implements CartridgeInterface {
         return this;
     }
 
-    notifyCpuCycleComplete(): void { }
+    notifyCpuCycleComplete(): void {}
 
-    randomize(rng: RngInterface): void { }
+    randomize(rng: RngInterface): void {}
 
     protected triggerTrap(reason: CartridgeInterface.TrapReason, message: string) {
         if (this.trap.hasHandlers) {

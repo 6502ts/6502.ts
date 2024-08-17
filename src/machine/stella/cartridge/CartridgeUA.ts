@@ -24,9 +24,9 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import * as cartridgeUtil from './util';
 import Bus from '../Bus';
+import { CartridgeType } from './CartridgeInfo';
 
 class CartridgeUA extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -49,7 +49,7 @@ class CartridgeUA extends AbstractCartridge {
         const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
             [0x8d, 0x40, 0x02], // STA $240
             [0xad, 0x40, 0x02], // LDA $240
-            [0xbd, 0x1f, 0x02] // LDA $21F,X
+            [0xbd, 0x1f, 0x02], // LDA $21F,X
         ]);
 
         for (let i = 0; i < signatureCounts.length; i++) {
@@ -78,8 +78,8 @@ class CartridgeUA extends AbstractCartridge {
         return this;
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_8k_UA;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_8k_UA;
     }
 
     private static _onBusAccess(accessType: Bus.AccessType, self: CartridgeUA): void {

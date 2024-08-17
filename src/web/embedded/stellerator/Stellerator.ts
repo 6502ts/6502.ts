@@ -26,6 +26,11 @@
 import { Mutex } from 'async-mutex';
 import { EventInterface as Event, Event as EventImplementation } from 'microevent.ts';
 
+import {
+    CartridgeType as CartridgeTypeImpl,
+    describeCartridgeType as describeCartridgeTypeImpl,
+    getAllTypes,
+} from '../../../machine/stella/cartridge/CartridgeInfo';
 import EmulationServiceInterface from '../../stella/service/EmulationServiceInterface';
 import EmulationService from '../../stella/service/worker/EmulationService';
 import DriverManager from '../../stella/service/DriverManager';
@@ -39,12 +44,11 @@ import Paddle from '../../driver/MouseAsPaddle';
 import Gamepad from '../../driver/Gamepad';
 import FullscreenDriver from '../../driver/FullscreenVideo';
 
-import CartridgeInfo from '../../../machine/stella/cartridge/CartridgeInfo';
 import StellaConfig from '../../../machine/stella/Config';
 
 import { decode as decodeBase64 } from '../../../tools/base64';
 
-import ControlPanel from './ControlPanel';
+import { ControlPanel } from './ControlPanel';
 import ControlPanelProxy from './ControlPanelProxy';
 import { Target } from '../../driver/gamepad/Mapping';
 import CpuFactory from '../../../machine/cpu/Factory';
@@ -85,6 +89,7 @@ function cpuType(config = Stellerator.CpuAccuracy.cycle): CpuFactory.Type {
  *     stellerator.run(rom, Stellerator.TvMode.ntsc);
  * ```
  */
+
 export class Stellerator {
     /**
      * Creates an instance of Stellerator.
@@ -997,7 +1002,7 @@ export namespace Stellerator {
          *
          * Default: undefined [autodetect]
          */
-        cartridgeType: CartridgeInfo.CartridgeType;
+        cartridgeType: CartridgeTypeImpl;
 
         /**
          * Random number generator seed. This is used to initialize the initial
@@ -1036,7 +1041,6 @@ export namespace Stellerator {
          */
         asyncIO: boolean;
     }
-
     /**
      * The CartridgeType enum. Reexported from the `CartridgeInfo` module. Please check the
      * [source](https://github.com/6502ts/6502.ts/blob/master/src/machine/stella/cartridge/CartridgeInfo.ts)
@@ -1049,7 +1053,7 @@ export namespace Stellerator {
      *     });
      * ```
      */
-    export const CartridgeType = CartridgeInfo.CartridgeType;
+    export const CartridgeType = CartridgeTypeImpl;
 
     /**
      * This function takes a cartridge type and returns a human readable
@@ -1062,14 +1066,13 @@ export namespace Stellerator {
      *     );
      * ```
      */
-    export const describeCartridgeType: (cartridgeType: CartridgeInfo.CartridgeType) => string =
-        CartridgeInfo.describeCartridgeType;
+    export const describeCartridgeType: (cartridgeType: CartridgeTypeImpl) => string = describeCartridgeTypeImpl;
 
     /**
      * This function returns an array of all possible cartridge types suitable for building an UI.
      * Reexported from the `CartridgeInfo` module.
      */
-    export const allCartridgeTypes: () => Array<CartridgeInfo.CartridgeType> = CartridgeInfo.getAllTypes;
+    export const allCartridgeTypes: () => Array<CartridgeTypeImpl> = getAllTypes;
 
     /**
      * The different possible states of the emulation.

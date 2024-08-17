@@ -24,9 +24,9 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 import * as cartridgeUtil from './util';
+import { CartridgeType } from './CartridgeInfo';
 
 class Cartridge8040 extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -51,7 +51,7 @@ class Cartridge8040 extends AbstractCartridge {
             [0xad, 0x40, 0x08], // LDA $0840
             [0x2c, 0x00, 0x08], // BIT $0800
             [0x0c, 0x00, 0x08, 0x4c], // NOP $0800; JMP ...
-            [0x0c, 0xff, 0x0f, 0x4c] // NOP $0FFF; JMP ...
+            [0x0c, 0xff, 0x0f, 0x4c], // NOP $0FFF; JMP ...
         ]);
 
         for (const count of signatureCounts) {
@@ -77,8 +77,8 @@ class Cartridge8040 extends AbstractCartridge {
         return this._bank[address];
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_8k_econobanking;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_8k_econobanking;
     }
 
     setBus(bus: Bus): this {

@@ -24,9 +24,9 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 import * as cartridgeUtil from './util';
+import { CartridgeType } from './CartridgeInfo';
 
 const mixerTable = new Uint8Array([0x0, 0x4, 0x5, 0x9, 0x6, 0xa, 0xb, 0xf]);
 
@@ -57,13 +57,13 @@ class CartridgeDPC extends AbstractCartridge {
     reset(): void {
         this._bank = this._bank1;
         this._rng = 1;
-        this._fetchers.forEach(fetcher => fetcher.reset());
+        this._fetchers.forEach((fetcher) => fetcher.reset());
         this._lastCpuTime = 0;
         this._clockAccumulator = 0;
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_8k_DPC;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_8k_DPC;
     }
 
     setBus(bus: Bus): this {
@@ -306,7 +306,7 @@ class Fetcher {
         }
 
         const period = this.start + 1,
-            newPointerLow = ((this.pointer & 0xff) + period - clocks % period) % period,
+            newPointerLow = ((this.pointer & 0xff) + period - (clocks % period)) % period,
             distanceStart = (256 + this.start - newPointerLow) & 0xff,
             distanceEnd = (256 + this.end - newPointerLow) & 0xff;
 

@@ -28,7 +28,7 @@ import { EventInterface as Event } from 'microevent.ts';
 /**
  * A `Switch` represents a binary switch.
  */
-interface Switch {
+export interface Switch {
     /**
      * Toggle the switch into a defined state.
      *
@@ -53,5 +53,3 @@ interface Switch {
      */
     stateChange: Event<boolean>;
 }
-
-export { Switch as default };

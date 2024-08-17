@@ -23,13 +23,13 @@
  *   SOFTWARE.
  */
 
-import Switch from './Switch';
+import { Switch } from './Switch';
 
 /**
  * The control panel represents the switches on the console and lets you monitor
  * and control them.
  */
-interface ControlPanel {
+export interface ControlPanel {
     /**
      * Reset
      */
@@ -55,5 +55,3 @@ interface ControlPanel {
      */
     color(): Switch;
 }
-
-export { ControlPanel as default };

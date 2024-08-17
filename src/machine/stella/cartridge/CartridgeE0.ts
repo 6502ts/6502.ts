@@ -24,8 +24,8 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
+import { CartridgeType } from './CartridgeInfo';
 import * as cartridgeUtil from './util';
-import CartridgeInfo from './CartridgeInfo';
 
 class CartridgeE0 extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -58,7 +58,7 @@ class CartridgeE0 extends AbstractCartridge {
             [0xad, 0xe0, 0x1f], // LDA $1FE0
             [0xad, 0xe9, 0xff], // LDA $FFE9
             [0xad, 0xed, 0xff], // LDA $FFED
-            [0xad, 0xf3, 0xbf] // LDA $BFF3
+            [0xad, 0xf3, 0xbf], // LDA $BFF3
         ]);
 
         for (let i = 0; i < signatureCounts.length; i++) {
@@ -102,8 +102,8 @@ class CartridgeE0 extends AbstractCartridge {
         return super.write(address, value);
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_8k_E0;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_8k_E0;
     }
 
     private _handleBankswitch(address: number): void {

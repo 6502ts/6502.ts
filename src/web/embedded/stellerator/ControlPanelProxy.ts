@@ -23,9 +23,9 @@
  *   SOFTWARE.
  */
 
-import Switch from './Switch';
+import { Switch } from './Switch';
 import SwitchProxy from './SwitchProxy';
-import ControlPanel from './ControlPanel';
+import { ControlPanel } from './ControlPanel';
 import StellaControlPanel from '../../../machine/stella/ControlPanelInterface';
 
 class ControlPanelProxy implements ControlPanel {

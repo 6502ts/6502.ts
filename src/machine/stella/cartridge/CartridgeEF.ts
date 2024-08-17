@@ -24,11 +24,11 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 import * as cartridgeUtil from './util';
 
 import RngInterface from '../../../tools/rng/GeneratorInterface';
+import { CartridgeType } from './CartridgeInfo';
 
 class CartridgeEF extends AbstractCartridge {
     constructor(buffer: { [i: number]: number; length: number }, private _supportSC: boolean = true) {
@@ -53,7 +53,7 @@ class CartridgeEF extends AbstractCartridge {
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
         const matchMagic = (magicString: string): boolean => {
-            const magic = magicString.split('').map(x => x.charCodeAt(0));
+            const magic = magicString.split('').map((x) => x.charCodeAt(0));
 
             for (let i = 0; i < magic.length; i++) {
                 if (magic[i] !== buffer[0xfff8 + i]) {
@@ -77,7 +77,7 @@ class CartridgeEF extends AbstractCartridge {
             [0x0c, 0xe0, 0xff], // NOP $FFE0
             [0xad, 0xe0, 0xff], // LDA $FFE0
             [0x0c, 0xe0, 0x1f], // NOP $1FE0
-            [0xad, 0xe0, 0x1f] // LDA $1FE0
+            [0xad, 0xe0, 0x1f], // LDA $1FE0
         ]);
 
         for (let i = 0; i < 4; i++) {
@@ -94,8 +94,8 @@ class CartridgeEF extends AbstractCartridge {
         this._hasSC = false;
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_64k_EF;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_64k_EF;
     }
 
     randomize(rng: RngInterface): void {

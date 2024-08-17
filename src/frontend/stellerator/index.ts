@@ -37,7 +37,6 @@ import {
 import '../theme/dos.scss';
 
 import { initialize as initializeRangetouch } from '../common/rangetouch';
-import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 
 import MediaApi from './service/MediaApi';
 import ScrollIntoView from './service/ScrollIntoView';
@@ -50,6 +49,7 @@ import Emulation from './service/Emulation';
 import TouchIO from '../../web/stella/driver/TouchIO';
 import GamepadDriver from '../../web/driver/Gamepad';
 import { detect as detectWebglCapabilities } from '../../web/driver/video/Capabilities';
+import { describeCartridgeType, getAllTypes } from '../../machine/stella/cartridge/CartridgeInfo';
 
 const VERSION_STORAGE_KEY =
     process.env.NODE_ENV === 'development' ? 'stellerator-ng-version-dev' : 'stellerator-ng-version';
@@ -77,9 +77,9 @@ const defaultSettings = (badGpu: boolean): Settings => ({
 async function main(): Promise<void> {
     initializeRangetouch();
 
-    const cartridgeTypes: Array<CartridgeType> = CartridgeInfo.getAllTypes().map((cartridgeType) => ({
+    const cartridgeTypes: Array<CartridgeType> = getAllTypes().map((cartridgeType) => ({
         key: cartridgeType,
-        description: CartridgeInfo.describeCartridgeType(cartridgeType),
+        description: describeCartridgeType(cartridgeType),
     }));
 
     const container = new Container({ autoBindInjectable: true, defaultScope: 'Singleton' });

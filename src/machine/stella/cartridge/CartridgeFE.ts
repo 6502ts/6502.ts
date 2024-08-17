@@ -25,8 +25,8 @@
 
 import AbstractCartridge from './AbstractCartridge';
 import Bus from '../Bus';
-import CartridgeInfo from './CartridgeInfo';
 import * as cartridgeUtil from './util';
+import { CartridgeType } from './CartridgeInfo';
 
 class CartridgeFE extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -85,8 +85,8 @@ class CartridgeFE extends AbstractCartridge {
         return this;
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_8k_FE;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_8k_FE;
     }
 
     private static _onBusAccess(accessType: Bus.AccessType, self: CartridgeFE): void {

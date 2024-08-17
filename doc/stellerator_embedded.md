@@ -29,7 +29,7 @@ activity on the web page.
 ## Frontend
 
 The frontend provides a single class called
-[`Stellerator`](https://6502ts.github.io/typedoc/stellerator-embedded/classes/Stellerator-1.html).
+[`Stellerator`](https://6502ts.github.io/typedoc/stellerator-embedded/classes/web_embedded_stellerator_Stellerator.Stellerator-1.html).
 It is available both as a prebuild bundle that can directly loaded via script tag
 and in the `6502.ts` package on NPM. The prebuilt script is most suitable
 for including the emulator in a web page, while the NPM package is mainly aimed at
@@ -125,7 +125,7 @@ constructor and `run` support an optional argument that allows to adjust many pr
 of the emulator to the requirements of the embedding page, including ROM type, rendering options
 and input emulation. In addition, there are methods on the `Stellerator` class that
 enable interaction with the emulator at runtime. Please check out the full
-[API documentation](https://6502ts.github.io/typedoc/stellerator-embedded/classes/Stellerator-1.html)
+[API documentation](https://6502ts.github.io/typedoc/stellerator-embedded/classes/web_embedded_stellerator_Stellerator.Stellerator-1.html)
 for details.
 
 ## The canvas element
@@ -142,7 +142,7 @@ by CSS).
 
 If the canvas changes size while the emulator runs, the video driver should be
 notified using the
-[resize](https://6502ts.github.io/typedoc/stellerator-embedded/classes/Stellerator-1.html#resize)
+[resize](https://6502ts.github.io/typedoc/stellerator-embedded/classes/web_embedded_stellerator_Stellerator.Stellerator-1.html#resize)
 method on the stellerator instance. This does not apply to window size changes in
 fullscreen mode --- the video driver takes care of those automatically.
 

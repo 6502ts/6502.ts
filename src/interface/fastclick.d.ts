@@ -23,52 +23,6 @@
  *   SOFTWARE.
  */
 
-import { EventInterface } from 'microevent.ts';
-
-import Cpuinterface from '../../cpu/CpuInterface';
-import BusInterface from '../../bus/BusInterface';
-
-import RngInterface from '../../../tools/rng/GeneratorInterface';
-import { CartridgeType } from './CartridgeInfo';
-
-interface CartridgeInterface {
-    init(): Promise<void>;
-
-    reset(): void;
-
-    read(address: number): number;
-
-    peek(address: number): number;
-
-    write(address: number, value: number): void;
-
-    getType(): CartridgeType;
-
-    setCpu(cpu: Cpuinterface): this;
-
-    setBus(bus: BusInterface): this;
-
-    setRng(rng: RngInterface): this;
-
-    setCpuTimeProvider(provider: () => number): this;
-
-    notifyCpuCycleComplete(): void;
-
-    randomize(rng: RngInterface): void;
-
-    trap: EventInterface<CartridgeInterface.TrapPayload>;
+declare module 'fastclick' {
+    export default function attach(target: Element): void;
 }
-
-namespace CartridgeInterface {
-    export const enum TrapReason {
-        invalidRead,
-        invalidWrite,
-        other,
-    }
-
-    export class TrapPayload {
-        constructor(public reason: TrapReason, public cartridge: CartridgeInterface, public message?: string) {}
-    }
-}
-
-export { CartridgeInterface as default };

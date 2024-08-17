@@ -2,11 +2,11 @@ import fs from 'fs';
 import dasm, { IOptions as DasmOptions } from 'dasm';
 import CartridgeFactory from '../machine/stella/cartridge/CartridgeFactory';
 import CartridgeInterface from '../machine/stella/cartridge/CartridgeInterface';
-import CartridgeInfo from '../machine/stella/cartridge/CartridgeInfo';
 import StellaConfig from '../machine/stella/Config';
 import Board from '../machine/stella/Board';
 import CpuInterface from '../machine/cpu/CpuInterface';
 import Instruction from '../machine/cpu/Instruction';
+import { CartridgeType } from '../machine/stella/cartridge/CartridgeInfo';
 
 class VcsRunner {
     private _defaultCycles = 500000;
@@ -36,7 +36,7 @@ class VcsRunner {
 
         const factory = new CartridgeFactory();
 
-        self._cartridge = await factory.createCartridge(self._assembly, CartridgeInfo.CartridgeType.vanilla_4k);
+        self._cartridge = await factory.createCartridge(self._assembly, CartridgeType.vanilla_4k);
         self._board = new Board(StellaConfig.create(config.stellaConfig), self._cartridge);
 
         return self;

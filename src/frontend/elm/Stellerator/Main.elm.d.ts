@@ -23,7 +23,7 @@
  *   SOFTWARE.
  */
 
-import CartridgeInfo from '../../../machine/stella/cartridge/CartridgeInfo';
+import { CartridgeType as CartridgeTypeEnum } from '../../../machine/stella/cartridge/CartridgeInfo';
 
 export const enum TvMode {
     pal = 'pal',
@@ -104,7 +104,7 @@ export type EmulationState = EmulationStateStopped | EmulationStatePaused | Emul
 export interface Cartridge {
     hash: string;
     name: string;
-    cartridgeType: CartridgeInfo.CartridgeType;
+    cartridgeType: CartridgeTypeEnum;
     tvMode: TvMode;
     emulatePaddles: boolean;
     volume: number;
@@ -132,7 +132,7 @@ export interface Settings {
 }
 
 export interface CartridgeType {
-    key: CartridgeInfo.CartridgeType;
+    key: CartridgeTypeEnum;
     description: string;
 }
 

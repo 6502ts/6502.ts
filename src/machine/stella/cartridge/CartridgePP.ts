@@ -24,10 +24,10 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 import Bus from '../Bus';
 import { BufferInterface } from './util';
+import { CartridgeType } from './CartridgeInfo';
 
 class CartridgePP extends AbstractCartridge {
     constructor(buffer: BufferInterface) {
@@ -48,8 +48,8 @@ class CartridgePP extends AbstractCartridge {
         this.reset();
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_8k_pp;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_8k_pp;
     }
 
     reset(): void {

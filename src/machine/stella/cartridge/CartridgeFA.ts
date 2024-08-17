@@ -24,9 +24,9 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 import * as cartridgeUtil from './util';
+import { CartridgeType } from './CartridgeInfo';
 
 class CartridgeFA extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -83,8 +83,8 @@ class CartridgeFA extends AbstractCartridge {
         }
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_12k_FA;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_12k_FA;
     }
 
     private _handleBankswitch(address: number): void {

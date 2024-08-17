@@ -24,8 +24,8 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
+import { CartridgeType } from './CartridgeInfo';
 import * as cartridgeUtil from './util';
-import CartridgeInfo from './CartridgeInfo';
 
 class CartridgeF0 extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -73,8 +73,8 @@ class CartridgeF0 extends AbstractCartridge {
         super.write(address, value);
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_64k_F0;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_64k_F0;
     }
 
     private _handleBankswitch(address: number): void {

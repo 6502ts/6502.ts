@@ -23,8 +23,8 @@
  *   SOFTWARE.
  */
 
+import { CartridgeType } from '../../../../machine/stella/cartridge/CartridgeInfo';
 import EventServiceInterface from '../EmulationServiceInterface';
-import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 
 export const RPC_TYPE = {
     emulationPause: 'emulation/pause',
@@ -37,7 +37,7 @@ export const RPC_TYPE = {
     getVideoParameters: 'video/getParameters',
     getWaveformAudioParameters: (index: number) => `audio/waveform/getParameters/${index}`,
     getPCMAudioParameters: (index: number) => `audio/pcm/getParameters/${index}`,
-    setup: '/setup'
+    setup: '/setup',
 };
 Object.freeze(RPC_TYPE);
 
@@ -54,7 +54,7 @@ export const SIGNAL_TYPE = {
     pcmAudioReturnFrame: (index: number) => `audio/pcm/returnFrame/${index}`,
     audioStop: 'audio/stop',
     messageFromAsyncIO: 'asyncIO/messageFrom',
-    messageToAsyncIO: 'asyncIO/messageTo'
+    messageToAsyncIO: 'asyncIO/messageTo',
 };
 Object.freeze(SIGNAL_TYPE);
 
@@ -63,7 +63,7 @@ export interface SetupMessage {}
 export interface EmulationStartMessage {
     buffer: { [i: number]: number; length: number };
     config: EventServiceInterface.Config;
-    cartridgeType?: CartridgeInfo.CartridgeType;
+    cartridgeType?: CartridgeType;
 }
 
 export interface VideoParametersResponse {

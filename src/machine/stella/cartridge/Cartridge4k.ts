@@ -24,7 +24,7 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
+import { CartridgeType } from './CartridgeInfo';
 
 class Cartridge4k extends AbstractCartridge {
     constructor(buffer: { [i: number]: number; length: number }) {
@@ -46,8 +46,8 @@ class Cartridge4k extends AbstractCartridge {
         return this._rom[address & 0x0fff];
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.vanilla_4k;
+    getType(): CartridgeType {
+        return CartridgeType.vanilla_4k;
     }
 
     // A12 - A15 masked out -> 0x1000 bytes of ROM

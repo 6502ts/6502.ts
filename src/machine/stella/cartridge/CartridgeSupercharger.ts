@@ -24,12 +24,12 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 
 import Header from './supercharger/Header';
 import { bios } from './supercharger/blob';
+import { CartridgeType } from './CartridgeInfo';
 
 const enum BankType {
     ram,
@@ -121,8 +121,8 @@ class CartridgeSupercharger extends AbstractCartridge {
         this._access(address, value);
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_supercharger;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_supercharger;
     }
 
     private static _onBusTransition(address: number, self: CartridgeSupercharger) {

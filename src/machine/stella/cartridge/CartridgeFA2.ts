@@ -24,14 +24,14 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import RngInterface from '../../../tools/rng/GeneratorInterface';
 import Bus from '../Bus';
 import * as cartridgeUtil from './util';
+import { CartridgeType } from './CartridgeInfo';
 
 const enum IODelay {
     load = 10,
-    save = 100
+    save = 100,
 }
 
 class CartridgeFA2 extends AbstractCartridge {
@@ -61,7 +61,7 @@ class CartridgeFA2 extends AbstractCartridge {
         // Signatures shamelessly stolen from Stella
         const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
             [0xa0, 0xc1, 0x1f, 0xe0],
-            [0x00, 0x80, 0x02, 0xe0]
+            [0x00, 0x80, 0x02, 0xe0],
         ]);
 
         return signatureCounts[0] > 0 || signatureCounts[1] > 0;
@@ -73,8 +73,8 @@ class CartridgeFA2 extends AbstractCartridge {
         this._bank = this._banks[0];
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_FA2;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_FA2;
     }
 
     randomize(rng: RngInterface): void {

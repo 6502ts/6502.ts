@@ -25,9 +25,9 @@
 
 import AbstractCartridge from './AbstractCartridge';
 import * as cartridgeUtil from './util';
-import CartridgeInfo from './CartridgeInfo';
 
 import RngInterface from '../../../tools/rng/GeneratorInterface';
+import { CartridgeType } from './CartridgeInfo';
 
 class CartrdigeE7 extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -63,7 +63,7 @@ class CartrdigeE7 extends AbstractCartridge {
             [0xad, 0xe7, 0x1f], // LDA $1FE7
             [0x0c, 0xe7, 0x1f], // NOP $1FE7
             [0x8d, 0xe7, 0xff], // STA $FFE7
-            [0x8d, 0xe7, 0x1f] // STA $1FE7
+            [0x8d, 0xe7, 0x1f], // STA $1FE7
         ]);
 
         for (let i = 0; i < signatureCounts.length; i++) {
@@ -132,8 +132,8 @@ class CartrdigeE7 extends AbstractCartridge {
         }
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_16k_E7;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_16k_E7;
     }
 
     randomize(rng: RngInterface): void {

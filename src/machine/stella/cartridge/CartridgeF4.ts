@@ -24,10 +24,10 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 
 import RngInterface from '../../../tools/rng/GeneratorInterface';
+import { CartridgeType } from './CartridgeInfo';
 
 class CartridgeF4 extends AbstractCartridge {
     constructor(buffer: { [i: number]: number; length: number }, private _supportSC: boolean = true) {
@@ -55,8 +55,8 @@ class CartridgeF4 extends AbstractCartridge {
         this._hasSC = false;
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_32k_F4;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_32k_F4;
     }
 
     randomize(rng: RngInterface): void {

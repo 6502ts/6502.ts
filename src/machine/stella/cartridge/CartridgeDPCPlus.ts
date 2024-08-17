@@ -25,10 +25,10 @@
 
 import HarmonySoc from './harmony/Soc';
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
 import Bus from '../Bus';
 import CartridgeInterface from './CartridgeInterface';
 import * as cartridgeUtil from './util';
+import { CartridgeType } from './CartridgeInfo';
 
 class CartridgeDPCPlus extends AbstractCartridge {
     constructor(buffer: cartridgeUtil.BufferInterface) {
@@ -79,13 +79,15 @@ class CartridgeDPCPlus extends AbstractCartridge {
             this._musicFetchers[i] = new MusicFetcher();
         }
 
-        this._soc.trap.addHandler(message => this.triggerTrap(CartridgeInterface.TrapReason.other, message));
+        this._soc.trap.addHandler((message) => this.triggerTrap(CartridgeInterface.TrapReason.other, message));
 
         this.reset();
     }
 
     static matchesBuffer(buffer: cartridgeUtil.BufferInterface): boolean {
-        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, ['DPC+'.split('').map(x => x.charCodeAt(0))]);
+        const signatureCounts = cartridgeUtil.searchForSignatures(buffer, [
+            'DPC+'.split('').map((x) => x.charCodeAt(0)),
+        ]);
 
         return signatureCounts[0] === 2;
     }
@@ -132,8 +134,8 @@ class CartridgeDPCPlus extends AbstractCartridge {
         this._clockAccumulator = 0;
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.bankswitch_dpc_plus;
+    getType(): CartridgeType {
+        return CartridgeType.bankswitch_dpc_plus;
     }
 
     setBus(bus: Bus): this {
@@ -206,9 +208,10 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
                             let acc = 0;
                             for (let i = 0; i < 3; i++) {
-                                acc += this._imageRam[
-                                    (this._musicFetchers[i].waveform << 5) + this._musicFetchers[i].waveformSample()
-                                ];
+                                acc +=
+                                    this._imageRam[
+                                        (this._musicFetchers[i].waveform << 5) + this._musicFetchers[i].waveformSample()
+                                    ];
                             }
 
                             return acc & 0xff;
@@ -383,9 +386,8 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             case 1:
                 for (let i = 0; i < this._parameters[3]; i++) {
-                    this._ram[0x0c00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0fff)] = this._rom[
-                        0x0c00 + (romBase + i) % 0x7400
-                    ];
+                    this._ram[0x0c00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0fff)] =
+                        this._rom[0x0c00 + ((romBase + i) % 0x7400)];
                 }
 
                 this._parameterIndex = 0;
@@ -393,9 +395,8 @@ class CartridgeDPCPlus extends AbstractCartridge {
 
             case 2:
                 for (let i = 0; i < this._parameters[3]; i++) {
-                    this._ram[
-                        0x0c00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0fff)
-                    ] = this._parameters[0];
+                    this._ram[0x0c00 + ((this._fetchers[this._parameters[2] & 0x07].pointer + i) & 0x0fff)] =
+                        this._parameters[0];
                 }
 
                 this._parameterIndex = 0;

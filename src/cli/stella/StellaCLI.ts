@@ -35,7 +35,6 @@ import StellaConfig from '../../machine/stella/Config';
 
 import CartridgeInterface from '../../machine/stella/cartridge/CartridgeInterface';
 import CartridgeFactory from '../../machine/stella/cartridge/CartridgeFactory';
-import CartridgeInfo from '../../machine/stella/cartridge/CartridgeInfo';
 
 import CommandInterpreter from '../CommandInterpreter';
 import ImmedateScheduler from '../../tools/scheduler/ImmedateScheduler';
@@ -47,10 +46,11 @@ import ClockProbe from '../../tools/ClockProbe';
 
 import SystemConfigSetupProvider from './SystemConfigSetupProvider';
 import ControlPanelManagementProvider from './ControlPanelManagementProvider';
+import { describeCartridgeType } from '../../machine/stella/cartridge/CartridgeInfo';
 
 const enum RunMode {
     limited,
-    unlimited
+    unlimited,
 }
 
 const CLOCK_PROBE_INTERVAL = 1000;
@@ -64,21 +64,21 @@ class StellaCLI extends DebuggerCLI {
         const systemConfigSetupProvider = new SystemConfigSetupProvider(this._stellaConfig);
 
         this._commandInterpreter.registerCommands({
-            run: () => (this._setState(StellaCLI.State.run), 'running...')
+            run: () => (this._setState(StellaCLI.State.run), 'running...'),
         });
 
         this._runModeCommandInterpreter = new CommandInterpreter({
-            stop: () => (this._setState(StellaCLI.State.debug), 'stopped, entered debugger')
+            stop: () => (this._setState(StellaCLI.State.debug), 'stopped, entered debugger'),
         });
 
         this._setupModeCommandInterpreter = new CommandInterpreter({
-            'load-cartridge': this._executeLoadCartridge.bind(this)
+            'load-cartridge': this._executeLoadCartridge.bind(this),
         });
         this._setupModeCommandInterpreter.registerCommands(systemConfigSetupProvider.getCommands());
 
         const runModeCommands: CommandInterpreter.CommandTableInterface = {
             'set-speed-limited': () => (this._setRunMode(RunMode.limited), 'speed limiting on'),
-            'set-speed-unlimited': () => (this._setRunMode(RunMode.unlimited), 'speed limiting off')
+            'set-speed-unlimited': () => (this._setRunMode(RunMode.unlimited), 'speed limiting off'),
         };
 
         this._commandInterpreter.registerCommands(runModeCommands);
@@ -132,7 +132,7 @@ class StellaCLI extends DebuggerCLI {
             this._cartridgeFile = name;
 
             this._outputLine(`successfully loaded ${name}`);
-            this._outputLine(`format: ${CartridgeInfo.describeCartridgeType(this._cartridge.getType())}`);
+            this._outputLine(`format: ${describeCartridgeType(this._cartridge.getType())}`);
         } catch (e) {
             this._outputLine(e.message);
         }
@@ -170,7 +170,7 @@ class StellaCLI extends DebuggerCLI {
             return e.message;
         }
 
-        return `succesfully loaded ${file}\nformat: ${CartridgeInfo.describeCartridgeType(this._cartridge.getType())}`;
+        return `succesfully loaded ${file}\nformat: ${describeCartridgeType(this._cartridge.getType())}`;
     }
 
     protected async _loadCartridge(file: string): Promise<void> {
@@ -310,7 +310,7 @@ namespace StellaCLI {
     export const enum State {
         setup,
         debug,
-        run
+        run,
     }
 }
 

@@ -26,8 +26,8 @@
 import { EventInterface } from 'microevent.ts';
 
 import StellaConfig from '../../../machine/stella/Config';
-import CartridgeInfo from '../../../machine/stella/cartridge/CartridgeInfo';
 import EmulationContextInterface from './EmulationContextInterface';
+import { CartridgeType } from '../../../machine/stella/cartridge/CartridgeInfo';
 
 interface EmulationServiceInterface {
     init(): Promise<void>;
@@ -35,7 +35,7 @@ interface EmulationServiceInterface {
     start(
         buffer: { [i: number]: number; length: number },
         config: EmulationServiceInterface.Config,
-        cartridgeType?: CartridgeInfo.CartridgeType
+        cartridgeType?: CartridgeType
     ): Promise<EmulationServiceInterface.State>;
 
     stop(): Promise<EmulationServiceInterface.State>;
@@ -68,7 +68,7 @@ namespace EmulationServiceInterface {
         stopped = 'stopped',
         running = 'running',
         paused = 'paused',
-        error = 'error'
+        error = 'error',
     }
 
     export interface Config extends StellaConfig {

@@ -24,7 +24,7 @@
  */
 
 import AbstractCartridge from './AbstractCartridge';
-import CartridgeInfo from './CartridgeInfo';
+import { CartridgeType } from './CartridgeInfo';
 
 function nextPowerOfTwo(x: number): number {
     let v = 1;
@@ -72,8 +72,8 @@ class Cartridge2k extends AbstractCartridge {
         return this._rom[address & 0x07ff];
     }
 
-    getType(): CartridgeInfo.CartridgeType {
-        return CartridgeInfo.CartridgeType.vanilla_2k;
+    getType(): CartridgeType {
+        return CartridgeType.vanilla_2k;
     }
 
     // A11 - A15 masked out -> 0x0800 bytes of ROM

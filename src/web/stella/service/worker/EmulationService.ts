@@ -34,19 +34,18 @@ import ControlProxy from './ControlProxy';
 import WaveformAudioProxy from './WaveformAudioProxy';
 import PCMAudioProxy from './PCMAudioProxy';
 
-import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
-
 import { Mutex } from 'async-mutex';
 
 import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage } from './messages';
 import AsyncIOProxy from './AsyncIOProxy';
+import { CartridgeType } from '../../../../machine/stella/cartridge/CartridgeInfo';
 
 const CONTROL_PROXY_UPDATE_INTERVAL = 25;
 
 const enum ProxyState {
     stopped,
     running,
-    paused
+    paused,
 }
 
 class EmulationService implements EmulationServiceInterface {
@@ -77,7 +76,7 @@ class EmulationService implements EmulationServiceInterface {
             asyncIOProxy
         );
 
-        this._worker.onmessage = messageEvent => this._rpc.dispatch(messageEvent.data);
+        this._worker.onmessage = (messageEvent) => this._rpc.dispatch(messageEvent.data);
 
         this._rpc
             .registerSignalHandler<number>(SIGNAL_TYPE.emulationFrequencyUpdate, this._onFrequencyUpdate.bind(this))
@@ -89,7 +88,7 @@ class EmulationService implements EmulationServiceInterface {
     async start(
         buffer: { [i: number]: number; length: number },
         config: EmulationServiceInterface.Config,
-        cartridgeType?: CartridgeInfo.CartridgeType
+        cartridgeType?: CartridgeType
     ): Promise<EmulationServiceInterface.State> {
         await this.stop();
 
@@ -99,7 +98,7 @@ class EmulationService implements EmulationServiceInterface {
                 {
                     buffer,
                     config,
-                    cartridgeType
+                    cartridgeType,
                 }
             );
 
@@ -118,7 +117,7 @@ class EmulationService implements EmulationServiceInterface {
 
     pause(): Promise<EmulationServiceInterface.State> {
         return this._mutex.runExclusive(() =>
-            this._rpc.rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationPause).then(state => {
+            this._rpc.rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationPause).then((state) => {
                 this._pauseProxies();
                 return this._applyState(state);
             })
@@ -127,7 +126,7 @@ class EmulationService implements EmulationServiceInterface {
 
     stop(): Promise<EmulationServiceInterface.State> {
         return this._mutex.runExclusive(() =>
-            this._rpc.rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationStop).then(state => {
+            this._rpc.rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationStop).then((state) => {
                 this._stopProxies();
                 return this._applyState(state);
             })
@@ -154,7 +153,7 @@ class EmulationService implements EmulationServiceInterface {
 
     resume(): Promise<EmulationServiceInterface.State> {
         return this._mutex.runExclusive(() =>
-            this._rpc.rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationResume).then(state => {
+            this._rpc.rpc<void, EmulationServiceInterface.State>(RPC_TYPE.emulationResume).then((state) => {
                 this._resumeProxies();
                 return this._applyState(state);
             })
@@ -197,14 +196,14 @@ class EmulationService implements EmulationServiceInterface {
     private _fetchLastError(): Promise<Error> {
         return this._rpc
             .rpc<void, string>(RPC_TYPE.emulationFetchLastError)
-            .then(message => (message ? new Error(message) : null));
+            .then((message) => (message ? new Error(message) : null));
     }
 
     private _applyState(
         state: EmulationServiceInterface.State
     ): Promise<EmulationServiceInterface.State> | EmulationServiceInterface.State {
         if (state === EmulationServiceInterface.State.error) {
-            return this._fetchLastError().then(error => {
+            return this._fetchLastError().then((error) => {
                 this._state = state;
                 this._lastError = error;
 

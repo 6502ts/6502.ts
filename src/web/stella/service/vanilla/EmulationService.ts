@@ -30,13 +30,13 @@ import EmulationContext from './EmulationContext';
 import Board from '../../../../machine/stella/Board';
 import BoardInterface from '../../../../machine/board/BoardInterface';
 import CartridgeFactory from '../../../../machine/stella/cartridge/CartridgeFactory';
-import CartridgeInfo from '../../../../machine/stella/cartridge/CartridgeInfo';
 import SchedulerInterface from '../../../../tools/scheduler/SchedulerInterface';
 import AsyncIO from '../../../../machine/stella/AsyncIO';
 import SchedulerFactory from '../../../../tools/scheduler/Factory';
 import ClockProbe from '../../../../tools/ClockProbe';
 import PeriodicScheduler from '../../../../tools/scheduler/PeriodicScheduler';
 import { Mutex } from 'async-mutex';
+import { CartridgeType } from '../../../../machine/stella/cartridge/CartridgeInfo';
 
 const CLOCK_UPDATE_INTERVAL = 2000;
 
@@ -53,7 +53,7 @@ export default class EmulationService implements EmulationServiceInterface {
     start(
         buffer: { [i: number]: number; length: number },
         config: EmulationServiceInterface.Config,
-        cartridgeType?: CartridgeInfo.CartridgeType
+        cartridgeType?: CartridgeType
     ): Promise<EmulationServiceInterface.State> {
         const factory = new CartridgeFactory();
 

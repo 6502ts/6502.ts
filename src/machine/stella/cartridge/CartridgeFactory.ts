@@ -46,14 +46,14 @@ import CartdridgeCDF from './CartridgeCDF';
 import Cartidge8040 from './Cartridge0840';
 import CartridgePP from './CartridgePP';
 
-import CartridgeInfo from './CartridgeInfo';
 import CartridgeDetector from './CartridgeDetector';
 import CartridgeInterface from './CartridgeInterface';
+import { CartridgeType } from './CartridgeInfo';
 
 export default class CartridgeFactory {
     async createCartridge(
         buffer: { [i: number]: number; length: number },
-        cartridgeType?: CartridgeInfo.CartridgeType
+        cartridgeType?: CartridgeType
     ): Promise<CartridgeInterface> {
         const cartridge = this._createCartridge(buffer, cartridgeType);
 
@@ -64,7 +64,7 @@ export default class CartridgeFactory {
 
     private _createCartridge(
         buffer: { [i: number]: number; length: number },
-        cartridgeType?: CartridgeInfo.CartridgeType
+        cartridgeType?: CartridgeType
     ): CartridgeInterface {
         if (typeof cartridgeType === 'undefined') {
             const detector = new CartridgeDetector();
@@ -73,70 +73,70 @@ export default class CartridgeFactory {
         }
 
         switch (cartridgeType) {
-            case CartridgeInfo.CartridgeType.vanilla_2k:
+            case CartridgeType.vanilla_2k:
                 return new Cartridge2k(buffer);
 
-            case CartridgeInfo.CartridgeType.vanilla_4k:
+            case CartridgeType.vanilla_4k:
                 return new Cartridge4k(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_2k_cv:
+            case CartridgeType.bankswitch_2k_cv:
                 return new CartridgeCV(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_8k_F8:
+            case CartridgeType.bankswitch_8k_F8:
                 return new CartridgeF8(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_8k_E0:
+            case CartridgeType.bankswitch_8k_E0:
                 return new CartridgeE0(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_8k_3F:
+            case CartridgeType.bankswitch_8k_3F:
                 return new Cartridge3F(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_8k_FE:
+            case CartridgeType.bankswitch_8k_FE:
                 return new CartridgeFE(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_8k_UA:
+            case CartridgeType.bankswitch_8k_UA:
                 return new CartridgeUA(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_8k_DPC:
+            case CartridgeType.bankswitch_8k_DPC:
                 return new CartridgeDPC(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_8k_econobanking:
+            case CartridgeType.bankswitch_8k_econobanking:
                 return new Cartidge8040(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_8k_pp:
+            case CartridgeType.bankswitch_8k_pp:
                 return new CartridgePP(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_12k_FA:
+            case CartridgeType.bankswitch_12k_FA:
                 return new CartridgeFA(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_16k_F6:
+            case CartridgeType.bankswitch_16k_F6:
                 return new CartridgeF6(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_16k_E7:
+            case CartridgeType.bankswitch_16k_E7:
                 return new CartridgeE7(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_FA2:
+            case CartridgeType.bankswitch_FA2:
                 return new CartridgeFA2(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_32k_F4:
+            case CartridgeType.bankswitch_32k_F4:
                 return new CartridgeF4(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_64k_F0:
+            case CartridgeType.bankswitch_64k_F0:
                 return new CartridgeF0(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_64k_EF:
+            case CartridgeType.bankswitch_64k_EF:
                 return new CartridgeEF(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_3E:
+            case CartridgeType.bankswitch_3E:
                 return new Cartridge3E(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_supercharger:
+            case CartridgeType.bankswitch_supercharger:
                 return new CartridgeSupercharger(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_dpc_plus:
+            case CartridgeType.bankswitch_dpc_plus:
                 return new CartridgeDPCPlus(buffer);
 
-            case CartridgeInfo.CartridgeType.bankswitch_cdf:
+            case CartridgeType.bankswitch_cdf:
                 return new CartdridgeCDF(buffer);
 
             default:
