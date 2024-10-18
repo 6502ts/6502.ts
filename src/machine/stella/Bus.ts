@@ -125,8 +125,19 @@ class Bus implements BusInterface {
         }
     }
 
-    // Stub
-    poke(address: number, value: number) {}
+    poke(address: number, value: number) {
+        address &= 0x1fff;
+
+        // Chip select A12 -> cartridge
+        if (address & 0x1000) {
+            return this._cartridge.write(address, value);
+        } else if (address & 0x80) {
+            // Chip select A7 -> PIA
+            return this._pia.write(address, value);
+        } else {
+            return this._tia.write(address, value);
+        }
+    }
 
     getLastDataBusValue(): number {
         return this._lastDataBusValue;
@@ -177,7 +188,7 @@ namespace Bus {
     }
 
     export class TrapPayload {
-        constructor(public reason: TrapReason, public bus: Bus, public message?: string) {}
+        constructor(public reason: TrapReason, public bus: Bus, public message?: string) { }
     }
 }
 
