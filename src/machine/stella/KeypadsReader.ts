@@ -58,20 +58,18 @@ export default class KeypadsReader {
         this._swacnt = value;
     }
 
-    inpt(column: number): number {
-
+    inpt(pad: number, column: number): number {
         const currentTimestamp = this._cpuTimeProvider();
         let s = (currentTimestamp >= this._returnTimestamp) ? this._swcha_out : 0;
-
+        if (0 === pad) {
+            s = s >> 4;
+        }
         let state = false;
-        for (let pad = 1; pad >= 0; pad--) {
-            for (let row = 0; row < 4; row++) {
-                if (1 === (s & 0x01)) {
-                    state = state || this._keypads[pad].getKey(row, column).read();
-                }
-                s = s >> 1;
+        for (let row = 0; row < 4; row++) {
+            if (1 === (s & 0x01)) {
+                state = state || this._keypads[pad].getKey(row, column).read();
             }
-
+            s = s >> 1;
         }
         return state ? 0 : 0x80;
 

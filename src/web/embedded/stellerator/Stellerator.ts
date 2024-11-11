@@ -341,6 +341,20 @@ export class Stellerator {
         return this._controlPanel;
     }
 
+    /**
+     * Trigger a keyboard action by name.
+     */
+    triggerKeydownAction(name: string) {
+        this._keyboardIO.triggerAction(KeyboardIO.Actions[name], true);
+    }
+
+    /**
+     * Trigger a keyboard action by name.
+     */
+    triggerKeyupAction(name: string) {
+        this._keyboardIO.triggerAction(KeyboardIO.Actions[name], false);
+    }
+
     setCanvas(canvas: HTMLCanvasElement): this {
         this._canvasElt = canvas;
 

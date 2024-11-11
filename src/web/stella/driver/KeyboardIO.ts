@@ -106,19 +106,7 @@ class KeyboardIO {
 
             if (typeof action !== 'undefined') {
                 e.preventDefault();
-
-                const dispatch = this._dispatchTable[action];
-                switch (dispatch.type) {
-                    case DispatchType.swtch:
-                        dispatch.swtch.toggle(true);
-                        break;
-
-                    case DispatchType.triggerDown:
-                        dispatch.trigger.dispatch(undefined);
-                        break;
-
-                    default:
-                }
+                this.triggerAction(action, true);
             }
         };
 
@@ -129,21 +117,31 @@ class KeyboardIO {
 
             for (const action of this._compiledMappings.get(e.keyCode).values()) {
                 e.preventDefault();
-
-                const dispatch = this._dispatchTable[action];
-
-                switch (dispatch.type) {
-                    case DispatchType.swtch:
-                        dispatch.swtch.toggle(false);
-                        break;
-
-                    default:
-                }
+                this.triggerAction(action, false);
             }
         };
 
         this._target.addEventListener('keydown', this._keydownListener);
         this._target.addEventListener('keyup', this._keyupListener);
+    }
+
+    triggerAction(action: KeyboardIO.Action, position: boolean): void {
+        const dispatch = this._dispatchTable[action];
+        if (dispatch) {
+            switch (dispatch.type) {
+                case DispatchType.swtch:
+                    dispatch.swtch.toggle(position);
+                    break;
+
+                case DispatchType.triggerDown:
+                    if (position) {
+                        dispatch.trigger.dispatch(undefined);
+                    }
+                    break;
+
+                default:
+            }
+        }
     }
 
     overlay(mappings: Array<KeyboardIO.Mapping>): void {
@@ -246,6 +244,7 @@ class KeyboardIO {
 
     private _dispatchTable: { [action: number]: Dispatch } = {};
     private _compiledMappings = new Map<number, Map<number, KeyboardIO.Action>>();
+
 }
 
 namespace KeyboardIO {
@@ -292,6 +291,48 @@ namespace KeyboardIO {
         fullscreen,
         hardReset,
         togglePause
+    }
+
+    export const Actions: Record<string, Action> = {
+        'select': Action.select,
+        'reset': Action.reset,
+        'left0': Action.left0,
+        'right0': Action.right0,
+        'up0': Action.up0,
+        'down0': Action.down0,
+        'left1': Action.left1,
+        'right1': Action.right1,
+        'up1': Action.up1,
+        'down1': Action.down1,
+        'fire0': Action.fire0,
+        'fire1': Action.fire1,
+        'keypad0r0c0': Action.keypad0r0c0,
+        'keypad0r0c1': Action.keypad0r0c1,
+        'keypad0r0c2': Action.keypad0r0c2,
+        'keypad0r1c0': Action.keypad0r1c0,
+        'keypad0r1c1': Action.keypad0r1c1,
+        'keypad0r1c2': Action.keypad0r1c2,
+        'keypad0r2c0': Action.keypad0r2c0,
+        'keypad0r2c1': Action.keypad0r2c1,
+        'keypad0r2c2': Action.keypad0r2c2,
+        'keypad0r3c0': Action.keypad0r3c0,
+        'keypad0r3c1': Action.keypad0r3c1,
+        'keypad0r3c2': Action.keypad0r3c2,
+        'keypad1r0c0': Action.keypad1r0c0,
+        'keypad1r0c1': Action.keypad1r0c1,
+        'keypad1r0c2': Action.keypad1r0c2,
+        'keypad1r1c0': Action.keypad1r1c0,
+        'keypad1r1c1': Action.keypad1r1c1,
+        'keypad1r1c2': Action.keypad1r1c2,
+        'keypad1r2c0': Action.keypad1r2c0,
+        'keypad1r2c1': Action.keypad1r2c1,
+        'keypad1r2c2': Action.keypad1r2c2,
+        'keypad1r3c0': Action.keypad1r3c0,
+        'keypad1r3c1': Action.keypad1r3c1,
+        'keypad1r3c2': Action.keypad1r3c2,
+        'fullscreen': Action.fullscreen,
+        'hardReset': Action.hardReset,
+        'togglePause': Action.togglePause,
     }
 
     export const enum Modifier {
@@ -502,5 +543,6 @@ namespace KeyboardIO {
     ];
 
 }
+
 
 export { KeyboardIO as default };
