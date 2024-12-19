@@ -494,51 +494,51 @@ namespace KeyboardIO {
     export const keypad1Mappings: Array<Mapping> = [
         {
             action: Action.keypad1r0c0,
-            spec: 56// 8
+            spec: 55// 7
         },
         {
             action: Action.keypad1r0c1,
-            spec: 57 // 9
+            spec: 56// 8
         },
         {
             action: Action.keypad1r0c2,
-            spec: 48 // 0
+            spec: 57 // 9
         },
         {
             action: Action.keypad1r1c0,
-            spec: 73 // i
+            spec: 85 // u
         },
         {
             action: Action.keypad1r1c1,
-            spec: 79 // o
+            spec: 73 // i
         },
         {
             action: Action.keypad1r1c2,
-            spec: 80 // p
+            spec: 79 // o
         },
         {
             action: Action.keypad1r2c0,
-            spec: 75 // k
+            spec: 74 // j
         },
         {
             action: Action.keypad1r2c1,
-            spec: 76 // l
+            spec: 75 // k
         },
         {
             action: Action.keypad1r2c2,
-            spec: 186 // ;
+            spec: 76 // l
         },
         {
             action: Action.keypad1r3c0,
-            spec: 188 // ,
+            spec: 77 // m
         },
         {
             action: Action.keypad1r3c1,
-            spec: 190 // .
+            spec: 188 // ,
         },
         {
             action: Action.keypad1r3c2,
-            spec: 191 // /
+            spec: 190 // .
         }
     ];
 
