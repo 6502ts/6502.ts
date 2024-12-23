@@ -410,10 +410,6 @@ export class Stellerator {
                 stellaConfig.randomSeed = config.randomSeed;
             }
 
-            if (typeof config.emulatePaddles !== 'undefined') {
-                stellaConfig.emulatePaddles = config.emulatePaddles;
-            }
-
             if (typeof config.controllerPort0 !== 'undefined') {
                 stellaConfig.controllerPort0 = this._convertControllerType(config.controllerPort0);
             }
@@ -1072,13 +1068,6 @@ export namespace Stellerator {
          * Default: undefined [automatic]
          */
         randomSeed: number;
-
-        /**
-         * Emulate paddles.
-         *
-         * Default: true
-         */
-        emulatePaddles: boolean;
 
         /**
          * Enable specific controller type for port 0

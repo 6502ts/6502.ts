@@ -51,9 +51,6 @@ updateCartridge cartridgeTypes msg cartridge =
         ChangeCartridgeTvMode tvMode ->
             { cartridge | tvMode = tvMode }
 
-        ChangeCartridgeEmulatePaddles emulatePaddles ->
-            { cartridge | emulatePaddles = emulatePaddles }
-
         ChangeCartridgeControllerPort0 controllerPort0 ->
             { cartridge | controllerPort0 = controllerPort0 }
 

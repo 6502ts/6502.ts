@@ -112,7 +112,6 @@ export interface Cartridge {
     name: string;
     cartridgeType: CartridgeInfo.CartridgeType;
     tvMode: TvMode;
-    emulatePaddles: boolean;
     controllerPort0: ControllerType;
     controllerPort1: ControllerType;
     volume: number;

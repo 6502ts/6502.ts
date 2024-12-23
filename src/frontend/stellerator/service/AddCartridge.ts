@@ -117,7 +117,6 @@ class AddCartridge {
                 name,
                 tvMode,
                 cartridgeType,
-                emulatePaddles: false,
                 controllerPort0: ControllerType.joystick,
                 controllerPort1: ControllerType.joystick,
                 volume: 100,

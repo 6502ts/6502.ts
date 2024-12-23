@@ -222,13 +222,12 @@ class Tia implements VideoOutputInterface {
         const lastDataBusValue = this._bus.getLastDataBusValue();
 
         const usePaddlesPort0 =
-            (this._config.emulatePaddles && (this._config.controllerPort0 == Config.ControllerType.joystick)) ||
             (this._config.controllerPort0 === Config.ControllerType.paddles);
         const usePaddlesPort1 =
-            (this._config.emulatePaddles && (this._config.controllerPort1 == Config.ControllerType.joystick)) ||
             (this._config.controllerPort1 === Config.ControllerType.paddles);
-        const useKeypads =
-            (this._config.controllerPort0 === Config.ControllerType.keypad) ||
+        const useKeypadsPort0 =
+            (this._config.controllerPort0 === Config.ControllerType.keypad);
+        const useKeypadsPort1 =
             (this._config.controllerPort1 === Config.ControllerType.keypad);
 
         let result: number;
@@ -236,27 +235,27 @@ class Tia implements VideoOutputInterface {
         // Only keep the lowest four bits
         switch (address & 0x0f) {
             case Tia.Registers.inpt0:
-                result = (useKeypads ? this._keypads.inpt(0, 0) : 0) | (usePaddlesPort0 ? this._paddles[0].inpt() : 0) | (lastDataBusValue & 0x40);
+                result = (useKeypadsPort0 ? this._keypads.inpt(0, 0) : 0) | (usePaddlesPort0 ? this._paddles[0].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt1:
-                result = (useKeypads ? this._keypads.inpt(0, 1) : 0) | (usePaddlesPort0 ? this._paddles[1].inpt() : 0) | (lastDataBusValue & 0x40);
+                result = (useKeypadsPort0 ? this._keypads.inpt(0, 1) : 0) | (usePaddlesPort0 ? this._paddles[1].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt2:
-                result = (useKeypads ? this._keypads.inpt(1, 0) : 0) | (usePaddlesPort1 ? this._paddles[2].inpt() : 0) | (lastDataBusValue & 0x40);
+                result = (useKeypadsPort1 ? this._keypads.inpt(1, 0) : 0) | (usePaddlesPort1 ? this._paddles[2].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt3:
-                result = (useKeypads ? this._keypads.inpt(1, 1) : 0) | (usePaddlesPort1 ? this._paddles[3].inpt() : 0) | (lastDataBusValue & 0x40);
+                result = (useKeypadsPort1 ? this._keypads.inpt(1, 1) : 0) | (usePaddlesPort1 ? this._paddles[3].inpt() : 0) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt4:
-                result = (useKeypads ? this._keypads.inpt(0, 2) : this._input0.inpt()) | (lastDataBusValue & 0x40);
+                result = (useKeypadsPort0 ? this._keypads.inpt(0, 2) : this._input0.inpt()) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.inpt5:
-                result = (useKeypads ? this._keypads.inpt(1, 2) : this._input1.inpt()) | (lastDataBusValue & 0x40);
+                result = (useKeypadsPort1 ? this._keypads.inpt(1, 2) : this._input1.inpt()) | (lastDataBusValue & 0x40);
                 break;
 
             case Tia.Registers.cxm0p:

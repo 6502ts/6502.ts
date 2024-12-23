@@ -29,7 +29,6 @@ interface Config {
     tvMode: Config.TvMode;
     enableAudio: boolean;
     randomSeed: number;
-    emulatePaddles: boolean;
     frameStart: number;
     pcmAudio: boolean;
     cpuType: CpuFactory.Type;
@@ -55,7 +54,6 @@ namespace Config {
             tvMode: TvMode.ntsc,
             enableAudio: true,
             randomSeed: -1,
-            emulatePaddles: true,
             frameStart: -1,
             pcmAudio: false,
             cpuType: CpuFactory.Type.stateMachine,

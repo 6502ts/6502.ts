@@ -193,8 +193,6 @@ settingsItems model cart =
             [ ( TvPAL, "PAL" ), ( TvNTSC, "NTSC" ), ( TvSECAM, "SECAM" ) ]
             (changeCartridge ChangeCartridgeTvMode)
             cart.tvMode
-    , checkbox "Emulate paddles:" <|
-        Form.checkbox (changeCartridge ChangeCartridgeEmulatePaddles) cart.emulatePaddles
     , oneline "Controller Port 0:" <|
         Form.radioGroup
             []

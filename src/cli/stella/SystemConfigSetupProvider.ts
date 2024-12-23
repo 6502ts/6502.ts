@@ -28,7 +28,7 @@ import CommandInterpreter from '../CommandInterpreter';
 import Factory from '../../machine/cpu/Factory';
 
 export default class SystemConfigSetupProvider {
-    constructor(private _config: Config) {}
+    constructor(private _config: Config) { }
 
     getCommands(): CommandInterpreter.CommandTableInterface {
         return this._commands;
@@ -67,12 +67,52 @@ export default class SystemConfigSetupProvider {
         return `audio ${this._config.enableAudio ? 'enabled' : 'disabled'}`;
     }
 
-    protected _setupPaddles(args?: Array<string>) {
+    protected _setupControllerPort0(args?: Array<string>) {
         if (args && args.length !== 0) {
-            this._config.emulatePaddles = this._isArgTruthy(args[0]);
+            this._config.controllerPort0 = this._parseControllerType(args[0]);
         }
 
-        return `paddle emulation: ${this._config.emulatePaddles ? 'enabled' : 'disabled'}`;
+        return `current controller port 0: ${this._humanReadableControllerType(this._config.controllerPort0)}`;
+    }
+
+    protected _setupControllerPort1(args?: Array<string>) {
+        if (args && args.length !== 0) {
+            this._config.controllerPort1 = this._parseControllerType(args[0]);
+        }
+
+        return `current controller port 1: ${this._humanReadableControllerType(this._config.controllerPort1)}`;
+    }
+
+    protected _parseControllerType(value: string) {
+        switch (value.toLowerCase()) {
+            case 'joystick':
+                return Config.ControllerType.joystick;
+
+            case 'paddles':
+                return Config.ControllerType.paddles;
+
+            case 'keypad':
+                return Config.ControllerType.keypad;
+
+            default:
+                throw new Error(`invalid controller type "${value}"`);
+        }
+    }
+
+    protected _humanReadableControllerType(controllerType: Config.ControllerType) {
+        switch (controllerType) {
+            case Config.ControllerType.joystick:
+                return 'joystick';
+
+            case Config.ControllerType.paddles:
+                return 'paddles';
+
+            case Config.ControllerType.keypad:
+                return 'keypad';
+
+            default:
+                throw new Error(`invalid controller type "${controllerType}"`);
+        }
     }
 
     protected _setHighPrecisionCpu(args?: Array<string>) {
@@ -112,7 +152,7 @@ export default class SystemConfigSetupProvider {
             this._config.pcmAudio = this._isArgTruthy(args[0]);
         }
 
-        return `PCM audio emulation: ${this._config.emulatePaddles ? 'enabled' : 'disabled'}`;
+        return `PCM audio emulation: ${this._config.pcmAudio ? 'enabled' : 'disabled'}`;
     }
 
     protected _isArgTruthy(arg: string): boolean {
@@ -124,7 +164,8 @@ export default class SystemConfigSetupProvider {
     _commands: CommandInterpreter.CommandTableInterface = {
         'tv-mode': this._setupVideo.bind(this),
         audio: this._setupAudio.bind(this),
-        paddles: this._setupPaddles.bind(this),
+        'controller-port-0': this._setupControllerPort0.bind(this),
+        'controller-port-1': this._setupControllerPort1.bind(this),
         seed: this._setRandomSeed.bind(this),
         pcm: this._setupPcmAUdio.bind(this),
         'high-precision-cpu': this._setHighPrecisionCpu.bind(this)

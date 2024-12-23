@@ -122,7 +122,6 @@ function config(cartridge: Cartridge, settings: Settings): Config {
         tvMode: tvMode(cartridge),
         enableAudio: cartridge.volume * settings.volume > 0,
         randomSeed: typeof cartridge.rngSeed === 'undefined' ? -1 : cartridge.rngSeed,
-        emulatePaddles: cartridge.emulatePaddles,
         frameStart: typeof cartridge.firstVisibleLine === 'undefined' ? -1 : cartridge.firstVisibleLine,
         pcmAudio: (cartridge.audioEmulation || settings.audioEmulation) === AudioEmulation.pcm,
         cpuType: cpuType(cartridge, settings),

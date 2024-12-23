@@ -152,7 +152,6 @@ type alias Cartridge =
     , name : String
     , cartridgeType : String
     , tvMode : TvMode
-    , emulatePaddles : Bool
     , controllerPort0 : ControllerType
     , controllerPort1 : ControllerType
     , volume : Int
@@ -687,7 +686,6 @@ decodeCartridge =
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "cartridgeType" Decode.string
         |> Pipeline.required "tvMode" decodeTvMode
-        |> Pipeline.required "emulatePaddles" Decode.bool
         |> Pipeline.required "controllerPort0" decodeControllerType
         |> Pipeline.required "controllerPort1" decodeControllerType
         |> Pipeline.required "volume" Decode.int
@@ -704,7 +702,6 @@ encodeCartridge cartridge =
     , ( "name", Encode.string cartridge.name )
     , ( "cartridgeType", Encode.string cartridge.cartridgeType )
     , ( "tvMode", encodeTvMode cartridge.tvMode )
-    , ( "emulatePaddles", Encode.bool cartridge.emulatePaddles )
     , ( "controllerPort0", encodeControllerType cartridge.controllerPort0 )
     , ( "controllerPort1", encodeControllerType cartridge.controllerPort1 )
     , ( "volume", Encode.int cartridge.volume )
