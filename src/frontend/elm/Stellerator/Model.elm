@@ -254,7 +254,6 @@ type ChangeCartridgeMsg
     = ChangeCartridgeName String
     | ChangeCartridgeType String
     | ChangeCartridgeTvMode TvMode
-    | ChangeCartridgeEmulatePaddles Bool
     | ChangeCartridgeControllerPort0 ControllerType
     | ChangeCartridgeControllerPort1 ControllerType
     | ChangeCartridgeRngSeed (Maybe Int)
