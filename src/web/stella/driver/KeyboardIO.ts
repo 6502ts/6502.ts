@@ -144,6 +144,11 @@ class KeyboardIO {
         }
     }
 
+    remap(mappings: Array<KeyboardIO.Mapping>): void {
+        this._compiledMappings.clear();
+        this._compileMappings(mappings);
+    }
+
     overlay(mappings: Array<KeyboardIO.Mapping>): void {
         this._compileMappings(mappings);
     }

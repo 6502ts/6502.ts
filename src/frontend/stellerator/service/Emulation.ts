@@ -319,6 +319,14 @@ class Emulation {
 
         this._currentConfig = config(cartidge, settings);
 
+        this._keyboardDriver.remap(KeyboardDriver.defaultMappings);
+        if (this._currentConfig.controllerPort0 === Config.ControllerType.keypad) {
+            this._keyboardDriver.overlay(KeyboardDriver.keypad0Mappings);
+        }
+        if (this._currentConfig.controllerPort1 === Config.ControllerType.keypad) {
+            this._keyboardDriver.overlay(KeyboardDriver.keypad1Mappings);
+        }
+
         await this._emulationService.start(image, this._currentConfig, cartidge.cartridgeType);
 
         this._updateConsoleSwitches(switches);
