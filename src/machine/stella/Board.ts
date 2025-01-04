@@ -86,7 +86,7 @@ class Board implements BoardInterface {
         const keypads = new KeypadsReader(keypadControllers);
 
         const cpu = cpuFactory(bus, this._rng);
-        const pia = new Pia(controlPanel, joystick0, joystick1, keypads, this._rng);
+        const pia = new Pia(_config, controlPanel, joystick0, joystick1, paddles, keypads, this._rng);
         const tia = new Tia(_config, joystick0, joystick1, paddles, keypads);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
