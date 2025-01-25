@@ -994,6 +994,9 @@ export namespace Stellerator {
         secam = 'secam',
     }
 
+    /**
+     * Controller types
+     */
     export enum ControllerType {
         /**
          * Joystick

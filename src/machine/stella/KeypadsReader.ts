@@ -69,7 +69,7 @@ export default class KeypadsReader {
             if (1 === (s & 0x01)) {
                 state = state || this._keypads[pad].getKey(row, column).read();
             }
-            s = s >> 1;
+            s = s >>> 1;
         }
         return state ? 0 : 0x80;
 
