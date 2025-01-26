@@ -36,7 +36,7 @@ import PCMAudioProxy from './PCMAudioProxy';
 
 import { Mutex } from 'async-mutex';
 
-import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage } from './messages';
+import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, EmulationPokeMessage } from './messages';
 import AsyncIOProxy from './AsyncIOProxy';
 import { CartridgeType } from '../../../../machine/stella/cartridge/CartridgeInfo';
 
@@ -49,7 +49,7 @@ const enum ProxyState {
 }
 
 class EmulationService implements EmulationServiceInterface {
-    constructor(private _stellaWorkerUri: string) {}
+    constructor(private _stellaWorkerUri: string) { }
 
     async init(): Promise<void> {
         this._worker = new Worker(this._stellaWorkerUri);
@@ -164,6 +164,14 @@ class EmulationService implements EmulationServiceInterface {
         this._rateLimitEnforced = enforce;
 
         return this._rpc.rpc<boolean, void>(RPC_TYPE.emulationSetRateLimit, enforce);
+    }
+
+    peek(index: number): Promise<number> {
+        return this._rpc.rpc<number, number>(RPC_TYPE.emulationPeek, index);
+    }
+
+    poke(index: number, value: number): Promise<void> {
+        return this._rpc.rpc<EmulationPokeMessage, void>(RPC_TYPE.emulationPoke, { index, value });
     }
 
     getFrequency(): number {

@@ -34,7 +34,7 @@ import PCMAudioDriver from './PCMAudioDriver';
 import EmulationContext from '../vanilla/EmulationContext';
 import AsyncIODriver from '../../../driver/AsyncIO';
 
-import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, SetupMessage, MessageToAsyncIOMessage } from './messages';
+import { RPC_TYPE, SIGNAL_TYPE, EmulationStartMessage, EmulationPokeMessage, SetupMessage, MessageToAsyncIOMessage } from './messages';
 
 class EmulationBackend {
     constructor(private _rpc: RpcProviderInterface) {
@@ -58,6 +58,8 @@ class EmulationBackend {
             .registerRpcHandler(RPC_TYPE.emulationSetRateLimit, this._onEmulationSetRateLimit.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationStart, this._onEmulationStart.bind(this))
             .registerRpcHandler(RPC_TYPE.emulationStop, this._onEmulationStop.bind(this))
+            .registerRpcHandler(RPC_TYPE.emulationPeek, this._onEmulationPeek.bind(this))
+            .registerRpcHandler(RPC_TYPE.emulationPoke, this._onEmulationPoke.bind(this))
             .registerSignalHandler<MessageToAsyncIOMessage>(SIGNAL_TYPE.messageToAsyncIO, data =>
                 asyncIODriver.send(data)
             );
@@ -131,6 +133,14 @@ class EmulationBackend {
 
     private _onEmulationSetRateLimit(message: boolean): Promise<void> {
         return this._service.setRateLimit(message);
+    }
+
+    private _onEmulationPeek(message: number): Promise<number> {
+        return this._service.peek(message);
+    }
+
+    private _onEmulationPoke(message: EmulationPokeMessage): Promise<void> {
+        return this._service.poke(message.index, message.value);
     }
 
     private _service: EmulationService;

@@ -29,10 +29,11 @@ interface Config {
     tvMode: Config.TvMode;
     enableAudio: boolean;
     randomSeed: number;
-    emulatePaddles: boolean;
     frameStart: number;
     pcmAudio: boolean;
     cpuType: CpuFactory.Type;
+    controllerPort0: Config.ControllerType;
+    controllerPort1: Config.ControllerType;
 }
 
 namespace Config {
@@ -42,15 +43,22 @@ namespace Config {
         secam
     }
 
+    export const enum ControllerType {
+        joystick,
+        paddles,
+        keypad
+    }
+
     export function create(config: Partial<Config> = {}): Config {
         return {
             tvMode: TvMode.ntsc,
             enableAudio: true,
             randomSeed: -1,
-            emulatePaddles: true,
             frameStart: -1,
             pcmAudio: false,
             cpuType: CpuFactory.Type.stateMachine,
+            controllerPort0: ControllerType.joystick,
+            controllerPort1: ControllerType.joystick,
 
             ...config
         };

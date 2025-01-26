@@ -41,6 +41,9 @@ import ControlPanel from './ControlPanel';
 import ControlPanelInterface from './ControlPanelInterface';
 import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
 import DigitalJoystick from '../io/DigitalJoystick';
+import KeypadControllerInterface from '../io/KeypadControllerInterface';
+import KeypadController from '../io/KeypadController';
+import KeypadsReader from './KeypadsReader';
 import PaddleInterface from '../io/PaddleInterface';
 import Paddle from '../io/Paddle';
 
@@ -69,17 +72,26 @@ class Board implements BoardInterface {
         const controlPanel = new ControlPanel(),
             joystick0 = new DigitalJoystick(),
             joystick1 = new DigitalJoystick(),
-            paddles = new Array(4);
+            paddles = new Array(4),
+            keypadControllers = new Array(2);
 
         for (let i = 0; i < 4; i++) {
             paddles[i] = new Paddle();
         }
 
+        for (let i = 0; i < 2; i++) {
+            keypadControllers[i] = new KeypadController();
+        }
+
+        const keypads = new KeypadsReader(keypadControllers);
+
         const cpu = cpuFactory(bus, this._rng);
-        const pia = new Pia(controlPanel, joystick0, joystick1, this._rng);
-        const tia = new Tia(_config, joystick0, joystick1, paddles);
+        const pia = new Pia(_config, controlPanel, joystick0, joystick1, paddles, keypads, this._rng);
+        const tia = new Tia(_config, joystick0, joystick1, paddles, keypads);
 
         cpu.setInvalidInstructionCallback(() => this._onInvalidInstruction());
+
+        keypads.setCpuTimeProvider(() => this.getCpuTime());
 
         tia.setCpu(cpu)
             .setBus(bus)
@@ -104,6 +116,8 @@ class Board implements BoardInterface {
         this._joystick0 = joystick0;
         this._joystick1 = joystick1;
         this._paddles = paddles;
+        this._keypad0 = keypadControllers[0];
+        this._keypad1 = keypadControllers[1];
 
         this._bus.event.trap.addHandler((payload: Bus.TrapPayload) =>
             this.triggerTrap(BoardInterface.TrapReason.bus, payload.message)
@@ -226,6 +240,14 @@ class Board implements BoardInterface {
 
     getJoystick1(): DigitalJoystickInterface {
         return this._joystick1;
+    }
+
+    getKeypad0(): KeypadControllerInterface {
+        return this._keypad0;
+    }
+
+    getKeypad1(): KeypadControllerInterface {
+        return this._keypad1;
     }
 
     getBoardStateDebug(): string {
@@ -374,6 +396,8 @@ class Board implements BoardInterface {
     private _controlPanel: ControlPanel;
     private _joystick0: DigitalJoystick;
     private _joystick1: DigitalJoystick;
+    private _keypad0: KeypadController;
+    private _keypad1: KeypadController;
     private _paddles: Array<Paddle>;
 
     private _runTask: TaskInterface;

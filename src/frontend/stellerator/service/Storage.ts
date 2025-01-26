@@ -24,7 +24,7 @@
  */
 
 import Dexie from 'dexie';
-import { Cartridge, Settings, TvEmulation, Scaling } from '../../elm/Stellerator/Main.elm';
+import { Cartridge, Settings, TvEmulation, Scaling, ControllerType } from '../../elm/Stellerator/Main.elm';
 import { injectable } from 'inversify';
 
 export interface CartridgeWithImage {
@@ -84,6 +84,33 @@ class Database extends Dexie {
                     .toCollection()
                     .modify((cartridge) => {
                         delete (cartridge as any).phosphorEmulation;
+                    });
+            });
+
+
+        this.version(3)
+            .stores({
+                cartridges: '&hash',
+                roms: '&hash',
+                settings: '&id',
+            })
+            .upgrade((transaction) => {
+
+                transaction
+                    .table<Cartridge>('cartridges')
+                    .toCollection()
+                    .modify((cartridge) => {
+                        const _cartridge = cartridge as any;
+
+                        const controllerType = _cartridge.emulatePaddles ?
+                            ControllerType.paddles :
+                            ControllerType.joystick;
+
+                        delete _cartridge.emulatePaddles;
+
+                        _cartridge.controllerPort0 = controllerType;
+                        _cartridge.controllerPort1 = controllerType;
+
                     });
             });
     }

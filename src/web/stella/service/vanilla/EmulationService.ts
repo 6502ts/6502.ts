@@ -168,6 +168,10 @@ export default class EmulationService implements EmulationServiceInterface {
         }
     }
 
+    getBoard(): Board {
+        return this._board;
+    }
+
     getLastError(): Error {
         return this._lastError;
     }
@@ -176,10 +180,21 @@ export default class EmulationService implements EmulationServiceInterface {
         return this._clockProbe.getFrequency();
     }
 
+    peek(index: number): Promise<number> {
+        return this._mutex.runExclusive(() => {
+            return this._board.getBus().peek(index);
+        });
+    }
+
+    poke(index: number, value: number): Promise<void> {
+        return this._mutex.runExclusive(() => {
+            this._board.getBus().poke(index, value);
+        });
+    }
+
     getRateLimit(): boolean {
         return this._enforceRateLimit;
     }
-
     setRateLimit(enforce: boolean): Promise<void> {
         if (this._enforceRateLimit === enforce) {
             return Promise.resolve(undefined);

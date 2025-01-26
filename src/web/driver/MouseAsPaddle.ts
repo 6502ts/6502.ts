@@ -34,7 +34,9 @@ export default class MouseAsPaddleDriver {
         this._paddle = paddle;
         this._x = -1;
 
-        document.addEventListener('mousemove', this._listener);
+        document.addEventListener('mousemove', this._mousemoveListener);
+        document.addEventListener('mousedown', this._mousedownListener);
+        document.addEventListener('mouseup', this._mouseupListener);
     }
 
     unbind(): void {
@@ -42,7 +44,9 @@ export default class MouseAsPaddleDriver {
             return;
         }
 
-        document.removeEventListener('mousemove', this._listener);
+        document.removeEventListener('mousemove', this._mousemoveListener);
+        document.removeEventListener('mousedown', this._mousedownListener);
+        document.removeEventListener('mouseup', this._mouseupListener);
         this._paddle = null;
     }
 
@@ -65,7 +69,17 @@ export default class MouseAsPaddleDriver {
         this._x = e.screenX;
     }
 
+    private _onDocumentMouseDown(e: MouseEvent) {
+        this._paddle.getFire().toggle(true);
+    }
+
+    private _onDocumentMouseUp(e: MouseEvent) {
+        this._paddle.getFire().toggle(false);
+    }
+
     private _paddle: PaddleInterface;
     private _x = -1;
-    private _listener: (e: MouseEvent) => void = this._onDocumentMouseMove.bind(this);
+    private _mousemoveListener: (e: MouseEvent) => void = this._onDocumentMouseMove.bind(this);
+    private _mousedownListener: (e: MouseEvent) => void = this._onDocumentMouseDown.bind(this);
+    private _mouseupListener: (e: MouseEvent) => void = this._onDocumentMouseUp.bind(this);
 }

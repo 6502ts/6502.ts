@@ -42,6 +42,7 @@ import {
     StartEmulationPayload,
     TvEmulation,
     Scaling,
+    ControllerType,
 } from '../../elm/Stellerator/Main.elm';
 
 import EmulationServiceInterface from '../../../web/stella/service/EmulationServiceInterface';
@@ -100,15 +101,32 @@ function tvMode(cartridge: Cartridge): Config.TvMode {
     }
 }
 
+function controllerType(controllerType: ControllerType): Config.ControllerType {
+    switch (controllerType) {
+        case ControllerType.joystick:
+            return Config.ControllerType.joystick;
+
+        case ControllerType.paddles:
+            return Config.ControllerType.paddles;
+
+        case ControllerType.keypad:
+            return Config.ControllerType.keypad;
+
+        default:
+            throw new Error(`cannot happen: invalid controller type ${controllerType}`);
+    }
+}
+
 function config(cartridge: Cartridge, settings: Settings): Config {
     return {
         tvMode: tvMode(cartridge),
         enableAudio: cartridge.volume * settings.volume > 0,
         randomSeed: typeof cartridge.rngSeed === 'undefined' ? -1 : cartridge.rngSeed,
-        emulatePaddles: cartridge.emulatePaddles,
         frameStart: typeof cartridge.firstVisibleLine === 'undefined' ? -1 : cartridge.firstVisibleLine,
         pcmAudio: (cartridge.audioEmulation || settings.audioEmulation) === AudioEmulation.pcm,
         cpuType: cpuType(cartridge, settings),
+        controllerPort0: controllerType(cartridge.controllerPort0),
+        controllerPort1: controllerType(cartridge.controllerPort1),
     };
 }
 
@@ -301,6 +319,14 @@ class Emulation {
 
         this._currentConfig = config(cartidge, settings);
 
+        this._keyboardDriver.remap(KeyboardDriver.defaultMappings);
+        if (this._currentConfig.controllerPort0 === Config.ControllerType.keypad) {
+            this._keyboardDriver.overlay(KeyboardDriver.keypad0Mappings);
+        }
+        if (this._currentConfig.controllerPort1 === Config.ControllerType.keypad) {
+            this._keyboardDriver.overlay(KeyboardDriver.keypad1Mappings);
+        }
+
         await this._emulationService.start(image, this._currentConfig, cartidge.cartridgeType);
 
         this._updateConsoleSwitches(switches);
@@ -390,7 +416,12 @@ class Emulation {
 
         this._driverManager
             .addDriver(this._keyboardDriver, (context, driver: KeyboardDriver) =>
-                driver.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+                driver.bind(
+                    context.getJoystick(0),
+                    context.getJoystick(1),
+                    context.getKeypad(0),
+                    context.getKeypad(1),
+                    context.getControlPanel())
             )
             .addDriver(this._paddleDriver, (context, driver: MouseAsPaddleDriver) => driver.bind(context.getPaddle(0)));
     }

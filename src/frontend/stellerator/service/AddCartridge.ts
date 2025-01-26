@@ -25,14 +25,14 @@
 
 import { injectable, inject } from 'inversify';
 import JSZip from '@progress/jszip-esm';
-import { Ports, TvMode } from '../../elm/Stellerator/Main.elm';
+import { ControllerType, Ports, TvMode } from '../../elm/Stellerator/Main.elm';
 import { calculateFromUint8Array as md5sum } from '../../../tools/hash/md5';
 import CartridgeDetector from '../../../machine/stella/cartridge/CartridgeDetector';
 import Storage, { CartridgeWithImage } from './Storage';
 
 @injectable()
 class AddCartridge {
-    constructor(@inject(Storage) private _storage: Storage) {}
+    constructor(@inject(Storage) private _storage: Storage) { }
 
     init(ports: Ports): void {
         this._ports = ports;
@@ -117,7 +117,8 @@ class AddCartridge {
                 name,
                 tvMode,
                 cartridgeType,
-                emulatePaddles: false,
+                controllerPort0: ControllerType.joystick,
+                controllerPort1: ControllerType.joystick,
                 volume: 100,
             },
             image: content,

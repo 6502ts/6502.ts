@@ -23,38 +23,12 @@
  *   SOFTWARE.
  */
 
-interface ControlState {
-    joystickState: Array<ControlState.JoystickState>;
-    keypadState: Array<ControlState.KeypadState>;
-    paddleState: Array<ControlState.PaddleState>;
-    controlPanelState: ControlState.ControlPanelState;
+import SwitchInterface from './SwitchInterface';
+
+interface KeypadControllerInterface {
+
+    getKey(row: number, column: number): SwitchInterface;
+
 }
 
-namespace ControlState {
-    export interface JoystickState {
-        left: boolean;
-        right: boolean;
-        up: boolean;
-        down: boolean;
-        fire: boolean;
-    }
-
-    export interface KeypadState {
-        rows: Array<Array<boolean>>;
-    }
-
-    export interface PaddleState {
-        value: number;
-        fire: boolean;
-    }
-
-    export interface ControlPanelState {
-        difficulty0: boolean;
-        difficulty1: boolean;
-        select: boolean;
-        reset: boolean;
-        color: boolean;
-    }
-}
-
-export { ControlState as default };
+export { KeypadControllerInterface as default };

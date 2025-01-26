@@ -30,12 +30,18 @@ import DigitalJoystickInterface from '../io/DigitalJoystickInterface';
 import Bus from './Bus';
 
 import RngInterface from '../../tools/rng/GeneratorInterface';
+import KeypadsReader from './KeypadsReader';
+import PaddleInterface from '../io/PaddleInterface';
+import Config from './Config';
 
 class Pia {
     constructor(
+        private _config: Config,
         private _controlPanel: ControlPanelInterface,
         private _joystick0: DigitalJoystickInterface,
         private _joystick1: DigitalJoystickInterface,
+        private _paddles: Array<PaddleInterface>,
+        private _keypads: KeypadsReader,
         private _rng?: RngInterface
     ) {
         this.reset();
@@ -112,7 +118,16 @@ class Pia {
         return this;
     }
 
-    private _writeIo(address: number, value: number): void {}
+    private _writeIo(address: number, value: number): void {
+        switch (address) {
+            case Pia.Registers.swcha:
+                this._keypads.swcha(value);
+                break;
+            case Pia.Registers.swacnt:
+                this._keypads.swacnt(value);
+                break;
+        }
+    }
 
     private _writeTimer(address: number, value: number): void {
         this._interruptFlag = 0;
@@ -143,16 +158,28 @@ class Pia {
     private _readIo(address: number): number {
         switch (address & 0x0283) {
             case Pia.Registers.swcha:
-                return (
-                    (this._joystick1.getUp().read() ? 0 : 0x01) |
-                    (this._joystick1.getDown().read() ? 0 : 0x02) |
-                    (this._joystick1.getLeft().read() ? 0 : 0x04) |
-                    (this._joystick1.getRight().read() ? 0 : 0x08) |
-                    (this._joystick0.getUp().read() ? 0 : 0x10) |
-                    (this._joystick0.getDown().read() ? 0 : 0x20) |
-                    (this._joystick0.getLeft().read() ? 0 : 0x40) |
-                    (this._joystick0.getRight().read() ? 0 : 0x80)
-                );
+                const port0 =
+                    (this._config.controllerPort0 === Config.ControllerType.paddles) ? (
+                        (this._paddles[1].getFire().read() ? 0 : 0x40) |
+                        (this._paddles[0].getFire().read() ? 0 : 0x80)
+                    ) : (
+                        (this._joystick0.getUp().read() ? 0 : 0x10) |
+                        (this._joystick0.getDown().read() ? 0 : 0x20) |
+                        (this._joystick0.getLeft().read() ? 0 : 0x40) |
+                        (this._joystick0.getRight().read() ? 0 : 0x80)
+                    );
+                const port1 =
+                    (this._config.controllerPort1 === Config.ControllerType.paddles) ? (
+                        (this._paddles[3].getFire().read() ? 0 : 0x04) |
+                        (this._paddles[2].getFire().read() ? 0 : 0x08)
+                    ) : (
+                        (this._joystick1.getUp().read() ? 0 : 0x01) |
+                        (this._joystick1.getDown().read() ? 0 : 0x02) |
+                        (this._joystick1.getLeft().read() ? 0 : 0x04) |
+                        (this._joystick1.getRight().read() ? 0 : 0x08)
+                    );
+
+                return port1 | port0;
 
             case Pia.Registers.swchb:
                 return (
@@ -237,7 +264,7 @@ namespace Pia {
     }
 
     export class TrapPayload {
-        constructor(public reason: TrapReason, public pia: Pia, public message?: string) {}
+        constructor(public reason: TrapReason, public pia: Pia, public message?: string) { }
     }
 }
 

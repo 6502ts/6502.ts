@@ -23,38 +23,25 @@
  *   SOFTWARE.
  */
 
-interface ControlState {
-    joystickState: Array<ControlState.JoystickState>;
-    keypadState: Array<ControlState.KeypadState>;
-    paddleState: Array<ControlState.PaddleState>;
-    controlPanelState: ControlState.ControlPanelState;
+import Switch from './Switch';
+import SwitchInterface from './SwitchInterface';
+import KeypadControllerInterface from './KeypadControllerInterface';
+
+export default class KeypadController implements KeypadControllerInterface {
+
+    constructor() {
+        for (let row = 0; row < 4; row++) {
+            this._rows[row] = new Array<Switch>(3);
+            for (let col = 0; col < 3; col++) {
+                this._rows[row][col] = new Switch();
+            }
+        }
+    }
+
+    getKey(row: number, col: number): SwitchInterface {
+        return this._rows[row][col];
+    }
+
+    private _rows = new Array<Array<Switch>>(4);
+
 }
-
-namespace ControlState {
-    export interface JoystickState {
-        left: boolean;
-        right: boolean;
-        up: boolean;
-        down: boolean;
-        fire: boolean;
-    }
-
-    export interface KeypadState {
-        rows: Array<Array<boolean>>;
-    }
-
-    export interface PaddleState {
-        value: number;
-        fire: boolean;
-    }
-
-    export interface ControlPanelState {
-        difficulty0: boolean;
-        difficulty1: boolean;
-        select: boolean;
-        reset: boolean;
-        color: boolean;
-    }
-}
-
-export { ControlState as default };

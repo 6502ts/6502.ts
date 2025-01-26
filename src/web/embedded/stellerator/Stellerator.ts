@@ -346,6 +346,20 @@ export class Stellerator {
         return this._controlPanel;
     }
 
+    /**
+     * Trigger a keyboard action by name.
+     */
+    triggerKeydownAction(name: string) {
+        this._keyboardIO.triggerAction(KeyboardIO.Actions[name], true);
+    }
+
+    /**
+     * Trigger a keyboard action by name.
+     */
+    triggerKeyupAction(name: string) {
+        this._keyboardIO.triggerAction(KeyboardIO.Actions[name], false);
+    }
+
     setCanvas(canvas: HTMLCanvasElement): this {
         this._canvasElt = canvas;
 
@@ -401,8 +415,12 @@ export class Stellerator {
                 stellaConfig.randomSeed = config.randomSeed;
             }
 
-            if (typeof config.emulatePaddles !== 'undefined') {
-                stellaConfig.emulatePaddles = config.emulatePaddles;
+            if (typeof config.controllerPort0 !== 'undefined') {
+                stellaConfig.controllerPort0 = this._convertControllerType(config.controllerPort0);
+            }
+
+            if (typeof config.controllerPort1 !== 'undefined') {
+                stellaConfig.controllerPort1 = this._convertControllerType(config.controllerPort1);
             }
 
             if (typeof config.frameStart !== 'undefined') {
@@ -410,6 +428,14 @@ export class Stellerator {
             }
 
             stellaConfig.cpuType = cpuType(config.cpuAccuracy);
+
+            if (stellaConfig.controllerPort0 === StellaConfig.ControllerType.keypad) {
+                this._keyboardIO.overlay(KeyboardIO.keypad0Mappings);
+            }
+
+            if (stellaConfig.controllerPort1 === StellaConfig.ControllerType.keypad) {
+                this._keyboardIO.overlay(KeyboardIO.keypad1Mappings);
+            }
 
             await this._serviceInitialized;
 
@@ -541,6 +567,22 @@ export class Stellerator {
         }
     }
 
+    private _convertControllerType(controllerType: Stellerator.ControllerType): StellaConfig.ControllerType {
+        switch (controllerType) {
+            case Stellerator.ControllerType.joystick:
+                return StellaConfig.ControllerType.joystick;
+
+            case Stellerator.ControllerType.paddles:
+                return StellaConfig.ControllerType.paddles;
+
+            case Stellerator.ControllerType.keypad:
+                return StellaConfig.ControllerType.keypad;
+
+            default:
+                throw new Error(`invalid controller type '${controllerType}'`);
+        }
+    }
+
     private _createDrivers(): void {
         this._createVideoDriver();
 
@@ -576,7 +618,12 @@ export class Stellerator {
             this._keyboardIO = new KeyboardIO(this._config.keyboardTarget);
 
             this._driverManager.addDriver(this._keyboardIO, (context) =>
-                this._keyboardIO.bind(context.getJoystick(0), context.getJoystick(1), context.getControlPanel())
+                this._keyboardIO.bind(
+                    context.getJoystick(0),
+                    context.getJoystick(1),
+                    context.getKeypad(0),
+                    context.getKeypad(1),
+                    context.getControlPanel())
             );
 
             if (this._config.fullscreenViaKeyboard) {
@@ -953,6 +1000,24 @@ export namespace Stellerator {
     }
 
     /**
+     * Controller types
+     */
+    export enum ControllerType {
+        /**
+         * Joystick
+         */
+        joystick = 'joystick',
+        /**
+         * PAL
+         */
+        paddles = 'paddles',
+        /**
+         * SECAM
+         */
+        keypad = 'keypad',
+    }
+
+    /**
      * TV emulation modes. Enabling TV emulation may cause visual artifacts on some
      * (ancient) GPUs
      */
@@ -1013,11 +1078,18 @@ export namespace Stellerator {
         randomSeed: number;
 
         /**
-         * Emulate paddles.
+         * Enable specific controller type for port 0
          *
          * Default: true
          */
-        emulatePaddles: boolean;
+        controllerPort0: ControllerType;
+
+        /**
+         * Enable specific controllers
+         *
+         * Default: true
+         */
+        controllerPort1: ControllerType;
 
         /**
          * The first visible scanline of the frame. The default is autodetection, which

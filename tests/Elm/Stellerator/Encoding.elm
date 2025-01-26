@@ -38,6 +38,7 @@ import Stellerator.Model
         , Settings
         , TvEmulation(..)
         , TvMode(..)
+        , ControllerType(..)
         , decodeAudioEmulation
         , decodeCartridge
         , decodeCpuEmulation
@@ -68,7 +69,8 @@ suite =
                 , name = "somecart"
                 , cartridgeType = "CDF"
                 , tvMode = TvPAL
-                , emulatePaddles = False
+                , controllerPort0 = ControllerTypeJoystick
+                , controllerPort1 = ControllerTypePaddles
                 , volume = 66
                 , rngSeed = Just 12366
                 , firstVisibleLine = Just 28

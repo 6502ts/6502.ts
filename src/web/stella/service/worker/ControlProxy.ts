@@ -30,11 +30,16 @@ import ControlState from './ControlState';
 import { RpcProviderInterface } from 'worker-rpc';
 
 import { SIGNAL_TYPE } from './messages';
+import KeypadController from '../../../../machine/io/KeypadController';
 
 class ControlProxy {
     constructor(private _rpc: RpcProviderInterface) {
         for (let i = 0; i < 2; i++) {
             this._joysticks[i] = new Joystick();
+        }
+
+        for (let i = 0; i < 2; i++) {
+            this._keypads[i] = new KeypadController();
         }
 
         for (let i = 0; i < 4; i++) {
@@ -45,6 +50,7 @@ class ControlProxy {
     sendUpdate(): void {
         this._rpc.signal<ControlState>(SIGNAL_TYPE.controlStateUpdate, {
             joystickState: this._joysticks.map(ControlProxy._joystickState),
+            keypadState: this._keypads.map(ControlProxy._keypadState),
             paddleState: this._paddles.map(ControlProxy._paddleState),
             controlPanelState: ControlProxy._controlPanelState(this._controlPanel)
         });
@@ -56,6 +62,13 @@ class ControlProxy {
         }
 
         return this._joysticks[i];
+    }
+
+    getKeypad(i: number): KeypadController {
+        if (i < 0 || i > 1) {
+            throw new Error(`invalid keypad index ${i}`);
+        }
+        return this._keypads[i];
     }
 
     getControlPanel(): ControlPanel {
@@ -80,6 +93,19 @@ class ControlProxy {
         };
     }
 
+    private static _keypadState(keypad: KeypadController): ControlState.KeypadState {
+        const state = {
+            rows: new Array(4)
+        };
+        for (var row = 0; row < 4; row++) {
+            state.rows[row] = new Array(3);
+            for (var col = 0; col < 3; col++) {
+                state.rows[row][col] = keypad.getKey(row, col).read();
+            }
+        }
+        return state;
+    }
+
     private static _paddleState(paddle: Paddle): ControlState.PaddleState {
         return {
             value: paddle.getValue(),
@@ -99,7 +125,9 @@ class ControlProxy {
 
     private _joysticks = new Array<Joystick>(2);
     private _paddles = new Array<Paddle>(4);
+    private _keypads = new Array<KeypadController>(2);
     private _controlPanel = new ControlPanel();
+
 }
 
 export { ControlProxy as default };
